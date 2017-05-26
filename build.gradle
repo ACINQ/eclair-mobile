@@ -1,0 +1,28 @@
+buildscript {
+    repositories {
+        jcenter()
+        maven { url 'https://jitpack.io' }
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:2.3.2'
+        classpath 'com.github.xingda920813:gradle-android-scala-plugin:android-gradle-2.3.0'
+    }
+}
+
+allprojects {
+    repositories {
+        jcenter()
+        maven {
+            url 'C:/dev/repos/mvn-repo'
+        }
+        mavenLocal()
+        mavenCentral()
+        maven {
+          url 'https://oss.sonatype.org/content/repositories/snapshots/'
+        }
+    }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}

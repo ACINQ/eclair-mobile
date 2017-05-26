@@ -1,0 +1,27 @@
+-dontoptimize
+-dontobfuscate
+-dontpreverify
+-ignorewarnings
+
+-dontwarn okio.**
+-dontwarn scala.**
+-dontwarn org.slf4j.**
+-dontwarn net.sqlcipher.**
+-dontwarn org.spongycastle.**
+-dontwarn org.bitcoinj.store.**
+-dontwarn com.google.common.cache.**
+-dontwarn com.google.common.primitives.**
+
+
+-keep class akka.** { *; }
+-keep class com.typesafe.** { *; }
+#-keep class net.sqlcipher.** { *; }
+-keep class android.support.v7.widget.SearchView { *; }
+-keep class scala.collection.SeqLike { public protected *; }
+#
+#-keep class org.json4s.** { *; }
+#
+-keep public enum * {
+	public static **[] values();
+	public static ** valueOf(java.lang.String);
+}

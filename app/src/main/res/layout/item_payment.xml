@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:orientation="horizontal"
+  android:paddingTop="8dp"
+  android:paddingBottom="8dp">
+  <TextView
+    android:id="@+id/payment_item_status"
+    android:layout_width="32dp"
+    android:layout_height="32dp"
+    android:textAlignment="center"
+    android:text="S" />
+  <LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_marginLeft="8dp">
+    <TextView
+      android:id="@+id/payment_item_description"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:text="Name"
+      android:textStyle="bold"/>
+    <TextView
+      android:id="@+id/payment_item_date"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:text="Updated at"
+      android:textSize="10sp"
+      android:textColor="@color/colorGrey_1"/>
+    <!--<TextView-->
+      <!--android:id="@+id/payment_item_pr"-->
+      <!--android:layout_width="match_parent"-->
+      <!--android:layout_height="wrap_content"-->
+      <!--android:textColor="@color/colorGrey_1"-->
+      <!--android:textSize="10sp" />-->
+  </LinearLayout>
+</LinearLayout>

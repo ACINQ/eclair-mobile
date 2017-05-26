@@ -1,0 +1,29 @@
+<resources>
+    <string name="lang">eng</string>
+
+    <string name="app_name">Swordfish</string>
+
+    <string name="main__balance">Your balance</string>
+    <string name="main__btn_pay">Send a payment</string>
+    <string name="main__btn_fund">Add funds</string>
+
+    <string name="title_activity_payment">Send a Payment</string>
+    <string name="payment__lbl_pr">Enter a LN Payment Request:</string>
+    <string name="payment__lbl_pr_separator">-OR-</string>
+    <string name="payment__btn_scan">Scan QR code</string>
+    <string name="payment__lbl_pr_amount">Amount to send</string>
+    <string name="payment__lbl_pr_pubkey">Public key</string>
+    <string name="payment__lbl_pr_pubkey_desc">Unique identifier of the target node</string>
+    <string name="payment__lbl_pr_paymenthash">Payment Hash</string>
+    <string name="payment__lbl_pr_paymenthash_desc">Unique identifier of the payment</string>
+    <string name="payment__btn_send">Send Payment</string>
+
+    <string name="fund__lbl_title">Add funds</string>
+    <string name="fund__btn_pickrandom">Pick a random node</string>
+    <string name="fund__btn_addmanual">Add a manual node URI</string>
+    <string name="fund__lbl_manualhost">Node URI (pubkey@host:port)</string>
+    <string name="fund__hint_manualhost">pubkey@host:port</string>
+    <string name="btn_ok">OK</string>
+    <string name="btn_cancel">Cancel</string>
+
+</resources>

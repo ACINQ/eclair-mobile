@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/eclair-wallet.iml" filepath="$PROJECT_DIR$/eclair-wallet.iml" />
+      <module fileurl="file://$PROJECT_DIR$/lnwallet.iml" filepath="$PROJECT_DIR$/lnwallet.iml" />
+    </modules>
+  </component>
+</project>

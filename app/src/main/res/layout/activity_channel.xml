@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:orientation="vertical">
+
+  <LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/colorPrimary"
+    android:orientation="vertical"
+    android:padding="16dp">
+    <TextView
+      android:id="@+id/lbl_balance"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginBottom="16dp"
+      android:text="@string/main__balance"
+      android:textAlignment="center"
+      android:textColor="@color/colorPrimaryLight"
+      android:textSize="12sp" />
+    <TextView
+      android:id="@+id/value_balance"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:text="0.000"
+      android:textAlignment="center"
+      android:textColor="@android:color/white"
+      android:textSize="48sp" />
+  </LinearLayout>
+
+  <LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="16dp">
+    <Button
+      android:id="@+id/btn_gotofund"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:onClick="goToPayment"
+      android:text="@string/main__btn_fund" />
+    <Button
+      android:id="@+id/btn_gotoscan"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:onClick="goToPayment"
+      android:text="@string/main__btn_pay" />
+  </LinearLayout>
+
+  <ListView
+    android:id="@+id/main__listview_payments"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" />
+
+</LinearLayout>
