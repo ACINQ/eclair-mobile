@@ -11,31 +11,35 @@ import fr.acinq.eclair.Setup;
  * Created by Dominique on 24/05/2017.
  */
 
-public class EclairSetup {
-  private static EclairSetup mInstance = null;
+public class EclairHelper {
+  private static EclairHelper mInstance = null;
 
-  private Setup s;
-  private EclairSetup(Context context) {
+  private Setup setup;
+
+  private EclairHelper() {}
+
+  private EclairHelper(Context context) {
     File data = new File(context.getFilesDir(), "eclair-wallet-data");
+    Setup s = new Setup(data, "system");
+    s.boostrap();
     Log.i("launcher", "Data dir exists ? " + (new File(data, "seed.dat")).exists());
     for (String f : (new File(data, "db")).list()) {
       Log.i("launcher", "File in db dir : " + f);
     }
-    Setup s = new Setup(data, "system");
-    s.boostrap();
+    this.setup = s;
   }
 
-  public static EclairSetup getInstance(Context context) {
+  public static EclairHelper getInstance(Context context) {
     if (mInstance == null) {
-      Class clazz = EclairSetup.class;
+      Class clazz = EclairHelper.class;
       synchronized (clazz) {
-        mInstance = new EclairSetup(context);
+        mInstance = new EclairHelper(context);
       }
     }
     return mInstance;
   }
 
   public Setup getSetup() {
-    return s;
+    return this.setup;
   }
 }

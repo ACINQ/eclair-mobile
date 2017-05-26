@@ -1,29 +1,47 @@
 <resources>
-    <string name="lang">eng</string>
+  <string name="lang">eng</string>
 
-    <string name="app_name">Swordfish</string>
+  <string name="app_name">Swordfish</string>
 
-    <string name="main__balance">Your balance</string>
-    <string name="main__btn_pay">Send a payment</string>
-    <string name="main__btn_fund">Add funds</string>
+  <string name="main__balance">Your balance</string>
+  <string name="main__btn_pay">Send a payment</string>
+  <string name="main__btn_fund">Add funds</string>
 
-    <string name="title_activity_payment">Send a Payment</string>
-    <string name="payment__lbl_pr">Enter a LN Payment Request:</string>
-    <string name="payment__lbl_pr_separator">-OR-</string>
-    <string name="payment__btn_scan">Scan QR code</string>
-    <string name="payment__lbl_pr_amount">Amount to send</string>
-    <string name="payment__lbl_pr_pubkey">Public key</string>
-    <string name="payment__lbl_pr_pubkey_desc">Unique identifier of the target node</string>
-    <string name="payment__lbl_pr_paymenthash">Payment Hash</string>
-    <string name="payment__lbl_pr_paymenthash_desc">Unique identifier of the payment</string>
-    <string name="payment__btn_send">Send Payment</string>
+  <string name="title_activity_payment">Send a Payment</string>
+  <string name="payment__lbl_pr">Enter a LN Payment Request:</string>
+  <string name="payment__lbl_pr_separator">-OR-</string>
+  <string name="payment__btn_scan">Scan QR code</string>
+  <string name="payment__lbl_pr_amount">Amount to send</string>
+  <string name="payment__lbl_pr_pubkey">Public key</string>
+  <string name="payment__lbl_pr_pubkey_desc">Unique identifier of the target node</string>
+  <string name="payment__lbl_pr_paymenthash">Payment Hash</string>
+  <string name="payment__lbl_pr_paymenthash_desc">Unique identifier of the payment</string>
+  <string name="payment__btn_send">Send Payment</string>
 
-    <string name="fund__lbl_title">Add funds</string>
-    <string name="fund__btn_pickrandom">Pick a random node</string>
-    <string name="fund__btn_addmanual">Add a manual node URI</string>
-    <string name="fund__lbl_manualhost">Node URI (pubkey@host:port)</string>
-    <string name="fund__hint_manualhost">pubkey@host:port</string>
-    <string name="btn_ok">OK</string>
-    <string name="btn_cancel">Cancel</string>
+  <!-- //////////////// fund /////////////////// -->
+
+  <string name="fund__label_title">Open a new channel</string>
+  <string name="fund__label_amount">Initial amount of the channel</string>
+  <string name="fund__label_amount_desc">This amount is in satoshi, must be > 1000.</string>
+
+  <string name="fund__button_pickrandom">Pick a random node</string>
+  <string name="fund__button_addmanual">Add a manual node URI</string>
+  <string name="fund__button_openchannel">Open Channel</string>
+
+  <string name="fund__label_uri">Target URI</string>
+  <string name="fund__label_uri_desc">URI of the node you want to open a channel with</string>
+  <string name="fund__hint_uri">pubkey@host:port</string>
+  <string name="fund__label_uri_pubkey">Public key:</string>
+  <string name="fund__label_uri_ip">IP:</string>
+  <string name="fund__label_uri_port">Port:</string>
+
+  <!-- //////////////// commons /////////////////// -->
+
+  <string name="unknown">N/A</string>
+  <string name="btn_ok">OK</string>
+  <string name="btn_cancel">Cancel</string>
+
+  <!-- TODO: Remove or change this placeholder text -->
+  <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

@@ -1,9 +1,39 @@
+*.class
+*.log
+
+# built application files
+*.apk
+*.ap_
+
+# files for the dex VM
+*.dex
+
+# sbt specific
+.cache/
+.history/
+.lib/
+dist/*
+target/
+lib_managed/
+src_managed/
+project/boot/
+project/plugins/project/
+
+# Scala-IDE specific
+.scala_dependencies
+.worksheet
+
+/.idea
 *.iml
-.gradle
-/local.properties
-/.idea/workspace.xml
-/.idea/libraries
-.DS_Store
-build
-/captures
-.externalNativeBuild
+target/
+project/target
+DeleteMe*.scala
+
+# Local configuration file (sdk path, etc)
+local.properties
+
+#Gradle
+.gradletasknamecache
+.gradle/
+build/
+bin/

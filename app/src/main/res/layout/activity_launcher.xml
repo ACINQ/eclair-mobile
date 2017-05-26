@@ -11,33 +11,17 @@
     android:id="@+id/textView"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="16dp"
-    android:text="Sword migration"
+    android:layout_marginBottom="8dp"
+    android:text="Swordfish"
     android:textAlignment="center"
     android:textColor="@android:color/white"
     android:textSize="36sp" />
-
-  <Button
-    android:id="@+id/button"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:background="@color/colorPrimaryLight"
-    android:onClick="launcher_readFile"
-    android:text="Read files and print"
-    android:textColor="@color/colorPrimaryDark" />
-
-  <Button
-    android:id="@+id/goto_channel"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:background="@color/colorPrimaryLight"
-    android:onClick="launcher_goToChannel"
-    android:text="OK go to channels"
-    android:textColor="@color/colorPrimaryDark" />
 
   <TextView
     android:id="@+id/filecontent"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:text="TextView" />
+    android:textAlignment="center"
+    android:textColor="@color/colorPrimaryLight"
+    android:text="Please Wait..." />
 </LinearLayout>

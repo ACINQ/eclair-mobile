@@ -24,8 +24,12 @@ public class ChannelActivity extends AppCompatActivity {
     //new Setup("~./eclair-testzaprzapoj", "system");
   }
 
-  public void goToPayment(View view) {
+  public void channel_goToPayment(View view) {
     Intent intent = new Intent(this, PaymentActivity.class);
+    startActivity(intent);
+  }
+  public void channel_goToFund(View view) {
+    Intent intent = new Intent(this, FundActivity.class);
     startActivity(intent);
   }
 
