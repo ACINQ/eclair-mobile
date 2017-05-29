@@ -33,16 +33,16 @@ public class LauncherActivity extends AppCompatActivity implements StartupTask.A
     setContentView(R.layout.activity_launcher);
 
     SharedPreferences pref = getSharedPreferences("ActivityPREF", Context.MODE_PRIVATE);
-    if(pref.getBoolean("activity_executed", false)){
-      Intent intent = new Intent(this, ChannelActivity.class);
-      startActivity(intent);
-      finish();
-    } else {
+//    if (pref.getBoolean("activity_executed", false) && EclairHelper.hasInstance()) {
+//      Intent intent = new Intent(this, ChannelActivity.class);
+//      startActivity(intent);
+//      finish();
+//    } else {
       new StartupTask(this, getApplicationContext()).execute();
       SharedPreferences.Editor ed = pref.edit();
       ed.putBoolean("activity_executed", true);
       ed.commit();
-    }
+//    }
   }
 
   @Override

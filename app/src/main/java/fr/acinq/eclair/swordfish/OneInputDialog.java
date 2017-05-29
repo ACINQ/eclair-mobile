@@ -14,11 +14,11 @@ import android.widget.EditText;
  * Created by Dominique on 26/05/2017.
  */
 
-public class ManualChannelDialog extends DialogFragment {
-  public interface ManualChannelDialogListener {
-    public void onDialogPositiveClick(ManualChannelDialog dialog, String uri);
+public class OneInputDialog extends DialogFragment {
+  public interface OneInputDialogListener {
+    public void onDialogPositiveClick(OneInputDialog dialog, String uri);
   }
-  ManualChannelDialogListener mListener;
+  OneInputDialogListener mListener;
 
   @Override
   public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -30,7 +30,7 @@ public class ManualChannelDialog extends DialogFragment {
         @Override
         public void onClick(DialogInterface dialog, int id) {
           EditText uri = (EditText) dialogView.findViewById(R.id.ocm__input_host);
-          mListener.onDialogPositiveClick(ManualChannelDialog.this, uri.getText().toString());
+          mListener.onDialogPositiveClick(OneInputDialog.this, uri.getText().toString());
         }
       })
       .setNegativeButton(R.string.btn_cancel, new DialogInterface.OnClickListener() {
@@ -43,10 +43,10 @@ public class ManualChannelDialog extends DialogFragment {
   public void onAttach(Context context) {
     super.onAttach(context);
     try {
-      mListener = (ManualChannelDialogListener) context;
+      mListener = (OneInputDialogListener) context;
     } catch (ClassCastException e) {
       // The activity doesn't implement the interface, throw exception
-      throw new ClassCastException(context.toString() + " must implement ChannelDialogListener");
+      throw new ClassCastException(context.toString() + " must implement OneInputDialogListener");
     }
   }
 

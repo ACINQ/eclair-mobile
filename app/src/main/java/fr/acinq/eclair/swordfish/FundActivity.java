@@ -1,23 +1,19 @@
 package fr.acinq.eclair.swordfish;
 
+import android.content.Intent;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import java.net.InetSocketAddress;
 import java.util.concurrent.ThreadLocalRandom;
 
-import akka.actor.ActorRef;
 import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.bitcoin.Crypto;
 import fr.acinq.bitcoin.package$;
-import fr.acinq.eclair.io.Switchboard;
-import fr.acinq.eclair.swordfish.model.PaymentRequest;
-import scala.Option;
-import scala.xml.Text;
 
-public class FundActivity extends FragmentActivity implements ManualChannelDialog.ManualChannelDialogListener {
+public class FundActivity extends FragmentActivity implements OneInputDialog.OneInputDialogListener {
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -34,12 +30,12 @@ public class FundActivity extends FragmentActivity implements ManualChannelDialo
   }
 
   public void fund_showManualChannelDialog(View view) {
-    ManualChannelDialog dialog = new ManualChannelDialog();
-    dialog.show(getFragmentManager(), "ManualChannelDialog");
+    OneInputDialog dialog = new OneInputDialog();
+    dialog.show(getFragmentManager(), "ChannelURIDialog");
   }
 
   @Override
-  public void onDialogPositiveClick(ManualChannelDialog dialog, String uri) {
+  public void onDialogPositiveClick(OneInputDialog dialog, String uri) {
     setNodeURI(uri);
   }
 
@@ -62,15 +58,13 @@ public class FundActivity extends FragmentActivity implements ManualChannelDialo
           pubkeyTV.setText(pubkey);
           ipTV.setText(ip);
           portTV.setText(port);
-
-
-
         }
       }
     }
   }
 
   public void fund_openChannel(View view) {
+
     TextView amountEV = (TextView) findViewById(R.id.fund__input_amount);
     TextView pubkeyTV = (TextView) findViewById(R.id.fund__value_uri_pubkey);
     TextView ipTV = (TextView) findViewById(R.id.fund__value_uri_ip);
@@ -79,9 +73,13 @@ public class FundActivity extends FragmentActivity implements ManualChannelDialo
     BinaryData bd = BinaryData.apply(pubkeyTV.getText().toString());
     Crypto.Point point = new Crypto.Point(Crypto.curve().getCurve().decodePoint(package$.MODULE$.binaryData2array(bd)));
     Crypto.PublicKey pk = new Crypto.PublicKey(point, true);
-
+/*
     Switchboard.NewChannel ch = new Switchboard.NewChannel(Long.parseLong(amountEV.getText().toString()), 0L);
     ActorRef sw = EclairHelper.getInstance(this).getSetup().switchboard();
     sw.tell(new Switchboard.NewConnection(pk, new InetSocketAddress(ipTV.getText().toString(), Integer.parseInt(portTV.getText().toString())), Option.apply(ch)), sw);
+*/
+    Intent intent = new Intent(this, ChannelActivity.class);
+    Toast.makeText(this, "Opened channel with " + pk.toString(), Toast.LENGTH_LONG).show();
+    startActivity(intent);
   }
 }

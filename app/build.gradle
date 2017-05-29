@@ -1,49 +1,52 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.3"
-    defaultConfig {
-        applicationId "fr.acinq.eclair.swordfish"
-        minSdkVersion 23
-        targetSdkVersion 25
-        versionCode 1
-        versionName "1.0"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-        multiDexEnabled true
+  compileSdkVersion 25
+  buildToolsVersion "25.0.3"
+  defaultConfig {
+    applicationId "fr.acinq.eclair.swordfish"
+    minSdkVersion 23
+    targetSdkVersion 25
+    versionCode 1
+    versionName "1.0"
+    testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    multiDexEnabled true
+  }
+  buildTypes {
+    release {
+      minifyEnabled false
+      proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
     }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
+    debug {
+      debuggable true
     }
-    configurations.all {
-        resolutionStrategy.force 'com.google.code.findbugs:jsr305:3.0.1'
-    }
-    packagingOptions {
-        exclude 'META-INF/LICENSE*'
-        exclude 'META-INF/NOTICE.txt'
-    }
+  }
+  configurations.all {
+    resolutionStrategy.force 'com.google.code.findbugs:jsr305:3.0.1'
+  }
+  packagingOptions {
+    exclude 'META-INF/LICENSE*'
+    exclude 'META-INF/NOTICE.txt'
+  }
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
-        exclude group: 'com.android.support', module: 'support-annotations'
-    })
+  compile fileTree(dir: 'libs', include: ['*.jar'])
+  androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+    exclude group: 'com.android.support', module: 'support-annotations'
+  })
 
-    compile 'com.android.support:appcompat-v7:25.3.1'
-    compile 'com.android.support.constraint:constraint-layout:1.0.2'
-    compile 'com.google.code.findbugs:jsr305:3.0.1'
+  compile 'com.android.support:appcompat-v7:25.3.1'
+  compile 'com.android.support.constraint:constraint-layout:1.0.2'
+  compile 'com.google.code.findbugs:jsr305:3.0.1'
 
-    compile 'org.scala-lang:scala-library:2.11.8'
-    compile 'io.reactivex:rxscala_2.11:0.26.5'
+  compile 'org.scala-lang:scala-library:2.11.8'
+  compile 'io.reactivex:rxscala_2.11:0.26.5'
 
-    compile 'fr.acinq.eclair:eclair-core_2.11:0.2-modules-001-SNAPSHOT'
+  compile 'fr.acinq.eclair:eclair-core_2.11:0.2-modules-001-SNAPSHOT'
 
-    compile 'com.github.satyan:sugar:1.5'
-    compile 'com.journeyapps:zxing-android-embedded:3.5.0'
+  compile 'com.github.satyan:sugar:1.5'
+  compile 'com.journeyapps:zxing-android-embedded:3.5.0'
 
-    testCompile 'junit:junit:4.12'
+  testCompile 'junit:junit:4.12'
 }

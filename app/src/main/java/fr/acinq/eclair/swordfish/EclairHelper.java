@@ -29,6 +29,10 @@ public class EclairHelper {
     this.setup = s;
   }
 
+  public static boolean hasInstance() {
+    return mInstance == null;
+  }
+
   public static EclairHelper getInstance(Context context) {
     if (mInstance == null) {
       Class clazz = EclairHelper.class;

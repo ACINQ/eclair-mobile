@@ -9,8 +9,11 @@
 
   <string name="title_activity_payment">Send a Payment</string>
   <string name="payment__lbl_pr">Enter a LN Payment Request:</string>
-  <string name="payment__lbl_pr_separator">-OR-</string>
-  <string name="payment__btn_scan">Scan QR code</string>
+  <string name="payment__label_pr_separator">-OR-</string>
+  <string name="payment__button_scan">Scan QR code</string>
+  <string name="payment__button_manualpr">Manual PR</string>
+  <string name="payment__label_desc">Description of the payment</string>
+  <string name="payment__label_desc_desc">This information is not shared with anyone, it\'s for your convenience. Can be empty.</string>
   <string name="payment__lbl_pr_amount">Amount to send</string>
   <string name="payment__lbl_pr_pubkey">Public key</string>
   <string name="payment__lbl_pr_pubkey_desc">Unique identifier of the target node</string>
@@ -25,7 +28,7 @@
   <string name="fund__label_amount_desc">This amount is in satoshi, must be > 1000.</string>
 
   <string name="fund__button_pickrandom">Pick a random node</string>
-  <string name="fund__button_addmanual">Add a manual node URI</string>
+  <string name="fund__button_addmanual">Enter manual URI</string>
   <string name="fund__button_openchannel">Open Channel</string>
 
   <string name="fund__label_uri">Target URI</string>

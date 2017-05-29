@@ -1,51 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="fr.acinq.eclair.swordfish">
+  package="fr.acinq.eclair.swordfish">
 
-    <application
-        android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
-        android:name="com.orm.SugarApp"
-        android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
-        android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+  <uses-permission android:name="android.permission.INTERNET" />
+  <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+  <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 
-        <!-- sugar metas -->
-        <meta-data
-            android:name="DATABASE"
-            android:value="swordfish.db" />
-        <meta-data
-            android:name="VERSION"
-            android:value="2" />
-        <meta-data
-            android:name="QUERY_LOG"
-            android:value="true" />
-        <meta-data
-            android:name="DOMAIN_PACKAGE_NAME"
-            android:value="fr.acinq.eclair.swordfish.model" />
+  <application
+    android:name="com.orm.SugarApp"
+    android:allowBackup="true"
+    android:icon="@mipmap/ic_launcher"
+    android:label="@string/app_name"
+    android:roundIcon="@mipmap/ic_launcher_round"
+    android:supportsRtl="true"
+    android:theme="@style/AppTheme">
 
-        <!-- activities -->
-        <activity
-            android:name=".LauncherActivity"
-            android:theme="@style/AppTheme.NoActionBar">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".ChannelActivity"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
-        <activity
-            android:name=".PaymentActivity"
-            android:parentActivityName=".ChannelActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ChannelActivity" />
-        </activity>
-        <activity android:name=".FundActivity" android:label="Open a new channel"/>
+    <!-- sugar metas -->
+    <meta-data
+      android:name="DATABASE"
+      android:value="swordfish.db" />
+    <meta-data
+      android:name="VERSION"
+      android:value="2" />
+    <meta-data
+      android:name="QUERY_LOG"
+      android:value="true" />
+    <meta-data
+      android:name="DOMAIN_PACKAGE_NAME"
+      android:value="fr.acinq.eclair.swordfish.model" />
 
-    </application>
+    <!-- activities -->
+    <activity
+      android:name=".LauncherActivity"
+      android:theme="@style/AppTheme.NoActionBar">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN" />
+        <category android:name="android.intent.category.LAUNCHER" />
+      </intent-filter>
+    </activity>
+    <activity
+      android:name=".ChannelActivity"
+      android:theme="@style/AppTheme.NoActionBar"></activity>
+    <activity
+      android:name=".ScanActivity"
+      android:screenOrientation="fullSensor"
+      android:stateNotNeeded="true"
+      android:theme="@style/zxing_CaptureTheme"
+      android:windowSoftInputMode="stateAlwaysHidden"></activity>
+    <activity
+      android:name=".PaymentActivity"
+      android:parentActivityName=".ChannelActivity">
+      <meta-data
+        android:name="android.support.PARENT_ACTIVITY"
+        android:value=".ChannelActivity" />
+    </activity>
+    <activity
+      android:name=".FundActivity"
+      android:label="Open a new channel" />
+
+  </application>
 
 </manifest>

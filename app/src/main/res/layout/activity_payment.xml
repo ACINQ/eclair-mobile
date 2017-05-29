@@ -1,139 +1,195 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="match_parent"
-  android:layout_height="match_parent"
-  android:orientation="vertical">
-
-  <TextView
-    android:id="@+id/payment__lbl_pr"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="@string/payment__lbl_pr"
-    android:layout_marginTop="16dp"
-    android:layout_marginLeft="16dp"
-    android:layout_marginRight="16dp"/>
+  android:layout_height="wrap_content">
 
   <LinearLayout
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:layout_marginTop="16dp"
-    android:layout_marginLeft="16dp"
-    android:layout_marginRight="16dp">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+      android:id="@+id/payment__lbl_pr"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginLeft="16dp"
+      android:layout_marginRight="16dp"
+      android:layout_marginTop="16dp"
+      android:text="@string/payment__lbl_pr" />
+
+    <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginLeft="16dp"
+      android:layout_marginRight="16dp"
+      android:layout_marginTop="16dp"
+      android:orientation="horizontal">
+
+      <Button
+        android:id="@+id/payment__button_scan"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_weight="1"
+        android:onClick="payment__openScan"
+        android:text="@string/payment__button_scan" />
+
+      <TextView
+        android:id="@+id/lbl_pr_separator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:text="@string/payment__label_pr_separator" />
+
+      <Button
+        android:id="@+id/payment__btn_manualpr"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_weight="1"
+        android:onClick="payment__showManualPRDialog"
+        android:text="@string/payment__button_manualpr" />
+    </LinearLayout>
+
+    <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="16dp"
+      android:background="@color/colorGrey_0"
+      android:orientation="vertical"
+      android:paddingBottom="20dp"
+      android:paddingLeft="16dp"
+      android:paddingRight="16dp"
+      android:paddingTop="16dp">
+
+      <TextView
+        android:id="@+id/payment__lbl_pr_amount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:text="@string/payment__lbl_pr_amount"
+        android:textColor="@color/colorGrey_2"
+        android:textSize="10sp" />
+
+      <TextView
+        android:id="@+id/payment__value_pr_amount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0.00"
+        android:textSize="32sp" />
+    </LinearLayout>
+
+    <GridLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_margin="16dp"
+      android:columnCount="2">
+
+      <TextView
+        android:id="@+id/payment__lbl_pr_pubkey"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="16dp"
+        android:text="@string/payment__lbl_pr_pubkey"
+        android:textStyle="bold" />
+
+      <TextView
+        android:id="@+id/payment__value_pr_pubkey"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_rowSpan="2"
+        android:text="N/A" />
+
+      <TextView
+        android:id="@+id/payment__lbl_pr_pubkey_desc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginRight="16dp"
+        android:text="@string/payment__lbl_pr_pubkey_desc"
+        android:textColor="@color/colorGrey_1"
+        android:textSize="10sp" />
+
+      <TextView
+        android:id="@+id/payment__lbl_pr_paymenthash"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="16dp"
+        android:text="@string/payment__lbl_pr_paymenthash"
+        android:textStyle="bold" />
+
+      <TextView
+        android:id="@+id/payment__value_pr_paymenthash"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_rowSpan="2"
+        android:text="N/A" />
+
+      <TextView
+        android:id="@+id/payment__lbl_pr_paymenthash_desc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginRight="16dp"
+        android:text="@string/payment__lbl_pr_paymenthash_desc"
+        android:textColor="@color/colorGrey_1"
+        android:textSize="10sp" />
+    </GridLayout>
+
+    <View
+      android:layout_width="fill_parent"
+      android:layout_height="1dp"
+      android:background="@color/colorGrey_0p" />
+
+    <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:orientation="vertical"
+      android:padding="16dp">
+
+      <TextView
+        android:id="@+id/payment__label_desc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/payment__label_desc"
+        android:textStyle="bold" />
+      <TextView
+        android:id="@+id/payment__label_desc_desc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginRight="16dp"
+        android:text="@string/payment__label_desc_desc"
+        android:textColor="@color/colorGrey_1"
+        android:textSize="10sp" />
+
+      <EditText
+        android:id="@+id/payment__input_desc"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="Description of the payment"
+        android:inputType="textMultiLine|textLongMessage"
+        android:textSize="12sp" />
+    </LinearLayout>
+
+    <View
+      android:layout_width="fill_parent"
+      android:layout_height="1dp"
+      android:background="@color/colorGrey_0p" />
+
     <Button
-      android:id="@+id/payment__btn_scan"
+      android:id="@+id/payment__btn_send"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_alignParentTop="true"
-      android:onClick="openScan"
-      android:text="@string/payment__btn_scan" />
-    <TextView
-      android:id="@+id/lbl_pr_separator"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:text="@string/payment__lbl_pr_separator"
-      android:layout_marginLeft="16dp"
-      android:layout_marginRight="16dp"/>
-    <EditText
-      android:id="@+id/payment__input_pr"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:ems="10"
-      android:hint="Paste a payment request"
-      android:textSize="10sp"
-      android:inputType="textMultiLine" />
+      android:layout_marginTop="16dp"
+      android:layout_gravity="center"
+      android:backgroundTint="@color/colorPrimary"
+      android:onClick="sendPayment"
+      android:text="@string/payment__btn_send"
+      android:textColor="@color/white" />
   </LinearLayout>
-
-  <LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:layout_marginTop="16dp"
-    android:paddingLeft="16dp"
-    android:paddingRight="16dp"
-    android:paddingTop="16dp"
-    android:paddingBottom="32dp"
-    android:background="@color/colorGrey_0">
-    <TextView
-      android:id="@+id/payment__lbl_pr_amount"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:text="@string/payment__lbl_pr_amount"
-      android:textSize="10sp"
-      android:layout_marginBottom="16dp"
-      android:textColor="@color/colorGrey_2"/>
-    <TextView
-      android:id="@+id/payment__value_pr_amount"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:text="--"
-      android:textSize="24sp"/>
-  </LinearLayout>
-
-  <GridLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:columnCount="2"
-    android:layout_margin="16dp">
-
-    <TextView
-      android:id="@+id/payment__lbl_pr_pubkey"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:text="@string/payment__lbl_pr_pubkey"
-      android:layout_marginRight="16dp"
-      android:textStyle="bold"
-      />
-    <TextView
-      android:id="@+id/payment__value_pr_pubkey"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_rowSpan="2"
-      android:text="N/A"/>
-    <TextView
-      android:id="@+id/payment__lbl_pr_pubkey_desc"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:text="@string/payment__lbl_pr_pubkey_desc"
-      android:textSize="10sp"
-      android:textColor="@color/colorGrey_1"
-      android:layout_marginRight="16dp"
-      android:layout_marginBottom="8dp"
-      />
-
-    <TextView
-      android:id="@+id/payment__lbl_pr_paymenthash"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:text="@string/payment__lbl_pr_paymenthash"
-      android:layout_marginRight="16dp"
-      android:textStyle="bold"/>
-    <TextView
-      android:id="@+id/payment__value_pr_paymenthash"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_rowSpan="2"
-      android:text="N/A"/>
-    <TextView
-      android:id="@+id/payment__lbl_pr_paymenthash_desc"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:text="@string/payment__lbl_pr_paymenthash_desc"
-      android:textSize="10sp"
-      android:textColor="@color/colorGrey_1"
-      android:layout_marginRight="16dp"
-      android:layout_marginBottom="8dp"
-      />
-  </GridLayout>
-
-
-  <Button
-    android:id="@+id/payment__btn_send"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_alignParentTop="true"
-    android:layout_gravity="center"
-    android:onClick="sendPayment"
-    android:text="@string/payment__btn_send" />
-</LinearLayout>
+</ScrollView>
