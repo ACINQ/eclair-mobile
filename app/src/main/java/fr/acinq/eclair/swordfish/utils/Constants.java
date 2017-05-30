@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.acinq.eclair.swordfish;
+package fr.acinq.eclair.swordfish.utils;
 
 public final class Constants {
 

@@ -1,4 +1,4 @@
-package fr.acinq.eclair.swordfish;
+package fr.acinq.eclair.swordfish.activity;
 
 import android.content.Context;
 import android.text.format.DateFormat;
@@ -11,6 +11,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
+import fr.acinq.eclair.swordfish.R;
 import fr.acinq.eclair.swordfish.model.Payment;
 import fr.acinq.eclair.swordfish.model.PaymentRequest;
 

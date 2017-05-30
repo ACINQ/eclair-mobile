@@ -1,4 +1,4 @@
-package fr.acinq.eclair.swordfish;
+package fr.acinq.eclair.swordfish.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -6,6 +6,8 @@ import android.view.View;
 
 import com.journeyapps.barcodescanner.CaptureActivity;
 import com.journeyapps.barcodescanner.DecoratedBarcodeView;
+
+import fr.acinq.eclair.swordfish.R;
 
 public class ScanActivity extends CaptureActivity {
 

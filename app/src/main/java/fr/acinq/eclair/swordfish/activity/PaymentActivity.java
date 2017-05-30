@@ -1,9 +1,8 @@
-package fr.acinq.eclair.swordfish;
+package fr.acinq.eclair.swordfish.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -19,8 +18,10 @@ import akka.actor.ActorRef;
 import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.bitcoin.Crypto;
 import fr.acinq.bitcoin.package$;
-import fr.acinq.eclair.payment.PaymentInitiator;
 import fr.acinq.eclair.payment.SendPayment;
+import fr.acinq.eclair.swordfish.EclairHelper;
+import fr.acinq.eclair.swordfish.fragment.OneInputDialog;
+import fr.acinq.eclair.swordfish.R;
 import fr.acinq.eclair.swordfish.model.Payment;
 import fr.acinq.eclair.swordfish.model.PaymentRequest;
 

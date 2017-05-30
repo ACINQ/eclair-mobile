@@ -1,4 +1,4 @@
-package fr.acinq.eclair.swordfish;
+package fr.acinq.eclair.swordfish.fragment;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -9,6 +9,8 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
+
+import fr.acinq.eclair.swordfish.R;
 
 /**
  * Created by Dominique on 26/05/2017.

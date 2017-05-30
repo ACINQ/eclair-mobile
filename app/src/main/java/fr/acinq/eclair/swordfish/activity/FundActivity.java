@@ -1,4 +1,4 @@
-package fr.acinq.eclair.swordfish;
+package fr.acinq.eclair.swordfish.activity;
 
 import android.content.Intent;
 import android.support.v4.app.FragmentActivity;
@@ -12,6 +12,8 @@ import java.util.concurrent.ThreadLocalRandom;
 import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.bitcoin.Crypto;
 import fr.acinq.bitcoin.package$;
+import fr.acinq.eclair.swordfish.fragment.OneInputDialog;
+import fr.acinq.eclair.swordfish.R;
 
 public class FundActivity extends FragmentActivity implements OneInputDialog.OneInputDialogListener {
 

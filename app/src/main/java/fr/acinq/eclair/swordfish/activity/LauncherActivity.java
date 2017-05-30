@@ -1,29 +1,13 @@
-package fr.acinq.eclair.swordfish;
+package fr.acinq.eclair.swordfish.activity;
 
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
-import android.view.View;
-import android.widget.TextView;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
-import java.net.InetSocketAddress;
-
-import akka.actor.ActorRef;
-import fr.acinq.bitcoin.BinaryData;
-import fr.acinq.bitcoin.Crypto;
-import fr.acinq.bitcoin.package$;
-import fr.acinq.eclair.io.Switchboard;
-import scala.Option;
+import fr.acinq.eclair.swordfish.R;
+import fr.acinq.eclair.swordfish.StartupTask;
 
 public class LauncherActivity extends AppCompatActivity implements StartupTask.AsyncSetupResponse {
 

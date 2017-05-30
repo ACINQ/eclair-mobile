@@ -31,7 +31,7 @@
 
     <!-- activities -->
     <activity
-      android:name=".LauncherActivity"
+      android:name=".activity.LauncherActivity"
       android:theme="@style/AppTheme.NoActionBar">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
@@ -39,23 +39,23 @@
       </intent-filter>
     </activity>
     <activity
-      android:name=".ChannelActivity"
+      android:name=".activity.ChannelActivity"
       android:theme="@style/AppTheme.NoActionBar"></activity>
     <activity
-      android:name=".ScanActivity"
+      android:name=".activity.ScanActivity"
       android:screenOrientation="fullSensor"
       android:stateNotNeeded="true"
       android:theme="@style/zxing_CaptureTheme"
       android:windowSoftInputMode="stateAlwaysHidden"></activity>
     <activity
-      android:name=".PaymentActivity"
-      android:parentActivityName=".ChannelActivity">
+      android:name=".activity.PaymentActivity"
+      android:parentActivityName=".activity.ChannelActivity">
       <meta-data
         android:name="android.support.PARENT_ACTIVITY"
-        android:value=".ChannelActivity" />
+        android:value=".activity.ChannelActivity" />
     </activity>
     <activity
-      android:name=".FundActivity"
+      android:name=".activity.FundActivity"
       android:label="Open a new channel" />
 
   </application>

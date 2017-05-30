@@ -1,4 +1,4 @@
-package fr.acinq.eclair.swordfish;
+package fr.acinq.eclair.swordfish.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ListView;
 
+import fr.acinq.eclair.swordfish.R;
 import fr.acinq.eclair.swordfish.model.Payment;
 
 public class ChannelActivity extends AppCompatActivity {
