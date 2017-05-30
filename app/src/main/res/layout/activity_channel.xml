@@ -36,11 +36,11 @@
     android:orientation="horizontal"
     android:padding="16dp">
     <Button
-      android:id="@+id/channel__button_gotofund"
+      android:id="@+id/channel__button_gotochannels"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:onClick="channel_goToFund"
-      android:text="@string/main__btn_fund" />
+      android:onClick="channel_goToChannelsList"
+      android:text="@string/main__button_channels" />
     <Button
       android:id="@+id/channel__button_gotopayment"
       android:layout_width="wrap_content"

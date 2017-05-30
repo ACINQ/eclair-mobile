@@ -1,4 +1,4 @@
-package fr.acinq.eclair.swordfish.activity;
+package fr.acinq.eclair.swordfish.adapters;
 
 import android.content.Context;
 import android.text.format.DateFormat;

@@ -6,6 +6,7 @@
   <string name="main__balance">Your balance</string>
   <string name="main__btn_pay">Send a payment</string>
   <string name="main__btn_fund">Add funds</string>
+  <string name="main__button_channels">Channels List</string>
 
   <string name="title_activity_payment">Send a Payment</string>
   <string name="payment__lbl_pr">Enter a LN Payment Request:</string>
@@ -44,7 +45,9 @@
   <string name="btn_ok">OK</string>
   <string name="btn_cancel">Cancel</string>
 
-  <!-- TODO: Remove or change this placeholder text -->
-  <string name="hello_blank_fragment">Hello blank fragment</string>
+  <!-- /////////////// channels list /////////////// -->
+  <string name="channelslist__label_empty">No channels found.\nPlease create a new channel...</string>
+  <string name="channelslist__label_error">An error has occured and the channels could not be found.\nIf the problem persists, restart the application.</string>
+  <string name="channelslist__button_retry">Retry</string>
 
 </resources>

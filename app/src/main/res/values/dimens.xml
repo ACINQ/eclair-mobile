@@ -1,14 +1,17 @@
 <resources>
-    <dimen name="text_small">16sp</dimen>
-    <dimen name="bitmap_qr_wrap_width">280dp</dimen>
-    <dimen name="bitmap_qr_wrap_height">410dp</dimen>
+  <dimen name="text_small">16sp</dimen>
+  <dimen name="bitmap_qr_wrap_width">280dp</dimen>
+  <dimen name="bitmap_qr_wrap_height">410dp</dimen>
 
-    <!-- 410 = 90 + 40 + 280 -->
-    <dimen name="bitmap_text_bounds">230dp</dimen>
-    <dimen name="bitmap_bottom_size">90dp</dimen>
-    <dimen name="bitmap_top_size">40dp</dimen>
-    <dimen name="bitmap_qr_size">280dp</dimen>
+  <!-- 410 = 90 + 40 + 280 -->
+  <dimen name="bitmap_text_bounds">230dp</dimen>
+  <dimen name="bitmap_bottom_size">90dp</dimen>
+  <dimen name="bitmap_top_size">40dp</dimen>
+  <dimen name="bitmap_qr_size">280dp</dimen>
 
-    <!-- app padding -->
-    <dimen name="app_padding">10dp</dimen>
+  <!-- app padding -->
+  <dimen name="app_padding">10dp</dimen>
+  <dimen name="app_bar_height">180dp</dimen>
+  <dimen name="fab_margin">16dp</dimen>
+  <dimen name="text_margin">16dp</dimen>
 </resources>

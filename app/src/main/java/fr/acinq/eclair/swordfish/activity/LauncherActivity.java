@@ -22,10 +22,10 @@ public class LauncherActivity extends AppCompatActivity implements StartupTask.A
 //      startActivity(intent);
 //      finish();
 //    } else {
-      new StartupTask(this, getApplicationContext()).execute();
-      SharedPreferences.Editor ed = pref.edit();
-      ed.putBoolean("activity_executed", true);
-      ed.commit();
+    new StartupTask(this, getApplicationContext()).execute();
+    SharedPreferences.Editor ed = pref.edit();
+    ed.putBoolean("activity_executed", true);
+    ed.commit();
 //    }
   }
 

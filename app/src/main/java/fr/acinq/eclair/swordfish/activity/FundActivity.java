@@ -7,13 +7,18 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.net.InetSocketAddress;
 import java.util.concurrent.ThreadLocalRandom;
 
+import akka.actor.ActorRef;
 import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.bitcoin.Crypto;
 import fr.acinq.bitcoin.package$;
+import fr.acinq.eclair.io.Switchboard;
+import fr.acinq.eclair.swordfish.EclairHelper;
 import fr.acinq.eclair.swordfish.fragment.OneInputDialog;
 import fr.acinq.eclair.swordfish.R;
+import scala.Option;
 
 public class FundActivity extends FragmentActivity implements OneInputDialog.OneInputDialogListener {
 
@@ -75,11 +80,11 @@ public class FundActivity extends FragmentActivity implements OneInputDialog.One
     BinaryData bd = BinaryData.apply(pubkeyTV.getText().toString());
     Crypto.Point point = new Crypto.Point(Crypto.curve().getCurve().decodePoint(package$.MODULE$.binaryData2array(bd)));
     Crypto.PublicKey pk = new Crypto.PublicKey(point, true);
-/*
+
     Switchboard.NewChannel ch = new Switchboard.NewChannel(Long.parseLong(amountEV.getText().toString()), 0L);
     ActorRef sw = EclairHelper.getInstance(this).getSetup().switchboard();
     sw.tell(new Switchboard.NewConnection(pk, new InetSocketAddress(ipTV.getText().toString(), Integer.parseInt(portTV.getText().toString())), Option.apply(ch)), sw);
-*/
+
     Intent intent = new Intent(this, ChannelActivity.class);
     Toast.makeText(this, "Opened channel with " + pk.toString(), Toast.LENGTH_LONG).show();
     startActivity(intent);

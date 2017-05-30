@@ -35,18 +35,19 @@
       android:theme="@style/AppTheme.NoActionBar">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
+
         <category android:name="android.intent.category.LAUNCHER" />
       </intent-filter>
     </activity>
     <activity
       android:name=".activity.ChannelActivity"
-      android:theme="@style/AppTheme.NoActionBar"></activity>
+      android:theme="@style/AppTheme.NoActionBar" />
     <activity
       android:name=".activity.ScanActivity"
       android:screenOrientation="fullSensor"
       android:stateNotNeeded="true"
       android:theme="@style/zxing_CaptureTheme"
-      android:windowSoftInputMode="stateAlwaysHidden"></activity>
+      android:windowSoftInputMode="stateAlwaysHidden" />
     <activity
       android:name=".activity.PaymentActivity"
       android:parentActivityName=".activity.ChannelActivity">
@@ -57,7 +58,11 @@
     <activity
       android:name=".activity.FundActivity"
       android:label="Open a new channel" />
-
+    <activity android:name=".activity.ChannelsListActivity" />
+    <activity
+      android:name=".activity.testActivity"
+      android:label="@string/title_activity_test"
+      android:theme="@style/AppTheme.NoActionBar"></activity>
   </application>
 
 </manifest>
