@@ -1,39 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="match_parent"
-  android:layout_height="match_parent"
+  android:layout_height="wrap_content"
   android:orientation="horizontal"
-  android:paddingTop="8dp"
-  android:paddingBottom="8dp">
+  android:paddingBottom="8dp"
+  android:paddingLeft="16dp"
+  android:paddingRight="16dp"
+  android:paddingTop="8dp">
+
   <TextView
-    android:id="@+id/payment_item_status"
-    android:layout_width="32dp"
-    android:layout_height="32dp"
-    android:textAlignment="center"
-    android:text="S" />
+    android:id="@+id/payment_item_amount"
+    android:layout_width="64dp"
+    android:layout_height="match_parent"
+    android:gravity="right|center_vertical"
+    android:text="0.000" />
+
+
+  <TextView
+    android:id="@+id/payment_item_amount_unit"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:gravity="right|center_vertical"
+    android:textColor="@color/colorGrey_1"
+    android:textSize="10sp"
+    android:layout_marginLeft="8dp"
+    android:text="SAT" />
+
   <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:layout_marginLeft="8dp">
+    android:layout_marginLeft="8dp"
+    android:orientation="vertical">
+
     <TextView
       android:id="@+id/payment_item_description"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:text="Name"
-      android:textStyle="bold"/>
-    <TextView
-      android:id="@+id/payment_item_date"
+      android:textStyle="bold" />
+
+    <LinearLayout
       android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:text="Updated at"
-      android:textSize="10sp"
-      android:textColor="@color/colorGrey_1"/>
-    <!--<TextView-->
-      <!--android:id="@+id/payment_item_pr"-->
-      <!--android:layout_width="match_parent"-->
-      <!--android:layout_height="wrap_content"-->
-      <!--android:textColor="@color/colorGrey_1"-->
-      <!--android:textSize="10sp" />-->
+      android:layout_height="wrap_content">
+
+      <TextView
+        android:id="@+id/payment_item_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="16dp"
+        android:text="Updated at"
+        android:textColor="@color/colorGrey_1"
+        android:textSize="10sp" />
+
+      <TextView
+        android:id="@+id/payment_item_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="STATUS"
+        android:textColor="@color/colorGrey_1"
+        android:textSize="10sp" />
+    </LinearLayout>
+
   </LinearLayout>
 </LinearLayout>

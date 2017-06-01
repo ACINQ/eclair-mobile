@@ -1,8 +1,10 @@
 package fr.acinq.eclair.swordfish.activity;
 
 import android.content.Intent;
-import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -20,12 +22,16 @@ import fr.acinq.eclair.swordfish.fragment.OneInputDialog;
 import fr.acinq.eclair.swordfish.R;
 import scala.Option;
 
-public class FundActivity extends FragmentActivity implements OneInputDialog.OneInputDialogListener {
+public class FundActivity extends AppCompatActivity implements OneInputDialog.OneInputDialogListener {
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_fund);
+    Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+    setSupportActionBar(toolbar);
+    ActionBar ab = getSupportActionBar();
+    ab.setDisplayHomeAsUpEnabled(true);
   }
 
   public void fund_pickRandomNode(View view) {
@@ -71,7 +77,6 @@ public class FundActivity extends FragmentActivity implements OneInputDialog.One
   }
 
   public void fund_openChannel(View view) {
-
     TextView amountEV = (TextView) findViewById(R.id.fund__input_amount);
     TextView pubkeyTV = (TextView) findViewById(R.id.fund__value_uri_pubkey);
     TextView ipTV = (TextView) findViewById(R.id.fund__value_uri_ip);
@@ -85,7 +90,7 @@ public class FundActivity extends FragmentActivity implements OneInputDialog.One
     ActorRef sw = EclairHelper.getInstance(this).getSetup().switchboard();
     sw.tell(new Switchboard.NewConnection(pk, new InetSocketAddress(ipTV.getText().toString(), Integer.parseInt(portTV.getText().toString())), Option.apply(ch)), sw);
 
-    Intent intent = new Intent(this, ChannelActivity.class);
+    Intent intent = new Intent(this, HomeActivity.class);
     Toast.makeText(this, "Opened channel with " + pk.toString(), Toast.LENGTH_LONG).show();
     startActivity(intent);
   }

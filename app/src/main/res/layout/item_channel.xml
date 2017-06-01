@@ -5,12 +5,12 @@
   android:orientation="horizontal"
   android:paddingTop="8dp"
   android:paddingBottom="8dp">
-  <TextView
-    android:id="@+id/channelitem__balance"
-    android:layout_width="72dp"
-    android:layout_height="40dp"
-    android:textAlignment="textEnd"
-    android:text="0.000" />
+  <!--<TextView-->
+    <!--android:id="@+id/channelitem__balance"-->
+    <!--android:layout_width="72dp"-->
+    <!--android:layout_height="40dp"-->
+    <!--android:textAlignment="textEnd"-->
+    <!--android:text="0.000" />-->
   <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -22,6 +22,11 @@
       android:layout_height="wrap_content"
       android:text="Name"
       android:textStyle="bold"/>
+    <TextView
+      android:id="@+id/channelitem__targetpubkey"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:text="Name"/>
     <TextView
       android:id="@+id/channelitem__status"
       android:layout_width="match_parent"

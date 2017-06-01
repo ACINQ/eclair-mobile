@@ -4,12 +4,10 @@
   android:layout_width="match_parent"
   android:layout_height="match_parent"
   android:orientation="vertical">
-  <Button
-    android:id="@+id/channelslist__button_retry"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:onClick="channelslist__refresh"
-    android:text="@string/channelslist__button_retry" />
+
+  <!-- Custom toolbar -->
+  <include layout="@layout/toolbar" />
+
   <LinearLayout
     android:id="@+id/channelslist__error"
     android:layout_width="match_parent"
@@ -53,9 +51,10 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="bottom|end"
-    android:layout_margin="16dp"
-    app:backgroundTint="@color/colorPrimary"
+    android:layout_margin="24dp"
     android:clickable="true"
     android:onClick="channellist__goToFund"
-    app:fabSize="mini" />
+    app:backgroundTint="@color/colorPrimary"
+    android:src="@drawable/ic_plus_white_24dp"
+    app:fabSize="normal" />
 </LinearLayout>

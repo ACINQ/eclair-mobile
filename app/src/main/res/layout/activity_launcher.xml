@@ -21,7 +21,7 @@
     android:id="@+id/filecontent"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:text="Please Wait..."
     android:textAlignment="center"
-    android:textColor="@color/colorPrimaryLight"
-    android:text="Please Wait..." />
+    android:textColor="@color/colorPrimaryLight" />
 </LinearLayout>

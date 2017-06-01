@@ -20,12 +20,9 @@ public class EclairHelper {
 
   private EclairHelper(Context context) {
     File data = new File(context.getFilesDir(), "eclair-wallet-data");
+    System.setProperty("eclair.node-alias", "swordfish");
     Setup s = new Setup(data, "system");
     s.boostrap();
-    Log.i("launcher", "Data dir exists ? " + (new File(data, "seed.dat")).exists());
-    for (String f : (new File(data, "db")).list()) {
-      Log.i("launcher", "File in db dir : " + f);
-    }
     this.setup = s;
   }
 

@@ -3,10 +3,10 @@
     <color name="colorPrimary">#25b28e</color>
     <color name="colorPrimaryDark">#209e7d</color>
     <color name="colorPrimaryLight">#61dbbc</color>
-    <color name="colorAccent">#2ec7f5</color>
+    <color name="colorAccent">#ff265c</color>
     <color name="colorGrey_0">#ebebeb</color>
     <color name="colorGrey_0p">#dedede</color>
-    <color name="colorGrey_1">#aaaaaa</color>
+    <color name="colorGrey_1">#bbbbbb</color>
     <color name="colorGrey_2">#888888</color>
     <color name="colorGrey_3">#555555</color>
     <color name="colorGrey_4">#333333</color>

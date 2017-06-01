@@ -25,12 +25,12 @@ public class ChannelListItemAdapter extends ArrayAdapter<ChannelItem> {
       convertView = LayoutInflater.from(getContext()).inflate(R.layout.item_channel, parent, false);
     }
     TextView id = (TextView) convertView.findViewById(R.id.channelitem__id);
-    TextView balance = (TextView) convertView.findViewById(R.id.channelitem__balance);
     TextView status = (TextView) convertView.findViewById(R.id.channelitem__status);
+    TextView targetPubkey = (TextView) convertView.findViewById(R.id.channelitem__targetpubkey);
 
     id.setText(channel.id);
     status.setText(String.valueOf(channel.status));
-    balance.setText(channel.balance.toString());
+    targetPubkey.setText(channel.targetPubkey);
     return convertView;
   }
 }

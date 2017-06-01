@@ -9,11 +9,10 @@
   <application
     android:name="com.orm.SugarApp"
     android:allowBackup="true"
-    android:icon="@mipmap/ic_launcher"
+    android:icon="@mipmap/eclair_launcher"
     android:label="@string/app_name"
-    android:roundIcon="@mipmap/ic_launcher_round"
     android:supportsRtl="true"
-    android:theme="@style/AppTheme">
+    android:theme="@style/AppTheme.NoActionBar">
 
     <!-- sugar metas -->
     <meta-data
@@ -30,18 +29,19 @@
       android:value="fr.acinq.eclair.swordfish.model" />
 
     <!-- activities -->
-    <activity
-      android:name=".activity.LauncherActivity"
-      android:theme="@style/AppTheme.NoActionBar">
+    <activity android:name=".activity.LauncherActivity" android:noHistory="true">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
-
         <category android:name="android.intent.category.LAUNCHER" />
       </intent-filter>
     </activity>
+    <activity android:name=".activity.HomeActivity"
+      android:label="">
+    </activity>
     <activity
-      android:name=".activity.ChannelActivity"
-      android:theme="@style/AppTheme.NoActionBar" />
+      android:name=".activity.PaymentActivity"
+      android:label="Send a Payment"
+      android:parentActivityName=".activity.HomeActivity" />
     <activity
       android:name=".activity.ScanActivity"
       android:screenOrientation="fullSensor"
@@ -49,20 +49,22 @@
       android:theme="@style/zxing_CaptureTheme"
       android:windowSoftInputMode="stateAlwaysHidden" />
     <activity
-      android:name=".activity.PaymentActivity"
-      android:parentActivityName=".activity.ChannelActivity">
+      android:name=".activity.FundActivity"
+      android:label="Open a channel"
+      android:parentActivityName=".activity.HomeActivity" />
+    <activity
+      android:name=".activity.ChannelsListActivity"
+      android:label="Active channels"
+      android:parentActivityName=".activity.HomeActivity" />
+    <activity
+      android:name=".activity.TestScrollingActivity"
+      android:label="@string/title_activity_test_scrolling"
+      android:parentActivityName=".activity.HomeActivity"
+      android:theme="@style/AppTheme.NoActionBar">
       <meta-data
         android:name="android.support.PARENT_ACTIVITY"
-        android:value=".activity.ChannelActivity" />
+        android:value="fr.acinq.eclair.swordfish.activity.HomeActivity" />
     </activity>
-    <activity
-      android:name=".activity.FundActivity"
-      android:label="Open a new channel" />
-    <activity android:name=".activity.ChannelsListActivity" />
-    <activity
-      android:name=".activity.testActivity"
-      android:label="@string/title_activity_test"
-      android:theme="@style/AppTheme.NoActionBar"></activity>
   </application>
 
 </manifest>

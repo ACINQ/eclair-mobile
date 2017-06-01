@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent">
+
+  <LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <!-- Custom toolbar -->
+    <include layout="@layout/toolbar" />
+
+    <LinearLayout
+      android:id="@+id/channel_balance"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:background="@color/colorPrimary"
+      android:orientation="vertical"
+      android:padding="16dp">
+
+      <TextView
+        android:id="@+id/channel__label_balance"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:text="@string/main__balance"
+        android:textAlignment="center"
+        android:textColor="@color/colorPrimaryLight"
+        android:textSize="12sp" />
+
+      <TextView
+        android:id="@+id/channel__value_balance"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="0.000"
+        android:textAlignment="center"
+        android:textColor="@android:color/white"
+        android:textSize="48sp" />
+    </LinearLayout>
+
+    <!--<LinearLayout-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:orientation="horizontal"-->
+    <!--android:padding="16dp">-->
+
+    <!--<Button-->
+    <!--android:id="@+id/channel__button_gotopayment"-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:onClick="channel_goToPayment"-->
+    <!--android:text="@string/main__btn_pay" />-->
+    <!--</LinearLayout>-->
+
+    <ListView
+      android:id="@+id/main__listview_payments"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent" />
+
+
+  </LinearLayout>
+
+  <android.support.design.widget.FloatingActionButton
+    android:id="@+id/fab1111"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_alignParentBottom="true"
+    android:layout_alignParentRight="true"
+    android:layout_margin="@dimen/fab_margin"
+    android:onClick="channel__openScan"
+    android:src="@drawable/ic_photo_camera_white_24dp"
+    app:backgroundTint="@color/colorPrimary"
+    app:fabSize="normal" />
+
+  <!--app:layout_anchor="@id/channel_balance"-->
+
+
+  <!--app:layout_anchor="@id/channel_balance"-->
+
+  <!--<android.support.design.widget.FloatingActionButton-->
+  <!--android:id="@+id/dashboardShowActionsFab"-->
+  <!--android:layout_width="wrap_content"-->
+  <!--android:layout_height="wrap_content"-->
+  <!--app:elevation="4dp"-->
+  <!--app:fabSize="normal"-->
+  <!--android:layout_alignParentBottom="true"-->
+  <!--android:layout_alignParentRight="true"-->
+  <!--android:layout_marginRight="26dp"-->
+  <!--android:layout_marginBottom="16dp" />-->
+</RelativeLayout>
+
+

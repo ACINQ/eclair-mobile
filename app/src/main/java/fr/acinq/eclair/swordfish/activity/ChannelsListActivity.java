@@ -2,34 +2,20 @@ package fr.acinq.eclair.swordfish.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import akka.actor.ActorRef;
-import akka.pattern.Patterns;
-import akka.util.Timeout;
-import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.eclair.swordfish.ChannelsListTask;
-import fr.acinq.eclair.swordfish.EclairHelper;
 import fr.acinq.eclair.swordfish.R;
 import fr.acinq.eclair.swordfish.adapters.ChannelListItemAdapter;
-import fr.acinq.eclair.swordfish.adapters.PaymentListItemAdapter;
 import fr.acinq.eclair.swordfish.model.ChannelItem;
-import fr.acinq.eclair.swordfish.model.Payment;
-import scala.Symbol;
-import scala.collection.Iterable;
-import scala.collection.Iterator;
-import scala.collection.JavaConversions;
-import scala.collection.immutable.Map;
-import scala.concurrent.Await;
-import scala.concurrent.Future;
-import scala.concurrent.duration.Duration;
-import scala.collection.JavaConverters.*;
 
 public class ChannelsListActivity extends AppCompatActivity implements ChannelsListTask.AsyncChannelsListResponse {
 
@@ -48,9 +34,31 @@ public class ChannelsListActivity extends AppCompatActivity implements ChannelsL
   }
 
   @Override
+  public boolean onCreateOptionsMenu(Menu menu) {
+    getMenuInflater().inflate(R.menu.menu_channelslist, menu);
+    return super.onCreateOptionsMenu(menu);
+  }
+
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+    switch (item.getItemId()) {
+      case R.id.menu_channelslist_refresh:
+        new ChannelsListTask(this, getApplicationContext()).execute();
+        return true;
+      default:
+        return super.onOptionsItemSelected(item);
+    }
+  }
+
+  @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_channels_list);
+    Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+    setSupportActionBar(toolbar);
+    ActionBar ab = getSupportActionBar();
+    ab.setDisplayHomeAsUpEnabled(true);
+
     new ChannelsListTask(this, getApplicationContext()).execute();
   }
 
