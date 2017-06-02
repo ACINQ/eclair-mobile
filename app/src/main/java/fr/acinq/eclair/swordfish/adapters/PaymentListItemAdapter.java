@@ -11,7 +11,6 @@ import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.util.List;
 
-import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.swordfish.R;
 import fr.acinq.eclair.swordfish.model.Payment;

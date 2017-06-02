@@ -44,5 +44,6 @@ dependencies {
   compile 'com.github.satyan:sugar:1.5'
   compile 'com.journeyapps:zxing-android-embedded:3.5.0'
   compile 'com.android.support:design:25.3.1'
+  compile 'org.greenrobot:eventbus:3.0.0'
   testCompile 'junit:junit:4.12'
 }

@@ -10,12 +10,21 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
+import java.text.NumberFormat;
+
 import fr.acinq.eclair.payment.PaymentRequest;
+import fr.acinq.eclair.swordfish.BalanceEvent;
+import fr.acinq.eclair.swordfish.EclairEventService;
 import fr.acinq.eclair.swordfish.R;
 import fr.acinq.eclair.swordfish.adapters.PaymentListItemAdapter;
 import fr.acinq.eclair.swordfish.model.Payment;
@@ -37,6 +46,25 @@ public class HomeActivity extends AppCompatActivity {
     PaymentListItemAdapter adapter = new PaymentListItemAdapter(this, Payment.findWithQuery(Payment.class, "SELECT * FROM Payment ORDER BY created DESC LIMIT 20"));
     ListView listView = (ListView) findViewById(R.id.main__listview_payments);
     listView.setAdapter(adapter);
+  }
+
+  @Override
+  public void onStart() {
+    EventBus.getDefault().register(this);
+    super.onStart();
+    updateBalance();
+  }
+
+  @Override
+  public void onStop() {
+    EventBus.getDefault().unregister(this);
+    super.onStop();
+  }
+
+  @Override
+  public void onPause() {
+    EventBus.getDefault().unregister(this);
+    super.onPause();
   }
 
   @Override
@@ -88,14 +116,14 @@ public class HomeActivity extends AppCompatActivity {
     }
   }
 
-//  public void channel_goToChannelsList(View view) {
-//    Intent intent = new Intent(this, ChannelsListActivity.class);
-//    startActivity(intent);
-//  }
-//
-//  public void channel_goToFund(View view) {
-//    Intent intent = new Intent(this, FundActivity.class);
-//    startActivity(intent);
-//  }
-
+  @Subscribe(threadMode = ThreadMode.MAIN)
+  public void onMessageEvent(BalanceEvent event) {
+    Toast.makeText(this, "Balance Event for " + event.channelId.substring(0, 7), Toast.LENGTH_SHORT).show();
+    updateBalance();
+  }
+  
+  private void updateBalance() {
+    TextView aggregatedBalanceView = (TextView) findViewById(R.id.channel__value_balance);
+    aggregatedBalanceView.setText(NumberFormat.getInstance().format(EclairEventService.getTotalBalance().amount()));
+  }
 }

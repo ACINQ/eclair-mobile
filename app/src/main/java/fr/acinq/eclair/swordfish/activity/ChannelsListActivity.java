@@ -70,4 +70,5 @@ public class ChannelsListActivity extends AppCompatActivity implements ChannelsL
     Intent intent = new Intent(this, FundActivity.class);
     startActivity(intent);
   }
+
 }
