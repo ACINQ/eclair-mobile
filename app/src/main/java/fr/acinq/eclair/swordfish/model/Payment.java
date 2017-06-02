@@ -15,8 +15,6 @@ public class Payment extends SugarRecord {
   public Date created;
   public Date updated;
 
-  public Payment() {}
-
   public Payment(String paymentRequest, String description, Date created, Date updated) {
     this.paymentRequest = paymentRequest;
     this.description = description;

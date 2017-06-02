@@ -10,7 +10,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.zxing.integration.android.IntentIntegrator;
@@ -20,13 +19,12 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import java.text.NumberFormat;
-
 import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.swordfish.BalanceEvent;
 import fr.acinq.eclair.swordfish.EclairEventService;
 import fr.acinq.eclair.swordfish.R;
 import fr.acinq.eclair.swordfish.adapters.PaymentListItemAdapter;
+import fr.acinq.eclair.swordfish.customviews.CoinAmountView;
 import fr.acinq.eclair.swordfish.model.Payment;
 
 public class HomeActivity extends AppCompatActivity {
@@ -121,9 +119,9 @@ public class HomeActivity extends AppCompatActivity {
     Toast.makeText(this, "Balance Event for " + event.channelId.substring(0, 7), Toast.LENGTH_SHORT).show();
     updateBalance();
   }
-  
+
   private void updateBalance() {
-    TextView aggregatedBalanceView = (TextView) findViewById(R.id.channel__value_balance);
-    aggregatedBalanceView.setText(NumberFormat.getInstance().format(EclairEventService.getTotalBalance().amount()));
+    CoinAmountView aggregatedBalanceView = (CoinAmountView) findViewById(R.id.channel__value_balance);
+    aggregatedBalanceView.setAmountSat(EclairEventService.getTotalBalance());
   }
 }

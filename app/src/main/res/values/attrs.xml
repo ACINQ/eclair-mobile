@@ -1,0 +1,13 @@
+<resources>
+  <declare-styleable name="CoinAmountView">
+    <attr name="orientation" format="enum">
+      <enum name="horizontal" value="0" />
+      <enum name="vertical" value="1" />
+    </attr>
+    <attr name="amount_size" format="dimension" />
+    <attr name="amount_color" format="color" />
+    <attr name="unit" format="string" />
+    <attr name="unit_size" format="dimension" />
+    <attr name="unit_color" format="color" />
+  </declare-styleable>
+</resources>

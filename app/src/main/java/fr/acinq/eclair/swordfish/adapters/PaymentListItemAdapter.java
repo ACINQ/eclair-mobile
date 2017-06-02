@@ -8,12 +8,17 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.List;
 
+import fr.acinq.bitcoin.MilliBtc;
+import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.swordfish.R;
 import fr.acinq.eclair.swordfish.model.Payment;
+import fr.acinq.eclair.swordfish.utils.CoinFormat;
+import scala.math.BigDecimal;
 
 /**
  * Created by Dominique on 18/05/2017.
@@ -38,12 +43,13 @@ public class PaymentListItemAdapter extends ArrayAdapter<Payment> {
     TextView amount = (TextView) convertView.findViewById(R.id.payment_item_amount);
 
     description.setText("".equals(payment.description) ? "N/A" : payment.description);
-    status.setText(String.valueOf(payment.status));
+    status.setText("STATUS");
     date.setText(df.format(payment.updated));
     try {
-      amount.setText(NumberFormat.getInstance().format(PaymentRequest.read(payment.paymentRequest).amount().amount() / 1000));
+      BigDecimal amount_mbtc = package$.MODULE$.millisatoshi2millibtc(PaymentRequest.read(payment.paymentRequest).amount()).amount();
+      amount.setText(CoinFormat.getMilliBTCFormat().format(amount_mbtc));
     } catch (Exception e) {
-      amount.setText(NumberFormat.getInstance().format(0));
+      amount.setText(CoinFormat.getMilliBTCFormat().format(0));
     }
     return convertView;
   }

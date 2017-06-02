@@ -1,0 +1,17 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="match_parent"
+  android:layout_height="wrap_content"
+  android:orientation="vertical">
+
+  <TextView
+    android:id="@+id/view_amount"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:maxLines="2" />
+
+  <TextView
+    android:id="@+id/view_unit"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:maxLines="1" />
+</LinearLayout>
