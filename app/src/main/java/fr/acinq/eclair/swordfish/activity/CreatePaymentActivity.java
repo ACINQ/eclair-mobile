@@ -2,9 +2,11 @@ package fr.acinq.eclair.swordfish.activity;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.Date;
@@ -17,10 +19,11 @@ import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.payment.SendPayment;
 import fr.acinq.eclair.swordfish.EclairHelper;
 import fr.acinq.eclair.swordfish.R;
+import fr.acinq.eclair.swordfish.SendPaymentTask;
 import fr.acinq.eclair.swordfish.customviews.CoinAmountView;
 import fr.acinq.eclair.swordfish.model.Payment;
 
-public class CreatePaymentActivity extends Activity {
+public class CreatePaymentActivity extends Activity implements SendPaymentTask.AsyncSendPaymentResponse {
 
   private PaymentRequest currentPR = null;
 
@@ -57,24 +60,20 @@ public class CreatePaymentActivity extends Activity {
   }
 
   public void sendPayment(View view) {
-    try {
-      Payment p = new Payment(currentPR.paymentHash().toString(), PaymentRequest.write(currentPR),
-        "Placeholder description", new Date(), new Date());
-      p.save();
-      ActorRef pi = EclairHelper.getInstance(this).getSetup().paymentInitiator();
+    new SendPaymentTask(this, getApplicationContext(), this.currentPR).execute();
+    this.findViewById(R.id.payment__layout_buttons).setVisibility(View.GONE);
+    this.findViewById(R.id.payment__layout_feedback).setVisibility(View.VISIBLE);
+  }
 
-      BinaryData paymentHash = BinaryData.apply(currentPR.paymentHash().toString());
-      BinaryData nodeId = BinaryData.apply(currentPR.nodeId().toString());
-      Crypto.Point pointNodeId = new Crypto.Point(Crypto.curve().getCurve().decodePoint(package$.MODULE$.binaryData2array(nodeId)));
-      Crypto.PublicKey publicKey = new Crypto.PublicKey(pointNodeId, true);
-
-      pi.tell(new SendPayment(currentPR.amount().amount(), paymentHash, publicKey, 5), pi);
-      Toast.makeText(this, "Added new Payment", Toast.LENGTH_SHORT).show();
+  @Override
+  public void processFinish(SendPaymentTask.PaymentFeedback output) {
+    if (output.hasSucceeded()) {
+      Toast.makeText(this, "Payment has been sent.", Toast.LENGTH_SHORT).show();
       goToHome();
-    } catch (Exception e) {
-      Log.e("CreatePaymentActivity", "Could not send payment", e);
-      Toast.makeText(this, "Payment Failed", Toast.LENGTH_SHORT).show();
-      goToHome();
+    } else {
+      TextView feedbackView = (TextView) this.findViewById(R.id.payment__value_feedback);
+      feedbackView.setText(output.getMessage());
+      feedbackView.setTextColor(Color.RED);
     }
   }
 }

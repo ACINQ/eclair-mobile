@@ -22,6 +22,7 @@
   <string name="payment__lbl_pr_paymenthash">Payment Hash</string>
   <string name="payment__lbl_pr_paymenthash_desc">Unique identifier of the payment</string>
   <string name="payment__btn_send">Send Payment</string>
+  <string name="payment__label_pending">Please wait... Payment is being sent.</string>
 
   <!-- //////////////// fund /////////////////// -->
 
