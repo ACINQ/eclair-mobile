@@ -10,6 +10,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.zxing.integration.android.IntentIntegrator;
@@ -18,6 +19,8 @@ import com.google.zxing.integration.android.IntentResult;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+
+import java.util.List;
 
 import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.swordfish.BalanceEvent;
@@ -39,11 +42,6 @@ public class HomeActivity extends AppCompatActivity {
     setSupportActionBar(toolbar);
     ActionBar ab = getSupportActionBar();
     ab.setDisplayHomeAsUpEnabled(false);
-
-    // fetching payments from database
-    PaymentListItemAdapter adapter = new PaymentListItemAdapter(this, Payment.findWithQuery(Payment.class, "SELECT * FROM Payment ORDER BY created DESC LIMIT 20"));
-    ListView listView = (ListView) findViewById(R.id.main__listview_payments);
-    listView.setAdapter(adapter);
   }
 
   @Override
@@ -51,6 +49,7 @@ public class HomeActivity extends AppCompatActivity {
     EventBus.getDefault().register(this);
     super.onStart();
     updateBalance();
+    fetchPayments();
   }
 
   @Override
@@ -80,6 +79,25 @@ public class HomeActivity extends AppCompatActivity {
         return true;
       default:
         return super.onOptionsItemSelected(item);
+    }
+  }
+
+  private void fetchPayments() {
+    // fetching payments from database
+    TextView pending = (TextView) findViewById(R.id.pending);
+    ListView listView = (ListView) findViewById(R.id.main__listview_payments);
+    TextView emptyLabel = (TextView) findViewById(R.id.main__listview_label_empty);
+    List<Payment> payments = Payment.findWithQuery(Payment.class, "SELECT * FROM Payment ORDER BY created DESC LIMIT 20");
+    PaymentListItemAdapter adapter = new PaymentListItemAdapter(this, payments);
+    listView.setAdapter(adapter);
+    if (payments.isEmpty()) {
+      emptyLabel.setVisibility(View.VISIBLE);
+      listView.setVisibility(View.GONE);
+      pending.setVisibility(View.GONE);
+    } else {
+      emptyLabel.setVisibility(View.GONE);
+      listView.setVisibility(View.VISIBLE);
+      pending.setVisibility(View.GONE);
     }
   }
 

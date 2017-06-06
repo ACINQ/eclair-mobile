@@ -3,8 +3,6 @@ package fr.acinq.eclair.swordfish;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.view.View;
-import android.widget.ListView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,21 +13,15 @@ import akka.util.Timeout;
 import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.eclair.channel.CMD_GETINFO$;
 import fr.acinq.eclair.channel.RES_GETINFO;
-import fr.acinq.eclair.swordfish.adapters.ChannelListItemAdapter;
 import fr.acinq.eclair.swordfish.model.ChannelItem;
 import scala.Symbol;
-import scala.collection.Iterator;
 import scala.collection.JavaConversions;
 import scala.collection.immutable.Map;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
 
-/**
- * Created by Dominique on 26/05/2017.
- */
-
-public class ChannelsListTask extends AsyncTask<String, Integer,List<ChannelItem>> {
+public class ChannelsListTask extends AsyncTask<String, Integer, List<ChannelItem>> {
 
   public interface AsyncChannelsListResponse {
     void processFinish(List<ChannelItem> output);

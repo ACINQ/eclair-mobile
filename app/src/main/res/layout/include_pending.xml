@@ -1,0 +1,11 @@
+<TextView
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:id="@+id/pending"
+  android:layout_width="match_parent"
+  android:layout_height="wrap_content"
+  android:layout_margin="32dp"
+  android:layout_weight="1"
+  android:text="@string/pending"
+  android:textAlignment="center"
+  android:textColor="@color/colorGrey_1"
+  android:textSize="12sp" />

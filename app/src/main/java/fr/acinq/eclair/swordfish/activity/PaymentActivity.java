@@ -12,7 +12,13 @@ import android.widget.Toast;
 
 import java.util.Date;
 
+import akka.actor.ActorRef;
+import fr.acinq.bitcoin.BinaryData;
+import fr.acinq.bitcoin.Crypto;
+import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.payment.PaymentRequest;
+import fr.acinq.eclair.payment.SendPayment;
+import fr.acinq.eclair.swordfish.EclairHelper;
 import fr.acinq.eclair.swordfish.R;
 import fr.acinq.eclair.swordfish.model.Payment;
 
@@ -51,21 +57,19 @@ public class PaymentActivity extends AppCompatActivity {
     }
   }
 
-
-
   public void sendPayment(View view) {
     try {
-      Payment p = new Payment(PaymentRequest.write(currentPR),
+      Payment p = new Payment(currentPR.paymentHash().toString(), PaymentRequest.write(currentPR),
         "not yet implemented", new Date(), new Date());
       p.save();
-//      ActorRef pi = EclairHelper.getInstance(this).getSetup().paymentInitiator();
-//
-//      BinaryData paymentHash = BinaryData.apply(currentPR.paymentHash);
-//      BinaryData nodeId = BinaryData.apply(currentPR.nodeId);
-//      Crypto.Point pointNodeId = new Crypto.Point(Crypto.curve().getCurve().decodePoint(package$.MODULE$.binaryData2array(nodeId)));
-//      Crypto.PublicKey publicKey = new Crypto.PublicKey(pointNodeId, true);
-//
-//      pi.tell(new SendPayment(currentPR.amountMsat, paymentHash, publicKey, 5), pi);
+      ActorRef pi = EclairHelper.getInstance(this).getSetup().paymentInitiator();
+
+      BinaryData paymentHash = BinaryData.apply(currentPR.paymentHash().toString());
+      BinaryData nodeId = BinaryData.apply(currentPR.nodeId().toString());
+      Crypto.Point pointNodeId = new Crypto.Point(Crypto.curve().getCurve().decodePoint(package$.MODULE$.binaryData2array(nodeId)));
+      Crypto.PublicKey publicKey = new Crypto.PublicKey(pointNodeId, true);
+
+      pi.tell(new SendPayment(currentPR.amount().amount(), paymentHash, publicKey, 5), pi);
       Intent intent = new Intent(this, HomeActivity.class);
       Toast.makeText(this, "Added new Payment", Toast.LENGTH_SHORT).show();
       startActivity(intent);

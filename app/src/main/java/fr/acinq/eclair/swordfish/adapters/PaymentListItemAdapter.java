@@ -29,7 +29,7 @@ public class PaymentListItemAdapter extends ArrayAdapter<Payment> {
     super(context, 0, payments);
   }
 
-  private static DateFormat df = DateFormat.getDateInstance();
+  private static DateFormat df = DateFormat.getDateTimeInstance();
 
   @Override
   public View getView(int position, View convertView, ViewGroup parent) {
@@ -43,7 +43,7 @@ public class PaymentListItemAdapter extends ArrayAdapter<Payment> {
     TextView amount = (TextView) convertView.findViewById(R.id.payment_item_amount);
 
     description.setText("".equals(payment.description) ? "N/A" : payment.description);
-    status.setText("STATUS");
+    status.setText(payment.status);
     date.setText(df.format(payment.updated));
     try {
       BigDecimal amount_mbtc = package$.MODULE$.millisatoshi2millibtc(PaymentRequest.read(payment.paymentRequest).amount()).amount();

@@ -35,20 +35,35 @@
         android:id="@+id/channel__value_balance"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:orientation="vertical"
         app:amount_color="@color/white"
         app:amount_size="48sp"
+        app:orientation="vertical"
         app:unit="mBTC"
         app:unit_color="@color/colorPrimaryLight"
         app:unit_size="12sp" />
-
     </LinearLayout>
+
+    <include layout="@layout/include_pending" />
 
     <ListView
       android:id="@+id/main__listview_payments"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
-      android:elevation="8dp" />
+      android:elevation="8dp"
+      android:visibility="gone" />
+
+    <TextView
+      android:id="@+id/main__listview_label_empty"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_margin="32dp"
+      android:layout_weight="1"
+      android:text="@string/main__listview_label_empty"
+      android:textAlignment="center"
+      android:textColor="@color/colorGrey_1"
+      android:textSize="12sp"
+      android:visibility="gone" />
+
 
   </LinearLayout>
 

@@ -8,6 +8,7 @@ import akka.actor.ActorRef;
 import akka.actor.Props;
 import fr.acinq.eclair.Setup;
 import fr.acinq.eclair.channel.ChannelEvent;
+import fr.acinq.eclair.payment.PaymentEvent;
 
 /**
  * Created by Dominique on 24/05/2017.
@@ -29,6 +30,7 @@ public class EclairHelper {
 
     this.guiUpdater = this.setup.system().actorOf(Props.create(EclairEventService.class));
     setup.system().eventStream().subscribe(guiUpdater, ChannelEvent.class);
+    setup.system().eventStream().subscribe(guiUpdater, PaymentEvent.class);
   }
 
   public static boolean hasInstance() {

@@ -7,6 +7,7 @@
   <string name="main__btn_pay">Send a payment</string>
   <string name="main__btn_fund">Add funds</string>
   <string name="main__button_channels">Channels List</string>
+  <string name="main__listview_label_empty">No payments has been made yet...\nSend a payment by scanning a Payment Request QR Code.</string>
 
   <string name="title_activity_payment">Send a Payment</string>
   <string name="payment__lbl_pr">Enter a LN Payment Request:</string>
@@ -40,10 +41,10 @@
   <string name="fund__label_uri_port">Port:</string>
 
   <!-- //////////////// commons /////////////////// -->
-
   <string name="unknown">N/A</string>
   <string name="btn_ok">OK</string>
   <string name="btn_cancel">Cancel</string>
+  <string name="pending">Pending...</string>
 
   <!-- /////////////// menu_home /////////////// -->
   <string name="menu_home">Home</string>
