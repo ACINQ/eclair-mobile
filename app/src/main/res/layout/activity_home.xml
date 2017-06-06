@@ -39,7 +39,7 @@
         app:amount_size="48sp"
         app:orientation="vertical"
         app:unit="mBTC"
-        app:unit_color="@color/colorPrimaryLight"
+        app:unit_color="@color/white"
         app:unit_size="12sp" />
     </LinearLayout>
 

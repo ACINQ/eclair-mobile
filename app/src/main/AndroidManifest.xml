@@ -29,19 +29,23 @@
       android:value="fr.acinq.eclair.swordfish.model" />
 
     <!-- activities -->
-    <activity android:name=".activity.LauncherActivity" android:noHistory="true">
+    <activity
+      android:name=".activity.LauncherActivity"
+      android:noHistory="true">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
         <category android:name="android.intent.category.LAUNCHER" />
       </intent-filter>
     </activity>
-    <activity android:name=".activity.HomeActivity"
-      android:label="">
-    </activity>
+    <activity
+      android:name=".activity.HomeActivity"
+      android:label="" />
     <activity
       android:name=".activity.CreatePaymentActivity"
       android:label="Send a Payment"
-      android:parentActivityName=".activity.HomeActivity" />
+      android:noHistory="true"
+      android:parentActivityName=".activity.HomeActivity"
+      android:theme="@style/Theme.AppCompat.Dialog" />
     <activity
       android:name=".activity.ScanActivity"
       android:screenOrientation="fullSensor"

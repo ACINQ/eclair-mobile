@@ -1,13 +1,10 @@
 package fr.acinq.eclair.swordfish.activity;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.Date;
@@ -20,9 +17,10 @@ import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.payment.SendPayment;
 import fr.acinq.eclair.swordfish.EclairHelper;
 import fr.acinq.eclair.swordfish.R;
+import fr.acinq.eclair.swordfish.customviews.CoinAmountView;
 import fr.acinq.eclair.swordfish.model.Payment;
 
-public class CreatePaymentActivity extends AppCompatActivity {
+public class CreatePaymentActivity extends Activity {
 
   private PaymentRequest currentPR = null;
 
@@ -30,10 +28,6 @@ public class CreatePaymentActivity extends AppCompatActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_create_payment);
-    Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-    setSupportActionBar(toolbar);
-    ActionBar ab = getSupportActionBar();
-    ab.setDisplayHomeAsUpEnabled(true);
 
     Intent intent = getIntent();
     String paymentRequest = intent.getStringExtra(HomeActivity.EXTRA_PAYMENTREQUEST);
@@ -41,26 +35,31 @@ public class CreatePaymentActivity extends AppCompatActivity {
   }
 
   private void setPaymentRequest(String prString) {
-    TextView v_pubkey = (TextView) findViewById(R.id.payment__value_pr_pubkey);
-    TextView v_amount = (TextView) findViewById(R.id.payment__value_pr_amount);
-    TextView v_paymentHash = (TextView) findViewById(R.id.payment__value_pr_paymenthash);
+    CoinAmountView v_amount = (CoinAmountView) findViewById(R.id.payment__value_amount);
     try {
       PaymentRequest extract = PaymentRequest.read(prString);
-      v_pubkey.setText(extract.nodeId().toString());
-      v_amount.setText(new Long(extract.amount().amount() / 1000).toString()); // in satoshi
-      v_paymentHash.setText(extract.paymentHash().toString());
+      v_amount.setAmountSat(package$.MODULE$.millisatoshi2satoshi(extract.amount()));
       currentPR = extract;
     } catch (Throwable t) {
       Toast.makeText(this, "Invalid Payment Request", Toast.LENGTH_SHORT).show();
-      Intent intent = new Intent(this, HomeActivity.class);
-      startActivity(intent);
+      goToHome();
     }
+  }
+
+  public void cancelPayment(View view) {
+    goToHome();
+  }
+
+  private void goToHome() {
+    this.currentPR = null;
+    Intent intent = new Intent(this, HomeActivity.class);
+    startActivity(intent);
   }
 
   public void sendPayment(View view) {
     try {
       Payment p = new Payment(currentPR.paymentHash().toString(), PaymentRequest.write(currentPR),
-        "not yet implemented", new Date(), new Date());
+        "Placeholder description", new Date(), new Date());
       p.save();
       ActorRef pi = EclairHelper.getInstance(this).getSetup().paymentInitiator();
 
@@ -70,13 +69,12 @@ public class CreatePaymentActivity extends AppCompatActivity {
       Crypto.PublicKey publicKey = new Crypto.PublicKey(pointNodeId, true);
 
       pi.tell(new SendPayment(currentPR.amount().amount(), paymentHash, publicKey, 5), pi);
-      Intent intent = new Intent(this, HomeActivity.class);
       Toast.makeText(this, "Added new Payment", Toast.LENGTH_SHORT).show();
-      startActivity(intent);
-      currentPR = null;
+      goToHome();
     } catch (Exception e) {
-      Log.e("CreatePaymentActivity", "Could not parse Payment Request", e);
+      Log.e("CreatePaymentActivity", "Could not send payment", e);
       Toast.makeText(this, "Payment Failed", Toast.LENGTH_SHORT).show();
+      goToHome();
     }
   }
 }
