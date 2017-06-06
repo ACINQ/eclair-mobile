@@ -18,7 +18,7 @@ import fr.acinq.eclair.swordfish.R;
 
 public class OneInputDialog extends DialogFragment {
   public interface OneInputDialogListener {
-    public void onDialogPositiveClick(OneInputDialog dialog, String uri);
+    void onDialogPositiveClick(OneInputDialog dialog, String uri);
   }
   OneInputDialogListener mListener;
 

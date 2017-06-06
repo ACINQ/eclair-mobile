@@ -39,7 +39,7 @@
       android:label="">
     </activity>
     <activity
-      android:name=".activity.PaymentActivity"
+      android:name=".activity.CreatePaymentActivity"
       android:label="Send a Payment"
       android:parentActivityName=".activity.HomeActivity" />
     <activity
@@ -56,15 +56,6 @@
       android:name=".activity.ChannelsListActivity"
       android:label="Active channels"
       android:parentActivityName=".activity.HomeActivity" />
-    <activity
-      android:name=".activity.TestScrollingActivity"
-      android:label="@string/title_activity_test_scrolling"
-      android:parentActivityName=".activity.HomeActivity"
-      android:theme="@style/AppTheme.NoActionBar">
-      <meta-data
-        android:name="android.support.PARENT_ACTIVITY"
-        android:value="fr.acinq.eclair.swordfish.activity.HomeActivity" />
-    </activity>
   </application>
 
 </manifest>

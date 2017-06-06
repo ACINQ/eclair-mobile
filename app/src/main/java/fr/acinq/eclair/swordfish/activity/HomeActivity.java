@@ -111,7 +111,7 @@ public class HomeActivity extends AppCompatActivity {
 
   @Override
   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-    Log.d("PaymentActivity", "Got a Result Activity with code " + requestCode + "/" + resultCode);
+    Log.d("CreatePaymentActivity", "Got a Result Activity with code " + requestCode + "/" + resultCode);
     IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
     if (result != null /*&& requestCode == */ && resultCode == RESULT_OK) {
       if (result.getContents() == null) {
@@ -120,7 +120,7 @@ public class HomeActivity extends AppCompatActivity {
         try {
           // read content to check if the PR is valid
           PaymentRequest extract = PaymentRequest.read(result.getContents());
-          Intent intent = new Intent(this, PaymentActivity.class);
+          Intent intent = new Intent(this, CreatePaymentActivity.class);
           intent.putExtra(EXTRA_PAYMENTREQUEST, PaymentRequest.write(extract));
           startActivity(intent);
         } catch (Throwable t) {

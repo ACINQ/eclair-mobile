@@ -22,14 +22,14 @@ import fr.acinq.eclair.swordfish.EclairHelper;
 import fr.acinq.eclair.swordfish.R;
 import fr.acinq.eclair.swordfish.model.Payment;
 
-public class PaymentActivity extends AppCompatActivity {
+public class CreatePaymentActivity extends AppCompatActivity {
 
   private PaymentRequest currentPR = null;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    setContentView(R.layout.activity_payment);
+    setContentView(R.layout.activity_create_payment);
     Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
     ActionBar ab = getSupportActionBar();
@@ -75,7 +75,7 @@ public class PaymentActivity extends AppCompatActivity {
       startActivity(intent);
       currentPR = null;
     } catch (Exception e) {
-      Log.e("PaymentActivity", "Could not parse Payment Request", e);
+      Log.e("CreatePaymentActivity", "Could not parse Payment Request", e);
       Toast.makeText(this, "Payment Failed", Toast.LENGTH_SHORT).show();
     }
   }
