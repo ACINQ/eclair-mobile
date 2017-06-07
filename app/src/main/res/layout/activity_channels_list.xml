@@ -65,17 +65,51 @@
     android:textColor="@color/colorGrey_1"
     android:textSize="12sp" />
 
-  <android.support.design.widget.FloatingActionButton
-    android:id="@+id/channelslist__button_new"
-    android:layout_width="match_parent"
+  <LinearLayout
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_alignParentBottom="true"
     android:layout_alignParentRight="true"
-    android:layout_margin="@dimen/fab_margin"
-    android:clickable="true"
-    android:onClick="channellist__goToFund"
-    android:src="@drawable/ic_plus_white_24dp"
-    app:backgroundTint="@color/colorPrimary"
-    app:fabSize="normal" />
+    android:orientation="vertical">
+
+    <android.support.design.widget.FloatingActionButton
+      android:id="@+id/channelslist__button_newchannel_scan"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_gravity="center"
+      android:layout_margin="8dp"
+      android:clickable="true"
+      android:onClick="channellist__showScanner"
+      android:src="@drawable/ic_photo_camera_black_24dp"
+      android:visibility="gone"
+      app:backgroundTint="@color/colorGrey_0p"
+      app:fabSize="mini" />
+
+    <android.support.design.widget.FloatingActionButton
+      android:id="@+id/channelslist__button_newchannel_manual"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_gravity="center"
+      android:layout_margin="8dp"
+      android:clickable="true"
+      android:onClick="channellist__showManualDialog"
+      android:src="@drawable/ic_mode_edit_black_24dp"
+      android:visibility="gone"
+      app:backgroundTint="@color/colorGrey_0p"
+      app:fabSize="mini" />
+
+
+    <android.support.design.widget.FloatingActionButton
+      android:id="@+id/channelslist__button_new"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_gravity="center"
+      android:layout_margin="@dimen/fab_margin"
+      android:clickable="true"
+      android:onClick="channellist__toggleButtons"
+      android:src="@drawable/ic_plus_white_24dp"
+      app:backgroundTint="@color/colorPrimary"
+      app:fabSize="normal" />
+  </LinearLayout>
 
 </RelativeLayout>

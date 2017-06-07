@@ -12,14 +12,7 @@ import android.widget.EditText;
 
 import fr.acinq.eclair.swordfish.R;
 
-/**
- * Created by Dominique on 26/05/2017.
- */
-
 public class OneInputDialog extends DialogFragment {
-  public interface OneInputDialogListener {
-    void onDialogPositiveClick(OneInputDialog dialog, String uri);
-  }
   OneInputDialogListener mListener;
 
   @Override
@@ -36,7 +29,8 @@ public class OneInputDialog extends DialogFragment {
         }
       })
       .setNegativeButton(R.string.btn_cancel, new DialogInterface.OnClickListener() {
-        public void onClick(DialogInterface dialog, int id) {}
+        public void onClick(DialogInterface dialog, int id) {
+        }
       });
     return builder.create();
   }
@@ -50,6 +44,10 @@ public class OneInputDialog extends DialogFragment {
       // The activity doesn't implement the interface, throw exception
       throw new ClassCastException(context.toString() + " must implement OneInputDialogListener");
     }
+  }
+
+  public interface OneInputDialogListener {
+    void onDialogPositiveClick(OneInputDialog dialog, String uri);
   }
 
 }

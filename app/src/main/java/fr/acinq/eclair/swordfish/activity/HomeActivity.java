@@ -115,7 +115,7 @@ public class HomeActivity extends AppCompatActivity {
     IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
     if (result != null /*&& requestCode == */ && resultCode == RESULT_OK) {
       if (result.getContents() == null) {
-        Toast.makeText(this, "Cancelled", Toast.LENGTH_LONG).show();
+        Toast.makeText(this, "Cancelled", Toast.LENGTH_SHORT).show();
       } else {
         try {
           // read content to check if the PR is valid

@@ -45,7 +45,7 @@
       android:label="Send a Payment"
       android:noHistory="true"
       android:parentActivityName=".activity.HomeActivity"
-      android:theme="@style/Theme.AppCompat.Dialog" />
+      android:theme="@style/CustomDialog" />
     <activity
       android:name=".activity.ScanActivity"
       android:screenOrientation="fullSensor"
@@ -53,9 +53,11 @@
       android:theme="@style/zxing_CaptureTheme"
       android:windowSoftInputMode="stateAlwaysHidden" />
     <activity
-      android:name=".activity.FundActivity"
-      android:label="Open a channel"
-      android:parentActivityName=".activity.HomeActivity" />
+      android:name=".activity.OpenChannelActivity"
+      android:label="Open a new channel"
+      android:noHistory="true"
+      android:parentActivityName=".activity.ChannelsListActivity"
+      android:theme="@style/CustomDialog" />
     <activity
       android:name=".activity.ChannelsListActivity"
       android:label="Active channels"

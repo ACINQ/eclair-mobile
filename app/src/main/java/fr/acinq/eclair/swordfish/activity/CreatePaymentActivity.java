@@ -4,24 +4,15 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.Date;
-
-import akka.actor.ActorRef;
-import fr.acinq.bitcoin.BinaryData;
-import fr.acinq.bitcoin.Crypto;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.payment.PaymentRequest;
-import fr.acinq.eclair.payment.SendPayment;
-import fr.acinq.eclair.swordfish.EclairHelper;
 import fr.acinq.eclair.swordfish.R;
 import fr.acinq.eclair.swordfish.SendPaymentTask;
 import fr.acinq.eclair.swordfish.customviews.CoinAmountView;
-import fr.acinq.eclair.swordfish.model.Payment;
 
 public class CreatePaymentActivity extends Activity implements SendPaymentTask.AsyncSendPaymentResponse {
 

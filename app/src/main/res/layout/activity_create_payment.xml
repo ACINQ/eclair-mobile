@@ -85,7 +85,6 @@
       android:layout_height="wrap_content"
       android:text="@string/payment__label_pending"
       android:textAlignment="center"
-      android:textColor="@color/colorGrey_4"
       android:textSize="12sp" />
   </LinearLayout>
 </LinearLayout>

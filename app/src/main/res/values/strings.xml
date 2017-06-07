@@ -27,13 +27,11 @@
   <!-- //////////////// fund /////////////////// -->
 
   <string name="fund__label_title">Open a new channel</string>
-  <string name="fund__label_amount">Initial amount of the channel</string>
+  <string name="fund__label_amount">Capacity (mBTC)</string>
   <string name="fund__label_amount_desc">This amount is in satoshi, must be > 1000.</string>
+  <string name="fund__hint_amount">e.g. 42</string>
 
-  <string name="fund__button_pickrandom">Pick a random node</string>
-  <string name="fund__button_addmanual">Enter manual URI</string>
   <string name="fund__button_openchannel">Open Channel</string>
-
   <string name="fund__label_uri">Target URI</string>
   <string name="fund__label_uri_desc">URI of the node you want to open a channel with</string>
   <string name="fund__hint_uri">pubkey@host:port</string>
