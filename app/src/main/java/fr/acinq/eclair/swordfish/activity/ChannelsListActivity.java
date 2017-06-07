@@ -22,12 +22,14 @@ public class ChannelsListActivity extends AppCompatActivity implements ChannelsL
   @Override
   public void processFinish(List<ChannelItem> channels) {
     if (channels.size() == 0) {
+      findViewById(R.id.channelslist__label_pending).setVisibility(View.GONE);
       findViewById(R.id.channelslist__label_empty).setVisibility(View.VISIBLE);
       findViewById(R.id.channelslist__listview).setVisibility(View.GONE);
     } else {
       ChannelListItemAdapter adapter = new ChannelListItemAdapter(this, channels);
       ListView listView = (ListView) findViewById(R.id.channelslist__listview);
       listView.setAdapter(adapter);
+      findViewById(R.id.channelslist__label_pending).setVisibility(View.GONE);
       findViewById(R.id.channelslist__label_empty).setVisibility(View.GONE);
       findViewById(R.id.channelslist__listview).setVisibility(View.VISIBLE);
     }
@@ -43,7 +45,7 @@ public class ChannelsListActivity extends AppCompatActivity implements ChannelsL
   public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
       case R.id.menu_channelslist_refresh:
-        new ChannelsListTask(this, getApplicationContext()).execute();
+        fetchingChannelsList();
         return true;
       default:
         return super.onOptionsItemSelected(item);
@@ -59,11 +61,7 @@ public class ChannelsListActivity extends AppCompatActivity implements ChannelsL
     ActionBar ab = getSupportActionBar();
     ab.setDisplayHomeAsUpEnabled(true);
 
-    new ChannelsListTask(this, getApplicationContext()).execute();
-  }
-
-  public void channelslist__refresh(View view) {
-    new ChannelsListTask(this, getApplicationContext()).execute();
+    fetchingChannelsList();
   }
 
   public void channellist__goToFund(View view) {
@@ -71,4 +69,8 @@ public class ChannelsListActivity extends AppCompatActivity implements ChannelsL
     startActivity(intent);
   }
 
+  private void fetchingChannelsList() {
+    findViewById(R.id.channelslist__label_pending).setVisibility(View.VISIBLE);
+    new ChannelsListTask(this, getApplicationContext()).execute();
+  }
 }

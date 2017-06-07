@@ -20,8 +20,25 @@ import fr.acinq.eclair.payment.PaymentSent;
 import fr.acinq.eclair.swordfish.model.Payment;
 
 public class EclairEventService extends UntypedActor {
+
   private static final String TAG = "EclairEventService";
-  private static Map<String, Satoshi> channelBalanceMap = new ConcurrentHashMap<>();
+  private static Map<String, ChannelDetails> channelDetailsMap = new ConcurrentHashMap<>();
+
+  public static Satoshi getTotalBalance() {
+    Satoshi total = new Satoshi(0);
+    for (ChannelDetails d : channelDetailsMap.values()) {
+      total = total.$plus(d.balance);
+    }
+    return total;
+  }
+
+  public static Satoshi getBalanceOf(String channelId) {
+    return channelDetailsMap.get(channelId).balance;
+  }
+
+  public static Satoshi getCapacityOf(String channelId) {
+    return channelDetailsMap.get(channelId).capacity;
+  }
 
   @Override
   public void onReceive(final Object message) {
@@ -32,12 +49,14 @@ public class EclairEventService extends UntypedActor {
     if (message instanceof ChannelSignatureReceived) {
       Commitments c = ((ChannelSignatureReceived) message).Commitments();
       Satoshi balance = package$.MODULE$.millisatoshi2satoshi(new MilliSatoshi(c.localCommit().spec().toLocalMsat()));
-      channelBalanceMap.put(c.channelId().toString(), balance);
+      Satoshi capacity = package$.MODULE$.millisatoshi2satoshi(new MilliSatoshi(c.localCommit().spec().totalFunds()));
+      channelDetailsMap.put(c.channelId().toString(), new ChannelDetails(balance, capacity));
       EventBus.getDefault().post(new BalanceEvent(c.channelId().toString(), balance));
     } else if (message instanceof ChannelRestored) {
       Commitments c = ((ChannelRestored) message).currentData().commitments();
       Satoshi balance = package$.MODULE$.millisatoshi2satoshi(new MilliSatoshi(c.localCommit().spec().toLocalMsat()));
-      channelBalanceMap.put(c.channelId().toString(), balance);
+      Satoshi capacity = package$.MODULE$.millisatoshi2satoshi(new MilliSatoshi(c.localCommit().spec().totalFunds()));
+      channelDetailsMap.put(c.channelId().toString(), new ChannelDetails(balance, capacity));
       EventBus.getDefault().post(new BalanceEvent(c.channelId().toString(), balance));
     }
     // ---- events that update payments status
@@ -57,11 +76,13 @@ public class EclairEventService extends UntypedActor {
     }
   }
 
-  public static Satoshi getTotalBalance() {
-    Satoshi total = new Satoshi(0);
-    for (Satoshi ms : channelBalanceMap.values()) {
-      total = total.$plus(ms);
+  static class ChannelDetails {
+    Satoshi balance;
+    Satoshi capacity;
+
+    ChannelDetails(Satoshi balance, Satoshi capacity) {
+      this.balance = balance;
+      this.capacity = capacity;
     }
-    return total;
   }
 }

@@ -11,6 +11,7 @@ import akka.actor.ActorRef;
 import akka.pattern.Patterns;
 import akka.util.Timeout;
 import fr.acinq.bitcoin.BinaryData;
+import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.eclair.channel.CMD_GETINFO$;
 import fr.acinq.eclair.channel.RES_GETINFO;
 import fr.acinq.eclair.swordfish.model.ChannelItem;
@@ -47,8 +48,10 @@ public class ChannelsListTask extends AsyncTask<String, Integer, List<ChannelIte
       for (ActorRef a : m.values()) {
         Future<Object> futureActor = Patterns.ask(a, CMD_GETINFO$.MODULE$, timeout);
         RES_GETINFO detailActor = (RES_GETINFO) Await.result(futureActor, timeout.duration());
-        ChannelItem ci = new ChannelItem(detailActor.channelId().toString(), 0L, detailActor.nodeid().toString());
+        Satoshi capacity = EclairEventService.getCapacityOf(detailActor.channelId().toString());
+        ChannelItem ci = new ChannelItem(detailActor.channelId().toString(), capacity, detailActor.nodeid().toString());
         ci.status = detailActor.state().toString();
+        ci.balance = EclairEventService.getBalanceOf(detailActor.channelId().toString());
         channelsList.add(ci);
       }
     } catch (Exception e) {

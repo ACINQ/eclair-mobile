@@ -64,11 +64,10 @@
       android:textSize="12sp"
       android:visibility="gone" />
 
-
   </LinearLayout>
 
   <android.support.design.widget.FloatingActionButton
-    android:id="@+id/fab1111"
+    android:id="@+id/main__button_scanpr"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_alignParentBottom="true"
