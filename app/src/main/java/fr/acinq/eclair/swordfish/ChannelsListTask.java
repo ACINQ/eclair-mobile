@@ -12,6 +12,7 @@ import akka.pattern.Patterns;
 import akka.util.Timeout;
 import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.bitcoin.Satoshi;
+import fr.acinq.eclair.channel.CMD_CLOSE;
 import fr.acinq.eclair.channel.CMD_GETINFO$;
 import fr.acinq.eclair.channel.RES_GETINFO;
 import fr.acinq.eclair.swordfish.model.ChannelItem;
@@ -46,6 +47,7 @@ public class ChannelsListTask extends AsyncTask<String, Integer, List<ChannelIte
       Map<BinaryData, ActorRef> result = (Map<BinaryData, ActorRef>) Await.result(future, timeout.duration());
       java.util.Map<BinaryData, ActorRef> m = JavaConversions.mapAsJavaMap(result);
       for (ActorRef a : m.values()) {
+//        a.tell(CMD_CLOSE.apply(null), a);
         Future<Object> futureActor = Patterns.ask(a, CMD_GETINFO$.MODULE$, timeout);
         RES_GETINFO detailActor = (RES_GETINFO) Await.result(futureActor, timeout.duration());
         Satoshi capacity = EclairEventService.getCapacityOf(detailActor.channelId().toString());
