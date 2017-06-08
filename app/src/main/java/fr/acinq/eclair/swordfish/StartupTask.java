@@ -1,11 +1,8 @@
 package fr.acinq.eclair.swordfish;
 
-import android.content.Context;
 import android.os.AsyncTask;
 
-/**
- * Created by Dominique on 26/05/2017.
- */
+import java.io.File;
 
 public class StartupTask extends AsyncTask<String, Integer, Long> {
 
@@ -13,16 +10,17 @@ public class StartupTask extends AsyncTask<String, Integer, Long> {
     void processFinish(String output);
   }
   private AsyncSetupResponse delegate;
-  private Context context;
+  private File appFileDir;
 
-  public StartupTask(AsyncSetupResponse delegate, Context context){
+  public StartupTask(AsyncSetupResponse delegate, File appFileDir){
     this.delegate = delegate;
-    this.context = context;
+    this.appFileDir = appFileDir;
   }
 
   @Override
   protected Long doInBackground(String... params) {
-    EclairHelper.getInstance(context);
+
+    EclairHelper.getInstance(appFileDir);
     return 1L;
   }
 

@@ -39,7 +39,7 @@ public class ChannelsListTask extends AsyncTask<String, Integer, List<ChannelIte
 
   @Override
   protected List<ChannelItem> doInBackground(String... params) {
-    ActorRef register = EclairHelper.getInstance(context).getSetup().register();
+    ActorRef register = EclairHelper.getInstance(context.getFilesDir()).getSetup().register();
     Timeout timeout = new Timeout(Duration.create(5, "seconds"));
     Future<Object> future = Patterns.ask(register, new Symbol("channels"), timeout);
     List<ChannelItem> channelsList = new ArrayList();

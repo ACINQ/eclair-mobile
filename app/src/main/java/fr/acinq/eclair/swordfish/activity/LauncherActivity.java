@@ -14,14 +14,14 @@ public class LauncherActivity extends AppCompatActivity implements StartupTask.A
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_launcher);
-    new StartupTask(this, getApplicationContext()).execute();
+    new StartupTask(this, getFilesDir()).execute();
   }
 
   @Override
   public void processFinish(String output) {
     Intent intent = new Intent(this, HomeActivity.class);
     startActivity(intent);
-    EclairHelper.getInstance(this).getSetup().boostrap();
+    EclairHelper.getInstance(getFilesDir()).getSetup().boostrap();
     finish();
   }
 }

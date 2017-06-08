@@ -1,6 +1,6 @@
 package fr.acinq.eclair.swordfish;
 
-import android.content.Context;
+import android.util.Log;
 
 import java.io.File;
 
@@ -10,10 +10,6 @@ import fr.acinq.eclair.Setup;
 import fr.acinq.eclair.channel.ChannelEvent;
 import fr.acinq.eclair.payment.PaymentEvent;
 
-/**
- * Created by Dominique on 24/05/2017.
- */
-
 public class EclairHelper {
   private static EclairHelper mInstance = null;
 
@@ -22,9 +18,10 @@ public class EclairHelper {
 
   private EclairHelper() {}
 
-  private EclairHelper(Context context) {
-    File data = new File(context.getFilesDir(), "eclair-wallet-data");
-    System.setProperty("eclair.node-alias", "swordfish");
+  private EclairHelper(File f) {
+    Log.i("Eclair Helper", "Accessing Eclair Setup with datadir in " + f.getAbsolutePath());
+    File data = new File(f, "eclair-wallet-data");
+    System.setProperty("eclair.node-alias", "sw-curiosity");
     Setup setup = new Setup(data, "system");
     this.setup = setup;
 
@@ -37,11 +34,11 @@ public class EclairHelper {
     return mInstance == null;
   }
 
-  public static EclairHelper getInstance(Context context) {
+  public static EclairHelper getInstance(File f) {
     if (mInstance == null) {
       Class clazz = EclairHelper.class;
       synchronized (clazz) {
-        mInstance = new EclairHelper(context);
+        mInstance = new EclairHelper(f);
       }
     }
     return mInstance;

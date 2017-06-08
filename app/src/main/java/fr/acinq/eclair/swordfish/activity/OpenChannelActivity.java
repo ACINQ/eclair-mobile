@@ -117,7 +117,7 @@ public class OpenChannelActivity extends Activity implements OneInputDialog.OneI
     Crypto.PublicKey pk = new Crypto.PublicKey(point, true);
 
     Switchboard.NewChannel ch = new Switchboard.NewChannel(Long.parseLong(amountEV.getText().toString()), 0L);
-    ActorRef sw = EclairHelper.getInstance(this).getSetup().switchboard();
+    ActorRef sw = EclairHelper.getInstance(getFilesDir()).getSetup().switchboard();
     sw.tell(new Switchboard.NewConnection(pk, new InetSocketAddress(ipTV.getText().toString(), Integer.parseInt(portTV.getText().toString())), Option.apply(ch)), sw);
 
     Toast.makeText(this, "Opened channel with " + pk.toString(), Toast.LENGTH_LONG).show();
