@@ -59,7 +59,7 @@ public class SendPaymentTask extends AsyncTask<String, Integer, SendPaymentTask.
 
   @Override
   protected PaymentFeedback doInBackground(String... params) {
-    Timeout timeout = new Timeout(Duration.create(10, "seconds"));
+    Timeout timeout = new Timeout(Duration.create(60, "seconds"));
     ActorRef paymentInitiator = EclairHelper.getInstance(context).getSetup().paymentInitiator();
     BinaryData paymentHash = BinaryData.apply(paymentRequest.paymentHash().toString());
     BinaryData nodeId = BinaryData.apply(paymentRequest.nodeId().toString());

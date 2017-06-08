@@ -62,7 +62,7 @@ public class EclairEventService extends UntypedActor {
     // ---- events that update payments status
     if (message instanceof PaymentSent) {
       PaymentSent paymentEvent = (PaymentSent) message;
-      List<Payment> paymentList = Payment.findWithQuery(Payment.class, "SELECT * FROM Payment WHERE paymentHash = ? LIMIT 1", paymentEvent.paymentHash().toString());
+      List<Payment> paymentList = Payment.findWithQuery(Payment.class, "SELECT * FROM Payment WHERE payment_hash = ? LIMIT 1", paymentEvent.paymentHash().toString());
       if (paymentList.isEmpty()) {
         Log.e(TAG, "Received an unknown PaymentSent event. Ignoring");
       } else {

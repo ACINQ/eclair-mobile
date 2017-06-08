@@ -13,7 +13,7 @@ public class Payment extends SugarRecord {
   @Unique
   public String paymentHash;
 
-  public String  paymentRequest;
+  public String paymentRequest;
   public String description;
   public String status;
   public Date created;
