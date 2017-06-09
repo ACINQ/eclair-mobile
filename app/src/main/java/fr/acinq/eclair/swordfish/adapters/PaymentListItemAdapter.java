@@ -1,6 +1,7 @@
 package fr.acinq.eclair.swordfish.adapters;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,6 +40,11 @@ public class PaymentListItemAdapter extends ArrayAdapter<Payment> {
     TextView amount = (TextView) convertView.findViewById(R.id.payment_item_amount);
 
     description.setText("".equals(payment.description) ? "N/A" : payment.description);
+    if ("FAILED".equals(payment.status)) {
+      status.setTextColor(Color.RED);
+    } else if ("PENDING".equals(payment.status)) {
+      status.setTextColor(Color.BLUE);
+    }
     status.setText(payment.status);
     date.setText(df.format(payment.updated));
     try {

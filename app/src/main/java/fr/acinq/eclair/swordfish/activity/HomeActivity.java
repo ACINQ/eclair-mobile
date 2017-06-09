@@ -138,6 +138,7 @@ public class HomeActivity extends AppCompatActivity {
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void handleFailureEvent(ThrowableFailureEvent event) {
     Toast.makeText(this, "Payment failed: " + event.getThrowable().getMessage(), Toast.LENGTH_LONG).show();
+    fetchPayments();
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
