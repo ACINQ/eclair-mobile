@@ -21,7 +21,7 @@ public class EclairHelper {
   private EclairHelper(File f) {
     Log.i("Eclair Helper", "Accessing Eclair Setup with datadir in " + f.getAbsolutePath());
     File data = new File(f, "eclair-wallet-data");
-    System.setProperty("eclair.node-alias", "sw-curiosity");
+    System.setProperty("eclair.node-alias", "sw-ripley");
     Setup setup = new Setup(data, "system");
     this.setup = setup;
 

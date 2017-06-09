@@ -19,6 +19,7 @@ import com.google.zxing.integration.android.IntentResult;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.greenrobot.eventbus.util.ThrowableFailureEvent;
 
 import java.util.List;
 
@@ -26,12 +27,14 @@ import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.swordfish.ChannelUpdateEvent;
 import fr.acinq.eclair.swordfish.EclairEventService;
 import fr.acinq.eclair.swordfish.R;
+import fr.acinq.eclair.swordfish.SWPaymentEvent;
 import fr.acinq.eclair.swordfish.adapters.PaymentListItemAdapter;
 import fr.acinq.eclair.swordfish.customviews.CoinAmountView;
 import fr.acinq.eclair.swordfish.model.Payment;
 
 public class HomeActivity extends AppCompatActivity {
 
+  private static final String TAG = "Home Activity";
   public static final String EXTRA_PAYMENTREQUEST = "fr.acinq.eclair.swordfish.PAYMENT_REQUEST";
 
   @Override
@@ -111,7 +114,7 @@ public class HomeActivity extends AppCompatActivity {
 
   @Override
   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-    Log.d("CreatePaymentActivity", "Got a Result Activity with code " + requestCode + "/" + resultCode);
+    Log.d(TAG, "Got a Result Activity with code " + requestCode + "/" + resultCode);
     IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
     if (result != null /*&& requestCode == */ && resultCode == RESULT_OK) {
       if (result.getContents() == null) {
@@ -130,6 +133,17 @@ public class HomeActivity extends AppCompatActivity {
     } else {
       super.onActivityResult(requestCode, resultCode, data);
     }
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN)
+  public void handleFailureEvent(ThrowableFailureEvent event) {
+    Toast.makeText(this, "Payment failed: " + event.getThrowable().getMessage(), Toast.LENGTH_LONG).show();
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN)
+  public void onMessageEvent(SWPaymentEvent event) {
+    Toast.makeText(this, "Payment successful: " + event.paymentRequest.paymentHash().toString().substring(0,7) + "...", Toast.LENGTH_SHORT).show();
+    fetchPayments();
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
