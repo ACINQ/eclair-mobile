@@ -1,7 +1,6 @@
 package fr.acinq.eclair.swordfish.activity;
 
 import android.content.Intent;
-import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
@@ -9,7 +8,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -17,16 +15,22 @@ import android.widget.Toast;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
+import java.util.ArrayList;
 import java.util.List;
 
-import fr.acinq.eclair.swordfish.ChannelsListTask;
+import fr.acinq.eclair.swordfish.ChannelUpdateEvent;
+import fr.acinq.eclair.swordfish.EclairEventService;
 import fr.acinq.eclair.swordfish.R;
 import fr.acinq.eclair.swordfish.adapters.ChannelListItemAdapter;
 import fr.acinq.eclair.swordfish.fragment.OneInputDialog;
 import fr.acinq.eclair.swordfish.model.ChannelItem;
 import fr.acinq.eclair.swordfish.utils.Validators;
 
-public class ChannelsListActivity extends AppCompatActivity implements ChannelsListTask.AsyncChannelsListResponse, OneInputDialog.OneInputDialogListener {
+public class ChannelsListActivity extends AppCompatActivity implements OneInputDialog.OneInputDialogListener {
 
   public static final String EXTRA_NEWHOSTURI = "fr.acinq.eclair.swordfish.NEWHOSTURI";
 
@@ -35,17 +39,30 @@ public class ChannelsListActivity extends AppCompatActivity implements ChannelsL
     goToOpenChannelActivity(uri);
   }
 
-  @Override
-  public void processFinish(List<ChannelItem> channels) {
-    if (channels.size() == 0) {
-      findViewById(R.id.channelslist__label_pending).setVisibility(View.GONE);
+  @Subscribe(threadMode = ThreadMode.MAIN)
+  public void onMessageEvent(ChannelUpdateEvent event) {
+    updateChannelList();
+  }
+
+  private void updateChannelList() {
+    List<ChannelItem> items = new ArrayList<>();
+    for (EclairEventService.ChannelDetails d : EclairEventService.getChannelsMap().values()) {
+      ChannelItem item = new ChannelItem(d.channelId.toString(), d.capacity, d.remoteNodeId);
+      if (d.state == null) {
+        item.status = "UNKNOWN";
+      } else {
+        item.status = d.state.toString();
+      }
+      item.balance = d.balance;
+      items.add(item);
+    }
+    ChannelListItemAdapter adapter = new ChannelListItemAdapter(this, items);
+    ListView listView = (ListView) findViewById(R.id.channelslist__listview);
+    listView.setAdapter(adapter);
+    if (items.size() == 0) {
       findViewById(R.id.channelslist__label_empty).setVisibility(View.VISIBLE);
       findViewById(R.id.channelslist__listview).setVisibility(View.GONE);
     } else {
-      ChannelListItemAdapter adapter = new ChannelListItemAdapter(this, channels);
-      ListView listView = (ListView) findViewById(R.id.channelslist__listview);
-      listView.setAdapter(adapter);
-      findViewById(R.id.channelslist__label_pending).setVisibility(View.GONE);
       findViewById(R.id.channelslist__label_empty).setVisibility(View.GONE);
       findViewById(R.id.channelslist__listview).setVisibility(View.VISIBLE);
     }
@@ -58,17 +75,6 @@ public class ChannelsListActivity extends AppCompatActivity implements ChannelsL
   }
 
   @Override
-  public boolean onOptionsItemSelected(MenuItem item) {
-    switch (item.getItemId()) {
-      case R.id.menu_channelslist_refresh:
-        fetchingChannelsList();
-        return true;
-      default:
-        return super.onOptionsItemSelected(item);
-    }
-  }
-
-  @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_channels_list);
@@ -76,8 +82,25 @@ public class ChannelsListActivity extends AppCompatActivity implements ChannelsL
     setSupportActionBar(toolbar);
     ActionBar ab = getSupportActionBar();
     ab.setDisplayHomeAsUpEnabled(true);
+  }
 
-    fetchingChannelsList();
+  @Override
+  public void onStart() {
+    EventBus.getDefault().register(this);
+    super.onStart();
+    updateChannelList();
+  }
+
+  @Override
+  public void onStop() {
+    EventBus.getDefault().unregister(this);
+    super.onStop();
+  }
+
+  @Override
+  public void onPause() {
+    EventBus.getDefault().unregister(this);
+    super.onPause();
   }
 
   public void channellist__toggleButtons(View view) {
@@ -135,8 +158,4 @@ public class ChannelsListActivity extends AppCompatActivity implements ChannelsL
     integrator.initiateScan();
   }
 
-  private void fetchingChannelsList() {
-    findViewById(R.id.channelslist__label_pending).setVisibility(View.VISIBLE);
-    new ChannelsListTask(this, getApplicationContext()).execute();
-  }
 }

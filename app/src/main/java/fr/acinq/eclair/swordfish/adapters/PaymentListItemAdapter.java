@@ -20,10 +20,6 @@ import fr.acinq.eclair.swordfish.model.Payment;
 import fr.acinq.eclair.swordfish.utils.CoinFormat;
 import scala.math.BigDecimal;
 
-/**
- * Created by Dominique on 18/05/2017.
- */
-
 public class PaymentListItemAdapter extends ArrayAdapter<Payment> {
   public PaymentListItemAdapter(Context context, List<Payment> payments) {
     super(context, 0, payments);

@@ -5,10 +5,6 @@ import com.orm.dsl.Unique;
 
 import java.util.Date;
 
-/**
- * Created by Dominique on 18/05/2017.
- */
-
 public class Payment extends SugarRecord {
   @Unique
   public String paymentHash;

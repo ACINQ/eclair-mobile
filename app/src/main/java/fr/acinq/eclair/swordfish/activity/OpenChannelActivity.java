@@ -16,6 +16,9 @@ import java.net.InetSocketAddress;
 import akka.actor.ActorRef;
 import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.bitcoin.Crypto;
+import fr.acinq.bitcoin.MilliBtc;
+import fr.acinq.bitcoin.MilliSatoshi;
+import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.io.Switchboard;
 import fr.acinq.eclair.swordfish.EclairHelper;
@@ -23,6 +26,7 @@ import fr.acinq.eclair.swordfish.R;
 import fr.acinq.eclair.swordfish.fragment.OneInputDialog;
 import fr.acinq.eclair.swordfish.utils.Validators;
 import scala.Option;
+import scala.math.BigDecimal;
 
 public class OpenChannelActivity extends Activity implements OneInputDialog.OneInputDialogListener {
 
@@ -66,7 +70,6 @@ public class OpenChannelActivity extends Activity implements OneInputDialog.OneI
   @Override
   protected void onStart() {
     super.onStart();
-
   }
 
   @Override
@@ -112,15 +115,21 @@ public class OpenChannelActivity extends Activity implements OneInputDialog.OneI
     TextView ipTV = (TextView) findViewById(R.id.fund__value_uri_ip);
     TextView portTV = (TextView) findViewById(R.id.fund__value_uri_port);
 
-    BinaryData bd = BinaryData.apply(pubkeyTV.getText().toString());
-    Crypto.Point point = new Crypto.Point(Crypto.curve().getCurve().decodePoint(package$.MODULE$.binaryData2array(bd)));
-    Crypto.PublicKey pk = new Crypto.PublicKey(point, true);
+    try {
+      Satoshi funding = package$.MODULE$.millibtc2satoshi(new MilliBtc(BigDecimal.exact(amountEV.getText().toString())));
+      BinaryData bd = BinaryData.apply(pubkeyTV.getText().toString());
+      Crypto.Point point = new Crypto.Point(Crypto.curve().getCurve().decodePoint(package$.MODULE$.binaryData2array(bd)));
+      Crypto.PublicKey pk = new Crypto.PublicKey(point, true);
 
-    Switchboard.NewChannel ch = new Switchboard.NewChannel(Long.parseLong(amountEV.getText().toString()), 0L);
-    ActorRef sw = EclairHelper.getInstance(getFilesDir()).getSetup().switchboard();
-    sw.tell(new Switchboard.NewConnection(pk, new InetSocketAddress(ipTV.getText().toString(), Integer.parseInt(portTV.getText().toString())), Option.apply(ch)), sw);
+      Switchboard.NewChannel ch = new Switchboard.NewChannel(funding, new MilliSatoshi(0));
+      ActorRef sw = EclairHelper.getInstance(getFilesDir()).getSetup().switchboard();
+      sw.tell(new Switchboard.NewConnection(pk, new InetSocketAddress(ipTV.getText().toString(), Integer.parseInt(portTV.getText().toString())), Option.apply(ch)), sw);
 
-    Toast.makeText(this, "Opened channel with " + pk.toString(), Toast.LENGTH_LONG).show();
-    goToChannelsList();
+      Toast.makeText(this, "Opened channel with " + pk.toString(), Toast.LENGTH_LONG).show();
+      goToChannelsList();
+    } catch (Exception e) {
+      Toast.makeText(this, "Error when opening channel", Toast.LENGTH_SHORT).show();
+      goToChannelsList();
+    }
   }
 }

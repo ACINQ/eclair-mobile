@@ -52,7 +52,7 @@
   <string name="menu_refresh">Refresh</string>
 
   <!-- /////////////// channels list /////////////// -->
-  <string name="channelslist__label_empty">No channels found.\nPlease create a new channel...</string>
+  <string name="channelslist__label_empty">No channels found...\nYou can create a new channel by clicking on the button below.</string>
   <string name="channelslist__label_error">An error has occured and the channels could not be found.\nIf the problem persists, restart the application.</string>
   <string name="channelslist__label_pending">Fetching list of connected channels...\nPlease wait.</string>
   <string name="title_activity_test_scrolling">TestScrollingActivity</string>

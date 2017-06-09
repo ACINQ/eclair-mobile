@@ -5,7 +5,6 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import java.util.Date;
-import java.util.List;
 
 import akka.actor.ActorRef;
 import akka.pattern.Patterns;
@@ -25,32 +24,9 @@ import scala.concurrent.duration.Duration;
 
 public class SendPaymentTask extends AsyncTask<String, Integer, SendPaymentTask.PaymentFeedback> {
 
-  public class PaymentFeedback {
-    private final boolean hasSucceeded;
-    private final String message;
-    private final PaymentRequest paymentRequest;
-
-    public PaymentFeedback(boolean hasSucceeded, String message, PaymentRequest paymentRequest) {
-      this.hasSucceeded = hasSucceeded;
-      this.message = message;
-      this.paymentRequest = paymentRequest;
-    }
-    public String getMessage() {
-      return this.message;
-    }
-    public boolean hasSucceeded() {
-      return this.hasSucceeded;
-    }
-  }
-
-  public interface AsyncSendPaymentResponse {
-    void processFinish(PaymentFeedback output);
-  }
-
   private AsyncSendPaymentResponse delegate;
   private Context context;
   private PaymentRequest paymentRequest;
-
   public SendPaymentTask(AsyncSendPaymentResponse delegate, Context context, PaymentRequest paymentRequest) {
     this.delegate = delegate;
     this.context = context;
@@ -69,12 +45,12 @@ public class SendPaymentTask extends AsyncTask<String, Integer, SendPaymentTask.
     Future<Object> paymentFuture = Patterns.ask(paymentInitiator, new SendPayment(paymentRequest.amount().amount(), paymentHash, publicKey, 5), timeout);
     boolean hasSucceeded = false;
     String message = "";
+    Payment p = new Payment(paymentRequest.paymentHash().toString(), PaymentRequest.write(paymentRequest),
+      "Placeholder description", new Date(), new Date());
+    p.save();
     try {
       PaymentResult paymentResult = (PaymentResult) Await.result(paymentFuture, timeout.duration());
       if (paymentResult instanceof PaymentSucceeded) {
-        Payment p = new Payment(paymentRequest.paymentHash().toString(), PaymentRequest.write(paymentRequest),
-          "Placeholder description", new Date(), new Date());
-        p.save();
         hasSucceeded = true;
       } else if (paymentResult instanceof PaymentFailed) {
         PaymentFailed pf = ((PaymentFailed) paymentResult);
@@ -93,5 +69,29 @@ public class SendPaymentTask extends AsyncTask<String, Integer, SendPaymentTask.
 
   protected void onPostExecute(PaymentFeedback result) {
     delegate.processFinish(result);
+  }
+
+  public interface AsyncSendPaymentResponse {
+    void processFinish(PaymentFeedback output);
+  }
+
+  public class PaymentFeedback {
+    private final boolean hasSucceeded;
+    private final String message;
+    private final PaymentRequest paymentRequest;
+
+    public PaymentFeedback(boolean hasSucceeded, String message, PaymentRequest paymentRequest) {
+      this.hasSucceeded = hasSucceeded;
+      this.message = message;
+      this.paymentRequest = paymentRequest;
+    }
+
+    public String getMessage() {
+      return this.message;
+    }
+
+    public boolean hasSucceeded() {
+      return this.hasSucceeded;
+    }
   }
 }

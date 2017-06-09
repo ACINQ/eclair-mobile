@@ -41,8 +41,7 @@
       android:text="@string/channelslist__label_empty"
       android:textAlignment="center"
       android:textColor="@color/colorGrey_1"
-      android:textSize="12sp"
-      android:visibility="gone" />
+      android:textSize="12sp" />
 
     <ListView
       android:id="@+id/channelslist__listview"
@@ -51,19 +50,6 @@
       android:visibility="gone" />
 
   </LinearLayout>
-
-  <TextView
-    android:id="@+id/channelslist__label_pending"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_centerHorizontal="true"
-    android:layout_marginTop="96dp"
-    android:background="@color/white"
-    android:padding="6dp"
-    android:text="@string/channelslist__label_pending"
-    android:textAlignment="center"
-    android:textColor="@color/colorGrey_1"
-    android:textSize="12sp" />
 
   <LinearLayout
     android:layout_width="wrap_content"

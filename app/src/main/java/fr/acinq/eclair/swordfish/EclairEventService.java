@@ -9,20 +9,29 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import akka.actor.ActorRef;
+import akka.actor.Terminated;
 import akka.actor.UntypedActor;
+import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.bitcoin.package$;
+import fr.acinq.eclair.channel.ChannelCreated;
 import fr.acinq.eclair.channel.ChannelRestored;
 import fr.acinq.eclair.channel.ChannelSignatureReceived;
-import fr.acinq.eclair.channel.Commitments;
+import fr.acinq.eclair.channel.ChannelStateChanged;
+import fr.acinq.eclair.channel.State;
 import fr.acinq.eclair.payment.PaymentSent;
 import fr.acinq.eclair.swordfish.model.Payment;
 
 public class EclairEventService extends UntypedActor {
 
   private static final String TAG = "EclairEventService";
-  private static Map<String, ChannelDetails> channelDetailsMap = new ConcurrentHashMap<>();
+  private static Map<ActorRef, ChannelDetails> channelDetailsMap = new ConcurrentHashMap<>();
+
+  public static Map<ActorRef, ChannelDetails> getChannelsMap() {
+    return channelDetailsMap;
+  }
 
   public static Satoshi getTotalBalance() {
     Satoshi total = new Satoshi(0);
@@ -40,27 +49,57 @@ public class EclairEventService extends UntypedActor {
     return channelDetailsMap.get(channelId).capacity;
   }
 
+  private static ChannelDetails getChannelDetails(ActorRef ref) {
+    return channelDetailsMap.containsKey(ref) ? channelDetailsMap.get(ref) : new ChannelDetails();
+  }
+
   @Override
   public void onReceive(final Object message) {
-    Log.e(TAG, "##################################### Got event in thread: " + Thread.currentThread().getName());
-    Log.e(TAG, "Event: " + message);
+    Log.e(TAG, "######## Event: " + message);
 
     // ---- events that update balance
-    if (message instanceof ChannelSignatureReceived) {
-      Commitments c = ((ChannelSignatureReceived) message).Commitments();
-      Satoshi balance = package$.MODULE$.millisatoshi2satoshi(new MilliSatoshi(c.localCommit().spec().toLocalMsat()));
-      Satoshi capacity = package$.MODULE$.millisatoshi2satoshi(new MilliSatoshi(c.localCommit().spec().totalFunds()));
-      channelDetailsMap.put(c.channelId().toString(), new ChannelDetails(balance, capacity));
-      EventBus.getDefault().post(new BalanceEvent(c.channelId().toString(), balance));
+    if (message instanceof ChannelCreated) {
+      ChannelCreated cr = (ChannelCreated) message;
+      ChannelDetails cd = getChannelDetails(cr.channel());
+      cd.channelId = cr.temporaryChannelId();
+      cd.remoteNodeId = cr.remoteNodeId().toString();
+      channelDetailsMap.put(((ChannelSignatureReceived) message).channel(), cd);
+      EventBus.getDefault().post(new ChannelUpdateEvent());
+    }
+    else if (message instanceof ChannelSignatureReceived) {
+      ChannelSignatureReceived csr = (ChannelSignatureReceived) message;
+      ChannelDetails cd = getChannelDetails(csr.channel());
+      cd.channelId = csr.Commitments().channelId();
+      cd.balance = package$.MODULE$.millisatoshi2satoshi(new MilliSatoshi(csr.Commitments().localCommit().spec().toLocalMsat()));;
+      cd.capacity = package$.MODULE$.millisatoshi2satoshi(new MilliSatoshi(csr.Commitments().localCommit().spec().totalFunds()));;
+      channelDetailsMap.put(csr.channel(), cd);
+      EventBus.getDefault().post(new ChannelUpdateEvent());
     } else if (message instanceof ChannelRestored) {
-      Commitments c = ((ChannelRestored) message).currentData().commitments();
-      Satoshi balance = package$.MODULE$.millisatoshi2satoshi(new MilliSatoshi(c.localCommit().spec().toLocalMsat()));
-      Satoshi capacity = package$.MODULE$.millisatoshi2satoshi(new MilliSatoshi(c.localCommit().spec().totalFunds()));
-      channelDetailsMap.put(c.channelId().toString(), new ChannelDetails(balance, capacity));
-      EventBus.getDefault().post(new BalanceEvent(c.channelId().toString(), balance));
+      ChannelRestored cr = (ChannelRestored) message;
+      ChannelDetails cd = getChannelDetails(cr.channel());
+      cd.channelId = cr.channelId();
+      cd.balance = package$.MODULE$.millisatoshi2satoshi(new MilliSatoshi(cr.currentData().commitments().localCommit().spec().toLocalMsat()));
+      cd.capacity = package$.MODULE$.millisatoshi2satoshi(new MilliSatoshi(cr.currentData().commitments().localCommit().spec().totalFunds()));
+      cd.remoteNodeId = cr.remoteNodeId().toString();
+      channelDetailsMap.put(cr.channel(), cd);
+      EventBus.getDefault().post(new ChannelUpdateEvent());
+    }
+    // ---- channel has been terminated
+    else if (message instanceof Terminated) {
+      channelDetailsMap.remove(((Terminated) message).getActor());
+      EventBus.getDefault().post(new ChannelUpdateEvent());
+    }
+    // ---- channel state changed
+    else if (message instanceof ChannelStateChanged) {
+      ChannelStateChanged cs = (ChannelStateChanged) message;
+      ChannelDetails cd = getChannelDetails(cs.channel());
+      cd.state = cs.currentState();
+      Log.i(TAG, "Channel " + cd.channelId + " changed to " + cs.currentState());
+      channelDetailsMap.put(cs.channel(), cd);
+      EventBus.getDefault().post(new ChannelUpdateEvent());
     }
     // ---- events that update payments status
-    if (message instanceof PaymentSent) {
+    else if (message instanceof PaymentSent) {
       PaymentSent paymentEvent = (PaymentSent) message;
       List<Payment> paymentList = Payment.findWithQuery(Payment.class, "SELECT * FROM Payment WHERE payment_hash = ? LIMIT 1", paymentEvent.paymentHash().toString());
       if (paymentList.isEmpty()) {
@@ -76,13 +115,11 @@ public class EclairEventService extends UntypedActor {
     }
   }
 
-  static class ChannelDetails {
-    Satoshi balance;
-    Satoshi capacity;
-
-    ChannelDetails(Satoshi balance, Satoshi capacity) {
-      this.balance = balance;
-      this.capacity = capacity;
-    }
+  public static class ChannelDetails {
+    public Satoshi balance = new Satoshi(0);
+    public Satoshi capacity = new Satoshi(0);
+    public BinaryData channelId;
+    public State state;
+    public String remoteNodeId;
   }
 }

@@ -28,10 +28,12 @@ public class ChannelListItemAdapter extends ArrayAdapter<ChannelItem> {
     TextView id = (TextView) convertView.findViewById(R.id.channelitem__value_channelid);
     TextView status = (TextView) convertView.findViewById(R.id.channelitem__value_status);
     TextView balance = (TextView) convertView.findViewById(R.id.channelitem__value_balance);
+    TextView targetnode = (TextView) convertView.findViewById(R.id.channelitem__value_targetnode);
 
     id.setText(channel.id);
     status.setText(String.valueOf(channel.status));
     balance.setText(CoinFormat.getMilliBTCFormat().format(package$.MODULE$.satoshi2millibtc(channel.balance).amount()));
+    targetnode.setText(channel.targetPubkey);
     return convertView;
   }
 }

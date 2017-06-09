@@ -23,7 +23,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.util.List;
 
 import fr.acinq.eclair.payment.PaymentRequest;
-import fr.acinq.eclair.swordfish.BalanceEvent;
+import fr.acinq.eclair.swordfish.ChannelUpdateEvent;
 import fr.acinq.eclair.swordfish.EclairEventService;
 import fr.acinq.eclair.swordfish.R;
 import fr.acinq.eclair.swordfish.adapters.PaymentListItemAdapter;
@@ -133,8 +133,7 @@ public class HomeActivity extends AppCompatActivity {
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
-  public void onMessageEvent(BalanceEvent event) {
-    Toast.makeText(this, "Balance Event for " + event.channelId.substring(0, 7), Toast.LENGTH_SHORT).show();
+  public void onMessageEvent(ChannelUpdateEvent event) {
     updateBalance();
   }
 
