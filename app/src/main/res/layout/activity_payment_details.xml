@@ -43,7 +43,7 @@
         android:id="@+id/paymentdetails_status"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:desc="The payment can be PAID, PENDING or FAILED. If the payment takes too long, it is considered as failed."
+        app:desc="Can be PAID, PENDING or FAILED."
         app:label="Status"
         app:value="@string/unknown" />
 

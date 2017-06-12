@@ -44,7 +44,10 @@
       android:id="@+id/view_value"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:text="value" />
+      android:fontFamily="monospace"
+      android:text="value"
+      android:textIsSelectable="true"
+      android:textSize="10sp" />
 
   </RelativeLayout>
 

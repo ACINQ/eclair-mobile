@@ -13,7 +13,7 @@ import fr.acinq.eclair.swordfish.model.Payment;
 
 public class PaymentListItemAdapter extends RecyclerView.Adapter<PaymentItemHolder> {
 
-  private final List<Payment> payments;
+  private List<Payment> payments;
   private Context context;
 
   public PaymentListItemAdapter(Context context, List<Payment> payments) {
@@ -35,7 +35,16 @@ public class PaymentListItemAdapter extends RecyclerView.Adapter<PaymentItemHold
 
   @Override
   public int getItemCount() {
-    return this.payments.size();
+    return this.payments == null ? 0 : this.payments.size();
   }
 
+  public void update(List<Payment> payments) {
+    if (payments == null) {
+      this.payments = payments;
+    } else {
+      this.payments.clear();
+      this.payments.addAll(payments);
+    }
+    notifyDataSetChanged();
+  }
 }

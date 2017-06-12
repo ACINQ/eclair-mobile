@@ -49,8 +49,7 @@
       android:id="@+id/main__list_payments"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
-      android:elevation="8dp"
-      android:visibility="gone" />
+      android:elevation="8dp" />
 
     <TextView
       android:id="@+id/main__listview_label_empty"

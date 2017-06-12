@@ -11,20 +11,16 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
-import org.bitcoin.NativeSecp256k1;
-import org.bitcoin.NativeSecp256k1Util;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.greenrobot.eventbus.util.ThrowableFailureEvent;
-import org.spongycastle.util.encoders.Hex;
 
 import java.util.List;
 
@@ -43,6 +39,8 @@ public class HomeActivity extends AppCompatActivity {
   public static final String EXTRA_PAYMENTREQUEST = "fr.acinq.eclair.swordfish.PAYMENT_REQUEST";
   public static final String EXTRA_PAYMENT_DETAILS_ID = "fr.acinq.eclair.swordfish.PAYMENT_DETAILS_ID";
 
+  private PaymentListItemAdapter paymentAdapter;
+
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -52,18 +50,6 @@ public class HomeActivity extends AppCompatActivity {
     setSupportActionBar(toolbar);
     ActionBar ab = getSupportActionBar();
     ab.setDisplayHomeAsUpEnabled(false);
-
-    byte[] priv = new byte[32];
-    for(int i=0; i < 32; i++) priv[i] = (byte)1;
-    try {
-      byte[] pub = NativeSecp256k1.computePubkey(priv);
-      String hex = Hex.toHexString(pub);
-      Log.d(TAG, "public key: "  + hex);
-    } catch (NativeSecp256k1Util.AssertFailException e) {
-      Log.e(TAG, e.getMessage());
-      e.printStackTrace();
-    }
-
   }
 
   @Override
@@ -71,7 +57,12 @@ public class HomeActivity extends AppCompatActivity {
     EventBus.getDefault().register(this);
     super.onStart();
     updateBalance();
-    fetchPayments();
+    List<Payment> payments = getPayments();
+    this.paymentAdapter = new PaymentListItemAdapter(this, payments);
+    RecyclerView listView = (RecyclerView) findViewById(R.id.main__list_payments);
+    listView.setHasFixedSize(true);
+    listView.setLayoutManager(new LinearLayoutManager(this));
+    listView.setAdapter(paymentAdapter);
   }
 
   @Override
@@ -108,26 +99,23 @@ public class HomeActivity extends AppCompatActivity {
     }
   }
 
-  private void fetchPayments() {
+  private List<Payment> getPayments () {
+    List<Payment> list =  Payment.findWithQuery(Payment.class, "SELECT * FROM Payment ORDER BY created DESC LIMIT 100");
     TextView pending = (TextView) findViewById(R.id.pending);
-    RecyclerView listView = (RecyclerView) findViewById(R.id.main__list_payments);
     TextView emptyLabel = (TextView) findViewById(R.id.main__listview_label_empty);
 
-    // fetching payments from database
-    List<Payment> payments = Payment.findWithQuery(Payment.class, "SELECT * FROM Payment ORDER BY created DESC LIMIT 100");
-    PaymentListItemAdapter adapter = new PaymentListItemAdapter(this, payments);
-    listView.setHasFixedSize(true);
-    listView.setLayoutManager(new LinearLayoutManager(this));
-    listView.setAdapter(adapter);
-    if (payments.isEmpty()) {
+    if (list.isEmpty()) {
       emptyLabel.setVisibility(View.VISIBLE);
-      listView.setVisibility(View.GONE);
       pending.setVisibility(View.GONE);
     } else {
       emptyLabel.setVisibility(View.GONE);
-      listView.setVisibility(View.VISIBLE);
       pending.setVisibility(View.GONE);
     }
+    return list;
+  }
+
+  private void updatePayments(List<Payment> payments) {
+
   }
 
   public void channel__openScan(View view) {
@@ -164,13 +152,12 @@ public class HomeActivity extends AppCompatActivity {
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void handleFailureEvent(ThrowableFailureEvent event) {
     Toast.makeText(this, "Payment failed: " + event.getThrowable().getMessage(), Toast.LENGTH_LONG).show();
-    fetchPayments();
+    paymentAdapter.update(getPayments());
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void onMessageEvent(SWPaymentEvent event) {
-    Toast.makeText(this, "Payment successful: " + event.paymentRequest.paymentHash().toString().substring(0,7) + "...", Toast.LENGTH_SHORT).show();
-    fetchPayments();
+    paymentAdapter.update(getPayments());
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
