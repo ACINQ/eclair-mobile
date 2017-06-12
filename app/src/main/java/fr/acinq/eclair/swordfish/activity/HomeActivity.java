@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -36,11 +38,13 @@ public class HomeActivity extends AppCompatActivity {
 
   private static final String TAG = "Home Activity";
   public static final String EXTRA_PAYMENTREQUEST = "fr.acinq.eclair.swordfish.PAYMENT_REQUEST";
+  public static final String EXTRA_PAYMENT_DETAILS_ID = "fr.acinq.eclair.swordfish.PAYMENT_DETAILS_ID";
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_home);
+
     Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
     ActionBar ab = getSupportActionBar();
@@ -90,12 +94,15 @@ public class HomeActivity extends AppCompatActivity {
   }
 
   private void fetchPayments() {
-    // fetching payments from database
     TextView pending = (TextView) findViewById(R.id.pending);
-    ListView listView = (ListView) findViewById(R.id.main__listview_payments);
+    RecyclerView listView = (RecyclerView) findViewById(R.id.main__list_payments);
     TextView emptyLabel = (TextView) findViewById(R.id.main__listview_label_empty);
-    List<Payment> payments = Payment.findWithQuery(Payment.class, "SELECT * FROM Payment ORDER BY created DESC LIMIT 20");
+
+    // fetching payments from database
+    List<Payment> payments = Payment.findWithQuery(Payment.class, "SELECT * FROM Payment ORDER BY created DESC LIMIT 100");
     PaymentListItemAdapter adapter = new PaymentListItemAdapter(this, payments);
+    listView.setHasFixedSize(true);
+    listView.setLayoutManager(new LinearLayoutManager(this));
     listView.setAdapter(adapter);
     if (payments.isEmpty()) {
       emptyLabel.setVisibility(View.VISIBLE);

@@ -6,7 +6,7 @@
   <RelativeLayout
     android:layout_width="0.0dp"
     android:layout_height="wrap_content"
-    android:layout_weight="0.6"
+    android:layout_weight="0.5"
     android:padding="8dp">
 
     <LinearLayout
@@ -26,7 +26,6 @@
         android:id="@+id/view_desc"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:maxLines="2"
         android:text="description"
         android:textColor="@color/colorGrey_1"
         android:textSize="12sp" />
@@ -38,7 +37,7 @@
   <RelativeLayout
     android:layout_width="0.0dp"
     android:layout_height="wrap_content"
-    android:layout_weight="0.4"
+    android:layout_weight="0.5"
     android:padding="8dp">
 
     <TextView

@@ -67,6 +67,10 @@
       android:name=".activity.SettingsActivity"
       android:label="Settings"
       android:parentActivityName=".activity.HomeActivity" />
+    <activity
+      android:name=".activity.PaymentDetailsActivity"
+      android:label="Payment Details"
+      android:parentActivityName=".activity.HomeActivity" />
   </application>
 
 </manifest>

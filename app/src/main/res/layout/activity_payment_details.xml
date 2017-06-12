@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:orientation="vertical"
+  tools:context="fr.acinq.eclair.swordfish.activity.PaymentDetailsActivity">
+
+  <!-- Custom toolbar -->
+  <include layout="@layout/toolbar" />
+
+  <android.support.v4.widget.NestedScrollView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:orientation="vertical">
+
+      <fr.acinq.eclair.swordfish.customviews.DataRow
+        android:id="@+id/paymentdetails_amount"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:desc="Amount paid, in milliBitcoin"
+        app:label="Amount"
+        app:value="@string/unknown" />
+
+      <include layout="@layout/include_separator" />
+
+      <fr.acinq.eclair.swordfish.customviews.DataRow
+        android:id="@+id/paymentdetails_fees"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:desc="Fees paid to the network"
+        app:label="Fees"
+        app:value="@string/unknown" />
+
+      <include layout="@layout/include_separator" />
+
+      <fr.acinq.eclair.swordfish.customviews.DataRow
+        android:id="@+id/paymentdetails_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:desc="The payment can be PAID, PENDING or FAILED. If the payment takes too long, it is considered as failed."
+        app:label="Status"
+        app:value="@string/unknown" />
+
+      <include layout="@layout/include_separator" />
+
+      <fr.acinq.eclair.swordfish.customviews.DataRow
+        android:id="@+id/paymentdetails_desc"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:desc="Description of the payment"
+        app:label="Description"
+        app:value="@string/unknown" />
+
+      <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="8dp"
+        android:paddingLeft="8dp"
+        android:paddingTop="16dp"
+        android:text="TECHNICAL INFORMATIONS"
+        android:textColor="@color/colorGrey_2"
+        android:background="@color/colorGrey_0"
+        android:textSize="10sp" />
+
+      <!--<include layout="@layout/include_separator" />-->
+
+      <fr.acinq.eclair.swordfish.customviews.DataRow
+        android:id="@+id/paymentdetails_paymenthash"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:desc="Hash of the payment preimage"
+        app:label="Payment Hash"
+        app:value="@string/unknown" />
+
+      <include layout="@layout/include_separator" />
+
+      <fr.acinq.eclair.swordfish.customviews.DataRow
+        android:id="@+id/paymentdetails_paymentrequest"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:desc="invoice of the payment, contains all necessary datas"
+        app:label="Payment Request"
+        app:value="@string/unknown" />
+
+      <include layout="@layout/include_separator" />
+
+      <fr.acinq.eclair.swordfish.customviews.DataRow
+        android:id="@+id/paymentdetails_created"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:desc="When the payment was initiated"
+        app:label="Creation date"
+        app:value="@string/unknown" />
+
+      <include layout="@layout/include_separator" />
+
+      <fr.acinq.eclair.swordfish.customviews.DataRow
+        android:id="@+id/paymentdetails_updated"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:desc="Last time the payment was updated"
+        app:label="Last update"
+        app:value="@string/unknown" />
+    </LinearLayout>
+  </android.support.v4.widget.NestedScrollView>
+
+</LinearLayout>

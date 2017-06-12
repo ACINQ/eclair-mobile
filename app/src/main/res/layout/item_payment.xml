@@ -2,85 +2,94 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="match_parent"
   android:layout_height="wrap_content"
-  android:orientation="horizontal"
-  android:paddingBottom="8dp"
-  android:paddingLeft="16dp"
-  android:paddingRight="16dp"
-  android:paddingTop="8dp">
+  android:orientation="vertical"
+  android:background="?android:attr/selectableItemBackground">
 
-  <RelativeLayout
-    android:layout_width="0dp"
-    android:layout_height="match_parent"
-    android:layout_weight="0.65">
+  <LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:paddingBottom="8dp"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:paddingTop="8dp">
 
-    <LinearLayout
-      android:layout_width="match_parent"
+    <RelativeLayout
+      android:layout_width="0dp"
       android:layout_height="match_parent"
-      android:layout_marginRight="12dp"
-      android:gravity="left|center"
-      android:orientation="vertical">
-
-      <TextView
-        android:id="@+id/payment_item_description"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Name"
-        android:textSize="12sp" />
+      android:layout_weight="0.65">
 
       <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_height="match_parent"
+        android:layout_marginRight="12dp"
+        android:gravity="left|center"
+        android:orientation="vertical">
 
         <TextView
-          android:id="@+id/payment_item_status"
-          android:layout_width="wrap_content"
+          android:id="@+id/payment_item_description"
+          android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:text="STATUS"
-          android:textColor="@color/colorPrimary"
-          android:textSize="10sp" />
+          android:text="Name"
+          android:textSize="12sp" />
 
-        <TextView
-          android:id="@+id/payment_item_date"
-          android:layout_width="wrap_content"
+        <LinearLayout
+          android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:layout_marginLeft="4dp"
-          android:text="Updated at"
-          android:textColor="@color/colorGrey_1"
-          android:textSize="10sp" />
+          android:orientation="horizontal">
 
+          <TextView
+            android:id="@+id/payment_item_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="STATUS"
+            android:textColor="@color/colorPrimary"
+            android:textSize="10sp" />
+
+          <TextView
+            android:id="@+id/payment_item_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="4dp"
+            android:text="Updated at"
+            android:textColor="@color/colorGrey_1"
+            android:textSize="10sp" />
+
+        </LinearLayout>
       </LinearLayout>
-    </LinearLayout>
-  </RelativeLayout>
+    </RelativeLayout>
 
-  <RelativeLayout
-    android:layout_width="0dp"
-    android:layout_height="match_parent"
-    android:layout_weight="0.3">
-
-    <TextView
-      android:id="@+id/payment_item_amount"
-      android:layout_width="match_parent"
+    <RelativeLayout
+      android:layout_width="0dp"
       android:layout_height="match_parent"
-      android:gravity="right|center"
-      android:maxLines="1"
-      android:text="0,00"
-      android:textSize="23sp" />
-  </RelativeLayout>
+      android:layout_weight="0.3">
 
-  <RelativeLayout
-    android:layout_width="28dp"
-    android:layout_height="match_parent"
-    android:layout_marginLeft="6dp">
+      <TextView
+        android:id="@+id/payment_item_amount"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="right|center"
+        android:maxLines="1"
+        android:text="0,00"
+        android:textSize="23sp" />
+    </RelativeLayout>
 
-    <TextView
-      android:id="@+id/payment_item_amount_unit"
-      android:layout_width="match_parent"
+    <RelativeLayout
+      android:layout_width="28dp"
       android:layout_height="match_parent"
-      android:gravity="left|center"
-      android:text="mBTC"
-      android:textColor="@color/colorGrey_1"
-      android:textSize="8sp" />
-  </RelativeLayout>
+      android:layout_marginLeft="6dp">
+
+      <TextView
+        android:id="@+id/payment_item_amount_unit"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="left|center"
+        android:text="mBTC"
+        android:textColor="@color/colorGrey_1"
+        android:textSize="8sp" />
+    </RelativeLayout>
+  </LinearLayout>
+
+  <include layout="@layout/include_separator" />
 
 </LinearLayout>
