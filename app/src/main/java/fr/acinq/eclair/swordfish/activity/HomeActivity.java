@@ -80,6 +80,10 @@ public class HomeActivity extends AppCompatActivity {
         Intent intent = new Intent(this, ChannelsListActivity.class);
         startActivity(intent);
         return true;
+      case R.id.menu_home_settings:
+        Intent settingsIntent = new Intent(this, SettingsActivity.class);
+        startActivity(settingsIntent);
+        return true;
       default:
         return super.onOptionsItemSelected(item);
     }

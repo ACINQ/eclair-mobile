@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  tools:context="fr.acinq.eclair.swordfish.activity.SettingsActivity"
+  android:orientation="vertical">
+
+  <!-- Custom toolbar -->
+  <include layout="@layout/toolbar" />
+
+  <fr.acinq.eclair.swordfish.customviews.DataRow
+    android:id="@+id/settings_nodeid"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:label="Public Key"
+    app:desc="Lightning Network's public identifier"
+    app:value="@string/unknown" />
+
+  <include layout="@layout/include_separator" />
+
+  <fr.acinq.eclair.swordfish.customviews.DataRow
+    android:id="@+id/settings_nodealias"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:label="Alias"
+    app:desc="Name of the node"
+    app:value="@string/unknown" />
+
+</LinearLayout>

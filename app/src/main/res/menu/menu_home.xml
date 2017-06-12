@@ -6,4 +6,9 @@
     android:icon="@drawable/ic_list_white_24dp"
     android:title="@string/menu_channelslist"
     app:showAsAction="ifRoom" />
+  <item
+    android:id="@+id/menu_home_settings"
+    android:icon="@drawable/ic_settings_white_24dp"
+    android:title="@string/menu_settings"
+    app:showAsAction="ifRoom" />
 </menu>

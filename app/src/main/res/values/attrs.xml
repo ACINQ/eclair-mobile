@@ -10,4 +10,9 @@
     <attr name="unit_size" format="dimension" />
     <attr name="unit_color" format="color" />
   </declare-styleable>
+  <declare-styleable name="DataRow">
+    <attr name="label" format="string" />
+    <attr name="desc" format="string" />
+    <attr name="value" format="string" />
+  </declare-styleable>
 </resources>
