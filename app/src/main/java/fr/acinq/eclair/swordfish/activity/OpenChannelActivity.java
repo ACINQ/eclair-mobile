@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -51,7 +52,7 @@ public class OpenChannelActivity extends Activity implements OneInputDialog.OneI
           try {
             Long parsedAmountSat = Long.parseLong(s.toString()) * 100000;
             if (parsedAmountSat < Validators.MIN_FUNDING_SAT || parsedAmountSat >= Validators.MAX_FUNDING_SAT) {
-              amountET.setBackgroundColor(getResources().getColor(R.color.lightred));
+              amountET.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.colorPrimary));
             } else {
               amountET.setBackgroundColor(Color.TRANSPARENT);
             }
