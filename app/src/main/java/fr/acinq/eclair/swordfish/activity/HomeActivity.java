@@ -57,8 +57,7 @@ public class HomeActivity extends AppCompatActivity {
     EventBus.getDefault().register(this);
     super.onStart();
     updateBalance();
-    List<Payment> payments = getPayments();
-    this.paymentAdapter = new PaymentListItemAdapter(this, payments);
+    this.paymentAdapter = new PaymentListItemAdapter(this, getPayments());
     RecyclerView listView = (RecyclerView) findViewById(R.id.main__list_payments);
     listView.setHasFixedSize(true);
     listView.setLayoutManager(new LinearLayoutManager(this));

@@ -71,6 +71,14 @@
       android:name=".activity.PaymentDetailsActivity"
       android:label="Payment Details"
       android:parentActivityName=".activity.HomeActivity" />
+    <activity
+      android:name=".activity.NetworkChannelsActivity"
+      android:label="Channels in Network"
+      android:parentActivityName=".activity.SettingsActivity" />
+    <activity
+      android:name=".activity.NetworkNodesActivity"
+      android:label="Nodes in Network"
+      android:parentActivityName=".activity.SettingsActivity" />
   </application>
 
 </manifest>

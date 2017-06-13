@@ -23,12 +23,20 @@ import fr.acinq.eclair.channel.ChannelStateChanged;
 import fr.acinq.eclair.channel.State;
 import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.payment.PaymentSent;
+import fr.acinq.eclair.router.ChannelDiscovered;
+import fr.acinq.eclair.router.ChannelLost;
+import fr.acinq.eclair.router.NodeDiscovered;
+import fr.acinq.eclair.router.NodeLost;
 import fr.acinq.eclair.swordfish.model.Payment;
+import fr.acinq.eclair.wire.ChannelAnnouncement;
+import fr.acinq.eclair.wire.NodeAnnouncement;
 
 public class EclairEventService extends UntypedActor {
 
   private static final String TAG = "EclairEventService";
   private static Map<ActorRef, ChannelDetails> channelDetailsMap = new ConcurrentHashMap<>();
+  public static Map<BinaryData, NodeAnnouncement> nodeAnnouncementMap = new ConcurrentHashMap<>();
+  public static Map<Long, ChannelAnnouncement> channelAnnouncementMap = new ConcurrentHashMap<>();
 
   public static Map<ActorRef, ChannelDetails> getChannelsMap() {
     return channelDetailsMap;
@@ -66,13 +74,12 @@ public class EclairEventService extends UntypedActor {
       cd.remoteNodeId = cr.remoteNodeId().toString();
       channelDetailsMap.put(((ChannelSignatureReceived) message).channel(), cd);
       EventBus.getDefault().post(new ChannelUpdateEvent());
-    }
-    else if (message instanceof ChannelSignatureReceived) {
+    } else if (message instanceof ChannelSignatureReceived) {
       ChannelSignatureReceived csr = (ChannelSignatureReceived) message;
       ChannelDetails cd = getChannelDetails(csr.channel());
       cd.channelId = csr.Commitments().channelId();
-      cd.balance = package$.MODULE$.millisatoshi2satoshi(new MilliSatoshi(csr.Commitments().localCommit().spec().toLocalMsat()));;
-      cd.capacity = package$.MODULE$.millisatoshi2satoshi(new MilliSatoshi(csr.Commitments().localCommit().spec().totalFunds()));;
+      cd.balance = package$.MODULE$.millisatoshi2satoshi(new MilliSatoshi(csr.Commitments().localCommit().spec().toLocalMsat()));
+      cd.capacity = package$.MODULE$.millisatoshi2satoshi(new MilliSatoshi(csr.Commitments().localCommit().spec().totalFunds()));
       channelDetailsMap.put(csr.channel(), cd);
       EventBus.getDefault().post(new ChannelUpdateEvent());
     } else if (message instanceof ChannelRestored) {
@@ -114,6 +121,26 @@ public class EclairEventService extends UntypedActor {
         paymentInDB.save();
         EventBus.getDefault().post(new SWPaymentEvent(PaymentRequest.read(paymentInDB.paymentRequest)));
       }
+    }
+    // ---- announcement events
+    else if (message instanceof NodeDiscovered) {
+      NodeAnnouncement na = ((NodeDiscovered) message).ann();
+      Log.i(TAG, "Node Discovered: " + na.nodeId().toString());
+      nodeAnnouncementMap.put(na.nodeId(), na);
+      EventBus.getDefault().post(new NetworkAnnouncementEvent());
+    } else if (message instanceof NodeLost) {
+      BinaryData nodeId = ((NodeLost) message).nodeId();
+      nodeAnnouncementMap.remove(nodeId);
+      EventBus.getDefault().post(new NetworkAnnouncementEvent());
+    } else if (message instanceof ChannelDiscovered) {
+      ChannelAnnouncement ca = ((ChannelDiscovered) message).ann();
+      Log.i(TAG, "Channel Discovered: " + ca.shortChannelId());
+      channelAnnouncementMap.put(ca.shortChannelId(), ca);
+      EventBus.getDefault().post(new NetworkAnnouncementEvent());
+    } else if (message instanceof ChannelLost) {
+      long channelId = ((ChannelLost) message).channelId();
+      channelAnnouncementMap.remove(channelId);
+      EventBus.getDefault().post(new NetworkAnnouncementEvent());
     }
   }
 

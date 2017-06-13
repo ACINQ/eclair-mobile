@@ -11,6 +11,19 @@
   <!-- Custom toolbar -->
   <include layout="@layout/toolbar" />
 
+  <TextView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingBottom="8dp"
+    android:paddingLeft="8dp"
+    android:paddingTop="16dp"
+    android:text="NODE INFORMATIONS"
+    android:textColor="@color/colorGrey_2"
+    android:background="@color/colorGrey_0"
+    android:textSize="10sp" />
+
+  <include layout="@layout/include_separator" />
+
   <fr.acinq.eclair.swordfish.customviews.DataRow
     android:id="@+id/settings_nodeid"
     android:layout_width="match_parent"
@@ -28,5 +41,42 @@
     app:label="Alias"
     app:desc="Name of the node"
     app:value="@string/unknown" />
+
+  <include layout="@layout/include_separator" />
+
+  <TextView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingBottom="8dp"
+    android:paddingLeft="8dp"
+    android:paddingTop="16dp"
+    android:text="NETWORK"
+    android:textColor="@color/colorGrey_2"
+    android:background="@color/colorGrey_0"
+    android:textSize="10sp" />
+
+  <include layout="@layout/include_separator" />
+
+  <fr.acinq.eclair.swordfish.customviews.DataRow
+    android:id="@+id/settings_networkchannels_count"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:label="Channels Announced"
+    app:desc="Click for list of channels"
+    app:value="@string/unknown"
+    android:clickable="true"
+    android:onClick="goToNetworkChannels" />
+
+  <include layout="@layout/include_separator" />
+
+  <fr.acinq.eclair.swordfish.customviews.DataRow
+    android:id="@+id/settings_networknodes_count"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:label="Nodes Announced"
+    app:desc="Click for list of nodes"
+    app:value="@string/unknown"
+    android:clickable="true"
+    android:onClick="goToNetworkNodes" />
 
 </LinearLayout>

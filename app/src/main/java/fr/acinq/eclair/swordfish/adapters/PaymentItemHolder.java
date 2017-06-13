@@ -35,13 +35,9 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
 
   @Override
   public void onClick(View v) {
-    Log.i("PaymentHolder", "Clicked on " + payment.paymentRequest);
     Intent intent = new Intent(this.context, PaymentDetailsActivity.class);
     intent.putExtra(EXTRA_PAYMENT_ID, payment.getId().longValue());
     this.context.startActivity(intent);
-//    if (this.payment != null) {
-//      Toast.makeText(this.context, "clicked on " + payment.paymentHash, Toast.LENGTH_SHORT);
-//    }
   }
 
   public void bindPaymentItem(Payment payment) {
