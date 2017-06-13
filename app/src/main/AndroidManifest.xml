@@ -31,6 +31,7 @@
     <!-- activities -->
     <activity
       android:name=".activity.LauncherActivity"
+      android:screenOrientation="portrait"
       android:noHistory="true">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
@@ -40,6 +41,7 @@
     </activity>
     <activity
       android:name=".activity.HomeActivity"
+      android:screenOrientation="portrait"
       android:label="" />
     <activity
       android:name=".activity.CreatePaymentActivity"
@@ -62,22 +64,27 @@
     <activity
       android:name=".activity.ChannelsListActivity"
       android:label="Active channels"
+      android:screenOrientation="portrait"
       android:parentActivityName=".activity.HomeActivity" />
     <activity
       android:name=".activity.SettingsActivity"
       android:label="Settings"
+      android:screenOrientation="portrait"
       android:parentActivityName=".activity.HomeActivity" />
     <activity
       android:name=".activity.PaymentDetailsActivity"
       android:label="Payment Details"
+      android:screenOrientation="portrait"
       android:parentActivityName=".activity.HomeActivity" />
     <activity
       android:name=".activity.NetworkChannelsActivity"
       android:label="Channels in Network"
+      android:screenOrientation="portrait"
       android:parentActivityName=".activity.SettingsActivity" />
     <activity
       android:name=".activity.NetworkNodesActivity"
       android:label="Nodes in Network"
+      android:screenOrientation="portrait"
       android:parentActivityName=".activity.SettingsActivity" />
   </application>
 
