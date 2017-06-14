@@ -35,10 +35,8 @@ import fr.acinq.eclair.swordfish.model.Payment;
 
 public class HomeActivity extends AppCompatActivity {
 
-  private static final String TAG = "Home Activity";
   public static final String EXTRA_PAYMENTREQUEST = "fr.acinq.eclair.swordfish.PAYMENT_REQUEST";
-  public static final String EXTRA_PAYMENT_DETAILS_ID = "fr.acinq.eclair.swordfish.PAYMENT_DETAILS_ID";
-
+  private static final String TAG = "Home Activity";
   private PaymentListItemAdapter paymentAdapter;
 
   @Override
@@ -98,8 +96,8 @@ public class HomeActivity extends AppCompatActivity {
     }
   }
 
-  private List<Payment> getPayments () {
-    List<Payment> list =  Payment.findWithQuery(Payment.class, "SELECT * FROM Payment ORDER BY created DESC LIMIT 100");
+  private List<Payment> getPayments() {
+    List<Payment> list = Payment.findWithQuery(Payment.class, "SELECT * FROM Payment ORDER BY created DESC LIMIT 100");
     TextView pending = (TextView) findViewById(R.id.pending);
     TextView emptyLabel = (TextView) findViewById(R.id.main__listview_label_empty);
 

@@ -31,8 +31,8 @@
     <!-- activities -->
     <activity
       android:name=".activity.LauncherActivity"
-      android:screenOrientation="portrait"
-      android:noHistory="true">
+      android:noHistory="true"
+      android:screenOrientation="portrait">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
 
@@ -41,8 +41,8 @@
     </activity>
     <activity
       android:name=".activity.HomeActivity"
-      android:screenOrientation="portrait"
-      android:label="" />
+      android:label=""
+      android:screenOrientation="portrait" />
     <activity
       android:name=".activity.CreatePaymentActivity"
       android:label="Send a Payment"
@@ -64,28 +64,28 @@
     <activity
       android:name=".activity.ChannelsListActivity"
       android:label="Active channels"
-      android:screenOrientation="portrait"
-      android:parentActivityName=".activity.HomeActivity" />
+      android:parentActivityName=".activity.HomeActivity"
+      android:screenOrientation="portrait" />
     <activity
       android:name=".activity.SettingsActivity"
       android:label="Settings"
-      android:screenOrientation="portrait"
-      android:parentActivityName=".activity.HomeActivity" />
+      android:parentActivityName=".activity.HomeActivity"
+      android:screenOrientation="portrait" />
     <activity
       android:name=".activity.PaymentDetailsActivity"
       android:label="Payment Details"
-      android:screenOrientation="portrait"
-      android:parentActivityName=".activity.HomeActivity" />
+      android:parentActivityName=".activity.HomeActivity"
+      android:screenOrientation="portrait" />
     <activity
       android:name=".activity.NetworkChannelsActivity"
       android:label="Channels in Network"
-      android:screenOrientation="portrait"
-      android:parentActivityName=".activity.SettingsActivity" />
+      android:parentActivityName=".activity.SettingsActivity"
+      android:screenOrientation="portrait" />
     <activity
       android:name=".activity.NetworkNodesActivity"
       android:label="Nodes in Network"
-      android:screenOrientation="portrait"
-      android:parentActivityName=".activity.SettingsActivity" />
+      android:parentActivityName=".activity.SettingsActivity"
+      android:screenOrientation="portrait" />
   </application>
 
 </manifest>

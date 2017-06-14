@@ -5,65 +5,83 @@
   android:layout_width="match_parent"
   android:layout_height="match_parent">
 
-  <LinearLayout
+  <android.support.design.widget.CoordinatorLayout
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
 
-    <!-- Custom toolbar -->
-    <include layout="@layout/toolbar" />
-
-    <LinearLayout
-      android:id="@+id/channel_balance"
+    <android.support.design.widget.AppBarLayout
       android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:background="@color/colorPrimary"
-      android:orientation="vertical"
-      android:padding="16dp">
+      android:layout_height="wrap_content">
 
-      <TextView
-        android:id="@+id/channel__label_balance"
+      <android.support.design.widget.CollapsingToolbarLayout
+        android:id="@+id/home_collapsingTB"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:text="@string/main__balance"
-        android:textAlignment="center"
-        android:textColor="@color/colorPrimaryLight"
-        android:textSize="12sp" />
+        app:layout_scrollFlags="scroll|enterAlways">
 
-      <fr.acinq.eclair.swordfish.customviews.CoinAmountView
-        android:id="@+id/channel__value_balance"
+        <include layout="@layout/toolbar" />
+      </android.support.design.widget.CollapsingToolbarLayout>
+
+      <LinearLayout
+        android:id="@+id/channel_balance"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:amount_color="@color/white"
-        app:amount_size="48sp"
-        app:orientation="vertical"
-        app:unit="mBTC"
-        app:unit_color="@color/white"
-        app:unit_size="12sp" />
-    </LinearLayout>
+        android:orientation="vertical"
+        android:padding="16dp">
 
-    <include layout="@layout/include_pending" />
+        <TextView
+          android:id="@+id/channel__label_balance"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_marginBottom="8dp"
+          android:text="@string/main__balance"
+          android:textAlignment="center"
+          android:textColor="@color/colorPrimaryLight"
+          android:textSize="10sp" />
+
+        <fr.acinq.eclair.swordfish.customviews.CoinAmountView
+          android:id="@+id/channel__value_balance"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          app:amount_color="@color/white"
+          app:amount_size="48sp"
+          app:orientation="vertical"
+          app:unit="mBTC"
+          app:unit_color="@color/white"
+          app:unit_size="12sp" />
+      </LinearLayout>
+
+    </android.support.design.widget.AppBarLayout>
 
     <android.support.v7.widget.RecyclerView
       android:id="@+id/main__list_payments"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
-      android:elevation="8dp" />
+      app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
-    <TextView
-      android:id="@+id/main__listview_label_empty"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:layout_margin="32dp"
-      android:layout_weight="1"
-      android:text="@string/main__listview_label_empty"
-      android:textAlignment="center"
-      android:textColor="@color/colorGrey_1"
-      android:textSize="12sp"
-      android:visibility="gone" />
+  </android.support.design.widget.CoordinatorLayout>
 
-  </LinearLayout>
+  <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/pending"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_centerInParent="true"
+    android:padding="16dp"
+    android:text="@string/pending"
+    android:textAlignment="center"
+    android:textColor="@color/colorGrey_1"
+    android:textSize="12sp" />
+
+  <TextView
+    android:id="@+id/main__listview_label_empty"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_centerInParent="true"
+    android:padding="16dp"
+    android:text="@string/main__listview_label_empty"
+    android:textAlignment="center"
+    android:textColor="@color/colorGrey_1"
+    android:textSize="12sp" />
 
   <android.support.design.widget.FloatingActionButton
     android:id="@+id/main__button_scanpr"
@@ -76,7 +94,7 @@
     android:src="@drawable/ic_photo_camera_white_24dp"
     app:backgroundTint="@color/colorPrimary"
     app:fabSize="normal" />
-
 </RelativeLayout>
+
 
 
