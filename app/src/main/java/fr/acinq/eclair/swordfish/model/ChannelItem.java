@@ -1,17 +1,15 @@
 package fr.acinq.eclair.swordfish.model;
 
-import fr.acinq.bitcoin.Satoshi;
-
 public class ChannelItem {
   public final String id;
   public String status;
-  public final Satoshi capacity;
-  public Satoshi balance;
+  public final long capacitySat;
+  public long balanceSat;
   public final String targetPubkey;
 
-  public ChannelItem(String id, Satoshi capacity, String targetPubkey) {
+  public ChannelItem(String id, long capacitySat, String targetPubkey) {
     this.id = id;
-    this.capacity = capacity;
+    this.capacitySat = capacitySat;
     this.targetPubkey = targetPubkey;
   }
 }

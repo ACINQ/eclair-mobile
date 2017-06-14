@@ -42,20 +42,20 @@ public class EclairEventService extends UntypedActor {
     return channelDetailsMap;
   }
 
-  public static Satoshi getTotalBalance() {
-    Satoshi total = new Satoshi(0);
+  public static long getTotalBalance() {
+    long total = 0;
     for (ChannelDetails d : channelDetailsMap.values()) {
-      total = total.$plus(d.balance);
+      total += d.balanceSat;
     }
     return total;
   }
 
-  public static Satoshi getBalanceOf(String channelId) {
-    return channelDetailsMap.get(channelId).balance;
+  public static long getBalanceOf(String channelId) {
+    return channelDetailsMap.get(channelId).balanceSat;
   }
 
-  public static Satoshi getCapacityOf(String channelId) {
-    return channelDetailsMap.get(channelId).capacity;
+  public static long getCapacityOf(String channelId) {
+    return channelDetailsMap.get(channelId).capacitySat;
   }
 
   private static ChannelDetails getChannelDetails(ActorRef ref) {
@@ -70,24 +70,24 @@ public class EclairEventService extends UntypedActor {
     if (message instanceof ChannelCreated) {
       ChannelCreated cr = (ChannelCreated) message;
       ChannelDetails cd = getChannelDetails(cr.channel());
-      cd.channelId = cr.temporaryChannelId();
+      cd.channelId = cr.temporaryChannelId().toString();
       cd.remoteNodeId = cr.remoteNodeId().toString();
       channelDetailsMap.put(((ChannelSignatureReceived) message).channel(), cd);
       EventBus.getDefault().post(new ChannelUpdateEvent());
     } else if (message instanceof ChannelSignatureReceived) {
       ChannelSignatureReceived csr = (ChannelSignatureReceived) message;
       ChannelDetails cd = getChannelDetails(csr.channel());
-      cd.channelId = csr.Commitments().channelId();
-      cd.balance = package$.MODULE$.millisatoshi2satoshi(new MilliSatoshi(csr.Commitments().localCommit().spec().toLocalMsat()));
-      cd.capacity = package$.MODULE$.millisatoshi2satoshi(new MilliSatoshi(csr.Commitments().localCommit().spec().totalFunds()));
+      cd.channelId = csr.Commitments().channelId().toString();
+      cd.balanceSat = package$.MODULE$.millisatoshi2satoshi(new MilliSatoshi(csr.Commitments().localCommit().spec().toLocalMsat())).amount();
+      cd.capacitySat = package$.MODULE$.millisatoshi2satoshi(new MilliSatoshi(csr.Commitments().localCommit().spec().totalFunds())).amount();
       channelDetailsMap.put(csr.channel(), cd);
       EventBus.getDefault().post(new ChannelUpdateEvent());
     } else if (message instanceof ChannelRestored) {
       ChannelRestored cr = (ChannelRestored) message;
       ChannelDetails cd = getChannelDetails(cr.channel());
-      cd.channelId = cr.channelId();
-      cd.balance = package$.MODULE$.millisatoshi2satoshi(new MilliSatoshi(cr.currentData().commitments().localCommit().spec().toLocalMsat()));
-      cd.capacity = package$.MODULE$.millisatoshi2satoshi(new MilliSatoshi(cr.currentData().commitments().localCommit().spec().totalFunds()));
+      cd.channelId = cr.channelId().toString();
+      cd.balanceSat = package$.MODULE$.millisatoshi2satoshi(new MilliSatoshi(cr.currentData().commitments().localCommit().spec().toLocalMsat())).amount();
+      cd.capacitySat = package$.MODULE$.millisatoshi2satoshi(new MilliSatoshi(cr.currentData().commitments().localCommit().spec().totalFunds())).amount();
       cd.remoteNodeId = cr.remoteNodeId().toString();
       channelDetailsMap.put(cr.channel(), cd);
       EventBus.getDefault().post(new ChannelUpdateEvent());
@@ -101,7 +101,7 @@ public class EclairEventService extends UntypedActor {
     else if (message instanceof ChannelStateChanged) {
       ChannelStateChanged cs = (ChannelStateChanged) message;
       ChannelDetails cd = getChannelDetails(cs.channel());
-      cd.state = cs.currentState();
+      cd.state = cs.currentState().toString();
       Log.i(TAG, "Channel " + cd.channelId + " changed to " + cs.currentState());
       channelDetailsMap.put(cs.channel(), cd);
       EventBus.getDefault().post(new ChannelUpdateEvent());
@@ -145,10 +145,10 @@ public class EclairEventService extends UntypedActor {
   }
 
   public static class ChannelDetails {
-    public Satoshi balance = new Satoshi(0);
-    public Satoshi capacity = new Satoshi(0);
-    public BinaryData channelId;
-    public State state;
+    public long balanceSat = 0;
+    public long capacitySat = 0;
+    public String channelId;
+    public String state;
     public String remoteNodeId;
   }
 }

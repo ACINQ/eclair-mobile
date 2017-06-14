@@ -12,7 +12,6 @@ import java.util.List;
 import fr.acinq.eclair.swordfish.R;
 import fr.acinq.eclair.swordfish.model.ChannelItem;
 import fr.acinq.eclair.swordfish.utils.CoinFormat;
-import fr.acinq.bitcoin.package$;
 
 public class ChannelListItemAdapter extends ArrayAdapter<ChannelItem> {
   public ChannelListItemAdapter(Context context, List<ChannelItem> channel) {
@@ -32,7 +31,7 @@ public class ChannelListItemAdapter extends ArrayAdapter<ChannelItem> {
 
     id.setText(channel.id);
     status.setText(String.valueOf(channel.status));
-    balance.setText(CoinFormat.getMilliBTCFormat().format(package$.MODULE$.satoshi2millibtc(channel.balance).amount()));
+    balance.setText(CoinFormat.getMilliBTCFormat().format(channel.balanceSat / 100000));
     targetnode.setText(channel.targetPubkey);
     return convertView;
   }

@@ -24,6 +24,7 @@ import org.greenrobot.eventbus.util.ThrowableFailureEvent;
 
 import java.util.List;
 
+import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.swordfish.ChannelUpdateEvent;
 import fr.acinq.eclair.swordfish.EclairEventService;
@@ -164,6 +165,6 @@ public class HomeActivity extends AppCompatActivity {
 
   private void updateBalance() {
     CoinAmountView aggregatedBalanceView = (CoinAmountView) findViewById(R.id.channel__value_balance);
-    aggregatedBalanceView.setAmountSat(EclairEventService.getTotalBalance());
+    aggregatedBalanceView.setAmountSat(new Satoshi(EclairEventService.getTotalBalance()));
   }
 }

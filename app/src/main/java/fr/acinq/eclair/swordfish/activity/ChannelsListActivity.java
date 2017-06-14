@@ -47,13 +47,13 @@ public class ChannelsListActivity extends AppCompatActivity implements OneInputD
   private void updateChannelList() {
     List<ChannelItem> items = new ArrayList<>();
     for (EclairEventService.ChannelDetails d : EclairEventService.getChannelsMap().values()) {
-      ChannelItem item = new ChannelItem(d.channelId.toString(), d.capacity, d.remoteNodeId);
+      ChannelItem item = new ChannelItem(d.channelId, d.capacitySat, d.remoteNodeId);
       if (d.state == null) {
         item.status = "UNKNOWN";
       } else {
-        item.status = d.state.toString();
+        item.status = d.state;
       }
-      item.balance = d.balance;
+      item.balanceSat = d.balanceSat;
       items.add(item);
     }
     ChannelListItemAdapter adapter = new ChannelListItemAdapter(this, items);
