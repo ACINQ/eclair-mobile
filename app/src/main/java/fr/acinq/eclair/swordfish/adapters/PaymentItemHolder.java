@@ -52,7 +52,7 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
     if ("FAILED".equals(payment.status)) {
       status.setTextColor(ContextCompat.getColor(context, R.color.red));
     } else if ("PAID".equals(payment.status)) {
-      status.setTextColor(ContextCompat.getColor(context, R.color.colorPrimary));
+      status.setTextColor(ContextCompat.getColor(context, R.color.green));
     } else {
       status.setTextColor(ContextCompat.getColor(context, R.color.orange));
     }
