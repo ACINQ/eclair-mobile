@@ -4,9 +4,11 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
-import android.widget.LinearLayout;
+import android.view.View;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.text.NumberFormat;
@@ -17,7 +19,7 @@ import fr.acinq.eclair.swordfish.R;
 import fr.acinq.eclair.swordfish.utils.CoinFormat;
 import scala.math.BigDecimal;
 
-public class CoinAmountView extends LinearLayout {
+public class CoinAmountView extends RelativeLayout {
   private String unit;
   private TextView amountTextView;
   private TextView unitTextView;
@@ -44,9 +46,21 @@ public class CoinAmountView extends LinearLayout {
     try {
       String service = Context.LAYOUT_INFLATER_SERVICE;
       LayoutInflater li = (LayoutInflater) getContext().getSystemService(service);
-      LinearLayout layout = (LinearLayout) li.inflate(R.layout.coin_amount_view, this, true);
+      View layout = li.inflate(R.layout.coin_amount_view, this, true);
       amountTextView = (TextView) layout.findViewById(R.id.view_amount);
       unitTextView = (TextView) layout.findViewById(R.id.view_unit);
+      RelativeLayout relativeLayout = (RelativeLayout) layout.findViewById(R.id.view_relative);
+
+      switch (arr.getInt(R.styleable.CoinAmountView_alignment, 0)) {
+        case 1:
+          relativeLayout.setGravity(Gravity.CENTER);
+          break;
+        case 2:
+          relativeLayout.setGravity(Gravity.RIGHT);
+          break;
+        default:
+          relativeLayout.setGravity(Gravity.LEFT);
+      }
 
       int amount_size = arr.getDimensionPixelSize(R.styleable.CoinAmountView_amount_size, 0);
       int amount_color = arr.getColor(R.styleable.CoinAmountView_amount_color, 0);

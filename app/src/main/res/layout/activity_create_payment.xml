@@ -31,7 +31,7 @@
       android:layout_height="wrap_content"
       app:amount_color="@color/colorGrey_4"
       app:amount_size="48sp"
-      app:orientation="horizontal"
+      app:alignment="center"
       app:unit="mBTC"
       app:unit_color="@color/colorGrey_4"
       app:unit_size="12sp" />

@@ -25,6 +25,7 @@ import org.greenrobot.eventbus.util.ThrowableFailureEvent;
 import java.util.List;
 
 import fr.acinq.bitcoin.Satoshi;
+import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.swordfish.ChannelUpdateEvent;
 import fr.acinq.eclair.swordfish.EclairEventService;
@@ -33,6 +34,7 @@ import fr.acinq.eclair.swordfish.SWPaymentEvent;
 import fr.acinq.eclair.swordfish.adapters.PaymentListItemAdapter;
 import fr.acinq.eclair.swordfish.customviews.CoinAmountView;
 import fr.acinq.eclair.swordfish.model.Payment;
+import fr.acinq.eclair.swordfish.utils.CoinFormat;
 
 public class HomeActivity extends AppCompatActivity {
 
@@ -164,7 +166,24 @@ public class HomeActivity extends AppCompatActivity {
   }
 
   private void updateBalance() {
-    CoinAmountView aggregatedBalanceView = (CoinAmountView) findViewById(R.id.channel__value_balance);
-    aggregatedBalanceView.setAmountSat(new Satoshi(EclairEventService.getTotalBalance()));
+    if (EclairEventService.getChannelsMap().size() == 0) {
+      findViewById(R.id.home_nochannels).setVisibility(View.VISIBLE);
+      findViewById(R.id.home_availablebalance).setVisibility(View.GONE);
+      findViewById(R.id.home_availablebalance).setVisibility(View.GONE);
+    } else {
+      findViewById(R.id.home_nochannels).setVisibility(View.GONE);
+      findViewById(R.id.home_availablebalance).setVisibility(View.VISIBLE);
+      CoinAmountView availableBalanceView = (CoinAmountView) findViewById(R.id.home_value_availablebalance);
+      TextView pendingBalanceView = (TextView) findViewById(R.id.home_value_pendingbalance);
+      long pendingBalance = EclairEventService.aggregatePendingBalance();
+      long availableBalance = EclairEventService.aggregateAvailableBalance();
+      availableBalanceView.setAmountSat(new Satoshi(availableBalance));
+      if (availableBalance > 0) {
+      }
+      if (pendingBalance > 0) {
+        findViewById(R.id.home_value_pendingbalance).setVisibility(View.VISIBLE);
+        pendingBalanceView.setText("+" + CoinFormat.getMilliBTCFormat().format(package$.MODULE$.satoshi2millibtc(new Satoshi(pendingBalance)).amount()) + " mBTC pending");
+      }
+    }
   }
 }

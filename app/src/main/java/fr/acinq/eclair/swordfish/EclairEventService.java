@@ -14,13 +14,13 @@ import akka.actor.Terminated;
 import akka.actor.UntypedActor;
 import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.bitcoin.MilliSatoshi;
-import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.channel.ChannelCreated;
 import fr.acinq.eclair.channel.ChannelRestored;
 import fr.acinq.eclair.channel.ChannelSignatureReceived;
 import fr.acinq.eclair.channel.ChannelStateChanged;
-import fr.acinq.eclair.channel.State;
+import fr.acinq.eclair.channel.NORMAL;
+import fr.acinq.eclair.channel.OFFLINE;
 import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.payment.PaymentSent;
 import fr.acinq.eclair.router.ChannelDiscovered;
@@ -34,18 +34,30 @@ import fr.acinq.eclair.wire.NodeAnnouncement;
 public class EclairEventService extends UntypedActor {
 
   private static final String TAG = "EclairEventService";
-  private static Map<ActorRef, ChannelDetails> channelDetailsMap = new ConcurrentHashMap<>();
   public static Map<BinaryData, NodeAnnouncement> nodeAnnouncementMap = new ConcurrentHashMap<>();
   public static Map<Long, ChannelAnnouncement> channelAnnouncementMap = new ConcurrentHashMap<>();
+  private static Map<ActorRef, ChannelDetails> channelDetailsMap = new ConcurrentHashMap<>();
 
   public static Map<ActorRef, ChannelDetails> getChannelsMap() {
     return channelDetailsMap;
   }
 
-  public static long getTotalBalance() {
+  public static long aggregateAvailableBalance() {
     long total = 0;
     for (ChannelDetails d : channelDetailsMap.values()) {
-      total += d.balanceSat;
+      if (NORMAL.toString().equals(d.state) || OFFLINE.toString().equals(d.state)) {
+        total += d.balanceSat;
+      }
+    }
+    return total;
+  }
+
+  public static long aggregatePendingBalance() {
+    long total = 0;
+    for (ChannelDetails d : channelDetailsMap.values()) {
+      if (!NORMAL.toString().equals(d.state) && !OFFLINE.toString().equals(d.state)) {
+        total += d.balanceSat;
+      }
     }
     return total;
   }

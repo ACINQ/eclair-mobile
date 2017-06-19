@@ -19,37 +19,133 @@
         android:layout_height="wrap_content"
         app:layout_scrollFlags="scroll|enterAlways">
 
-        <include layout="@layout/toolbar" />
+        <LinearLayout
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:background="@color/colorPrimaryDark"
+          android:orientation="horizontal">
+
+          <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1">
+
+            <LinearLayout
+              android:id="@+id/btcwallet_layout"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_centerVertical="true"
+              android:gravity="center"
+              android:orientation="horizontal"
+              android:padding="16dp">
+
+              <TextView
+                android:id="@+id/btcwallet_label_balance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="4dp"
+                android:text="@string/btcwallet_label_balance"
+                android:textColor="@color/white"
+                android:textSize="10sp"
+                android:textStyle="bold" />
+
+              <fr.acinq.eclair.swordfish.customviews.CoinAmountView
+                android:id="@+id/btcwallet_value_balance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:alignment="left"
+                app:amount_color="@color/white"
+                app:amount_size="10sp"
+                app:unit="mBTC"
+                app:unit_color="@color/colorPrimaryLight"
+                app:unit_size="10sp" />
+            </LinearLayout>
+          </RelativeLayout>
+
+          <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="0">
+
+            <LinearLayout
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_centerVertical="true"
+              android:paddingLeft="16dp"
+              android:paddingRight="16dp">
+
+              <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent" />
+
+            </LinearLayout>
+          </RelativeLayout>
+
+        </LinearLayout>
+
       </android.support.design.widget.CollapsingToolbarLayout>
 
       <LinearLayout
-        android:id="@+id/channel_balance"
+        android:id="@+id/home_nochannels"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="16dp"
+        android:visibility="gone">
 
         <TextView
-          android:id="@+id/channel__label_balance"
-          android:layout_width="match_parent"
+          android:layout_width="wrap_content"
           android:layout_height="wrap_content"
+          android:layout_gravity="center"
+          android:text="No open channels! Open a new channel..."
+          android:textColor="@color/white" />
+      </LinearLayout>
+
+      <LinearLayout
+        android:id="@+id/home_availablebalance"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="32dp"
+        android:visibility="gone">
+
+        <TextView
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_gravity="center"
           android:layout_marginBottom="8dp"
           android:text="@string/main__balance"
-          android:textAlignment="center"
           android:textColor="@color/colorPrimaryLight"
           android:textSize="10sp" />
 
         <fr.acinq.eclair.swordfish.customviews.CoinAmountView
-          android:id="@+id/channel__value_balance"
-          android:layout_width="match_parent"
+          android:id="@+id/home_value_availablebalance"
+          android:layout_width="wrap_content"
           android:layout_height="wrap_content"
+          app:alignment="center"
           app:amount_color="@color/white"
-          app:amount_size="48sp"
-          app:orientation="vertical"
+          app:amount_size="42sp"
           app:unit="mBTC"
           app:unit_color="@color/white"
           app:unit_size="12sp" />
+
       </LinearLayout>
+
+      <TextView
+        android:id="@+id/home_value_pendingbalance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/rounded_corner_light"
+        android:padding="4dp"
+        android:text="+143 mBTC pending"
+        android:textAlignment="center"
+        android:textColor="@color/colorGrey_4"
+        android:textSize="10sp"
+        android:visibility="gone" />
 
     </android.support.design.widget.AppBarLayout>
 
