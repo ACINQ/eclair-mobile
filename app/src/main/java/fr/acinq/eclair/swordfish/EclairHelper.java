@@ -25,11 +25,11 @@ public class EclairHelper {
     System.setProperty("eclair.node-alias", "sw-ripley");
     Setup setup = new Setup(data, "system");
     this.setup = setup;
-
     this.guiUpdater = this.setup.system().actorOf(Props.create(EclairEventService.class));
     setup.system().eventStream().subscribe(guiUpdater, ChannelEvent.class);
     setup.system().eventStream().subscribe(guiUpdater, PaymentEvent.class);
     setup.system().eventStream().subscribe(guiUpdater, NetworkEvent.class);
+    setup.boostrap();
   }
 
   public static boolean hasInstance() {

@@ -21,7 +21,6 @@ public class LauncherActivity extends AppCompatActivity implements StartupTask.A
   public void processFinish(String output) {
     Intent intent = new Intent(this, HomeActivity.class);
     startActivity(intent);
-    EclairHelper.getInstance(getFilesDir()).getSetup().boostrap();
     finish();
   }
 }
