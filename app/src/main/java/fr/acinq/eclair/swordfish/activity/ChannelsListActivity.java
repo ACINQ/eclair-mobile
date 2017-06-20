@@ -24,6 +24,7 @@ import java.util.List;
 
 import fr.acinq.eclair.swordfish.ChannelUpdateEvent;
 import fr.acinq.eclair.swordfish.EclairEventService;
+import fr.acinq.eclair.swordfish.EclairHelper;
 import fr.acinq.eclair.swordfish.R;
 import fr.acinq.eclair.swordfish.adapters.ChannelListItemAdapter;
 import fr.acinq.eclair.swordfish.fragment.OneInputDialog;
@@ -85,16 +86,17 @@ public class ChannelsListActivity extends AppCompatActivity implements OneInputD
   }
 
   @Override
-  public void onStart() {
-    EventBus.getDefault().register(this);
-    super.onStart();
-    updateChannelList();
-  }
-
-  @Override
   public void onStop() {
     EventBus.getDefault().unregister(this);
     super.onStop();
+  }
+
+  @Override
+  protected void onResume() {
+    EventBus.getDefault().register(this);
+    EclairHelper.getInstance(getFilesDir());
+    super.onResume();
+    updateChannelList();
   }
 
   @Override
