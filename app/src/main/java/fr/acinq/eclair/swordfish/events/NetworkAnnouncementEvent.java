@@ -1,4 +1,4 @@
-package fr.acinq.eclair.swordfish;
+package fr.acinq.eclair.swordfish.events;
 
 public class NetworkAnnouncementEvent {
 }

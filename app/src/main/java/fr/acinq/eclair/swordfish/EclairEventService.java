@@ -27,6 +27,10 @@ import fr.acinq.eclair.router.ChannelDiscovered;
 import fr.acinq.eclair.router.ChannelLost;
 import fr.acinq.eclair.router.NodeDiscovered;
 import fr.acinq.eclair.router.NodeLost;
+import fr.acinq.eclair.swordfish.events.BalanceUpdateEvent;
+import fr.acinq.eclair.swordfish.events.ChannelUpdateEvent;
+import fr.acinq.eclair.swordfish.events.NetworkAnnouncementEvent;
+import fr.acinq.eclair.swordfish.events.SWPaymentEvent;
 import fr.acinq.eclair.swordfish.model.Payment;
 import fr.acinq.eclair.wire.ChannelAnnouncement;
 import fr.acinq.eclair.wire.NodeAnnouncement;
@@ -42,24 +46,20 @@ public class EclairEventService extends UntypedActor {
     return channelDetailsMap;
   }
 
-  public static long aggregateAvailableBalance() {
-    long total = 0;
+  public static BalanceUpdateEvent aggregateBalanceForEvent() {
+    long availableTotal = 0;
+    long pendingTotal = 0;
+    long offlineTotal = 0;
     for (ChannelDetails d : channelDetailsMap.values()) {
-      if (NORMAL.toString().equals(d.state) || OFFLINE.toString().equals(d.state)) {
-        total += d.balanceSat;
+      if (NORMAL.toString().equals(d.state)) {
+        availableTotal += d.balanceSat;
+      } else if (OFFLINE.toString().equals(d.state)) {
+        offlineTotal += d.balanceSat;
+      } else {
+        pendingTotal += d.balanceSat;
       }
     }
-    return total;
-  }
-
-  public static long aggregatePendingBalance() {
-    long total = 0;
-    for (ChannelDetails d : channelDetailsMap.values()) {
-      if (!NORMAL.toString().equals(d.state) && !OFFLINE.toString().equals(d.state)) {
-        total += d.balanceSat;
-      }
-    }
-    return total;
+    return new BalanceUpdateEvent(availableTotal, pendingTotal, offlineTotal);
   }
 
   public static long getBalanceOf(String channelId) {
@@ -76,9 +76,8 @@ public class EclairEventService extends UntypedActor {
 
   @Override
   public void onReceive(final Object message) {
-    Log.e(TAG, "######## Event: " + message);
+    Log.d(TAG, "######## Event: " + message);
 
-    // ---- events that update balance
     if (message instanceof ChannelCreated) {
       ChannelCreated cr = (ChannelCreated) message;
       ChannelDetails cd = getChannelDetails(cr.channel());
@@ -86,7 +85,9 @@ public class EclairEventService extends UntypedActor {
       cd.remoteNodeId = cr.remoteNodeId().toString();
       channelDetailsMap.put(((ChannelSignatureReceived) message).channel(), cd);
       EventBus.getDefault().post(new ChannelUpdateEvent());
-    } else if (message instanceof ChannelSignatureReceived) {
+    }
+    // ---- events that update balance
+    else if (message instanceof ChannelSignatureReceived) {
       ChannelSignatureReceived csr = (ChannelSignatureReceived) message;
       ChannelDetails cd = getChannelDetails(csr.channel());
       cd.channelId = csr.Commitments().channelId().toString();
@@ -94,6 +95,7 @@ public class EclairEventService extends UntypedActor {
       cd.capacitySat = package$.MODULE$.millisatoshi2satoshi(new MilliSatoshi(csr.Commitments().localCommit().spec().totalFunds())).amount();
       channelDetailsMap.put(csr.channel(), cd);
       EventBus.getDefault().post(new ChannelUpdateEvent());
+      EventBus.getDefault().post(aggregateBalanceForEvent());
     } else if (message instanceof ChannelRestored) {
       ChannelRestored cr = (ChannelRestored) message;
       ChannelDetails cd = getChannelDetails(cr.channel());
@@ -103,6 +105,7 @@ public class EclairEventService extends UntypedActor {
       cd.remoteNodeId = cr.remoteNodeId().toString();
       channelDetailsMap.put(cr.channel(), cd);
       EventBus.getDefault().post(new ChannelUpdateEvent());
+      EventBus.getDefault().post(aggregateBalanceForEvent());
     }
     // ---- channel has been terminated
     else if (message instanceof Terminated) {
@@ -117,6 +120,8 @@ public class EclairEventService extends UntypedActor {
       Log.i(TAG, "Channel " + cd.channelId + " changed to " + cs.currentState());
       channelDetailsMap.put(cs.channel(), cd);
       EventBus.getDefault().post(new ChannelUpdateEvent());
+      // also post balance event because a change in the  state of the channel matters to the balance
+      EventBus.getDefault().post(aggregateBalanceForEvent());
     }
     // ---- events that update payments status
     else if (message instanceof PaymentSent) {

@@ -27,7 +27,7 @@ import fr.acinq.eclair.payment.PaymentSucceeded;
 import fr.acinq.eclair.payment.SendPayment;
 import fr.acinq.eclair.swordfish.EclairHelper;
 import fr.acinq.eclair.swordfish.R;
-import fr.acinq.eclair.swordfish.SWPaymentEvent;
+import fr.acinq.eclair.swordfish.events.SWPaymentEvent;
 import fr.acinq.eclair.swordfish.customviews.CoinAmountView;
 import fr.acinq.eclair.swordfish.model.Payment;
 import scala.concurrent.ExecutionContext;

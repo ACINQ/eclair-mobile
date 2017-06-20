@@ -27,12 +27,12 @@ import java.util.List;
 import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.payment.PaymentRequest;
-import fr.acinq.eclair.swordfish.ChannelUpdateEvent;
 import fr.acinq.eclair.swordfish.EclairEventService;
 import fr.acinq.eclair.swordfish.R;
-import fr.acinq.eclair.swordfish.SWPaymentEvent;
 import fr.acinq.eclair.swordfish.adapters.PaymentListItemAdapter;
 import fr.acinq.eclair.swordfish.customviews.CoinAmountView;
+import fr.acinq.eclair.swordfish.events.BalanceUpdateEvent;
+import fr.acinq.eclair.swordfish.events.SWPaymentEvent;
 import fr.acinq.eclair.swordfish.model.Payment;
 import fr.acinq.eclair.swordfish.utils.CoinFormat;
 
@@ -57,7 +57,9 @@ public class HomeActivity extends AppCompatActivity {
   public void onStart() {
     EventBus.getDefault().register(this);
     super.onStart();
-    updateBalance();
+
+    updateBalance(EclairEventService.aggregateBalanceForEvent());
+
     this.paymentAdapter = new PaymentListItemAdapter(this, getPayments());
     RecyclerView listView = (RecyclerView) findViewById(R.id.main__list_payments);
     listView.setHasFixedSize(true);
@@ -114,11 +116,7 @@ public class HomeActivity extends AppCompatActivity {
     return list;
   }
 
-  private void updatePayments(List<Payment> payments) {
-
-  }
-
-  public void channel__openScan(View view) {
+  public void home_openPRScanner(View view) {
     IntentIntegrator integrator = new IntentIntegrator(this);
     integrator.setOrientationLocked(false);
     integrator.setCaptureActivity(ScanActivity.class);
@@ -161,29 +159,49 @@ public class HomeActivity extends AppCompatActivity {
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
-  public void onMessageEvent(ChannelUpdateEvent event) {
-    updateBalance();
+  public void onMessageEvent(BalanceUpdateEvent event) {
+    updateBalance(event);
   }
 
-  private void updateBalance() {
+  private boolean hasEnoughChannnels() {
     if (EclairEventService.getChannelsMap().size() == 0) {
       findViewById(R.id.home_nochannels).setVisibility(View.VISIBLE);
-      findViewById(R.id.home_availablebalance).setVisibility(View.GONE);
-      findViewById(R.id.home_availablebalance).setVisibility(View.GONE);
+      findViewById(R.id.home_pendingbalance_value).setVisibility(View.GONE);
+      findViewById(R.id.home_button_scanpr).setVisibility(View.GONE);
+      return false;
     } else {
       findViewById(R.id.home_nochannels).setVisibility(View.GONE);
-      findViewById(R.id.home_availablebalance).setVisibility(View.VISIBLE);
-      CoinAmountView availableBalanceView = (CoinAmountView) findViewById(R.id.home_value_availablebalance);
-      TextView pendingBalanceView = (TextView) findViewById(R.id.home_value_pendingbalance);
-      long pendingBalance = EclairEventService.aggregatePendingBalance();
-      long availableBalance = EclairEventService.aggregateAvailableBalance();
-      availableBalanceView.setAmountSat(new Satoshi(availableBalance));
-      if (availableBalance > 0) {
-      }
-      if (pendingBalance > 0) {
-        findViewById(R.id.home_value_pendingbalance).setVisibility(View.VISIBLE);
-        pendingBalanceView.setText("+" + CoinFormat.getMilliBTCFormat().format(package$.MODULE$.satoshi2millibtc(new Satoshi(pendingBalance)).amount()) + " mBTC pending");
-      }
     }
+    return true;
   }
+
+  private void updateBalance(BalanceUpdateEvent event) {
+    if (!hasEnoughChannnels()) {
+      return;
+    }
+
+    // 1 - available balance
+    findViewById(R.id.home_nochannels).setVisibility(View.GONE);
+    CoinAmountView availableBalanceView = (CoinAmountView) findViewById(R.id.home_value_availablebalance);
+    availableBalanceView.setAmountSat(new Satoshi(event.availableBalanceSat));
+    if (event.availableBalanceSat == 0) {
+      findViewById(R.id.home_button_scanpr).setVisibility(View.GONE);
+    } else {
+      findViewById(R.id.home_button_scanpr).setVisibility(View.VISIBLE);
+    }
+
+    // 2 - unavailable balance
+    TextView pendingBalanceView = (TextView) findViewById(R.id.home_pendingbalance_value);
+    if (event.pendingBalanceSat > 0) {
+      pendingBalanceView.setText("+" + CoinFormat.getMilliBTCFormat().format(package$.MODULE$.satoshi2millibtc(new Satoshi(event.pendingBalanceSat)).amount()) + " mBTC pending");
+      pendingBalanceView.setVisibility(View.VISIBLE);
+    } else {
+      pendingBalanceView.setVisibility(View.GONE);
+    }
+
+    // 3 - update total offchain balance
+    CoinAmountView offchainBalanceView = (CoinAmountView) findViewById(R.id.home_offchain_balance_value);
+    offchainBalanceView.setAmountSat(new Satoshi(event.availableBalanceSat + event.pendingBalanceSat + event.offlineBalanceSat));
+  }
+
 }

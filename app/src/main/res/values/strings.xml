@@ -3,8 +3,9 @@
 
   <string name="app_name">Swordfish</string>
 
-  <string name="btcwallet_label_balance">AVAILABLE FUNDING:</string>
-  <string name="main__balance">Available balance</string>
+  <string name="home_onchain_balance">ONCHAIN BALANCE:</string>
+  <string name="home_offchain_balance">OFFCHAIN BALANCE:</string>
+  <string name="home_balance_available">Offchain Spendable</string>
   <string name="main__btn_pay">Send a payment</string>
   <string name="main__btn_fund">Add funds</string>
   <string name="main__button_channels">Channels List</string>

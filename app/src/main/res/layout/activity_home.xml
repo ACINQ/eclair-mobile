@@ -31,34 +31,64 @@
             android:layout_weight="1">
 
             <LinearLayout
-              android:id="@+id/btcwallet_layout"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
-              android:layout_centerVertical="true"
-              android:gravity="center"
-              android:orientation="horizontal"
+              android:orientation="vertical"
               android:padding="16dp">
 
-              <TextView
-                android:id="@+id/btcwallet_label_balance"
-                android:layout_width="wrap_content"
+              <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginRight="4dp"
-                android:text="@string/btcwallet_label_balance"
-                android:textColor="@color/white"
-                android:textSize="10sp"
-                android:textStyle="bold" />
+                android:orientation="horizontal">
 
-              <fr.acinq.eclair.swordfish.customviews.CoinAmountView
-                android:id="@+id/btcwallet_value_balance"
-                android:layout_width="wrap_content"
+                <TextView
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_marginRight="4dp"
+                  android:text="@string/home_onchain_balance"
+                  android:textColor="@color/white"
+                  android:textSize="10sp"
+                  android:textStyle="bold" />
+
+                <fr.acinq.eclair.swordfish.customviews.CoinAmountView
+                  android:id="@+id/home_onchain_balance_value"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  app:alignment="left"
+                  app:amount_color="@color/white"
+                  app:amount_size="10sp"
+                  app:unit="mBTC"
+                  app:unit_color="@color/colorPrimaryLight"
+                  app:unit_size="10sp" />
+              </LinearLayout>
+
+              <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:alignment="left"
-                app:amount_color="@color/white"
-                app:amount_size="10sp"
-                app:unit="mBTC"
-                app:unit_color="@color/colorPrimaryLight"
-                app:unit_size="10sp" />
+                android:layout_marginBottom="2dp"
+                android:orientation="horizontal">
+
+                <TextView
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_marginRight="4dp"
+                  android:text="@string/home_offchain_balance"
+                  android:textColor="@color/white"
+                  android:textSize="10sp"
+                  android:textStyle="bold" />
+
+                <fr.acinq.eclair.swordfish.customviews.CoinAmountView
+                  android:id="@+id/home_offchain_balance_value"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  app:alignment="left"
+                  app:amount_color="@color/white"
+                  app:amount_size="10sp"
+                  app:unit="mBTC"
+                  app:unit_color="@color/colorPrimaryLight"
+                  app:unit_size="10sp" />
+              </LinearLayout>
+
             </LinearLayout>
           </RelativeLayout>
 
@@ -88,35 +118,18 @@
       </android.support.design.widget.CollapsingToolbarLayout>
 
       <LinearLayout
-        android:id="@+id/home_nochannels"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:padding="16dp"
-        android:visibility="gone">
-
-        <TextView
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:layout_gravity="center"
-          android:text="No open channels! Open a new channel..."
-          android:textColor="@color/white" />
-      </LinearLayout>
-
-      <LinearLayout
         android:id="@+id/home_availablebalance"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:padding="32dp"
-        android:visibility="gone">
+        android:padding="32dp">
 
         <TextView
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:layout_gravity="center"
           android:layout_marginBottom="8dp"
-          android:text="@string/main__balance"
+          android:text="@string/home_balance_available"
           android:textColor="@color/colorPrimaryLight"
           android:textSize="10sp" />
 
@@ -131,21 +144,32 @@
           app:unit_color="@color/white"
           app:unit_size="12sp" />
 
-      </LinearLayout>
+        <TextView
+          android:id="@+id/home_nochannels"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_gravity="center"
+          android:layout_marginTop="8dp"
+          android:text="[No Channels. Click to open a new channel]"
+          android:textColor="@color/orange"
+          android:textSize="10sp"
+          android:visibility="gone" />
 
-      <TextView
-        android:id="@+id/home_value_pendingbalance"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginBottom="16dp"
-        android:background="@drawable/rounded_corner_light"
-        android:padding="4dp"
-        android:text="+143 mBTC pending"
-        android:textAlignment="center"
-        android:textColor="@color/colorGrey_4"
-        android:textSize="10sp"
-        android:visibility="gone" />
+        <TextView
+          android:id="@+id/home_pendingbalance_value"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_gravity="center"
+          android:layout_marginTop="8dp"
+          android:background="@drawable/rounded_corner_light"
+          android:padding="2dp"
+          android:text="+0 mBTC pending"
+          android:textAlignment="center"
+          android:textColor="@color/colorGrey_3"
+          android:textSize="10sp"
+          android:visibility="gone" />
+
+      </LinearLayout>
 
     </android.support.design.widget.AppBarLayout>
 
@@ -180,14 +204,15 @@
     android:textSize="12sp" />
 
   <android.support.design.widget.FloatingActionButton
-    android:id="@+id/main__button_scanpr"
+    android:id="@+id/home_button_scanpr"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_alignParentBottom="true"
     android:layout_alignParentRight="true"
     android:layout_margin="@dimen/fab_margin"
-    android:onClick="channel__openScan"
+    android:onClick="home_openPRScanner"
     android:src="@drawable/ic_photo_camera_white_24dp"
+    android:visibility="gone"
     app:backgroundTint="@color/colorPrimary"
     app:fabSize="normal" />
 </RelativeLayout>

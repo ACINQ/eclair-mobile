@@ -2,6 +2,7 @@
 <resources>
     <color name="colorPrimary">#00a2e9</color>
     <color name="colorPrimaryDark">#0190cf</color>
+    <color name="colorPrimaryDark_1">#017ab1</color>
     <color name="colorPrimaryLight">#68d2ff</color>
     <color name="colorPrimaryFaded">#01adf7</color>
     <color name="colorAccent">#ba3259</color>
@@ -12,7 +13,7 @@
     <color name="colorGrey_3">#555555</color>
     <color name="colorGrey_4">#333333</color>
     <color name="green">#00c28c</color>
-    <color name="yellow">#ffeb26</color>
+    <color name="yellow">#ffe88a</color>
     <color name="orange">#ffb81c</color>
     <color name="red">#cd1e56</color>
     <color name="lightred">#ffe0e2</color>

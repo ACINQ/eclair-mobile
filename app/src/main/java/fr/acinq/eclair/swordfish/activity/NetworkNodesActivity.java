@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import fr.acinq.eclair.swordfish.EclairEventService;
-import fr.acinq.eclair.swordfish.NetworkAnnouncementEvent;
+import fr.acinq.eclair.swordfish.events.NetworkAnnouncementEvent;
 import fr.acinq.eclair.swordfish.R;
 import fr.acinq.eclair.swordfish.adapters.NetworkNodeItemAdapter;
 import fr.acinq.eclair.swordfish.model.NetworkNodeItem;

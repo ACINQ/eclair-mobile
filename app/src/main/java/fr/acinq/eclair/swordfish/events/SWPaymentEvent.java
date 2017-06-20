@@ -1,4 +1,4 @@
-package fr.acinq.eclair.swordfish;
+package fr.acinq.eclair.swordfish.events;
 
 import fr.acinq.eclair.payment.PaymentRequest;
 

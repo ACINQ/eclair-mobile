@@ -22,7 +22,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.util.ArrayList;
 import java.util.List;
 
-import fr.acinq.eclair.swordfish.ChannelUpdateEvent;
+import fr.acinq.eclair.swordfish.events.ChannelUpdateEvent;
 import fr.acinq.eclair.swordfish.EclairEventService;
 import fr.acinq.eclair.swordfish.EclairHelper;
 import fr.acinq.eclair.swordfish.R;
