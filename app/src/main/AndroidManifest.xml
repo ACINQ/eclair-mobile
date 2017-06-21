@@ -31,10 +31,11 @@
     <!-- activities -->
     <activity
       android:name=".activity.LauncherActivity"
-      android:screenOrientation="portrait"
-      android:finishOnTaskLaunch="true">
+      android:finishOnTaskLaunch="true"
+      android:screenOrientation="portrait">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
+
         <category android:name="android.intent.category.LAUNCHER" />
       </intent-filter>
     </activity>
@@ -46,28 +47,23 @@
       android:name=".activity.CreatePaymentActivity"
       android:label="Send a Payment"
       android:noHistory="true"
-      android:stateNotNeeded="true"
       android:parentActivityName=".activity.HomeActivity"
+      android:stateNotNeeded="true"
       android:theme="@style/CustomDialog" />
     <activity
       android:name=".activity.ScanActivity"
+      android:noHistory="true"
       android:screenOrientation="fullSensor"
       android:stateNotNeeded="true"
       android:theme="@style/zxing_CaptureTheme"
-      android:noHistory="true"
       android:windowSoftInputMode="stateAlwaysHidden" />
     <activity
       android:name=".activity.OpenChannelActivity"
       android:label="Open a new channel"
       android:noHistory="true"
-      android:stateNotNeeded="true"
-      android:parentActivityName=".activity.ChannelsListActivity"
-      android:theme="@style/CustomDialog" />
-    <activity
-      android:name=".activity.ChannelsListActivity"
-      android:label="Active channels"
       android:parentActivityName=".activity.HomeActivity"
-      android:screenOrientation="portrait" />
+      android:stateNotNeeded="true"
+      android:theme="@style/CustomDialog" />
     <activity
       android:name=".activity.SettingsActivity"
       android:label="Settings"
@@ -88,6 +84,12 @@
       android:label="Nodes in Network"
       android:parentActivityName=".activity.SettingsActivity"
       android:screenOrientation="portrait" />
+    <activity
+      android:name=".activity.InvoiceInputActivity"
+      android:theme="@style/CustomDialog" />
+    <activity
+      android:name=".activity.ChannelInputActivity"
+      android:theme="@style/CustomDialog" />
   </application>
 
 </manifest>

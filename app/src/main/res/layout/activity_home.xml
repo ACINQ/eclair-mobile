@@ -11,8 +11,8 @@
 
     <android.support.design.widget.AppBarLayout
       android:layout_width="match_parent"
-        android:background="@color/colorPrimary"
-      android:layout_height="wrap_content">
+      android:layout_height="wrap_content"
+      android:background="@color/colorPrimary">
 
       <android.support.design.widget.CollapsingToolbarLayout
         android:id="@+id/home_collapsingTB"
@@ -174,55 +174,38 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <android.support.v4.widget.SwipeRefreshLayout
-      android:id="@+id/home_swiperefresh"
+    <android.support.v4.view.ViewPager
+      android:id="@+id/home_viewpager"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
-      app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
-      <android.support.v7.widget.RecyclerView
-        android:id="@+id/main__list_payments"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-         />
-
-    </android.support.v4.widget.SwipeRefreshLayout>
+      app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
   </android.support.design.widget.CoordinatorLayout>
 
-  <TextView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/pending"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_centerInParent="true"
-    android:padding="16dp"
-    android:text="@string/pending"
-    android:textAlignment="center"
-    android:textColor="@color/colorGrey_1"
-    android:textSize="12sp" />
-
-  <TextView
-    android:id="@+id/main__listview_label_empty"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_centerInParent="true"
-    android:padding="16dp"
-    android:text="@string/main__listview_label_empty"
-    android:textAlignment="center"
-    android:textColor="@color/colorGrey_1"
-    android:textSize="12sp" />
-
   <android.support.design.widget.FloatingActionButton
-    android:id="@+id/home_button_scanpr"
+    android:id="@+id/home_addinvoice"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_alignParentBottom="true"
     android:layout_alignParentRight="true"
     android:layout_margin="@dimen/fab_margin"
-    android:onClick="home_openPRScanner"
+    android:onClick="home_addInvoice"
     android:src="@drawable/ic_photo_camera_white_24dp"
     android:visibility="gone"
     app:backgroundTint="@color/colorPrimary"
+    app:fabSize="normal" />
+
+  <android.support.design.widget.FloatingActionButton
+    android:id="@+id/home_openchannel"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_alignParentBottom="true"
+    android:layout_alignParentRight="true"
+    android:layout_margin="@dimen/fab_margin"
+    android:onClick="home_openChannel"
+    android:src="@drawable/ic_photo_camera_white_24dp"
+    android:visibility="gone"
+    app:backgroundTint="@color/orange"
     app:fabSize="normal" />
 </RelativeLayout>
 

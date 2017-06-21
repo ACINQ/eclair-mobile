@@ -9,7 +9,7 @@
   <string name="main__btn_pay">Send a payment</string>
   <string name="main__btn_fund">Add funds</string>
   <string name="main__button_channels">Channels List</string>
-  <string name="main__listview_label_empty">No payments has been made yet...\nSend a payment by scanning a Payment Request QR Code.</string>
+  <string name="payments_empty">No payments has been made yet...\nSend a payment by scanning an LN invoice.</string>
 
   <string name="title_activity_payment">Send a Payment</string>
   <string name="payment__lbl_pr">Enter a LN Payment Request:</string>

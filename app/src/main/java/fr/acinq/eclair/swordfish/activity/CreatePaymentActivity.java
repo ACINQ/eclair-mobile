@@ -27,8 +27,8 @@ import fr.acinq.eclair.payment.PaymentSucceeded;
 import fr.acinq.eclair.payment.SendPayment;
 import fr.acinq.eclair.swordfish.EclairHelper;
 import fr.acinq.eclair.swordfish.R;
-import fr.acinq.eclair.swordfish.events.SWPaymentEvent;
 import fr.acinq.eclair.swordfish.customviews.CoinAmountView;
+import fr.acinq.eclair.swordfish.events.SWPaymentEvent;
 import fr.acinq.eclair.swordfish.model.Payment;
 import scala.concurrent.ExecutionContext;
 import scala.concurrent.Future;
@@ -45,7 +45,7 @@ public class CreatePaymentActivity extends Activity {
     setContentView(R.layout.activity_create_payment);
 
     Intent intent = getIntent();
-    String prString = intent.getStringExtra(HomeActivity.EXTRA_PAYMENTREQUEST);
+    String prString = intent.getStringExtra(InvoiceInputActivity.EXTRA_PAYMENTREQUEST);
     CoinAmountView v_amount = (CoinAmountView) findViewById(R.id.payment__value_amount);
     try {
       PaymentRequest extract = PaymentRequest.read(prString);

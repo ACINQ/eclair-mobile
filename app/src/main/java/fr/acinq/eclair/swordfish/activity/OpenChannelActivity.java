@@ -37,7 +37,7 @@ public class OpenChannelActivity extends Activity implements OneInputDialog.OneI
     setContentView(R.layout.activity_open_channel);
 
     Intent intent = getIntent();
-    String hostURI = intent.getStringExtra(ChannelsListActivity.EXTRA_NEWHOSTURI);
+    String hostURI = intent.getStringExtra(ChannelInputActivity.EXTRA_NEWHOSTURI);
     setNodeURI(hostURI);
 
     final EditText amountET = (EditText) findViewById(R.id.fund__input_amount);
@@ -57,7 +57,7 @@ public class OpenChannelActivity extends Activity implements OneInputDialog.OneI
               amountET.setBackgroundColor(Color.TRANSPARENT);
             }
           } catch (NumberFormatException e) {
-            goToChannelsList();
+            goToHome();
           }
         }
       }
@@ -102,11 +102,11 @@ public class OpenChannelActivity extends Activity implements OneInputDialog.OneI
 
   public void cancelOpenChannel(View view) {
     Toast.makeText(this, "Cancelled", Toast.LENGTH_SHORT).show();
-    goToChannelsList();
+    goToHome();
   }
 
-  private void goToChannelsList() {
-    Intent intent = new Intent(this, ChannelsListActivity.class);
+  private void goToHome() {
+    Intent intent = new Intent(this, HomeActivity.class);
     startActivity(intent);
   }
 
@@ -127,10 +127,10 @@ public class OpenChannelActivity extends Activity implements OneInputDialog.OneI
       sw.tell(new Switchboard.NewConnection(pk, new InetSocketAddress(ipTV.getText().toString(), Integer.parseInt(portTV.getText().toString())), Option.apply(ch)), sw);
 
       Toast.makeText(this, "Opened channel with " + pk.toString(), Toast.LENGTH_LONG).show();
-      goToChannelsList();
+      goToHome();
     } catch (Exception e) {
       Toast.makeText(this, "Error when opening channel", Toast.LENGTH_SHORT).show();
-      goToChannelsList();
+      goToHome();
     }
   }
 }
