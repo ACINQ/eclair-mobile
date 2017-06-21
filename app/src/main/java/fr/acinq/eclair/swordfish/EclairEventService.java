@@ -83,7 +83,7 @@ public class EclairEventService extends UntypedActor {
       ChannelDetails cd = getChannelDetails(cr.channel());
       cd.channelId = cr.temporaryChannelId().toString();
       cd.remoteNodeId = cr.remoteNodeId().toString();
-      channelDetailsMap.put(((ChannelSignatureReceived) message).channel(), cd);
+      channelDetailsMap.put(cr.channel(), cd);
       EventBus.getDefault().post(new ChannelUpdateEvent());
     }
     // ---- events that update balance
@@ -100,6 +100,7 @@ public class EclairEventService extends UntypedActor {
       ChannelRestored cr = (ChannelRestored) message;
       ChannelDetails cd = getChannelDetails(cr.channel());
       cd.channelId = cr.channelId().toString();
+      cd.remoteNodeId = cr.remoteNodeId().toString();
       cd.balanceSat = package$.MODULE$.millisatoshi2satoshi(new MilliSatoshi(cr.currentData().commitments().localCommit().spec().toLocalMsat())).amount();
       cd.capacitySat = package$.MODULE$.millisatoshi2satoshi(new MilliSatoshi(cr.currentData().commitments().localCommit().spec().totalFunds())).amount();
       cd.remoteNodeId = cr.remoteNodeId().toString();
@@ -117,7 +118,7 @@ public class EclairEventService extends UntypedActor {
       ChannelStateChanged cs = (ChannelStateChanged) message;
       ChannelDetails cd = getChannelDetails(cs.channel());
       cd.state = cs.currentState().toString();
-      Log.i(TAG, "Channel " + cd.channelId + " changed to " + cs.currentState());
+      Log.d(TAG, "Channel " + cd.channelId + " changed state to " + cs.currentState());
       channelDetailsMap.put(cs.channel(), cd);
       EventBus.getDefault().post(new ChannelUpdateEvent());
       // also post balance event because a change in the  state of the channel matters to the balance
