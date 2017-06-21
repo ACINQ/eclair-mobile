@@ -11,6 +11,7 @@
 
     <android.support.design.widget.AppBarLayout
       android:layout_width="match_parent"
+        android:background="@color/colorPrimary"
       android:layout_height="wrap_content">
 
       <android.support.design.widget.CollapsingToolbarLayout
@@ -122,7 +123,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:padding="32dp">
+        android:padding="24dp">
 
         <TextView
           android:layout_width="wrap_content"
@@ -173,11 +174,19 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <android.support.v7.widget.RecyclerView
-      android:id="@+id/main__list_payments"
+    <android.support.v4.widget.SwipeRefreshLayout
+      android:id="@+id/home_swiperefresh"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
-      app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+      app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+      <android.support.v7.widget.RecyclerView
+        android:id="@+id/main__list_payments"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+         />
+
+    </android.support.v4.widget.SwipeRefreshLayout>
 
   </android.support.design.widget.CoordinatorLayout>
 

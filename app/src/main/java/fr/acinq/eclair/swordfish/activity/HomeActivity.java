@@ -2,6 +2,7 @@ package fr.acinq.eclair.swordfish.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -40,7 +41,8 @@ public class HomeActivity extends AppCompatActivity {
 
   public static final String EXTRA_PAYMENTREQUEST = "fr.acinq.eclair.swordfish.PAYMENT_REQUEST";
   private static final String TAG = "Home Activity";
-  private PaymentListItemAdapter paymentAdapter;
+  private PaymentListItemAdapter mPaymentAdapter;
+  private SwipeRefreshLayout mRefreshLayout;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +53,18 @@ public class HomeActivity extends AppCompatActivity {
     setSupportActionBar(toolbar);
     ActionBar ab = getSupportActionBar();
     ab.setDisplayHomeAsUpEnabled(false);
+
+    mRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.home_swiperefresh);
+    mRefreshLayout.setColorSchemeResources(R.color.colorPrimary, R.color.green, R.color.colorAccent);
+    mRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+      @Override
+      public void onRefresh() {
+        if (mPaymentAdapter != null) {
+          mPaymentAdapter.update(getPayments());
+          mRefreshLayout.setRefreshing(false);
+        }
+      }
+    });
   }
 
   @Override
@@ -60,11 +74,11 @@ public class HomeActivity extends AppCompatActivity {
 
     updateBalance(EclairEventService.aggregateBalanceForEvent());
 
-    this.paymentAdapter = new PaymentListItemAdapter(this, getPayments());
+    this.mPaymentAdapter = new PaymentListItemAdapter(this, getPayments());
     RecyclerView listView = (RecyclerView) findViewById(R.id.main__list_payments);
     listView.setHasFixedSize(true);
     listView.setLayoutManager(new LinearLayoutManager(this));
-    listView.setAdapter(paymentAdapter);
+    listView.setAdapter(mPaymentAdapter);
   }
 
   @Override
@@ -102,7 +116,7 @@ public class HomeActivity extends AppCompatActivity {
   }
 
   private List<Payment> getPayments() {
-    List<Payment> list = Payment.findWithQuery(Payment.class, "SELECT * FROM Payment ORDER BY created DESC LIMIT 100");
+    List<Payment> list = Payment.findWithQuery(Payment.class, "SELECT * FROM Payment ORDER BY created DESC LIMIT 30");
     TextView pending = (TextView) findViewById(R.id.pending);
     TextView emptyLabel = (TextView) findViewById(R.id.main__listview_label_empty);
 
@@ -150,12 +164,12 @@ public class HomeActivity extends AppCompatActivity {
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void handleFailureEvent(ThrowableFailureEvent event) {
     Toast.makeText(this, "Payment failed: " + event.getThrowable().getMessage(), Toast.LENGTH_LONG).show();
-    paymentAdapter.update(getPayments());
+    mPaymentAdapter.update(getPayments());
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void onMessageEvent(SWPaymentEvent event) {
-    paymentAdapter.update(getPayments());
+    mPaymentAdapter.update(getPayments());
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
