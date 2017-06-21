@@ -31,11 +31,10 @@
     <!-- activities -->
     <activity
       android:name=".activity.LauncherActivity"
-      android:noHistory="true"
-      android:screenOrientation="portrait">
+      android:screenOrientation="portrait"
+      android:finishOnTaskLaunch="true">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
-
         <category android:name="android.intent.category.LAUNCHER" />
       </intent-filter>
     </activity>
@@ -47,6 +46,7 @@
       android:name=".activity.CreatePaymentActivity"
       android:label="Send a Payment"
       android:noHistory="true"
+      android:stateNotNeeded="true"
       android:parentActivityName=".activity.HomeActivity"
       android:theme="@style/CustomDialog" />
     <activity
@@ -54,11 +54,13 @@
       android:screenOrientation="fullSensor"
       android:stateNotNeeded="true"
       android:theme="@style/zxing_CaptureTheme"
+      android:noHistory="true"
       android:windowSoftInputMode="stateAlwaysHidden" />
     <activity
       android:name=".activity.OpenChannelActivity"
       android:label="Open a new channel"
       android:noHistory="true"
+      android:stateNotNeeded="true"
       android:parentActivityName=".activity.ChannelsListActivity"
       android:theme="@style/CustomDialog" />
     <activity

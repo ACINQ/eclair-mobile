@@ -64,6 +64,8 @@ public class CreatePaymentActivity extends Activity {
   private void goToHome() {
     this.currentPR = null;
     Intent intent = new Intent(this, HomeActivity.class);
+    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
     startActivity(intent);
   }
 
