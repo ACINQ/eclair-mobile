@@ -10,6 +10,7 @@
     android:layout_height="match_parent">
 
     <android.support.design.widget.AppBarLayout
+      android:id="@+id/home_appbar"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:background="@color/colorPrimary">
@@ -18,12 +19,12 @@
         android:id="@+id/home_collapsingTB"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@color/colorPrimaryDark"
         app:layout_scrollFlags="scroll|enterAlways">
 
         <LinearLayout
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:background="@color/colorPrimaryDark"
           android:orientation="horizontal">
 
           <RelativeLayout
@@ -118,59 +119,95 @@
 
       </android.support.design.widget.CollapsingToolbarLayout>
 
-      <LinearLayout
-        android:id="@+id/home_availablebalance"
+      <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:padding="24dp">
+        android:layout_height="match_parent">
 
-        <TextView
+        <LinearLayout
+          android:id="@+id/home_paymentpopin"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
-          android:layout_gravity="center"
-          android:layout_marginBottom="8dp"
-          android:text="@string/home_balance_available"
-          android:textColor="@color/colorPrimaryLight"
-          android:textSize="10sp" />
+          android:layout_centerHorizontal="true"
+          android:layout_marginTop="16dp"
+          android:background="@drawable/rounded_corner_white"
+          android:elevation="2dp"
+          android:orientation="horizontal"
+          android:paddingBottom="1dp"
+          android:paddingLeft="3dp"
+          android:paddingRight="3dp"
+          android:paddingTop="1dp"
+          android:visibility="gone">
 
-        <fr.acinq.eclair.swordfish.customviews.CoinAmountView
-          android:id="@+id/home_value_availablebalance"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          app:alignment="center"
-          app:amount_color="@color/white"
-          app:amount_size="42sp"
-          app:unit="mBTC"
-          app:unit_color="@color/white"
-          app:unit_size="12sp" />
+          <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginRight="4dp"
+            android:background="@drawable/ic_done_black_24dp" />
 
-        <TextView
-          android:id="@+id/home_nochannels"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:layout_gravity="center"
-          android:layout_marginTop="8dp"
-          android:text="[No Channels. Click to open a new channel]"
-          android:textColor="@color/orange"
-          android:textSize="10sp"
-          android:visibility="gone" />
+          <TextView
+            android:id="@+id/home_paymentpopin_text"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:text="Payment sent!"
+            android:textSize="12sp" />
+        </LinearLayout>
 
-        <TextView
-          android:id="@+id/home_pendingbalance_value"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:layout_gravity="center"
-          android:layout_marginTop="8dp"
-          android:background="@drawable/rounded_corner_light"
-          android:padding="2dp"
-          android:text="+0 mBTC pending"
-          android:textAlignment="center"
-          android:textColor="@color/colorGrey_3"
-          android:textSize="10sp"
-          android:visibility="gone" />
+        <LinearLayout
+          android:id="@+id/home_balance"
+          android:layout_width="match_parent"
+          android:layout_height="match_parent"
+          android:orientation="vertical"
+          android:padding="24dp">
 
-      </LinearLayout>
+          <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="8dp"
+            android:text="@string/home_balance_available"
+            android:textColor="@color/colorPrimaryLight"
+            android:textSize="10sp" />
+
+          <fr.acinq.eclair.swordfish.customviews.CoinAmountView
+            android:id="@+id/home_value_availablebalance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:alignment="center"
+            app:amount_color="@color/white"
+            app:amount_size="42sp"
+            app:unit="mBTC"
+            app:unit_color="@color/white"
+            app:unit_size="12sp" />
+
+          <TextView
+            android:id="@+id/home_nochannels"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="8dp"
+            android:text="[No Channels. Click to open a new channel]"
+            android:textColor="@color/orange"
+            android:textSize="10sp"
+            android:visibility="gone" />
+
+          <TextView
+            android:id="@+id/home_pendingbalance_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/rounded_corner_yellow"
+            android:padding="2dp"
+            android:text="+0 mBTC pending"
+            android:textAlignment="center"
+            android:textColor="@color/colorGrey_3"
+            android:textSize="10sp"
+            android:visibility="gone" />
+
+        </LinearLayout>
+
+      </RelativeLayout>
 
     </android.support.design.widget.AppBarLayout>
 

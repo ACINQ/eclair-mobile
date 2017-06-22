@@ -1,7 +1,13 @@
 package fr.acinq.eclair.swordfish.activity;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -13,6 +19,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -47,6 +54,14 @@ public class HomeActivity extends AppCompatActivity {
   private FloatingActionButton mAddInvoiceButton;
   private FloatingActionButton mOpenChannelButton;
   private TextView mPendingBalanceView;
+  private AppBarLayout mAppBar;
+  private CollapsingToolbarLayout mCollapsingBar;
+  private ViewGroup mBalanceView;
+  private ValueAnimator mFlashInBalanceAnimation;
+  private ValueAnimator mPopInPaymentAnimation;
+  private ValueAnimator mPopOutPaymentAnimation;
+  private ViewGroup mPaymentPopin;
+  private TextView mPaymentPopinText;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +76,10 @@ public class HomeActivity extends AppCompatActivity {
     mAddInvoiceButton = (FloatingActionButton) findViewById(R.id.home_addinvoice);
     mOpenChannelButton = (FloatingActionButton) findViewById(R.id.home_openchannel);
     mPendingBalanceView = (TextView) findViewById(R.id.home_pendingbalance_value);
+    mCollapsingBar = (CollapsingToolbarLayout) findViewById(R.id.home_collapsingTB);
+    mPaymentPopin = (ViewGroup) findViewById(R.id.home_paymentpopin);
+    mPaymentPopinText = (TextView) findViewById(R.id.home_paymentpopin_text);
+    setupPaymentAnimation();
 
     mViewPager = (ViewPager) findViewById(R.id.home_viewpager);
     mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -78,6 +97,7 @@ public class HomeActivity extends AppCompatActivity {
       public void onPageScrollStateChanged(int state) {
       }
     });
+
     final List<Fragment> fragments = new ArrayList<>();
     mChannelsListFragment = new ChannelsListFragment();
     mPaymentsListFragment = new PaymentsListFragment();
@@ -160,7 +180,59 @@ public class HomeActivity extends AppCompatActivity {
 
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void onMessageEvent(SWPaymentEvent event) {
+    animateBalance();
+    mPaymentPopinText.setText("Successfully sent " + CoinFormat.getMilliBTCFormat().format(event.paymentRequest.amount().amount() / 100000) + " mBTC");
     mPaymentsListFragment.updateList();
+  }
+
+  private void animateBalance() {
+    mFlashInBalanceAnimation.cancel();
+    mFlashInBalanceAnimation.start();
+    mPopInPaymentAnimation.cancel();
+    mPopInPaymentAnimation.start();
+  }
+
+  private void setupPaymentAnimation() {
+    // payment pop animation
+    mPopInPaymentAnimation = ObjectAnimator.ofFloat(mPaymentPopin, "translationY", -80f, 0);
+    mPopOutPaymentAnimation = ObjectAnimator.ofFloat(mPaymentPopin, "translationY", 0, -280f);
+    mPopInPaymentAnimation.setDuration(300);
+    mPopOutPaymentAnimation.setDuration(800);
+    mPopOutPaymentAnimation.setStartDelay(1000);
+    mPopInPaymentAnimation.addListener(new AnimatorListenerAdapter() {
+      @Override
+      public void onAnimationStart(Animator animation) {
+        mPaymentPopin.setVisibility(View.VISIBLE);
+      }
+
+      @Override
+      public void onAnimationEnd(Animator animation) {
+        mPopOutPaymentAnimation.start();
+      }
+    });
+    mPopOutPaymentAnimation.addListener(new AnimatorListenerAdapter() {
+      @Override
+      public void onAnimationEnd(Animator animation) {
+        mPaymentPopin.setVisibility(View.GONE);
+      }
+    });
+
+    // balance flash animations
+    final ValueAnimator.AnimatorUpdateListener flashUpdateListener = new ValueAnimator.AnimatorUpdateListener() {
+      @Override
+      public void onAnimationUpdate(ValueAnimator animator) {
+        mAppBar.setBackgroundColor((int) animator.getAnimatedValue());
+      }
+    };
+    mFlashInBalanceAnimation = ValueAnimator.ofArgb(getColor(R.color.bluegreen), getColor(R.color.colorPrimary));
+    mFlashInBalanceAnimation.addUpdateListener(flashUpdateListener);
+    mFlashInBalanceAnimation.setDuration(2000);
+    mFlashInBalanceAnimation.addListener(new AnimatorListenerAdapter() {
+      @Override
+      public void onAnimationStart(Animator animation) {
+        mAppBar.setBackgroundColor(getColor(R.color.bluegreen));
+      }
+    });
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
