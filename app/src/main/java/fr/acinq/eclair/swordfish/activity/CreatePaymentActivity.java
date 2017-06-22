@@ -37,6 +37,7 @@ import scala.concurrent.duration.Duration;
 
 public class CreatePaymentActivity extends Activity {
 
+  private static final String TAG = "CreatePayment";
   private PaymentRequest currentPR = null;
   private boolean isProcessingPayment = false;
 
@@ -113,14 +114,16 @@ public class CreatePaymentActivity extends Activity {
                     paymentInDB.status = "PAID";
                     EventBus.getDefault().post(new SWPaymentEvent(pr));
                   } else {
+                    paymentInDB.status = "FAILED";
                     if (o instanceof PaymentFailed) {
-                      paymentInDB.status = "FAILED";
                       Sphinx.ErrorPacket error = ((PaymentFailed) o).error().get();
                       String cause = error != null && error.failureMessage() != null ? error.failureMessage().toString() : "Unknown Cause";
                       EventBus.getDefault().post(new ThrowableFailureEvent(new Exception(cause)));
+                    } else if (t != null) {
+                      Log.e(TAG, "Error when sending payment", t);
+                      EventBus.getDefault().post(new ThrowableFailureEvent(t));
                     } else {
-                      paymentInDB.status = "ERROR";
-                      EventBus.getDefault().post(new ThrowableFailureEvent(new Exception("Internal Error" )));
+                      EventBus.getDefault().post(new ThrowableFailureEvent(new Exception("Internal Error")));
                     }
                   }
                   paymentInDB.save();
