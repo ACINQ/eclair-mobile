@@ -27,6 +27,7 @@ import java.util.List;
 import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.swordfish.EclairEventService;
+import fr.acinq.eclair.swordfish.EclairHelper;
 import fr.acinq.eclair.swordfish.R;
 import fr.acinq.eclair.swordfish.customviews.CoinAmountView;
 import fr.acinq.eclair.swordfish.events.BalanceUpdateEvent;
@@ -92,7 +93,11 @@ public class HomeActivity extends AppCompatActivity {
     EventBus.getDefault().register(this);
     super.onStart();
 
-    updateBalance(EclairEventService.aggregateBalanceForEvent());
+    if (!EclairHelper.hasInstance()) {
+      startActivity(new Intent(this, LauncherActivity.class));
+    } else {
+      updateBalance(EclairEventService.aggregateBalanceForEvent());
+    }
   }
 
   @Override
