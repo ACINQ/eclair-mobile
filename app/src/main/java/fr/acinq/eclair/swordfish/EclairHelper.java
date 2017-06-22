@@ -33,7 +33,7 @@ public class EclairHelper {
   }
 
   public static boolean hasInstance() {
-    return mInstance == null;
+    return mInstance != null;
   }
 
   public static EclairHelper getInstance(File f) {

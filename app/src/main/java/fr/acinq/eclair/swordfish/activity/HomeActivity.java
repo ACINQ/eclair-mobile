@@ -86,18 +86,25 @@ public class HomeActivity extends AppCompatActivity {
     mPagerAdapter = new HomePagerAdapter(getSupportFragmentManager(), fragments);
     mViewPager.setAdapter(mPagerAdapter);
     mViewPager.setCurrentItem(1);
+
+    mAppBar = (AppBarLayout) findViewById(R.id.home_appbar);
+    mBalanceView = (ViewGroup) findViewById(R.id.home_balance);
   }
 
   @Override
   public void onStart() {
-    EventBus.getDefault().register(this);
     super.onStart();
-
     if (!EclairHelper.hasInstance()) {
       startActivity(new Intent(this, LauncherActivity.class));
-    } else {
-      updateBalance(EclairEventService.aggregateBalanceForEvent());
+      finish();
     }
+  }
+
+  @Override
+  public void onResume() {
+    EventBus.getDefault().register(this);
+    super.onResume();
+    updateBalance(EclairEventService.aggregateBalanceForEvent());
   }
 
   @Override
