@@ -21,6 +21,7 @@ import akka.pattern.Patterns;
 import akka.util.Timeout;
 import fr.acinq.bitcoin.Crypto;
 import fr.acinq.bitcoin.package$;
+import fr.acinq.eclair.crypto.Sphinx;
 import fr.acinq.eclair.payment.PaymentFailed;
 import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.payment.PaymentSucceeded;
@@ -85,7 +86,7 @@ public class CreatePaymentActivity extends Activity {
           p.save();
 
           // 2 - prepare payment future ask
-          Timeout paymentTimeout = new Timeout(Duration.create(60, "seconds"));
+          Timeout paymentTimeout = new Timeout(Duration.create(45, "seconds"));
           ActorRef paymentInitiator = EclairHelper.getInstance(datadir).getSetup().paymentInitiator();
           Crypto.Point pointNodeId = new Crypto.Point(Crypto.curve().getCurve().decodePoint(package$.MODULE$.binaryData2array(pr.nodeId())));
           Crypto.PublicKey publicKey = new Crypto.PublicKey(pointNodeId, true);
@@ -103,22 +104,27 @@ public class CreatePaymentActivity extends Activity {
               if (paymentList.isEmpty()) {
                 Log.w("Payment Complete", "Received an unknown event -> ignored");
               } else {
-                Payment paymentInDB = paymentList.get(0);
-                paymentInDB.updated = new Date();
-                if (o instanceof PaymentSucceeded && t == null) {
-                  paymentInDB.status = "PAID";
-                  EventBus.getDefault().post(new SWPaymentEvent(pr));
+                if (t != null && t instanceof akka.pattern.AskTimeoutException) {
+                  // payment is pending, let's do nothing and wait
                 } else {
-                  paymentInDB.status = "FAILED";
-                  if (t != null) {
-                    EventBus.getDefault().post(new ThrowableFailureEvent(new Exception(t)));
-                  } else if (o instanceof PaymentFailed){
-                    EventBus.getDefault().post(new ThrowableFailureEvent(new Exception( ((PaymentFailed) o).error().get().failureMessage().toString() )));
+                  Payment paymentInDB = paymentList.get(0);
+                  paymentInDB.updated = new Date();
+                  if (o instanceof PaymentSucceeded && t == null) {
+                    paymentInDB.status = "PAID";
+                    EventBus.getDefault().post(new SWPaymentEvent(pr));
                   } else {
-                    EventBus.getDefault().post(new ThrowableFailureEvent(new Exception("Internal Error" )));
+                    if (o instanceof PaymentFailed) {
+                      paymentInDB.status = "FAILED";
+                      Sphinx.ErrorPacket error = ((PaymentFailed) o).error().get();
+                      String cause = error != null && error.failureMessage() != null ? error.failureMessage().toString() : "Unknown Cause";
+                      EventBus.getDefault().post(new ThrowableFailureEvent(new Exception(cause)));
+                    } else {
+                      paymentInDB.status = "ERROR";
+                      EventBus.getDefault().post(new ThrowableFailureEvent(new Exception("Internal Error" )));
+                    }
                   }
+                  paymentInDB.save();
                 }
-                paymentInDB.save();
               }
             }
           }, ec);
