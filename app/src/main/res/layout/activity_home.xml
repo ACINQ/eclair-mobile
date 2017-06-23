@@ -187,7 +187,9 @@
             android:layout_gravity="center"
             android:layout_marginTop="8dp"
             android:text="[No Channels. Click to open a new channel]"
-            android:textColor="@color/orange"
+            android:clickable="true"
+            android:onClick="home_openChannel"
+            android:textColor="@color/white"
             android:textSize="10sp"
             android:visibility="gone" />
 
@@ -245,6 +247,3 @@
     app:backgroundTint="@color/orange"
     app:fabSize="normal" />
 </RelativeLayout>
-
-
-

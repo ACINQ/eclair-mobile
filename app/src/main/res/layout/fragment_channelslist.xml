@@ -9,9 +9,11 @@
     android:id="@+id/localchannels_empty"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_centerInParent="true"
+    android:layout_centerHorizontal="true"
+    android:layout_alignParentTop="true"
+    android:layout_marginTop="32dp"
     android:padding="16dp"
-    android:text="@string/payments_empty"
+    android:text="@string/localchannels_empty"
     android:textAlignment="center"
     android:textColor="@color/colorGrey_1"
     android:textSize="12sp" />

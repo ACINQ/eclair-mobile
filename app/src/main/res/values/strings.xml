@@ -1,38 +1,22 @@
 <resources>
   <string name="lang">eng</string>
-
   <string name="app_name">Swordfish</string>
 
+  <!-- //////////////// home //////////////////// -->
   <string name="home_onchain_balance">ONCHAIN BALANCE:</string>
   <string name="home_offchain_balance">OFFCHAIN BALANCE:</string>
   <string name="home_balance_available">Offchain Spendable</string>
-  <string name="main__btn_pay">Send a payment</string>
-  <string name="main__btn_fund">Add funds</string>
-  <string name="main__button_channels">Channels List</string>
   <string name="payments_empty">No payments has been made yet...\nSend a payment by scanning an LN invoice.</string>
-
-  <string name="title_activity_payment">Send a Payment</string>
   <string name="payment__lbl_pr">Enter a LN Payment Request:</string>
-  <string name="payment__label_pr_separator">-OR-</string>
-  <string name="payment__button_scan">Scan QR code</string>
-  <string name="payment__button_manualpr">Manual PR</string>
-  <string name="payment__label_desc">Description of the payment</string>
-  <string name="payment__label_desc_desc">This information is not shared with anyone, it\'s for your convenience. Can be empty.</string>
   <string name="payment__lbl_pr_amount">Amount to send</string>
-  <string name="payment__lbl_pr_pubkey">Public key</string>
-  <string name="payment__lbl_pr_pubkey_desc">Unique identifier of the target node</string>
-  <string name="payment__lbl_pr_paymenthash">Payment Hash</string>
-  <string name="payment__lbl_pr_paymenthash_desc">Unique identifier of the payment</string>
   <string name="payment__btn_send">Send Payment</string>
   <string name="payment__label_pending">Please wait... Payment is being sent.</string>
+  <string name="localchannels_empty">No channels open yet...\nYou can open a new channel by clicking on the button below.</string>
 
   <!-- //////////////// fund /////////////////// -->
 
-  <string name="fund__label_title">Open a new channel</string>
   <string name="fund__label_amount">Capacity (mBTC)</string>
-  <string name="fund__label_amount_desc">This amount is in satoshi, must be > 1000.</string>
   <string name="fund__hint_amount">e.g. 42</string>
-
   <string name="fund__button_openchannel">Open Channel</string>
   <string name="fund__label_uri">Target URI</string>
   <string name="fund__label_uri_desc">URI of the node you want to open a channel with</string>
@@ -49,14 +33,6 @@
 
   <!-- /////////////// menu_home /////////////// -->
   <string name="menu_home">Home</string>
-  <string name="menu_channelslist">List of connected channels</string>
   <string name="menu_settings">Settings</string>
-  <string name="menu_help">Help</string>
-  <string name="menu_refresh">Refresh</string>
-
-  <!-- /////////////// channels list /////////////// -->
-  <string name="channelslist__label_empty">No channels found...\nYou can create a new channel by clicking on the button below.</string>
-  <string name="channelslist__label_error">An error has occured and the channels could not be found.\nIf the problem persists, restart the application.</string>
-  <string name="channelslist__label_pending">Fetching list of connected channels...\nPlease wait.</string>
 
 </resources>
