@@ -62,6 +62,7 @@ public class HomeActivity extends AppCompatActivity {
   private ValueAnimator mPopOutPaymentAnimation;
   private ViewGroup mPaymentPopin;
   private TextView mPaymentPopinText;
+  private CoinAmountView mAvailableBalanceView;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +74,7 @@ public class HomeActivity extends AppCompatActivity {
     ActionBar ab = getSupportActionBar();
     ab.setDisplayHomeAsUpEnabled(false);
 
+    mAvailableBalanceView = (CoinAmountView) findViewById(R.id.home_value_availablebalance);
     mAddInvoiceButton = (FloatingActionButton) findViewById(R.id.home_addinvoice);
     mOpenChannelButton = (FloatingActionButton) findViewById(R.id.home_openchannel);
     mPendingBalanceView = (TextView) findViewById(R.id.home_pendingbalance_value);
@@ -90,7 +92,7 @@ public class HomeActivity extends AppCompatActivity {
       @Override
       public void onPageSelected(int position) {
         mOpenChannelButton.setVisibility(position == 0 ? View.VISIBLE : View.GONE);
-        mAddInvoiceButton.setVisibility(position == 1 ? View.VISIBLE : View.GONE);
+        mAddInvoiceButton.setVisibility(position == 1 && mAvailableBalanceView.getAmountSat().amount() > 0 ? View.VISIBLE : View.GONE);
       }
 
       @Override
@@ -258,8 +260,8 @@ public class HomeActivity extends AppCompatActivity {
 
     // 1 - available balance
     findViewById(R.id.home_nochannels).setVisibility(View.GONE);
-    CoinAmountView availableBalanceView = (CoinAmountView) findViewById(R.id.home_value_availablebalance);
-    availableBalanceView.setAmountSat(new Satoshi(event.availableBalanceSat));
+
+    mAvailableBalanceView.setAmountSat(new Satoshi(event.availableBalanceSat));
     mAddInvoiceButton.setVisibility(event.availableBalanceSat > 0 ? View.VISIBLE : View.GONE);
 
     // 2 - unavailable balance

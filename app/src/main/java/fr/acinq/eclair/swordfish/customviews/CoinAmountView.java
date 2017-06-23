@@ -97,6 +97,9 @@ public class CoinAmountView extends RelativeLayout {
     this.amountSat = amountSat;
     refreshView();
   }
+  public Satoshi getAmountSat() {
+    return this.amountSat;
+  }
 
   public void setUnit(String unit) {
     this.unit = unit;
