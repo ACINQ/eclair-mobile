@@ -84,12 +84,6 @@
       android:label="Nodes in Network"
       android:parentActivityName=".activity.SettingsActivity"
       android:screenOrientation="portrait" />
-    <activity
-      android:name=".activity.InvoiceInputActivity"
-      android:theme="@style/CustomDialog" />
-    <activity
-      android:name=".activity.ChannelInputActivity"
-      android:theme="@style/CustomDialog" />
   </application>
 
 </manifest>

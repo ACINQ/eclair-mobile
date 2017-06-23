@@ -31,13 +31,15 @@ import scala.math.BigDecimal;
 
 public class OpenChannelActivity extends Activity implements OneInputDialog.OneInputDialogListener {
 
+  public static final String EXTRA_NEW_HOST_URI = "fr.acinq.eclair.swordfish.NEW_HOST_URI";
+
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_open_channel);
 
     Intent intent = getIntent();
-    String hostURI = intent.getStringExtra(ChannelInputActivity.EXTRA_NEWHOSTURI);
+    String hostURI = intent.getStringExtra(EXTRA_NEW_HOST_URI);
     setNodeURI(hostURI);
 
     final EditText amountET = (EditText) findViewById(R.id.fund__input_amount);

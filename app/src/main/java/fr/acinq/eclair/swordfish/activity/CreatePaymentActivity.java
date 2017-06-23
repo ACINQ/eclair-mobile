@@ -9,7 +9,6 @@ import android.widget.Toast;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.util.AsyncExecutor;
-import org.greenrobot.eventbus.util.ThrowableFailureEvent;
 
 import java.io.File;
 import java.util.Date;
@@ -29,6 +28,7 @@ import fr.acinq.eclair.payment.SendPayment;
 import fr.acinq.eclair.swordfish.EclairHelper;
 import fr.acinq.eclair.swordfish.R;
 import fr.acinq.eclair.swordfish.customviews.CoinAmountView;
+import fr.acinq.eclair.swordfish.events.SWPaymenFailedEvent;
 import fr.acinq.eclair.swordfish.events.SWPaymentEvent;
 import fr.acinq.eclair.swordfish.model.Payment;
 import scala.concurrent.ExecutionContext;
@@ -37,6 +37,7 @@ import scala.concurrent.duration.Duration;
 
 public class CreatePaymentActivity extends Activity {
 
+  public static final String EXTRA_INVOICE = "fr.acinq.eclair.swordfish.EXTRA_INVOICE";
   private static final String TAG = "CreatePayment";
   private PaymentRequest currentPR = null;
   private boolean isProcessingPayment = false;
@@ -47,14 +48,14 @@ public class CreatePaymentActivity extends Activity {
     setContentView(R.layout.activity_create_payment);
 
     Intent intent = getIntent();
-    String prString = intent.getStringExtra(InvoiceInputActivity.EXTRA_PAYMENTREQUEST);
+    String prString = intent.getStringExtra(EXTRA_INVOICE);
     CoinAmountView v_amount = (CoinAmountView) findViewById(R.id.payment__value_amount);
     try {
       PaymentRequest extract = PaymentRequest.read(prString);
       v_amount.setAmountSat(package$.MODULE$.millisatoshi2satoshi(extract.amount()));
       currentPR = extract;
     } catch (Throwable t) {
-      Toast.makeText(this, "Invalid Payment Request", Toast.LENGTH_SHORT).show();
+      Toast.makeText(this, "Invalid Invoice", Toast.LENGTH_LONG).show();
       goToHome();
     }
   }
@@ -71,7 +72,7 @@ public class CreatePaymentActivity extends Activity {
     startActivity(intent);
   }
 
-  public void sendPayment(View view) {
+  public void sendPayment(final View view) {
     isProcessingPayment = true;
     final File datadir = getFilesDir();
     final PaymentRequest pr = currentPR;
@@ -115,15 +116,17 @@ public class CreatePaymentActivity extends Activity {
                     EventBus.getDefault().post(new SWPaymentEvent(pr));
                   } else {
                     paymentInDB.status = "FAILED";
+                    String cause = "Internal Error";
                     if (o instanceof PaymentFailed) {
                       Sphinx.ErrorPacket error = ((PaymentFailed) o).error().get();
-                      String cause = error != null && error.failureMessage() != null ? error.failureMessage().toString() : "Unknown Cause";
-                      EventBus.getDefault().post(new ThrowableFailureEvent(new Exception(cause)));
+                      cause = error != null && error.failureMessage() != null ? error.failureMessage().toString() : cause;
+                      EventBus.getDefault().post(new SWPaymenFailedEvent(pr, cause));
                     } else if (t != null) {
                       Log.e(TAG, "Error when sending payment", t);
-                      EventBus.getDefault().post(new ThrowableFailureEvent(t));
+                      cause = t.getMessage();
+                      EventBus.getDefault().post(new SWPaymenFailedEvent(pr, cause));
                     } else {
-                      EventBus.getDefault().post(new ThrowableFailureEvent(new Exception("Internal Error")));
+                      EventBus.getDefault().post(new SWPaymenFailedEvent(pr, cause));
                     }
                   }
                   paymentInDB.save();

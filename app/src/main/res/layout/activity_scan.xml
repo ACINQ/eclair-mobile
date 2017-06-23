@@ -20,7 +20,7 @@
       android:layout_alignParentTop="true"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
-      android:id="@+id/payment__scanview"
+      android:id="@+id/scanview"
       app:zxing_use_texture_view="false"
       app:zxing_preview_scaling_strategy="fitXY"/>
 
