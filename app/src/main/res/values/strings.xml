@@ -3,8 +3,8 @@
   <string name="app_name">Swordfish</string>
 
   <!-- //////////////// home //////////////////// -->
-  <string name="home_onchain_balance">ONCHAIN:</string>
-  <string name="home_offchain_balance">OFFCHAIN:</string>
+  <string name="home_onchain_balance">WALLET:</string>
+  <string name="home_offchain_balance">LIGHTNING:</string>
   <string name="home_balance_available">Offchain Spendable</string>
   <string name="payments_empty">No payments has been made yet...\nSend a payment by scanning an LN invoice.</string>
   <string name="payment__lbl_pr">Enter a LN Payment Request:</string>
