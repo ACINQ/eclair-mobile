@@ -85,6 +85,7 @@ public class CreatePaymentActivity extends Activity {
 
           // 1 - save payment attempt in DB
           Payment p = new Payment(pr.paymentHash().toString(), PaymentRequest.write(pr), "Placeholder description", new Date(), new Date());
+          p.amountPaid = Long.toString(pr.amount().amount());
           p.save();
 
           // 2 - prepare payment future ask

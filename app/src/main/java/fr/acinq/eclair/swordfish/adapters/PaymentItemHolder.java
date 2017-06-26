@@ -2,24 +2,25 @@ package fr.acinq.eclair.swordfish.adapters;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.TextView;
 
 import java.text.DateFormat;
 
+import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.package$;
-import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.swordfish.R;
 import fr.acinq.eclair.swordfish.activity.PaymentDetailsActivity;
 import fr.acinq.eclair.swordfish.model.Payment;
 import fr.acinq.eclair.swordfish.utils.CoinFormat;
-import scala.math.BigDecimal;
 
 public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
   public static final String EXTRA_PAYMENT_ID = "fr.acinq.eclair.swordfish.PAYMENT_ID";
+  private static final int FAILED_PAYMENT_COLOR = 0xFFCD1E56;
+  private static final int PENDING_PAYMENT_COLOR = 0xFFFFB81C;
+  private static final int SUCCESS_PAYMENT_COLOR = 0xFF00C28C;
   private final TextView description;
   private final TextView status;
   private final TextView date;
@@ -47,18 +48,17 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
   public void bindPaymentItem(Payment payment) {
     this.payment = payment;
     try {
-      BigDecimal amount_mbtc = package$.MODULE$.millisatoshi2millibtc(PaymentRequest.read(payment.paymentRequest).amount()).amount();
-      amount.setText(CoinFormat.getMilliBTCFormat().format(amount_mbtc));
+      amount.setText(CoinFormat.getMilliBTCFormat().format(package$.MODULE$.millisatoshi2millibtc(new MilliSatoshi(Long.parseLong(payment.amountPaid))).amount()));
     } catch (Exception e) {
       amount.setText(CoinFormat.getMilliBTCFormat().format(0));
     }
     this.status.setText(payment.status);
     if ("FAILED".equals(payment.status)) {
-      status.setTextColor(ContextCompat.getColor(context, R.color.red));
+      status.setTextColor(FAILED_PAYMENT_COLOR);
     } else if ("PAID".equals(payment.status)) {
-      status.setTextColor(ContextCompat.getColor(context, R.color.green));
+      status.setTextColor(SUCCESS_PAYMENT_COLOR);
     } else {
-      status.setTextColor(ContextCompat.getColor(context, R.color.orange));
+      status.setTextColor(PENDING_PAYMENT_COLOR);
     }
     this.description.setText(payment.description);
     date.setText(DateFormat.getDateTimeInstance().format(payment.updated));
