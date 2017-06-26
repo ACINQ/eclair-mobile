@@ -14,11 +14,9 @@ import fr.acinq.eclair.swordfish.model.NetworkChannelItem;
 public class NetworkChannelItemAdapter extends RecyclerView.Adapter<NetworkChannelHolder> {
 
   private List<NetworkChannelItem> channels;
-  private Context context;
 
-  public NetworkChannelItemAdapter(Context context, List<NetworkChannelItem> channels) {
+  public NetworkChannelItemAdapter(List<NetworkChannelItem> channels) {
     this.channels = channels;
-    this.context = context;
   }
 
   @Override

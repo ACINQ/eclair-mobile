@@ -15,10 +15,8 @@ public class NetworkChannelHolder  extends RecyclerView.ViewHolder {
   private final TextView id;
   private final TextView node1;
   private final TextView node2;
-  private NetworkChannelItem channel;
 
   public void bindNetworkChannelItem(NetworkChannelItem channel) {
-    this.channel = channel;
     id.setText(Long.toHexString(channel.shortChannelId));
     node1.setText(channel.nodeId1.toString());
     node2.setText(channel.nodeId2.toString());

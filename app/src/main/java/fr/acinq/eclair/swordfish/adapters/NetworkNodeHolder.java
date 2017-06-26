@@ -10,7 +10,6 @@ import fr.acinq.eclair.swordfish.model.NetworkNodeItem;
 public class NetworkNodeHolder extends RecyclerView.ViewHolder {
   private final TextView id;
   private final TextView alias;
-  private NetworkNodeItem node;
 
   public NetworkNodeHolder(View itemView) {
     super(itemView);
@@ -19,7 +18,6 @@ public class NetworkNodeHolder extends RecyclerView.ViewHolder {
   }
 
   public void bindItem(NetworkNodeItem node) {
-    this.node = node;
     id.setText(node.nodeId.toString());
     alias.setText(node.alias);
   }

@@ -1,6 +1,5 @@
 package fr.acinq.eclair.swordfish.adapters;
 
-import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,17 +13,15 @@ import fr.acinq.eclair.swordfish.model.Payment;
 public class PaymentListItemAdapter extends RecyclerView.Adapter<PaymentItemHolder> {
 
   private List<Payment> payments;
-  private Context context;
 
-  public PaymentListItemAdapter(Context context, List<Payment> payments) {
+  public PaymentListItemAdapter(List<Payment> payments) {
     this.payments = payments;
-    this.context = context;
   }
 
   @Override
   public PaymentItemHolder onCreateViewHolder(ViewGroup parent, int viewType) {
     View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_payment, parent, false);
-    return new PaymentItemHolder(this.context, view);
+    return new PaymentItemHolder(view);
   }
 
   @Override

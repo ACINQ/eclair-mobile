@@ -42,7 +42,7 @@ public class NetworkNodesActivity extends AppCompatActivity {
   public void onStart() {
     EventBus.getDefault().register(this);
     super.onStart();
-    this.adapter = new NetworkNodeItemAdapter(this, getNodes());
+    this.adapter = new NetworkNodeItemAdapter(getNodes());
     RecyclerView listView = (RecyclerView) findViewById(R.id.networknodes__list);
     listView.setHasFixedSize(true);
     listView.setLayoutManager(new LinearLayoutManager(this));

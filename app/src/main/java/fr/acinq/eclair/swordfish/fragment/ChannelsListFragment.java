@@ -51,7 +51,7 @@ public class ChannelsListFragment extends Fragment implements SwipeRefreshLayout
   @Override
   public void onStart() {
     super.onStart();
-    this.mChannelAdapter = new LocalChannelItemAdapter(mView.getContext(), getChannels());
+    this.mChannelAdapter = new LocalChannelItemAdapter(getChannels());
     RecyclerView listView = (RecyclerView) mView.findViewById(R.id.localchannels_list);
     listView.setHasFixedSize(true);
     listView.setLayoutManager(new LinearLayoutManager(mView.getContext()));

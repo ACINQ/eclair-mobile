@@ -1,6 +1,5 @@
 package fr.acinq.eclair.swordfish.adapters;
 
-import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -26,11 +25,9 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
   private final TextView date;
   private final TextView amount;
   private Payment payment;
-  private Context context;
 
-  public PaymentItemHolder(Context context, View itemView) {
+  public PaymentItemHolder(View itemView) {
     super(itemView);
-    this.context = context;
     this.amount = (TextView) itemView.findViewById(R.id.payment_item_amount);
     this.status = (TextView) itemView.findViewById(R.id.payment_item_status);
     this.description = (TextView) itemView.findViewById(R.id.payment_item_description);
@@ -40,9 +37,9 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
 
   @Override
   public void onClick(View v) {
-    Intent intent = new Intent(this.context, PaymentDetailsActivity.class);
+    Intent intent = new Intent(v.getContext(), PaymentDetailsActivity.class);
     intent.putExtra(EXTRA_PAYMENT_ID, payment.getId().longValue());
-    this.context.startActivity(intent);
+    v.getContext().startActivity(intent);
   }
 
   public void bindPaymentItem(Payment payment) {

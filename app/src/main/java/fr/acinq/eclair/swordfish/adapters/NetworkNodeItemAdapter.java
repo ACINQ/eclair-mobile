@@ -14,11 +14,9 @@ import fr.acinq.eclair.swordfish.model.NetworkNodeItem;
 public class NetworkNodeItemAdapter extends RecyclerView.Adapter<NetworkNodeHolder> {
 
   private List<NetworkNodeItem> nodes;
-  private Context context;
 
-  public NetworkNodeItemAdapter(Context context, List<NetworkNodeItem> nodes) {
+  public NetworkNodeItemAdapter(List<NetworkNodeItem> nodes) {
     this.nodes = nodes;
-    this.context = context;
   }
 
   @Override

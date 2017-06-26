@@ -50,7 +50,7 @@ public class PaymentsListFragment extends Fragment implements SwipeRefreshLayout
   @Override
   public void onStart() {
     super.onStart();
-    this.mPaymentAdapter = new PaymentListItemAdapter(mView.getContext(), getPayments());
+    this.mPaymentAdapter = new PaymentListItemAdapter(getPayments());
     RecyclerView listView = (RecyclerView) mView.findViewById(R.id.payments_list);
     listView.setHasFixedSize(true);
     listView.setLayoutManager(new LinearLayoutManager(mView.getContext()));

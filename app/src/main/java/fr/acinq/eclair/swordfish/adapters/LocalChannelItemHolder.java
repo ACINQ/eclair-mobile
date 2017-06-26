@@ -13,21 +13,21 @@ public class LocalChannelItemHolder extends RecyclerView.ViewHolder {
   private final TextView id;
   private final TextView status;
   private final TextView balance;
-  private final TextView targetnode;
+  private final TextView targetNode;
 
   public LocalChannelItemHolder(View itemView) {
     super(itemView);
     this.id = (TextView) itemView.findViewById(R.id.channelitem__value_channelid);
     this.status = (TextView) itemView.findViewById(R.id.channelitem__value_status);
     this.balance = (TextView) itemView.findViewById(R.id.channelitem__value_balance);
-    this.targetnode = (TextView) itemView.findViewById(R.id.channelitem__value_targetnode);
+    this.targetNode = (TextView) itemView.findViewById(R.id.channelitem__value_targetnode);
   }
 
   public void bindItem(ChannelItem channelItem) {
     id.setText(channelItem.id);
     status.setText(String.valueOf(channelItem.status));
     balance.setText(CoinFormat.getMilliBTCFormat().format(channelItem.balanceSat / 100000));
-    targetnode.setText(channelItem.targetPubkey);
+    targetNode.setText(channelItem.targetPubkey);
   }
 
 }

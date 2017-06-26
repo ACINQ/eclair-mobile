@@ -42,7 +42,7 @@ public class NetworkChannelsActivity extends AppCompatActivity {
   public void onStart() {
     EventBus.getDefault().register(this);
     super.onStart();
-    this.adapter = new NetworkChannelItemAdapter(this, getChannels());
+    this.adapter = new NetworkChannelItemAdapter(getChannels());
     RecyclerView listView = (RecyclerView) findViewById(R.id.networkchannels__list);
     listView.setHasFixedSize(true);
     listView.setLayoutManager(new LinearLayoutManager(this));
