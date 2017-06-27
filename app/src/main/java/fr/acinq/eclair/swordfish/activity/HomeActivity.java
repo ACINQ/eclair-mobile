@@ -45,7 +45,7 @@ import fr.acinq.eclair.swordfish.events.SWPaymenFailedEvent;
 import fr.acinq.eclair.swordfish.events.SWPaymentEvent;
 import fr.acinq.eclair.swordfish.fragment.ChannelsListFragment;
 import fr.acinq.eclair.swordfish.fragment.PaymentsListFragment;
-import fr.acinq.eclair.swordfish.utils.CoinFormat;
+import fr.acinq.eclair.swordfish.utils.CoinUtils;
 import fr.acinq.eclair.swordfish.utils.Validators;
 
 public class HomeActivity extends AppCompatActivity {
@@ -183,11 +183,10 @@ public class HomeActivity extends AppCompatActivity {
 
   private String readFromClipboard() {
     ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-    String pasteData = "";
     if (clipboard.hasPrimaryClip() && clipboard.getPrimaryClip().getItemAt(0) != null && clipboard.getPrimaryClip().getItemAt(0).getText() != null) {
-      pasteData = clipboard.getPrimaryClip().getItemAt(0).getText().toString();
+      return clipboard.getPrimaryClip().getItemAt(0).getText().toString();
     }
-    return pasteData;
+    return "";
   }
 
   public void home_doPasteInvoice(View view) {
@@ -239,7 +238,7 @@ public class HomeActivity extends AppCompatActivity {
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void onMessageEvent(SWPaymentEvent event) {
     animateBalance();
-    mPaymentPopinText.setText("Successfully sent " + CoinFormat.getMilliBTCFormat().format(event.paymentRequest.amount().amount() / 100000) + " mBTC");
+    mPaymentPopinText.setText("Successfully sent " + CoinUtils.getMilliBtcAmountFromInvoice(event.paymentRequest, true));
     mPaymentsListFragment.updateList();
   }
 
@@ -322,7 +321,7 @@ public class HomeActivity extends AppCompatActivity {
 
     // 2 - unavailable balance
     if (event.pendingBalanceSat > 0) {
-      mPendingBalanceView.setText("+" + CoinFormat.getMilliBTCFormat().format(package$.MODULE$.satoshi2millibtc(new Satoshi(event.pendingBalanceSat)).amount()) + " mBTC pending");
+      mPendingBalanceView.setText("+" + CoinUtils.getMilliBTCFormat().format(package$.MODULE$.satoshi2millibtc(new Satoshi(event.pendingBalanceSat)).amount()) + " mBTC pending");
       mPendingBalanceView.setVisibility(View.VISIBLE);
     } else {
       mPendingBalanceView.setVisibility(View.GONE);

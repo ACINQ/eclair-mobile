@@ -31,6 +31,7 @@ import fr.acinq.eclair.swordfish.customviews.CoinAmountView;
 import fr.acinq.eclair.swordfish.events.SWPaymenFailedEvent;
 import fr.acinq.eclair.swordfish.events.SWPaymentEvent;
 import fr.acinq.eclair.swordfish.model.Payment;
+import fr.acinq.eclair.swordfish.utils.CoinUtils;
 import scala.concurrent.ExecutionContext;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
@@ -52,7 +53,7 @@ public class CreatePaymentActivity extends Activity {
     CoinAmountView v_amount = (CoinAmountView) findViewById(R.id.payment__value_amount);
     try {
       PaymentRequest extract = PaymentRequest.read(prString);
-      v_amount.setAmountSat(package$.MODULE$.millisatoshi2satoshi(extract.amount()));
+      v_amount.setAmountSat(package$.MODULE$.millisatoshi2satoshi(CoinUtils.getAmountFromInvoice(extract)));
       currentPR = extract;
     } catch (Throwable t) {
       Toast.makeText(this, "Invalid Invoice", Toast.LENGTH_LONG).show();
@@ -85,19 +86,18 @@ public class CreatePaymentActivity extends Activity {
 
           // 1 - save payment attempt in DB
           Payment p = new Payment(pr.paymentHash().toString(), PaymentRequest.write(pr), "Placeholder description", new Date(), new Date());
-          p.amountPaid = Long.toString(pr.amount().amount());
+          p.amountPaid = Long.toString(CoinUtils.getLongAmountFromInvoice(pr));
           p.save();
 
           // 2 - prepare payment future ask
           Timeout paymentTimeout = new Timeout(Duration.create(45, "seconds"));
           ActorRef paymentInitiator = EclairHelper.getInstance(datadir).getSetup().paymentInitiator();
-          Crypto.Point pointNodeId = new Crypto.Point(Crypto.curve().getCurve().decodePoint(package$.MODULE$.binaryData2array(pr.nodeId())));
-          Crypto.PublicKey publicKey = new Crypto.PublicKey(pointNodeId, true);
+          Crypto.PublicKey publicKey = pr.nodeId();
           ExecutionContext ec = EclairHelper.getInstance(datadir).getSetup().system().dispatcher();
 
           // 3 - execute payment future and handle result
           Future<Object> paymentFuture = Patterns.ask(paymentInitiator,
-            new SendPayment(pr.amount().amount(), pr.paymentHash(), publicKey, 5),
+            new SendPayment(CoinUtils.getLongAmountFromInvoice(pr), pr.paymentHash(), publicKey, 5),
             paymentTimeout);
           paymentFuture.onComplete(new OnComplete<Object>() {
             @Override

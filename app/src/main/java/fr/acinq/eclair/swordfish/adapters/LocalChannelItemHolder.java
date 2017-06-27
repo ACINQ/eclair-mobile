@@ -6,7 +6,7 @@ import android.widget.TextView;
 
 import fr.acinq.eclair.swordfish.R;
 import fr.acinq.eclair.swordfish.model.ChannelItem;
-import fr.acinq.eclair.swordfish.utils.CoinFormat;
+import fr.acinq.eclair.swordfish.utils.CoinUtils;
 
 public class LocalChannelItemHolder extends RecyclerView.ViewHolder {
 
@@ -26,7 +26,7 @@ public class LocalChannelItemHolder extends RecyclerView.ViewHolder {
   public void bindItem(ChannelItem channelItem) {
     id.setText(channelItem.id);
     status.setText(String.valueOf(channelItem.status));
-    balance.setText(CoinFormat.getMilliBTCFormat().format(channelItem.balanceSat / 100000));
+    balance.setText(CoinUtils.getMilliBTCFormat().format(channelItem.balanceSat / 100000));
     targetNode.setText(channelItem.targetPubkey);
   }
 

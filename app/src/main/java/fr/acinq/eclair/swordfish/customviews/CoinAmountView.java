@@ -16,7 +16,7 @@ import java.text.NumberFormat;
 import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.swordfish.R;
-import fr.acinq.eclair.swordfish.utils.CoinFormat;
+import fr.acinq.eclair.swordfish.utils.CoinUtils;
 import scala.math.BigDecimal;
 
 public class CoinAmountView extends RelativeLayout {
@@ -111,11 +111,11 @@ public class CoinAmountView extends RelativeLayout {
     switch (this.unit) {
       case "BTC":
         BigDecimal amount_btc = package$.MODULE$.satoshi2btc(amountSat).amount();
-        amountTextView.setText(CoinFormat.getBTCFormat().format(amount_btc));
+        amountTextView.setText(CoinUtils.getBTCFormat().format(amount_btc));
         break;
       case "mBTC":
         BigDecimal amount_mbtc = package$.MODULE$.satoshi2millibtc(amountSat).amount();
-        amountTextView.setText(CoinFormat.getMilliBTCFormat().format(amount_mbtc));
+        amountTextView.setText(CoinUtils.getMilliBTCFormat().format(amount_mbtc));
         break;
       default:
         amountTextView.setText(NumberFormat.getInstance().format(amountSat.amount()));

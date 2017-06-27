@@ -1,22 +1,20 @@
 package fr.acinq.eclair.swordfish.activity;
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 
 import java.text.DateFormat;
 
-import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.swordfish.R;
 import fr.acinq.eclair.swordfish.adapters.PaymentItemHolder;
 import fr.acinq.eclair.swordfish.customviews.DataRow;
 import fr.acinq.eclair.swordfish.model.Payment;
-import fr.acinq.eclair.swordfish.utils.CoinFormat;
-import scala.math.BigDecimal;
+import fr.acinq.eclair.swordfish.utils.CoinUtils;
 
 public class PaymentDetailsActivity extends AppCompatActivity {
 
@@ -43,8 +41,7 @@ public class PaymentDetailsActivity extends AppCompatActivity {
 
       // amount
       DataRow amountRow = (DataRow) findViewById(R.id.paymentdetails_amount);
-      BigDecimal amount_mbtc = package$.MODULE$.millisatoshi2millibtc(PaymentRequest.read(p.paymentRequest).amount()).amount();
-      amountRow.setValue(CoinFormat.getMilliBTCFormat().format(amount_mbtc));
+      amountRow.setValue(CoinUtils.getMilliBtcAmountFromInvoice(PaymentRequest.read(p.paymentRequest), false));
 
       DataRow feesRow = (DataRow) findViewById(R.id.paymentdetails_fees);
       feesRow.setValue(p.feesPaid);
@@ -67,7 +64,7 @@ public class PaymentDetailsActivity extends AppCompatActivity {
       DataRow updateDateRow = (DataRow) findViewById(R.id.paymentdetails_updated);
       updateDateRow.setValue(DateFormat.getDateTimeInstance().format(p.updated));
 
-    } catch(Exception e) {
+    } catch (Exception e) {
       Log.e(TAG, "Internal error", e);
       goToHome();
     }

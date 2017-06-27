@@ -12,7 +12,7 @@ import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.swordfish.R;
 import fr.acinq.eclair.swordfish.activity.PaymentDetailsActivity;
 import fr.acinq.eclair.swordfish.model.Payment;
-import fr.acinq.eclair.swordfish.utils.CoinFormat;
+import fr.acinq.eclair.swordfish.utils.CoinUtils;
 
 public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
@@ -45,9 +45,9 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
   public void bindPaymentItem(Payment payment) {
     this.payment = payment;
     try {
-      amount.setText(CoinFormat.getMilliBTCFormat().format(package$.MODULE$.millisatoshi2millibtc(new MilliSatoshi(Long.parseLong(payment.amountPaid))).amount()));
+      amount.setText(CoinUtils.getMilliBTCFormat().format(package$.MODULE$.millisatoshi2millibtc(new MilliSatoshi(Long.parseLong(payment.amountPaid))).amount()));
     } catch (Exception e) {
-      amount.setText(CoinFormat.getMilliBTCFormat().format(0));
+      amount.setText(CoinUtils.getMilliBTCFormat().format(0));
     }
     this.status.setText(payment.status);
     if ("FAILED".equals(payment.status)) {
