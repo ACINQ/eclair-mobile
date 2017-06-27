@@ -67,7 +67,7 @@
       android:id="@+id/item_node2"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:text="Node 1"
+      android:text="Node 2"
       android:textSize="10sp"
       android:textStyle="bold" />
 
