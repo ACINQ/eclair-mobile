@@ -1,8 +1,12 @@
 package fr.acinq.eclair.swordfish.activity;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.KeyEvent;
 
@@ -24,9 +28,9 @@ public class ScanActivity extends Activity {
   public static final String TYPE_INVOICE = "INVOICE";
   public static final String TYPE_URI = "URI";
   private static final String TAG = ScanActivity.class.getSimpleName();
+  private static int MY_PERMISSIONS_REQUEST_CAMERA = 0;
   private DecoratedBarcodeView mBarcodeView;
   private boolean isInvoice = false;
-
   private BarcodeCallback callback = new BarcodeCallback() {
     @Override
     public void barcodeResult(BarcodeResult result) {
@@ -83,6 +87,7 @@ public class ScanActivity extends Activity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_scan);
+    mBarcodeView = (DecoratedBarcodeView) findViewById(R.id.scanview);
 
     Intent intent = getIntent();
     String type = intent.getStringExtra(EXTRA_SCAN_TYPE);
@@ -95,8 +100,27 @@ public class ScanActivity extends Activity {
       startActivity(new Intent(this, HomeActivity.class));
     }
 
-    mBarcodeView = (DecoratedBarcodeView) findViewById(R.id.scanview);
+    if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+      ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, MY_PERMISSIONS_REQUEST_CAMERA);
+    } else {
+      startScanning();
+    }
+  }
+
+  private void startScanning() {
     mBarcodeView.decodeContinuous(callback);
+  }
+
+  @Override
+  public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+    if (requestCode == MY_PERMISSIONS_REQUEST_CAMERA) {
+      if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+        startScanning();
+      } else {
+        startActivity(new Intent(this, HomeActivity.class));
+      }
+      return;
+    }
   }
 
   @Override
