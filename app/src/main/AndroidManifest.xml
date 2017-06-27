@@ -90,6 +90,14 @@
       android:label="Payment Details"
       android:parentActivityName=".activity.HomeActivity"
       android:screenOrientation="portrait" />
+    <activity
+      android:name=".activity.PaymentSuccessActivity"
+      android:noHistory="true"
+      android:screenOrientation="portrait" />
+    <activity
+      android:name=".activity.PaymentFailureActivity"
+      android:noHistory="true"
+      android:screenOrientation="portrait" />
   </application>
 
 </manifest>

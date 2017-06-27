@@ -33,7 +33,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import fr.acinq.bitcoin.MilliSatoshi;
-import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.swordfish.EclairEventService;
 import fr.acinq.eclair.swordfish.EclairHelper;
 import fr.acinq.eclair.swordfish.R;
@@ -61,12 +60,6 @@ public class HomeActivity extends AppCompatActivity {
   private FloatingActionButton mScanURIButton;
   private FloatingActionButton mPasteURIButton;
   private TextView mPendingBalanceView;
-  private AppBarLayout mAppBar;
-  private ValueAnimator mFlashInBalanceAnimation;
-  private ValueAnimator mPopInPaymentAnimation;
-  private ValueAnimator mPopOutPaymentAnimation;
-  private ViewGroup mPaymentPopin;
-  private TextView mPaymentPopinText;
   private CoinAmountView mAvailableBalanceView;
 
   @Override
@@ -105,9 +98,6 @@ public class HomeActivity extends AppCompatActivity {
       }
     });
     mPendingBalanceView = (TextView) findViewById(R.id.home_pendingbalance_value);
-    mPaymentPopin = (ViewGroup) findViewById(R.id.home_paymentpopin);
-    mPaymentPopinText = (TextView) findViewById(R.id.home_paymentpopin_text);
-    setupPaymentAnimation();
 
     mViewPager = (ViewPager) findViewById(R.id.home_viewpager);
     mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -135,7 +125,6 @@ public class HomeActivity extends AppCompatActivity {
     mViewPager.setAdapter(mPagerAdapter);
     mViewPager.setCurrentItem(1);
 
-    mAppBar = (AppBarLayout) findViewById(R.id.home_appbar);
   }
 
   @Override
@@ -225,65 +214,24 @@ public class HomeActivity extends AppCompatActivity {
 
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void handleFailureEvent(SWPaymenFailedEvent event) {
-    Toast.makeText(this, "Payment failed: " + event.cause, Toast.LENGTH_LONG).show();
+
+    Intent intent = new Intent(this, PaymentFailureActivity.class);
+    intent.putExtra(PaymentFailureActivity.EXTRA_PAYMENTFAILURE_DESC, event.payment.description);
+    intent.putExtra(PaymentFailureActivity.EXTRA_PAYMENTFAILURE_AMOUNT, event.payment.amountPaid);
+    intent.putExtra(PaymentFailureActivity.EXTRA_PAYMENTFAILURE_CAUSE, event.cause);
+    startActivity(intent);
     mPaymentsListFragment.updateList();
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void onMessageEvent(SWPaymentEvent event) {
-    animateBalance();
-    mPaymentPopinText.setText("Successfully sent " + CoinUtils.getMilliBtcAmountFromInvoice(event.paymentRequest, true));
+
+    Intent intent = new Intent(this, PaymentSuccessActivity.class);
+    intent.putExtra(PaymentSuccessActivity.EXTRA_PAYMENTSUCCESS_DESC, event.payment.description);
+    intent.putExtra(PaymentSuccessActivity.EXTRA_PAYMENTSUCCESS_AMOUNT, event.payment.amountPaid);
+    startActivity(intent);
+
     mPaymentsListFragment.updateList();
-  }
-
-  private void animateBalance() {
-    mFlashInBalanceAnimation.cancel();
-    mFlashInBalanceAnimation.start();
-    mPopInPaymentAnimation.cancel();
-    mPopInPaymentAnimation.start();
-  }
-
-  private void setupPaymentAnimation() {
-    // payment pop animation
-    mPopInPaymentAnimation = ObjectAnimator.ofFloat(mPaymentPopin, "translationY", -80f, 0);
-    mPopOutPaymentAnimation = ObjectAnimator.ofFloat(mPaymentPopin, "translationY", 0, -280f);
-    mPopInPaymentAnimation.setDuration(300);
-    mPopOutPaymentAnimation.setDuration(800);
-    mPopOutPaymentAnimation.setStartDelay(1000);
-    mPopInPaymentAnimation.addListener(new AnimatorListenerAdapter() {
-      @Override
-      public void onAnimationStart(Animator animation) {
-        mPaymentPopin.setVisibility(View.VISIBLE);
-      }
-
-      @Override
-      public void onAnimationEnd(Animator animation) {
-        mPopOutPaymentAnimation.start();
-      }
-    });
-    mPopOutPaymentAnimation.addListener(new AnimatorListenerAdapter() {
-      @Override
-      public void onAnimationEnd(Animator animation) {
-        mPaymentPopin.setVisibility(View.GONE);
-      }
-    });
-
-    // balance flash animations
-    final ValueAnimator.AnimatorUpdateListener flashUpdateListener = new ValueAnimator.AnimatorUpdateListener() {
-      @Override
-      public void onAnimationUpdate(ValueAnimator animator) {
-        mAppBar.setBackgroundColor((int) animator.getAnimatedValue());
-      }
-    };
-    mFlashInBalanceAnimation = ValueAnimator.ofArgb(getColor(R.color.bluegreen), getColor(R.color.colorPrimary));
-    mFlashInBalanceAnimation.addUpdateListener(flashUpdateListener);
-    mFlashInBalanceAnimation.setDuration(2000);
-    mFlashInBalanceAnimation.addListener(new AnimatorListenerAdapter() {
-      @Override
-      public void onAnimationStart(Animator animation) {
-        mAppBar.setBackgroundColor(getColor(R.color.bluegreen));
-      }
-    });
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)

@@ -1,10 +1,11 @@
 package fr.acinq.eclair.swordfish.events;
 
-import fr.acinq.eclair.payment.PaymentRequest;
+import fr.acinq.eclair.swordfish.model.Payment;
 
 public class SWPaymentEvent {
-  public final PaymentRequest paymentRequest;
-  public SWPaymentEvent(PaymentRequest paymentRequest) {
-    this.paymentRequest = paymentRequest;
+  public final Payment payment;
+
+  public SWPaymentEvent(Payment payment) {
+    this.payment = payment;
   }
 }

@@ -144,7 +144,7 @@ public class EclairEventService extends UntypedActor {
         paymentInDB.updated = new Date();
         paymentInDB.status = "PAID";
         paymentInDB.save();
-        EventBus.getDefault().post(new SWPaymentEvent(PaymentRequest.read(paymentInDB.paymentRequest)));
+        EventBus.getDefault().post(new SWPaymentEvent(paymentInDB));
       }
     }
     // ---- announcement events

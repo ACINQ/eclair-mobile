@@ -84,7 +84,7 @@ public class CreatePaymentActivity extends Activity {
         public void run() throws Exception {
 
           // 1 - save payment attempt in DB
-          Payment p = new Payment(pr.paymentHash().toString(), PaymentRequest.write(pr), "Placeholder description", new Date(), new Date());
+          final Payment p = new Payment(pr.paymentHash().toString(), PaymentRequest.write(pr), "Placeholder description", new Date(), new Date());
           p.amountPaid = Long.toString(CoinUtils.getLongAmountFromInvoice(pr));
           p.save();
 
@@ -113,20 +113,20 @@ public class CreatePaymentActivity extends Activity {
                   paymentInDB.updated = new Date();
                   if (o instanceof PaymentSucceeded && t == null) {
                     paymentInDB.status = "PAID";
-                    EventBus.getDefault().post(new SWPaymentEvent(pr));
+                    EventBus.getDefault().post(new SWPaymentEvent(p));
                   } else {
                     paymentInDB.status = "FAILED";
                     String cause = "Internal Error";
                     if (o instanceof PaymentFailed) {
                       Sphinx.ErrorPacket error = ((PaymentFailed) o).error().get();
                       cause = error != null && error.failureMessage() != null ? error.failureMessage().toString() : cause;
-                      EventBus.getDefault().post(new SWPaymenFailedEvent(pr, cause));
+                      EventBus.getDefault().post(new SWPaymenFailedEvent(p, cause));
                     } else if (t != null) {
                       Log.e(TAG, "Error when sending payment", t);
                       cause = t.getMessage();
-                      EventBus.getDefault().post(new SWPaymenFailedEvent(pr, cause));
+                      EventBus.getDefault().post(new SWPaymenFailedEvent(p, cause));
                     } else {
-                      EventBus.getDefault().post(new SWPaymenFailedEvent(pr, cause));
+                      EventBus.getDefault().post(new SWPaymenFailedEvent(p, cause));
                     }
                   }
                   paymentInDB.save();

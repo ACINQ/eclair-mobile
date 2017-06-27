@@ -1,0 +1,49 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:background="@color/green"
+  android:clickable="true"
+  android:gravity="center"
+  android:onClick="success_dismiss"
+  android:orientation="vertical"
+  android:padding="32dp"
+  tools:context="fr.acinq.eclair.swordfish.activity.PaymentSuccessActivity">
+
+  <ImageView
+    android:layout_width="32dp"
+    android:layout_height="32dp"
+    android:background="@drawable/ic_done_white_24dp" />
+
+  <LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="32dp"
+    android:background="@drawable/rounded_corner_white"
+    android:elevation="2dp"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <fr.acinq.eclair.swordfish.customviews.CoinAmountView
+      android:id="@+id/paymentsuccess_amount"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      app:alignment="left"
+      app:amount_color="@color/green"
+      app:amount_size="24sp"
+      app:unit="mBTC"
+      app:unit_color="@color/green"
+      app:unit_size="10sp" />
+
+    <TextView
+      android:id="@+id/paymentsuccess_desc"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="8dp"
+      android:text="One cup of coffee"
+      android:textColor="@color/colorGrey_1"
+      android:textSize="12sp" />
+
+  </LinearLayout>
+</LinearLayout>

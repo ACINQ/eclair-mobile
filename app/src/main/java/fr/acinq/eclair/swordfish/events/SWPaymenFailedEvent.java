@@ -1,12 +1,13 @@
 package fr.acinq.eclair.swordfish.events;
 
-import fr.acinq.eclair.payment.PaymentRequest;
+import fr.acinq.eclair.swordfish.model.Payment;
 
 public class SWPaymenFailedEvent {
-  public final PaymentRequest paymentRequest;
+  public final Payment payment;
   public final String cause;
-  public SWPaymenFailedEvent(PaymentRequest paymentRequest, String cause) {
-    this.paymentRequest = paymentRequest;
+
+  public SWPaymenFailedEvent(Payment payment, String cause) {
+    this.payment = payment;
     this.cause = cause;
   }
 }

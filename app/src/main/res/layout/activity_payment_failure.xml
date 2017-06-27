@@ -1,0 +1,59 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:background="@color/darkred"
+  android:clickable="true"
+  android:gravity="center"
+  android:onClick="failure_dismiss"
+  android:orientation="vertical"
+  android:padding="32dp"
+  tools:context="fr.acinq.eclair.swordfish.activity.PaymentSuccessActivity">
+
+  <TextView
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:alpha="0.4"
+    android:text="PAYMENT FAILED"
+    android:textColor="@color/white"
+    android:textSize="30sp" />
+
+  <TextView
+    android:id="@+id/paymentfailure_cause"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="Cause of the failure"
+    android:textColor="@color/white" />
+
+  <LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="32dp"
+    android:background="@drawable/rounded_corner_white"
+    android:elevation="2dp"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <fr.acinq.eclair.swordfish.customviews.CoinAmountView
+      android:id="@+id/paymentfailure_amount"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      app:alignment="left"
+      app:amount_color="@color/darkred"
+      app:amount_size="24sp"
+      app:unit="mBTC"
+      app:unit_color="@color/darkred"
+      app:unit_size="10sp" />
+
+    <TextView
+      android:id="@+id/paymentfailure_desc"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="8dp"
+      android:text="One cup of coffee"
+      android:textColor="@color/colorGrey_1"
+      android:textSize="12sp" />
+
+  </LinearLayout>
+</LinearLayout>
