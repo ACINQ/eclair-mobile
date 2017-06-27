@@ -1,13 +1,13 @@
 package fr.acinq.eclair.swordfish.events;
 
 public class BalanceUpdateEvent {
-  public final long availableBalanceSat;
-  public final long pendingBalanceSat;
-  public final long offlineBalanceSat;
+  public final long availableBalanceMsat;
+  public final long pendingBalanceMsat;
+  public final long offlineBalanceMsat;
 
-  public BalanceUpdateEvent(long availableBalanceSat, long pendingBalanceSat, long offlineBalanceSat) {
-    this.availableBalanceSat = availableBalanceSat;
-    this.pendingBalanceSat = pendingBalanceSat;
-    this.offlineBalanceSat = offlineBalanceSat;
+  public BalanceUpdateEvent(long availableBalanceMsat, long pendingBalanceMsat, long offlineBalanceMsat) {
+    this.availableBalanceMsat = availableBalanceMsat;
+    this.pendingBalanceMsat = pendingBalanceMsat;
+    this.offlineBalanceMsat = offlineBalanceMsat;
   }
 }

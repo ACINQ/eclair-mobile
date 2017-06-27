@@ -19,7 +19,6 @@ import akka.dispatch.OnComplete;
 import akka.pattern.Patterns;
 import akka.util.Timeout;
 import fr.acinq.bitcoin.Crypto;
-import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.crypto.Sphinx;
 import fr.acinq.eclair.payment.PaymentFailed;
 import fr.acinq.eclair.payment.PaymentRequest;
@@ -53,7 +52,7 @@ public class CreatePaymentActivity extends Activity {
     CoinAmountView v_amount = (CoinAmountView) findViewById(R.id.payment__value_amount);
     try {
       PaymentRequest extract = PaymentRequest.read(prString);
-      v_amount.setAmountSat(package$.MODULE$.millisatoshi2satoshi(CoinUtils.getAmountFromInvoice(extract)));
+      v_amount.setAmountMsat(CoinUtils.getAmountFromInvoice(extract));
       currentPR = extract;
     } catch (Throwable t) {
       Toast.makeText(this, "Invalid Invoice", Toast.LENGTH_LONG).show();

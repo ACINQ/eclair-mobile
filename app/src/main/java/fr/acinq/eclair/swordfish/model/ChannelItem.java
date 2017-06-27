@@ -2,14 +2,14 @@ package fr.acinq.eclair.swordfish.model;
 
 public class ChannelItem {
   public final String id;
-  public String status;
-  public final long capacitySat;
-  public long balanceSat;
+  public final long capacityMsat;
   public final String targetPubkey;
+  public String status;
+  public long balanceMsat;
 
-  public ChannelItem(String id, long capacitySat, String targetPubkey) {
+  public ChannelItem(String id, long capacityMsat, String targetPubkey) {
     this.id = id;
-    this.capacitySat = capacitySat;
+    this.capacityMsat = capacityMsat;
     this.targetPubkey = targetPubkey;
   }
 }

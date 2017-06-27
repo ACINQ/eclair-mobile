@@ -32,8 +32,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.util.ArrayList;
 import java.util.List;
 
-import fr.acinq.bitcoin.Satoshi;
-import fr.acinq.bitcoin.package$;
+import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.swordfish.EclairEventService;
 import fr.acinq.eclair.swordfish.EclairHelper;
@@ -119,7 +118,7 @@ public class HomeActivity extends AppCompatActivity {
       @Override
       public void onPageSelected(int position) {
         mOpenChannelsButtonsView.setVisibility(position == 0 ? View.VISIBLE : View.GONE);
-        mInvoiceButtonsView.setVisibility(position == 1 && mAvailableBalanceView.getAmountSat().amount() > 0 ? View.VISIBLE : View.GONE);
+        mInvoiceButtonsView.setVisibility(position == 1 && mAvailableBalanceView.getAmountMsat().amount() > 0 ? View.VISIBLE : View.GONE);
       }
 
       @Override
@@ -316,12 +315,12 @@ public class HomeActivity extends AppCompatActivity {
     // 1 - available balance
     findViewById(R.id.home_nochannels).setVisibility(View.GONE);
 
-    mAvailableBalanceView.setAmountSat(new Satoshi(event.availableBalanceSat));
-    mInvoiceButtonsView.setVisibility(event.availableBalanceSat > 0 ? View.VISIBLE : View.GONE);
+    mAvailableBalanceView.setAmountMsat(new MilliSatoshi(event.availableBalanceMsat));
+    mInvoiceButtonsView.setVisibility(event.availableBalanceMsat > 0 ? View.VISIBLE : View.GONE);
 
     // 2 - unavailable balance
-    if (event.pendingBalanceSat > 0) {
-      mPendingBalanceView.setText("+" + CoinUtils.getMilliBTCFormat().format(package$.MODULE$.satoshi2millibtc(new Satoshi(event.pendingBalanceSat)).amount()) + " mBTC pending");
+    if (event.pendingBalanceMsat > 0) {
+      mPendingBalanceView.setText("+" + CoinUtils.formatAmountMilliBtc(new MilliSatoshi(event.pendingBalanceMsat)) + " mBTC pending");
       mPendingBalanceView.setVisibility(View.VISIBLE);
     } else {
       mPendingBalanceView.setVisibility(View.GONE);
@@ -329,7 +328,7 @@ public class HomeActivity extends AppCompatActivity {
 
     // 3 - update total offchain balance
     CoinAmountView offchainBalanceView = (CoinAmountView) findViewById(R.id.home_offchain_balance_value);
-    offchainBalanceView.setAmountSat(new Satoshi(event.availableBalanceSat + event.pendingBalanceSat + event.offlineBalanceSat));
+    offchainBalanceView.setAmountMsat(new MilliSatoshi(event.availableBalanceMsat + event.pendingBalanceMsat + event.offlineBalanceMsat));
   }
 
   private class HomePagerAdapter extends FragmentStatePagerAdapter {

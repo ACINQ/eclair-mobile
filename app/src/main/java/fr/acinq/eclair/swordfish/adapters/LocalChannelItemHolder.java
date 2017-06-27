@@ -4,6 +4,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.TextView;
 
+import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.eclair.swordfish.R;
 import fr.acinq.eclair.swordfish.model.ChannelItem;
 import fr.acinq.eclair.swordfish.utils.CoinUtils;
@@ -26,7 +27,7 @@ public class LocalChannelItemHolder extends RecyclerView.ViewHolder {
   public void bindItem(ChannelItem channelItem) {
     id.setText(channelItem.id);
     status.setText(String.valueOf(channelItem.status));
-    balance.setText(CoinUtils.getMilliBTCFormat().format(channelItem.balanceSat / 100000));
+    balance.setText(CoinUtils.formatAmountMilliBtc(new MilliSatoshi(channelItem.balanceMsat)));
     targetNode.setText(channelItem.targetPubkey);
   }
 

@@ -2,8 +2,9 @@ package fr.acinq.eclair.swordfish.utils;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import fr.acinq.bitcoin.package$;
+
 import fr.acinq.bitcoin.MilliSatoshi;
+import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.payment.PaymentRequest;
 
 public class CoinUtils {
@@ -11,6 +12,7 @@ public class CoinUtils {
   public final static String MILLI_BTC_PATTERN = "###,##0.00";
   private static DecimalFormat btcFormat;
   private static DecimalFormat milliBtcFormat;
+
   private CoinUtils() {
   }
 
@@ -39,6 +41,10 @@ public class CoinUtils {
   }
 
   public static String getMilliBtcAmountFromInvoice(PaymentRequest paymentRequest, boolean withUnit) {
-    return CoinUtils.getMilliBTCFormat().format(package$.MODULE$.millisatoshi2millibtc(getAmountFromInvoice(paymentRequest))) + (withUnit ? " mBTC" : "");
+    return formatAmountMilliBtc(getAmountFromInvoice(paymentRequest)) + (withUnit ? " mBTC" : "");
+  }
+
+  public static String formatAmountMilliBtc(MilliSatoshi amount) {
+    return CoinUtils.getMilliBTCFormat().format(package$.MODULE$.millisatoshi2millibtc(amount));
   }
 }

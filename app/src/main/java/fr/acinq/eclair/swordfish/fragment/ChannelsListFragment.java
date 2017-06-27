@@ -61,13 +61,13 @@ public class ChannelsListFragment extends Fragment implements SwipeRefreshLayout
   private List<ChannelItem> getChannels() {
     List<ChannelItem> items = new ArrayList<>();
     for (EclairEventService.ChannelDetails d : EclairEventService.getChannelsMap().values()) {
-      ChannelItem item = new ChannelItem(d.channelId, d.capacitySat, d.remoteNodeId);
+      ChannelItem item = new ChannelItem(d.channelId, d.capacityMsat, d.remoteNodeId);
       if (d.state == null) {
         item.status = "UNKNOWN";
       } else {
         item.status = d.state;
       }
-      item.balanceSat = d.balanceSat;
+      item.balanceMsat = d.balanceMsat;
       items.add(item);
     }
     TextView emptyLabel = (TextView) mView.findViewById(R.id.localchannels_empty);

@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import java.text.NumberFormat;
 
+import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.swordfish.R;
@@ -23,7 +24,7 @@ public class CoinAmountView extends RelativeLayout {
   private String unit;
   private TextView amountTextView;
   private TextView unitTextView;
-  private Satoshi amountSat = new Satoshi(0);
+  private MilliSatoshi amountMsat = new MilliSatoshi(0);
 
   public CoinAmountView(Context context) {
     super(context);
@@ -93,12 +94,12 @@ public class CoinAmountView extends RelativeLayout {
     return super.onTouchEvent(event);
   }
 
-  public void setAmountSat(Satoshi amountSat) {
-    this.amountSat = amountSat;
+  public void setAmountMsat(MilliSatoshi amountMsat) {
+    this.amountMsat = amountMsat;
     refreshView();
   }
-  public Satoshi getAmountSat() {
-    return this.amountSat;
+  public MilliSatoshi getAmountMsat() {
+    return this.amountMsat;
   }
 
   public void setUnit(String unit) {
@@ -110,15 +111,19 @@ public class CoinAmountView extends RelativeLayout {
   private void refreshView() {
     switch (this.unit) {
       case "BTC":
-        BigDecimal amount_btc = package$.MODULE$.satoshi2btc(amountSat).amount();
+        BigDecimal amount_btc = package$.MODULE$.millisatoshi2btc(amountMsat).amount();
         amountTextView.setText(CoinUtils.getBTCFormat().format(amount_btc));
         break;
       case "mBTC":
-        BigDecimal amount_mbtc = package$.MODULE$.satoshi2millibtc(amountSat).amount();
+        BigDecimal amount_mbtc = package$.MODULE$.millisatoshi2millibtc(amountMsat).amount();
         amountTextView.setText(CoinUtils.getMilliBTCFormat().format(amount_mbtc));
         break;
+      case "SAT":
+        long amount_sat = package$.MODULE$.millisatoshi2satoshi(amountMsat).amount();
+        amountTextView.setText(Long.toString(amount_sat));
+        break;
       default:
-        amountTextView.setText(NumberFormat.getInstance().format(amountSat.amount()));
+        amountTextView.setText(NumberFormat.getInstance().format(amountMsat.amount()));
     }
     invalidate();
     requestLayout();
