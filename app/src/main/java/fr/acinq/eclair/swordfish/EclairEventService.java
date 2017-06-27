@@ -104,7 +104,7 @@ public class EclairEventService extends UntypedActor {
       cd.balanceMsat = new MilliSatoshi(cr.currentData().commitments().localCommit().spec().toLocalMsat());
       cd.capacityMsat = new MilliSatoshi(cr.currentData().commitments().localCommit().spec().totalFunds());
       cd.remoteNodeId = cr.remoteNodeId().toString();
-      cd.transactionId = cr.currentData().commitments().remoteCommit().txid().toString();
+      cd.transactionId = cr.currentData().commitments().commitInput().outPoint().txid().toString();
       channelDetailsMap.put(cr.channel(), cd);
       EventBus.getDefault().post(new ChannelUpdateEvent());
       EventBus.getDefault().post(aggregateBalanceForEvent());
@@ -164,8 +164,8 @@ public class EclairEventService extends UntypedActor {
   }
 
   public static class ChannelDetails {
-    public MilliSatoshi balanceMsat;
-    public MilliSatoshi capacityMsat;
+    public MilliSatoshi balanceMsat = new MilliSatoshi(0);
+    public MilliSatoshi capacityMsat = new MilliSatoshi(0);
     public String channelId;
     public String state;
     public String remoteNodeId;

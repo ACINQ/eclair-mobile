@@ -26,6 +26,7 @@ public class LocalChannelItemHolder extends RecyclerView.ViewHolder implements V
     this.status = (TextView) itemView.findViewById(R.id.channelitem__value_status);
     this.balance = (TextView) itemView.findViewById(R.id.channelitem__value_balance);
     this.targetNode = (TextView) itemView.findViewById(R.id.channelitem__value_targetnode);
+    itemView.setOnClickListener(this);
   }
 
   @Override
