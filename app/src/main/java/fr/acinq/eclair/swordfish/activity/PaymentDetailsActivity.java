@@ -9,7 +9,7 @@ import android.util.Log;
 
 import java.text.DateFormat;
 
-import fr.acinq.eclair.payment.PaymentRequest;
+import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.eclair.swordfish.R;
 import fr.acinq.eclair.swordfish.adapters.PaymentItemHolder;
 import fr.acinq.eclair.swordfish.customviews.DataRow;
@@ -41,7 +41,7 @@ public class PaymentDetailsActivity extends AppCompatActivity {
 
       // amount
       DataRow amountRow = (DataRow) findViewById(R.id.paymentdetails_amount);
-      amountRow.setValue(CoinUtils.getMilliBtcAmountFromInvoice(PaymentRequest.read(p.paymentRequest), false));
+      amountRow.setValue(CoinUtils.formatAmountMilliBtc(new MilliSatoshi(Long.parseLong(p.amountPaid))));
 
       DataRow feesRow = (DataRow) findViewById(R.id.paymentdetails_fees);
       feesRow.setValue(p.feesPaid);
