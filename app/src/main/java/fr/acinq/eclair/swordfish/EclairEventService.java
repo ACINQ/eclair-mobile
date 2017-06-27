@@ -13,6 +13,7 @@ import akka.actor.ActorRef;
 import akka.actor.Terminated;
 import akka.actor.UntypedActor;
 import fr.acinq.bitcoin.BinaryData;
+import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.eclair.channel.ChannelCreated;
 import fr.acinq.eclair.channel.ChannelRestored;
 import fr.acinq.eclair.channel.ChannelSignatureReceived;
@@ -30,6 +31,7 @@ import fr.acinq.eclair.swordfish.events.ChannelUpdateEvent;
 import fr.acinq.eclair.swordfish.events.NetworkAnnouncementEvent;
 import fr.acinq.eclair.swordfish.events.SWPaymentEvent;
 import fr.acinq.eclair.swordfish.model.Payment;
+import fr.acinq.eclair.swordfish.utils.CoinUtils;
 import fr.acinq.eclair.wire.ChannelAnnouncement;
 import fr.acinq.eclair.wire.NodeAnnouncement;
 
@@ -50,21 +52,21 @@ public class EclairEventService extends UntypedActor {
     long offlineTotal = 0;
     for (ChannelDetails d : channelDetailsMap.values()) {
       if (NORMAL.toString().equals(d.state)) {
-        availableTotal += d.balanceMsat;
+        availableTotal += d.balanceMsat.amount();
       } else if (OFFLINE.toString().equals(d.state)) {
-        offlineTotal += d.balanceMsat;
+        offlineTotal += d.balanceMsat.amount();
       } else {
-        pendingTotal += d.balanceMsat;
+        pendingTotal += d.balanceMsat.amount();
       }
     }
     return new BalanceUpdateEvent(availableTotal, pendingTotal, offlineTotal);
   }
 
-  public static long getBalanceMsatOf(String channelId) {
+  public static MilliSatoshi getBalanceMsatOf(String channelId) {
     return channelDetailsMap.get(channelId).balanceMsat;
   }
 
-  public static long getCapacityMsatOf(String channelId) {
+  public static MilliSatoshi getCapacityMsatOf(String channelId) {
     return channelDetailsMap.get(channelId).capacityMsat;
   }
 
@@ -89,8 +91,8 @@ public class EclairEventService extends UntypedActor {
       ChannelSignatureReceived csr = (ChannelSignatureReceived) message;
       ChannelDetails cd = getChannelDetails(csr.channel());
       cd.channelId = csr.Commitments().channelId().toString();
-      cd.balanceMsat = csr.Commitments().localCommit().spec().toLocalMsat();
-      cd.capacityMsat = csr.Commitments().localCommit().spec().totalFunds();
+      cd.balanceMsat = new MilliSatoshi(csr.Commitments().localCommit().spec().toLocalMsat());
+      cd.capacityMsat = new MilliSatoshi(csr.Commitments().localCommit().spec().totalFunds());
       channelDetailsMap.put(csr.channel(), cd);
       EventBus.getDefault().post(new ChannelUpdateEvent());
       EventBus.getDefault().post(aggregateBalanceForEvent());
@@ -99,9 +101,10 @@ public class EclairEventService extends UntypedActor {
       ChannelDetails cd = getChannelDetails(cr.channel());
       cd.channelId = cr.channelId().toString();
       cd.remoteNodeId = cr.remoteNodeId().toString();
-      cd.balanceMsat = cr.currentData().commitments().localCommit().spec().toLocalMsat();
-      cd.capacityMsat = cr.currentData().commitments().localCommit().spec().totalFunds();
+      cd.balanceMsat = new MilliSatoshi(cr.currentData().commitments().localCommit().spec().toLocalMsat());
+      cd.capacityMsat = new MilliSatoshi(cr.currentData().commitments().localCommit().spec().totalFunds());
       cd.remoteNodeId = cr.remoteNodeId().toString();
+      cd.transactionId = cr.currentData().commitments().remoteCommit().txid().toString();
       channelDetailsMap.put(cr.channel(), cd);
       EventBus.getDefault().post(new ChannelUpdateEvent());
       EventBus.getDefault().post(aggregateBalanceForEvent());
@@ -161,10 +164,11 @@ public class EclairEventService extends UntypedActor {
   }
 
   public static class ChannelDetails {
-    public long balanceMsat = 0;
-    public long capacityMsat = 0;
+    public MilliSatoshi balanceMsat;
+    public MilliSatoshi capacityMsat;
     public String channelId;
     public String state;
     public String remoteNodeId;
+    public String transactionId;
   }
 }

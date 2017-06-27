@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:orientation="vertical"
+  tools:context="fr.acinq.eclair.swordfish.activity.PaymentDetailsActivity">
+
+  <!-- Custom toolbar -->
+  <include layout="@layout/toolbar" />
+
+  <android.support.v4.widget.NestedScrollView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:orientation="vertical">
+
+      <fr.acinq.eclair.swordfish.customviews.DataRow
+        android:id="@+id/channeldetails_id"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:desc="Channel unique identifier"
+        app:label="Id"
+        app:value="@string/unknown" />
+
+      <include layout="@layout/include_separator" />
+
+      <fr.acinq.eclair.swordfish.customviews.DataRow
+        android:id="@+id/channeldetails_nodeid"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:desc="Public key of the node this channel connects to"
+        app:label="Remote node id"
+        app:value="@string/unknown" />
+
+      <include layout="@layout/include_separator" />
+
+      <fr.acinq.eclair.swordfish.customviews.DataRow
+        android:id="@+id/channeldetails_state"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:desc="Status of the channel"
+        app:label="Status"
+        app:value="@string/unknown" />
+
+      <include layout="@layout/include_separator" />
+
+      <fr.acinq.eclair.swordfish.customviews.DataRow
+      android:id="@+id/channeldetails_capacity"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      app:desc="Initial channel capacity, in millisatoshis"
+      app:label="Capacity"
+      app:value="@string/unknown" />
+
+      <include layout="@layout/include_separator" />
+
+      <fr.acinq.eclair.swordfish.customviews.DataRow
+        android:id="@+id/channeldetails_balance"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:desc="Your current balance against the remote node, in milli satoshis"
+        app:label="Balance"
+        app:value="@string/unknown" />
+
+      <include layout="@layout/include_separator" />
+
+      <fr.acinq.eclair.swordfish.customviews.DataRow
+        android:id="@+id/channeldetails_transactionid"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:desc="Id of the onchain transaction that funded the channel"
+        app:label="Transaction Id"
+        app:value="@string/unknown" />
+
+      <include layout="@layout/include_separator" />
+
+      <Button
+        android:id="@+id/channeldetails_close"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/red"
+        android:textColor="@color/white"
+        android:textSize="12sp"
+        android:visibility="gone"
+        android:text="Close Channel" />
+
+    </LinearLayout>
+  </android.support.v4.widget.NestedScrollView>
+
+</LinearLayout>

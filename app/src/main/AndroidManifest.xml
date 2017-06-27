@@ -84,6 +84,11 @@
       android:label="Nodes in Network"
       android:parentActivityName=".activity.SettingsActivity"
       android:screenOrientation="portrait" />
+    <activity
+      android:name=".activity.ChannelDetailsActivity"
+      android:label="Payment Details"
+      android:parentActivityName=".activity.HomeActivity"
+      android:screenOrientation="portrait" />
   </application>
 
 </manifest>

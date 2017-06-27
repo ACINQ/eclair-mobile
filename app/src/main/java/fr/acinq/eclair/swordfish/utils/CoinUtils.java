@@ -45,6 +45,6 @@ public class CoinUtils {
   }
 
   public static String formatAmountMilliBtc(MilliSatoshi amount) {
-    return CoinUtils.getMilliBTCFormat().format(package$.MODULE$.millisatoshi2millibtc(amount));
+    return CoinUtils.getMilliBTCFormat().format(package$.MODULE$.millisatoshi2millibtc(amount).amount());
   }
 }
