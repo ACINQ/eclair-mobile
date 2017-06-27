@@ -189,15 +189,10 @@ public class HomeActivity extends AppCompatActivity {
   }
 
   public void home_doPasteInvoice(View view) {
-    try {
-      // read content to check if the PR is valid
-      PaymentRequest extract = PaymentRequest.read(readFromClipboard());
-      Intent intent = new Intent(this, CreatePaymentActivity.class);
-      intent.putExtra(CreatePaymentActivity.EXTRA_INVOICE, PaymentRequest.write(extract));
-      startActivity(intent);
-    } catch (Throwable t) {
-      Toast.makeText(this, "Invalid Invoice", Toast.LENGTH_SHORT).show();
-    }
+    Intent intent = new Intent(this, CreatePaymentActivity.class);
+    intent.putExtra(CreatePaymentActivity.EXTRA_INVOICE, readFromClipboard());
+    startActivity(intent);
+
   }
 
   public void home_doScanInvoice(View view) {

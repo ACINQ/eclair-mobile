@@ -34,54 +34,29 @@ public class ScanActivity extends Activity {
   private BarcodeCallback callback = new BarcodeCallback() {
     @Override
     public void barcodeResult(BarcodeResult result) {
-      mBarcodeView.pause();
       String scan = result.getText();
-      if (scan == null || scan.trim().length() == 0) {
-        mBarcodeView.setStatusText("Invalid Invoice");
-        mBarcodeView.resume();
+      if (scan != null) {
+        mBarcodeView.pause();
+        mBarcodeView.setStatusText(scan);
+
+        if (isInvoice) {
+          Intent intent = new Intent(getBaseContext(), CreatePaymentActivity.class);
+          intent.putExtra(CreatePaymentActivity.EXTRA_INVOICE, scan);
+          startActivity(intent);
+        } else {
+          Intent intent = new Intent(getBaseContext(), OpenChannelActivity.class);
+          intent.putExtra(OpenChannelActivity.EXTRA_NEW_HOST_URI, scan);
+          startActivity(intent);
+        }
+        finish();
         return;
       }
-
-      mBarcodeView.setStatusText(scan);
-
-      if (isInvoice && canParseInvoice(scan)) {
-        Intent intent = new Intent(getBaseContext(), CreatePaymentActivity.class);
-        intent.putExtra(CreatePaymentActivity.EXTRA_INVOICE, scan);
-        startActivity(intent);
-        return;
-      }
-      if (!isInvoice && canParseURI(scan)) {
-        Intent intent = new Intent(getBaseContext(), OpenChannelActivity.class);
-        intent.putExtra(OpenChannelActivity.EXTRA_NEW_HOST_URI, scan);
-        startActivity(intent);
-        return;
-      }
-
-      mBarcodeView.resume();
     }
 
     @Override
     public void possibleResultPoints(List<ResultPoint> resultPoints) {
     }
   };
-
-  private boolean canParseInvoice(String scan) {
-    try {
-      PaymentRequest.read(scan);
-      return true;
-    } catch (Throwable t) {
-      mBarcodeView.setStatusText("Invalid Invoice");
-    }
-    return false;
-  }
-
-  private boolean canParseURI(String scan) {
-    if (!Validators.HOST_REGEX.matcher(scan).matches()) {
-      mBarcodeView.setStatusText("Invalid URI");
-      return false;
-    }
-    return true;
-  }
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {

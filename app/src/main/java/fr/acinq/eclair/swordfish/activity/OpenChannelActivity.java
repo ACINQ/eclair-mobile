@@ -38,10 +38,6 @@ public class OpenChannelActivity extends Activity implements OneInputDialog.OneI
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_open_channel);
 
-    Intent intent = getIntent();
-    String hostURI = intent.getStringExtra(EXTRA_NEW_HOST_URI);
-    setNodeURI(hostURI);
-
     final EditText amountET = (EditText) findViewById(R.id.fund__input_amount);
     amountET.addTextChangedListener(new TextWatcher() {
       @Override
@@ -68,6 +64,10 @@ public class OpenChannelActivity extends Activity implements OneInputDialog.OneI
       public void afterTextChanged(Editable s) {
       }
     });
+
+    Intent intent = getIntent();
+    String hostURI = intent.getStringExtra(EXTRA_NEW_HOST_URI);
+    setNodeURI(hostURI);
   }
 
   @Override
@@ -81,7 +81,9 @@ public class OpenChannelActivity extends Activity implements OneInputDialog.OneI
   }
 
   private void setNodeURI(String uri) {
-    if (!"".equals(uri)) {
+    if (!Validators.HOST_REGEX.matcher(uri).matches()) {
+      goToHome();
+    } else {
       String[] uriArray = uri.split("@", 2);
       if (uriArray.length == 2) {
         String pubkey = uriArray[0];
