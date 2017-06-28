@@ -14,7 +14,6 @@ import android.widget.TextView;
 import java.text.NumberFormat;
 
 import fr.acinq.bitcoin.MilliSatoshi;
-import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.swordfish.R;
 import fr.acinq.eclair.swordfish.utils.CoinUtils;
@@ -47,7 +46,7 @@ public class CoinAmountView extends RelativeLayout {
     try {
       String service = Context.LAYOUT_INFLATER_SERVICE;
       LayoutInflater li = (LayoutInflater) getContext().getSystemService(service);
-      View layout = li.inflate(R.layout.coin_amount_view, this, true);
+      View layout = li.inflate(R.layout.custom_coin_amount_view, this, true);
       amountTextView = (TextView) layout.findViewById(R.id.view_amount);
       unitTextView = (TextView) layout.findViewById(R.id.view_unit);
       RelativeLayout relativeLayout = (RelativeLayout) layout.findViewById(R.id.view_relative);

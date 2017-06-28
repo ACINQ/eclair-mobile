@@ -5,6 +5,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.TextView;
 
+import fr.acinq.eclair.channel.NORMAL;
+import fr.acinq.eclair.channel.OFFLINE;
 import fr.acinq.eclair.swordfish.R;
 import fr.acinq.eclair.swordfish.activity.ChannelDetailsActivity;
 import fr.acinq.eclair.swordfish.model.ChannelItem;
@@ -14,18 +16,20 @@ public class LocalChannelItemHolder extends RecyclerView.ViewHolder implements V
 
   public static final String EXTRA_CHANNEL_ID = "fr.acinq.eclair.swordfish.CHANNEL_ID";
 
-  private final TextView id;
+  private static final int ACTIVE_COLOR = 0xFF00C28C;
+  private static final int OFFLINE_COLOR = 0xFFCD1E56;
+  private static final int WAITING_COLOR = 0xFFFFB81C;
+
   private final TextView status;
   private final TextView balance;
-  private final TextView targetNode;
+  private final TextView node;
   private ChannelItem channelItem;
 
   public LocalChannelItemHolder(View itemView) {
     super(itemView);
-    this.id = (TextView) itemView.findViewById(R.id.channelitem__value_channelid);
-    this.status = (TextView) itemView.findViewById(R.id.channelitem__value_status);
-    this.balance = (TextView) itemView.findViewById(R.id.channelitem__value_balance);
-    this.targetNode = (TextView) itemView.findViewById(R.id.channelitem__value_targetnode);
+    this.status = (TextView) itemView.findViewById(R.id.channelitem_status);
+    this.balance = (TextView) itemView.findViewById(R.id.channelitem_balance);
+    this.node = (TextView) itemView.findViewById(R.id.channelitem_node);
     itemView.setOnClickListener(this);
   }
 
@@ -38,9 +42,17 @@ public class LocalChannelItemHolder extends RecyclerView.ViewHolder implements V
 
   public void bindItem(final ChannelItem channelItem) {
     this.channelItem = channelItem;
-    id.setText(channelItem.id);
-    status.setText(String.valueOf(channelItem.status));
+    if (NORMAL.toString().equals(channelItem.status)) {
+      status.setText("Active");
+      status.setTextColor(ACTIVE_COLOR);
+    } else if (OFFLINE.toString().equals(channelItem.status)) {
+      status.setText(channelItem.status);
+      status.setTextColor(OFFLINE_COLOR);
+    } else {
+      status.setText("Active in X blocks (#654231)");
+      status.setTextColor(WAITING_COLOR);
+    }
     balance.setText(CoinUtils.formatAmountMilliBtc(channelItem.balanceMsat));
-    targetNode.setText(channelItem.targetPubkey);
+    node.setText("Connected to " + channelItem.targetPubkey);
   }
 }

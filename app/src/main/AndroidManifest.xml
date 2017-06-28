@@ -87,7 +87,7 @@
       android:screenOrientation="portrait" />
     <activity
       android:name=".activity.ChannelDetailsActivity"
-      android:label="Payment Details"
+      android:label="Channel Details"
       android:parentActivityName=".activity.HomeActivity"
       android:screenOrientation="portrait" />
     <activity

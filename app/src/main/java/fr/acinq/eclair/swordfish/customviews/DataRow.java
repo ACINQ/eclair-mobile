@@ -36,7 +36,7 @@ public class DataRow extends LinearLayout {
     try {
       String service = Context.LAYOUT_INFLATER_SERVICE;
       LayoutInflater li = (LayoutInflater) getContext().getSystemService(service);
-      LinearLayout layout = (LinearLayout) li.inflate(R.layout.data_row, this, true);
+      LinearLayout layout = (LinearLayout) li.inflate(R.layout.custom_data_row, this, true);
       labelTextView = (TextView) layout.findViewById(R.id.view_label);
       labelTextView.setText(arr.getString(R.styleable.DataRow_label));
       descTextView = (TextView) layout.findViewById(R.id.view_desc);

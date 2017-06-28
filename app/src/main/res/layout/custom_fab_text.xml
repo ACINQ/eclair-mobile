@@ -1,0 +1,40 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  android:layout_width="wrap_content"
+  android:layout_height="wrap_content">
+
+  <android.support.design.widget.FloatingActionButton
+    android:id="@+id/fabtext_button"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_alignParentRight="true"
+    android:layout_marginBottom="8dp"
+    android:layout_marginRight="6dp"
+    app:backgroundTint="@color/colorPrimary"
+    app:fabSize="mini" />
+
+  <LinearLayout
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_alignTop="@+id/fabtext_button"
+    android:layout_alignBottom="@+id/fabtext_button"
+    android:layout_toStartOf="@+id/fabtext_button"
+    android:layout_marginRight="4dp"
+    android:gravity="center">
+    <TextView
+      android:id="@+id/fabtext_label"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:background="@color/colorPrimary"
+      android:ellipsize="end"
+      android:maxLines="1"
+      android:paddingLeft="4dp"
+      android:paddingRight="4dp"
+      android:paddingBottom="2dp"
+      android:paddingTop="2dp"
+      android:text="lorem ipsum"
+      android:textColor="@color/white" />
+  </LinearLayout>
+
+
+</RelativeLayout>

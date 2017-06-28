@@ -1,15 +1,10 @@
 package fr.acinq.eclair.swordfish.activity;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.animation.ObjectAnimator;
-import android.animation.ValueAnimator;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
-import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -37,6 +32,7 @@ import fr.acinq.eclair.swordfish.EclairEventService;
 import fr.acinq.eclair.swordfish.EclairHelper;
 import fr.acinq.eclair.swordfish.R;
 import fr.acinq.eclair.swordfish.customviews.CoinAmountView;
+import fr.acinq.eclair.swordfish.customviews.FabText;
 import fr.acinq.eclair.swordfish.events.BalanceUpdateEvent;
 import fr.acinq.eclair.swordfish.events.ChannelUpdateEvent;
 import fr.acinq.eclair.swordfish.events.SWPaymenFailedEvent;
@@ -53,12 +49,18 @@ public class HomeActivity extends AppCompatActivity {
   private HomePagerAdapter mPagerAdapter;
   private PaymentsListFragment mPaymentsListFragment;
   private ChannelsListFragment mChannelsListFragment;
-  private ViewGroup mInvoiceButtonsView;
-  private FloatingActionButton mScanInvoiceButton;
-  private FloatingActionButton mPasteInvoiceButton;
+
+  private ViewGroup mMainButtonsView;
+  private ViewGroup mMainButtonsToggleView;
+  private FloatingActionButton mMainButton;
+  private FabText mSendScanButton;
+  private FabText mSendPasteButton;
+  private FabText mReceiveButton;
+
   private ViewGroup mOpenChannelsButtonsView;
   private FloatingActionButton mScanURIButton;
   private FloatingActionButton mPasteURIButton;
+
   private TextView mPendingBalanceView;
   private CoinAmountView mAvailableBalanceView;
 
@@ -73,18 +75,14 @@ public class HomeActivity extends AppCompatActivity {
     ab.setDisplayHomeAsUpEnabled(false);
 
     mAvailableBalanceView = (CoinAmountView) findViewById(R.id.home_value_availablebalance);
-    mInvoiceButtonsView = (ViewGroup) findViewById(R.id.home_invoice_buttons);
-    mScanInvoiceButton = (FloatingActionButton) findViewById(R.id.home_scan_invoice);
-    mPasteInvoiceButton = (FloatingActionButton) findViewById(R.id.home_paste_invoice);
-    mScanInvoiceButton.setOnLongClickListener(new View.OnLongClickListener() {
-      @Override
-      public boolean onLongClick(View v) {
-        boolean isVisible = mPasteInvoiceButton.getVisibility() == View.VISIBLE;
-        mPasteInvoiceButton.setVisibility(isVisible ? View.GONE : View.VISIBLE);
-        mScanInvoiceButton.setBackgroundTintList(isVisible ? ColorStateList.valueOf(getColor(R.color.colorPrimary)) : ColorStateList.valueOf(getColor(R.color.colorGrey_4)));
-        return true;
-      }
-    });
+
+    mMainButtonsView = (ViewGroup) findViewById(R.id.home_main_buttons);
+    mMainButtonsToggleView = (ViewGroup) findViewById(R.id.home_main_buttons_toggle);
+    mMainButton = (FloatingActionButton) findViewById(R.id.home_mainaction);
+    mSendScanButton = (FabText) findViewById(R.id.home_send_scan);
+    mSendPasteButton = (FabText) findViewById(R.id.home_send_paste);
+    mReceiveButton = (FabText) findViewById(R.id.home_receive);
+
     mOpenChannelsButtonsView = (ViewGroup) findViewById(R.id.home_openchannel_buttons);
     mScanURIButton = (FloatingActionButton) findViewById(R.id.home_scan_uri);
     mPasteURIButton = (FloatingActionButton) findViewById(R.id.home_paste_uri);
@@ -107,8 +105,8 @@ public class HomeActivity extends AppCompatActivity {
 
       @Override
       public void onPageSelected(int position) {
-        mOpenChannelsButtonsView.setVisibility(position == 0 ? View.VISIBLE : View.GONE);
-        mInvoiceButtonsView.setVisibility(position == 1 && mAvailableBalanceView.getAmountMsat().amount() > 0 ? View.VISIBLE : View.GONE);
+        mOpenChannelsButtonsView.setVisibility(position == 1 ? View.VISIBLE : View.GONE);
+        mMainButtonsView.setVisibility(position == 0 && mAvailableBalanceView.getAmountMsat().amount() > 0 ? View.VISIBLE : View.GONE);
       }
 
       @Override
@@ -117,13 +115,13 @@ public class HomeActivity extends AppCompatActivity {
     });
 
     final List<Fragment> fragments = new ArrayList<>();
-    mChannelsListFragment = new ChannelsListFragment();
     mPaymentsListFragment = new PaymentsListFragment();
-    fragments.add(mChannelsListFragment);
     fragments.add(mPaymentsListFragment);
+    mChannelsListFragment = new ChannelsListFragment();
+    fragments.add(mChannelsListFragment);
     mPagerAdapter = new HomePagerAdapter(getSupportFragmentManager(), fragments);
     mViewPager.setAdapter(mPagerAdapter);
-    mViewPager.setCurrentItem(1);
+    mViewPager.setCurrentItem(0);
 
   }
 
@@ -177,17 +175,26 @@ public class HomeActivity extends AppCompatActivity {
     return "";
   }
 
-  public void home_doPasteInvoice(View view) {
+  public void home_sendPaste(View view) {
     Intent intent = new Intent(this, CreatePaymentActivity.class);
     intent.putExtra(CreatePaymentActivity.EXTRA_INVOICE, readFromClipboard());
     startActivity(intent);
-
   }
 
-  public void home_doScanInvoice(View view) {
+  public void home_sendScan(View view) {
     Intent intent = new Intent(this, ScanActivity.class);
     intent.putExtra(ScanActivity.EXTRA_SCAN_TYPE, ScanActivity.TYPE_INVOICE);
     startActivity(intent);
+  }
+
+  public void home_toggleMain(View view) {
+    boolean isVisible = mMainButtonsToggleView.getVisibility() == View.VISIBLE;
+    mMainButton.animate().rotation(isVisible ? 0 : 135).setDuration(150).start();
+    mMainButton.setBackgroundTintList(ColorStateList.valueOf(getColor(isVisible ? R.color.colorPrimary : R.color.colorGrey_4)));
+    mMainButtonsToggleView.setVisibility(isVisible ? View.GONE : View.VISIBLE);
+  }
+
+  public void home_receive(View view) {
   }
 
   public void home_doPasteURI(View view) {
@@ -243,7 +250,7 @@ public class HomeActivity extends AppCompatActivity {
     if (EclairEventService.getChannelsMap().size() == 0) {
       findViewById(R.id.home_nochannels).setVisibility(View.VISIBLE);
       mPendingBalanceView.setVisibility(View.GONE);
-      mInvoiceButtonsView.setVisibility(View.GONE);
+      mMainButtonsView.setVisibility(View.GONE);
       return false;
     }
     findViewById(R.id.home_nochannels).setVisibility(View.GONE);
@@ -259,7 +266,7 @@ public class HomeActivity extends AppCompatActivity {
     findViewById(R.id.home_nochannels).setVisibility(View.GONE);
 
     mAvailableBalanceView.setAmountMsat(new MilliSatoshi(event.availableBalanceMsat));
-    mInvoiceButtonsView.setVisibility(event.availableBalanceMsat > 0 ? View.VISIBLE : View.GONE);
+    mMainButtonsView.setVisibility(event.availableBalanceMsat > 0 ? View.VISIBLE : View.GONE);
 
     // 2 - unavailable balance
     if (event.pendingBalanceMsat > 0) {

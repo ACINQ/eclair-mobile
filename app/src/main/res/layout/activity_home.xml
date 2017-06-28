@@ -20,11 +20,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/colorPrimaryDark"
-        app:layout_scrollFlags="scroll|enterAlways">
+        >
 
         <LinearLayout
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
+          app:layout_collapseMode="pin"
           android:orientation="horizontal">
 
           <RelativeLayout
@@ -124,41 +125,14 @@
         android:layout_height="match_parent">
 
         <LinearLayout
-          android:id="@+id/home_paymentpopin"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:layout_centerHorizontal="true"
-          android:layout_marginTop="16dp"
-          android:background="@drawable/rounded_corner_white"
-          android:elevation="2dp"
-          android:orientation="horizontal"
-          android:paddingBottom="1dp"
-          android:paddingLeft="3dp"
-          android:paddingRight="3dp"
-          android:paddingTop="1dp"
-          android:visibility="gone">
-
-          <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_marginRight="4dp"
-            android:background="@drawable/ic_done_black_24dp" />
-
-          <TextView
-            android:id="@+id/home_paymentpopin_text"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center_vertical"
-            android:text="Payment sent!"
-            android:textSize="12sp" />
-        </LinearLayout>
-
-        <LinearLayout
           android:id="@+id/home_balance"
           android:layout_width="match_parent"
           android:layout_height="match_parent"
           android:orientation="vertical"
-          android:padding="24dp">
+          android:paddingBottom="32dp"
+          android:paddingLeft="24dp"
+          android:paddingRight="24dp"
+          android:paddingTop="32dp">
 
           <fr.acinq.eclair.swordfish.customviews.CoinAmountView
             android:id="@+id/home_value_availablebalance"
@@ -184,21 +158,21 @@
             android:textSize="10sp"
             android:visibility="gone" />
 
-          <TextView
-            android:id="@+id/home_pendingbalance_value"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="8dp"
-            android:background="@drawable/rounded_corner_yellow"
-            android:padding="2dp"
-            android:text="+0 mBTC pending"
-            android:textAlignment="center"
-            android:textColor="@color/colorGrey_3"
-            android:textSize="10sp"
-            android:visibility="gone" />
-
         </LinearLayout>
+
+        <TextView
+          android:id="@+id/home_pendingbalance_value"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_alignBottom="@+id/home_balance"
+          android:layout_centerHorizontal="true"
+          android:layout_marginBottom="8dp"
+          android:background="@drawable/rounded_corner_yellow"
+          android:padding="2dp"
+          android:text="+0 mBTC pending"
+          android:textColor="@color/colorGrey_3"
+          android:textSize="10sp"
+          android:visibility="visible" />
 
       </RelativeLayout>
 
@@ -213,34 +187,55 @@
   </android.support.design.widget.CoordinatorLayout>
 
   <LinearLayout
-    android:id="@+id/home_invoice_buttons"
+    android:id="@+id/home_main_buttons"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_alignParentBottom="true"
     android:layout_alignParentRight="true"
-    android:gravity="center"
+    android:gravity="end"
     android:orientation="vertical">
 
-    <android.support.design.widget.FloatingActionButton
-      android:id="@+id/home_paste_invoice"
-      android:layout_width="wrap_content"
+    <LinearLayout
+      android:id="@+id/home_main_buttons_toggle"
+      android:layout_width="120dp"
       android:layout_height="wrap_content"
-      android:layout_marginTop="@dimen/fab_margin"
-      android:longClickable="true"
-      android:onClick="home_doPasteInvoice"
-      android:src="@drawable/ic_content_paste_white_24dp"
-      android:visibility="gone"
-      app:backgroundTint="@color/colorGrey_4"
-      app:fabSize="mini" />
+      android:layout_marginRight="@dimen/fab_margin"
+      android:orientation="vertical"
+      android:visibility="gone">
+
+      <fr.acinq.eclair.swordfish.customviews.FabText
+        android:id="@+id/home_send_paste"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="home_sendPaste"
+        app:icon="@drawable/ic_content_paste_white_24dp"
+        app:label="" />
+
+      <fr.acinq.eclair.swordfish.customviews.FabText
+        android:id="@+id/home_send_scan"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="home_sendScan"
+        app:icon="@drawable/ic_photo_camera_white_24dp"
+        app:label="Send" />
+
+      <fr.acinq.eclair.swordfish.customviews.FabText
+        android:id="@+id/home_receive"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="home_receive"
+        app:bgcolor="@color/green"
+        app:icon="@drawable/ic_list_white_24dp"
+        app:label="Receive" />
+    </LinearLayout>
 
     <android.support.design.widget.FloatingActionButton
-      android:id="@+id/home_scan_invoice"
+      android:id="@+id/home_mainaction"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_margin="@dimen/fab_margin"
-      android:longClickable="true"
-      android:onClick="home_doScanInvoice"
-      android:src="@drawable/ic_photo_camera_white_24dp"
+      android:onClick="home_toggleMain"
+      android:src="@drawable/ic_plus_white_24dp"
       app:backgroundTint="@color/colorPrimary"
       app:fabSize="normal" />
   </LinearLayout>
@@ -252,7 +247,8 @@
     android:layout_alignParentBottom="true"
     android:layout_alignParentRight="true"
     android:gravity="center"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:visibility="gone">
 
     <android.support.design.widget.FloatingActionButton
       android:id="@+id/home_paste_uri"

@@ -56,20 +56,12 @@ public class CreatePaymentActivity extends Activity {
       currentPR = extract;
     } catch (Throwable t) {
       Toast.makeText(this, "Invalid Invoice", Toast.LENGTH_LONG).show();
-      goToHome();
+      finish();
     }
   }
 
   public void cancelPayment(View view) {
-    goToHome();
-  }
-
-  private void goToHome() {
-    this.currentPR = null;
-    Intent intent = new Intent(this, HomeActivity.class);
-    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-    startActivity(intent);
+    finish();
   }
 
   public void sendPayment(final View view) {
@@ -137,7 +129,7 @@ public class CreatePaymentActivity extends Activity {
         }
       }
     );
-    goToHome();
+    finish();
   }
 
   private void toggleButtons() {

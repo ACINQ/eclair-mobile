@@ -6,11 +6,27 @@
   android:layout_height="match_parent">
 
   <TextView
+    android:id="@+id/localchannels_title"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_alignParentTop="true"
+    android:layout_centerHorizontal="true"
+    android:background="@color/colorGrey_0"
+    android:paddingBottom="8dp"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:paddingTop="16dp"
+    android:text="Opened Lightning Channels:"
+    android:textAllCaps="true"
+    android:textColor="@color/colorGrey_1"
+    android:textSize="12sp" />
+
+  <TextView
     android:id="@+id/localchannels_empty"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_below="@+id/localchannels_title"
     android:layout_centerHorizontal="true"
-    android:layout_alignParentTop="true"
     android:padding="16dp"
     android:text="@string/localchannels_empty"
     android:textAlignment="center"
@@ -21,6 +37,7 @@
     android:id="@+id/localchannels_swiperefresh"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_below="@+id/localchannels_title"
     app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
     <android.support.v7.widget.RecyclerView
