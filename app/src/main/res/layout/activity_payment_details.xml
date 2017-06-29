@@ -20,7 +20,7 @@
       android:orientation="vertical">
 
       <fr.acinq.eclair.swordfish.customviews.DataRow
-        android:id="@+id/paymentdetails_amount"
+        android:id="@+id/paymentdetails_amount_paid"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:desc="Amount paid, in milliBitcoin"
@@ -68,7 +68,15 @@
         android:background="@color/colorGrey_0"
         android:textSize="10sp" />
 
-      <!--<include layout="@layout/include_separator" />-->
+      <fr.acinq.eclair.swordfish.customviews.DataRow
+        android:id="@+id/paymentdetails_amount_requested"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:desc="Amount requested, in milliBitcoin"
+        app:label="Amount Requested"
+        app:value="@string/unknown" />
+
+      <include layout="@layout/include_separator" />
 
       <fr.acinq.eclair.swordfish.customviews.DataRow
         android:id="@+id/paymentdetails_paymenthash"

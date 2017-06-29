@@ -44,7 +44,11 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
   public void bindPaymentItem(Payment payment) {
     this.payment = payment;
     try {
-      amount.setText(CoinUtils.formatAmountMilliBtc(new MilliSatoshi(Long.parseLong(payment.amountPaid))));
+      if (payment.amountPaid == 0) {
+        amount.setText(CoinUtils.formatAmountMilliBtc(new MilliSatoshi(payment.amountRequested)));
+      } else {
+        amount.setText(CoinUtils.formatAmountMilliBtc(new MilliSatoshi(payment.amountPaid)));
+      }
     } catch (Exception e) {
       amount.setText(CoinUtils.getMilliBTCFormat().format(0));
     }

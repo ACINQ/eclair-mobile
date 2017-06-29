@@ -78,8 +78,13 @@ public class CreatePaymentActivity extends Activity {
         public void run() throws Exception {
 
           // 1 - save payment attempt in DB
-          final Payment p = new Payment(pr.paymentHash().toString(), prAsString, "Placeholder description", new Date(), new Date());
-          p.amountPaid = Long.toString(CoinUtils.getLongAmountFromInvoice(pr));
+          final Payment p = new Payment();
+          p.amountRequested = CoinUtils.getLongAmountFromInvoice(pr);
+          p.paymentHash = pr.paymentHash().toString();
+          p.paymentRequest = prAsString;
+          p.description = "Placeholder";
+          p.created = new Date();
+          p.updated = new Date();
           p.save();
 
           // 2 - prepare payment future ask

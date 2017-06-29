@@ -15,17 +15,10 @@ public class Payment extends SugarRecord {
   public Date created;
   public Date updated;
 
-  public String amountPaid;
-  public String feesPaid;
+  public long amountRequested = 0;
+  public long amountPaid = 0;
+  public long feesPaid = 0;
 
   public Payment() {}
 
-  public Payment(String paymentHash, String paymentRequest, String description, Date created, Date updated) {
-    this.paymentHash = paymentHash;
-    this.paymentRequest = paymentRequest;
-    this.description = description;
-    this.status = "PENDING";
-    this.created = created;
-    this.updated = updated;
-  }
 }

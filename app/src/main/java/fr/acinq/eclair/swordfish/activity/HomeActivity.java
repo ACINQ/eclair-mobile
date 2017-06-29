@@ -235,7 +235,7 @@ public class HomeActivity extends AppCompatActivity {
 
     Intent intent = new Intent(this, PaymentSuccessActivity.class);
     intent.putExtra(PaymentSuccessActivity.EXTRA_PAYMENTSUCCESS_DESC, event.payment.description);
-    intent.putExtra(PaymentSuccessActivity.EXTRA_PAYMENTSUCCESS_AMOUNT, event.payment.amountPaid);
+    intent.putExtra(PaymentSuccessActivity.EXTRA_PAYMENTSUCCESS_AMOUNT, (event.payment.amountPaid));
     startActivity(intent);
 
     mPaymentsListFragment.updateList();

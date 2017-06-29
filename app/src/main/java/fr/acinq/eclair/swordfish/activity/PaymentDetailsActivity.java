@@ -40,17 +40,20 @@ public class PaymentDetailsActivity extends AppCompatActivity {
       Payment p = Payment.findById(Payment.class, paymentId);
 
       // amount
-      DataRow amountRow = (DataRow) findViewById(R.id.paymentdetails_amount);
-      amountRow.setValue(CoinUtils.formatAmountMilliBtc(new MilliSatoshi(Long.parseLong(p.amountPaid))));
+      DataRow amountPaidRow = (DataRow) findViewById(R.id.paymentdetails_amount_paid);
+      amountPaidRow.setValue(CoinUtils.formatAmountMilliBtc(new MilliSatoshi(p.amountPaid)));
 
       DataRow feesRow = (DataRow) findViewById(R.id.paymentdetails_fees);
-      feesRow.setValue(p.feesPaid);
+      feesRow.setValue(Long.toString(p.feesPaid));
 
       DataRow statusRow = (DataRow) findViewById(R.id.paymentdetails_status);
       statusRow.setValue(p.status);
 
       DataRow descRow = (DataRow) findViewById(R.id.paymentdetails_desc);
       descRow.setValue(p.description);
+
+      DataRow amountRequestedRow = (DataRow) findViewById(R.id.paymentdetails_amount_requested);
+      amountRequestedRow.setValue(CoinUtils.formatAmountMilliBtc(new MilliSatoshi(p.amountRequested)));
 
       DataRow paymentHashRow = (DataRow) findViewById(R.id.paymentdetails_paymenthash);
       paymentHashRow.setValue(p.paymentHash);

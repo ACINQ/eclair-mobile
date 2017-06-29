@@ -140,8 +140,8 @@ public class EclairEventService extends UntypedActor {
         Log.d(TAG, "Received an unknown PaymentSent event. Ignoring");
       } else {
         Payment paymentInDB = paymentList.get(0);
-        paymentInDB.amountPaid = Long.toString(paymentEvent.amount().amount());
-        paymentInDB.feesPaid = Long.toString(paymentEvent.feesPaid().amount());
+        paymentInDB.amountPaid = paymentEvent.amount().amount();
+        paymentInDB.feesPaid = paymentEvent.feesPaid().amount();
         paymentInDB.updated = new Date();
         paymentInDB.status = "PAID";
         paymentInDB.save();
