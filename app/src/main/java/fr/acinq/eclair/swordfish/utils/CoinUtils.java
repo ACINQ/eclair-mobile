@@ -32,6 +32,12 @@ public class CoinUtils {
     return milliBtcFormat;
   }
 
+  /**
+   * Return amount as Long, in millisatoshi
+   *
+   * @param paymentRequest
+   * @return
+   */
   public static long getLongAmountFromInvoice(PaymentRequest paymentRequest) {
     return paymentRequest.amount().isEmpty() ? 0 : paymentRequest.amount().get().amount();
   }

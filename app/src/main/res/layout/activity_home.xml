@@ -19,14 +19,13 @@
         android:id="@+id/home_collapsingTB"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/colorPrimaryDark"
-        >
+        android:background="@color/colorPrimaryDark">
 
         <LinearLayout
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          app:layout_collapseMode="pin"
-          android:orientation="horizontal">
+          android:orientation="horizontal"
+          app:layout_collapseMode="pin">
 
           <RelativeLayout
             android:layout_width="0dp"
@@ -144,20 +143,6 @@
             app:unit="mBTC"
             app:unit_color="@color/white"
             app:unit_size="12sp" />
-
-          <TextView
-            android:id="@+id/home_nochannels"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="8dp"
-            android:clickable="true"
-            android:onClick="home_openChannel"
-            android:text="[No Channels. Click to open a new channel]"
-            android:textColor="@color/white"
-            android:textSize="10sp"
-            android:visibility="gone" />
-
         </LinearLayout>
 
         <TextView

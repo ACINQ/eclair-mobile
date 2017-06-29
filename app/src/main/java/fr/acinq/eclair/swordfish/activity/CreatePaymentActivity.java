@@ -40,6 +40,7 @@ public class CreatePaymentActivity extends Activity {
   public static final String EXTRA_INVOICE = "fr.acinq.eclair.swordfish.EXTRA_INVOICE";
   private static final String TAG = "CreatePayment";
   private PaymentRequest currentPR = null;
+  private String currentPrAsString = null;
   private boolean isProcessingPayment = false;
 
   @Override
@@ -48,10 +49,10 @@ public class CreatePaymentActivity extends Activity {
     setContentView(R.layout.activity_create_payment);
 
     Intent intent = getIntent();
-    String prString = intent.getStringExtra(EXTRA_INVOICE);
     CoinAmountView v_amount = (CoinAmountView) findViewById(R.id.payment__value_amount);
+    currentPrAsString = intent.getStringExtra(EXTRA_INVOICE);
     try {
-      PaymentRequest extract = PaymentRequest.read(prString);
+      PaymentRequest extract = PaymentRequest.read(currentPrAsString);
       v_amount.setAmountMsat(CoinUtils.getAmountFromInvoice(extract));
       currentPR = extract;
     } catch (Throwable t) {
@@ -68,6 +69,7 @@ public class CreatePaymentActivity extends Activity {
     isProcessingPayment = true;
     final File datadir = getFilesDir();
     final PaymentRequest pr = currentPR;
+    final String prAsString = currentPrAsString;
     toggleButtons();
     Log.i("Create Payment", "Sending payment...");
     AsyncExecutor.create().execute(
@@ -76,7 +78,7 @@ public class CreatePaymentActivity extends Activity {
         public void run() throws Exception {
 
           // 1 - save payment attempt in DB
-          final Payment p = new Payment(pr.paymentHash().toString(), PaymentRequest.write(pr), "Placeholder description", new Date(), new Date());
+          final Payment p = new Payment(pr.paymentHash().toString(), prAsString, "Placeholder description", new Date(), new Date());
           p.amountPaid = Long.toString(CoinUtils.getLongAmountFromInvoice(pr));
           p.save();
 

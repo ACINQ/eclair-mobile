@@ -248,12 +248,10 @@ public class HomeActivity extends AppCompatActivity {
 
   private boolean hasEnoughChannnels() {
     if (EclairEventService.getChannelsMap().size() == 0) {
-      findViewById(R.id.home_nochannels).setVisibility(View.VISIBLE);
       mPendingBalanceView.setVisibility(View.GONE);
       mMainButtonsView.setVisibility(View.GONE);
       return false;
     }
-    findViewById(R.id.home_nochannels).setVisibility(View.GONE);
     return true;
   }
 
@@ -263,8 +261,6 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     // 1 - available balance
-    findViewById(R.id.home_nochannels).setVisibility(View.GONE);
-
     mAvailableBalanceView.setAmountMsat(new MilliSatoshi(event.availableBalanceMsat));
     mMainButtonsView.setVisibility(event.availableBalanceMsat > 0 ? View.VISIBLE : View.GONE);
 
