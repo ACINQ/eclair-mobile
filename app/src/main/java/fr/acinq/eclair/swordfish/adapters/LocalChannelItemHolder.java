@@ -42,17 +42,15 @@ public class LocalChannelItemHolder extends RecyclerView.ViewHolder implements V
 
   public void bindItem(final ChannelItem channelItem) {
     this.channelItem = channelItem;
+    status.setText(channelItem.status);
     if (NORMAL.toString().equals(channelItem.status)) {
-      status.setText("Active");
       status.setTextColor(ACTIVE_COLOR);
     } else if (OFFLINE.toString().equals(channelItem.status)) {
-      status.setText(channelItem.status);
       status.setTextColor(OFFLINE_COLOR);
     } else {
-      status.setText("Active in X blocks (#654231)");
       status.setTextColor(WAITING_COLOR);
     }
     balance.setText(CoinUtils.formatAmountMilliBtc(channelItem.balanceMsat));
-    node.setText("Connected to " + channelItem.targetPubkey);
+    node.setText("With " + channelItem.targetPubkey);
   }
 }
