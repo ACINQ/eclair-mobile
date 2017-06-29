@@ -1,9 +1,9 @@
 package fr.acinq.eclair.swordfish.activity;
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
@@ -12,7 +12,7 @@ import android.widget.Button;
 import java.util.Map;
 
 import akka.actor.ActorRef;
-import fr.acinq.bitcoin.MilliSatoshi;
+import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.eclair.channel.CLOSED;
 import fr.acinq.eclair.channel.CLOSING;
 import fr.acinq.eclair.channel.CMD_CLOSE;
@@ -65,7 +65,8 @@ public class ChannelDetailsActivity extends AppCompatActivity {
           closeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-              channel.getKey().tell(CMD_CLOSE.apply(null), channel.getKey());
+              scala.Option<BinaryData> none = scala.Option.apply(null);
+              channel.getKey().tell(CMD_CLOSE.apply(none), channel.getKey());
             }
           });
         }
