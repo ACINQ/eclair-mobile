@@ -13,6 +13,7 @@ import akka.actor.ActorRef;
 import akka.actor.Terminated;
 import akka.actor.UntypedActor;
 import fr.acinq.bitcoin.BinaryData;
+import fr.acinq.bitcoin.Crypto;
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.eclair.channel.ChannelCreated;
 import fr.acinq.eclair.channel.ChannelIdAssigned;
@@ -38,7 +39,7 @@ import fr.acinq.eclair.wire.NodeAnnouncement;
 public class EclairEventService extends UntypedActor {
 
   private static final String TAG = "EclairEventService";
-  public static Map<BinaryData, NodeAnnouncement> nodeAnnouncementMap = new ConcurrentHashMap<>();
+  public static Map<Crypto.PublicKey, NodeAnnouncement> nodeAnnouncementMap = new ConcurrentHashMap<>();
   public static Map<Long, ChannelAnnouncement> channelAnnouncementMap = new ConcurrentHashMap<>();
   private static Map<ActorRef, ChannelDetails> channelDetailsMap = new ConcurrentHashMap<>();
 
