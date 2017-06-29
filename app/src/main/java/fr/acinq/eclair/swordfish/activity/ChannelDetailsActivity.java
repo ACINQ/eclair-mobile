@@ -67,6 +67,7 @@ public class ChannelDetailsActivity extends AppCompatActivity {
             public void onClick(View v) {
               scala.Option<BinaryData> none = scala.Option.apply(null);
               channel.getKey().tell(CMD_CLOSE.apply(none), channel.getKey());
+              finish();
             }
           });
         }

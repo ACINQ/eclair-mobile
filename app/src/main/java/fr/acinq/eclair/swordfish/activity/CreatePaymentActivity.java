@@ -47,9 +47,9 @@ public class CreatePaymentActivity extends Activity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_create_payment);
+    CoinAmountView v_amount = (CoinAmountView) findViewById(R.id.payment__value_amount);
 
     Intent intent = getIntent();
-    CoinAmountView v_amount = (CoinAmountView) findViewById(R.id.payment__value_amount);
     currentPrAsString = intent.getStringExtra(EXTRA_INVOICE);
     try {
       PaymentRequest extract = PaymentRequest.read(currentPrAsString);

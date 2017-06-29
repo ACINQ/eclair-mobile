@@ -32,66 +32,6 @@
             android:layout_height="match_parent"
             android:layout_weight="1">
 
-            <LinearLayout
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:orientation="vertical"
-              android:padding="16dp">
-
-              <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:layout_marginRight="4dp"
-                  android:text="@string/home_onchain_balance"
-                  android:textColor="@color/white"
-                  android:textSize="10sp"
-                  android:textStyle="bold" />
-
-                <fr.acinq.eclair.swordfish.customviews.CoinAmountView
-                  android:id="@+id/home_onchain_balance_value"
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  app:alignment="left"
-                  app:amount_color="@color/white"
-                  app:amount_size="10sp"
-                  app:unit="mBTC"
-                  app:unit_color="@color/colorPrimaryLight"
-                  app:unit_size="10sp" />
-              </LinearLayout>
-
-              <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="2dp"
-                android:orientation="horizontal">
-
-                <TextView
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:layout_marginRight="4dp"
-                  android:text="@string/home_offchain_balance"
-                  android:textColor="@color/white"
-                  android:textSize="10sp"
-                  android:textStyle="bold" />
-
-                <fr.acinq.eclair.swordfish.customviews.CoinAmountView
-                  android:id="@+id/home_offchain_balance_value"
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  app:alignment="left"
-                  app:amount_color="@color/white"
-                  app:amount_size="10sp"
-                  app:unit="mBTC"
-                  app:unit_color="@color/colorPrimaryLight"
-                  app:unit_size="10sp" />
-              </LinearLayout>
-
-            </LinearLayout>
           </RelativeLayout>
 
           <RelativeLayout
@@ -172,7 +112,7 @@
   </android.support.design.widget.CoordinatorLayout>
 
   <LinearLayout
-    android:id="@+id/home_main_buttons"
+    android:id="@+id/home_send_buttons"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_alignParentBottom="true"
@@ -181,10 +121,9 @@
     android:orientation="vertical">
 
     <LinearLayout
-      android:id="@+id/home_main_buttons_toggle"
-      android:layout_width="120dp"
+      android:id="@+id/home_send_buttons_toggle"
+      android:layout_width="190dp"
       android:layout_height="wrap_content"
-      android:layout_marginRight="@dimen/fab_margin"
       android:orientation="vertical"
       android:visibility="gone">
 
@@ -194,7 +133,7 @@
         android:layout_height="wrap_content"
         android:onClick="home_sendPaste"
         app:icon="@drawable/ic_content_paste_white_24dp"
-        app:label="" />
+        app:label="Paste a request" />
 
       <fr.acinq.eclair.swordfish.customviews.FabText
         android:id="@+id/home_send_scan"
@@ -202,25 +141,19 @@
         android:layout_height="wrap_content"
         android:onClick="home_sendScan"
         app:icon="@drawable/ic_photo_camera_white_24dp"
-        app:label="Send" />
+        app:label="Scan a request" />
 
-      <fr.acinq.eclair.swordfish.customviews.FabText
-        android:id="@+id/home_receive"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:onClick="home_receive"
-        app:bgcolor="@color/green"
-        app:icon="@drawable/ic_list_white_24dp"
-        app:label="Receive" />
     </LinearLayout>
 
     <android.support.design.widget.FloatingActionButton
-      android:id="@+id/home_mainaction"
+      android:id="@+id/home_send_button"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:layout_margin="@dimen/fab_margin"
-      android:onClick="home_toggleMain"
-      android:src="@drawable/ic_plus_white_24dp"
+      android:layout_marginRight="@dimen/fab_margin"
+      android:layout_marginBottom="@dimen/fab_margin"
+      android:layout_marginTop="8dp"
+      android:onClick="home_toggleSendButtons"
+      android:src="@drawable/ic_send_white_24dp"
       app:backgroundTint="@color/colorPrimary"
       app:fabSize="normal" />
   </LinearLayout>
@@ -231,30 +164,46 @@
     android:layout_height="wrap_content"
     android:layout_alignParentBottom="true"
     android:layout_alignParentRight="true"
-    android:gravity="center"
+    android:gravity="end"
     android:orientation="vertical"
     android:visibility="gone">
 
-    <android.support.design.widget.FloatingActionButton
-      android:id="@+id/home_paste_uri"
-      android:layout_width="wrap_content"
+    <LinearLayout
+      android:id="@+id/home_openchannel_buttons_toggle"
+      android:layout_width="190dp"
       android:layout_height="wrap_content"
-      android:layout_marginTop="@dimen/fab_margin"
-      android:longClickable="true"
-      android:onClick="home_doPasteURI"
-      android:src="@drawable/ic_content_paste_white_24dp"
-      android:visibility="gone"
-      app:backgroundTint="@color/colorGrey_4"
-      app:fabSize="mini" />
+      android:orientation="vertical"
+      android:visibility="gone">
+
+      <fr.acinq.eclair.swordfish.customviews.FabText
+        android:id="@+id/home_openchannel_paste"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="home_doPasteURI"
+        app:bgcolor="@color/green"
+        app:icon="@drawable/ic_content_paste_white_24dp"
+        app:label="Paste an address" />
+
+      <fr.acinq.eclair.swordfish.customviews.FabText
+        android:id="@+id/home_openchannel_scan"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="home_doScanURI"
+        app:bgcolor="@color/green"
+        app:icon="@drawable/ic_photo_camera_white_24dp"
+        app:label="Scan an address" />
+
+    </LinearLayout>
 
     <android.support.design.widget.FloatingActionButton
-      android:id="@+id/home_scan_uri"
+      android:id="@+id/home_openchannel_button"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:layout_margin="@dimen/fab_margin"
-      android:longClickable="true"
-      android:onClick="home_doScanURI"
-      android:src="@drawable/ic_photo_camera_white_24dp"
+      android:layout_marginRight="@dimen/fab_margin"
+      android:layout_marginBottom="@dimen/fab_margin"
+      android:layout_marginTop="8dp"
+      android:onClick="home_toggleOpenChannelButtons"
+      android:src="@drawable/ic_plus_white_24dp"
       app:backgroundTint="@color/green"
       app:fabSize="normal" />
   </LinearLayout>

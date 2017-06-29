@@ -32,13 +32,13 @@ import fr.acinq.eclair.swordfish.EclairEventService;
 import fr.acinq.eclair.swordfish.EclairHelper;
 import fr.acinq.eclair.swordfish.R;
 import fr.acinq.eclair.swordfish.customviews.CoinAmountView;
-import fr.acinq.eclair.swordfish.customviews.FabText;
 import fr.acinq.eclair.swordfish.events.BalanceUpdateEvent;
 import fr.acinq.eclair.swordfish.events.ChannelUpdateEvent;
 import fr.acinq.eclair.swordfish.events.SWPaymenFailedEvent;
 import fr.acinq.eclair.swordfish.events.SWPaymentEvent;
 import fr.acinq.eclair.swordfish.fragment.ChannelsListFragment;
 import fr.acinq.eclair.swordfish.fragment.PaymentsListFragment;
+import fr.acinq.eclair.swordfish.fragment.ReceivePaymentFragment;
 import fr.acinq.eclair.swordfish.utils.CoinUtils;
 import fr.acinq.eclair.swordfish.utils.Validators;
 
@@ -49,20 +49,20 @@ public class HomeActivity extends AppCompatActivity {
   private HomePagerAdapter mPagerAdapter;
   private PaymentsListFragment mPaymentsListFragment;
   private ChannelsListFragment mChannelsListFragment;
+  private ReceivePaymentFragment mReceivePaymentFragment;
 
-  private ViewGroup mMainButtonsView;
-  private ViewGroup mMainButtonsToggleView;
-  private FloatingActionButton mMainButton;
-  private FabText mSendScanButton;
-  private FabText mSendPasteButton;
-  private FabText mReceiveButton;
+  private ViewGroup mSendButtonsView;
+  private ViewGroup mSendButtonsToggleView;
+  private FloatingActionButton mSendButton;
 
   private ViewGroup mOpenChannelsButtonsView;
-  private FloatingActionButton mScanURIButton;
-  private FloatingActionButton mPasteURIButton;
+  private ViewGroup mOpenChannelButtonsToggleView;
+  private FloatingActionButton mOpenChannelButton;
 
   private TextView mPendingBalanceView;
   private CoinAmountView mAvailableBalanceView;
+
+  public static final String EXTRA_WANTED_PAGE = "fr.acinq.eclair.swordfish.EXTRA_WANTED_PAGE";
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -74,28 +74,19 @@ public class HomeActivity extends AppCompatActivity {
     ActionBar ab = getSupportActionBar();
     ab.setDisplayHomeAsUpEnabled(false);
 
-    mAvailableBalanceView = (CoinAmountView) findViewById(R.id.home_value_availablebalance);
+    Intent intent = getIntent();
+    int wantedPage = intent.getIntExtra(EXTRA_WANTED_PAGE, 1);
 
-    mMainButtonsView = (ViewGroup) findViewById(R.id.home_main_buttons);
-    mMainButtonsToggleView = (ViewGroup) findViewById(R.id.home_main_buttons_toggle);
-    mMainButton = (FloatingActionButton) findViewById(R.id.home_mainaction);
-    mSendScanButton = (FabText) findViewById(R.id.home_send_scan);
-    mSendPasteButton = (FabText) findViewById(R.id.home_send_paste);
-    mReceiveButton = (FabText) findViewById(R.id.home_receive);
+    mAvailableBalanceView = (CoinAmountView) findViewById(R.id.home_value_availablebalance);
+    mPendingBalanceView = (TextView) findViewById(R.id.home_pendingbalance_value);
+
+    mSendButtonsView = (ViewGroup) findViewById(R.id.home_send_buttons);
+    mSendButtonsToggleView = (ViewGroup) findViewById(R.id.home_send_buttons_toggle);
+    mSendButton = (FloatingActionButton) findViewById(R.id.home_send_button);
 
     mOpenChannelsButtonsView = (ViewGroup) findViewById(R.id.home_openchannel_buttons);
-    mScanURIButton = (FloatingActionButton) findViewById(R.id.home_scan_uri);
-    mPasteURIButton = (FloatingActionButton) findViewById(R.id.home_paste_uri);
-    mScanURIButton.setOnLongClickListener(new View.OnLongClickListener() {
-      @Override
-      public boolean onLongClick(View v) {
-        boolean isVisible = mPasteURIButton.getVisibility() == View.VISIBLE;
-        mPasteURIButton.setVisibility(isVisible ? View.GONE : View.VISIBLE);
-        mScanURIButton.setBackgroundTintList(isVisible ? ColorStateList.valueOf(getColor(R.color.green)) : ColorStateList.valueOf(getColor(R.color.colorGrey_4)));
-        return true;
-      }
-    });
-    mPendingBalanceView = (TextView) findViewById(R.id.home_pendingbalance_value);
+    mOpenChannelButtonsToggleView = (ViewGroup) findViewById(R.id.home_openchannel_buttons_toggle);
+    mOpenChannelButton = (FloatingActionButton) findViewById(R.id.home_openchannel_button);
 
     mViewPager = (ViewPager) findViewById(R.id.home_viewpager);
     mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -105,8 +96,8 @@ public class HomeActivity extends AppCompatActivity {
 
       @Override
       public void onPageSelected(int position) {
-        mOpenChannelsButtonsView.setVisibility(position == 1 ? View.VISIBLE : View.GONE);
-        mMainButtonsView.setVisibility(position == 0 && mAvailableBalanceView.getAmountMsat().amount() > 0 ? View.VISIBLE : View.GONE);
+        mOpenChannelsButtonsView.setVisibility(position == 2 ? View.VISIBLE : View.GONE);
+        mSendButtonsView.setVisibility(position == 1 && mAvailableBalanceView.getAmountMsat().amount() > 0 ? View.VISIBLE : View.GONE);
       }
 
       @Override
@@ -115,14 +106,15 @@ public class HomeActivity extends AppCompatActivity {
     });
 
     final List<Fragment> fragments = new ArrayList<>();
+    mReceivePaymentFragment = new ReceivePaymentFragment();
+    fragments.add(mReceivePaymentFragment);
     mPaymentsListFragment = new PaymentsListFragment();
     fragments.add(mPaymentsListFragment);
     mChannelsListFragment = new ChannelsListFragment();
     fragments.add(mChannelsListFragment);
     mPagerAdapter = new HomePagerAdapter(getSupportFragmentManager(), fragments);
     mViewPager.setAdapter(mPagerAdapter);
-    mViewPager.setCurrentItem(0);
-
+    mViewPager.setCurrentItem(wantedPage);
   }
 
   @Override
@@ -187,14 +179,17 @@ public class HomeActivity extends AppCompatActivity {
     startActivity(intent);
   }
 
-  public void home_toggleMain(View view) {
-    boolean isVisible = mMainButtonsToggleView.getVisibility() == View.VISIBLE;
-    mMainButton.animate().rotation(isVisible ? 0 : 135).setDuration(150).start();
-    mMainButton.setBackgroundTintList(ColorStateList.valueOf(getColor(isVisible ? R.color.colorPrimary : R.color.colorGrey_4)));
-    mMainButtonsToggleView.setVisibility(isVisible ? View.GONE : View.VISIBLE);
+  public void home_toggleSendButtons(View view) {
+    boolean isVisible = mSendButtonsToggleView.getVisibility() == View.VISIBLE;
+    mSendButton.animate().rotation(isVisible ? 0 : -90).setDuration(150).start();
+    mSendButton.setBackgroundTintList(ColorStateList.valueOf(getColor(isVisible ? R.color.colorPrimary : R.color.colorGrey_4)));
+    mSendButtonsToggleView.setVisibility(isVisible ? View.GONE : View.VISIBLE);
   }
-
-  public void home_receive(View view) {
+  public void home_toggleOpenChannelButtons(View view) {
+    boolean isVisible = mOpenChannelButtonsToggleView.getVisibility() == View.VISIBLE;
+    mOpenChannelButton.animate().rotation(isVisible ? 0 : 135).setDuration(150).start();
+    mOpenChannelButton.setBackgroundTintList(ColorStateList.valueOf(getColor(isVisible ? R.color.green : R.color.colorGrey_4)));
+    mOpenChannelButtonsToggleView.setVisibility(isVisible ? View.GONE : View.VISIBLE);
   }
 
   public void home_doPasteURI(View view) {
@@ -249,7 +244,7 @@ public class HomeActivity extends AppCompatActivity {
   private boolean hasEnoughChannnels() {
     if (EclairEventService.getChannelsMap().size() == 0) {
       mPendingBalanceView.setVisibility(View.GONE);
-      mMainButtonsView.setVisibility(View.GONE);
+      mSendButtonsView.setVisibility(View.GONE);
       return false;
     }
     return true;
@@ -262,7 +257,7 @@ public class HomeActivity extends AppCompatActivity {
 
     // 1 - available balance
     mAvailableBalanceView.setAmountMsat(new MilliSatoshi(event.availableBalanceMsat));
-    mMainButtonsView.setVisibility(event.availableBalanceMsat > 0 ? View.VISIBLE : View.GONE);
+    mSendButtonsView.setVisibility(event.availableBalanceMsat > 0 ? View.VISIBLE : View.GONE);
 
     // 2 - unavailable balance
     if (event.pendingBalanceMsat > 0) {
@@ -272,9 +267,6 @@ public class HomeActivity extends AppCompatActivity {
       mPendingBalanceView.setVisibility(View.GONE);
     }
 
-    // 3 - update total offchain balance
-    CoinAmountView offchainBalanceView = (CoinAmountView) findViewById(R.id.home_offchain_balance_value);
-    offchainBalanceView.setAmountMsat(new MilliSatoshi(event.availableBalanceMsat + event.pendingBalanceMsat + event.offlineBalanceMsat));
   }
 
   private class HomePagerAdapter extends FragmentStatePagerAdapter {
