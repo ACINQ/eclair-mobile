@@ -14,6 +14,7 @@ public class Payment extends SugarRecord {
   public String status;
   public Date created;
   public Date updated;
+  public String lastErrorCause;
 
   public long amountRequested = 0;
   public long amountPaid = 0;

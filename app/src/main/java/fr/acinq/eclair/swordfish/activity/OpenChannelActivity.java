@@ -110,8 +110,9 @@ public class OpenChannelActivity extends Activity implements OneInputDialog.OneI
   }
 
   private void goToHome() {
-    Intent intent = new Intent(this, HomeActivity.class);
-    startActivity(intent);
+//    Intent intent = new Intent(this, HomeActivity.class);
+//    startActivity(intent);
+    finish();
   }
 
   public void confirmOpenChannel(View view) {

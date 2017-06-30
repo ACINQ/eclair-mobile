@@ -28,7 +28,6 @@ import fr.acinq.eclair.swordfish.EclairHelper;
 import fr.acinq.eclair.swordfish.R;
 import fr.acinq.eclair.swordfish.customviews.CoinAmountView;
 import fr.acinq.eclair.swordfish.events.SWPaymenFailedEvent;
-import fr.acinq.eclair.swordfish.events.SWPaymentEvent;
 import fr.acinq.eclair.swordfish.model.Payment;
 import fr.acinq.eclair.swordfish.utils.CoinUtils;
 import scala.concurrent.ExecutionContext;
@@ -76,16 +75,25 @@ public class CreatePaymentActivity extends Activity {
       new AsyncExecutor.RunnableEx() {
         @Override
         public void run() throws Exception {
+          // 0 - Check if payment already exists
+          List<Payment> paymentListForH = Payment.findWithQuery(Payment.class, "SELECT * FROM Payment WHERE payment_hash = ? LIMIT 1",
+            pr.paymentHash().toString());
 
           // 1 - save payment attempt in DB
-          final Payment p = new Payment();
-          p.amountRequested = CoinUtils.getLongAmountFromInvoice(pr);
-          p.paymentHash = pr.paymentHash().toString();
-          p.paymentRequest = prAsString;
-          p.description = "Placeholder";
-          p.created = new Date();
-          p.updated = new Date();
-          p.save();
+          final Payment p = paymentListForH.isEmpty() ? new Payment() : paymentListForH.get(0);
+          if (paymentListForH.isEmpty()) {
+            p.amountRequested = CoinUtils.getLongAmountFromInvoice(pr);
+            p.paymentHash = pr.paymentHash().toString();
+            p.paymentRequest = prAsString;
+            p.status = "PENDING";
+            p.description = "PLACEHOLDER";
+            p.created = new Date();
+            p.updated = new Date();
+            p.save();
+          } else if ("PAID".equals(paymentListForH.get(0).status)) {
+            EventBus.getDefault().post(new SWPaymenFailedEvent(p, "Invoice already paid."));
+            return;
+          }
 
           // 2 - prepare payment future ask
           Timeout paymentTimeout = new Timeout(Duration.create(45, "seconds"));
@@ -100,35 +108,33 @@ public class CreatePaymentActivity extends Activity {
           paymentFuture.onComplete(new OnComplete<Object>() {
             @Override
             public void onComplete(Throwable t, Object o) {
-              List<Payment> paymentList = Payment.findWithQuery(Payment.class, "SELECT * FROM Payment WHERE payment_hash = ? LIMIT 1",
+              List<Payment> freshPaymentListForH = Payment.findWithQuery(Payment.class, "SELECT * FROM Payment WHERE payment_hash = ? LIMIT 1",
                 pr.paymentHash().toString());
-              if (paymentList.isEmpty()) {
-                Log.w("Payment Complete", "Received an unknown event -> ignored");
-              } else {
+              if (!freshPaymentListForH.isEmpty()) {
+                Payment paymentInDB = freshPaymentListForH.get(0);
                 if (t != null && t instanceof akka.pattern.AskTimeoutException) {
-                  // payment is pending, let's do nothing and wait
+                  // payment is taking too long, let's do nothing and keep waiting
                 } else {
-                  Payment paymentInDB = paymentList.get(0);
-                  paymentInDB.updated = new Date();
+                  p.updated = new Date();
                   if (o instanceof PaymentSucceeded && t == null) {
-                    paymentInDB.status = "PAID";
-                    EventBus.getDefault().post(new SWPaymentEvent(p));
+                    // do nothing, will be handled by PaymentSent event...
                   } else {
-                    paymentInDB.status = "FAILED";
-                    String cause = "Internal Error";
+                    String cause = "Unknown Error";
                     if (o instanceof PaymentFailed) {
                       Sphinx.ErrorPacket error = ((PaymentFailed) o).error().get();
                       cause = error != null && error.failureMessage() != null ? error.failureMessage().toString() : cause;
-                      EventBus.getDefault().post(new SWPaymenFailedEvent(p, cause));
                     } else if (t != null) {
-                      Log.e(TAG, "Error when sending payment", t);
+                      Log.d(TAG, "Error when sending payment", t);
                       cause = t.getMessage();
-                      EventBus.getDefault().post(new SWPaymenFailedEvent(p, cause));
-                    } else {
-                      EventBus.getDefault().post(new SWPaymenFailedEvent(p, cause));
                     }
+                    if (!"PAID".equals(paymentInDB.status)) {
+                      // if the payment has not already been paid, lets update the status...
+                      paymentInDB.status = "FAILED";
+                      paymentInDB.lastErrorCause = cause;
+                    }
+                    EventBus.getDefault().post(new SWPaymenFailedEvent(p, cause));
+                    paymentInDB.save();
                   }
-                  paymentInDB.save();
                 }
               }
             }
