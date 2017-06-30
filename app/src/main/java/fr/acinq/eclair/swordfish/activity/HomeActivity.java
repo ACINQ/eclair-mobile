@@ -59,8 +59,6 @@ public class HomeActivity extends AppCompatActivity {
 
   private CoinAmountView mAvailableBalanceView;
 
-  public static final String EXTRA_WANTED_PAGE = "fr.acinq.eclair.swordfish.EXTRA_WANTED_PAGE";
-
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -70,9 +68,6 @@ public class HomeActivity extends AppCompatActivity {
     setSupportActionBar(toolbar);
     ActionBar ab = getSupportActionBar();
     ab.setDisplayHomeAsUpEnabled(false);
-
-    Intent intent = getIntent();
-    int wantedPage = intent.getIntExtra(EXTRA_WANTED_PAGE, 1);
 
     mAvailableBalanceView = (CoinAmountView) findViewById(R.id.home_value_availablebalance);
 
@@ -110,7 +105,11 @@ public class HomeActivity extends AppCompatActivity {
     fragments.add(mChannelsListFragment);
     mPagerAdapter = new HomePagerAdapter(getSupportFragmentManager(), fragments);
     mViewPager.setAdapter(mPagerAdapter);
-    mViewPager.setCurrentItem(wantedPage);
+    if (savedInstanceState != null && savedInstanceState.containsKey("currentPage")) {
+      mViewPager.setCurrentItem(savedInstanceState.getInt("currentPage"));
+    } else {
+      mViewPager.setCurrentItem(1);
+    }
   }
 
   @Override
@@ -142,6 +141,17 @@ public class HomeActivity extends AppCompatActivity {
   public void onStop() {
     EventBus.getDefault().unregister(this);
     super.onStop();
+  }
+
+  @Override
+  protected void onSaveInstanceState(Bundle bundle) {
+    super.onSaveInstanceState(bundle);
+    bundle.putInt("currentPage", mViewPager.getCurrentItem());
+  }
+
+  @Override
+  protected void onRestoreInstanceState (Bundle savedInstanceState) {
+    mViewPager.setCurrentItem(savedInstanceState.getInt("currentPage"));
   }
 
   @Override
