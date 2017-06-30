@@ -136,6 +136,13 @@ public class HomeActivity extends AppCompatActivity {
   }
 
   @Override
+  public void onPause() {
+    super.onPause();
+    home_closeSendButtons();
+    home_closeOpenChannelButtons();
+  }
+
+  @Override
   public void onStop() {
     EventBus.getDefault().unregister(this);
     super.onStop();
@@ -185,11 +192,22 @@ public class HomeActivity extends AppCompatActivity {
     mSendButton.setBackgroundTintList(ColorStateList.valueOf(getColor(isVisible ? R.color.colorPrimary : R.color.colorGrey_4)));
     mSendButtonsToggleView.setVisibility(isVisible ? View.GONE : View.VISIBLE);
   }
+  public void home_closeSendButtons() {
+    mSendButton.animate().rotation(0).setDuration(150).start();
+    mSendButton.setBackgroundTintList(ColorStateList.valueOf(getColor(R.color.colorPrimary)));
+    mSendButtonsToggleView.setVisibility(View.GONE);
+  }
   public void home_toggleOpenChannelButtons(View view) {
     boolean isVisible = mOpenChannelButtonsToggleView.getVisibility() == View.VISIBLE;
     mOpenChannelButton.animate().rotation(isVisible ? 0 : 135).setDuration(150).start();
     mOpenChannelButton.setBackgroundTintList(ColorStateList.valueOf(getColor(isVisible ? R.color.green : R.color.colorGrey_4)));
     mOpenChannelButtonsToggleView.setVisibility(isVisible ? View.GONE : View.VISIBLE);
+  }
+
+  public void home_closeOpenChannelButtons() {
+    mOpenChannelButton.animate().rotation(0).setDuration(150).start();
+    mOpenChannelButton.setBackgroundTintList(ColorStateList.valueOf(getColor(R.color.green)));
+    mOpenChannelButtonsToggleView.setVisibility(View.GONE);
   }
 
   public void home_doPasteURI(View view) {
