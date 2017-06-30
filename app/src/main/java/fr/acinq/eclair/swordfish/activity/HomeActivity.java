@@ -17,7 +17,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import org.greenrobot.eventbus.EventBus;
@@ -39,7 +38,6 @@ import fr.acinq.eclair.swordfish.events.SWPaymentEvent;
 import fr.acinq.eclair.swordfish.fragment.ChannelsListFragment;
 import fr.acinq.eclair.swordfish.fragment.PaymentsListFragment;
 import fr.acinq.eclair.swordfish.fragment.ReceivePaymentFragment;
-import fr.acinq.eclair.swordfish.utils.CoinUtils;
 import fr.acinq.eclair.swordfish.utils.Validators;
 
 public class HomeActivity extends AppCompatActivity {
@@ -59,7 +57,6 @@ public class HomeActivity extends AppCompatActivity {
   private ViewGroup mOpenChannelButtonsToggleView;
   private FloatingActionButton mOpenChannelButton;
 
-  private TextView mPendingBalanceView;
   private CoinAmountView mAvailableBalanceView;
 
   public static final String EXTRA_WANTED_PAGE = "fr.acinq.eclair.swordfish.EXTRA_WANTED_PAGE";
@@ -78,7 +75,6 @@ public class HomeActivity extends AppCompatActivity {
     int wantedPage = intent.getIntExtra(EXTRA_WANTED_PAGE, 1);
 
     mAvailableBalanceView = (CoinAmountView) findViewById(R.id.home_value_availablebalance);
-    mPendingBalanceView = (TextView) findViewById(R.id.home_pendingbalance_value);
 
     mSendButtonsView = (ViewGroup) findViewById(R.id.home_send_buttons);
     mSendButtonsToggleView = (ViewGroup) findViewById(R.id.home_send_buttons_toggle);
@@ -97,7 +93,7 @@ public class HomeActivity extends AppCompatActivity {
       @Override
       public void onPageSelected(int position) {
         mOpenChannelsButtonsView.setVisibility(position == 2 ? View.VISIBLE : View.GONE);
-        mSendButtonsView.setVisibility(position == 1 && mAvailableBalanceView.getAmountMsat().amount() > 0 ? View.VISIBLE : View.GONE);
+        mSendButtonsView.setVisibility(position == 1 ? View.VISIBLE : View.GONE);
       }
 
       @Override
@@ -259,32 +255,11 @@ public class HomeActivity extends AppCompatActivity {
     mChannelsListFragment.updateList();
   }
 
-  private boolean hasEnoughChannnels() {
-    if (EclairEventService.getChannelsMap().size() == 0) {
-      mPendingBalanceView.setVisibility(View.GONE);
-      mSendButtonsView.setVisibility(View.GONE);
-      return false;
-    }
-    return true;
-  }
-
   private void updateBalance(BalanceUpdateEvent event) {
-    if (!hasEnoughChannnels()) {
+    if (EclairEventService.getChannelsMap().size() == 0) {
       return;
     }
-
-    // 1 - available balance
-    mAvailableBalanceView.setAmountMsat(new MilliSatoshi(event.availableBalanceMsat));
-    mSendButtonsView.setVisibility(event.availableBalanceMsat > 0 ? View.VISIBLE : View.GONE);
-
-    // 2 - unavailable balance
-    if (event.pendingBalanceMsat > 0) {
-      mPendingBalanceView.setText("+" + CoinUtils.formatAmountMilliBtc(new MilliSatoshi(event.pendingBalanceMsat)) + " mBTC pending");
-      mPendingBalanceView.setVisibility(View.VISIBLE);
-    } else {
-      mPendingBalanceView.setVisibility(View.GONE);
-    }
-
+    mAvailableBalanceView.setAmountMsat(new MilliSatoshi(event.availableBalanceMsat + event.offlineBalanceMsat + event.pendingBalanceMsat));
   }
 
   private class HomePagerAdapter extends FragmentStatePagerAdapter {

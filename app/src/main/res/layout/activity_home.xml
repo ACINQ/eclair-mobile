@@ -59,47 +59,27 @@
 
       </android.support.design.widget.CollapsingToolbarLayout>
 
-      <RelativeLayout
+      <LinearLayout
+        android:id="@+id/home_balance"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingBottom="32dp"
+        android:paddingLeft="24dp"
+        android:paddingRight="24dp"
+        android:paddingTop="32dp">
 
-        <LinearLayout
-          android:id="@+id/home_balance"
-          android:layout_width="match_parent"
-          android:layout_height="match_parent"
-          android:orientation="vertical"
-          android:paddingBottom="32dp"
-          android:paddingLeft="24dp"
-          android:paddingRight="24dp"
-          android:paddingTop="32dp">
-
-          <fr.acinq.eclair.swordfish.customviews.CoinAmountView
-            android:id="@+id/home_value_availablebalance"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:alignment="center"
-            app:amount_color="@color/white"
-            app:amount_size="42sp"
-            app:unit="mBTC"
-            app:unit_color="@color/white"
-            app:unit_size="12sp" />
-        </LinearLayout>
-
-        <TextView
-          android:id="@+id/home_pendingbalance_value"
+        <fr.acinq.eclair.swordfish.customviews.CoinAmountView
+          android:id="@+id/home_value_availablebalance"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
-          android:layout_alignBottom="@+id/home_balance"
-          android:layout_centerHorizontal="true"
-          android:layout_marginBottom="8dp"
-          android:background="@drawable/rounded_corner_yellow"
-          android:padding="2dp"
-          android:text="+0 mBTC pending"
-          android:textColor="@color/colorGrey_3"
-          android:textSize="10sp"
-          android:visibility="visible" />
-
-      </RelativeLayout>
+          app:alignment="center"
+          app:amount_color="@color/white"
+          app:amount_size="42sp"
+          app:unit="mBTC"
+          app:unit_color="@color/white"
+          app:unit_size="12sp" />
+      </LinearLayout>
 
     </android.support.design.widget.AppBarLayout>
 
@@ -149,8 +129,8 @@
       android:id="@+id/home_send_button"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:layout_marginRight="@dimen/fab_margin"
       android:layout_marginBottom="@dimen/fab_margin"
+      android:layout_marginRight="@dimen/fab_margin"
       android:layout_marginTop="8dp"
       android:onClick="home_toggleSendButtons"
       android:src="@drawable/ic_send_white_24dp"
@@ -199,8 +179,8 @@
       android:id="@+id/home_openchannel_button"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:layout_marginRight="@dimen/fab_margin"
       android:layout_marginBottom="@dimen/fab_margin"
+      android:layout_marginRight="@dimen/fab_margin"
       android:layout_marginTop="8dp"
       android:onClick="home_toggleOpenChannelButtons"
       android:src="@drawable/ic_plus_white_24dp"
