@@ -27,7 +27,7 @@ import fr.acinq.eclair.payment.SendPayment;
 import fr.acinq.eclair.swordfish.EclairHelper;
 import fr.acinq.eclair.swordfish.R;
 import fr.acinq.eclair.swordfish.customviews.CoinAmountView;
-import fr.acinq.eclair.swordfish.events.SWPaymenFailedEvent;
+import fr.acinq.eclair.swordfish.events.LNPaymentFailedEvent;
 import fr.acinq.eclair.swordfish.model.Payment;
 import fr.acinq.eclair.swordfish.utils.CoinUtils;
 import scala.concurrent.ExecutionContext;
@@ -91,7 +91,7 @@ public class CreatePaymentActivity extends Activity {
             p.updated = new Date();
             p.save();
           } else if ("PAID".equals(paymentListForH.get(0).status)) {
-            EventBus.getDefault().post(new SWPaymenFailedEvent(p, "Invoice already paid."));
+            EventBus.getDefault().post(new LNPaymentFailedEvent(p, "Invoice already paid."));
             return;
           }
 
@@ -132,7 +132,7 @@ public class CreatePaymentActivity extends Activity {
                       paymentInDB.status = "FAILED";
                       paymentInDB.lastErrorCause = cause;
                     }
-                    EventBus.getDefault().post(new SWPaymenFailedEvent(p, cause));
+                    EventBus.getDefault().post(new LNPaymentFailedEvent(p, cause));
                     paymentInDB.save();
                   }
                 }
@@ -142,6 +142,10 @@ public class CreatePaymentActivity extends Activity {
         }
       }
     );
+    Intent intent = new Intent(this, HomeActivity.class);
+    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+    startActivity(intent);
     finish();
   }
 

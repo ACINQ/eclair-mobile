@@ -13,6 +13,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,19 +27,25 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.util.ArrayList;
 import java.util.List;
 
+import akka.dispatch.OnComplete;
 import fr.acinq.bitcoin.MilliSatoshi;
+import fr.acinq.bitcoin.Satoshi;
+import fr.acinq.bitcoin.package$;
+import fr.acinq.eclair.Setup;
 import fr.acinq.eclair.swordfish.EclairEventService;
 import fr.acinq.eclair.swordfish.EclairHelper;
 import fr.acinq.eclair.swordfish.R;
 import fr.acinq.eclair.swordfish.customviews.CoinAmountView;
-import fr.acinq.eclair.swordfish.events.BalanceUpdateEvent;
 import fr.acinq.eclair.swordfish.events.ChannelUpdateEvent;
-import fr.acinq.eclair.swordfish.events.SWPaymenFailedEvent;
-import fr.acinq.eclair.swordfish.events.SWPaymentEvent;
+import fr.acinq.eclair.swordfish.events.LNBalanceUpdateEvent;
+import fr.acinq.eclair.swordfish.events.LNPaymentEvent;
+import fr.acinq.eclair.swordfish.events.LNPaymentFailedEvent;
+import fr.acinq.eclair.swordfish.events.WalletBalanceUpdateEvent;
 import fr.acinq.eclair.swordfish.fragments.ChannelsListFragment;
 import fr.acinq.eclair.swordfish.fragments.PaymentsListFragment;
 import fr.acinq.eclair.swordfish.fragments.ReceivePaymentFragment;
 import fr.acinq.eclair.swordfish.utils.Validators;
+import scala.concurrent.ExecutionContext;
 
 public class HomeActivity extends AppCompatActivity {
 
@@ -127,7 +134,24 @@ public class HomeActivity extends AppCompatActivity {
       EventBus.getDefault().register(this);
     }
     super.onResume();
-    updateBalance(EclairEventService.aggregateBalanceForEvent());
+    pullWalletBalance();
+    EclairEventService.postLNBalanceEvent();
+  }
+
+  private void pullWalletBalance() {
+    Setup s = EclairHelper.getInstance(getBaseContext().getFilesDir()).getSetup();
+    ExecutionContext ec = s.system().dispatcher();
+    s.blockExplorer().getBalance(ec).onComplete(new OnComplete<Satoshi>() {
+      @Override
+      public void onComplete(Throwable t, Satoshi balance) {
+        if (t == null && balance != null) {
+          Log.d(TAG, "Wallet balance is (satoshis) " + balance.amount());
+          EventBus.getDefault().postSticky(new WalletBalanceUpdateEvent(balance));
+        } else {
+          Log.d(TAG, "Could not fetch wallet balance", t);
+        }
+      }
+    }, ec);
   }
 
   @Override
@@ -150,7 +174,7 @@ public class HomeActivity extends AppCompatActivity {
   }
 
   @Override
-  protected void onRestoreInstanceState (Bundle savedInstanceState) {
+  protected void onRestoreInstanceState(Bundle savedInstanceState) {
     mViewPager.setCurrentItem(savedInstanceState.getInt("currentPage"));
   }
 
@@ -198,11 +222,13 @@ public class HomeActivity extends AppCompatActivity {
     mSendButton.setBackgroundTintList(ColorStateList.valueOf(getColor(isVisible ? R.color.colorPrimary : R.color.colorGrey_4)));
     mSendButtonsToggleView.setVisibility(isVisible ? View.GONE : View.VISIBLE);
   }
+
   public void home_closeSendButtons() {
     mSendButton.animate().rotation(0).setDuration(150).start();
     mSendButton.setBackgroundTintList(ColorStateList.valueOf(getColor(R.color.colorPrimary)));
     mSendButtonsToggleView.setVisibility(View.GONE);
   }
+
   public void home_toggleOpenChannelButtons(View view) {
     boolean isVisible = mOpenChannelButtonsToggleView.getVisibility() == View.VISIBLE;
     mOpenChannelButton.animate().rotation(isVisible ? 0 : 135).setDuration(150).start();
@@ -238,12 +264,17 @@ public class HomeActivity extends AppCompatActivity {
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
-  public void onMessageEvent(BalanceUpdateEvent event) {
-    updateBalance(event);
+  public void handleLNBalanceEvent(LNBalanceUpdateEvent event) {
+    updateBalance();
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
-  public void handleFailureEvent(SWPaymenFailedEvent event) {
+  public void handleWalletBalanceEvent(WalletBalanceUpdateEvent event) {
+    updateBalance();
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN)
+  public void handleLNPaymentFailedEvent(LNPaymentFailedEvent event) {
 
     Intent intent = new Intent(this, PaymentFailureActivity.class);
     intent.putExtra(PaymentFailureActivity.EXTRA_PAYMENTFAILURE_DESC, event.payment.description);
@@ -254,26 +285,25 @@ public class HomeActivity extends AppCompatActivity {
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
-  public void onMessageEvent(SWPaymentEvent event) {
-
+  public void handleLNPaymentEvent(LNPaymentEvent event) {
     Intent intent = new Intent(this, PaymentSuccessActivity.class);
     intent.putExtra(PaymentSuccessActivity.EXTRA_PAYMENTSUCCESS_DESC, event.payment.description);
     intent.putExtra(PaymentSuccessActivity.EXTRA_PAYMENTSUCCESS_AMOUNT, (event.payment.amountPaid));
     startActivity(intent);
-
     mPaymentsListFragment.updateList();
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
-  public void onMessageEvent(ChannelUpdateEvent event) {
+  public void handleChannelUpdateEvent(ChannelUpdateEvent event) {
     mChannelsListFragment.updateList();
   }
 
-  private void updateBalance(BalanceUpdateEvent event) {
-    if (EclairEventService.getChannelsMap().size() == 0) {
-      return;
-    }
-    mAvailableBalanceView.setAmountMsat(new MilliSatoshi(event.availableBalanceMsat + event.offlineBalanceMsat + event.pendingBalanceMsat));
+  private void updateBalance() {
+    LNBalanceUpdateEvent lnBalanceEvent = EventBus.getDefault().getStickyEvent(LNBalanceUpdateEvent.class);
+    long lnBalance = lnBalanceEvent == null ? 0 : lnBalanceEvent.total().amount();
+    WalletBalanceUpdateEvent walletBalanceEvent = EventBus.getDefault().getStickyEvent(WalletBalanceUpdateEvent.class);
+    long walletBalance = walletBalanceEvent == null ? 0 : package$.MODULE$.satoshi2millisatoshi(walletBalanceEvent.walletBalance).amount();
+    mAvailableBalanceView.setAmountMsat(new MilliSatoshi(lnBalance + walletBalance));
   }
 
   private class HomePagerAdapter extends FragmentStatePagerAdapter {

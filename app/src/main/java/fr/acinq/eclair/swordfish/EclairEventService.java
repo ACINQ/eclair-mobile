@@ -22,16 +22,15 @@ import fr.acinq.eclair.channel.ChannelSignatureReceived;
 import fr.acinq.eclair.channel.ChannelStateChanged;
 import fr.acinq.eclair.channel.NORMAL;
 import fr.acinq.eclair.channel.OFFLINE;
-import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.payment.PaymentSent;
 import fr.acinq.eclair.router.ChannelDiscovered;
 import fr.acinq.eclair.router.ChannelLost;
 import fr.acinq.eclair.router.NodeDiscovered;
 import fr.acinq.eclair.router.NodeLost;
-import fr.acinq.eclair.swordfish.events.BalanceUpdateEvent;
 import fr.acinq.eclair.swordfish.events.ChannelUpdateEvent;
+import fr.acinq.eclair.swordfish.events.LNBalanceUpdateEvent;
+import fr.acinq.eclair.swordfish.events.LNPaymentEvent;
 import fr.acinq.eclair.swordfish.events.NetworkAnnouncementEvent;
-import fr.acinq.eclair.swordfish.events.SWPaymentEvent;
 import fr.acinq.eclair.swordfish.model.Payment;
 import fr.acinq.eclair.wire.ChannelAnnouncement;
 import fr.acinq.eclair.wire.NodeAnnouncement;
@@ -47,7 +46,7 @@ public class EclairEventService extends UntypedActor {
     return channelDetailsMap;
   }
 
-  public static BalanceUpdateEvent aggregateBalanceForEvent() {
+  public static void postLNBalanceEvent() {
     long availableTotal = 0;
     long pendingTotal = 0;
     long offlineTotal = 0;
@@ -60,7 +59,7 @@ public class EclairEventService extends UntypedActor {
         pendingTotal += d.balanceMsat.amount();
       }
     }
-    return new BalanceUpdateEvent(availableTotal, pendingTotal, offlineTotal);
+    EventBus.getDefault().postSticky(new LNBalanceUpdateEvent(availableTotal, pendingTotal, offlineTotal));
   }
 
   public static MilliSatoshi getBalanceMsatOf(String channelId) {
@@ -98,7 +97,7 @@ public class EclairEventService extends UntypedActor {
       channelDetailsMap.put(cr.channel(), cd);
       context().watch(cr.channel());
       EventBus.getDefault().post(new ChannelUpdateEvent());
-      EventBus.getDefault().post(aggregateBalanceForEvent());
+      postLNBalanceEvent();
     }
     // ---- channel id assigned
     else if (message instanceof ChannelIdAssigned && channelDetailsMap.containsKey(((ChannelIdAssigned) message).channel())) {
@@ -114,7 +113,7 @@ public class EclairEventService extends UntypedActor {
       cd.balanceMsat = new MilliSatoshi(csr.Commitments().localCommit().spec().toLocalMsat());
       cd.capacityMsat = new MilliSatoshi(csr.Commitments().localCommit().spec().totalFunds());
       EventBus.getDefault().post(new ChannelUpdateEvent());
-      EventBus.getDefault().post(aggregateBalanceForEvent());
+      postLNBalanceEvent();
     }
     // ---- channel has been terminated
     else if (message instanceof Terminated) {
@@ -130,7 +129,7 @@ public class EclairEventService extends UntypedActor {
       channelDetailsMap.put(cs.channel(), cd);
       EventBus.getDefault().post(new ChannelUpdateEvent());
       // also post balance event because a change in the  state of the channel matters to the balance
-      EventBus.getDefault().post(aggregateBalanceForEvent());
+      postLNBalanceEvent();
     }
     // ---- events that update payments status
     else if (message instanceof PaymentSent) {
@@ -145,7 +144,7 @@ public class EclairEventService extends UntypedActor {
         paymentInDB.updated = new Date();
         paymentInDB.status = "PAID";
         paymentInDB.save();
-        EventBus.getDefault().post(new SWPaymentEvent(paymentInDB));
+        EventBus.getDefault().post(new LNPaymentEvent(paymentInDB));
       }
     }
     // ---- announcement events
