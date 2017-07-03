@@ -16,13 +16,13 @@
 
     <TextView
       android:id="@+id/channelitem_balance"
-      android:layout_width="64dp"
+      android:layout_width="78dp"
       android:layout_height="wrap_content"
       android:layout_alignParentLeft="true"
       android:layout_centerVertical="true"
       android:ellipsize="end"
       android:maxLines="1"
-      android:text="999.99"
+      android:text="0.00"
       android:textAlignment="textEnd"
       android:textSize="23sp" />
 
