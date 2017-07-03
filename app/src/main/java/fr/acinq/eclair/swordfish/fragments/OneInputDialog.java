@@ -1,4 +1,4 @@
-package fr.acinq.eclair.swordfish.fragment;
+package fr.acinq.eclair.swordfish.fragments;
 
 import android.app.AlertDialog;
 import android.app.Dialog;

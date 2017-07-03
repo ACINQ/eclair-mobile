@@ -24,7 +24,7 @@ import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.io.Switchboard;
 import fr.acinq.eclair.swordfish.EclairHelper;
 import fr.acinq.eclair.swordfish.R;
-import fr.acinq.eclair.swordfish.fragment.OneInputDialog;
+import fr.acinq.eclair.swordfish.fragments.OneInputDialog;
 import fr.acinq.eclair.swordfish.utils.Validators;
 import scala.Option;
 import scala.math.BigDecimal;

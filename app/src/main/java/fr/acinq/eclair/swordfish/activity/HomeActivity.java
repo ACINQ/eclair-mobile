@@ -35,9 +35,9 @@ import fr.acinq.eclair.swordfish.events.BalanceUpdateEvent;
 import fr.acinq.eclair.swordfish.events.ChannelUpdateEvent;
 import fr.acinq.eclair.swordfish.events.SWPaymenFailedEvent;
 import fr.acinq.eclair.swordfish.events.SWPaymentEvent;
-import fr.acinq.eclair.swordfish.fragment.ChannelsListFragment;
-import fr.acinq.eclair.swordfish.fragment.PaymentsListFragment;
-import fr.acinq.eclair.swordfish.fragment.ReceivePaymentFragment;
+import fr.acinq.eclair.swordfish.fragments.ChannelsListFragment;
+import fr.acinq.eclair.swordfish.fragments.PaymentsListFragment;
+import fr.acinq.eclair.swordfish.fragments.ReceivePaymentFragment;
 import fr.acinq.eclair.swordfish.utils.Validators;
 
 public class HomeActivity extends AppCompatActivity {
@@ -231,6 +231,10 @@ public class HomeActivity extends AppCompatActivity {
     Intent intent = new Intent(this, ScanActivity.class);
     intent.putExtra(ScanActivity.EXTRA_SCAN_TYPE, ScanActivity.TYPE_URI);
     startActivity(intent);
+  }
+
+  public void home_doCopyReceptionAddress(View view) {
+    mReceivePaymentFragment.copyReceptionAddress();
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)

@@ -1,8 +1,10 @@
-package fr.acinq.eclair.swordfish;
+package fr.acinq.eclair.swordfish.tasks;
 
 import android.os.AsyncTask;
 
 import java.io.File;
+
+import fr.acinq.eclair.swordfish.EclairHelper;
 
 public class StartupTask extends AsyncTask<String, Integer, Long> {
 
@@ -19,7 +21,6 @@ public class StartupTask extends AsyncTask<String, Integer, Long> {
 
   @Override
   protected Long doInBackground(String... params) {
-
     EclairHelper.getInstance(appFileDir);
     return 1L;
   }
