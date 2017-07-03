@@ -1,28 +1,48 @@
 package fr.acinq.eclair.swordfish;
 
+import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.io.File;
-import java.util.concurrent.TimeoutException;
+import java.net.InetSocketAddress;
 
 import akka.actor.ActorRef;
 import akka.actor.Props;
+import akka.dispatch.OnComplete;
+import akka.pattern.Patterns;
+import akka.util.Timeout;
+import fr.acinq.bitcoin.Crypto;
+import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.eclair.Setup;
 import fr.acinq.eclair.channel.ChannelEvent;
+import fr.acinq.eclair.io.Switchboard;
 import fr.acinq.eclair.payment.PaymentEvent;
+import fr.acinq.eclair.payment.PaymentRequest;
+import fr.acinq.eclair.payment.SendPayment;
 import fr.acinq.eclair.router.NetworkEvent;
+import fr.acinq.eclair.swordfish.activity.LauncherActivity;
+import fr.acinq.eclair.swordfish.events.WalletBalanceUpdateEvent;
+import fr.acinq.eclair.swordfish.utils.CoinUtils;
+import scala.Option;
+import scala.concurrent.ExecutionContext;
+import scala.concurrent.Future;
+import scala.concurrent.duration.Duration;
 
 public class EclairHelper {
   private static final String TAG = "EclairHelper";
   private static EclairHelper mInstance = null;
-  private Setup setup;
   private ActorRef guiUpdater;
+  private Setup setup;
 
-  private EclairHelper() {}
+  private EclairHelper() {
+  }
 
-  private EclairHelper(File f) {
-    Log.i("Eclair Helper", "Accessing Eclair Setup with datadir in " + f.getAbsolutePath());
-    File data = new File(f, "eclair-wallet-data");
+  private EclairHelper(Context context) {
+    Log.i("Eclair Helper", "Accessing Eclair Setup with datadir in " + context.getFilesDir().getAbsolutePath());
+    File data = new File(context.getFilesDir(), "eclair-wallet-data");
     System.setProperty("eclair.node-alias", "sw-ripley");
     try {
       Setup setup = new Setup(data, "system");
@@ -41,17 +61,84 @@ public class EclairHelper {
     return mInstance != null;
   }
 
-  public static EclairHelper getInstance(File f) {
+  public static EclairHelper getInstance(Context context) {
     if (mInstance == null) {
       Class clazz = EclairHelper.class;
       synchronized (clazz) {
-        mInstance = new EclairHelper(f);
+        mInstance = new EclairHelper(context);
       }
     }
     return mInstance;
   }
 
-  public Setup getSetup() {
-    return this.setup;
+  private static boolean isEclairReady(Context context) {
+    if (mInstance == null || mInstance.setup == null) {
+      // eclair is not correctly loaded, clear task and redirection to Launcher
+      Intent intent = new Intent(context, LauncherActivity.class);
+      intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+      intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+      intent.putExtra(LauncherActivity.EXTRA_AUTOSTART, false);
+      context.startActivity(intent);
+      return false;
+    }
+    return true;
+  }
+
+  public static void pullWalletBalance(Context context) {
+    if (isEclairReady(context)) {
+      ExecutionContext ec = mInstance.setup.system().dispatcher();
+      mInstance.setup.blockExplorer().getBalance(ec).onComplete(new OnComplete<Satoshi>() {
+        @Override
+        public void onComplete(Throwable t, Satoshi balance) {
+          if (t == null && balance != null) {
+            Log.d(TAG, "Wallet balance is (satoshis) " + balance.amount());
+            EventBus.getDefault().postSticky(new WalletBalanceUpdateEvent(balance));
+          } else {
+            Log.d(TAG, "Could not fetch wallet balance", t);
+          }
+        }
+      }, ec);
+    }
+  }
+
+  public static void sendPayment(Context context, int timeout, OnComplete<Object> onComplete, PaymentRequest paymentRequest) {
+    if (isEclairReady(context) && paymentRequest != null) {
+      Future<Object> paymentFuture = Patterns.ask(
+        mInstance.setup.paymentInitiator(),
+        new SendPayment(CoinUtils.getLongAmountFromInvoice(paymentRequest), paymentRequest.paymentHash(), paymentRequest.nodeId(), 5),
+        new Timeout(Duration.create(timeout, "seconds")));
+      paymentFuture.onComplete(onComplete, mInstance.setup.system().dispatcher());
+    }
+  }
+
+  public static void openChannel(Context context, int timeout, OnComplete<Object> onComplete, Crypto.PublicKey publicKey, InetSocketAddress address, Switchboard.NewChannel channel) {
+    if (isEclairReady(context) && publicKey != null && address != null && channel != null) {
+      Future<Object> openChannelFuture = Patterns.ask(
+        mInstance.setup.switchboard(),
+        new Switchboard.NewConnection(publicKey, address, Option.apply(channel)),
+        new Timeout(Duration.create(timeout, "seconds")));
+      openChannelFuture.onComplete(onComplete, mInstance.setup.system().dispatcher());
+    }
+  }
+
+  public static String nodeAlias(Context context) {
+    if (isEclairReady(context)) {
+      return mInstance.setup.nodeParams().alias();
+    }
+    return "Unknown";
+  }
+
+  public static String nodePublicKey(Context context) {
+    if (isEclairReady(context)) {
+      return mInstance.setup.nodeParams().privateKey().publicKey().toBin().toString();
+    }
+    return "Unknown";
+  }
+
+  public static String getWalletPublicAddress(Context context) {
+    if (isEclairReady(context)) {
+      return mInstance.setup.blockExplorer().addr();
+    }
+    return "Unknown";
   }
 }

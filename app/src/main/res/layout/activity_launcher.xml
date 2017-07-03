@@ -8,7 +8,7 @@
   android:padding="16dp">
 
   <TextView
-    android:id="@+id/textView"
+    android:id="@+id/launcher_title"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="8dp"
@@ -18,10 +18,20 @@
     android:textSize="36sp" />
 
   <TextView
-    android:id="@+id/filecontent"
+    android:id="@+id/launcher_subtitle"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:text="Please Wait..."
     android:textAlignment="center"
     android:textColor="@color/colorPrimaryLight" />
+
+  <Button
+    android:id="@+id/launcher_restart"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="Restart"
+    android:layout_margin="16dp"
+    android:background="@android:color/transparent"
+    android:textColor="@color/white"
+    android:drawableLeft="@drawable/ic_refresh_white_24dp"/>
 </LinearLayout>

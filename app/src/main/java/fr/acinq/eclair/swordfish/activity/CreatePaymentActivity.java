@@ -14,25 +14,17 @@ import java.io.File;
 import java.util.Date;
 import java.util.List;
 
-import akka.actor.ActorRef;
 import akka.dispatch.OnComplete;
-import akka.pattern.Patterns;
-import akka.util.Timeout;
-import fr.acinq.bitcoin.Crypto;
 import fr.acinq.eclair.crypto.Sphinx;
 import fr.acinq.eclair.payment.PaymentFailed;
 import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.payment.PaymentSucceeded;
-import fr.acinq.eclair.payment.SendPayment;
 import fr.acinq.eclair.swordfish.EclairHelper;
 import fr.acinq.eclair.swordfish.R;
 import fr.acinq.eclair.swordfish.customviews.CoinAmountView;
 import fr.acinq.eclair.swordfish.events.LNPaymentFailedEvent;
 import fr.acinq.eclair.swordfish.model.Payment;
 import fr.acinq.eclair.swordfish.utils.CoinUtils;
-import scala.concurrent.ExecutionContext;
-import scala.concurrent.Future;
-import scala.concurrent.duration.Duration;
 
 public class CreatePaymentActivity extends Activity {
 
@@ -95,17 +87,8 @@ public class CreatePaymentActivity extends Activity {
             return;
           }
 
-          // 2 - prepare payment future ask
-          Timeout paymentTimeout = new Timeout(Duration.create(45, "seconds"));
-          ActorRef paymentInitiator = EclairHelper.getInstance(datadir).getSetup().paymentInitiator();
-          Crypto.PublicKey publicKey = pr.nodeId();
-          ExecutionContext ec = EclairHelper.getInstance(datadir).getSetup().system().dispatcher();
-
-          // 3 - execute payment future and handle result
-          Future<Object> paymentFuture = Patterns.ask(paymentInitiator,
-            new SendPayment(CoinUtils.getLongAmountFromInvoice(pr), pr.paymentHash(), publicKey, 5),
-            paymentTimeout);
-          paymentFuture.onComplete(new OnComplete<Object>() {
+          // 2 - setup future callback
+          OnComplete<Object> onComplete = new OnComplete<Object>() {
             @Override
             public void onComplete(Throwable t, Object o) {
               List<Payment> freshPaymentListForH = Payment.findWithQuery(Payment.class, "SELECT * FROM Payment WHERE payment_hash = ? LIMIT 1",
@@ -138,7 +121,10 @@ public class CreatePaymentActivity extends Activity {
                 }
               }
             }
-          }, ec);
+          };
+
+          // 3 - execute payment future
+          EclairHelper.sendPayment(getApplicationContext(), 45, onComplete, pr);
         }
       }
     );

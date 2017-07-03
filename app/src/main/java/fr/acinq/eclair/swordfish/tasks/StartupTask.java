@@ -1,32 +1,31 @@
 package fr.acinq.eclair.swordfish.tasks;
 
+import android.content.Context;
 import android.os.AsyncTask;
-
-import java.io.File;
 
 import fr.acinq.eclair.swordfish.EclairHelper;
 
 public class StartupTask extends AsyncTask<String, Integer, Long> {
 
-  public interface AsyncSetupResponse {
-    void processFinish(String output);
-  }
   private AsyncSetupResponse delegate;
-  private File appFileDir;
-
-  public StartupTask(AsyncSetupResponse delegate, File appFileDir){
+  private Context context;
+  public StartupTask(AsyncSetupResponse delegate, Context context) {
     this.delegate = delegate;
-    this.appFileDir = appFileDir;
+    this.context = context;
   }
 
   @Override
   protected Long doInBackground(String... params) {
-    EclairHelper.getInstance(appFileDir);
+    EclairHelper.getInstance(context);
     return 1L;
   }
 
   protected void onPostExecute(Long result) {
     delegate.processFinish("done");
+  }
+
+  public interface AsyncSetupResponse {
+    void processFinish(String output);
   }
 
 }

@@ -15,8 +15,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import fr.acinq.eclair.swordfish.EclairHelper;
-import fr.acinq.eclair.swordfish.tasks.QRCodeTask;
 import fr.acinq.eclair.swordfish.R;
+import fr.acinq.eclair.swordfish.tasks.QRCodeTask;
 
 public class ReceivePaymentFragment extends Fragment implements QRCodeTask.AsyncQRCodeResponse {
   private static final String TAG = "ReceivePayment";
@@ -43,7 +43,7 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
   @Override
   public void onStart() {
     super.onStart();
-    address = EclairHelper.getInstance(getContext().getFilesDir()).getSetup().blockExplorer().addr();
+    address = EclairHelper.getWalletPublicAddress(getContext());
     mAddressTextView.setText(address);
     new QRCodeTask(this, address, 1000, 1000).execute();
   }

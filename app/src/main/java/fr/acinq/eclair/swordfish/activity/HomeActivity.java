@@ -13,7 +13,6 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -27,17 +26,16 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.util.ArrayList;
 import java.util.List;
 
-import akka.dispatch.OnComplete;
 import fr.acinq.bitcoin.MilliSatoshi;
-import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.bitcoin.package$;
-import fr.acinq.eclair.Setup;
 import fr.acinq.eclair.swordfish.EclairEventService;
 import fr.acinq.eclair.swordfish.EclairHelper;
 import fr.acinq.eclair.swordfish.R;
 import fr.acinq.eclair.swordfish.customviews.CoinAmountView;
 import fr.acinq.eclair.swordfish.events.ChannelUpdateEvent;
 import fr.acinq.eclair.swordfish.events.LNBalanceUpdateEvent;
+import fr.acinq.eclair.swordfish.events.LNNewChannelFailureEvent;
+import fr.acinq.eclair.swordfish.events.LNNewChannelOpenedEvent;
 import fr.acinq.eclair.swordfish.events.LNPaymentEvent;
 import fr.acinq.eclair.swordfish.events.LNPaymentFailedEvent;
 import fr.acinq.eclair.swordfish.events.WalletBalanceUpdateEvent;
@@ -45,11 +43,12 @@ import fr.acinq.eclair.swordfish.fragments.ChannelsListFragment;
 import fr.acinq.eclair.swordfish.fragments.PaymentsListFragment;
 import fr.acinq.eclair.swordfish.fragments.ReceivePaymentFragment;
 import fr.acinq.eclair.swordfish.utils.Validators;
-import scala.concurrent.ExecutionContext;
 
 public class HomeActivity extends AppCompatActivity {
 
   private static final String TAG = "Home Activity";
+  public static final String EXTRA_PAGE = "fr.acinq.eclair.swordfish.EXTRA_PAGE";
+
   private ViewPager mViewPager;
   private HomePagerAdapter mPagerAdapter;
   private PaymentsListFragment mPaymentsListFragment;
@@ -115,7 +114,8 @@ public class HomeActivity extends AppCompatActivity {
     if (savedInstanceState != null && savedInstanceState.containsKey("currentPage")) {
       mViewPager.setCurrentItem(savedInstanceState.getInt("currentPage"));
     } else {
-      mViewPager.setCurrentItem(1);
+      Intent intent = getIntent();
+      mViewPager.setCurrentItem(intent.getIntExtra(EXTRA_PAGE, 1));
     }
   }
 
@@ -134,24 +134,8 @@ public class HomeActivity extends AppCompatActivity {
       EventBus.getDefault().register(this);
     }
     super.onResume();
-    pullWalletBalance();
+    EclairHelper.pullWalletBalance(getBaseContext());
     EclairEventService.postLNBalanceEvent();
-  }
-
-  private void pullWalletBalance() {
-    Setup s = EclairHelper.getInstance(getBaseContext().getFilesDir()).getSetup();
-    ExecutionContext ec = s.system().dispatcher();
-    s.blockExplorer().getBalance(ec).onComplete(new OnComplete<Satoshi>() {
-      @Override
-      public void onComplete(Throwable t, Satoshi balance) {
-        if (t == null && balance != null) {
-          Log.d(TAG, "Wallet balance is (satoshis) " + balance.amount());
-          EventBus.getDefault().postSticky(new WalletBalanceUpdateEvent(balance));
-        } else {
-          Log.d(TAG, "Could not fetch wallet balance", t);
-        }
-      }
-    }, ec);
   }
 
   @Override
@@ -296,6 +280,16 @@ public class HomeActivity extends AppCompatActivity {
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void handleChannelUpdateEvent(ChannelUpdateEvent event) {
     mChannelsListFragment.updateList();
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN)
+  public void handleNewChannelSuccessfullyOpened(LNNewChannelOpenedEvent event) {
+    Toast.makeText(this, "Opened channel with " + event.targetNode.substring(0, 7) + "...", Toast.LENGTH_SHORT);
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN)
+  public void handleNewChannelSuccessfullyOpened(LNNewChannelFailureEvent event) {
+    Toast.makeText(this, "Failed to open channel: " + event.cause, Toast.LENGTH_LONG);
   }
 
   private void updateBalance() {
