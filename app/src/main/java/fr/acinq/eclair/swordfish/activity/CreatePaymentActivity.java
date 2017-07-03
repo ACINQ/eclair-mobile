@@ -86,7 +86,7 @@ public class CreatePaymentActivity extends Activity {
             p.paymentHash = pr.paymentHash().toString();
             p.paymentRequest = prAsString;
             p.status = "PENDING";
-            p.description = "Placeholder";
+            p.description = pr.description().isLeft() ? pr.description().left().get() : pr.description().right().get().toString();
             p.created = new Date();
             p.updated = new Date();
             p.save();
