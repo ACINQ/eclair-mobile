@@ -46,7 +46,7 @@ public class QRCodeTask extends AsyncTask<String, Integer, Bitmap> {
       for (int j = 0; j < height; j++) {
         final int offset = j * width;
         for (int i = 0; i < width; i++) {
-          pixels[offset + i] = matrix.get(i, j) ? Color.BLACK : Color.WHITE;
+          pixels[offset + i] = matrix.get(i, j) ? Color.BLACK : 0x00ffffff;
         }
       }
       return Bitmap.createBitmap(pixels, width, height, Bitmap.Config.ARGB_8888);
