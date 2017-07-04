@@ -128,10 +128,6 @@ public class CreatePaymentActivity extends Activity {
         }
       }
     );
-    Intent intent = new Intent(this, HomeActivity.class);
-    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-    startActivity(intent);
     finish();
   }
 
