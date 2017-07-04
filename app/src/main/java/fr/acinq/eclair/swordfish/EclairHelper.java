@@ -41,38 +41,40 @@ public class EclairHelper {
   }
 
   private EclairHelper(Context context) {
-    Log.i("Eclair Helper", "Accessing Eclair Setup with datadir in " + context.getFilesDir().getAbsolutePath());
-    File data = new File(context.getFilesDir(), "eclair-wallet-data");
-    System.setProperty("eclair.node-alias", "sw-ripley");
     try {
-      Setup setup = new Setup(data, "system");
-      this.setup = setup;
-      this.guiUpdater = this.setup.system().actorOf(Props.create(EclairEventService.class));
+      Log.i("Eclair Helper", "Accessing Eclair Setup with datadir in " + context.getFilesDir().getAbsolutePath());
+      File data = new File(context.getFilesDir(), "eclair-wallet-data");
+      System.setProperty("eclair.node-alias", "sw-ripley");
+
+      setup = new Setup(data, "system");
+      guiUpdater = this.setup.system().actorOf(Props.create(EclairEventService.class));
       setup.system().eventStream().subscribe(guiUpdater, ChannelEvent.class);
       setup.system().eventStream().subscribe(guiUpdater, PaymentEvent.class);
       setup.system().eventStream().subscribe(guiUpdater, NetworkEvent.class);
       setup.boostrap();
+
     } catch (Exception e) {
       Log.e(TAG, "Failed to start eclair", e);
+      if (setup != null) {
+        setup.system().shutdown();
+        setup.system().awaitTermination();
+        setup = null;
+        mInstance = null;
+      }
     }
   }
 
-  public static boolean hasInstance() {
-    return mInstance != null;
-  }
-
-  public static EclairHelper getInstance(Context context) {
-    if (mInstance == null) {
+  public static void startup(Context context) {
+    if (!isEclairReady()) {
       Class clazz = EclairHelper.class;
       synchronized (clazz) {
         mInstance = new EclairHelper(context);
       }
     }
-    return mInstance;
   }
 
-  private static boolean isEclairReady(Context context) {
-    if (mInstance == null || mInstance.setup == null) {
+  private static boolean checkEclairReady(Context context) {
+    if (!isEclairReady()) {
       // eclair is not correctly loaded, clear task and redirection to Launcher
       Intent intent = new Intent(context, LauncherActivity.class);
       intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -84,8 +86,12 @@ public class EclairHelper {
     return true;
   }
 
+  public static boolean isEclairReady() {
+    return mInstance != null && mInstance.setup != null;
+  }
+
   public static void pullWalletBalance(Context context) {
-    if (isEclairReady(context)) {
+    if (checkEclairReady(context)) {
       ExecutionContext ec = mInstance.setup.system().dispatcher();
       mInstance.setup.blockExplorer().getBalance(ec).onComplete(new OnComplete<Satoshi>() {
         @Override
@@ -102,7 +108,7 @@ public class EclairHelper {
   }
 
   public static void sendPayment(Context context, int timeout, OnComplete<Object> onComplete, PaymentRequest paymentRequest) {
-    if (isEclairReady(context) && paymentRequest != null) {
+    if (checkEclairReady(context) && paymentRequest != null) {
       Future<Object> paymentFuture = Patterns.ask(
         mInstance.setup.paymentInitiator(),
         new SendPayment(CoinUtils.getLongAmountFromInvoice(paymentRequest), paymentRequest.paymentHash(), paymentRequest.nodeId(), 5),
@@ -112,7 +118,7 @@ public class EclairHelper {
   }
 
   public static void openChannel(Context context, int timeout, OnComplete<Object> onComplete, Crypto.PublicKey publicKey, InetSocketAddress address, Switchboard.NewChannel channel) {
-    if (isEclairReady(context) && publicKey != null && address != null && channel != null) {
+    if (checkEclairReady(context) && publicKey != null && address != null && channel != null) {
       Future<Object> openChannelFuture = Patterns.ask(
         mInstance.setup.switchboard(),
         new Switchboard.NewConnection(publicKey, address, Option.apply(channel)),
@@ -122,21 +128,21 @@ public class EclairHelper {
   }
 
   public static String nodeAlias(Context context) {
-    if (isEclairReady(context)) {
+    if (checkEclairReady(context)) {
       return mInstance.setup.nodeParams().alias();
     }
     return "Unknown";
   }
 
   public static String nodePublicKey(Context context) {
-    if (isEclairReady(context)) {
+    if (checkEclairReady(context)) {
       return mInstance.setup.nodeParams().privateKey().publicKey().toBin().toString();
     }
     return "Unknown";
   }
 
   public static String getWalletPublicAddress(Context context) {
-    if (isEclairReady(context)) {
+    if (checkEclairReady(context)) {
       return mInstance.setup.blockExplorer().addr();
     }
     return "Unknown";

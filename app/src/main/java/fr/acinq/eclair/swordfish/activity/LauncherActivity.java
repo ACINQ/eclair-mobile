@@ -6,7 +6,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import fr.acinq.eclair.swordfish.EclairHelper;
 import fr.acinq.eclair.swordfish.R;
@@ -31,13 +30,17 @@ public class LauncherActivity extends AppCompatActivity implements StartupTask.A
     if (intent.getBooleanExtra(EXTRA_AUTOSTART, true)) {
       initEclair();
     } else {
-      mSubtitleTextView.setText("Eclair could not be started.");
-      mRestartButton.setVisibility(View.VISIBLE);
+      showRestart();
     }
   }
 
   public void launcher_restart(View view) {
     initEclair();
+  }
+
+  private void showRestart() {
+    mSubtitleTextView.setText("Eclair could not be started.");
+    mRestartButton.setVisibility(View.VISIBLE);
   }
 
   private void initEclair() {
@@ -47,13 +50,13 @@ public class LauncherActivity extends AppCompatActivity implements StartupTask.A
   }
 
   @Override
-  public void processFinish(String output) {
-    if (EclairHelper.hasInstance()) {
+  public void processFinish() {
+    if (EclairHelper.isEclairReady()) {
       Intent intent = new Intent(this, HomeActivity.class);
       startActivity(intent);
       finish();
     } else {
-      Toast.makeText(this, "Could not start eclair", Toast.LENGTH_LONG).show();
+      showRestart();
     }
   }
 }

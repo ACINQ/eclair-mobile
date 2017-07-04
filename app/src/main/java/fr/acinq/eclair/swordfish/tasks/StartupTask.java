@@ -16,16 +16,16 @@ public class StartupTask extends AsyncTask<String, Integer, Long> {
 
   @Override
   protected Long doInBackground(String... params) {
-    EclairHelper.getInstance(context);
+    EclairHelper.startup(context);
     return 1L;
   }
 
   protected void onPostExecute(Long result) {
-    delegate.processFinish("done");
+    delegate.processFinish();
   }
 
   public interface AsyncSetupResponse {
-    void processFinish(String output);
+    void processFinish();
   }
 
 }

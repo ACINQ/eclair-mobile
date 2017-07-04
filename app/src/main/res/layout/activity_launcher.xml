@@ -1,38 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="match_parent"
   android:layout_height="match_parent"
-  android:background="@color/colorPrimary"
-  android:gravity="center"
-  android:orientation="vertical"
-  android:padding="16dp">
+  android:background="@color/colorPrimary">
 
-  <TextView
-    android:id="@+id/launcher_title"
+  <LinearLayout
+    android:id="@+id/launcher_header"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="8dp"
-    android:text="Swordfish"
-    android:textAlignment="center"
-    android:textColor="@android:color/white"
-    android:textSize="36sp" />
+    android:layout_centerVertical="true"
+    android:orientation="vertical"
+    android:padding="16dp">
 
-  <TextView
-    android:id="@+id/launcher_subtitle"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="Please Wait..."
-    android:textAlignment="center"
-    android:textColor="@color/colorPrimaryLight" />
+    <TextView
+      android:id="@+id/launcher_title"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginBottom="8dp"
+      android:text="Swordfish"
+      android:textAlignment="center"
+      android:textColor="@android:color/white"
+      android:textSize="36sp" />
+
+    <TextView
+      android:id="@+id/launcher_subtitle"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:textAlignment="center"
+      android:textColor="@color/colorPrimaryLight" />
+  </LinearLayout>
 
   <Button
     android:id="@+id/launcher_restart"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_margin="16dp"
+    android:layout_below="@+id/launcher_header"
+    android:layout_centerHorizontal="true"
     android:background="@android:color/transparent"
     android:drawableLeft="@drawable/ic_refresh_white_24dp"
     android:onClick="launcher_restart"
     android:text="Restart"
-    android:textColor="@color/white" />
-</LinearLayout>
+    android:textColor="@color/white"
+    android:visibility="gone" />
+</RelativeLayout>

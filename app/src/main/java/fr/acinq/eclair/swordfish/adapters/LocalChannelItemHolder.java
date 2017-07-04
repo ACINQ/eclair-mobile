@@ -45,7 +45,7 @@ public class LocalChannelItemHolder extends RecyclerView.ViewHolder implements V
     status.setText(channelItem.status);
     if (NORMAL.toString().equals(channelItem.status)) {
       status.setTextColor(ACTIVE_COLOR);
-    } else if (OFFLINE.toString().equals(channelItem.status)) {
+    } else if (OFFLINE.toString().equals(channelItem.status) || channelItem.status.startsWith("ERR_")) {
       status.setTextColor(OFFLINE_COLOR);
     } else {
       status.setTextColor(WAITING_COLOR);

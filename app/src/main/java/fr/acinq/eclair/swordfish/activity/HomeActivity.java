@@ -120,15 +120,6 @@ public class HomeActivity extends AppCompatActivity {
   }
 
   @Override
-  public void onStart() {
-    super.onStart();
-    if (!EclairHelper.hasInstance()) {
-      startActivity(new Intent(this, LauncherActivity.class));
-      finish();
-    }
-  }
-
-  @Override
   public void onResume() {
     if (!EventBus.getDefault().isRegistered(this)) {
       EventBus.getDefault().register(this);
@@ -153,8 +144,8 @@ public class HomeActivity extends AppCompatActivity {
 
   @Override
   protected void onSaveInstanceState(Bundle bundle) {
-    super.onSaveInstanceState(bundle);
     bundle.putInt("currentPage", mViewPager.getCurrentItem());
+    super.onSaveInstanceState(bundle);
   }
 
   @Override
