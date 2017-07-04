@@ -29,9 +29,10 @@
     android:id="@+id/launcher_restart"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:text="Restart"
     android:layout_margin="16dp"
     android:background="@android:color/transparent"
-    android:textColor="@color/white"
-    android:drawableLeft="@drawable/ic_refresh_white_24dp"/>
+    android:drawableLeft="@drawable/ic_refresh_white_24dp"
+    android:onClick="launcher_restart"
+    android:text="Restart"
+    android:textColor="@color/white" />
 </LinearLayout>
