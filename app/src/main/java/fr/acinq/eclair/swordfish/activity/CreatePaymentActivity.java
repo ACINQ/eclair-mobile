@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.greenrobot.eventbus.EventBus;
@@ -15,6 +16,7 @@ import java.util.Date;
 import java.util.List;
 
 import akka.dispatch.OnComplete;
+import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.eclair.crypto.Sphinx;
 import fr.acinq.eclair.payment.PaymentFailed;
 import fr.acinq.eclair.payment.PaymentRequest;
@@ -25,6 +27,7 @@ import fr.acinq.eclair.swordfish.customviews.CoinAmountView;
 import fr.acinq.eclair.swordfish.events.LNPaymentFailedEvent;
 import fr.acinq.eclair.swordfish.model.Payment;
 import fr.acinq.eclair.swordfish.utils.CoinUtils;
+import scala.util.Either;
 
 public class CreatePaymentActivity extends Activity {
 
@@ -38,13 +41,16 @@ public class CreatePaymentActivity extends Activity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_create_payment);
-    CoinAmountView v_amount = (CoinAmountView) findViewById(R.id.payment__value_amount);
+    CoinAmountView amountView = (CoinAmountView) findViewById(R.id.payment_value_amount);
+    TextView descriptionView = (TextView) findViewById(R.id.payment_description);
 
     Intent intent = getIntent();
     currentPrAsString = intent.getStringExtra(EXTRA_INVOICE);
     try {
       PaymentRequest extract = PaymentRequest.read(currentPrAsString);
-      v_amount.setAmountMsat(CoinUtils.getAmountFromInvoice(extract));
+      amountView.setAmountMsat(CoinUtils.getAmountFromInvoice(extract));
+      Either<String, BinaryData> desc = extract.description();
+      descriptionView.setText(desc.isLeft() ? desc.left().get() : desc.right().get().toString());
       currentPR = extract;
     } catch (Throwable t) {
       Toast.makeText(this, "Invalid Invoice", Toast.LENGTH_LONG).show();
@@ -133,8 +139,8 @@ public class CreatePaymentActivity extends Activity {
 
   private void toggleButtons() {
     if (isProcessingPayment) {
-      this.findViewById(R.id.payment__layout_buttons).setVisibility(View.GONE);
-      this.findViewById(R.id.payment__layout_feedback).setVisibility(View.VISIBLE);
+      this.findViewById(R.id.payment_layout_buttons).setVisibility(View.GONE);
+      this.findViewById(R.id.payment_layout_feedback).setVisibility(View.VISIBLE);
     }
   }
 

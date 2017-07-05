@@ -16,7 +16,6 @@
     android:paddingTop="32dp">
 
     <TextView
-      android:id="@+id/payment__lbl_pr_amount"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:layout_marginBottom="6dp"
@@ -26,12 +25,12 @@
       android:textSize="12sp" />
 
     <fr.acinq.eclair.swordfish.customviews.CoinAmountView
-      android:id="@+id/payment__value_amount"
+      android:id="@+id/payment_value_amount"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
+      app:alignment="center"
       app:amount_color="@color/colorGrey_4"
       app:amount_size="48sp"
-      app:alignment="center"
       app:unit="mBTC"
       app:unit_color="@color/colorGrey_4"
       app:unit_size="12sp" />
@@ -44,35 +43,60 @@
     android:background="@color/colorGrey_0p" />
 
   <LinearLayout
-    android:id="@+id/payment__layout_buttons"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
+    android:background="@color/white"
+    android:orientation="vertical"
     android:padding="16dp">
 
+    <TextView
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="Description"
+      android:textStyle="bold" />
+
+    <TextView
+      android:id="@+id/payment_description"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:ellipsize="end"
+      android:maxLines="2"
+      android:text="Description of the payment"
+      android:textSize="12sp" />
+
+  </LinearLayout>
+
+  <LinearLayout
+    android:id="@+id/payment_layout_buttons"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:orientation="horizontal">
+
     <Button
-      android:id="@+id/payment__btn_cancel"
+      android:id="@+id/payment_btn_cancel"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_weight="1"
       android:background="@android:color/transparent"
       android:onClick="cancelPayment"
+      android:padding="16dp"
       android:text="@string/btn_cancel"
       android:textColor="@color/colorGrey_1" />
 
     <Button
-      android:id="@+id/payment__btn_send"
+      android:id="@+id/payment_btn_send"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_weight="1"
-      android:backgroundTint="@color/colorPrimary"
+      android:background="@android:color/transparent"
       android:onClick="sendPayment"
       android:text="@string/payment__btn_send"
-      android:textColor="@color/white" />
+      android:textColor="@color/green" />
   </LinearLayout>
 
   <LinearLayout
-    android:id="@+id/payment__layout_feedback"
+    android:id="@+id/payment_layout_feedback"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
@@ -80,7 +104,7 @@
     android:visibility="gone">
 
     <TextView
-      android:id="@+id/payment__value_feedback"
+      android:id="@+id/payment_value_feedback"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:text="@string/payment__label_pending"

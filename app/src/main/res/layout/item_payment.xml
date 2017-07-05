@@ -30,6 +30,8 @@
           android:id="@+id/payment_item_description"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
+          android:maxLines="1"
+          android:ellipsize="end"
           android:text="Name"
           android:textSize="12sp" />
 
