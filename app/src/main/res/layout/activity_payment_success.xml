@@ -1,49 +1,60 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:app="http://schemas.android.com/apk/res-auto"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:tools="http://schemas.android.com/tools"
   android:layout_width="match_parent"
   android:layout_height="match_parent"
   android:background="@color/green"
   android:clickable="true"
-  android:gravity="center"
   android:onClick="success_dismiss"
-  android:orientation="vertical"
-  android:padding="32dp"
+  android:padding="64dp"
   tools:context="fr.acinq.eclair.swordfish.activity.PaymentSuccessActivity">
 
-  <ImageView
-    android:layout_width="32dp"
-    android:layout_height="32dp"
-    android:background="@drawable/ic_done_white_24dp" />
-
-  <LinearLayout
-    android:layout_width="match_parent"
+  <RelativeLayout
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_margin="32dp"
-    android:background="@drawable/rounded_corner_white"
-    android:elevation="2dp"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:layout_centerInParent="true">
 
-    <fr.acinq.eclair.swordfish.customviews.CoinAmountView
-      android:id="@+id/paymentsuccess_amount"
+    <ImageView
+      android:id="@+id/paymentsuccess_circle"
+      android:layout_width="128dp"
+      android:layout_height="128dp"
+      android:layout_centerHorizontal="true"
+      android:background="@drawable/icon_circle_white" />
+
+    <ImageView
+      android:id="@+id/paymentsuccess_check"
+      android:layout_width="128dp"
+      android:layout_height="128dp"
+      android:layout_centerHorizontal="true"
+      android:background="@drawable/icon_check_nocircle_white" />
+
+    <TextView
+      android:id="@+id/paymentsuccess_title"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      app:alignment="left"
-      app:amount_color="@color/green"
-      app:amount_size="24sp"
-      app:unit="mBTC"
-      app:unit_color="@color/green"
-      app:unit_size="10sp" />
+      android:layout_below="@+id/paymentsuccess_circle"
+      android:layout_centerHorizontal="true"
+      android:layout_marginTop="16dp"
+      android:text="Payment sent!"
+      android:textAllCaps="true"
+      android:textColor="@color/white"
+      android:textSize="18sp"
+      android:textStyle="bold" />
 
     <TextView
       android:id="@+id/paymentsuccess_desc"
-      android:layout_width="match_parent"
+      android:layout_width="wrap_content"
       android:layout_height="wrap_content"
+      android:layout_below="@+id/paymentsuccess_title"
+      android:layout_centerHorizontal="true"
       android:layout_marginTop="8dp"
-      android:text="One cup of coffee"
-      android:textColor="@color/colorGrey_1"
+      android:alpha="0.8"
+      android:ellipsize="end"
+      android:maxLines="3"
+      android:text="@string/unknown"
+      android:textColor="@color/white"
       android:textSize="12sp" />
 
-  </LinearLayout>
-</LinearLayout>
+  </RelativeLayout>
+
+
+</RelativeLayout>

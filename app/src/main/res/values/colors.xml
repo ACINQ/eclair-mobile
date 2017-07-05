@@ -18,7 +18,7 @@
   <color name="yellow">#ffe88a</color>
   <color name="orange">#ffb81c</color>
   <color name="red">#cd1e56</color>
-  <color name="darkred">#b21b1e</color>
+  <color name="failurebg">#ca4747</color>
   <color name="lightred">#ffe0e2</color>
   <color name="white">#ffffff</color>
   <color name="black">#000000</color>
