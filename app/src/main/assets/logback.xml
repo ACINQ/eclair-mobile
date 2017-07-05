@@ -8,8 +8,11 @@
     </encoder>
   </appender>
 
-  <logger name="com.ning.http.client.providers.netty" level="WARN"/>
-  <logger name="fr.acinq.eclair.crypto" level="INFO"/>
+  <logger name="com.ning.http.client.providers.netty" level="WARN" />
+  <logger name="fr.acinq.eclair.crypto" level="INFO" />
+  <logger name="org.bitcoinj" level="INFO" />
+  <logger name="org.bitcoinj.core.PeerGroup" level="WARN" />
+  <logger name="org.bitcoinj.core.PeerSocketHandler" level="WARN" />
 
   <root level="DEBUG">
     <appender-ref ref="logcat" />
