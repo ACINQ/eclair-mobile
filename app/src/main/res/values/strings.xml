@@ -6,12 +6,12 @@
   <string name="home_onchain_balance">WALLET:</string>
   <string name="home_offchain_balance">LIGHTNING:</string>
   <string name="home_balance_available">Offchain Spendable</string>
-  <string name="payments_empty">No payments has been made yet...\nSend a payment by scanning an LN invoice.</string>
+  <string name="payments_empty">No payments has been made yet…\nSend a payment by scanning an LN invoice.</string>
   <string name="payment__lbl_pr">Enter a LN Payment Request:</string>
   <string name="payment__lbl_pr_amount">Amount to send</string>
   <string name="payment__btn_send">Send Payment</string>
-  <string name="payment__label_pending">Please wait... Payment is being sent.</string>
-  <string name="localchannels_empty">No channels open yet...\nYou can open a new channel by clicking on the button below.</string>
+  <string name="payment__label_pending">Please wait… Payment is being sent.</string>
+  <string name="localchannels_empty">No open channels yet…\nYou can open a new channel by clicking on the button below.</string>
 
   <!-- //////////////// fund /////////////////// -->
 
@@ -29,7 +29,7 @@
   <string name="unknown">N/A</string>
   <string name="btn_ok">OK</string>
   <string name="btn_cancel">Cancel</string>
-  <string name="pending">Fetching Datas...</string>
+  <string name="pending">Fetching Datas…</string>
 
   <!-- /////////////// menu_home /////////////// -->
   <string name="menu_home">Home</string>

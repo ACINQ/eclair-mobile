@@ -13,14 +13,15 @@
     android:layout_alignParentTop="true"
     android:layout_centerHorizontal="true"
     android:background="@color/colorGrey_0"
+    android:maxLines="1"
     android:paddingBottom="8dp"
     android:paddingLeft="16dp"
     android:paddingRight="16dp"
     android:paddingTop="16dp"
-    android:text="Receive a payment"
+    android:text="Use this address to receive bitcoins"
     android:textAllCaps="true"
-    android:textColor="@color/colorGrey_1"
-    android:textSize="12sp" />
+    android:textColor="@color/colorGrey_2"
+    android:textSize="10sp" />
 
   <ImageView
     android:id="@+id/receivepayment_qr"
@@ -40,10 +41,10 @@
     android:layout_height="wrap_content"
     android:layout_below="@+id/receivepayment_qr"
     android:layout_centerHorizontal="true"
-    android:padding="16dp"
     android:clickable="true"
     android:fontFamily="monospace"
     android:onClick="home_doCopyReceptionAddress"
+    android:padding="16dp"
     android:text="@string/unknown"
     android:textIsSelectable="true"
     android:textSize="12sp" />

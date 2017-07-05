@@ -12,14 +12,15 @@
     android:layout_alignParentTop="true"
     android:layout_centerHorizontal="true"
     android:background="@color/colorGrey_0"
+    android:maxLines="1"
     android:paddingBottom="8dp"
     android:paddingLeft="16dp"
     android:paddingRight="16dp"
     android:paddingTop="16dp"
     android:text="Opened Lightning Channels:"
     android:textAllCaps="true"
-    android:textColor="@color/colorGrey_1"
-    android:textSize="12sp" />
+    android:textColor="@color/colorGrey_2"
+    android:textSize="10sp" />
 
   <TextView
     android:id="@+id/localchannels_empty"
