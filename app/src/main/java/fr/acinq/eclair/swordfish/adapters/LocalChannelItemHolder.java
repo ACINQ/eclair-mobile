@@ -28,7 +28,7 @@ public class LocalChannelItemHolder extends RecyclerView.ViewHolder implements V
 
   public LocalChannelItemHolder(View itemView) {
     super(itemView);
-    this.state = (TextView) itemView.findViewById(R.id.channelitem_status);
+    this.state = (TextView) itemView.findViewById(R.id.channelitem_state);
     this.balance = (TextView) itemView.findViewById(R.id.channelitem_balance);
     this.node = (TextView) itemView.findViewById(R.id.channelitem_node);
     itemView.setOnClickListener(this);
@@ -50,7 +50,7 @@ public class LocalChannelItemHolder extends RecyclerView.ViewHolder implements V
       state.setTextColor(OFFLINE_COLOR);
     } else {
       if (CLOSING.toString().equals(channelItem.state)) {
-        state.setText(channelItem.state + (channelItem.isCooperativeClosing ? "(Cooperative)" : "(Uncooperative)"));
+        state.setText(channelItem.state.toUpperCase() + (channelItem.isCooperativeClosing ? " (cooperative)" : " (uncooperative)"));
       }
       state.setTextColor(WAITING_COLOR);
     }

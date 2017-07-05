@@ -63,13 +63,12 @@
         android:textSize="12sp" />
 
       <TextView
-        android:id="@+id/channelitem_status"
+        android:id="@+id/channelitem_state"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:ellipsize="end"
         android:maxLines="1"
         android:layout_marginTop="4dp"
-        android:textAllCaps="true"
         android:text="@string/unknown"
         android:textColor="@color/red"
         android:textSize="10sp" />

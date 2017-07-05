@@ -132,7 +132,7 @@ public class EclairEventService extends UntypedActor {
         DATA_CLOSING d = (DATA_CLOSING) cs.currentData();
         // cooperative closing if publish is only mutual
         cd.isCooperativeClosing = d.mutualClosePublished().isDefined() && !d.localCommitPublished().isDefined()
-            && !d.remoteCommitPublished().isDefined() && !d.revokedCommitPublished().isEmpty();
+            && !d.remoteCommitPublished().isDefined() && d.revokedCommitPublished().isEmpty();
       }
       channelDetailsMap.put(cs.channel(), cd);
       Log.d(TAG, "Channel " + cd.channelId + " changed state to " + cs.currentState());
