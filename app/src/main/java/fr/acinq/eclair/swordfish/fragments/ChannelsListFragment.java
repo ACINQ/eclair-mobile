@@ -63,9 +63,10 @@ public class ChannelsListFragment extends Fragment implements SwipeRefreshLayout
     for (EclairEventService.ChannelDetails d : EclairEventService.getChannelsMap().values()) {
       ChannelItem item = new ChannelItem(d.channelId, d.capacityMsat, d.remoteNodeId);
       if (d.state == null) {
-        item.status = "UNKNOWN";
+        item.state = "UNKNOWN";
       } else {
-        item.status = d.state;
+        item.state = d.state;
+        item.isCooperativeClosing = d.isCooperativeClosing;
       }
       item.balanceMsat = d.balanceMsat;
       items.add(item);

@@ -15,11 +15,14 @@ import akka.actor.UntypedActor;
 import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.bitcoin.Crypto;
 import fr.acinq.bitcoin.MilliSatoshi;
+import fr.acinq.eclair.channel.CLOSING;
 import fr.acinq.eclair.channel.ChannelCreated;
 import fr.acinq.eclair.channel.ChannelIdAssigned;
 import fr.acinq.eclair.channel.ChannelRestored;
 import fr.acinq.eclair.channel.ChannelSignatureReceived;
 import fr.acinq.eclair.channel.ChannelStateChanged;
+import fr.acinq.eclair.channel.DATA_CLOSING;
+import fr.acinq.eclair.channel.Data;
 import fr.acinq.eclair.channel.NORMAL;
 import fr.acinq.eclair.channel.OFFLINE;
 import fr.acinq.eclair.payment.PaymentSent;
@@ -125,11 +128,15 @@ public class EclairEventService extends UntypedActor {
       ChannelStateChanged cs = (ChannelStateChanged) message;
       ChannelDetails cd = getChannelDetails(cs.channel());
       cd.state = cs.currentState().toString();
-      Log.d(TAG, "Channel " + cd.channelId + " changed state to " + cs.currentState());
+      if (CLOSING.toString().equals(cd.state) && cs.currentData() instanceof DATA_CLOSING) {
+        DATA_CLOSING d = (DATA_CLOSING) cs.currentData();
+        // cooperative closing if publish is only mutual
+        cd.isCooperativeClosing = d.mutualClosePublished().isDefined() && !d.localCommitPublished().isDefined()
+            && !d.remoteCommitPublished().isDefined() && !d.revokedCommitPublished().isEmpty();
+      }
       channelDetailsMap.put(cs.channel(), cd);
+      Log.d(TAG, "Channel " + cd.channelId + " changed state to " + cs.currentState());
       EventBus.getDefault().post(new ChannelUpdateEvent());
-      // also post balance event because a change in the  state of the channel matters to the balance
-      postLNBalanceEvent();
     }
     // ---- events that update payments status
     else if (message instanceof PaymentSent) {
@@ -172,6 +179,7 @@ public class EclairEventService extends UntypedActor {
     public MilliSatoshi capacityMsat = new MilliSatoshi(0);
     public String channelId;
     public String state;
+    public Boolean isCooperativeClosing;
     public String remoteNodeId;
     public String transactionId;
   }

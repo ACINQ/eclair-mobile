@@ -6,7 +6,8 @@ public class ChannelItem {
   public final String id;
   public final MilliSatoshi capacityMsat;
   public final String targetPubkey;
-  public String status;
+  public String state;
+  public Boolean isCooperativeClosing;
   public MilliSatoshi balanceMsat;
 
   public ChannelItem(String id, MilliSatoshi capacityMsat, String targetPubkey) {
