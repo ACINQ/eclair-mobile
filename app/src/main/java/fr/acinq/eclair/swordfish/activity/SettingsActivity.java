@@ -7,12 +7,19 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 
+import fr.acinq.eclair.Globals;
 import fr.acinq.eclair.swordfish.EclairEventService;
 import fr.acinq.eclair.swordfish.EclairHelper;
 import fr.acinq.eclair.swordfish.R;
 import fr.acinq.eclair.swordfish.customviews.DataRow;
 
 public class SettingsActivity extends AppCompatActivity {
+
+  private DataRow mNodePublicKeyRow;
+  private DataRow mAliasRow;
+  private DataRow mNetworkChannelCount;
+  private DataRow mNetworkNodesCount;
+  private DataRow mBlockCount;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -24,15 +31,11 @@ public class SettingsActivity extends AppCompatActivity {
     ActionBar ab = getSupportActionBar();
     ab.setDisplayHomeAsUpEnabled(true);
 
-    DataRow nodePublicKeyRow = (DataRow) findViewById(R.id.settings_nodeid);
-    nodePublicKeyRow.setValue(EclairHelper.nodePublicKey(getApplicationContext()));
-    DataRow aliasRow = (DataRow) findViewById(R.id.settings_nodealias);
-    aliasRow.setValue(EclairHelper.nodeAlias(getApplicationContext()));
-
-    DataRow networkChannelCount = (DataRow) findViewById(R.id.settings_networkchannels_count);
-    networkChannelCount.setValue(Integer.toString(EclairEventService.channelAnnouncementMap.size()));
-    DataRow networkNodesCount = (DataRow) findViewById(R.id.settings_networknodes_count);
-    networkNodesCount.setValue(Integer.toString(EclairEventService.nodeAnnouncementMap.size()));
+    mNodePublicKeyRow = (DataRow) findViewById(R.id.settings_nodeid);
+    mAliasRow = (DataRow) findViewById(R.id.settings_nodealias);
+    mNetworkNodesCount = (DataRow) findViewById(R.id.settings_networknodes_count);
+    mNetworkChannelCount = (DataRow) findViewById(R.id.settings_networkchannels_count);
+    mBlockCount = (DataRow) findViewById(R.id.settings_blockcount);
   }
 
   public void goToNetworkChannels(View view) {
@@ -43,5 +46,19 @@ public class SettingsActivity extends AppCompatActivity {
   public void goToNetworkNodes(View view) {
     Intent intent = new Intent(this, NetworkNodesActivity.class);
     startActivity(intent);
+  }
+
+  public void settings_refreshCount(View view) {
+    mBlockCount.setValue(String.valueOf(Globals.blockCount().get()));
+  }
+
+  @Override
+  public void onResume() {
+    super.onResume();
+    mNodePublicKeyRow.setValue(EclairHelper.nodePublicKey(getApplicationContext()));
+    mAliasRow.setValue(EclairHelper.nodeAlias(getApplicationContext()));
+    mNetworkChannelCount.setValue(Integer.toString(EclairEventService.channelAnnouncementMap.size()));
+    mNetworkNodesCount.setValue(Integer.toString(EclairEventService.nodeAnnouncementMap.size()));
+    mBlockCount.setValue(String.valueOf(Globals.blockCount().get()));
   }
 }

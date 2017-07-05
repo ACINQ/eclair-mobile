@@ -42,7 +42,7 @@ public class EclairHelper {
 
   private EclairHelper(Context context) {
     try {
-      Log.i("Eclair Helper", "Accessing Eclair Setup with datadir in " + context.getFilesDir().getAbsolutePath());
+      Log.i(TAG, "Accessing Eclair Setup with datadir in " + context.getFilesDir().getAbsolutePath());
       File data = new File(context.getFilesDir(), "eclair-wallet-data");
       System.setProperty("eclair.node-alias", "sw-ripley");
 

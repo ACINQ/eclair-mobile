@@ -44,6 +44,18 @@
 
   <include layout="@layout/include_separator" />
 
+  <fr.acinq.eclair.swordfish.customviews.DataRow
+    android:id="@+id/settings_blockcount"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clickable="true"
+    android:onClick="settings_refreshCount"
+    app:label="Block Count"
+    app:desc=""
+    app:value="@string/unknown" />
+
+  <include layout="@layout/include_separator" />
+
   <TextView
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
