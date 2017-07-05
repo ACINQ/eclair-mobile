@@ -1,5 +1,6 @@
 package fr.acinq.eclair.swordfish.activity;
 
+import android.annotation.SuppressLint;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
@@ -17,6 +18,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.greenrobot.eventbus.EventBus;
@@ -42,6 +44,7 @@ import fr.acinq.eclair.swordfish.events.WalletBalanceUpdateEvent;
 import fr.acinq.eclair.swordfish.fragments.ChannelsListFragment;
 import fr.acinq.eclair.swordfish.fragments.PaymentsListFragment;
 import fr.acinq.eclair.swordfish.fragments.ReceivePaymentFragment;
+import fr.acinq.eclair.swordfish.utils.CoinUtils;
 import fr.acinq.eclair.swordfish.utils.Validators;
 
 public class HomeActivity extends AppCompatActivity {
@@ -63,7 +66,9 @@ public class HomeActivity extends AppCompatActivity {
   private ViewGroup mOpenChannelButtonsToggleView;
   private FloatingActionButton mOpenChannelButton;
 
-  private CoinAmountView mAvailableBalanceView;
+  private CoinAmountView mTotalBalanceView;
+  private TextView mWalletBalanceView;
+  private TextView mLNBalanceView;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -75,7 +80,9 @@ public class HomeActivity extends AppCompatActivity {
     ActionBar ab = getSupportActionBar();
     ab.setDisplayHomeAsUpEnabled(false);
 
-    mAvailableBalanceView = (CoinAmountView) findViewById(R.id.home_value_availablebalance);
+    mTotalBalanceView = (CoinAmountView) findViewById(R.id.home_balance_total);
+    mWalletBalanceView = (TextView) findViewById(R.id.home_balance_wallet_value);
+    mLNBalanceView = (TextView) findViewById(R.id.home_balance_ln_value);
 
     mSendButtonsView = (ViewGroup) findViewById(R.id.home_send_buttons);
     mSendButtonsToggleView = (ViewGroup) findViewById(R.id.home_send_buttons_toggle);
@@ -283,12 +290,15 @@ public class HomeActivity extends AppCompatActivity {
     Toast.makeText(this, "Failed to open channel: " + event.cause, Toast.LENGTH_LONG);
   }
 
+  @SuppressLint("SetTextI18n")
   private void updateBalance() {
     LNBalanceUpdateEvent lnBalanceEvent = EventBus.getDefault().getStickyEvent(LNBalanceUpdateEvent.class);
     long lnBalance = lnBalanceEvent == null ? 0 : lnBalanceEvent.total().amount();
     WalletBalanceUpdateEvent walletBalanceEvent = EventBus.getDefault().getStickyEvent(WalletBalanceUpdateEvent.class);
     long walletBalance = walletBalanceEvent == null ? 0 : package$.MODULE$.satoshi2millisatoshi(walletBalanceEvent.walletBalance).amount();
-    mAvailableBalanceView.setAmountMsat(new MilliSatoshi(lnBalance + walletBalance));
+    mTotalBalanceView.setAmountMsat(new MilliSatoshi(lnBalance + walletBalance));
+    mWalletBalanceView.setText(CoinUtils.formatAmountMilliBtc(new MilliSatoshi(walletBalance)) + " mBTC");
+    mLNBalanceView.setText(CoinUtils.formatAmountMilliBtc(new MilliSatoshi(lnBalance)) + " mBTC");
   }
 
   private class HomePagerAdapter extends FragmentStatePagerAdapter {
