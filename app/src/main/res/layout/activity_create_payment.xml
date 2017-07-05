@@ -66,6 +66,11 @@
 
   </LinearLayout>
 
+  <View
+    android:layout_width="match_parent"
+    android:layout_height="1dp"
+    android:background="@color/colorGrey_00" />
+
   <LinearLayout
     android:id="@+id/payment_layout_buttons"
     android:layout_width="match_parent"
@@ -83,7 +88,10 @@
       android:padding="16dp"
       android:text="@string/btn_cancel"
       android:textColor="@color/colorGrey_1" />
-
+    <View
+      android:layout_width="1dp"
+      android:layout_height="match_parent"
+      android:background="@color/colorGrey_00" />
     <Button
       android:id="@+id/payment_btn_send"
       android:layout_width="wrap_content"
