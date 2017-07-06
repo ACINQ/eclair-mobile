@@ -54,8 +54,6 @@
     app:desc=""
     app:value="@string/unknown" />
 
-  <include layout="@layout/include_separator" />
-
   <TextView
     android:layout_width="match_parent"
     android:layout_height="wrap_content"

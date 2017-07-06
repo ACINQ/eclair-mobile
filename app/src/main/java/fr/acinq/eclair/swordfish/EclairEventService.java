@@ -23,6 +23,7 @@ import fr.acinq.eclair.channel.ChannelSignatureReceived;
 import fr.acinq.eclair.channel.ChannelStateChanged;
 import fr.acinq.eclair.channel.DATA_CLOSING;
 import fr.acinq.eclair.channel.Data;
+import fr.acinq.eclair.channel.HasCommitments;
 import fr.acinq.eclair.channel.NORMAL;
 import fr.acinq.eclair.channel.OFFLINE;
 import fr.acinq.eclair.payment.PaymentSent;
@@ -128,11 +129,14 @@ public class EclairEventService extends UntypedActor {
       ChannelStateChanged cs = (ChannelStateChanged) message;
       ChannelDetails cd = getChannelDetails(cs.channel());
       cd.state = cs.currentState().toString();
-      if (CLOSING.toString().equals(cd.state) && cs.currentData() instanceof DATA_CLOSING) {
+      if (cs.currentData() instanceof DATA_CLOSING) {
         DATA_CLOSING d = (DATA_CLOSING) cs.currentData();
         // cooperative closing if publish is only mutual
         cd.isCooperativeClosing = d.mutualClosePublished().isDefined() && !d.localCommitPublished().isDefined()
             && !d.remoteCommitPublished().isDefined() && d.revokedCommitPublished().isEmpty();
+      }
+      if (cs.currentData() instanceof HasCommitments) {
+        cd.transactionId = ((HasCommitments) cs.currentData()).commitments().commitInput().outPoint().txid().toString();
       }
       channelDetailsMap.put(cs.channel(), cd);
       Log.d(TAG, "Channel " + cd.channelId + " changed state to " + cs.currentState());
