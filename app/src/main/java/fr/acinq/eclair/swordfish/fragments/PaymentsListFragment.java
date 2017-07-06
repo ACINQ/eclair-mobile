@@ -22,6 +22,7 @@ public class PaymentsListFragment extends Fragment implements SwipeRefreshLayout
   private View mView;
   private PaymentListItemAdapter mPaymentAdapter;
   private SwipeRefreshLayout mRefreshLayout;
+  private TextView mEmptyLabel;
 
   @Override
   public void onRefresh() {
@@ -49,6 +50,7 @@ public class PaymentsListFragment extends Fragment implements SwipeRefreshLayout
     mRefreshLayout = (SwipeRefreshLayout) mView.findViewById(R.id.payments_swiperefresh);
     mRefreshLayout.setColorSchemeResources(R.color.colorPrimary, R.color.green, R.color.colorAccent);
     mRefreshLayout.setOnRefreshListener(this);
+    mEmptyLabel = (TextView) mView.findViewById(R.id.payments_empty);
 
     return mView;
   }
@@ -65,11 +67,12 @@ public class PaymentsListFragment extends Fragment implements SwipeRefreshLayout
 
   private List<Payment> getPayments() {
     List<Payment> list = Payment.findWithQuery(Payment.class, "SELECT * FROM Payment ORDER BY created DESC LIMIT 30");
-    TextView emptyLabel = (TextView) mView.findViewById(R.id.payments_empty);
-    if (list.isEmpty()) {
-      emptyLabel.setVisibility(View.VISIBLE);
-    } else {
-      emptyLabel.setVisibility(View.GONE);
+    if (mEmptyLabel != null) {
+      if (list.isEmpty()) {
+        mEmptyLabel.setVisibility(View.VISIBLE);
+      } else {
+        mEmptyLabel.setVisibility(View.GONE);
+      }
     }
     return list;
   }

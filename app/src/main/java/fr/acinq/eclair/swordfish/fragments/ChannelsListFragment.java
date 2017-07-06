@@ -24,6 +24,7 @@ public class ChannelsListFragment extends Fragment implements SwipeRefreshLayout
   private View mView;
   private LocalChannelItemAdapter mChannelAdapter;
   private SwipeRefreshLayout mRefreshLayout;
+  private TextView mEmptyLabel;
 
   @Override
   public void onRefresh() {
@@ -45,6 +46,7 @@ public class ChannelsListFragment extends Fragment implements SwipeRefreshLayout
     mRefreshLayout = (SwipeRefreshLayout) mView.findViewById(R.id.localchannels_swiperefresh);
     mRefreshLayout.setColorSchemeResources(R.color.colorPrimary, R.color.green, R.color.colorAccent);
     mRefreshLayout.setOnRefreshListener(this);
+    mEmptyLabel = (TextView) mView.findViewById(R.id.localchannels_empty);
     return mView;
   }
 
@@ -71,11 +73,12 @@ public class ChannelsListFragment extends Fragment implements SwipeRefreshLayout
       item.balanceMsat = d.balanceMsat;
       items.add(item);
     }
-    TextView emptyLabel = (TextView) mView.findViewById(R.id.localchannels_empty);
-    if (items.isEmpty()) {
-      emptyLabel.setVisibility(View.VISIBLE);
-    } else {
-      emptyLabel.setVisibility(View.GONE);
+    if (mEmptyLabel != null) {
+      if (items.isEmpty()) {
+        mEmptyLabel.setVisibility(View.VISIBLE);
+      } else {
+        mEmptyLabel.setVisibility(View.GONE);
+      }
     }
     return items;
   }
