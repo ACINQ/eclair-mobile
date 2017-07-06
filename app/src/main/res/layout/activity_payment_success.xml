@@ -18,14 +18,19 @@
       android:layout_width="128dp"
       android:layout_height="128dp"
       android:layout_centerHorizontal="true"
-      android:background="@drawable/icon_circle_white" />
+      android:layout_margin="10dp"
+      android:background="@drawable/icon_circle_white"
+      android:clickable="true"
+      android:onClick="success_tap" />
 
     <ImageView
       android:id="@+id/paymentsuccess_check"
       android:layout_width="128dp"
       android:layout_height="128dp"
       android:layout_centerHorizontal="true"
-      android:background="@drawable/icon_check_nocircle_white" />
+      android:layout_margin="10dp"
+      android:background="@drawable/icon_check_nocircle_white"
+      android:onClick="success_tap" />
 
     <TextView
       android:id="@+id/paymentsuccess_title"
@@ -35,6 +40,7 @@
       android:layout_centerHorizontal="true"
       android:layout_marginTop="16dp"
       android:text="Payment sent!"
+      android:textAlignment="center"
       android:textAllCaps="true"
       android:textColor="@color/white"
       android:textSize="18sp"
@@ -51,10 +57,9 @@
       android:ellipsize="end"
       android:maxLines="3"
       android:text="@string/unknown"
+      android:textAlignment="center"
       android:textColor="@color/white"
       android:textSize="12sp" />
 
   </RelativeLayout>
-
-
 </RelativeLayout>

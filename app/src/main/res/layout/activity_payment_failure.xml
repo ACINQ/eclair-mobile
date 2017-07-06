@@ -17,6 +17,7 @@
       android:id="@+id/paymentfailure_sad"
       android:layout_width="74dp"
       android:layout_height="74dp"
+      android:layout_margin="10dp"
       android:layout_centerHorizontal="true"
       android:background="@drawable/icon_sad_white" />
 
@@ -39,7 +40,9 @@
       android:layout_height="wrap_content"
       android:layout_below="@+id/paymentfailure_title"
       android:layout_centerHorizontal="true"
-      android:text="Cause of the failure"
+      android:layout_marginTop="6dp"
+      android:text="Unknwon cause"
+      android:textAlignment="center"
       android:textColor="@color/white" />
 
     <TextView
@@ -53,6 +56,7 @@
       android:ellipsize="end"
       android:maxLines="3"
       android:text="@string/unknown"
+      android:textAlignment="center"
       android:textColor="@color/white"
       android:textSize="12sp" />
 

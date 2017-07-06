@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AnticipateOvershootInterpolator;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -17,6 +19,9 @@ public class PaymentSuccessActivity extends AppCompatActivity {
   private static final String TAG = "PaymentSuccessActivity";
 
   private Handler dismissHandler;
+  private ImageView mCircleImage;
+  private ImageView mCheckImage;
+  private TextView mDescView;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -26,18 +31,11 @@ public class PaymentSuccessActivity extends AppCompatActivity {
     Intent intent = getIntent();
     String desc = intent.getStringExtra(EXTRA_PAYMENTSUCCESS_DESC);
 
-    TextView descView = (TextView) findViewById(R.id.paymentsuccess_desc);
-    descView.setText(desc);
-
-    ImageView mCircleImage = (ImageView) findViewById(R.id.paymentsuccess_circle);
-    ImageView mCheckImage = (ImageView) findViewById(R.id.paymentsuccess_check);
-    mCircleImage.setAlpha(0);
-    mCircleImage.setTranslationY(60);
-    mCheckImage.setAlpha(0);
-    mCheckImage.setScaleX(0.6f);
-    mCheckImage.setScaleY(0.6f);
-    mCircleImage.animate().alpha(1).translationY(0).setStartDelay(200).setDuration(250).start();
-    mCheckImage.animate().alpha(1).scaleY(1).scaleX(1).setStartDelay(350).setDuration(100).start();
+    mDescView = (TextView) findViewById(R.id.paymentsuccess_desc);
+    mCircleImage = (ImageView) findViewById(R.id.paymentsuccess_circle);
+    mCheckImage = (ImageView) findViewById(R.id.paymentsuccess_check);
+    mDescView.setText(desc);
+    tada();
 
     dismissHandler = new Handler();
     dismissHandler.postDelayed(new Runnable() {
@@ -47,6 +45,22 @@ public class PaymentSuccessActivity extends AppCompatActivity {
     }, 3500);
   }
 
+  private void tada() {
+    mCircleImage.setAlpha(0f);
+    mCircleImage.setScaleX(0.3f);
+    mCircleImage.setScaleY(0.3f);
+
+    mCheckImage.setAlpha(0f);
+    mCheckImage.setScaleX(0.6f);
+    mCheckImage.setScaleY(0.6f);
+
+    mCircleImage.animate().alpha(1).scaleY(1).scaleX(1).setStartDelay(80).setInterpolator(new AnticipateOvershootInterpolator()).setDuration(350).start();
+    mCheckImage.animate().alpha(1).scaleY(1).scaleX(1).setStartDelay(120).setInterpolator(new AnticipateOvershootInterpolator()).setDuration(500).start();
+  }
+
+  public void success_tap(View view) {
+    tada();
+  }
   public void success_dismiss(View view) {
     dismissHandler.removeCallbacks(null);
     finish();

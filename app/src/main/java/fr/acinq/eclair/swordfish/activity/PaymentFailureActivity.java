@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.view.animation.AnticipateOvershootInterpolator;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -34,8 +35,10 @@ public class PaymentFailureActivity extends AppCompatActivity {
     causeView.setText(cause);
 
     ImageView mSadImage = (ImageView) findViewById(R.id.paymentfailure_sad);
-    mSadImage.setAlpha(0);
-    mSadImage.animate().alpha(1).setStartDelay(250).setDuration(500).start();
+    mSadImage.setAlpha(0f);
+    mSadImage.setScaleX(0.6f);
+    mSadImage.setScaleY(0.6f);
+    mSadImage.animate().alpha(1).scaleX(1).scaleY(1).setInterpolator(new AnticipateOvershootInterpolator()).setStartDelay(80).setDuration(500).start();
 
     dismissHandler = new Handler();
     dismissHandler.postDelayed(new Runnable() {
