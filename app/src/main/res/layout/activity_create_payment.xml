@@ -1,122 +1,144 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
   android:layout_width="match_parent"
-  android:layout_height="match_parent"
-  android:orientation="vertical">
+  android:layout_height="match_parent">
 
   <LinearLayout
+    android:id="@+id/payment_loading"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/colorGrey_0"
-    android:orientation="vertical"
-    android:paddingBottom="24dp"
-    android:paddingLeft="16dp"
-    android:paddingRight="16dp"
-    android:paddingTop="32dp">
-
-    <TextView
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:layout_marginBottom="6dp"
-      android:text="@string/payment__lbl_pr_amount"
-      android:textAlignment="center"
-      android:textColor="@color/colorGrey_1"
-      android:textSize="12sp" />
-
-    <fr.acinq.eclair.swordfish.customviews.CoinAmountView
-      android:id="@+id/payment_value_amount"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      app:alignment="center"
-      app:amount_color="@color/colorGrey_4"
-      app:amount_size="48sp"
-      app:unit="mBTC"
-      app:unit_color="@color/colorGrey_4"
-      app:unit_size="12sp" />
-
-  </LinearLayout>
-
-  <View
-    android:layout_width="match_parent"
-    android:layout_height="1dp"
-    android:background="@color/colorGrey_0p" />
-
-  <LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="@color/white"
-    android:orientation="vertical"
-    android:padding="16dp">
-
-    <TextView
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:text="Description"
-      android:textStyle="bold" />
-
-    <TextView
-      android:id="@+id/payment_description"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:ellipsize="end"
-      android:maxLines="2"
-      android:text="Description of the payment"
-      android:textSize="12sp" />
-
-  </LinearLayout>
-
-  <View
-    android:layout_width="match_parent"
-    android:layout_height="1dp"
-    android:background="@color/colorGrey_00" />
-
-  <LinearLayout
-    android:id="@+id/payment_layout_buttons"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:elevation="4dp"
     android:gravity="center"
-    android:orientation="horizontal">
-
-    <Button
-      android:id="@+id/payment_btn_cancel"
+    android:orientation="horizontal"
+    android:visibility="visible">
+    
+    <TextView
+      android:id="@+id/payment_loading_text"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:layout_weight="1"
-      android:background="@android:color/transparent"
-      android:onClick="cancelPayment"
       android:padding="16dp"
-      android:text="@string/btn_cancel"
-      android:textColor="@color/colorGrey_1" />
-    <View
-      android:layout_width="1dp"
-      android:layout_height="match_parent"
-      android:background="@color/colorGrey_00" />
-    <Button
-      android:id="@+id/payment_btn_send"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_weight="1"
-      android:background="@android:color/transparent"
-      android:onClick="sendPayment"
-      android:text="@string/payment__btn_send"
-      android:textColor="@color/green" />
+      android:text="Reading invoice..."
+      android:textColor="@color/colorGrey_2" />
+
   </LinearLayout>
 
   <LinearLayout
-    android:id="@+id/payment_layout_feedback"
+    android:id="@+id/payment_form"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:padding="16dp"
+    android:orientation="vertical"
     android:visibility="gone">
 
-    <TextView
-      android:id="@+id/payment_value_feedback"
+    <LinearLayout
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
+      android:background="@color/colorGrey_0"
+      android:orientation="vertical"
+      android:paddingBottom="24dp"
+      android:paddingLeft="16dp"
+      android:paddingRight="16dp"
+      android:paddingTop="32dp">
+
+      <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="6dp"
+        android:text="@string/payment__lbl_pr_amount"
+        android:textAlignment="center"
+        android:textColor="@color/colorGrey_1"
+        android:textSize="12sp" />
+
+      <fr.acinq.eclair.swordfish.customviews.CoinAmountView
+        android:id="@+id/payment_value_amount"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:alignment="center"
+        app:amount_color="@color/colorGrey_4"
+        app:amount_size="48sp"
+        app:unit="mBTC"
+        app:unit_color="@color/colorGrey_4"
+        app:unit_size="12sp" />
+
+    </LinearLayout>
+
+    <View
+      android:layout_width="match_parent"
+      android:layout_height="1dp"
+      android:background="@color/colorGrey_0p" />
+
+    <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:background="@color/white"
+      android:orientation="vertical"
+      android:padding="16dp">
+
+      <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Description"
+        android:textStyle="bold" />
+
+      <TextView
+        android:id="@+id/payment_description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:maxLines="2"
+        android:text="Description of the payment"
+        android:textSize="12sp" />
+
+    </LinearLayout>
+
+    <View
+      android:layout_width="match_parent"
+      android:layout_height="1dp"
+      android:background="@color/colorGrey_00" />
+
+    <LinearLayout
+      android:id="@+id/payment_layout_buttons"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:gravity="center"
+      android:orientation="horizontal">
+
+      <Button
+        android:id="@+id/payment_btn_cancel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:background="@android:color/transparent"
+        android:onClick="cancelPayment"
+        android:padding="16dp"
+        android:text="@string/btn_cancel"
+        android:textColor="@color/colorGrey_1" />
+
+      <View
+        android:layout_width="1dp"
+        android:layout_height="match_parent"
+        android:background="@color/colorGrey_00" />
+
+      <Button
+        android:id="@+id/payment_btn_send"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:background="@android:color/transparent"
+        android:onClick="sendPayment"
+        android:text="@string/payment__btn_send"
+        android:textColor="@color/green" />
+    </LinearLayout>
+
+    <TextView
+      android:id="@+id/payment_feedback"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:padding="16dp"
       android:text="@string/payment__label_pending"
       android:textAlignment="center"
-      android:textSize="12sp" />
+      android:textSize="12sp"
+      android:visibility="gone" />
   </LinearLayout>
-</LinearLayout>
+</RelativeLayout>

@@ -6,12 +6,10 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.util.AsyncExecutor;
 
-import java.io.File;
 import java.util.Date;
 import java.util.List;
 
@@ -26,10 +24,11 @@ import fr.acinq.eclair.swordfish.R;
 import fr.acinq.eclair.swordfish.customviews.CoinAmountView;
 import fr.acinq.eclair.swordfish.events.LNPaymentFailedEvent;
 import fr.acinq.eclair.swordfish.model.Payment;
+import fr.acinq.eclair.swordfish.tasks.InvoiceReaderTask;
 import fr.acinq.eclair.swordfish.utils.CoinUtils;
 import scala.util.Either;
 
-public class CreatePaymentActivity extends Activity {
+public class CreatePaymentActivity extends Activity implements InvoiceReaderTask.AsyncInvoiceReaderTaskResponse {
 
   public static final String EXTRA_INVOICE = "fr.acinq.eclair.swordfish.EXTRA_INVOICE";
   private static final String TAG = "CreatePayment";
@@ -37,25 +36,48 @@ public class CreatePaymentActivity extends Activity {
   private String currentPrAsString = null;
   private boolean isProcessingPayment = false;
 
+  private View mLoadingView;
+  private TextView mLoadingTextView;
+  private View mFormView;
+  private CoinAmountView mAmountView;
+  private TextView mDescriptionView;
+
+  @Override
+  public void processFinish(PaymentRequest output) {
+    if (output == null) {
+      mLoadingTextView.setTextColor(getResources().getColor(R.color.red));
+      mLoadingTextView.setText("Could not read invoice !");
+      mLoadingView.setClickable(true);
+      mLoadingView.setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+          finish();
+        }
+      });
+    } else {
+      currentPR = output;
+      mAmountView.setAmountMsat(CoinUtils.getAmountFromInvoice(output));
+      Either<String, BinaryData> desc = output.description();
+      mDescriptionView.setText(desc.isLeft() ? desc.left().get() : desc.right().get().toString());
+      mLoadingView.setVisibility(View.GONE);
+      mFormView.setVisibility(View.VISIBLE);
+    }
+  }
+
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_create_payment);
-    CoinAmountView amountView = (CoinAmountView) findViewById(R.id.payment_value_amount);
-    TextView descriptionView = (TextView) findViewById(R.id.payment_description);
+
+    mFormView = findViewById(R.id.payment_form);
+    mLoadingView = findViewById(R.id.payment_loading);
+    mLoadingTextView = (TextView) findViewById(R.id.payment_loading_text);
+    mAmountView = (CoinAmountView) findViewById(R.id.payment_value_amount);
+    mDescriptionView = (TextView) findViewById(R.id.payment_description);
 
     Intent intent = getIntent();
     currentPrAsString = intent.getStringExtra(EXTRA_INVOICE);
-    try {
-      PaymentRequest extract = PaymentRequest.read(currentPrAsString);
-      amountView.setAmountMsat(CoinUtils.getAmountFromInvoice(extract));
-      Either<String, BinaryData> desc = extract.description();
-      descriptionView.setText(desc.isLeft() ? desc.left().get() : desc.right().get().toString());
-      currentPR = extract;
-    } catch (Throwable t) {
-      Toast.makeText(this, "Invalid Invoice", Toast.LENGTH_LONG).show();
-      finish();
-    }
+    new InvoiceReaderTask(this, currentPrAsString).execute();
   }
 
   public void cancelPayment(View view) {
@@ -64,7 +86,6 @@ public class CreatePaymentActivity extends Activity {
 
   public void sendPayment(final View view) {
     isProcessingPayment = true;
-    final File datadir = getFilesDir();
     final PaymentRequest pr = currentPR;
     final String prAsString = currentPrAsString;
     toggleButtons();
@@ -140,7 +161,7 @@ public class CreatePaymentActivity extends Activity {
   private void toggleButtons() {
     if (isProcessingPayment) {
       this.findViewById(R.id.payment_layout_buttons).setVisibility(View.GONE);
-      this.findViewById(R.id.payment_layout_feedback).setVisibility(View.VISIBLE);
+      this.findViewById(R.id.payment_feedback).setVisibility(View.VISIBLE);
     }
   }
 
