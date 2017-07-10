@@ -27,10 +27,10 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
 
   public PaymentItemHolder(View itemView) {
     super(itemView);
-    this.amount = (TextView) itemView.findViewById(R.id.payment_item_amount);
-    this.status = (TextView) itemView.findViewById(R.id.payment_item_status);
-    this.description = (TextView) itemView.findViewById(R.id.payment_item_description);
-    this.date = (TextView) itemView.findViewById(R.id.payment_item_date);
+    this.amount = (TextView) itemView.findViewById(R.id.paymentitem_amount_value);
+    this.status = (TextView) itemView.findViewById(R.id.paymentitem_status);
+    this.description = (TextView) itemView.findViewById(R.id.paymentitem_description);
+    this.date = (TextView) itemView.findViewById(R.id.paymentitem_date);
     itemView.setOnClickListener(this);
   }
 
