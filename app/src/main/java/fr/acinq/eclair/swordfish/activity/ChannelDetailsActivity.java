@@ -1,8 +1,10 @@
 package fr.acinq.eclair.swordfish.activity;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -16,6 +18,7 @@ import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.eclair.channel.CLOSED;
 import fr.acinq.eclair.channel.CLOSING;
 import fr.acinq.eclair.channel.CMD_CLOSE;
+import fr.acinq.eclair.channel.NORMAL;
 import fr.acinq.eclair.swordfish.EclairEventService;
 import fr.acinq.eclair.swordfish.R;
 import fr.acinq.eclair.swordfish.adapters.LocalChannelItemHolder;
@@ -25,6 +28,8 @@ import fr.acinq.eclair.swordfish.utils.CoinUtils;
 public class ChannelDetailsActivity extends AppCompatActivity {
 
   private static final String TAG = "ChannelDetailsActivity";
+
+  private AlertDialog mCloseDialog;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -59,15 +64,31 @@ public class ChannelDetailsActivity extends AppCompatActivity {
         DataRow transactionIdRow = (DataRow) findViewById(R.id.channeldetails_transactionid);
         transactionIdRow.setValue(channel.getValue().transactionId);
 
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        final String message = getResources().getString(R.string.close_channel_message)
+          + (!NORMAL.toString().equals(channel.getValue().state) ? "\nWith a " + channel.getValue().state + " state, the closing will be uncooperative!" : "");
+        builder.setMessage(message);
+        builder.setPositiveButton(R.string.btn_ok, new DialogInterface.OnClickListener() {
+          public void onClick(DialogInterface dialog, int id) {
+            scala.Option<BinaryData> none = scala.Option.apply(null);
+            channel.getKey().tell(CMD_CLOSE.apply(none), channel.getKey());
+            finish();
+          }
+        });
+        builder.setNegativeButton(R.string.btn_cancel, new DialogInterface.OnClickListener() {
+          public void onClick(DialogInterface dialog, int id) {
+            mCloseDialog.dismiss();
+          }
+        });
+        mCloseDialog = builder.create();
+
         Button closeButton = (Button) findViewById(R.id.channeldetails_close);
         if (!CLOSING.toString().equals(channel.getValue().state) && !CLOSED.toString().equals(channel.getValue().state)) {
           closeButton.setVisibility(View.VISIBLE);
           closeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-              scala.Option<BinaryData> none = scala.Option.apply(null);
-              channel.getKey().tell(CMD_CLOSE.apply(none), channel.getKey());
-              finish();
+              mCloseDialog.show();
             }
           });
         }
