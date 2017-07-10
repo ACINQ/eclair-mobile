@@ -1,79 +1,75 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="match_parent"
-  android:layout_height="wrap_content"
-  android:layout_gravity="center"
-  android:background="?android:attr/selectableItemBackground"
-  android:orientation="vertical">
+  android:layout_height="@dimen/item_height"
+  android:background="?android:attr/selectableItemBackground">
 
   <RelativeLayout
-    android:layout_width="match_parent"
+    android:id="@+id/channelitem_balance"
+    android:layout_width="90dp"
     android:layout_height="wrap_content"
-    android:paddingBottom="8dp"
-    android:paddingLeft="16dp"
-    android:paddingRight="16dp"
-    android:paddingTop="8dp">
+    android:layout_alignParentStart="true"
+    android:layout_marginEnd="8dp"
+    android:layout_marginStart="8dp"
+    android:layout_centerVertical="true">
 
     <TextView
-      android:id="@+id/channelitem_balance"
-      android:layout_width="78dp"
+      android:id="@+id/channelitem_balance_value"
+      android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:layout_alignParentLeft="true"
-      android:layout_centerVertical="true"
       android:ellipsize="end"
       android:maxLines="1"
       android:text="0.00"
-      android:textAlignment="textEnd"
-      android:textSize="23sp" />
+      android:layout_toStartOf="@+id/channelitem_balance_unit"
+      android:textSize="20sp" />
 
     <TextView
-      android:id="@+id/channelitem_unit"
+      android:id="@+id/channelitem_balance_unit"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_centerVertical="true"
-      android:layout_marginLeft="4dp"
-      android:layout_toEndOf="@+id/channelitem_balance"
+      android:layout_marginStart="4dp"
+      android:layout_alignParentEnd="true"
       android:text="mBTC"
       android:textColor="@color/colorGrey_1"
       android:textSize="8sp" />
-
-    <View
-      android:id="@+id/channelitem_separator"
-      android:layout_width="1dp"
-      android:layout_height="match_parent"
-      android:layout_marginLeft="6dp"
-      android:layout_marginRight="6dp"
-      android:layout_toEndOf="@+id/channelitem_unit"
-      android:background="@color/colorGrey_0" />
-
-    <LinearLayout
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:layout_centerVertical="true"
-      android:layout_toEndOf="@+id/channelitem_separator"
-      android:orientation="vertical">
-
-      <TextView
-        android:id="@+id/channelitem_node"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:ellipsize="end"
-        android:maxLines="1"
-        android:text="@string/unknown"
-        android:textSize="12sp" />
-
-      <TextView
-        android:id="@+id/channelitem_state"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:ellipsize="end"
-        android:maxLines="1"
-        android:text="@string/unknown"
-        android:textColor="@color/red"
-        android:textSize="10sp" />
-    </LinearLayout>
   </RelativeLayout>
 
-  <include layout="@layout/include_separator" />
+  <LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_centerVertical="true"
+    android:layout_marginEnd="8dp"
+    android:layout_toEndOf="@+id/channelitem_balance"
+    android:orientation="vertical">
 
-</LinearLayout>
+    <TextView
+      android:id="@+id/channelitem_node"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:ellipsize="end"
+      android:maxLines="1"
+      android:text="@string/unknown"
+      android:textSize="12sp" />
+
+    <TextView
+      android:id="@+id/channelitem_state"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:ellipsize="end"
+      android:maxLines="1"
+      android:text="@string/unknown"
+      android:textColor="@color/red"
+      android:textSize="10sp" />
+  </LinearLayout>
+
+  <View
+    android:layout_width="match_parent"
+    android:layout_height="1dp"
+    android:layout_alignParentBottom="true"
+    android:background="@color/colorGrey_0" />
+
+</RelativeLayout>
+
+
