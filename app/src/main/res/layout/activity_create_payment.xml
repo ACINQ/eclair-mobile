@@ -13,7 +13,7 @@
     android:gravity="center"
     android:orientation="horizontal"
     android:visibility="visible">
-    
+
     <TextView
       android:id="@+id/payment_loading_text"
       android:layout_width="wrap_content"

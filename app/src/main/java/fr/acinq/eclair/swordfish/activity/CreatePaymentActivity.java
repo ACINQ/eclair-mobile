@@ -46,7 +46,7 @@ public class CreatePaymentActivity extends Activity implements InvoiceReaderTask
   public void processFinish(PaymentRequest output) {
     if (output == null) {
       mLoadingTextView.setTextColor(getResources().getColor(R.color.red));
-      mLoadingTextView.setText("Could not read invoice !");
+      mLoadingTextView.setText("Could not read invoice!");
       mLoadingView.setClickable(true);
       mLoadingView.setOnClickListener(new View.OnClickListener() {
         @Override
