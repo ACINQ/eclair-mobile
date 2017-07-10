@@ -93,7 +93,7 @@ public class EclairHelper {
   public static void pullWalletBalance(Context context) {
     if (checkEclairReady(context)) {
       ExecutionContext ec = mInstance.setup.system().dispatcher();
-      mInstance.setup.blockExplorer().getBalance(ec).onComplete(new OnComplete<Satoshi>() {
+      mInstance.setup.apiWallet().getBalance(ec).onComplete(new OnComplete<Satoshi>() {
         @Override
         public void onComplete(Throwable t, Satoshi balance) {
           if (t == null && balance != null) {
@@ -143,7 +143,7 @@ public class EclairHelper {
 
   public static String getWalletPublicAddress(Context context) {
     if (checkEclairReady(context)) {
-      return mInstance.setup.blockExplorer().addr();
+      return mInstance.setup.apiWallet().addr();
     }
     return "Unknown";
   }
