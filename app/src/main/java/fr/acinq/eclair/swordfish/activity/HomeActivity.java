@@ -145,8 +145,13 @@ public class HomeActivity extends AppCompatActivity {
 
   @Override
   public void onStop() {
-    EventBus.getDefault().unregister(this);
     super.onStop();
+  }
+
+  @Override
+  protected void onDestroy() {
+    EventBus.getDefault().unregister(this);
+    super.onDestroy();
   }
 
   @Override
