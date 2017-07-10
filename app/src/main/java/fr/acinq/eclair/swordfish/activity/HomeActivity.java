@@ -132,7 +132,7 @@ public class HomeActivity extends AppCompatActivity {
       EventBus.getDefault().register(this);
     }
     super.onResume();
-    EclairHelper.pullWalletBalance(getBaseContext());
+    EclairHelper.getWalletBalance(getBaseContext());
     EclairEventService.postLNBalanceEvent();
   }
 

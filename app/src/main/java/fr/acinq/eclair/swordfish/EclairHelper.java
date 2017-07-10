@@ -4,6 +4,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import org.bitcoinj.core.Coin;
+import org.bitcoinj.core.Transaction;
+import org.bitcoinj.wallet.KeyChain;
+import org.bitcoinj.wallet.Wallet;
+import org.bitcoinj.wallet.listeners.WalletCoinsReceivedEventListener;
 import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
@@ -27,7 +32,6 @@ import fr.acinq.eclair.swordfish.activity.LauncherActivity;
 import fr.acinq.eclair.swordfish.events.WalletBalanceUpdateEvent;
 import fr.acinq.eclair.swordfish.utils.CoinUtils;
 import scala.Option;
-import scala.concurrent.ExecutionContext;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
 
@@ -47,6 +51,13 @@ public class EclairHelper {
       System.setProperty("eclair.node-alias", "sw-ripley");
 
       setup = new Setup(data, "system");
+      Wallet wallet = setup.wallet().fr$acinq$eclair$blockchain$wallet$BitcoinjWallet$$wallet;
+      wallet.addCoinsReceivedEventListener(new WalletCoinsReceivedEventListener() {
+        @Override
+        public void onCoinsReceived(Wallet wallet, Transaction tx, Coin prevBalance, Coin newBalance) {
+          EventBus.getDefault().postSticky(new WalletBalanceUpdateEvent(new Satoshi(newBalance.getValue())));
+        }
+      });
       guiUpdater = this.setup.system().actorOf(Props.create(EclairEventService.class));
       setup.system().eventStream().subscribe(guiUpdater, ChannelEvent.class);
       setup.system().eventStream().subscribe(guiUpdater, PaymentEvent.class);
@@ -90,20 +101,10 @@ public class EclairHelper {
     return mInstance != null && mInstance.setup != null;
   }
 
-  public static void pullWalletBalance(Context context) {
+  public static void getWalletBalance(Context context) {
     if (checkEclairReady(context)) {
-      ExecutionContext ec = mInstance.setup.system().dispatcher();
-      mInstance.setup.apiWallet().getBalance(ec).onComplete(new OnComplete<Satoshi>() {
-        @Override
-        public void onComplete(Throwable t, Satoshi balance) {
-          if (t == null && balance != null) {
-            Log.d(TAG, "Wallet balance is (satoshis) " + balance.amount());
-            EventBus.getDefault().postSticky(new WalletBalanceUpdateEvent(balance));
-          } else {
-            Log.d(TAG, "Could not fetch wallet balance", t);
-          }
-        }
-      }, ec);
+      Coin coin = mInstance.setup.wallet().fr$acinq$eclair$blockchain$wallet$BitcoinjWallet$$wallet.getBalance();
+      EventBus.getDefault().postSticky(new WalletBalanceUpdateEvent(new Satoshi(coin.getValue())));
     }
   }
 
@@ -117,7 +118,8 @@ public class EclairHelper {
     }
   }
 
-  public static void openChannel(Context context, int timeout, OnComplete<Object> onComplete, Crypto.PublicKey publicKey, InetSocketAddress address, Switchboard.NewChannel channel) {
+  public static void openChannel(Context context, int timeout, OnComplete<Object> onComplete,
+                                 Crypto.PublicKey publicKey, InetSocketAddress address, Switchboard.NewChannel channel) {
     if (checkEclairReady(context) && publicKey != null && address != null && channel != null) {
       Future<Object> openChannelFuture = Patterns.ask(
         mInstance.setup.switchboard(),
@@ -143,7 +145,8 @@ public class EclairHelper {
 
   public static String getWalletPublicAddress(Context context) {
     if (checkEclairReady(context)) {
-      return mInstance.setup.apiWallet().addr();
+      return mInstance.setup.wallet().fr$acinq$eclair$blockchain$wallet$BitcoinjWallet$$wallet
+        .freshSegwitAddress(KeyChain.KeyPurpose.RECEIVE_FUNDS).toBase58();
     }
     return "Unknown";
   }
