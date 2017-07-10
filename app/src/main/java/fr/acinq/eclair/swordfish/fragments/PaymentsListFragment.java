@@ -66,7 +66,7 @@ public class PaymentsListFragment extends Fragment implements SwipeRefreshLayout
   }
 
   private List<Payment> getPayments() {
-    List<Payment> list = Payment.findWithQuery(Payment.class, "SELECT * FROM Payment ORDER BY created DESC LIMIT 30");
+    List<Payment> list = Payment.findWithQuery(Payment.class, "SELECT * FROM Payment ORDER BY updated DESC LIMIT 100");
     if (mEmptyLabel != null) {
       if (list.isEmpty()) {
         mEmptyLabel.setVisibility(View.VISIBLE);

@@ -5,14 +5,18 @@ import android.content.Intent;
 import android.util.Log;
 
 import org.bitcoinj.core.Coin;
+import org.bitcoinj.core.InsufficientMoneyException;
 import org.bitcoinj.core.Transaction;
 import org.bitcoinj.wallet.KeyChain;
+import org.bitcoinj.wallet.SendRequest;
 import org.bitcoinj.wallet.Wallet;
 import org.bitcoinj.wallet.listeners.WalletCoinsReceivedEventListener;
+import org.bitcoinj.wallet.listeners.WalletCoinsSentEventListener;
 import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
 import java.net.InetSocketAddress;
+import java.util.Date;
 
 import akka.actor.ActorRef;
 import akka.actor.Props;
@@ -29,7 +33,10 @@ import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.payment.SendPayment;
 import fr.acinq.eclair.router.NetworkEvent;
 import fr.acinq.eclair.swordfish.activity.LauncherActivity;
+import fr.acinq.eclair.swordfish.events.BitcoinPaymentEvent;
 import fr.acinq.eclair.swordfish.events.WalletBalanceUpdateEvent;
+import fr.acinq.eclair.swordfish.model.Payment;
+import fr.acinq.eclair.swordfish.model.PaymentTypes;
 import fr.acinq.eclair.swordfish.utils.CoinUtils;
 import scala.Option;
 import scala.concurrent.Future;
@@ -56,8 +63,30 @@ public class EclairHelper {
         @Override
         public void onCoinsReceived(Wallet wallet, Transaction tx, Coin prevBalance, Coin newBalance) {
           EventBus.getDefault().postSticky(new WalletBalanceUpdateEvent(new Satoshi(newBalance.getValue())));
+          final Payment paymentInDB = Payment.getPayment(tx.getHashAsString(), PaymentTypes.BTC_RECEIVED);
+          final Payment paymentSent = paymentInDB == null ? new Payment(PaymentTypes.BTC_RECEIVED) : paymentInDB;
+          paymentSent.paymentReference = tx.getHashAsString();
+          paymentSent.amountPaid = tx.getOutputSum().getValue();
+          paymentSent.updated = tx.getUpdateTime();
+          paymentSent.save();
+          EventBus.getDefault().post(new BitcoinPaymentEvent(paymentSent));
         }
       });
+      wallet.addCoinsSentEventListener(new WalletCoinsSentEventListener() {
+        @Override
+        public void onCoinsSent(Wallet wallet, Transaction tx, Coin prevBalance, Coin newBalance) {
+          EventBus.getDefault().postSticky(new WalletBalanceUpdateEvent(new Satoshi(newBalance.getValue())));
+          final Payment paymentInDB = Payment.getPayment(tx.getHashAsString(), PaymentTypes.BTC_SENT);
+          final Payment paymentSent = paymentInDB == null ? new Payment(PaymentTypes.BTC_SENT) : paymentInDB;
+          paymentSent.paymentReference = tx.getHashAsString();
+          paymentSent.amountPaid = tx.getOutputSum().getValue();
+          paymentSent.feesPaid = tx.getFee().getValue();
+          paymentSent.updated = tx.getUpdateTime();
+          paymentSent.save();
+          EventBus.getDefault().post(new BitcoinPaymentEvent(paymentSent));
+        }
+      });
+
       guiUpdater = this.setup.system().actorOf(Props.create(EclairEventService.class));
       setup.system().eventStream().subscribe(guiUpdater, ChannelEvent.class);
       setup.system().eventStream().subscribe(guiUpdater, PaymentEvent.class);
@@ -134,6 +163,13 @@ public class EclairHelper {
       return mInstance.setup.nodeParams().alias();
     }
     return "Unknown";
+  }
+
+  public static Wallet.SendResult sendBitcoinPayment(Context context, SendRequest sendRequest) throws InsufficientMoneyException, EclairStateException {
+    if (checkEclairReady(context)) {
+      return mInstance.setup.wallet().fr$acinq$eclair$blockchain$wallet$BitcoinjWallet$$wallet.sendCoins(sendRequest);
+    }
+    throw new EclairStateException();
   }
 
   public static String nodePublicKey(Context context) {

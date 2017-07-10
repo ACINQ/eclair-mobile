@@ -56,7 +56,7 @@ public class PaymentDetailsActivity extends AppCompatActivity {
       amountRequestedRow.setValue(CoinUtils.formatAmountMilliBtc(new MilliSatoshi(p.amountRequested)));
 
       DataRow paymentHashRow = (DataRow) findViewById(R.id.paymentdetails_paymenthash);
-      paymentHashRow.setValue(p.paymentHash);
+      paymentHashRow.setValue(p.paymentReference);
 
       DataRow paymentRequestRow = (DataRow) findViewById(R.id.paymentdetails_paymentrequest);
       paymentRequestRow.setValue(p.paymentRequest);
@@ -68,13 +68,8 @@ public class PaymentDetailsActivity extends AppCompatActivity {
       updateDateRow.setValue(DateFormat.getDateTimeInstance().format(p.updated));
 
     } catch (Exception e) {
-      Log.e(TAG, "Internal error", e);
-      goToHome();
+      finish();
     }
   }
 
-  private void goToHome() {
-    Intent homeIntent = new Intent(this, HomeActivity.class);
-    startActivity(homeIntent);
-  }
 }

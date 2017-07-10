@@ -6,7 +6,10 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import org.bitcoinj.uri.BitcoinURI;
+import org.bitcoinj.wallet.SendRequest;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.util.AsyncExecutor;
 
@@ -15,6 +18,8 @@ import java.util.List;
 
 import akka.dispatch.OnComplete;
 import fr.acinq.bitcoin.BinaryData;
+import fr.acinq.bitcoin.Satoshi;
+import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.crypto.Sphinx;
 import fr.acinq.eclair.payment.PaymentFailed;
 import fr.acinq.eclair.payment.PaymentRequest;
@@ -24,17 +29,22 @@ import fr.acinq.eclair.swordfish.R;
 import fr.acinq.eclair.swordfish.customviews.CoinAmountView;
 import fr.acinq.eclair.swordfish.events.LNPaymentFailedEvent;
 import fr.acinq.eclair.swordfish.model.Payment;
-import fr.acinq.eclair.swordfish.tasks.InvoiceReaderTask;
+import fr.acinq.eclair.swordfish.model.PaymentTypes;
+import fr.acinq.eclair.swordfish.tasks.BitcoinInvoiceReaderTask;
+import fr.acinq.eclair.swordfish.tasks.LNInvoiceReaderTask;
 import fr.acinq.eclair.swordfish.utils.CoinUtils;
 import scala.util.Either;
 
-public class CreatePaymentActivity extends Activity implements InvoiceReaderTask.AsyncInvoiceReaderTaskResponse {
+public class CreatePaymentActivity extends Activity
+  implements LNInvoiceReaderTask.AsyncInvoiceReaderTaskResponse, BitcoinInvoiceReaderTask.AsyncInvoiceReaderTaskResponse {
 
   public static final String EXTRA_INVOICE = "fr.acinq.eclair.swordfish.EXTRA_INVOICE";
   private static final String TAG = "CreatePayment";
-  private PaymentRequest currentPR = null;
-  private String currentPrAsString = null;
+
   private boolean isProcessingPayment = false;
+  private PaymentRequest mLNInvoice = null;
+  private String mLNInvoiceAsString = null;
+  private BitcoinURI mBitcoinInvoice = null;
 
   private View mLoadingView;
   private TextView mLoadingTextView;
@@ -43,7 +53,7 @@ public class CreatePaymentActivity extends Activity implements InvoiceReaderTask
   private TextView mDescriptionView;
 
   @Override
-  public void processFinish(PaymentRequest output) {
+  public void processBitcoinInvoiceFinish(BitcoinURI output) {
     if (output == null) {
       mLoadingTextView.setTextColor(getResources().getColor(R.color.red));
       mLoadingTextView.setText("Could not read invoice!");
@@ -55,7 +65,20 @@ public class CreatePaymentActivity extends Activity implements InvoiceReaderTask
         }
       });
     } else {
-      currentPR = output;
+      mBitcoinInvoice = output;
+      mAmountView.setAmountMsat(package$.MODULE$.satoshi2millisatoshi(new Satoshi(output.getAmount().getValue())));
+      mDescriptionView.setText(output.getAddress().toBase58());
+      mLoadingView.setVisibility(View.GONE);
+      mFormView.setVisibility(View.VISIBLE);
+    }
+  }
+
+  @Override
+  public void processLNInvoiceFinish(PaymentRequest output) {
+    if (output == null) {
+      new BitcoinInvoiceReaderTask(this, mLNInvoiceAsString).execute();
+    } else {
+      mLNInvoice = output;
       mAmountView.setAmountMsat(CoinUtils.getAmountFromInvoice(output));
       Either<String, BinaryData> desc = output.description();
       mDescriptionView.setText(desc.isLeft() ? desc.left().get() : desc.right().get().toString());
@@ -76,8 +99,8 @@ public class CreatePaymentActivity extends Activity implements InvoiceReaderTask
     mDescriptionView = (TextView) findViewById(R.id.payment_description);
 
     Intent intent = getIntent();
-    currentPrAsString = intent.getStringExtra(EXTRA_INVOICE);
-    new InvoiceReaderTask(this, currentPrAsString).execute();
+    mLNInvoiceAsString = intent.getStringExtra(EXTRA_INVOICE);
+    new LNInvoiceReaderTask(this, mLNInvoiceAsString).execute();
   }
 
   public void cancelPayment(View view) {
@@ -86,30 +109,38 @@ public class CreatePaymentActivity extends Activity implements InvoiceReaderTask
 
   public void sendPayment(final View view) {
     isProcessingPayment = true;
-    final PaymentRequest pr = currentPR;
-    final String prAsString = currentPrAsString;
     toggleButtons();
-    Log.i("Create Payment", "Sending payment...");
+    if (mLNInvoice != null) {
+      sendLNPayment();
+    } else if (mBitcoinInvoice != null) {
+      sendBitcoinPayment();
+    }
+    finish();
+  }
+
+  private void sendLNPayment() {
+    Log.i(TAG, "Sending LN payment for invoice " + mLNInvoiceAsString);
+    final PaymentRequest pr = mLNInvoice;
+    final String prAsString = mLNInvoiceAsString;
     AsyncExecutor.create().execute(
       new AsyncExecutor.RunnableEx() {
         @Override
         public void run() throws Exception {
           // 0 - Check if payment already exists
-          List<Payment> paymentListForH = Payment.findWithQuery(Payment.class, "SELECT * FROM Payment WHERE payment_hash = ? LIMIT 1",
-            pr.paymentHash().toString());
+          Payment paymentForH = Payment.getPayment(pr.paymentHash().toString(), PaymentTypes.LN);
 
           // 1 - save payment attempt in DB
-          final Payment p = paymentListForH.isEmpty() ? new Payment() : paymentListForH.get(0);
-          if (paymentListForH.isEmpty()) {
+          final Payment p = paymentForH == null ? new Payment(PaymentTypes.LN) : paymentForH;
+          if (paymentForH == null) {
             p.amountRequested = CoinUtils.getLongAmountFromInvoice(pr);
-            p.paymentHash = pr.paymentHash().toString();
+            p.paymentReference = pr.paymentHash().toString();
             p.paymentRequest = prAsString;
             p.status = "PENDING";
             p.description = pr.description().isLeft() ? pr.description().left().get() : pr.description().right().get().toString();
             p.created = new Date();
             p.updated = new Date();
             p.save();
-          } else if ("PAID".equals(paymentListForH.get(0).status)) {
+          } else if ("PAID".equals(paymentForH.status)) {
             EventBus.getDefault().post(new LNPaymentFailedEvent(p, "Invoice already paid."));
             return;
           }
@@ -155,7 +186,16 @@ public class CreatePaymentActivity extends Activity implements InvoiceReaderTask
         }
       }
     );
-    finish();
+  }
+
+  private void sendBitcoinPayment() {
+    Log.i(TAG, "Sending Bitcoin payment for invoice " + mBitcoinInvoice.toString());
+    try {
+      EclairHelper.sendBitcoinPayment(this.getBaseContext(), SendRequest.to(mBitcoinInvoice.getAddress(), mBitcoinInvoice.getAmount()));
+      Toast.makeText(this, "Sent transaction", Toast.LENGTH_SHORT).show();
+    } catch (Throwable t) {
+      Log.e(TAG, "Could not send Bitcoin payment", t);
+    }
   }
 
   private void toggleButtons() {

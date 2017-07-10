@@ -15,14 +15,12 @@ import akka.actor.UntypedActor;
 import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.bitcoin.Crypto;
 import fr.acinq.bitcoin.MilliSatoshi;
-import fr.acinq.eclair.channel.CLOSING;
 import fr.acinq.eclair.channel.ChannelCreated;
 import fr.acinq.eclair.channel.ChannelIdAssigned;
 import fr.acinq.eclair.channel.ChannelRestored;
 import fr.acinq.eclair.channel.ChannelSignatureReceived;
 import fr.acinq.eclair.channel.ChannelStateChanged;
 import fr.acinq.eclair.channel.DATA_CLOSING;
-import fr.acinq.eclair.channel.Data;
 import fr.acinq.eclair.channel.HasCommitments;
 import fr.acinq.eclair.channel.NORMAL;
 import fr.acinq.eclair.channel.OFFLINE;
@@ -36,6 +34,7 @@ import fr.acinq.eclair.swordfish.events.LNBalanceUpdateEvent;
 import fr.acinq.eclair.swordfish.events.LNPaymentEvent;
 import fr.acinq.eclair.swordfish.events.NetworkAnnouncementEvent;
 import fr.acinq.eclair.swordfish.model.Payment;
+import fr.acinq.eclair.swordfish.model.PaymentTypes;
 import fr.acinq.eclair.wire.ChannelAnnouncement;
 import fr.acinq.eclair.wire.NodeAnnouncement;
 
@@ -133,7 +132,7 @@ public class EclairEventService extends UntypedActor {
         DATA_CLOSING d = (DATA_CLOSING) cs.currentData();
         // cooperative closing if publish is only mutual
         cd.isCooperativeClosing = d.mutualClosePublished().isDefined() && !d.localCommitPublished().isDefined()
-            && !d.remoteCommitPublished().isDefined() && d.revokedCommitPublished().isEmpty();
+          && !d.remoteCommitPublished().isDefined() && d.revokedCommitPublished().isEmpty();
       }
       if (cs.currentData() instanceof HasCommitments) {
         cd.transactionId = ((HasCommitments) cs.currentData()).commitments().commitInput().outPoint().txid().toString();
@@ -145,11 +144,10 @@ public class EclairEventService extends UntypedActor {
     // ---- events that update payments status
     else if (message instanceof PaymentSent) {
       PaymentSent paymentEvent = (PaymentSent) message;
-      List<Payment> paymentList = Payment.findWithQuery(Payment.class, "SELECT * FROM Payment WHERE payment_hash = ? LIMIT 1", paymentEvent.paymentHash().toString());
-      if (paymentList.isEmpty()) {
+      Payment paymentInDB = Payment.getPayment(paymentEvent.paymentHash().toString(), PaymentTypes.LN);
+      if (paymentInDB == null) {
         Log.d(TAG, "Received an unknown PaymentSent event. Ignoring");
       } else {
-        Payment paymentInDB = paymentList.get(0);
         paymentInDB.amountPaid = paymentEvent.amount().amount();
         paymentInDB.feesPaid = paymentEvent.feesPaid().amount();
         paymentInDB.updated = new Date();

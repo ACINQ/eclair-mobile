@@ -8,13 +8,13 @@ import org.bitcoinj.uri.BitcoinURIParseException;
 
 import fr.acinq.eclair.payment.PaymentRequest;
 
-public class InvoiceReaderTask extends AsyncTask<String, Integer, PaymentRequest> {
+public class LNInvoiceReaderTask extends AsyncTask<String, Integer, PaymentRequest> {
 
-  private static final String TAG = "InvoiceReaderTask";
+  private static final String TAG = "LNInvoiceReaderTask";
   private final String invoiceAsString;
   private final AsyncInvoiceReaderTaskResponse delegate;
 
-  public InvoiceReaderTask(AsyncInvoiceReaderTaskResponse delegate, String invoiceAsString) {
+  public LNInvoiceReaderTask(AsyncInvoiceReaderTaskResponse delegate, String invoiceAsString) {
     this.delegate = delegate;
     this.invoiceAsString = invoiceAsString;
   }
