@@ -21,7 +21,7 @@
       android:value="swordfish.db" />
     <meta-data
       android:name="VERSION"
-      android:value="7" />
+      android:value="10" />
     <meta-data
       android:name="QUERY_LOG"
       android:value="true" />
@@ -48,12 +48,13 @@
       android:label="Send a Payment"
       android:noHistory="true"
       android:parentActivityName=".activity.HomeActivity"
+      android:screenOrientation="portrait"
       android:stateNotNeeded="true"
       android:theme="@style/CustomDialog" />
     <activity
       android:name=".activity.ScanActivity"
       android:noHistory="true"
-      android:screenOrientation="fullSensor"
+      android:screenOrientation="portrait"
       android:stateNotNeeded="true"
       android:theme="@style/zxing_CaptureTheme"
       android:windowSoftInputMode="stateAlwaysHidden" />
@@ -62,6 +63,7 @@
       android:label="Open a new channel"
       android:noHistory="true"
       android:parentActivityName=".activity.HomeActivity"
+      android:screenOrientation="portrait"
       android:stateNotNeeded="true"
       android:theme="@style/CustomDialog" />
     <activity
@@ -70,8 +72,13 @@
       android:parentActivityName=".activity.HomeActivity"
       android:screenOrientation="portrait" />
     <activity
-      android:name=".activity.PaymentDetailsActivity"
-      android:label="Payment Details"
+      android:name=".activity.LNPaymentDetailsActivity"
+      android:label="Lightning Payment Details"
+      android:parentActivityName=".activity.HomeActivity"
+      android:screenOrientation="portrait" />
+    <activity
+      android:name=".activity.BitcoinTransactionDetailsActivity"
+      android:label="Transaction Details"
       android:parentActivityName=".activity.HomeActivity"
       android:screenOrientation="portrait" />
     <activity

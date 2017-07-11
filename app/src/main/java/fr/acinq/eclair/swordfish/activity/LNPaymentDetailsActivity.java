@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 
 import java.text.DateFormat;
 
@@ -16,14 +15,14 @@ import fr.acinq.eclair.swordfish.customviews.DataRow;
 import fr.acinq.eclair.swordfish.model.Payment;
 import fr.acinq.eclair.swordfish.utils.CoinUtils;
 
-public class PaymentDetailsActivity extends AppCompatActivity {
+public class LNPaymentDetailsActivity extends AppCompatActivity {
 
-  private static final String TAG = "PaymentDetailsActivity";
+  private static final String TAG = "LNPaymentDetailsActivity";
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    setContentView(R.layout.activity_payment_details);
+    setContentView(R.layout.activity_ln_payment_details);
 
     Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
@@ -41,10 +40,10 @@ public class PaymentDetailsActivity extends AppCompatActivity {
 
       // amount
       DataRow amountPaidRow = (DataRow) findViewById(R.id.paymentdetails_amount_paid);
-      amountPaidRow.setValue(CoinUtils.formatAmountMilliBtc(new MilliSatoshi(p.amountPaid)));
+      amountPaidRow.setValue(CoinUtils.formatAmountMilliBtc(new MilliSatoshi(p.amountPaidMsat)));
 
       DataRow feesRow = (DataRow) findViewById(R.id.paymentdetails_fees);
-      feesRow.setValue(Long.toString(p.feesPaid));
+      feesRow.setValue(Long.toString(p.feesPaidMsat));
 
       DataRow statusRow = (DataRow) findViewById(R.id.paymentdetails_status);
       statusRow.setValue(p.status);
@@ -53,7 +52,7 @@ public class PaymentDetailsActivity extends AppCompatActivity {
       descRow.setValue(p.description);
 
       DataRow amountRequestedRow = (DataRow) findViewById(R.id.paymentdetails_amount_requested);
-      amountRequestedRow.setValue(CoinUtils.formatAmountMilliBtc(new MilliSatoshi(p.amountRequested)));
+      amountRequestedRow.setValue(CoinUtils.formatAmountMilliBtc(new MilliSatoshi(p.amountRequestedMsat)));
 
       DataRow paymentHashRow = (DataRow) findViewById(R.id.paymentdetails_paymenthash);
       paymentHashRow.setValue(p.paymentReference);

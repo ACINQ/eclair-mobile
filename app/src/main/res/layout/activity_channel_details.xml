@@ -50,12 +50,12 @@
       <include layout="@layout/include_separator" />
 
       <fr.acinq.eclair.swordfish.customviews.DataRow
-      android:id="@+id/channeldetails_capacity"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      app:desc="Initial channel capacity, in millisatoshis"
-      app:label="Capacity"
-      app:value="@string/unknown" />
+        android:id="@+id/channeldetails_capacity"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:desc="Initial channel capacity, in millisatoshis"
+        app:label="Capacity"
+        app:value="@string/unknown" />
 
       <include layout="@layout/include_separator" />
 
@@ -77,17 +77,34 @@
         app:label="Transaction Id"
         app:value="@string/unknown" />
 
-      <include layout="@layout/include_separator" />
+      <include layout="@layout/include_open_in_explorer" />
 
-      <Button
+      <LinearLayout
         android:id="@+id/channeldetails_close"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:backgroundTint="@color/red"
-        android:textColor="@color/white"
-        android:textSize="12sp"
-        android:visibility="gone"
-        android:text="Close Channel" />
+        android:layout_marginTop="16dp"
+        android:background="@color/redFaded"
+        android:clickable="true"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:padding="12dp"
+        android:visibility="visible">
+
+        <ImageView
+          android:layout_width="18dp"
+          android:layout_height="18dp"
+          android:layout_marginEnd="8dp"
+          android:src="@drawable/ic_close_white_24dp" />
+
+        <TextView
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="@string/close_button"
+          android:textAllCaps="true"
+          android:textColor="@color/white"
+          android:textSize="12sp" />
+      </LinearLayout>
 
     </LinearLayout>
   </android.support.v4.widget.NestedScrollView>

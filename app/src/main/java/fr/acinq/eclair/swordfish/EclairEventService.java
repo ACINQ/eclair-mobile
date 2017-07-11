@@ -5,7 +5,6 @@ import android.util.Log;
 import org.greenrobot.eventbus.EventBus;
 
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -15,6 +14,7 @@ import akka.actor.UntypedActor;
 import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.bitcoin.Crypto;
 import fr.acinq.bitcoin.MilliSatoshi;
+import fr.acinq.eclair.channel.CLOSING;
 import fr.acinq.eclair.channel.ChannelCreated;
 import fr.acinq.eclair.channel.ChannelIdAssigned;
 import fr.acinq.eclair.channel.ChannelRestored;
@@ -53,16 +53,19 @@ public class EclairEventService extends UntypedActor {
     long availableTotal = 0;
     long pendingTotal = 0;
     long offlineTotal = 0;
+    long closingTotal = 0;
     for (ChannelDetails d : channelDetailsMap.values()) {
       if (NORMAL.toString().equals(d.state)) {
         availableTotal += d.balanceMsat.amount();
+      } else if (CLOSING.toString().equals(d.state)) {
+        closingTotal += d.balanceMsat.amount();
       } else if (OFFLINE.toString().equals(d.state)) {
         offlineTotal += d.balanceMsat.amount();
       } else {
         pendingTotal += d.balanceMsat.amount();
       }
     }
-    EventBus.getDefault().postSticky(new LNBalanceUpdateEvent(availableTotal, pendingTotal, offlineTotal));
+    EventBus.getDefault().postSticky(new LNBalanceUpdateEvent(availableTotal, pendingTotal, offlineTotal, closingTotal));
   }
 
   public static MilliSatoshi getBalanceMsatOf(String channelId) {
@@ -122,6 +125,7 @@ public class EclairEventService extends UntypedActor {
     else if (message instanceof Terminated) {
       channelDetailsMap.remove(((Terminated) message).getActor());
       EventBus.getDefault().post(new ChannelUpdateEvent());
+      postLNBalanceEvent();
     }
     // ---- channel state changed
     else if (message instanceof ChannelStateChanged) {
@@ -148,8 +152,8 @@ public class EclairEventService extends UntypedActor {
       if (paymentInDB == null) {
         Log.d(TAG, "Received an unknown PaymentSent event. Ignoring");
       } else {
-        paymentInDB.amountPaid = paymentEvent.amount().amount();
-        paymentInDB.feesPaid = paymentEvent.feesPaid().amount();
+        paymentInDB.amountPaidMsat = paymentEvent.amount().amount();
+        paymentInDB.feesPaidMsat = paymentEvent.feesPaid().amount();
         paymentInDB.updated = new Date();
         paymentInDB.status = "PAID";
         paymentInDB.save();

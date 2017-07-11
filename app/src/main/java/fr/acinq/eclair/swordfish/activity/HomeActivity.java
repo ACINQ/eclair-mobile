@@ -266,7 +266,7 @@ public class HomeActivity extends AppCompatActivity {
 
     Intent intent = new Intent(this, PaymentFailureActivity.class);
     intent.putExtra(PaymentFailureActivity.EXTRA_PAYMENTFAILURE_DESC, event.payment.description);
-    intent.putExtra(PaymentFailureActivity.EXTRA_PAYMENTFAILURE_AMOUNT, event.payment.amountPaid);
+    intent.putExtra(PaymentFailureActivity.EXTRA_PAYMENTFAILURE_AMOUNT, event.payment.amountPaidMsat);
     intent.putExtra(PaymentFailureActivity.EXTRA_PAYMENTFAILURE_CAUSE, event.cause);
     startActivity(intent);
     mPaymentsListFragment.updateList();
@@ -276,7 +276,7 @@ public class HomeActivity extends AppCompatActivity {
   public void handleLNPaymentEvent(LNPaymentEvent event) {
     Intent intent = new Intent(this, PaymentSuccessActivity.class);
     intent.putExtra(PaymentSuccessActivity.EXTRA_PAYMENTSUCCESS_DESC, event.payment.description);
-    intent.putExtra(PaymentSuccessActivity.EXTRA_PAYMENTSUCCESS_AMOUNT, (event.payment.amountPaid));
+    intent.putExtra(PaymentSuccessActivity.EXTRA_PAYMENTSUCCESS_AMOUNT, event.payment.amountPaidMsat);
     startActivity(intent);
     mPaymentsListFragment.updateList();
   }

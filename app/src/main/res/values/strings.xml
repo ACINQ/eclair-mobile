@@ -35,5 +35,7 @@
   <string name="menu_home">Home</string>
   <string name="menu_settings">Settings</string>
 
+  <string name="open_in_explorer">Open transaction in explorer</string>
+  <string name="close_button">Close Channel</string>
   <string name="close_channel_message">Are you sure you want to close this channel?</string>
 </resources>

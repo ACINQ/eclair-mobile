@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:orientation="vertical"
+  tools:context="fr.acinq.eclair.swordfish.activity.BitcoinTransactionDetailsActivity">
+
+  <!-- Custom toolbar -->
+  <include layout="@layout/toolbar" />
+
+  <android.support.v4.widget.NestedScrollView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:orientation="vertical">
+
+      <fr.acinq.eclair.swordfish.customviews.DataRow
+        android:id="@+id/transactiondetails_amount"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:desc="Amount in bitcoin"
+        app:label="Amount"
+        app:value="@string/unknown" />
+
+      <include layout="@layout/include_separator" />
+
+      <fr.acinq.eclair.swordfish.customviews.DataRow
+        android:id="@+id/transactiondetails_fees"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:desc="Fees paid to the network"
+        app:label="Fees"
+        app:value="@string/unknown" />
+
+      <include layout="@layout/include_separator" />
+
+      <fr.acinq.eclair.swordfish.customviews.DataRow
+        android:id="@+id/transactiondetails_txid"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:desc=""
+        app:label="Transaction ID"
+        app:value="@string/unknown" />
+
+      <include layout="@layout/include_separator" />
+
+      <fr.acinq.eclair.swordfish.customviews.DataRow
+        android:id="@+id/transactiondetails_date"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:desc=""
+        app:label="Date"
+        app:value="@string/unknown" />
+
+      <include layout="@layout/include_open_in_explorer" />
+
+    </LinearLayout>
+  </android.support.v4.widget.NestedScrollView>
+
+</LinearLayout>

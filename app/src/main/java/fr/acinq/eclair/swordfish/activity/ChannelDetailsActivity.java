@@ -9,7 +9,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 
 import java.util.Map;
 
@@ -24,6 +23,7 @@ import fr.acinq.eclair.swordfish.R;
 import fr.acinq.eclair.swordfish.adapters.LocalChannelItemHolder;
 import fr.acinq.eclair.swordfish.customviews.DataRow;
 import fr.acinq.eclair.swordfish.utils.CoinUtils;
+import fr.acinq.eclair.swordfish.utils.WalletUtils;
 
 public class ChannelDetailsActivity extends AppCompatActivity {
 
@@ -50,7 +50,7 @@ public class ChannelDetailsActivity extends AppCompatActivity {
     try {
       final Map.Entry<ActorRef, EclairEventService.ChannelDetails> channel = getChannel(channelId);
 
-      if (channel.getValue() != null && channel.getKey() != null) {
+      if (channel.getValue() != null && channel.getKey() != null && channel.getValue() != null) {
         DataRow idRow = (DataRow) findViewById(R.id.channeldetails_id);
         idRow.setValue(channel.getValue().channelId);
         DataRow balanceRow = (DataRow) findViewById(R.id.channeldetails_balance);
@@ -63,6 +63,8 @@ public class ChannelDetailsActivity extends AppCompatActivity {
         stateRow.setValue(channel.getValue().state);
         DataRow transactionIdRow = (DataRow) findViewById(R.id.channeldetails_transactionid);
         transactionIdRow.setValue(channel.getValue().transactionId);
+        View openInExplorer = findViewById(R.id.open_in_explorer);
+        openInExplorer.setOnClickListener(WalletUtils.getOpenTxListener(channel.getValue().transactionId));
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         final String message = getResources().getString(R.string.close_channel_message)
@@ -82,7 +84,7 @@ public class ChannelDetailsActivity extends AppCompatActivity {
         });
         mCloseDialog = builder.create();
 
-        Button closeButton = (Button) findViewById(R.id.channeldetails_close);
+        View closeButton = findViewById(R.id.channeldetails_close);
         if (!CLOSING.toString().equals(channel.getValue().state) && !CLOSED.toString().equals(channel.getValue().state)) {
           closeButton.setVisibility(View.VISIBLE);
           closeButton.setOnClickListener(new View.OnClickListener() {

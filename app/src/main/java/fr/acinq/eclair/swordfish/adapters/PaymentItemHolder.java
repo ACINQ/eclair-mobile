@@ -10,7 +10,8 @@ import java.text.DateFormat;
 
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.eclair.swordfish.R;
-import fr.acinq.eclair.swordfish.activity.PaymentDetailsActivity;
+import fr.acinq.eclair.swordfish.activity.BitcoinTransactionDetailsActivity;
+import fr.acinq.eclair.swordfish.activity.LNPaymentDetailsActivity;
 import fr.acinq.eclair.swordfish.model.Payment;
 import fr.acinq.eclair.swordfish.model.PaymentTypes;
 import fr.acinq.eclair.swordfish.utils.CoinUtils;
@@ -40,42 +41,52 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
 
   @Override
   public void onClick(View v) {
-    Intent intent = new Intent(v.getContext(), PaymentDetailsActivity.class);
+    Intent intent = PaymentTypes.LN.toString().equals(mPayment.type) ? new Intent(v.getContext(), LNPaymentDetailsActivity.class) : new Intent(v.getContext(), BitcoinTransactionDetailsActivity.class);
     intent.putExtra(EXTRA_PAYMENT_ID, mPayment.getId().longValue());
     v.getContext().startActivity(intent);
   }
 
   public void bindPaymentItem(Payment payment) {
     this.mPayment = payment;
-    try {
-      if (payment.amountPaid == 0) {
-        mAmount.setText(CoinUtils.formatAmountMilliBtc(new MilliSatoshi(payment.amountRequested)));
-      } else {
-        mAmount.setText(CoinUtils.formatAmountMilliBtc(new MilliSatoshi(payment.amountPaid)));
-      }
-    } catch (Exception e) {
-      mAmount.setText(CoinUtils.getMilliBTCFormat().format(0));
-    }
-    this.mStatus.setText(payment.status);
-    if ("FAILED".equals(payment.status)) {
-      mStatus.setTextColor(FAILED_PAYMENT_COLOR);
-    } else if ("PAID".equals(payment.status)) {
-      mStatus.setTextColor(SUCCESS_PAYMENT_COLOR);
-    } else {
-      mStatus.setTextColor(PENDING_PAYMENT_COLOR);
-    }
+
     if (payment.updated != null) {
       mDate.setText(DateFormat.getDateTimeInstance().format(payment.updated));
     }
+
     if (PaymentTypes.LN.toString().equals(payment.type)) {
-      this.mDescription.setText(payment.description);
-      mPaymentIcon.setImageResource(R.drawable.icon_bolt_circle_yellow);
-    } else if (PaymentTypes.BTC_RECEIVED.toString().equals(payment.type)) {
-      this.mDescription.setText(payment.paymentReference);
-      mPaymentIcon.setImageResource(R.drawable.icon_btc_extrude_green);
-    } else if (PaymentTypes.BTC_SENT.toString().equals(payment.type)) {
-      this.mDescription.setText(payment.paymentReference);
-      mPaymentIcon.setImageResource(R.drawable.icon_btc_extrude_red);
+      try {
+        if (payment.amountPaidMsat == 0) {
+          mAmount.setText("-" + CoinUtils.formatAmountMilliBtc(new MilliSatoshi(payment.amountRequestedMsat)));
+        } else {
+          mAmount.setText("-" + CoinUtils.formatAmountMilliBtc(new MilliSatoshi(payment.amountPaidMsat)));
+        }
+      } catch (Exception e) {
+        mAmount.setText("-" + CoinUtils.getMilliBTCFormat().format(0));
+      }
+      mAmount.setTextColor(mAmount.getResources().getColor(R.color.redFaded));
+      mDescription.setText(payment.description);
+      mStatus.setVisibility(View.VISIBLE);
+      mStatus.setText(payment.status);
+      if ("FAILED".equals(payment.status)) {
+        mStatus.setTextColor(FAILED_PAYMENT_COLOR);
+      } else if ("PAID".equals(payment.status)) {
+        mStatus.setTextColor(SUCCESS_PAYMENT_COLOR);
+      } else {
+        mStatus.setTextColor(PENDING_PAYMENT_COLOR);
+      }
+      mPaymentIcon.setImageResource(R.drawable.icon_bolt_circle_blue);
+    } else {
+      mStatus.setVisibility(View.GONE);
+      mPaymentIcon.setImageResource(R.drawable.icon_btc_extrude_orange);
+      mDescription.setText(payment.paymentReference);
+      if (PaymentTypes.BTC_RECEIVED.toString().equals(payment.type)) {
+        mAmount.setText(CoinUtils.formatAmountMilliBtc(new MilliSatoshi(payment.amountPaidMsat)));
+        mAmount.setTextColor(mAmount.getResources().getColor(R.color.green));
+
+      } else if (PaymentTypes.BTC_SENT.toString().equals(payment.type)) {
+        mAmount.setText(CoinUtils.formatAmountMilliBtc(new MilliSatoshi(payment.amountPaidMsat)));
+        mAmount.setTextColor(mAmount.getResources().getColor(R.color.redFaded));
+      }
     }
   }
 

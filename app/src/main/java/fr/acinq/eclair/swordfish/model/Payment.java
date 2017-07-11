@@ -11,8 +11,6 @@ public class Payment extends SugarRecord {
   public String type;
   @Unique
   public String paymentReference;
-
-  public String transactionId;
   public String paymentRequest;
   public String description;
   public String status;
@@ -20,9 +18,9 @@ public class Payment extends SugarRecord {
   public Date updated;
   public String lastErrorCause;
 
-  public long amountRequested = 0;
-  public long amountPaid = 0;
-  public long feesPaid = 0;
+  public long amountRequestedMsat = 0;
+  public long amountPaidMsat = 0;
+  public long feesPaidMsat = 0;
 
   public Payment() {
   }
@@ -38,7 +36,7 @@ public class Payment extends SugarRecord {
     if (payments.isEmpty()) {
       return null;
     } else {
-     return payments.get(0);
+      return payments.get(0);
     }
   }
 

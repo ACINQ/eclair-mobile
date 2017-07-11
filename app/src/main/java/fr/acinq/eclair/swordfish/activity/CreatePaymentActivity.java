@@ -132,7 +132,7 @@ public class CreatePaymentActivity extends Activity
           // 1 - save payment attempt in DB
           final Payment p = paymentForH == null ? new Payment(PaymentTypes.LN) : paymentForH;
           if (paymentForH == null) {
-            p.amountRequested = CoinUtils.getLongAmountFromInvoice(pr);
+            p.amountRequestedMsat = CoinUtils.getLongAmountFromInvoice(pr);
             p.paymentReference = pr.paymentHash().toString();
             p.paymentRequest = prAsString;
             p.status = "PENDING";

@@ -5,7 +5,7 @@
   android:layout_width="match_parent"
   android:layout_height="match_parent"
   android:orientation="vertical"
-  tools:context="fr.acinq.eclair.swordfish.activity.PaymentDetailsActivity">
+  tools:context="fr.acinq.eclair.swordfish.activity.LNPaymentDetailsActivity">
 
   <!-- Custom toolbar -->
   <include layout="@layout/toolbar" />
@@ -60,12 +60,12 @@
       <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@color/colorGrey_0"
         android:paddingBottom="8dp"
         android:paddingLeft="8dp"
         android:paddingTop="16dp"
         android:text="TECHNICAL INFORMATIONS"
         android:textColor="@color/colorGrey_2"
-        android:background="@color/colorGrey_0"
         android:textSize="10sp" />
 
       <fr.acinq.eclair.swordfish.customviews.DataRow
