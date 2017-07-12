@@ -13,6 +13,7 @@
   <logger name="org.bitcoinj" level="INFO" />
   <logger name="org.bitcoinj.core.PeerGroup" level="WARN" />
   <logger name="org.bitcoinj.core.PeerSocketHandler" level="WARN" />
+  <logger name="org.zeroturnaround.zip" level="TRACE" />
 
   <root level="DEBUG">
     <appender-ref ref="logcat" />

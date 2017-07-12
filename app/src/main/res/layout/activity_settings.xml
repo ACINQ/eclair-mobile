@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-  xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools"
   android:layout_width="match_parent"
   android:layout_height="match_parent"
-  tools:context="fr.acinq.eclair.swordfish.activity.SettingsActivity"
-  android:orientation="vertical">
+  android:orientation="vertical"
+  tools:context="fr.acinq.eclair.swordfish.activity.SettingsActivity">
 
   <!-- Custom toolbar -->
   <include layout="@layout/toolbar" />
@@ -14,12 +13,12 @@
   <TextView
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@color/colorGrey_0"
     android:paddingBottom="8dp"
     android:paddingLeft="8dp"
     android:paddingTop="16dp"
     android:text="NODE INFORMATIONS"
     android:textColor="@color/colorGrey_2"
-    android:background="@color/colorGrey_0"
     android:textSize="10sp" />
 
   <include layout="@layout/include_separator" />
@@ -28,8 +27,8 @@
     android:id="@+id/settings_nodeid"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    app:label="Public Key"
     app:desc="Lightning Network's public identifier"
+    app:label="Public Key"
     app:value="@string/unknown" />
 
   <include layout="@layout/include_separator" />
@@ -38,8 +37,8 @@
     android:id="@+id/settings_nodealias"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    app:label="Alias"
     app:desc="Name of the node"
+    app:label="Alias"
     app:value="@string/unknown" />
 
   <include layout="@layout/include_separator" />
@@ -50,19 +49,19 @@
     android:layout_height="wrap_content"
     android:clickable="true"
     android:onClick="settings_refreshCount"
-    app:label="Block Count"
     app:desc=""
+    app:label="Block Count"
     app:value="@string/unknown" />
 
   <TextView
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@color/colorGrey_0"
     android:paddingBottom="8dp"
     android:paddingLeft="8dp"
     android:paddingTop="16dp"
     android:text="NETWORK"
     android:textColor="@color/colorGrey_2"
-    android:background="@color/colorGrey_0"
     android:textSize="10sp" />
 
   <include layout="@layout/include_separator" />
@@ -71,11 +70,11 @@
     android:id="@+id/settings_networkchannels_count"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    app:label="Channels Announced"
-    app:desc="Click for list of channels"
-    app:value="@string/unknown"
     android:clickable="true"
-    android:onClick="goToNetworkChannels" />
+    android:onClick="goToNetworkChannels"
+    app:desc="Click for list of channels"
+    app:label="Channels Announced"
+    app:value="@string/unknown" />
 
   <include layout="@layout/include_separator" />
 
@@ -83,10 +82,45 @@
     android:id="@+id/settings_networknodes_count"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    app:label="Nodes Announced"
-    app:desc="Click for list of nodes"
-    app:value="@string/unknown"
     android:clickable="true"
-    android:onClick="goToNetworkNodes" />
+    android:onClick="goToNetworkNodes"
+    app:desc="Click for list of nodes"
+    app:label="Nodes Announced"
+    app:value="@string/unknown" />
+
+  <include layout="@layout/include_separator" />
+
+  <LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+    <TextView
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_weight="0.5"
+      android:padding="8dp"
+      android:text="@string/zip_datadir"
+      android:textStyle="bold" />
+
+    <Button
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_weight="0.5"
+      android:onClick="zipDatadir"
+      android:text="@string/zip_datadir_button"
+      android:textAllCaps="true"
+      android:textSize="12sp" />
+
+  </LinearLayout>
+
+  <TextView
+    android:id="@+id/settings_zip_path"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="8dp"
+    android:textSize="12sp"
+    android:textColor="@color/colorGrey_1"
+    android:text="" />
 
 </LinearLayout>

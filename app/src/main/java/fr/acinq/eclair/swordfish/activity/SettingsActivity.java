@@ -2,10 +2,20 @@ package fr.acinq.eclair.swordfish.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import org.zeroturnaround.zip.ZipUtil;
+
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import fr.acinq.eclair.Globals;
 import fr.acinq.eclair.swordfish.App;
@@ -16,6 +26,8 @@ import fr.acinq.eclair.swordfish.customviews.DataRow;
 
 public class SettingsActivity extends AppCompatActivity {
 
+  private static final String TAG = "SettingsActivity";
+  private TextView mZipLocationView;
   private DataRow mNodePublicKeyRow;
   private DataRow mAliasRow;
   private DataRow mNetworkChannelCount;
@@ -34,6 +46,7 @@ public class SettingsActivity extends AppCompatActivity {
     ActionBar ab = getSupportActionBar();
     ab.setDisplayHomeAsUpEnabled(true);
 
+    mZipLocationView = (TextView) findViewById(R.id.settings_zip_path);
     mNodePublicKeyRow = (DataRow) findViewById(R.id.settings_nodeid);
     mAliasRow = (DataRow) findViewById(R.id.settings_nodealias);
     mNetworkNodesCount = (DataRow) findViewById(R.id.settings_networknodes_count);
@@ -55,6 +68,39 @@ public class SettingsActivity extends AppCompatActivity {
     mBlockCount.setValue(String.valueOf(Globals.blockCount().get()));
   }
 
+  private boolean isExternalStorageWritable() {
+    String state = Environment.getExternalStorageState();
+    if (Environment.MEDIA_MOUNTED.equals(state)) {
+      return true;
+    }
+    return false;
+  }
+
+  private void zipFailed() {
+    Toast.makeText(this, "Could not extract datadir", Toast.LENGTH_SHORT).show();
+  }
+
+  public void zipDatadir(View view) {
+    if (!isExternalStorageWritable()) {
+      zipFailed();
+      return;
+    }
+    File outputZipDir = getZipDirectory();
+    try {
+      outputZipDir.mkdirs();
+      SimpleDateFormat zipDateFormat = new SimpleDateFormat("yyyy-MM-dd-HHmmss");
+      File outputZipFile = new File(outputZipDir, EclairHelper.DATADIR_NAME + "_" + zipDateFormat.format(new Date()) + ".zip");
+      ZipUtil.pack(new File(getApplicationContext().getFilesDir(), EclairHelper.DATADIR_NAME), outputZipFile);
+      Toast.makeText(this, "Datadir extracted", Toast.LENGTH_SHORT).show();
+    } catch (Exception e) {
+      Log.e(TAG, "Could not extract datadir", e);
+    }
+  }
+
+  private File getZipDirectory() {
+    return new File(getBaseContext().getExternalFilesDir(null), "extracted-datadirs");
+  }
+
   @Override
   public void onResume() {
     super.onResume();
@@ -63,5 +109,6 @@ public class SettingsActivity extends AppCompatActivity {
     mNetworkChannelCount.setValue(Integer.toString(EclairEventService.channelAnnouncementMap.size()));
     mNetworkNodesCount.setValue(Integer.toString(EclairEventService.nodeAnnouncementMap.size()));
     mBlockCount.setValue(String.valueOf(Globals.blockCount().get()));
+    mZipLocationView.setText("Located in: " + getZipDirectory().getAbsolutePath());
   }
 }
