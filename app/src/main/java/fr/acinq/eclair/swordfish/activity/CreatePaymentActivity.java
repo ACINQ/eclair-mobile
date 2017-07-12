@@ -28,6 +28,7 @@ import fr.acinq.eclair.crypto.Sphinx;
 import fr.acinq.eclair.payment.PaymentFailed;
 import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.payment.PaymentSucceeded;
+import fr.acinq.eclair.swordfish.App;
 import fr.acinq.eclair.swordfish.EclairHelper;
 import fr.acinq.eclair.swordfish.R;
 import fr.acinq.eclair.swordfish.customviews.CoinAmountView;
@@ -61,6 +62,7 @@ public class CreatePaymentActivity extends Activity
   private View mAmountEditableView;
   private EditText mAmountEditableValue;
   private boolean isAmountReadonly = true;
+  private EclairHelper eclairHelper;
 
   @Override
   public void processBitcoinInvoiceFinish(BitcoinURI output) {
@@ -122,6 +124,7 @@ public class CreatePaymentActivity extends Activity
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    eclairHelper = ((App) getApplication()).getEclairInstance();
     setContentView(R.layout.activity_create_payment);
 
     mFormView = findViewById(R.id.payment_form);
@@ -236,7 +239,7 @@ public class CreatePaymentActivity extends Activity
           };
 
           // 3 - execute payment future
-          EclairHelper.sendPayment(getApplicationContext(), 45, onComplete, amountMsat, pr.paymentHash(), pr.nodeId());
+          eclairHelper.sendPayment(45, onComplete, amountMsat, pr.paymentHash(), pr.nodeId());
         }
       }
     );
@@ -245,7 +248,7 @@ public class CreatePaymentActivity extends Activity
   private void sendBitcoinPayment(final Coin amount) {
     Log.i(TAG, "Sending Bitcoin payment for invoice " + mBitcoinInvoice.toString());
     try {
-      EclairHelper.sendBitcoinPayment(this.getBaseContext(), SendRequest.to(mBitcoinInvoice.getAddress(), amount));
+      eclairHelper.sendBitcoinPayment(SendRequest.to(mBitcoinInvoice.getAddress(), amount));
       Toast.makeText(this, "Sent transaction", Toast.LENGTH_SHORT).show();
     } catch (Throwable t) {
       Log.e(TAG, "Could not send Bitcoin payment", t);

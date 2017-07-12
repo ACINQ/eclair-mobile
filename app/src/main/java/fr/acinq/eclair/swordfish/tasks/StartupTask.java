@@ -5,7 +5,7 @@ import android.os.AsyncTask;
 
 import fr.acinq.eclair.swordfish.EclairHelper;
 
-public class StartupTask extends AsyncTask<String, Integer, Long> {
+public class StartupTask extends AsyncTask<String, Integer, EclairHelper> {
 
   private AsyncSetupResponse delegate;
   private Context context;
@@ -15,17 +15,17 @@ public class StartupTask extends AsyncTask<String, Integer, Long> {
   }
 
   @Override
-  protected Long doInBackground(String... params) {
-    EclairHelper.startup(context);
-    return 1L;
+  protected EclairHelper doInBackground(String... params) {
+    return new EclairHelper(context);
   }
 
-  protected void onPostExecute(Long result) {
-    delegate.processFinish();
+  @Override
+  protected void onPostExecute(EclairHelper instance) {
+    delegate.processFinish(instance);
   }
 
   public interface AsyncSetupResponse {
-    void processFinish();
+    void processFinish(EclairHelper instance);
   }
 
 }

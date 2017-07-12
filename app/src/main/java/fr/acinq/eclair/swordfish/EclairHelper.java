@@ -1,7 +1,6 @@
 package fr.acinq.eclair.swordfish;
 
 import android.content.Context;
-import android.content.Intent;
 import android.util.Log;
 
 import org.bitcoinj.core.Coin;
@@ -35,7 +34,6 @@ import fr.acinq.eclair.io.Switchboard;
 import fr.acinq.eclair.payment.PaymentEvent;
 import fr.acinq.eclair.payment.SendPayment;
 import fr.acinq.eclair.router.NetworkEvent;
-import fr.acinq.eclair.swordfish.activity.LauncherActivity;
 import fr.acinq.eclair.swordfish.events.BitcoinPaymentEvent;
 import fr.acinq.eclair.swordfish.events.WalletBalanceUpdateEvent;
 import fr.acinq.eclair.swordfish.model.Payment;
@@ -46,20 +44,17 @@ import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
 
 public class EclairHelper {
+  public final static String DATADIR_NAME = "eclair-wallet-data";
   private static final String TAG = "EclairHelper";
-  private static EclairHelper mInstance = null;
   private ActorRef guiUpdater;
   private BitcoinjKit2 kit2;
   private Setup setup;
 
-  private EclairHelper() {
-  }
-
-  private EclairHelper(Context context) {
+  public EclairHelper(Context context) {
     try {
-      Log.i(TAG, "Accessing Eclair Setup with datadir in " + context.getFilesDir().getAbsolutePath());
-      File datadir = new File(context.getFilesDir(), "eclair-wallet-data");
-      System.setProperty("eclair.node-alias", "sw-ripley");
+      File datadir = new File(context.getFilesDir(), DATADIR_NAME);
+      Log.i(TAG, "Accessing Eclair Setup with datadir " + datadir.getAbsolutePath());
+      System.setProperty("eclair.node-alias", "ewa");
 
       kit2 = new BitcoinjKit2("test", datadir) {
         @Override
@@ -87,7 +82,8 @@ public class EclairHelper {
               final Coin amountSent = newBalance.minus(prevBalance);
               paymentSent.paymentReference = tx.getHashAsString();
               paymentSent.amountPaidMsat = package$.MODULE$.satoshi2millisatoshi(new Satoshi(amountSent.getValue())).amount();
-              if (tx.getFee() != null) paymentSent.feesPaidMsat = package$.MODULE$.satoshi2millisatoshi(new Satoshi(tx.getFee().getValue())).amount();
+              if (tx.getFee() != null)
+                paymentSent.feesPaidMsat = package$.MODULE$.satoshi2millisatoshi(new Satoshi(tx.getFee().getValue())).amount();
               paymentSent.updated = tx.getUpdateTime();
               paymentSent.save();
               EventBus.getDefault().post(new BitcoinPaymentEvent(paymentSent));
@@ -111,90 +107,47 @@ public class EclairHelper {
         setup.system().shutdown();
         setup.system().awaitTermination();
         setup = null;
-        mInstance = null;
       }
     }
   }
 
-  public static void startup(Context context) {
-    if (!isEclairReady()) {
-      Class clazz = EclairHelper.class;
-      synchronized (clazz) {
-        mInstance = new EclairHelper(context);
-      }
-    }
+  public void publishWalletBalance() {
+    Coin coin = this.kit2.wallet().getBalance();
+    EventBus.getDefault().postSticky(new WalletBalanceUpdateEvent(new Satoshi(coin.getValue())));
   }
 
-  private static boolean checkEclairReady(Context context) {
-    if (!isEclairReady()) {
-      // eclair is not correctly loaded, clear task and redirection to Launcher
-      Intent intent = new Intent(context, LauncherActivity.class);
-      intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-      intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-      intent.putExtra(LauncherActivity.EXTRA_AUTOSTART, false);
-      context.startActivity(intent);
-      return false;
-    }
-    return true;
+  public void sendPayment(int timeout, OnComplete<Object> onComplete, long amountMsat, BinaryData paymentHash, Crypto.PublicKey targetNodeId) {
+    Future<Object> paymentFuture = Patterns.ask(
+      this.setup.paymentInitiator(),
+      new SendPayment(amountMsat, paymentHash, targetNodeId, 5),
+      new Timeout(Duration.create(timeout, "seconds")));
+    paymentFuture.onComplete(onComplete, this.setup.system().dispatcher());
   }
 
-  public static boolean isEclairReady() {
-    return mInstance != null && mInstance.setup != null;
-  }
-
-  public static void getWalletBalance(Context context) {
-    if (checkEclairReady(context)) {
-      Coin coin = mInstance.kit2.wallet().getBalance();
-      EventBus.getDefault().postSticky(new WalletBalanceUpdateEvent(new Satoshi(coin.getValue())));
-    }
-  }
-
-  public static void sendPayment(Context context, int timeout, OnComplete<Object> onComplete, long amountMsat, BinaryData paymentHash, Crypto.PublicKey targetNodeId) {
-    if (checkEclairReady(context)) {
-      Future<Object> paymentFuture = Patterns.ask(
-        mInstance.setup.paymentInitiator(),
-        new SendPayment(amountMsat, paymentHash, targetNodeId, 5),
-        new Timeout(Duration.create(timeout, "seconds")));
-      paymentFuture.onComplete(onComplete, mInstance.setup.system().dispatcher());
-    }
-  }
-
-  public static void openChannel(Context context, int timeout, OnComplete<Object> onComplete,
-                                 Crypto.PublicKey publicKey, InetSocketAddress address, Switchboard.NewChannel channel) {
-    if (checkEclairReady(context) && publicKey != null && address != null && channel != null) {
+  public void openChannel(int timeout, OnComplete<Object> onComplete,
+                          Crypto.PublicKey publicKey, InetSocketAddress address, Switchboard.NewChannel channel) {
+    if (publicKey != null && address != null && channel != null) {
       Future<Object> openChannelFuture = Patterns.ask(
-        mInstance.setup.switchboard(),
+        this.setup.switchboard(),
         new Switchboard.NewConnection(publicKey, address, Option.apply(channel)),
         new Timeout(Duration.create(timeout, "seconds")));
-      openChannelFuture.onComplete(onComplete, mInstance.setup.system().dispatcher());
+      openChannelFuture.onComplete(onComplete, this.setup.system().dispatcher());
     }
   }
 
-  public static String nodeAlias(Context context) {
-    if (checkEclairReady(context)) {
-      return mInstance.setup.nodeParams().alias();
-    }
-    return "Unknown";
+  public String nodeAlias() {
+    return this.setup.nodeParams().alias();
   }
 
-  public static Wallet.SendResult sendBitcoinPayment(Context context, SendRequest sendRequest) throws InsufficientMoneyException, EclairStateException {
-    if (checkEclairReady(context)) {
-      return mInstance.kit2.wallet().sendCoins(sendRequest);
-    }
-    throw new EclairStateException();
+  public Wallet.SendResult sendBitcoinPayment(SendRequest sendRequest) throws InsufficientMoneyException, EclairStateException {
+    return this.kit2.wallet().sendCoins(sendRequest);
   }
 
-  public static String nodePublicKey(Context context) {
-    if (checkEclairReady(context)) {
-      return mInstance.setup.nodeParams().privateKey().publicKey().toBin().toString();
-    }
-    return "Unknown";
+  public String nodePublicKey() {
+    return this.setup.nodeParams().privateKey().publicKey().toBin().toString();
   }
 
-  public static String getWalletPublicAddress(Context context) {
-    if (checkEclairReady(context)) {
-      return mInstance.kit2.wallet().freshSegwitAddress(KeyChain.KeyPurpose.RECEIVE_FUNDS).toBase58();
-    }
-    return "Unknown";
+  public String getWalletPublicAddress() {
+    return this.kit2.wallet().freshSegwitAddress(KeyChain.KeyPurpose.RECEIVE_FUNDS).toBase58();
   }
 }

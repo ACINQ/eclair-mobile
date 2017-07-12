@@ -31,6 +31,7 @@ import java.util.List;
 
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.package$;
+import fr.acinq.eclair.swordfish.App;
 import fr.acinq.eclair.swordfish.EclairEventService;
 import fr.acinq.eclair.swordfish.EclairHelper;
 import fr.acinq.eclair.swordfish.R;
@@ -70,10 +71,12 @@ public class HomeActivity extends AppCompatActivity {
   private CoinAmountView mTotalBalanceView;
   private TextView mWalletBalanceView;
   private TextView mLNBalanceView;
+  private EclairHelper eclairHelper;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    eclairHelper = ((App) getApplication()).getEclairInstance();
     setContentView(R.layout.activity_home);
 
     Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -133,7 +136,7 @@ public class HomeActivity extends AppCompatActivity {
       EventBus.getDefault().register(this);
     }
     super.onResume();
-    EclairHelper.getWalletBalance(getBaseContext());
+    eclairHelper.publishWalletBalance();
     EclairEventService.postLNBalanceEvent();
   }
 

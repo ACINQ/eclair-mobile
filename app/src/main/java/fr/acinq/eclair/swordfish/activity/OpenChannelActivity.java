@@ -26,6 +26,7 @@ import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.io.Switchboard;
+import fr.acinq.eclair.swordfish.App;
 import fr.acinq.eclair.swordfish.EclairHelper;
 import fr.acinq.eclair.swordfish.R;
 import fr.acinq.eclair.swordfish.events.LNNewChannelFailureEvent;
@@ -43,10 +44,12 @@ public class OpenChannelActivity extends Activity implements OneInputDialog.OneI
   private TextView mIPTextView;
   private TextView mPortTextView;
   private Button mOpenButton;
+  private EclairHelper eclairHelper;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    eclairHelper = ((App) getApplication()).getEclairInstance();
     setContentView(R.layout.activity_open_channel);
 
     mOpenButton = (Button) findViewById(R.id.fund__button_openchannel);
@@ -160,7 +163,7 @@ public class OpenChannelActivity extends Activity implements OneInputDialog.OneI
               }
             }
           };
-          EclairHelper.openChannel(getApplicationContext(), 30, onComplete, pubkey, address, new Switchboard.NewChannel(fundingSat, new MilliSatoshi(0)));
+          eclairHelper.openChannel(30, onComplete, pubkey, address, new Switchboard.NewChannel(fundingSat, new MilliSatoshi(0)));
         }
       });
     goToHome();

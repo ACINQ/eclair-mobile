@@ -8,6 +8,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 
 import fr.acinq.eclair.Globals;
+import fr.acinq.eclair.swordfish.App;
 import fr.acinq.eclair.swordfish.EclairEventService;
 import fr.acinq.eclair.swordfish.EclairHelper;
 import fr.acinq.eclair.swordfish.R;
@@ -20,10 +21,12 @@ public class SettingsActivity extends AppCompatActivity {
   private DataRow mNetworkChannelCount;
   private DataRow mNetworkNodesCount;
   private DataRow mBlockCount;
+  private EclairHelper eclairHelper;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    eclairHelper = ((App) getApplication()).getEclairInstance();
     setContentView(R.layout.activity_settings);
 
     Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -55,8 +58,8 @@ public class SettingsActivity extends AppCompatActivity {
   @Override
   public void onResume() {
     super.onResume();
-    mNodePublicKeyRow.setValue(EclairHelper.nodePublicKey(getApplicationContext()));
-    mAliasRow.setValue(EclairHelper.nodeAlias(getApplicationContext()));
+    mNodePublicKeyRow.setValue(eclairHelper.nodePublicKey());
+    mAliasRow.setValue(eclairHelper.nodeAlias());
     mNetworkChannelCount.setValue(Integer.toString(EclairEventService.channelAnnouncementMap.size()));
     mNetworkNodesCount.setValue(Integer.toString(EclairEventService.nodeAnnouncementMap.size()));
     mBlockCount.setValue(String.valueOf(Globals.blockCount().get()));

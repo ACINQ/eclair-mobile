@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import fr.acinq.eclair.swordfish.App;
 import fr.acinq.eclair.swordfish.EclairHelper;
 import fr.acinq.eclair.swordfish.R;
 import fr.acinq.eclair.swordfish.tasks.StartupTask;
@@ -50,14 +51,11 @@ public class LauncherActivity extends AppCompatActivity implements StartupTask.A
   }
 
   @Override
-  public void processFinish() {
-    if (EclairHelper.isEclairReady()) {
-      Intent intent = new Intent(this, HomeActivity.class);
-      startActivity(intent);
-      finish();
-    } else {
-      showRestart();
-    }
+  public void processFinish(EclairHelper instance) {
+    ((App) getApplication()).setEclairInstance(instance);
+    Intent intent = new Intent(this, HomeActivity.class);
+    startActivity(intent);
+    finish();
   }
 }
 

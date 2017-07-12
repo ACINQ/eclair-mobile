@@ -14,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import fr.acinq.eclair.swordfish.App;
 import fr.acinq.eclair.swordfish.EclairHelper;
 import fr.acinq.eclair.swordfish.R;
 import fr.acinq.eclair.swordfish.tasks.QRCodeTask;
@@ -24,10 +25,12 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
   private ImageView mQRImageView;
   private TextView mAddressTextView;
   private String address;
+  private EclairHelper eclairHelper;
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    eclairHelper = ((App) getActivity().getApplication()).getEclairInstance();
     setHasOptionsMenu(false);
   }
 
@@ -43,7 +46,7 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
   @Override
   public void onStart() {
     super.onStart();
-    address = EclairHelper.getWalletPublicAddress(getContext());
+    address = eclairHelper.getWalletPublicAddress();
     mAddressTextView.setText(address);
     new QRCodeTask(this, address, 1000, 1000).execute();
   }
