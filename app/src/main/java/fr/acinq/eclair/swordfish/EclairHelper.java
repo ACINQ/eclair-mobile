@@ -50,7 +50,7 @@ public class EclairHelper {
   private BitcoinjKit2 kit2;
   private Setup setup;
 
-  public EclairHelper(Context context) {
+  public EclairHelper(Context context) throws EclairStartException {
     try {
       File datadir = new File(context.getFilesDir(), DATADIR_NAME);
       Log.i(TAG, "Accessing Eclair Setup with datadir " + datadir.getAbsolutePath());
@@ -108,6 +108,7 @@ public class EclairHelper {
         setup.system().awaitTermination();
         setup = null;
       }
+      throw new EclairStartException();
     }
   }
 

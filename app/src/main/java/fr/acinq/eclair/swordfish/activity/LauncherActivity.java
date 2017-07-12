@@ -52,10 +52,14 @@ public class LauncherActivity extends AppCompatActivity implements StartupTask.A
 
   @Override
   public void processFinish(EclairHelper instance) {
-    ((App) getApplication()).setEclairInstance(instance);
-    Intent intent = new Intent(this, HomeActivity.class);
-    startActivity(intent);
-    finish();
+    if (instance != null) {
+      ((App) getApplication()).setEclairInstance(instance);
+      Intent intent = new Intent(this, HomeActivity.class);
+      startActivity(intent);
+      finish();
+    } else {
+      showRestart();
+    }
   }
 }
 

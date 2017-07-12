@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 
 import fr.acinq.eclair.swordfish.EclairHelper;
+import fr.acinq.eclair.swordfish.EclairStartException;
 
 public class StartupTask extends AsyncTask<String, Integer, EclairHelper> {
 
@@ -16,7 +17,11 @@ public class StartupTask extends AsyncTask<String, Integer, EclairHelper> {
 
   @Override
   protected EclairHelper doInBackground(String... params) {
-    return new EclairHelper(context);
+    try {
+      return new EclairHelper(context);
+    } catch (EclairStartException e) {
+      return null;
+    }
   }
 
   @Override
