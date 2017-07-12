@@ -8,7 +8,12 @@
   <string name="home_balance_available">Offchain Spendable</string>
   <string name="payments_empty">No payments has been made yet…\nSend a payment by scanning an LN invoice.</string>
   <string name="payment__lbl_pr">Enter a LN Payment Request:</string>
-  <string name="payment__lbl_pr_amount">Amount to send</string>
+  <string name="amount_to_send_readonly">Amount to send</string>
+  <string name="amount_to_send_editable">Enter the amount, in Bitcoin</string>
+  <string name="amount_is_invalid">The amount is not valid.</string>
+  <string name="description">Description</string>
+  <string name="destination_address">Destination address</string>
+
   <string name="payment__btn_send">Send Payment</string>
   <string name="payment__label_pending">Please wait… Payment is being sent.</string>
   <string name="localchannels_empty">No open channels yet…\nYou can open a new channel by clicking on the button below.</string>

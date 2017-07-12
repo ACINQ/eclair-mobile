@@ -55,15 +55,14 @@
 
   </RelativeLayout>
 
-  <LinearLayout
+  <RelativeLayout
     android:id="@+id/paymentitem_amount"
-    android:layout_width="wrap_content"
+    android:layout_width="104dp"
     android:layout_height="wrap_content"
     android:layout_alignParentEnd="true"
     android:layout_centerVertical="true"
     android:layout_marginEnd="8dp"
     android:gravity="end|center_vertical"
-    android:minWidth="92dp"
     android:orientation="horizontal">
 
     <TextView
@@ -73,16 +72,42 @@
       android:layout_marginEnd="4dp"
       android:maxLines="1"
       android:text="0.00"
-      android:textSize="18sp" />
+      android:layout_toStartOf="@+id/paymentitem_amount_unit"
+      android:layout_alignParentTop="true"
+      android:textSize="16sp" />
 
     <TextView
       android:id="@+id/paymentitem_amount_unit"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
+      android:layout_alignParentEnd="true"
+      android:layout_alignBaseline="@+id/paymentitem_amount_value"
       android:text="mBTC"
       android:textColor="@color/colorGrey_1"
       android:textSize="8sp" />
-  </LinearLayout>
+
+    <TextView
+      android:id="@+id/paymentitem_fees_value"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginEnd="4dp"
+      android:maxLines="1"
+      android:layout_below="@+id/paymentitem_amount_value"
+      android:layout_toStartOf="@+id/paymentitem_amount_unit"
+      android:text="0.00"
+      android:textSize="10sp" />
+
+    <TextView
+      android:id="@+id/paymentitem_fees_unit"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_alignBaseline="@+id/paymentitem_fees_value"
+      android:layout_alignStart="@+id/paymentitem_amount_unit"
+      android:text="sat"
+      android:textColor="@color/colorGrey_1"
+      android:textSize="8sp" />
+
+  </RelativeLayout>
 
   <View
     android:layout_width="match_parent"

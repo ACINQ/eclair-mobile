@@ -12,7 +12,7 @@
     android:elevation="4dp"
     android:gravity="center"
     android:orientation="horizontal"
-    android:visibility="visible">
+    android:visibility="gone">
 
     <TextView
       android:id="@+id/payment_loading_text"
@@ -24,18 +24,69 @@
 
   </LinearLayout>
 
+  <TextView
+    android:id="@+id/payment_amount_invalid"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_centerInParent="true"
+    android:text="@string/amount_is_invalid"
+    android:textAlignment="center"
+    android:padding="8dp"
+    android:visibility="gone"
+    android:elevation="4dp"
+    android:textColor="@color/white"
+    android:background="@color/redFaded"
+    android:textSize="12sp" />
+
   <LinearLayout
     android:id="@+id/payment_form"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:visibility="gone">
+    android:visibility="visible">
 
     <LinearLayout
+      android:id="@+id/payment_amount_editable"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:background="@color/colorGrey_0"
+      android:gravity="center"
+      android:orientation="vertical"
+      android:paddingBottom="24dp"
+      android:paddingLeft="16dp"
+      android:visibility="gone"
+      android:paddingRight="16dp"
+      android:paddingTop="32dp">
+
+      <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="6dp"
+        android:text="@string/amount_to_send_editable"
+        android:textAlignment="center"
+        android:textColor="@color/colorGrey_1"
+        android:textSize="12sp" />
+
+      <EditText
+        android:id="@+id/payment_amount_editable_value"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:inputType="numberDecimal"
+        android:background="@android:color/transparent"
+        android:textAlignment="center"
+        android:textColor="@color/colorGrey_4"
+        android:textSize="22sp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+      android:id="@+id/payment_amount_readonly"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:background="@color/colorGrey_0"
       android:orientation="vertical"
+      android:visibility="gone"
       android:paddingBottom="24dp"
       android:paddingLeft="16dp"
       android:paddingRight="16dp"
@@ -45,7 +96,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="6dp"
-        android:text="@string/payment__lbl_pr_amount"
+        android:text="@string/amount_to_send_readonly"
         android:textAlignment="center"
         android:textColor="@color/colorGrey_1"
         android:textSize="12sp" />
@@ -76,9 +127,9 @@
       android:padding="16dp">
 
       <TextView
+        android:id="@+id/paymentitem_description_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Description"
         android:textStyle="bold" />
 
       <TextView
@@ -87,7 +138,6 @@
         android:layout_height="wrap_content"
         android:ellipsize="end"
         android:maxLines="2"
-        android:text="Description of the payment"
         android:textSize="12sp" />
 
     </LinearLayout>

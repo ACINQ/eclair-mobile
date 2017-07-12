@@ -282,7 +282,7 @@ public class HomeActivity extends AppCompatActivity {
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
-  public void handleLNPaymentEvent(BitcoinPaymentEvent event) {
+  public void handleBitcoinPaymentEvent(BitcoinPaymentEvent event) {
     mPaymentsListFragment.updateList();
   }
 

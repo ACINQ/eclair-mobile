@@ -22,6 +22,7 @@ import akka.actor.Props;
 import akka.dispatch.OnComplete;
 import akka.pattern.Patterns;
 import akka.util.Timeout;
+import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.bitcoin.Crypto;
 import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.bitcoin.package$;
@@ -32,7 +33,6 @@ import fr.acinq.eclair.blockchain.wallet.EclairWallet;
 import fr.acinq.eclair.channel.ChannelEvent;
 import fr.acinq.eclair.io.Switchboard;
 import fr.acinq.eclair.payment.PaymentEvent;
-import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.payment.SendPayment;
 import fr.acinq.eclair.router.NetworkEvent;
 import fr.acinq.eclair.swordfish.activity.LauncherActivity;
@@ -40,7 +40,6 @@ import fr.acinq.eclair.swordfish.events.BitcoinPaymentEvent;
 import fr.acinq.eclair.swordfish.events.WalletBalanceUpdateEvent;
 import fr.acinq.eclair.swordfish.model.Payment;
 import fr.acinq.eclair.swordfish.model.PaymentTypes;
-import fr.acinq.eclair.swordfish.utils.CoinUtils;
 import scala.Option;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
@@ -88,7 +87,7 @@ public class EclairHelper {
               final Coin amountSent = newBalance.minus(prevBalance);
               paymentSent.paymentReference = tx.getHashAsString();
               paymentSent.amountPaidMsat = package$.MODULE$.satoshi2millisatoshi(new Satoshi(amountSent.getValue())).amount();
-              if (tx.getFee() != null) paymentSent.feesPaidMsat = tx.getFee().getValue();
+              if (tx.getFee() != null) paymentSent.feesPaidMsat = package$.MODULE$.satoshi2millisatoshi(new Satoshi(tx.getFee().getValue())).amount();
               paymentSent.updated = tx.getUpdateTime();
               paymentSent.save();
               EventBus.getDefault().post(new BitcoinPaymentEvent(paymentSent));
@@ -150,11 +149,11 @@ public class EclairHelper {
     }
   }
 
-  public static void sendPayment(Context context, int timeout, OnComplete<Object> onComplete, PaymentRequest paymentRequest) {
-    if (checkEclairReady(context) && paymentRequest != null) {
+  public static void sendPayment(Context context, int timeout, OnComplete<Object> onComplete, long amountMsat, BinaryData paymentHash, Crypto.PublicKey targetNodeId) {
+    if (checkEclairReady(context)) {
       Future<Object> paymentFuture = Patterns.ask(
         mInstance.setup.paymentInitiator(),
-        new SendPayment(CoinUtils.getLongAmountFromInvoice(paymentRequest), paymentRequest.paymentHash(), paymentRequest.nodeId(), 5),
+        new SendPayment(amountMsat, paymentHash, targetNodeId, 5),
         new Timeout(Duration.create(timeout, "seconds")));
       paymentFuture.onComplete(onComplete, mInstance.setup.system().dispatcher());
     }

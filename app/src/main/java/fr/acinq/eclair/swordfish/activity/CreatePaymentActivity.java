@@ -3,11 +3,15 @@ package fr.acinq.eclair.swordfish.activity;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.text.Editable;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.bitcoinj.core.Coin;
 import org.bitcoinj.uri.BitcoinURI;
 import org.bitcoinj.wallet.SendRequest;
 import org.greenrobot.eventbus.EventBus;
@@ -50,11 +54,17 @@ public class CreatePaymentActivity extends Activity
   private TextView mLoadingTextView;
   private View mFormView;
   private CoinAmountView mAmountView;
+  private TextView mDescriptionLabelView;
   private TextView mDescriptionView;
+  private TextView mAmountInvalidView;
+  private View mAmountReadonlyView;
+  private View mAmountEditableView;
+  private EditText mAmountEditableValue;
+  private boolean isAmountReadonly = true;
 
   @Override
   public void processBitcoinInvoiceFinish(BitcoinURI output) {
-    if (output == null) {
+    if (output == null || output.getAddress() == null) {
       mLoadingTextView.setTextColor(getResources().getColor(R.color.red));
       mLoadingTextView.setText("Could not read invoice!");
       mLoadingView.setClickable(true);
@@ -66,7 +76,12 @@ public class CreatePaymentActivity extends Activity
       });
     } else {
       mBitcoinInvoice = output;
-      mAmountView.setAmountMsat(package$.MODULE$.satoshi2millisatoshi(new Satoshi(output.getAmount().getValue())));
+      isAmountReadonly = output.getAmount() != null;
+      setAmountViewVisibility();
+      mDescriptionLabelView.setText(R.string.destination_address);
+      if (isAmountReadonly) {
+        mAmountView.setAmountMsat(package$.MODULE$.satoshi2millisatoshi(new Satoshi(output.getAmount().getValue())));
+      }
       mDescriptionView.setText(output.getAddress().toBase58());
       mLoadingView.setVisibility(View.GONE);
       mFormView.setVisibility(View.VISIBLE);
@@ -79,11 +94,28 @@ public class CreatePaymentActivity extends Activity
       new BitcoinInvoiceReaderTask(this, mLNInvoiceAsString).execute();
     } else {
       mLNInvoice = output;
-      mAmountView.setAmountMsat(CoinUtils.getAmountFromInvoice(output));
+      mDescriptionLabelView.setText(R.string.description);
+      isAmountReadonly = output.amount().isDefined();
+      setAmountViewVisibility();
+      if (isAmountReadonly) {
+        mAmountView.setAmountMsat(CoinUtils.getAmountFromInvoice(output));
+      }
       Either<String, BinaryData> desc = output.description();
       mDescriptionView.setText(desc.isLeft() ? desc.left().get() : desc.right().get().toString());
       mLoadingView.setVisibility(View.GONE);
       mFormView.setVisibility(View.VISIBLE);
+    }
+  }
+
+  private void setAmountViewVisibility() {
+    if (isAmountReadonly) {
+      mAmountReadonlyView.setVisibility(View.VISIBLE);
+      mAmountEditableView.setVisibility(View.GONE);
+      mAmountEditableValue.clearFocus();
+    } else {
+      mAmountReadonlyView.setVisibility(View.GONE);
+      mAmountEditableView.setVisibility(View.VISIBLE);
+      mAmountEditableValue.requestFocus();
     }
   }
 
@@ -96,7 +128,12 @@ public class CreatePaymentActivity extends Activity
     mLoadingView = findViewById(R.id.payment_loading);
     mLoadingTextView = (TextView) findViewById(R.id.payment_loading_text);
     mAmountView = (CoinAmountView) findViewById(R.id.payment_value_amount);
+    mDescriptionLabelView = (TextView) findViewById(R.id.paymentitem_description_label);
     mDescriptionView = (TextView) findViewById(R.id.payment_description);
+    mAmountReadonlyView = findViewById(R.id.payment_amount_readonly);
+    mAmountEditableView = findViewById(R.id.payment_amount_editable);
+    mAmountEditableValue = (EditText) findViewById(R.id.payment_amount_editable_value);
+    mAmountInvalidView = (TextView) findViewById(R.id.payment_amount_invalid);
 
     Intent intent = getIntent();
     mLNInvoiceAsString = intent.getStringExtra(EXTRA_INVOICE);
@@ -110,15 +147,31 @@ public class CreatePaymentActivity extends Activity
   public void sendPayment(final View view) {
     isProcessingPayment = true;
     toggleButtons();
-    if (mLNInvoice != null) {
-      sendLNPayment();
-    } else if (mBitcoinInvoice != null) {
-      sendBitcoinPayment();
+    try {
+      if (mLNInvoice != null) {
+          final long amountMsat = isAmountReadonly
+            ? CoinUtils.getLongAmountFromInvoice(mLNInvoice)
+            : package$.MODULE$.satoshi2millisatoshi(new Satoshi(Coin.parseCoin(mAmountEditableValue.getText().toString()).getValue())).amount();
+          sendLNPayment(amountMsat);
+      } else if (mBitcoinInvoice != null) {
+        final Coin amount = isAmountReadonly ? mBitcoinInvoice.getAmount() : Coin.parseCoin(mAmountEditableValue.getText().toString());
+        sendBitcoinPayment(amount);
+      }
+      finish();
+    } catch (Exception e) {
+      isProcessingPayment = false;
+      toggleButtons();
+      mAmountInvalidView.setVisibility(View.VISIBLE);
+      (new Handler()).postDelayed(new Runnable() {
+        public void run() {
+          mAmountInvalidView.setVisibility(View.GONE);
+        }
+      }, 1500);
+      Log.e(TAG, "Could not send payment", e);
     }
-    finish();
   }
 
-  private void sendLNPayment() {
+  private void sendLNPayment(final long amountMsat) {
     Log.i(TAG, "Sending LN payment for invoice " + mLNInvoiceAsString);
     final PaymentRequest pr = mLNInvoice;
     final String prAsString = mLNInvoiceAsString;
@@ -128,6 +181,7 @@ public class CreatePaymentActivity extends Activity
         public void run() throws Exception {
           // 0 - Check if payment already exists
           Payment paymentForH = Payment.getPayment(pr.paymentHash().toString(), PaymentTypes.LN);
+          ;
 
           // 1 - save payment attempt in DB
           final Payment p = paymentForH == null ? new Payment(PaymentTypes.LN) : paymentForH;
@@ -182,16 +236,16 @@ public class CreatePaymentActivity extends Activity
           };
 
           // 3 - execute payment future
-          EclairHelper.sendPayment(getApplicationContext(), 45, onComplete, pr);
+          EclairHelper.sendPayment(getApplicationContext(), 45, onComplete, amountMsat, pr.paymentHash(), pr.nodeId());
         }
       }
     );
   }
 
-  private void sendBitcoinPayment() {
+  private void sendBitcoinPayment(final Coin amount) {
     Log.i(TAG, "Sending Bitcoin payment for invoice " + mBitcoinInvoice.toString());
     try {
-      EclairHelper.sendBitcoinPayment(this.getBaseContext(), SendRequest.to(mBitcoinInvoice.getAddress(), mBitcoinInvoice.getAmount()));
+      EclairHelper.sendBitcoinPayment(this.getBaseContext(), SendRequest.to(mBitcoinInvoice.getAddress(), amount));
       Toast.makeText(this, "Sent transaction", Toast.LENGTH_SHORT).show();
     } catch (Throwable t) {
       Log.e(TAG, "Could not send Bitcoin payment", t);
@@ -202,6 +256,9 @@ public class CreatePaymentActivity extends Activity
     if (isProcessingPayment) {
       this.findViewById(R.id.payment_layout_buttons).setVisibility(View.GONE);
       this.findViewById(R.id.payment_feedback).setVisibility(View.VISIBLE);
+    } else {
+      this.findViewById(R.id.payment_layout_buttons).setVisibility(View.VISIBLE);
+      this.findViewById(R.id.payment_feedback).setVisibility(View.GONE);
     }
   }
 

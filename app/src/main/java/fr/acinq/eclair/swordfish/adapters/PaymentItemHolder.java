@@ -7,6 +7,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.text.DateFormat;
+import java.text.NumberFormat;
 
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.eclair.swordfish.R;
@@ -24,6 +25,7 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
   private static final int SUCCESS_PAYMENT_COLOR = 0xFF00C28C;
   private final ImageView mPaymentIcon;
   private final TextView mDescription;
+  private final TextView mFees;
   private final TextView mStatus;
   private final TextView mDate;
   private final TextView mAmount;
@@ -36,6 +38,7 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
     this.mStatus = (TextView) itemView.findViewById(R.id.paymentitem_status);
     this.mDescription = (TextView) itemView.findViewById(R.id.paymentitem_description);
     this.mDate = (TextView) itemView.findViewById(R.id.paymentitem_date);
+    this.mFees = (TextView) itemView.findViewById(R.id.paymentitem_fees_value);
     itemView.setOnClickListener(this);
   }
 
@@ -52,6 +55,8 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
     if (payment.updated != null) {
       mDate.setText(DateFormat.getDateTimeInstance().format(payment.updated));
     }
+
+    mFees.setText(NumberFormat.getInstance().format(payment.feesPaidMsat / 1000));
 
     if (PaymentTypes.LN.toString().equals(payment.type)) {
       try {
