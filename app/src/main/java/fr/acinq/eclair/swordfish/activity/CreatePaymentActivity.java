@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.text.Editable;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -185,7 +184,6 @@ public class CreatePaymentActivity extends Activity
         public void run() throws Exception {
           // 0 - Check if payment already exists
           Payment paymentForH = Payment.getPayment(pr.paymentHash().toString(), PaymentTypes.LN);
-          ;
 
           // 1 - save payment attempt in DB
           final Payment p = paymentForH == null ? new Payment(PaymentTypes.LN) : paymentForH;
@@ -207,10 +205,8 @@ public class CreatePaymentActivity extends Activity
           OnComplete<Object> onComplete = new OnComplete<Object>() {
             @Override
             public void onComplete(Throwable t, Object o) {
-              List<Payment> freshPaymentListForH = Payment.findWithQuery(Payment.class, "SELECT * FROM Payment WHERE payment_hash = ? LIMIT 1",
-                pr.paymentHash().toString());
-              if (!freshPaymentListForH.isEmpty()) {
-                Payment paymentInDB = freshPaymentListForH.get(0);
+              final Payment paymentInDB = Payment.getPayment(pr.paymentHash().toString(), PaymentTypes.LN);
+              if (paymentInDB != null) {
                 if (t != null && t instanceof akka.pattern.AskTimeoutException) {
                   // payment is taking too long, let's do nothing and keep waiting
                 } else {
