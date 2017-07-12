@@ -140,7 +140,7 @@ public class EclairHelper {
     return this.setup.nodeParams().alias();
   }
 
-  public Wallet.SendResult sendBitcoinPayment(SendRequest sendRequest) throws InsufficientMoneyException, EclairStateException {
+  public Wallet.SendResult sendBitcoinPayment(SendRequest sendRequest) throws InsufficientMoneyException {
     return this.kit2.wallet().sendCoins(sendRequest);
   }
 

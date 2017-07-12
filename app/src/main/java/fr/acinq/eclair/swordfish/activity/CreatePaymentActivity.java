@@ -12,6 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.bitcoinj.core.Coin;
+import org.bitcoinj.core.InsufficientMoneyException;
 import org.bitcoinj.uri.BitcoinURI;
 import org.bitcoinj.wallet.SendRequest;
 import org.greenrobot.eventbus.EventBus;
@@ -250,7 +251,10 @@ public class CreatePaymentActivity extends Activity
     try {
       eclairHelper.sendBitcoinPayment(SendRequest.to(mBitcoinInvoice.getAddress(), amount));
       Toast.makeText(this, "Sent transaction", Toast.LENGTH_SHORT).show();
+    } catch (InsufficientMoneyException e) {
+      Toast.makeText(this, "Insufficient balance", Toast.LENGTH_LONG).show();
     } catch (Throwable t) {
+      Toast.makeText(this, "Could not send transaction", Toast.LENGTH_LONG).show();
       Log.e(TAG, "Could not send Bitcoin payment", t);
     }
   }
