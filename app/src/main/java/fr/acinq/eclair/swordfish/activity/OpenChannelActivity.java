@@ -163,7 +163,7 @@ public class OpenChannelActivity extends Activity implements OneInputDialog.OneI
               }
             }
           };
-          eclairHelper.openChannel(30, onComplete, pubkey, address, new Switchboard.NewChannel(fundingSat, new MilliSatoshi(0)));
+          eclairHelper.openChannel(30, onComplete, pubkey, address, new Switchboard.NewChannel(fundingSat, new MilliSatoshi(0), scala.Option.apply(null)));
         }
       });
     goToHome();
