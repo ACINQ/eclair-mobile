@@ -221,6 +221,15 @@
         app:icon="@drawable/ic_photo_camera_white_24dp"
         app:label="Scan an address" />
 
+      <fr.acinq.eclair.swordfish.customviews.FabText
+        android:id="@+id/home_openchannel_random"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="home_doRandomChannel"
+        app:bgcolor="@color/green"
+        app:icon="@drawable/icon_random_white"
+        app:label="Autoconnect" />
+
     </LinearLayout>
 
     <android.support.design.widget.FloatingActionButton
