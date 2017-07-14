@@ -144,6 +144,7 @@ public class EclairEventService extends UntypedActor {
       channelDetailsMap.put(cs.channel(), cd);
       Log.d(TAG, "Channel " + cd.channelId + " changed state to " + cs.currentState());
       EventBus.getDefault().post(new ChannelUpdateEvent());
+      postLNBalanceEvent();
     }
     // ---- events that update payments status
     else if (message instanceof PaymentSent) {
