@@ -31,7 +31,7 @@
       android:layout_centerVertical="true"
       android:layout_marginStart="4dp"
       android:layout_alignParentEnd="true"
-      android:text="mBTC"
+      android:text="@string/btc_milli_short"
       android:textColor="@color/colorGrey_1"
       android:textSize="8sp" />
   </RelativeLayout>

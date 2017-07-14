@@ -43,7 +43,7 @@ public class NetworkChannelsActivity extends AppCompatActivity {
     EventBus.getDefault().register(this);
     super.onStart();
     this.adapter = new NetworkChannelItemAdapter(getChannels());
-    RecyclerView listView = (RecyclerView) findViewById(R.id.networkchannels__list);
+    RecyclerView listView = (RecyclerView) findViewById(R.id.networkchannels_list);
     listView.setHasFixedSize(true);
     listView.setLayoutManager(new LinearLayoutManager(this));
     listView.setAdapter(adapter);
@@ -72,13 +72,13 @@ public class NetworkChannelsActivity extends AppCompatActivity {
       list.add(new NetworkChannelItem(ca.shortChannelId(), ca.nodeId1(), ca.nodeId2()));
     }
     if (list.isEmpty()) {
-      findViewById(R.id.networkchannels__label_empty).setVisibility(View.VISIBLE);
-      findViewById(R.id.networkchannels__list).setVisibility(View.GONE);
+      findViewById(R.id.networkchannels_empty).setVisibility(View.VISIBLE);
+      findViewById(R.id.networkchannels_list).setVisibility(View.GONE);
     } else {
-      findViewById(R.id.networkchannels__label_empty).setVisibility(View.GONE);
-      findViewById(R.id.networkchannels__list).setVisibility(View.VISIBLE);
+      findViewById(R.id.networkchannels_empty).setVisibility(View.GONE);
+      findViewById(R.id.networkchannels_list).setVisibility(View.VISIBLE);
     }
-    Log.i("NetworkChannelsList", "found " + list.size() + "channels in network");
+    Log.d("NetworkChannelsList", "found " + list.size() + "channels in network");
     return list;
   }
 }

@@ -6,46 +6,154 @@
   <string name="home_onchain_balance">WALLET:</string>
   <string name="home_offchain_balance">LIGHTNING:</string>
   <string name="home_balance_available">Offchain Spendable</string>
+  <string name="home_toast_openchannel_invalid">Invalid Lightning Node URI</string>
+  <string name="home_toast_openchannel_success">Opened channel with </string>
+  <string name="home_toast_openchannel_failed">Failed to open channel: </string>
+
+  <string name="payment_do_send">Send Payment</string>
+  <string name="payment_pending">Please wait… Payment is being sent.</string>
+
+  <string name="payments_title">Payments sent:</string>
   <string name="payments_empty">No payments has been made yet…\nSend a payment by scanning an LN invoice.</string>
-  <string name="payment__lbl_pr">Enter a LN Payment Request:</string>
-  <string name="amount_to_send_readonly">Amount to send</string>
-  <string name="amount_to_send_editable">Enter the amount, in Bitcoin</string>
-  <string name="amount_is_invalid">The amount is not valid.</string>
-  <string name="description">Description</string>
-  <string name="destination_address">Destination address</string>
-
-  <string name="payment__btn_send">Send Payment</string>
-  <string name="payment__label_pending">Please wait… Payment is being sent.</string>
+  <string name="localchannels_title">Opened Lightning Channels:</string>
   <string name="localchannels_empty">No open channels yet…\nYou can open a new channel by clicking on the button below.</string>
+  <string name="receive_title">Use this address to receive bitcoins</string>
 
-  <!-- //////////////// fund /////////////////// -->
+  <!-- //////////////// open channel /////////////////// -->
 
-  <string name="fund__label_amount">Capacity (mBTC)</string>
-  <string name="fund__hint_amount">e.g. 42</string>
-  <string name="fund__button_openchannel">Open Channel</string>
-  <string name="fund__label_uri">Target URI</string>
-  <string name="fund__label_uri_desc">URI of the node you want to open a channel with</string>
-  <string name="fund__hint_uri">pubkey@host:port</string>
-  <string name="fund__label_uri_pubkey">Public key:</string>
-  <string name="fund__label_uri_ip">IP:</string>
-  <string name="fund__label_uri_port">Port:</string>
+  <string name="openchannel_capacity">Capacity (mBTC)</string>
+  <string name="openchannel_capacity_hint">e.g. 42</string>
+  <string name="openchannel_do_open">Open Channel</string>
+  <string name="openchannel_pubkey">Public key:</string>
+  <string name="openchannel_ip">IP:</string>
+  <string name="openchannel_port">Port:</string>
 
   <!-- //////////////// commons /////////////////// -->
+
   <string name="unknown">N/A</string>
   <string name="btn_ok">OK</string>
   <string name="btn_cancel">Cancel</string>
   <string name="btn_close">Close</string>
   <string name="pending">Fetching Datas…</string>
+  <string name="cancelled">Cancelled</string>
 
-  <!-- /////////////// menu_home /////////////// -->
+  <!-- /////////////// menus /////////////// -->
+
   <string name="menu_home">Home</string>
   <string name="menu_settings">Settings</string>
 
-  <string name="zip_datadir">Extract datadir in Zip</string>
-  <string name="zip_datadir_button">Extract</string>
   <string name="open_in_explorer">Open transaction in explorer</string>
   <string name="close_button">Close Channel</string>
   <string name="close_channel_message">Are you sure you want to close this channel?</string>
 
-  <string name="receive_title">Use this address to receive bitcoins</string>
+  <!-- //////////////// bitcoin transaction details //////////////////// -->
+
+  <string name="transactiondetails_amount_label">Amount</string>
+  <string name="transactiondetails_amount_desc">Amount in bitcoin</string>
+  <string name="transactiondetails_fees_label">Fees</string>
+  <string name="transactiondetails_fees_desc">Fees paid to the network</string>
+  <string name="transactiondetails_txid_label">Transaction ID</string>
+  <string name="transactiondetails_date_label">Transaction ID</string>
+
+  <!-- //////////////// local channel details //////////////////// -->
+
+  <string name="channeldetails_id_label">Id</string>
+  <string name="channeldetails_id_desc">Channel unique identifier</string>
+  <string name="channeldetails_nodeid_label">Remote node id</string>
+  <string name="channeldetails_nodeid_desc">Public key of the node this channel connects to</string>
+  <string name="channeldetails_state_label">Status</string>
+  <string name="channeldetails_state_desc">Status of the channel</string>
+  <string name="channeldetails_capacity_label">Capacity</string>
+  <string name="channeldetails_capacity_desc">Initial channel capacity, in millisatoshis</string>
+  <string name="channeldetails_balance_label">Balance</string>
+  <string name="channeldetails_balance_desc">Your current balance against the remote node, in milli satoshis"</string>
+  <string name="channeldetails_transactionid_label">Transaction Id</string>
+  <string name="channeldetails_transactionid_desc">Id of the onchain transaction that funded the channel</string>
+
+  <!-- //////////////// send payment //////////////////// -->
+
+  <string name="payment_failure_read_invoice">Could not read invoice!</string>
+  <string name="payment_description">Description</string>
+  <string name="payment_destination_address">Destination address</string>
+  <string name="payment_loading_pleasewait">Reading the invoice, please wait...</string>
+  <string name="payment_amount_to_send_readonly">Amount to send</string>
+  <string name="payment_amount_to_send_editable">Enter the amount, in Bitcoin</string>
+  <string name="payment_amount_is_invalid">The amount is not valid.</string>
+  <string name="payment_toast_sentbtc">Sent transaction</string>
+  <string name="payment_toast_balance">Insufficient balance</string>
+  <string name="payment_toast_failure">Could not send transaction</string>
+
+  <!-- //////////////// launcher //////////////////// -->
+
+  <string name="launcher_restart">Restart</string>
+  <string name="launcher_could_not_start">Eclair could not be started.</string>
+  <string name="launcher_please_wait">Please wait...</string>
+
+  <!-- //////////////// lb payment details //////////////////// -->
+
+  <string name="paymentdetails_technicals_title">TECHNICAL INFORMATIONS</string>
+  <string name="paymentdetails_amount_paid_label">Amount</string>
+  <string name="paymentdetails_amount_paid_desc">Amount paid, in milliBitcoin</string>
+  <string name="paymentdetails_fees_label">Fees</string>
+  <string name="paymentdetails_fees_desc">Fees paid to the network</string>
+  <string name="paymentdetails_status_label">Status</string>
+  <string name="paymentdetails_status_desc">Can be PAID, PENDING or FAILED.</string>
+  <string name="paymentdetails_desc_label">Description</string>
+  <string name="paymentdetails_desc_desc">Description of the payment</string>
+  <string name="paymentdetails_amount_requested_label">Amount Requested</string>
+  <string name="paymentdetails_amount_requested_desc">Amount requested, in milliBitcoin</string>
+  <string name="paymentdetails_paymenthash_label">Payment Hash</string>
+  <string name="paymentdetails_paymenthash_desc">Hash of the payment preimage</string>
+  <string name="paymentdetails_paymentrequest_label">Payment Request</string>
+  <string name="paymentdetails_paymentrequest_desc">Lightning raw invoice, containing all necessary datas</string>
+  <string name="paymentdetails_created_label">Creation date</string>
+  <string name="paymentdetails_created_desc">When the payment was initiated</string>
+  <string name="paymentdetails_updated_label">Last update</string>
+  <string name="paymentdetails_updated_desc">Last time the payment was updated</string>
+
+  <!-- //////////////// network channels/nodes //////////////////// -->
+
+  <string name="networkchannels_empty">No channels announced yet.</string>
+  <string name="networknodes_empty">No nodes announced yet.</string>
+
+  <string name="networkchannelitem_channelid">Short Id</string>
+  <string name="networkchannelitem_node1">Node 1</string>
+  <string name="networkchannelitem_node2">Node 2</string>
+  <string name="networknodeitem_alias">Alias</string>
+  <string name="networknodeitem_pubkey">Public Key</string>
+
+  <!-- //////////////// payment splash //////////////////// -->
+
+  <string name="paymentsuccess_title">Payment sent!</string>
+  <string name="paymentfailure_title">Payment failed!</string>
+  <string name="paymentfailure_cause">Unknown cause</string>
+
+  <!-- //////////////// settings //////////////////// -->
+
+  <string name="zip_datadir">Extract datadir in Zip</string>
+  <string name="zip_datadir_button">Extract</string>
+  <string name="zip_datadir_toast_success">Datadir extracted</string>
+  <string name="zip_datadir_toast_failure">Could not extract datadir</string>
+  <string name="settings_nodeinfo">Node informations</string>
+  <string name="settings_nodeid_label">Public Key</string>
+  <string name="settings_nodeid_desc">Lightning Network\'s public identifier</string>
+  <string name="settings_nodealias_label">Alias</string>
+  <string name="settings_nodealias_desc">Name of the node</string>
+  <string name="settings_blockcount_label">Block Count</string>
+  <string name="settings_blockcount_desc">Current block count</string>
+  <string name="settings_feerate_label">Fee Rate</string>
+  <string name="settings_feerate_desc">Current fee rate</string>
+  <string name="settings_network">Network</string>
+  <string name="settings_networkchannels_label">Channels Announced</string>
+  <string name="settings_networkchannels_desc">Click for list of channels</string>
+  <string name="settings_networknodes_label">Nodes Announced</string>
+  <string name="settings_networknodes_desc">Click for list of nodes</string>
+
+  <!-- //////////////// monetary units //////////////////// -->
+
+  <string name="btc_sat_short">sat</string>
+  <string name="btc_sat_long">Satoshi</string>
+  <string name="btc_milli_short">mBTC</string>
+  <string name="btc_milli_long">Milli-Bitcoin</string>
+
 </resources>

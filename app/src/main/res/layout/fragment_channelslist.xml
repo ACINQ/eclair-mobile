@@ -17,7 +17,7 @@
     android:paddingLeft="16dp"
     android:paddingRight="16dp"
     android:paddingTop="16dp"
-    android:text="Opened Lightning Channels:"
+    android:text="@string/localchannels_title"
     android:textAllCaps="true"
     android:textColor="@color/colorGrey_2"
     android:textSize="10sp" />

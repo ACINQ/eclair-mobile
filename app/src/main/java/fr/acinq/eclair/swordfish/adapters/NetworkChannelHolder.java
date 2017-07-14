@@ -7,10 +7,6 @@ import android.widget.TextView;
 import fr.acinq.eclair.swordfish.R;
 import fr.acinq.eclair.swordfish.model.NetworkChannelItem;
 
-/**
- * Created by Dominique on 13/06/2017.
- */
-
 public class NetworkChannelHolder  extends RecyclerView.ViewHolder {
   private final TextView id;
   private final TextView node1;
@@ -24,8 +20,8 @@ public class NetworkChannelHolder  extends RecyclerView.ViewHolder {
 
   public NetworkChannelHolder(View itemView) {
     super(itemView);
-    this.id = (TextView) itemView.findViewById(R.id.item_channelid_value);
-    this.node1 = (TextView) itemView.findViewById(R.id.item_node1_value);
-    this.node2 = (TextView) itemView.findViewById(R.id.item_node2_value);
+    this.id = (TextView) itemView.findViewById(R.id.networkchannelitem_channelid);
+    this.node1 = (TextView) itemView.findViewById(R.id.networkchannelitem_node1);
+    this.node2 = (TextView) itemView.findViewById(R.id.networkchannelitem_node2);
   }
 }

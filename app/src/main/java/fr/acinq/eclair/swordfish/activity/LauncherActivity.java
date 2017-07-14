@@ -40,13 +40,13 @@ public class LauncherActivity extends AppCompatActivity implements StartupTask.A
   }
 
   private void showRestart() {
-    mSubtitleTextView.setText("Eclair could not be started.");
+    mSubtitleTextView.setText(R.string.launcher_could_not_start);
     mRestartButton.setVisibility(View.VISIBLE);
   }
 
   private void initEclair() {
     mRestartButton.setVisibility(View.GONE);
-    mSubtitleTextView.setText("Please Wait...");
+    mSubtitleTextView.setText(R.string.launcher_please_wait);
     new StartupTask(this, getApplicationContext()).execute();
   }
 

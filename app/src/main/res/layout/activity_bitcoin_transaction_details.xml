@@ -23,8 +23,8 @@
         android:id="@+id/transactiondetails_amount"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:desc="Amount in bitcoin"
-        app:label="Amount"
+        app:desc="@string/transactiondetails_amount_desc"
+        app:label="@string/transactiondetails_amount_label"
         app:value="@string/unknown" />
 
       <include layout="@layout/include_separator" />
@@ -33,8 +33,8 @@
         android:id="@+id/transactiondetails_fees"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:desc="Fees paid to the network"
-        app:label="Fees"
+        app:desc="@string/transactiondetails_fees_desc"
+        app:label="@string/transactiondetails_fees_label"
         app:value="@string/unknown" />
 
       <include layout="@layout/include_separator" />
@@ -43,7 +43,7 @@
         android:id="@+id/transactiondetails_txid"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:desc=""
+        app:desc="@string/transactiondetails_txid_label"
         app:label="Transaction ID"
         app:value="@string/unknown" />
 
@@ -54,7 +54,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:desc=""
-        app:label="Date"
+        app:label="@string/transactiondetails_date_label"
         app:value="@string/unknown" />
 
       <include layout="@layout/include_open_in_explorer" />

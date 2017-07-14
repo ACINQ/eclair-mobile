@@ -43,7 +43,7 @@ public class NetworkNodesActivity extends AppCompatActivity {
     EventBus.getDefault().register(this);
     super.onStart();
     this.adapter = new NetworkNodeItemAdapter(getNodes());
-    RecyclerView listView = (RecyclerView) findViewById(R.id.networknodes__list);
+    RecyclerView listView = (RecyclerView) findViewById(R.id.networknodes_list);
     listView.setHasFixedSize(true);
     listView.setLayoutManager(new LinearLayoutManager(this));
     listView.setAdapter(adapter);
@@ -72,13 +72,13 @@ public class NetworkNodesActivity extends AppCompatActivity {
       list.add(new NetworkNodeItem(na.nodeId(), na.alias()));
     }
     if (list.isEmpty()) {
-      findViewById(R.id.networknodes__label_empty).setVisibility(View.VISIBLE);
-      findViewById(R.id.networknodes__list).setVisibility(View.GONE);
+      findViewById(R.id.networknodes_empty).setVisibility(View.VISIBLE);
+      findViewById(R.id.networknodes_list).setVisibility(View.GONE);
     } else {
-      findViewById(R.id.networknodes__label_empty).setVisibility(View.GONE);
-      findViewById(R.id.networknodes__list).setVisibility(View.VISIBLE);
+      findViewById(R.id.networknodes_empty).setVisibility(View.GONE);
+      findViewById(R.id.networknodes_list).setVisibility(View.VISIBLE);
     }
-    Log.i("NetworkNodesList", "found " + list.size() + "nodes in network");
+    Log.d("NetworkNodesList", "found " + list.size() + "nodes in network");
     return list;
   }
 }

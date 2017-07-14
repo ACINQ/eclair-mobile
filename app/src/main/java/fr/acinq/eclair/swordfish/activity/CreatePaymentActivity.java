@@ -69,7 +69,7 @@ public class CreatePaymentActivity extends Activity
   public void processBitcoinInvoiceFinish(BitcoinURI output) {
     if (output == null || output.getAddress() == null) {
       mLoadingTextView.setTextColor(getColor(R.color.red));
-      mLoadingTextView.setText("Could not read invoice!");
+      mLoadingTextView.setText(R.string.payment_failure_read_invoice);
       mLoadingView.setClickable(true);
       mLoadingView.setOnClickListener(new View.OnClickListener() {
         @Override
@@ -81,7 +81,7 @@ public class CreatePaymentActivity extends Activity
       mBitcoinInvoice = output;
       isAmountReadonly = output.getAmount() != null;
       setAmountViewVisibility();
-      mDescriptionLabelView.setText(R.string.destination_address);
+      mDescriptionLabelView.setText(R.string.payment_destination_address);
       if (isAmountReadonly) {
         mAmountView.setAmountMsat(package$.MODULE$.satoshi2millisatoshi(new Satoshi(output.getAmount().getValue())));
       }
@@ -97,7 +97,7 @@ public class CreatePaymentActivity extends Activity
       new BitcoinInvoiceReaderTask(this, mLNInvoiceAsString).execute();
     } else {
       mLNInvoice = output;
-      mDescriptionLabelView.setText(R.string.description);
+      mDescriptionLabelView.setText(R.string.payment_description);
       isAmountReadonly = output.amount().isDefined();
       setAmountViewVisibility();
       if (isAmountReadonly) {
@@ -256,11 +256,11 @@ public class CreatePaymentActivity extends Activity
     Log.i(TAG, "Sending Bitcoin payment for invoice " + mBitcoinInvoice.toString());
     try {
       eclairHelper.sendBitcoinPayment(SendRequest.to(mBitcoinInvoice.getAddress(), amount));
-      Toast.makeText(this, "Sent transaction", Toast.LENGTH_SHORT).show();
+      Toast.makeText(this, R.string.payment_toast_sentbtc, Toast.LENGTH_SHORT).show();
     } catch (InsufficientMoneyException e) {
-      Toast.makeText(this, "Insufficient balance", Toast.LENGTH_LONG).show();
+      Toast.makeText(this, R.string.payment_toast_balance, Toast.LENGTH_LONG).show();
     } catch (Throwable t) {
-      Toast.makeText(this, "Could not send transaction", Toast.LENGTH_LONG).show();
+      Toast.makeText(this, R.string.payment_toast_failure, Toast.LENGTH_LONG).show();
       Log.e(TAG, "Could not send Bitcoin payment", t);
     }
   }

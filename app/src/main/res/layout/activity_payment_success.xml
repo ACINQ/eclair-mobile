@@ -39,7 +39,7 @@
       android:layout_below="@+id/paymentsuccess_circle"
       android:layout_centerHorizontal="true"
       android:layout_marginTop="16dp"
-      android:text="Payment sent!"
+      android:text="@string/paymentsuccess_title"
       android:textAlignment="center"
       android:textAllCaps="true"
       android:textColor="@color/white"

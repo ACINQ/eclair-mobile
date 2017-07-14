@@ -1,6 +1,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="match_parent"
-  android:layout_height="wrap_content">
+  android:layout_height="wrap_content"
+  android:gravity="center">
 
   <RelativeLayout
     android:id="@+id/view_relative"
@@ -12,7 +13,7 @@
       android:id="@+id/view_amount"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:layout_toLeftOf="@+id/view_unit"
+      android:layout_toStartOf="@+id/view_unit"
       android:ellipsize="none"
       android:fontFamily="sans-serif-light"
       android:maxLines="1"
@@ -23,12 +24,13 @@
       android:id="@+id/view_unit"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
+      android:layout_alignParentEnd="true"
       android:layout_alignBaseline="@+id/view_amount"
-      android:layout_alignParentRight="true"
       android:fontFamily="sans-serif-light"
       android:maxLines="1"
-      android:paddingLeft="4dp"
-      android:text="mBTC" />
+      android:paddingStart="4dp"
+      android:paddingEnd="0dp"
+      android:text="@string/btc_milli_short" />
 
   </RelativeLayout>
 </LinearLayout>

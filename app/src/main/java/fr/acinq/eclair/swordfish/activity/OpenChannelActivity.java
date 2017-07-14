@@ -32,11 +32,10 @@ import fr.acinq.eclair.swordfish.EclairStartException;
 import fr.acinq.eclair.swordfish.R;
 import fr.acinq.eclair.swordfish.events.LNNewChannelFailureEvent;
 import fr.acinq.eclair.swordfish.events.LNNewChannelOpenedEvent;
-import fr.acinq.eclair.swordfish.fragments.OneInputDialog;
 import fr.acinq.eclair.swordfish.utils.Validators;
 import scala.math.BigDecimal;
 
-public class OpenChannelActivity extends Activity implements OneInputDialog.OneInputDialogListener {
+public class OpenChannelActivity extends Activity {
 
   public static final String EXTRA_NEW_HOST_URI = "fr.acinq.eclair.swordfish.NEW_HOST_URI";
 
@@ -52,12 +51,12 @@ public class OpenChannelActivity extends Activity implements OneInputDialog.OneI
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_open_channel);
 
-    mOpenButton = (Button) findViewById(R.id.fund__button_openchannel);
-    mIPTextView = (TextView) findViewById(R.id.fund__value_uri_ip);
-    mPortTextView = (TextView) findViewById(R.id.fund__value_uri_port);
-    mPubkeyTextView = (TextView) findViewById(R.id.fund__value_uri_pubkey);
+    mOpenButton = (Button) findViewById(R.id.openchannel_do_open);
+    mIPTextView = (TextView) findViewById(R.id.openchannel_ip);
+    mPortTextView = (TextView) findViewById(R.id.openchannel_port);
+    mPubkeyTextView = (TextView) findViewById(R.id.openchannel_pubkey);
 
-    mAmountEdit = (EditText) findViewById(R.id.fund__input_amount);
+    mAmountEdit = (EditText) findViewById(R.id.openchannel_capacity);
     mAmountEdit.addTextChangedListener(new TextWatcher() {
       @Override
       public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -99,11 +98,6 @@ public class OpenChannelActivity extends Activity implements OneInputDialog.OneI
     }
   }
 
-  @Override
-  public void onDialogPositiveClick(OneInputDialog dialog, String uri) {
-    setNodeURI(uri);
-  }
-
   private void setNodeURI(String uri) {
     if (!Validators.HOST_REGEX.matcher(uri).matches()) {
       goToHome();
@@ -127,7 +121,7 @@ public class OpenChannelActivity extends Activity implements OneInputDialog.OneI
   }
 
   public void cancelOpenChannel(View view) {
-    Toast.makeText(this, "Cancelled", Toast.LENGTH_SHORT).show();
+    Toast.makeText(this, R.string.cancelled, Toast.LENGTH_SHORT).show();
     goToHome();
   }
 

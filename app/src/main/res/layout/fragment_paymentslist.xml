@@ -17,7 +17,7 @@
     android:paddingLeft="16dp"
     android:paddingRight="16dp"
     android:paddingTop="16dp"
-    android:text="Payments sent:"
+    android:text="@string/payments_title"
     android:textAllCaps="true"
     android:textColor="@color/colorGrey_2"
     android:textSize="10sp" />

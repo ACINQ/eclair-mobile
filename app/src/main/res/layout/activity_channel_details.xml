@@ -23,8 +23,8 @@
         android:id="@+id/channeldetails_id"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:desc="Channel unique identifier"
-        app:label="Id"
+        app:desc="@string/channeldetails_id_desc"
+        app:label="@string/channeldetails_id_label"
         app:value="@string/unknown" />
 
       <include layout="@layout/include_separator" />
@@ -33,8 +33,8 @@
         android:id="@+id/channeldetails_nodeid"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:desc="Public key of the node this channel connects to"
-        app:label="Remote node id"
+        app:desc="@string/channeldetails_nodeid_desc"
+        app:label="@string/channeldetails_nodeid_label"
         app:value="@string/unknown" />
 
       <include layout="@layout/include_separator" />
@@ -43,8 +43,8 @@
         android:id="@+id/channeldetails_state"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:desc="Status of the channel"
-        app:label="Status"
+        app:desc="@string/channeldetails_state_desc"
+        app:label="@string/channeldetails_state_label"
         app:value="@string/unknown" />
 
       <include layout="@layout/include_separator" />
@@ -53,8 +53,8 @@
         android:id="@+id/channeldetails_capacity"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:desc="Initial channel capacity, in millisatoshis"
-        app:label="Capacity"
+        app:desc="@string/channeldetails_capacity_desc"
+        app:label="@string/channeldetails_capacity_label"
         app:value="@string/unknown" />
 
       <include layout="@layout/include_separator" />
@@ -63,8 +63,8 @@
         android:id="@+id/channeldetails_balance"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:desc="Your current balance against the remote node, in milli satoshis"
-        app:label="Balance"
+        app:desc="@string/channeldetails_balance_desc"
+        app:label="@string/channeldetails_balance_label"
         app:value="@string/unknown" />
 
       <include layout="@layout/include_separator" />
@@ -73,8 +73,8 @@
         android:id="@+id/channeldetails_transactionid"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:desc="Id of the onchain transaction that funded the channel"
-        app:label="Transaction Id"
+        app:desc="@string/channeldetails_transactionid_desc"
+        app:label="@string/channeldetails_transactionid_label"
         app:value="@string/unknown" />
 
       <include layout="@layout/include_open_in_explorer" />

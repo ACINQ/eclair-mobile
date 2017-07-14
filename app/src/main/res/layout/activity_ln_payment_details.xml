@@ -23,8 +23,8 @@
         android:id="@+id/paymentdetails_amount_paid"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:desc="Amount paid, in milliBitcoin"
-        app:label="Amount"
+        app:desc="@string/paymentdetails_amount_paid_desc"
+        app:label="@string/paymentdetails_amount_paid_label"
         app:value="@string/unknown" />
 
       <include layout="@layout/include_separator" />
@@ -33,8 +33,8 @@
         android:id="@+id/paymentdetails_fees"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:desc="Fees paid to the network"
-        app:label="Fees"
+        app:desc="@string/paymentdetails_fees_desc"
+        app:label="@string/paymentdetails_fees_label"
         app:value="@string/unknown" />
 
       <include layout="@layout/include_separator" />
@@ -43,8 +43,8 @@
         android:id="@+id/paymentdetails_status"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:desc="Can be PAID, PENDING or FAILED."
-        app:label="Status"
+        app:desc="@string/paymentdetails_status_desc"
+        app:label="@string/paymentdetails_status_label"
         app:value="@string/unknown" />
 
       <include layout="@layout/include_separator" />
@@ -53,8 +53,8 @@
         android:id="@+id/paymentdetails_desc"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:desc="Description of the payment"
-        app:label="Description"
+        app:desc="@string/paymentdetails_desc_desc"
+        app:label="@string/paymentdetails_desc_label"
         app:value="@string/unknown" />
 
       <TextView
@@ -62,9 +62,10 @@
         android:layout_height="wrap_content"
         android:background="@color/colorGrey_0"
         android:paddingBottom="8dp"
-        android:paddingLeft="8dp"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
         android:paddingTop="16dp"
-        android:text="TECHNICAL INFORMATIONS"
+        android:text="@string/paymentdetails_technicals_title"
         android:textColor="@color/colorGrey_2"
         android:textSize="10sp" />
 
@@ -72,8 +73,8 @@
         android:id="@+id/paymentdetails_amount_requested"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:desc="Amount requested, in milliBitcoin"
-        app:label="Amount Requested"
+        app:desc="@string/paymentdetails_amount_requested_desc"
+        app:label="@string/paymentdetails_amount_requested_label"
         app:value="@string/unknown" />
 
       <include layout="@layout/include_separator" />
@@ -82,8 +83,8 @@
         android:id="@+id/paymentdetails_paymenthash"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:desc="Hash of the payment preimage"
-        app:label="Payment Hash"
+        app:desc="@string/paymentdetails_paymenthash_desc"
+        app:label="@string/paymentdetails_paymenthash_label"
         app:value="@string/unknown" />
 
       <include layout="@layout/include_separator" />
@@ -92,8 +93,8 @@
         android:id="@+id/paymentdetails_paymentrequest"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:desc="invoice of the payment, contains all necessary datas"
-        app:label="Payment Request"
+        app:desc="@string/paymentdetails_paymentrequest_desc"
+        app:label="@string/paymentdetails_paymentrequest_label"
         app:value="@string/unknown" />
 
       <include layout="@layout/include_separator" />
@@ -102,8 +103,8 @@
         android:id="@+id/paymentdetails_created"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:desc="When the payment was initiated"
-        app:label="Creation date"
+        app:desc="@string/paymentdetails_created_desc"
+        app:label="@string/paymentdetails_created_label"
         app:value="@string/unknown" />
 
       <include layout="@layout/include_separator" />
@@ -112,8 +113,8 @@
         android:id="@+id/paymentdetails_updated"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:desc="Last time the payment was updated"
-        app:label="Last update"
+        app:desc="@string/paymentdetails_updated_desc"
+        app:label="@string/paymentdetails_updated_label"
         app:value="@string/unknown" />
     </LinearLayout>
   </android.support.v4.widget.NestedScrollView>

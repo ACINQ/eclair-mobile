@@ -13,17 +13,16 @@
     android:paddingTop="8dp">
 
     <TextView
-      android:id="@+id/item_nodeAlias"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:text="Alias"
+      android:text="@string/networknodeitem_alias"
       android:textStyle="bold" />
 
     <TextView
-      android:id="@+id/item_nodeAlias_value"
+      android:id="@+id/networknodeitem_alias"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:layout_marginLeft="8dp"
+      android:layout_marginStart="8dp"
       android:ellipsize="end"
       android:maxLines="1" />
   </LinearLayout>
@@ -38,18 +37,17 @@
     android:paddingTop="4dp">
 
     <TextView
-      android:id="@+id/item_nodeId"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:text="Public Key"
+      android:text="@string/networknodeitem_pubkey"
       android:textSize="10sp"
       android:textStyle="bold" />
 
     <TextView
-      android:id="@+id/item_nodeId_value"
+      android:id="@+id/networknodeitem_pubkey"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:layout_marginLeft="8dp"
+      android:layout_marginStart="8dp"
       android:maxLines="1"
       android:textSize="10sp" />
   </LinearLayout>

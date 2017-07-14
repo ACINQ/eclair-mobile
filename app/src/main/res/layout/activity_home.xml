@@ -98,9 +98,8 @@
             android:id="@+id/home_balance_wallet_value"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="4dp"
+            android:layout_marginStart="4dp"
             android:layout_toEndOf="@+id/home_balance_wallet_label"
-            android:text="1.465434 BTC"
             android:textColor="@color/white"
             android:textSize="10sp"
             android:textStyle="bold" />
@@ -119,9 +118,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignTop="@+id/home_balance_ln_label"
-            android:layout_marginLeft="4dp"
-            android:layout_toEndOf="@+id/home_balance_ln_label"
-            android:text="37.42 mBTC"
+            android:layout_marginStart="4dp"
+            android:layout_toEndOf="@+id/home_balance_ln_label" android:text="37.42 mBTC"
             android:textColor="@color/white"
             android:textSize="10sp"
             android:textStyle="bold" />
@@ -144,7 +142,7 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_alignParentBottom="true"
-    android:layout_alignParentRight="true"
+    android:layout_alignParentEnd="true"
     android:gravity="end"
     android:orientation="vertical">
 
@@ -178,7 +176,7 @@
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_marginBottom="@dimen/fab_margin"
-      android:layout_marginRight="@dimen/fab_margin"
+      android:layout_marginEnd="@dimen/fab_margin"
       android:layout_marginTop="8dp"
       android:onClick="home_toggleSendButtons"
       android:src="@drawable/ic_send_white_24dp"
@@ -191,7 +189,7 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_alignParentBottom="true"
-    android:layout_alignParentRight="true"
+    android:layout_alignParentEnd="true"
     android:gravity="end"
     android:orientation="vertical"
     android:visibility="gone">
@@ -237,7 +235,7 @@
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_marginBottom="@dimen/fab_margin"
-      android:layout_marginRight="@dimen/fab_margin"
+      android:layout_marginEnd="@dimen/fab_margin"
       android:layout_marginTop="8dp"
       android:onClick="home_toggleOpenChannelButtons"
       android:src="@drawable/ic_plus_white_24dp"

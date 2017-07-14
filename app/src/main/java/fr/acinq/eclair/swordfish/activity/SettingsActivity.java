@@ -77,7 +77,7 @@ public class SettingsActivity extends AppCompatActivity {
   }
 
   private void zipFailed() {
-    Toast.makeText(this, "Could not extract datadir", Toast.LENGTH_SHORT).show();
+    Toast.makeText(this, R.string.zip_datadir_toast_failure, Toast.LENGTH_SHORT).show();
   }
 
   public void zipDatadir(View view) {
@@ -91,7 +91,7 @@ public class SettingsActivity extends AppCompatActivity {
       SimpleDateFormat zipDateFormat = new SimpleDateFormat("yyyy-MM-dd-HHmmss");
       File outputZipFile = new File(outputZipDir, EclairHelper.DATADIR_NAME + "_" + zipDateFormat.format(new Date()) + ".zip");
       ZipUtil.pack(new File(getApplicationContext().getFilesDir(), EclairHelper.DATADIR_NAME), outputZipFile);
-      Toast.makeText(this, "Datadir extracted", Toast.LENGTH_SHORT).show();
+      Toast.makeText(this, R.string.zip_datadir_toast_success, Toast.LENGTH_SHORT).show();
     } catch (Exception e) {
       Log.e(TAG, "Could not extract datadir", e);
     }

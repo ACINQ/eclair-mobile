@@ -13,8 +13,8 @@ public class NetworkNodeHolder extends RecyclerView.ViewHolder {
 
   public NetworkNodeHolder(View itemView) {
     super(itemView);
-    this.id = (TextView) itemView.findViewById(R.id.item_nodeId_value);
-    this.alias = (TextView) itemView.findViewById(R.id.item_nodeAlias_value);
+    this.id = (TextView) itemView.findViewById(R.id.networknodeitem_pubkey);
+    this.alias = (TextView) itemView.findViewById(R.id.networknodeitem_alias);
   }
 
   public void bindItem(NetworkNodeItem node) {

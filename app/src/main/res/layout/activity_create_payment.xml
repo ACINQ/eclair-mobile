@@ -19,7 +19,7 @@
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:padding="32dp"
-      android:text="Reading invoice..."
+      android:text="@string/payment_loading_pleasewait"
       android:textColor="@color/colorGrey_2" />
 
   </LinearLayout>
@@ -32,7 +32,7 @@
     android:background="@color/redFaded"
     android:elevation="4dp"
     android:padding="8dp"
-    android:text="@string/amount_is_invalid"
+    android:text="@string/payment_amount_is_invalid"
     android:textAlignment="center"
     android:textColor="@color/white"
     android:textSize="12sp"
@@ -62,7 +62,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="6dp"
-        android:text="@string/amount_to_send_editable"
+        android:text="@string/payment_amount_to_send_editable"
         android:textAlignment="center"
         android:textColor="@color/colorGrey_1"
         android:textSize="12sp" />
@@ -96,7 +96,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="6dp"
-        android:text="@string/amount_to_send_readonly"
+        android:text="@string/payment_amount_to_send_readonly"
         android:textAlignment="center"
         android:textColor="@color/colorGrey_1"
         android:textSize="12sp" />
@@ -177,7 +177,7 @@
         android:layout_weight="1"
         android:background="@android:color/transparent"
         android:onClick="sendPayment"
-        android:text="@string/payment__btn_send"
+        android:text="@string/payment_do_send"
         android:textColor="@color/green" />
     </LinearLayout>
 
@@ -186,7 +186,7 @@
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:padding="16dp"
-      android:text="@string/payment__label_pending"
+      android:text="@string/payment_pending"
       android:textAlignment="center"
       android:textSize="12sp"
       android:visibility="gone" />

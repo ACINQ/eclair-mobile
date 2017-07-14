@@ -245,7 +245,7 @@ public class HomeActivity extends AppCompatActivity {
       intent.putExtra(OpenChannelActivity.EXTRA_NEW_HOST_URI, uri);
       startActivity(intent);
     } else {
-      Toast.makeText(this, "Invalid Lightning Node URI", Toast.LENGTH_SHORT).show();
+      Toast.makeText(this, R.string.home_toast_openchannel_invalid, Toast.LENGTH_SHORT).show();
     }
   }
 
@@ -307,12 +307,12 @@ public class HomeActivity extends AppCompatActivity {
 
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void handleNewChannelSuccessfullyOpened(LNNewChannelOpenedEvent event) {
-    Toast.makeText(this, "Opened channel with " + event.targetNode.substring(0, 7) + "...", Toast.LENGTH_SHORT);
+    Toast.makeText(this, getString(R.string.home_toast_openchannel_success) + event.targetNode.substring(0, 7) + "...", Toast.LENGTH_SHORT);
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void handleNewChannelSuccessfullyOpened(LNNewChannelFailureEvent event) {
-    Toast.makeText(this, "Failed to open channel: " + event.cause, Toast.LENGTH_LONG);
+    Toast.makeText(this, getString(R.string.home_toast_openchannel_failed) + event.cause, Toast.LENGTH_LONG);
   }
 
   @SuppressLint("SetTextI18n")

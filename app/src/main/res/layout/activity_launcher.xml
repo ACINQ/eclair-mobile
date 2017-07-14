@@ -37,9 +37,9 @@
     android:layout_below="@+id/launcher_header"
     android:layout_centerHorizontal="true"
     android:background="@android:color/transparent"
-    android:drawableLeft="@drawable/ic_refresh_white_24dp"
+    android:drawableStart="@drawable/ic_refresh_white_24dp"
     android:onClick="launcher_restart"
-    android:text="Restart"
+    android:text="@string/launcher_restart"
     android:textColor="@color/white"
     android:visibility="gone" />
 </RelativeLayout>

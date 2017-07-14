@@ -13,20 +13,19 @@
     android:orientation="horizontal">
 
     <TextView
-      android:id="@+id/item_channelid"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:text="Short Id"
+      android:text="@string/networkchannelitem_channelid"
       android:textStyle="bold" />
 
     <TextView
-      android:id="@+id/item_channelid_value"
+      android:id="@+id/networkchannelitem_channelid"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:layout_marginLeft="8dp"
+      android:layout_marginStart="8dp"
       android:ellipsize="end"
       android:maxLines="1"
-      android:text="Unknown" />
+      android:text="@string/unknown" />
   </LinearLayout>
 
   <LinearLayout
@@ -38,18 +37,17 @@
     android:orientation="horizontal">
 
     <TextView
-      android:id="@+id/item_node1"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:text="Node 1"
+      android:text="@string/networkchannelitem_node1"
       android:textSize="10sp"
       android:textStyle="bold" />
 
     <TextView
-      android:id="@+id/item_node1_value"
+      android:id="@+id/networkchannelitem_node1"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:layout_marginLeft="8dp"
+      android:layout_marginStart="8dp"
       android:maxLines="1"
       android:textSize="10sp" />
   </LinearLayout>
@@ -64,18 +62,17 @@
     android:orientation="horizontal">
 
     <TextView
-      android:id="@+id/item_node2"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:text="Node 2"
+      android:text="@string/networkchannelitem_node2"
       android:textSize="10sp"
       android:textStyle="bold" />
 
     <TextView
-      android:id="@+id/item_node2_value"
+      android:id="@+id/networkchannelitem_node2"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:layout_marginLeft="8dp"
+      android:layout_marginStart="8dp"
       android:maxLines="1"
       android:textSize="10sp" />
   </LinearLayout>

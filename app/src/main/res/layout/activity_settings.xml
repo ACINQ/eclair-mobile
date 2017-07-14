@@ -7,7 +7,6 @@
   android:orientation="vertical"
   tools:context="fr.acinq.eclair.swordfish.activity.SettingsActivity">
 
-  <!-- Custom toolbar -->
   <include layout="@layout/toolbar" />
 
   <TextView
@@ -15,9 +14,11 @@
     android:layout_height="wrap_content"
     android:background="@color/colorGrey_0"
     android:paddingBottom="8dp"
-    android:paddingLeft="8dp"
+    android:paddingEnd="8dp"
+    android:paddingStart="8dp"
     android:paddingTop="16dp"
-    android:text="NODE INFORMATIONS"
+    android:text="@string/settings_nodeinfo"
+    android:textAllCaps="true"
     android:textColor="@color/colorGrey_2"
     android:textSize="10sp" />
 
@@ -27,8 +28,8 @@
     android:id="@+id/settings_nodeid"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    app:desc="Lightning Network's public identifier"
-    app:label="Public Key"
+    app:desc="@string/settings_nodeid_desc"
+    app:label="@string/settings_nodeid_label"
     app:value="@string/unknown" />
 
   <include layout="@layout/include_separator" />
@@ -37,8 +38,8 @@
     android:id="@+id/settings_nodealias"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    app:desc="Name of the node"
-    app:label="Alias"
+    app:desc="@string/settings_nodealias_desc"
+    app:label="@string/settings_nodealias_label"
     app:value="@string/unknown" />
 
   <include layout="@layout/include_separator" />
@@ -49,8 +50,8 @@
     android:layout_height="wrap_content"
     android:clickable="true"
     android:onClick="settings_refreshCount"
-    app:desc=""
-    app:label="Block Count"
+    app:desc="@string/settings_nodealias_desc"
+    app:label="@string/settings_blockcount_label"
     app:value="@string/unknown" />
 
   <TextView
@@ -58,9 +59,11 @@
     android:layout_height="wrap_content"
     android:background="@color/colorGrey_0"
     android:paddingBottom="8dp"
-    android:paddingLeft="8dp"
+    android:paddingEnd="8dp"
+    android:paddingStart="8dp"
     android:paddingTop="16dp"
-    android:text="NETWORK"
+    android:text="@string/settings_network"
+    android:textAllCaps="true"
     android:textColor="@color/colorGrey_2"
     android:textSize="10sp" />
 
@@ -72,8 +75,8 @@
     android:layout_height="wrap_content"
     android:clickable="true"
     android:onClick="goToNetworkChannels"
-    app:desc="Click for list of channels"
-    app:label="Channels Announced"
+    app:desc="@string/settings_networkchannels_desc"
+    app:label="@string/settings_networkchannels_desc"
     app:value="@string/unknown" />
 
   <include layout="@layout/include_separator" />
@@ -84,8 +87,8 @@
     android:layout_height="wrap_content"
     android:clickable="true"
     android:onClick="goToNetworkNodes"
-    app:desc="Click for list of nodes"
-    app:label="Nodes Announced"
+    app:desc="@string/settings_networkchannels_desc"
+    app:label="@string/settings_networkchannels_label"
     app:value="@string/unknown" />
 
   <include layout="@layout/include_separator" />
@@ -119,8 +122,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="8dp"
-    android:textSize="12sp"
+    android:text=""
     android:textColor="@color/colorGrey_1"
-    android:text="" />
+    android:textSize="12sp" />
 
 </LinearLayout>

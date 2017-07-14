@@ -20,14 +20,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:maxLines="1"
-        android:text="label"
         android:textStyle="bold" />
 
       <TextView
         android:id="@+id/view_desc"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="description"
         android:textColor="@color/colorGrey_1"
         android:textSize="12sp" />
 
@@ -46,7 +44,6 @@
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:fontFamily="monospace"
-      android:text="value"
       android:textIsSelectable="true"
       android:textSize="10sp" />
 
