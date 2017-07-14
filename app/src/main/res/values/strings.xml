@@ -34,6 +34,7 @@
   <string name="unknown">N/A</string>
   <string name="btn_ok">OK</string>
   <string name="btn_cancel">Cancel</string>
+  <string name="btn_close">Close</string>
   <string name="pending">Fetching Datas…</string>
 
   <!-- /////////////// menu_home /////////////// -->

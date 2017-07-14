@@ -67,7 +67,7 @@ public class CreatePaymentActivity extends Activity
   @Override
   public void processBitcoinInvoiceFinish(BitcoinURI output) {
     if (output == null || output.getAddress() == null) {
-      mLoadingTextView.setTextColor(getResources().getColor(R.color.red));
+      mLoadingTextView.setTextColor(getColor(R.color.red));
       mLoadingTextView.setText("Could not read invoice!");
       mLoadingView.setClickable(true);
       mLoadingView.setOnClickListener(new View.OnClickListener() {

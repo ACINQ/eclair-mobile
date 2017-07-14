@@ -11,14 +11,14 @@
     android:background="@color/colorGrey_0"
     android:elevation="4dp"
     android:gravity="center"
-    android:orientation="horizontal"
-    android:visibility="gone">
+    android:orientation="vertical"
+    android:visibility="visible">
 
     <TextView
       android:id="@+id/payment_loading_text"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:padding="16dp"
+      android:padding="32dp"
       android:text="Reading invoice..."
       android:textColor="@color/colorGrey_2" />
 
@@ -29,21 +29,21 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_centerInParent="true"
+    android:background="@color/redFaded"
+    android:elevation="4dp"
+    android:padding="8dp"
     android:text="@string/amount_is_invalid"
     android:textAlignment="center"
-    android:padding="8dp"
-    android:visibility="gone"
-    android:elevation="4dp"
     android:textColor="@color/white"
-    android:background="@color/redFaded"
-    android:textSize="12sp" />
+    android:textSize="12sp"
+    android:visibility="gone" />
 
   <LinearLayout
     android:id="@+id/payment_form"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:visibility="visible">
+    android:visibility="gone">
 
     <LinearLayout
       android:id="@+id/payment_amount_editable"
@@ -54,9 +54,9 @@
       android:orientation="vertical"
       android:paddingBottom="24dp"
       android:paddingLeft="16dp"
-      android:visibility="gone"
       android:paddingRight="16dp"
-      android:paddingTop="32dp">
+      android:paddingTop="32dp"
+      android:visibility="gone">
 
       <TextView
         android:layout_width="match_parent"
@@ -72,8 +72,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:inputType="numberDecimal"
         android:background="@android:color/transparent"
+        android:inputType="numberDecimal"
         android:textAlignment="center"
         android:textColor="@color/colorGrey_4"
         android:textSize="22sp" />
@@ -86,11 +86,11 @@
       android:layout_height="wrap_content"
       android:background="@color/colorGrey_0"
       android:orientation="vertical"
-      android:visibility="gone"
       android:paddingBottom="24dp"
       android:paddingLeft="16dp"
       android:paddingRight="16dp"
-      android:paddingTop="32dp">
+      android:paddingTop="32dp"
+      android:visibility="gone">
 
       <TextView
         android:layout_width="match_parent"
