@@ -31,6 +31,7 @@ public class ScanActivity extends Activity {
   private static int MY_PERMISSIONS_REQUEST_CAMERA = 0;
   private DecoratedBarcodeView mBarcodeView;
   private boolean isInvoice = false;
+
   private BarcodeCallback callback = new BarcodeCallback() {
     @Override
     public void barcodeResult(BarcodeResult result) {
@@ -72,7 +73,7 @@ public class ScanActivity extends Activity {
       isInvoice = false;
     } else {
       Log.w(TAG, "Invalid Requested Type: " + type);
-      startActivity(new Intent(this, HomeActivity.class));
+      finish();
     }
 
     if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
@@ -92,7 +93,7 @@ public class ScanActivity extends Activity {
       if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
         startScanning();
       } else {
-        startActivity(new Intent(this, HomeActivity.class));
+        finish();
       }
       return;
     }
