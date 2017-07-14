@@ -30,6 +30,7 @@ import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.payment.PaymentSucceeded;
 import fr.acinq.eclair.swordfish.App;
 import fr.acinq.eclair.swordfish.EclairHelper;
+import fr.acinq.eclair.swordfish.EclairStartException;
 import fr.acinq.eclair.swordfish.R;
 import fr.acinq.eclair.swordfish.customviews.CoinAmountView;
 import fr.acinq.eclair.swordfish.events.LNPaymentFailedEvent;
@@ -124,7 +125,6 @@ public class CreatePaymentActivity extends Activity
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    eclairHelper = ((App) getApplication()).getEclairInstance();
     setContentView(R.layout.activity_create_payment);
 
     mFormView = findViewById(R.id.payment_form);
@@ -141,6 +141,16 @@ public class CreatePaymentActivity extends Activity
     Intent intent = getIntent();
     mLNInvoiceAsString = intent.getStringExtra(EXTRA_INVOICE);
     new LNInvoiceReaderTask(this, mLNInvoiceAsString).execute();
+  }
+
+  @Override
+  protected void onResume() {
+    super.onResume();
+    try {
+      eclairHelper = ((App) getApplication()).getEclairInstance();
+    } catch (EclairStartException e) {
+      finish();
+    }
   }
 
   public void cancelPayment(View view) {

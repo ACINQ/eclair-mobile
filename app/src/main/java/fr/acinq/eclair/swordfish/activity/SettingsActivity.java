@@ -21,6 +21,7 @@ import fr.acinq.eclair.Globals;
 import fr.acinq.eclair.swordfish.App;
 import fr.acinq.eclair.swordfish.EclairEventService;
 import fr.acinq.eclair.swordfish.EclairHelper;
+import fr.acinq.eclair.swordfish.EclairStartException;
 import fr.acinq.eclair.swordfish.R;
 import fr.acinq.eclair.swordfish.customviews.DataRow;
 
@@ -38,7 +39,6 @@ public class SettingsActivity extends AppCompatActivity {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    eclairHelper = ((App) getApplication()).getEclairInstance();
     setContentView(R.layout.activity_settings);
 
     Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -104,11 +104,17 @@ public class SettingsActivity extends AppCompatActivity {
   @Override
   public void onResume() {
     super.onResume();
-    mNodePublicKeyRow.setValue(eclairHelper.nodePublicKey());
-    mAliasRow.setValue(eclairHelper.nodeAlias());
-    mNetworkChannelCount.setValue(Integer.toString(EclairEventService.channelAnnouncementMap.size()));
-    mNetworkNodesCount.setValue(Integer.toString(EclairEventService.nodeAnnouncementMap.size()));
-    mBlockCount.setValue(String.valueOf(Globals.blockCount().get()));
-    mZipLocationView.setText("Located in: " + getZipDirectory().getAbsolutePath());
+
+    try {
+      eclairHelper = ((App) getApplication()).getEclairInstance();
+      mNodePublicKeyRow.setValue(eclairHelper.nodePublicKey());
+      mAliasRow.setValue(eclairHelper.nodeAlias());
+      mNetworkChannelCount.setValue(Integer.toString(EclairEventService.channelAnnouncementMap.size()));
+      mNetworkNodesCount.setValue(Integer.toString(EclairEventService.nodeAnnouncementMap.size()));
+      mBlockCount.setValue(String.valueOf(Globals.blockCount().get()));
+      mZipLocationView.setText("Located in: " + getZipDirectory().getAbsolutePath());
+    } catch (EclairStartException e) {
+      finish();
+    }
   }
 }

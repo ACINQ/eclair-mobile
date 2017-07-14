@@ -28,6 +28,7 @@ import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.io.Switchboard;
 import fr.acinq.eclair.swordfish.App;
 import fr.acinq.eclair.swordfish.EclairHelper;
+import fr.acinq.eclair.swordfish.EclairStartException;
 import fr.acinq.eclair.swordfish.R;
 import fr.acinq.eclair.swordfish.events.LNNewChannelFailureEvent;
 import fr.acinq.eclair.swordfish.events.LNNewChannelOpenedEvent;
@@ -49,7 +50,6 @@ public class OpenChannelActivity extends Activity implements OneInputDialog.OneI
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    eclairHelper = ((App) getApplication()).getEclairInstance();
     setContentView(R.layout.activity_open_channel);
 
     mOpenButton = (Button) findViewById(R.id.fund__button_openchannel);
@@ -90,8 +90,13 @@ public class OpenChannelActivity extends Activity implements OneInputDialog.OneI
   }
 
   @Override
-  protected void onStart() {
-    super.onStart();
+  protected void onResume() {
+    super.onResume();
+    try {
+      eclairHelper = ((App) getApplication()).getEclairInstance();
+    } catch (EclairStartException e) {
+      finish();
+    }
   }
 
   @Override

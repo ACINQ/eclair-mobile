@@ -34,6 +34,7 @@ import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.swordfish.App;
 import fr.acinq.eclair.swordfish.EclairEventService;
 import fr.acinq.eclair.swordfish.EclairHelper;
+import fr.acinq.eclair.swordfish.EclairStartException;
 import fr.acinq.eclair.swordfish.R;
 import fr.acinq.eclair.swordfish.customviews.CoinAmountView;
 import fr.acinq.eclair.swordfish.events.BitcoinPaymentEvent;
@@ -76,7 +77,6 @@ public class HomeActivity extends AppCompatActivity {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    eclairHelper = ((App) getApplication()).getEclairInstance();
     setContentView(R.layout.activity_home);
 
     Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -136,8 +136,13 @@ public class HomeActivity extends AppCompatActivity {
       EventBus.getDefault().register(this);
     }
     super.onResume();
-    eclairHelper.publishWalletBalance();
-    EclairEventService.postLNBalanceEvent();
+    try {
+      eclairHelper = ((App) getApplication()).getEclairInstance();
+      eclairHelper.publishWalletBalance();
+      EclairEventService.postLNBalanceEvent();
+    } catch (EclairStartException e) {
+      finish();
+    }
   }
 
   @Override
