@@ -44,7 +44,8 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
     } catch (EclairStartException e) {
       getActivity().finish();
     }
-
+    mAddressTextView.setText(address);
+    new QRCodeTask(this, address, 1000, 1000).execute();
   }
 
   @Override
@@ -54,13 +55,6 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
     mQRImageView = (ImageView) mView.findViewById(R.id.receivepayment_qr);
     mAddressTextView = (TextView) mView.findViewById(R.id.receivepayment_address);
     return mView;
-  }
-
-  @Override
-  public void onStart() {
-    super.onStart();
-    mAddressTextView.setText(address);
-    new QRCodeTask(this, address, 1000, 1000).execute();
   }
 
   @Override
