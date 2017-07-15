@@ -74,6 +74,7 @@
         android:layout_gravity="center"
         android:background="@android:color/transparent"
         android:inputType="numberDecimal"
+        android:maxLines="1"
         android:textAlignment="center"
         android:textColor="@color/colorGrey_4"
         android:textSize="22sp" />
@@ -120,11 +121,47 @@
       android:background="@color/colorGrey_0p" />
 
     <LinearLayout
+      android:id="@+id/payment_fees"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:background="@color/white"
+      android:orientation="horizontal"
+      android:padding="12dp"
+      android:visibility="gone">
+
+      <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_weight="1"
+        android:text="@string/payment_fees"
+        android:textAlignment="viewEnd"
+        android:textSize="12sp"
+        android:textStyle="bold" />
+
+      <EditText
+        android:id="@+id/payment_fees_value"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:background="@android:color/transparent"
+        android:inputType="numberDecimal"
+        android:maxLines="1"
+        android:textSize="12sp" />
+
+    </LinearLayout>
+
+    <View
+      android:layout_width="match_parent"
+      android:layout_height="1dp"
+      android:background="@color/colorGrey_00" />
+
+    <LinearLayout
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:background="@color/white"
       android:orientation="vertical"
-      android:padding="16dp">
+      android:padding="12dp">
 
       <TextView
         android:id="@+id/paymentitem_description_label"

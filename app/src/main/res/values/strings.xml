@@ -75,7 +75,8 @@
   <string name="payment_failure_read_invoice">Could not read invoice!</string>
   <string name="payment_description">Description</string>
   <string name="payment_destination_address">Destination address</string>
-  <string name="payment_loading_pleasewait">Reading the invoice, please wait...</string>
+  <string name="payment_fees">Fees in satoshi/kb</string>
+  <string name="payment_loading_pleasewait">Reading the invoice, please wait…</string>
   <string name="payment_amount_to_send_readonly">Amount to send</string>
   <string name="payment_amount_to_send_editable">Enter the amount, in Bitcoin</string>
   <string name="payment_amount_is_invalid">The amount is not valid.</string>
@@ -87,7 +88,7 @@
 
   <string name="launcher_restart">Restart</string>
   <string name="launcher_could_not_start">Eclair could not be started.</string>
-  <string name="launcher_please_wait">Please wait...</string>
+  <string name="launcher_please_wait">Please wait…</string>
 
   <!-- //////////////// ln payment details //////////////////// -->
 

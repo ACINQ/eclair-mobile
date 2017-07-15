@@ -11,6 +11,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.bitcoinj.core.Coin;
+import org.bitcoinj.core.Context;
 import org.bitcoinj.core.InsufficientMoneyException;
 import org.bitcoinj.uri.BitcoinURI;
 import org.bitcoinj.wallet.SendRequest;
@@ -64,6 +65,8 @@ public class CreatePaymentActivity extends Activity
   private EditText mAmountEditableValue;
   private boolean isAmountReadonly = true;
   private EclairHelper eclairHelper;
+  private View mFeesView;
+  private EditText mFeesValue;
 
   @Override
   public void processBitcoinInvoiceFinish(BitcoinURI output) {
@@ -85,6 +88,8 @@ public class CreatePaymentActivity extends Activity
       if (isAmountReadonly) {
         mAmountView.setAmountMsat(package$.MODULE$.satoshi2millisatoshi(new Satoshi(output.getAmount().getValue())));
       }
+      mFeesView.setVisibility(View.VISIBLE);
+      mFeesValue.setText(Long.toString(Context.get().getFeePerKb().getValue()));
       mDescriptionView.setText(output.getAddress().toBase58());
       mLoadingView.setVisibility(View.GONE);
       mFormView.setVisibility(View.VISIBLE);
@@ -137,6 +142,8 @@ public class CreatePaymentActivity extends Activity
     mAmountEditableView = findViewById(R.id.payment_amount_editable);
     mAmountEditableValue = (EditText) findViewById(R.id.payment_amount_editable_value);
     mAmountInvalidView = (TextView) findViewById(R.id.payment_amount_invalid);
+    mFeesView = findViewById(R.id.payment_fees);
+    mFeesValue = (EditText) findViewById(R.id.payment_fees_value);
 
     Intent intent = getIntent();
     mLNInvoiceAsString = intent.getStringExtra(EXTRA_INVOICE);
@@ -168,7 +175,8 @@ public class CreatePaymentActivity extends Activity
           sendLNPayment(amountMsat);
       } else if (mBitcoinInvoice != null) {
         final Coin amount = isAmountReadonly ? mBitcoinInvoice.getAmount() : Coin.parseCoin(mAmountEditableValue.getText().toString());
-        sendBitcoinPayment(amount);
+        final Coin feesPerKb = Coin.valueOf(Long.parseLong(mFeesValue.getText().toString()));
+        sendBitcoinPayment(amount, feesPerKb);
       }
       finish();
     } catch (Exception e) {
@@ -252,10 +260,12 @@ public class CreatePaymentActivity extends Activity
     );
   }
 
-  private void sendBitcoinPayment(final Coin amount) {
+  private void sendBitcoinPayment(final Coin amount, final Coin feesPerKb) {
     Log.i(TAG, "Sending Bitcoin payment for invoice " + mBitcoinInvoice.toString());
     try {
-      eclairHelper.sendBitcoinPayment(SendRequest.to(mBitcoinInvoice.getAddress(), amount));
+      SendRequest request = SendRequest.to(mBitcoinInvoice.getAddress(), amount);
+      request.feePerKb = feesPerKb;
+      eclairHelper.sendBitcoinPayment(request);
       Toast.makeText(this, R.string.payment_toast_sentbtc, Toast.LENGTH_SHORT).show();
     } catch (InsufficientMoneyException e) {
       Toast.makeText(this, R.string.payment_toast_balance, Toast.LENGTH_LONG).show();
