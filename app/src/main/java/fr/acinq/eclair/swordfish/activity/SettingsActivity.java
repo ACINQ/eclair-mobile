@@ -31,7 +31,6 @@ public class SettingsActivity extends AppCompatActivity {
   private static final String TAG = "SettingsActivity";
   private TextView mZipLocationView;
   private DataRow mNodePublicKeyRow;
-  private DataRow mAliasRow;
   private DataRow mNetworkChannelCount;
   private DataRow mNetworkNodesCount;
   private DataRow mBlockCount;
@@ -49,7 +48,6 @@ public class SettingsActivity extends AppCompatActivity {
 
     mZipLocationView = (TextView) findViewById(R.id.settings_zip_path);
     mNodePublicKeyRow = (DataRow) findViewById(R.id.settings_nodeid);
-    mAliasRow = (DataRow) findViewById(R.id.settings_nodealias);
     mNetworkNodesCount = (DataRow) findViewById(R.id.settings_networknodes_count);
     mNetworkChannelCount = (DataRow) findViewById(R.id.settings_networkchannels_count);
     mBlockCount = (DataRow) findViewById(R.id.settings_blockcount);
@@ -114,7 +112,6 @@ public class SettingsActivity extends AppCompatActivity {
     try {
       EclairHelper eclairHelper = ((App) getApplication()).getEclairInstance();
       mNodePublicKeyRow.setValue(eclairHelper.nodePublicKey());
-      mAliasRow.setValue(eclairHelper.nodeAlias());
       mNetworkChannelCount.setValue(Integer.toString(EclairEventService.channelAnnouncementMap.size()));
       mNetworkNodesCount.setValue(Integer.toString(EclairEventService.nodeAnnouncementMap.size()));
       mBlockCount.setValue(String.valueOf(Globals.blockCount().get()));

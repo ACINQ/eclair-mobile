@@ -46,7 +46,7 @@
       android:screenOrientation="portrait" />
     <activity
       android:name=".activity.CreatePaymentActivity"
-      android:label="Send a Payment"
+      android:label=""
       android:noHistory="true"
       android:parentActivityName=".activity.HomeActivity"
       android:screenOrientation="portrait"
@@ -61,7 +61,7 @@
       android:windowSoftInputMode="stateAlwaysHidden" />
     <activity
       android:name=".activity.OpenChannelActivity"
-      android:label="Open a new channel"
+      android:label=""
       android:noHistory="true"
       android:parentActivityName=".activity.HomeActivity"
       android:screenOrientation="portrait"
@@ -69,32 +69,32 @@
       android:theme="@style/CustomDialog" />
     <activity
       android:name=".activity.SettingsActivity"
-      android:label="Settings"
+      android:label="@string/settings_name"
       android:parentActivityName=".activity.HomeActivity"
       android:screenOrientation="portrait" />
     <activity
       android:name=".activity.LNPaymentDetailsActivity"
-      android:label="Lightning Payment Details"
+      android:label="@string/lnpayment_name"
       android:parentActivityName=".activity.HomeActivity"
       android:screenOrientation="portrait" />
     <activity
       android:name=".activity.BitcoinTransactionDetailsActivity"
-      android:label="Transaction Details"
+      android:label="@string/btcpayment_name"
       android:parentActivityName=".activity.HomeActivity"
       android:screenOrientation="portrait" />
     <activity
       android:name=".activity.NetworkChannelsActivity"
-      android:label="Channels in Network"
+      android:label="@string/networkchannels_name"
       android:parentActivityName=".activity.SettingsActivity"
       android:screenOrientation="portrait" />
     <activity
       android:name=".activity.NetworkNodesActivity"
-      android:label="Nodes in Network"
+      android:label="@string/networknodes_name"
       android:parentActivityName=".activity.SettingsActivity"
       android:screenOrientation="portrait" />
     <activity
       android:name=".activity.ChannelDetailsActivity"
-      android:label="Channel Details"
+      android:label="@string/channeldetails_name"
       android:parentActivityName=".activity.HomeActivity"
       android:screenOrientation="portrait" />
     <activity

@@ -35,22 +35,12 @@
   <include layout="@layout/include_separator" />
 
   <fr.acinq.eclair.swordfish.customviews.DataRow
-    android:id="@+id/settings_nodealias"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    app:desc="@string/settings_nodealias_desc"
-    app:label="@string/settings_nodealias_label"
-    app:value="@string/unknown" />
-
-  <include layout="@layout/include_separator" />
-
-  <fr.acinq.eclair.swordfish.customviews.DataRow
     android:id="@+id/settings_blockcount"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:clickable="true"
     android:onClick="settings_refreshCount"
-    app:desc="@string/settings_nodealias_desc"
+    app:desc="@string/settings_blockcount_desc"
     app:label="@string/settings_blockcount_label"
     app:value="@string/unknown" />
 
