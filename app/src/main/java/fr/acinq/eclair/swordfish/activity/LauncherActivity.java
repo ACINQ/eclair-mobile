@@ -9,6 +9,7 @@ import android.widget.TextView;
 
 import fr.acinq.eclair.swordfish.App;
 import fr.acinq.eclair.swordfish.EclairHelper;
+import fr.acinq.eclair.swordfish.EclairStartException;
 import fr.acinq.eclair.swordfish.R;
 import fr.acinq.eclair.swordfish.tasks.StartupTask;
 
@@ -58,7 +59,7 @@ public class LauncherActivity extends AppCompatActivity implements StartupTask.A
       startActivity(intent);
       finish();
     } else {
-      showRestart();
+      throw new EclairStartException();
     }
   }
 }
