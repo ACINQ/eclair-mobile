@@ -26,6 +26,7 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
   private final ImageView mPaymentIcon;
   private final TextView mDescription;
   private final TextView mFees;
+  private final TextView mFeesUnit;
   private final TextView mStatus;
   private final TextView mDate;
   private final TextView mAmount;
@@ -39,6 +40,7 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
     this.mDescription = (TextView) itemView.findViewById(R.id.paymentitem_description);
     this.mDate = (TextView) itemView.findViewById(R.id.paymentitem_date);
     this.mFees = (TextView) itemView.findViewById(R.id.paymentitem_fees_value);
+    this.mFeesUnit = (TextView) itemView.findViewById(R.id.paymentitem_fees_unit);
     itemView.setOnClickListener(this);
   }
 
@@ -95,6 +97,7 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
         mAmount.setText(CoinUtils.formatAmountMilliBtc(new MilliSatoshi(payment.amountPaidMsat)));
         mAmount.setTextColor(mAmount.getResources().getColor(R.color.green));
         mFees.setVisibility(View.GONE);
+        mFeesUnit.setVisibility(View.GONE);
       } else if (PaymentTypes.BTC_SENT.toString().equals(payment.type)) {
         mAmount.setText(CoinUtils.formatAmountMilliBtc(new MilliSatoshi(payment.amountPaidMsat)));
         mAmount.setTextColor(mAmount.getResources().getColor(R.color.redFaded));
