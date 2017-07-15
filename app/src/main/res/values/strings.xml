@@ -54,6 +54,7 @@
   <string name="transactiondetails_fees_desc">Fees paid to the network</string>
   <string name="transactiondetails_txid_label">Transaction Id</string>
   <string name="transactiondetails_date_label">Timestamp</string>
+  <string name="transactiondetails_txid_desc">Unique identifier of this transaction</string>
 
   <!-- //////////////// local channel details //////////////////// -->
 
@@ -132,6 +133,7 @@
   <!-- //////////////// settings //////////////////// -->
 
   <string name="zip_datadir">Extract datadir in Zip</string>
+  <string name="zip_datadir_prefix">Located in: </string>
   <string name="zip_datadir_button">Extract</string>
   <string name="zip_datadir_toast_success">Datadir extracted</string>
   <string name="zip_datadir_toast_failure">Could not extract datadir</string>

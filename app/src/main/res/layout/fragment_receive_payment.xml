@@ -1,56 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:tools="http://schemas.android.com/tools"
   android:layout_width="match_parent"
-  android:layout_height="match_parent"
-  tools:context="fr.acinq.eclair.swordfish.fragments.ReceivePaymentFragment">
+  android:layout_height="wrap_content"
+  android:gravity="top|center"
+  android:orientation="vertical">
 
-  <LinearLayout
+  <TextView
+    android:id="@+id/receivepayment_title"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:gravity="top|center"
-    android:orientation="vertical">
+    android:background="@color/colorGrey_0"
+    android:maxLines="1"
+    android:paddingBottom="8dp"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:paddingTop="16dp"
+    android:text="@string/receive_title"
+    android:textAllCaps="true"
+    android:textColor="@color/colorGrey_2"
+    android:textSize="10sp" />
 
-    <TextView
-      android:id="@+id/receivepayment_title"
+  <ScrollView
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="fr.acinq.eclair.swordfish.fragments.ReceivePaymentFragment">
+
+    <LinearLayout
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:background="@color/colorGrey_0"
-      android:maxLines="1"
-      android:paddingBottom="8dp"
-      android:paddingLeft="16dp"
-      android:paddingRight="16dp"
-      android:paddingTop="16dp"
-      android:text="@string/receive_title"
-      android:textAllCaps="true"
-      android:textColor="@color/colorGrey_2"
-      android:textSize="10sp" />
+      android:gravity="top|center"
+      android:orientation="vertical">
 
-    <ImageView
-      android:id="@+id/receivepayment_qr"
-      android:layout_width="wrap_content"
-      android:layout_height="match_parent"
-      android:layout_marginLeft="32dp"
-      android:layout_marginRight="32dp"
-      android:layout_marginTop="32dp"
-      android:clickable="true"
-      android:onClick="home_doCopyReceptionAddress"
-      android:src="@drawable/qrcode_placeholder" />
+      <ImageView
+        android:id="@+id/receivepayment_qr"
+        android:layout_width="wrap_content"
+        android:layout_height="208dp"
+        android:layout_marginLeft="32dp"
+        android:layout_marginRight="32dp"
+        android:layout_marginTop="32dp"
+        android:clickable="true"
+        android:onClick="home_doCopyReceptionAddress"
+        android:src="@drawable/qrcode_placeholder" />
 
-    <TextView
-      android:id="@+id/receivepayment_address"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:clickable="true"
-      android:fontFamily="monospace"
-      android:onClick="home_doCopyReceptionAddress"
-      android:padding="16dp"
-      android:text="@string/unknown"
-      android:textAlignment="center"
-      android:textIsSelectable="true"
-      android:textSize="12sp" />
+      <TextView
+        android:id="@+id/receivepayment_address"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:fontFamily="monospace"
+        android:onClick="home_doCopyReceptionAddress"
+        android:padding="16dp"
+        android:text="@string/unknown"
+        android:textAlignment="center"
+        android:textIsSelectable="true"
+        android:textSize="12sp" />
 
-  </LinearLayout>
+    </LinearLayout>
 
-</ScrollView>
+  </ScrollView>
+</LinearLayout>

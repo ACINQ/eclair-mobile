@@ -54,6 +54,18 @@
     app:label="@string/settings_blockcount_label"
     app:value="@string/unknown" />
 
+  <include layout="@layout/include_separator" />
+
+  <fr.acinq.eclair.swordfish.customviews.DataRow
+    android:id="@+id/settings_feerate"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clickable="true"
+    android:onClick="settings_refreshFeerate"
+    app:desc="@string/settings_feerate_desc"
+    app:label="@string/settings_feerate_label"
+    app:value="@string/unknown" />
+
   <TextView
     android:layout_width="match_parent"
     android:layout_height="wrap_content"

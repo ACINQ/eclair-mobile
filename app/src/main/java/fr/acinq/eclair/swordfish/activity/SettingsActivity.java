@@ -1,5 +1,6 @@
 package fr.acinq.eclair.swordfish.activity;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
@@ -34,7 +35,7 @@ public class SettingsActivity extends AppCompatActivity {
   private DataRow mNetworkChannelCount;
   private DataRow mNetworkNodesCount;
   private DataRow mBlockCount;
-  private EclairHelper eclairHelper;
+  private DataRow mFeeRate;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +53,7 @@ public class SettingsActivity extends AppCompatActivity {
     mNetworkNodesCount = (DataRow) findViewById(R.id.settings_networknodes_count);
     mNetworkChannelCount = (DataRow) findViewById(R.id.settings_networkchannels_count);
     mBlockCount = (DataRow) findViewById(R.id.settings_blockcount);
+    mFeeRate = (DataRow) findViewById(R.id.settings_feerate);
   }
 
   public void goToNetworkChannels(View view) {
@@ -66,6 +68,9 @@ public class SettingsActivity extends AppCompatActivity {
 
   public void settings_refreshCount(View view) {
     mBlockCount.setValue(String.valueOf(Globals.blockCount().get()));
+  }
+  public void settings_refreshFeerate(View view) {
+    mFeeRate.setValue(Globals.feeratePerKw().toString());
   }
 
   private boolean isExternalStorageWritable() {
@@ -88,6 +93,7 @@ public class SettingsActivity extends AppCompatActivity {
     File outputZipDir = getZipDirectory();
     try {
       outputZipDir.mkdirs();
+      @SuppressLint("SimpleDateFormat")
       SimpleDateFormat zipDateFormat = new SimpleDateFormat("yyyy-MM-dd-HHmmss");
       File outputZipFile = new File(outputZipDir, EclairHelper.DATADIR_NAME + "_" + zipDateFormat.format(new Date()) + ".zip");
       ZipUtil.pack(new File(getApplicationContext().getFilesDir(), EclairHelper.DATADIR_NAME), outputZipFile);
@@ -106,13 +112,14 @@ public class SettingsActivity extends AppCompatActivity {
     super.onResume();
 
     try {
-      eclairHelper = ((App) getApplication()).getEclairInstance();
+      EclairHelper eclairHelper = ((App) getApplication()).getEclairInstance();
       mNodePublicKeyRow.setValue(eclairHelper.nodePublicKey());
       mAliasRow.setValue(eclairHelper.nodeAlias());
       mNetworkChannelCount.setValue(Integer.toString(EclairEventService.channelAnnouncementMap.size()));
       mNetworkNodesCount.setValue(Integer.toString(EclairEventService.nodeAnnouncementMap.size()));
       mBlockCount.setValue(String.valueOf(Globals.blockCount().get()));
-      mZipLocationView.setText("Located in: " + getZipDirectory().getAbsolutePath());
+      mZipLocationView.setText(getString(R.string.zip_datadir_prefix) + getZipDirectory().getAbsolutePath());
+      mFeeRate.setValue(Globals.feeratePerKw().toString());
     } catch (EclairStartException e) {
       finish();
     }

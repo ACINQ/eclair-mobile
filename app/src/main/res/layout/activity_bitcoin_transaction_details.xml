@@ -43,8 +43,8 @@
         android:id="@+id/transactiondetails_txid"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:desc="@string/transactiondetails_txid_label"
-        app:label="Transaction ID"
+        app:desc="@string/transactiondetails_txid_desc"
+        app:label="@string/transactiondetails_txid_label"
         app:value="@string/unknown" />
 
       <include layout="@layout/include_separator" />
