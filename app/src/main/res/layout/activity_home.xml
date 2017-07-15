@@ -19,7 +19,7 @@
         android:id="@+id/home_collapsingTB"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/colorPrimaryDark">
+        android:background="@android:color/transparent">
 
         <LinearLayout
           android:layout_width="match_parent"
@@ -66,7 +66,7 @@
         android:paddingBottom="18dp"
         android:paddingLeft="24dp"
         android:paddingRight="24dp"
-        android:paddingTop="20dp">
+        android:paddingTop="0dp">
 
         <fr.acinq.eclair.swordfish.customviews.CoinAmountView
           android:id="@+id/home_balance_total"

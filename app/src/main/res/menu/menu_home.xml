@@ -3,7 +3,7 @@
   xmlns:app="http://schemas.android.com/apk/res-auto">
   <item
     android:id="@+id/menu_home_settings"
-    android:icon="@drawable/ic_settings_white_24dp"
+    android:icon="@drawable/ic_info_white_24dp"
     android:title="@string/menu_settings"
     app:showAsAction="ifRoom" />
 </menu>

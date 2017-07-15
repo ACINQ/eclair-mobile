@@ -3,6 +3,7 @@
   <string name="app_name">Swordfish</string>
 
   <!-- //////////////// activities name //////////////////// -->
+
   <string name="settings_name">Settings</string>
   <string name="lnpayment_name">Lightning Payment Details</string>
   <string name="btcpayment_name">Transaction Details</string>
@@ -11,6 +12,7 @@
   <string name="channeldetails_name">Channel Details</string>
 
   <!-- //////////////// home //////////////////// -->
+
   <string name="home_onchain_balance">WALLET:</string>
   <string name="home_offchain_balance">LIGHTNING:</string>
   <string name="home_balance_available">Offchain Spendable</string>
