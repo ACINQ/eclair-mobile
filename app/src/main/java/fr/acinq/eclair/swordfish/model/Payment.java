@@ -13,6 +13,7 @@ public class Payment extends SugarRecord {
   public String paymentReference;
   public String paymentRequest;
   public String description;
+  public int confidenceBlocks;
   public String status;
   public Date created;
   public Date updated;
@@ -33,6 +34,17 @@ public class Payment extends SugarRecord {
     if (reference == null || reference.length() == 0) return null;
     List<Payment> payments = Payment.findWithQuery(Payment.class, "SELECT * FROM Payment WHERE payment_reference = ? AND type = ? LIMIT 1",
       reference, type.toString());
+    if (payments.isEmpty()) {
+      return null;
+    } else {
+      return payments.get(0);
+    }
+  }
+
+  public static Payment getPayment(String reference) {
+    if (reference == null || reference.length() == 0) return null;
+    List<Payment> payments = Payment.findWithQuery(Payment.class, "SELECT * FROM Payment WHERE payment_reference = ? LIMIT 1",
+      reference);
     if (payments.isEmpty()) {
       return null;
     } else {

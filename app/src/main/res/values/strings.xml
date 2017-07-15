@@ -163,6 +163,10 @@
   <string name="settings_networknodes_label">Known nodes</string>
   <string name="settings_networknodes_desc">Click to display the list</string>
 
+  <!-- //////////////// payment item //////////////////// -->
+
+  <string name="paymentitem_confidence_suffix">conf</string>
+
   <!-- //////////////// monetary units //////////////////// -->
 
   <string name="btc_sat_short">sat</string>

@@ -81,13 +81,20 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
       }
       mPaymentIcon.setImageResource(R.drawable.icon_bolt_circle_blue);
     } else {
-      mStatus.setVisibility(View.GONE);
+      mStatus.setVisibility(View.VISIBLE);
+      String confidenceBlocks = payment.confidenceBlocks < 7 ? Integer.toString(payment.confidenceBlocks) : "6+";
+      mStatus.setText(confidenceBlocks + " " + itemView.getResources().getString(R.string.paymentitem_confidence_suffix));
+      if (payment.confidenceBlocks < 3) {
+        mStatus.setTextColor(FAILED_PAYMENT_COLOR);
+      } else {
+        mStatus.setTextColor(SUCCESS_PAYMENT_COLOR);
+      }
       mPaymentIcon.setImageResource(R.drawable.icon_btc_extrude_orange);
       mDescription.setText(payment.paymentReference);
       if (PaymentTypes.BTC_RECEIVED.toString().equals(payment.type)) {
         mAmount.setText(CoinUtils.formatAmountMilliBtc(new MilliSatoshi(payment.amountPaidMsat)));
         mAmount.setTextColor(mAmount.getResources().getColor(R.color.green));
-
+        mFees.setVisibility(View.GONE);
       } else if (PaymentTypes.BTC_SENT.toString().equals(payment.type)) {
         mAmount.setText(CoinUtils.formatAmountMilliBtc(new MilliSatoshi(payment.amountPaidMsat)));
         mAmount.setTextColor(mAmount.getResources().getColor(R.color.redFaded));

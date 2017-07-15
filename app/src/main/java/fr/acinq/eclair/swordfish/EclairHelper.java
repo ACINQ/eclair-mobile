@@ -8,6 +8,7 @@ import com.typesafe.config.ConfigFactory;
 import org.bitcoinj.core.Coin;
 import org.bitcoinj.core.InsufficientMoneyException;
 import org.bitcoinj.core.Transaction;
+import org.bitcoinj.core.listeners.TransactionConfidenceEventListener;
 import org.bitcoinj.wallet.KeyChain;
 import org.bitcoinj.wallet.SendRequest;
 import org.bitcoinj.wallet.Wallet;
@@ -53,7 +54,6 @@ public class EclairHelper {
   private static final String TAG = "EclairHelper";
   private ActorRef guiUpdater;
   private BitcoinjKit2 bitcoinjKit2;
-  //private Setup setup;
   private Kit eclairKit;
 
   public EclairHelper(Context context) throws EclairStartException {
@@ -95,6 +95,16 @@ public class EclairHelper {
               paymentSent.save();
               publishWalletBalance();
               EventBus.getDefault().post(new BitcoinPaymentEvent(paymentSent));
+            }
+          });
+          wallet().addTransactionConfidenceEventListener(new TransactionConfidenceEventListener() {
+            @Override
+            public void onTransactionConfidenceChanged(Wallet wallet, Transaction tx) {
+              final Payment paymentInDB = Payment.getPayment(tx.getHashAsString());
+              if (paymentInDB != null) {
+                paymentInDB.confidenceBlocks = tx.getConfidence().getDepthInBlocks();
+                paymentInDB.save();
+              }
             }
           });
           super.onSetupCompleted();
