@@ -9,123 +9,145 @@
 
   <include layout="@layout/toolbar" />
 
-  <TextView
+  <ScrollView
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="@color/colorGrey_0"
-    android:paddingBottom="8dp"
-    android:paddingEnd="8dp"
-    android:paddingStart="8dp"
-    android:paddingTop="16dp"
-    android:text="@string/settings_nodeinfo"
-    android:textAllCaps="true"
-    android:textColor="@color/colorGrey_2"
-    android:textSize="10sp" />
+    android:layout_height="wrap_content">
 
-  <include layout="@layout/include_separator" />
-
-  <fr.acinq.eclair.swordfish.customviews.DataRow
-    android:id="@+id/settings_nodeid"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    app:desc="@string/settings_nodeid_desc"
-    app:label="@string/settings_nodeid_label"
-    app:value="@string/unknown" />
-
-  <include layout="@layout/include_separator" />
-
-  <fr.acinq.eclair.swordfish.customviews.DataRow
-    android:id="@+id/settings_blockcount"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:clickable="true"
-    android:onClick="settings_refreshCount"
-    app:desc="@string/settings_blockcount_desc"
-    app:label="@string/settings_blockcount_label"
-    app:value="@string/unknown" />
-
-  <include layout="@layout/include_separator" />
-
-  <fr.acinq.eclair.swordfish.customviews.DataRow
-    android:id="@+id/settings_feerate"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:clickable="true"
-    android:onClick="settings_refreshFeerate"
-    app:desc="@string/settings_feerate_desc"
-    app:label="@string/settings_feerate_label"
-    app:value="@string/unknown" />
-
-  <TextView
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="@color/colorGrey_0"
-    android:paddingBottom="8dp"
-    android:paddingEnd="8dp"
-    android:paddingStart="8dp"
-    android:paddingTop="16dp"
-    android:text="@string/settings_network"
-    android:textAllCaps="true"
-    android:textColor="@color/colorGrey_2"
-    android:textSize="10sp" />
-
-  <include layout="@layout/include_separator" />
-
-  <fr.acinq.eclair.swordfish.customviews.DataRow
-    android:id="@+id/settings_networkchannels_count"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:clickable="true"
-    android:onClick="goToNetworkChannels"
-    app:desc="@string/settings_networkchannels_desc"
-    app:label="@string/settings_networkchannels_desc"
-    app:value="@string/unknown" />
-
-  <include layout="@layout/include_separator" />
-
-  <fr.acinq.eclair.swordfish.customviews.DataRow
-    android:id="@+id/settings_networknodes_count"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:clickable="true"
-    android:onClick="goToNetworkNodes"
-    app:desc="@string/settings_networkchannels_desc"
-    app:label="@string/settings_networkchannels_label"
-    app:value="@string/unknown" />
-
-  <include layout="@layout/include_separator" />
-
-  <LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal">
-
-    <TextView
+    <LinearLayout
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:layout_weight="0.5"
-      android:padding="8dp"
-      android:text="@string/zip_datadir"
-      android:textStyle="bold" />
+      android:orientation="vertical">
 
-    <Button
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:layout_weight="0.5"
-      android:onClick="zipDatadir"
-      android:text="@string/zip_datadir_button"
-      android:textAllCaps="true"
-      android:textSize="12sp" />
+      <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorGrey_0"
+        android:paddingBottom="8dp"
+        android:paddingEnd="8dp"
+        android:paddingStart="8dp"
+        android:paddingTop="16dp"
+        android:text="@string/settings_title_bitcoin"
+        android:textAllCaps="true"
+        android:textColor="@color/colorGrey_2"
+        android:textSize="10sp" />
 
-  </LinearLayout>
+      <fr.acinq.eclair.swordfish.customviews.DataRow
+        android:id="@+id/settings_blockcount"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:onClick="settings_refreshCount"
+        app:desc="@string/settings_blockcount_desc"
+        app:label="@string/settings_blockcount_label"
+        app:value="@string/unknown" />
 
-  <TextView
-    android:id="@+id/settings_zip_path"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:padding="8dp"
-    android:text=""
-    android:textColor="@color/colorGrey_1"
-    android:textSize="12sp" />
+      <include layout="@layout/include_separator" />
+
+      <fr.acinq.eclair.swordfish.customviews.DataRow
+        android:id="@+id/settings_feerate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:onClick="settings_refreshFeerate"
+        app:desc="@string/settings_feerate_desc"
+        app:label="@string/settings_feerate_label"
+        app:value="@string/unknown" />
+
+      <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorGrey_0"
+        android:paddingBottom="8dp"
+        android:paddingEnd="8dp"
+        android:paddingStart="8dp"
+        android:paddingTop="16dp"
+        android:text="@string/settings_title_lightning"
+        android:textAllCaps="true"
+        android:textColor="@color/colorGrey_2"
+        android:textSize="10sp" />
+
+      <fr.acinq.eclair.swordfish.customviews.DataRow
+        android:id="@+id/settings_nodeid"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:desc="@string/settings_nodeid_desc"
+        app:label="@string/settings_nodeid_label"
+        app:value="@string/unknown" />
+
+      <include layout="@layout/include_separator" />
+
+      <fr.acinq.eclair.swordfish.customviews.DataRow
+        android:id="@+id/settings_networkchannels_count"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:onClick="goToNetworkChannels"
+        app:desc="@string/settings_networkchannels_desc"
+        app:label="@string/settings_networkchannels_label"
+        app:value="@string/unknown" />
+
+      <include layout="@layout/include_separator" />
+
+      <fr.acinq.eclair.swordfish.customviews.DataRow
+        android:id="@+id/settings_networknodes_count"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:onClick="goToNetworkNodes"
+        app:desc="@string/settings_networknodes_desc"
+        app:label="@string/settings_networknodes_label"
+        app:value="@string/unknown" />
+
+      <include layout="@layout/include_separator" />
+
+      <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorGrey_0"
+        android:paddingBottom="8dp"
+        android:paddingEnd="8dp"
+        android:paddingStart="8dp"
+        android:paddingTop="16dp"
+        android:text="@string/settings_title_debug"
+        android:textAllCaps="true"
+        android:textColor="@color/colorGrey_2"
+        android:textSize="10sp" />
+
+      <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_weight="0.5"
+          android:padding="8dp"
+          android:text="@string/zip_datadir"
+          android:textStyle="bold" />
+
+        <Button
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_weight="0.5"
+          android:onClick="zipDatadir"
+          android:text="@string/zip_datadir_button"
+          android:textAllCaps="true"
+          android:textSize="12sp" />
+
+      </LinearLayout>
+
+      <TextView
+        android:id="@+id/settings_zip_path"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:text=""
+        android:textColor="@color/colorGrey_1"
+        android:textSize="12sp" />
+
+    </LinearLayout>
+
+  </ScrollView>
 
 </LinearLayout>

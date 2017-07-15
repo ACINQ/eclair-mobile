@@ -140,12 +140,14 @@
 
   <!-- //////////////// settings //////////////////// -->
 
+  <string name="settings_title_bitcoin">Bitcoin Network</string>
+  <string name="settings_title_lightning">Lightning Network</string>
+  <string name="settings_title_debug">Diagnostics</string>
   <string name="zip_datadir">Extract datadir in Zip</string>
   <string name="zip_datadir_prefix">Located in: </string>
   <string name="zip_datadir_button">Extract</string>
   <string name="zip_datadir_toast_success">Datadir extracted</string>
   <string name="zip_datadir_toast_failure">Could not extract datadir</string>
-  <string name="settings_nodeinfo">Node information</string>
   <string name="settings_nodeid_label">Node id</string>
   <string name="settings_nodeid_desc">Lightning Network\'s public identifier</string>
   <string name="settings_nodealias_label">Alias</string>
@@ -154,7 +156,6 @@
   <string name="settings_blockcount_desc">Current blockchain height</string>
   <string name="settings_feerate_label">Fee rate</string>
   <string name="settings_feerate_desc">Current fee rate (satoshi/kW)</string>
-  <string name="settings_network">Lightning Network</string>
   <string name="settings_networkchannels_label">Known channels</string>
   <string name="settings_networkchannels_desc">Click to display the list</string>
   <string name="settings_networknodes_label">Known nodes</string>
