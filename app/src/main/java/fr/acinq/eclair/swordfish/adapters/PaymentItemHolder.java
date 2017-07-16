@@ -58,7 +58,14 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
       mDate.setText(DateFormat.getDateTimeInstance().format(payment.updated));
     }
 
-    mFees.setText(NumberFormat.getInstance().format(payment.feesPaidMsat / 1000));
+    if (!PaymentTypes.BTC_RECEIVED.toString().equals(payment.type)) {
+      mFees.setText(NumberFormat.getInstance().format(payment.feesPaidMsat / 1000));
+      mFees.setVisibility(View.VISIBLE);
+      mFeesUnit.setVisibility(View.VISIBLE);
+    } else {
+      mFees.setVisibility(View.GONE);
+      mFeesUnit.setVisibility(View.GONE);
+    }
 
     if (PaymentTypes.LN.toString().equals(payment.type)) {
       try {
@@ -96,8 +103,6 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
       if (PaymentTypes.BTC_RECEIVED.toString().equals(payment.type)) {
         mAmount.setText(CoinUtils.formatAmountMilliBtc(new MilliSatoshi(payment.amountPaidMsat)));
         mAmount.setTextColor(mAmount.getResources().getColor(R.color.green));
-        mFees.setVisibility(View.GONE);
-        mFeesUnit.setVisibility(View.GONE);
       } else if (PaymentTypes.BTC_SENT.toString().equals(payment.type)) {
         mAmount.setText(CoinUtils.formatAmountMilliBtc(new MilliSatoshi(payment.amountPaidMsat)));
         mAmount.setTextColor(mAmount.getResources().getColor(R.color.redFaded));
