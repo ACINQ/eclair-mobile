@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:orientation="vertical"
+  tools:context="fr.acinq.eclair.swordfish.activity.AboutActivity">
+
+  <include layout="@layout/toolbar" />
+
+  <ScrollView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:orientation="vertical">
+
+      <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorGrey_0"
+        android:paddingBottom="8dp"
+        android:paddingEnd="8dp"
+        android:paddingStart="8dp"
+        android:paddingTop="16dp"
+        android:text="@string/about_general_title"
+        android:textAllCaps="true"
+        android:textColor="@color/colorGrey_2"
+        android:textSize="10sp" />
+
+      <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/about_general_text"
+        android:textSize="12sp"
+        android:padding="8dp" />
+
+      <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorGrey_0"
+        android:paddingBottom="8dp"
+        android:paddingEnd="8dp"
+        android:paddingStart="8dp"
+        android:paddingTop="16dp"
+        android:text="@string/about_limitations_title"
+        android:textAllCaps="true"
+        android:textColor="@color/colorGrey_2"
+        android:textSize="10sp" />
+
+      <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/about_limitations_text"
+        android:textSize="12sp"
+        android:padding="8dp" />
+
+      <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorGrey_0"
+        android:paddingBottom="8dp"
+        android:paddingEnd="8dp"
+        android:paddingStart="8dp"
+        android:paddingTop="16dp"
+        android:text="@string/about_acinq_title"
+        android:textAllCaps="true"
+        android:textColor="@color/colorGrey_2"
+        android:textSize="10sp" />
+
+      <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/about_acinq_text"
+        android:textSize="12sp"
+        android:padding="8dp" />
+
+    </LinearLayout>
+
+  </ScrollView>
+
+</LinearLayout>

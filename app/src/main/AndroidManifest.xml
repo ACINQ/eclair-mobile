@@ -105,6 +105,10 @@
       android:name=".activity.PaymentFailureActivity"
       android:noHistory="true"
       android:screenOrientation="portrait" />
+    <activity android:name=".activity.AboutActivity"
+      android:screenOrientation="portrait"
+      android:parentActivityName=".activity.HomeActivity"
+      android:label="@string/about_name" />
   </application>
 
 </manifest>

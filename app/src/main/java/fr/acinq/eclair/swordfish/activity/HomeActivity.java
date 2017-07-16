@@ -187,6 +187,10 @@ public class HomeActivity extends AppCompatActivity {
         Intent settingsIntent = new Intent(this, SettingsActivity.class);
         startActivity(settingsIntent);
         return true;
+      case R.id.menu_home_about:
+        Intent aboutIntent = new Intent(this, AboutActivity.class);
+        startActivity(aboutIntent);
+        return true;
       default:
         return super.onOptionsItemSelected(item);
     }

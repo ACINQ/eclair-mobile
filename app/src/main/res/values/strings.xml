@@ -5,6 +5,7 @@
   <!-- //////////////// activities name //////////////////// -->
 
   <string name="settings_name">Settings</string>
+  <string name="about_name">About</string>
   <string name="lnpayment_name">Lightning Payment Details</string>
   <string name="btcpayment_name">Transaction Details</string>
   <string name="networkchannels_name">Channels in network</string>
@@ -50,7 +51,8 @@
   <!-- /////////////// menus /////////////// -->
 
   <string name="menu_home">Home</string>
-  <string name="menu_settings">Settings</string>
+  <string name="menu_settings">Node Infos</string>
+  <string name="menu_about">About Eclair</string>
 
   <string name="open_in_explorer">Open transaction in explorer</string>
   <string name="close_button">Close Channel</string>
@@ -139,6 +141,29 @@
   <string name="paymentsuccess_title">Payment sent!</string>
   <string name="paymentfailure_title">Payment failed!</string>
   <string name="paymentfailure_cause">Unknown cause</string>
+
+  <!-- //////////////// About //////////////////// -->
+
+  <string name="about_general_title">About Eclair Wallet</string>
+  <string name="about_general_text">
+    "This wallet is based upon Eclair, a Lightning Network implementation, and BitcoinJ."
+    "You can send and receive bitcoins with the usual Bitcoin transactions. You can open channels "
+    "with nodes on the Lightning Network and send payment to them, or through them."
+    \n\n
+    "Current version: 0.3-alpha"
+  </string>
+  <string name="about_limitations_title">Software Limitations</string>
+  <string name="about_limitations_text">
+    "This wallet is experimental, bugs and crashes should be expected. Please report any issues to us."
+    \n\n
+    "- Works only on the TESTNET bitcoin blockchain for now."
+    \n
+    "- Channels are unidirectional. You can not receive or forward Lightning payments."
+  </string>
+  <string name="about_acinq_title">About ACINQ</string>
+  <string name="about_acinq_text">
+    "ACINQ is a startup focused on improving Bitcoin's scalability issues. Lorem ipsum dolor sit amet"
+  </string>
 
   <!-- //////////////// settings //////////////////// -->
 
