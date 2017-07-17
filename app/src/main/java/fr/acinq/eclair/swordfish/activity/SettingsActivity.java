@@ -1,9 +1,13 @@
 package fr.acinq.eclair.swordfish.activity;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -67,6 +71,7 @@ public class SettingsActivity extends AppCompatActivity {
   public void settings_refreshCount(View view) {
     mBlockCount.setValue(String.valueOf(Globals.blockCount().get()));
   }
+
   public void settings_refreshFeerate(View view) {
     mFeeRate.setValue(Globals.feeratePerKw().toString());
   }
@@ -84,6 +89,14 @@ public class SettingsActivity extends AppCompatActivity {
   }
 
   public void zipDatadir(View view) {
+    if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+      ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_CAMERA);
+    } else {
+      doZipDatadir();
+    }
+  }
+
+  private void doZipDatadir() {
     if (!isExternalStorageWritable()) {
       zipFailed();
       return;
@@ -96,13 +109,30 @@ public class SettingsActivity extends AppCompatActivity {
       File outputZipFile = new File(outputZipDir, EclairHelper.DATADIR_NAME + "_" + zipDateFormat.format(new Date()) + ".zip");
       ZipUtil.pack(new File(getApplicationContext().getFilesDir(), EclairHelper.DATADIR_NAME), outputZipFile);
       Toast.makeText(this, R.string.zip_datadir_toast_success, Toast.LENGTH_SHORT).show();
+      Log.i(TAG, "Successfully extracted datadir to " + outputZipFile.getAbsolutePath());
     } catch (Exception e) {
       Log.e(TAG, "Could not extract datadir", e);
     }
   }
 
+  private static int MY_PERMISSIONS_REQUEST_CAMERA = 0;
+
   private File getZipDirectory() {
-    return new File(getBaseContext().getExternalFilesDir(null), "extracted-datadirs");
+
+    return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS);
+    //return new File(getBaseContext().getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "extracted-datadirs");
+  }
+
+  @Override
+  public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+    if (requestCode == MY_PERMISSIONS_REQUEST_CAMERA) {
+      if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+        doZipDatadir();
+      } else {
+        zipFailed();
+      }
+      return;
+    }
   }
 
   @Override
