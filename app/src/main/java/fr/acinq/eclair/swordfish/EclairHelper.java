@@ -22,6 +22,7 @@ import java.net.InetSocketAddress;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
+import akka.dispatch.Futures;
 import akka.dispatch.Mapper;
 import akka.dispatch.OnComplete;
 import akka.pattern.Patterns;
@@ -47,14 +48,16 @@ import fr.acinq.eclair.swordfish.model.PaymentTypes;
 import scala.Option;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
+import scala.concurrent.Promise;
 import scala.concurrent.duration.Duration;
 
 public class EclairHelper {
   public final static String DATADIR_NAME = "eclair-wallet-data";
   private static final String TAG = "EclairHelper";
-  private ActorRef guiUpdater;
-  private BitcoinjKit2 bitcoinjKit2;
-  private Kit eclairKit;
+  private final ActorRef guiUpdater;
+  final ActorSystem system = ActorSystem.apply("system");
+  private final Promise<Wallet> bitcoinjWallet = Futures.promise();
+  private final Kit eclairKit;
 
   public EclairHelper(Context context) throws EclairStartException {
     try {
@@ -62,7 +65,7 @@ public class EclairHelper {
       Log.d(TAG, "Accessing Eclair Setup with datadir " + datadir.getAbsolutePath());
       System.setProperty("eclair.node-alias", "ewa");
 
-      bitcoinjKit2 = new BitcoinjKit2("test", datadir) {
+      BitcoinjKit2 bitcoinjKit2 = new BitcoinjKit2("test", datadir) {
         @Override
         public void onSetupCompleted() {
           wallet().addCoinsReceivedEventListener(new WalletCoinsReceivedEventListener() {
@@ -107,17 +110,14 @@ public class EclairHelper {
               }
             }
           });
+          bitcoinjWallet.success(wallet());
           super.onSetupCompleted();
         }
       };
       bitcoinjKit2.startAsync();
-      final ActorSystem system = ActorSystem.apply("system");
-      Future<Wallet> fWallet = bitcoinjKit2.initialized().map(new Mapper<Object, Wallet>() {
-        public Wallet apply(Object isInitialized) {
-          return bitcoinjKit2.wallet();
-        }
-      }, system.dispatcher());
-      EclairWallet eclairWallet = new BitcoinjWallet(fWallet, system.dispatcher());
+
+
+      EclairWallet eclairWallet = new BitcoinjWallet(bitcoinjWallet.future(), system.dispatcher());
       Setup setup = new Setup(datadir, Option.apply(eclairWallet), ConfigFactory.empty(), system);
       guiUpdater = system.actorOf(Props.create(EclairEventService.class));
       setup.system().eventStream().subscribe(guiUpdater, ChannelEvent.class);
@@ -132,8 +132,13 @@ public class EclairHelper {
   }
 
   public void publishWalletBalance() {
-    Coin coin = this.bitcoinjKit2.wallet().getBalance();
-    EventBus.getDefault().postSticky(new WalletBalanceUpdateEvent(new Satoshi(coin.getValue())));
+    this.bitcoinjWallet.future().map(new Mapper<Wallet, Long>() {
+      public Long apply(Wallet wallet) {
+        Coin balance = wallet.getBalance();
+        EventBus.getDefault().postSticky(new WalletBalanceUpdateEvent(new Satoshi(balance.getValue())));
+        return Long.valueOf(balance.getValue());
+      }
+    }, system.dispatcher());
   }
 
   public void sendPayment(int timeout, OnComplete<Object> onComplete, long amountMsat, BinaryData paymentHash, Crypto.PublicKey targetNodeId) {
@@ -155,12 +160,12 @@ public class EclairHelper {
     }
   }
 
-  public String nodeAlias() {
-    return this.eclairKit.nodeParams().alias();
-  }
-
-  public Wallet.SendResult sendBitcoinPayment(SendRequest sendRequest) throws InsufficientMoneyException {
-    return this.bitcoinjKit2.wallet().sendCoins(sendRequest);
+  public void sendBitcoinPayment(final SendRequest sendRequest) throws InsufficientMoneyException {
+    if (bitcoinjWallet.isCompleted()) {
+      bitcoinjWallet.future().value().get().get().sendCoins(sendRequest);
+    } else {
+      throw new EclairStartException();
+    }
   }
 
   public String nodePublicKey() {
@@ -168,6 +173,8 @@ public class EclairHelper {
   }
 
   public String getWalletPublicAddress() {
-    return this.bitcoinjKit2.wallet().freshSegwitAddress(KeyChain.KeyPurpose.RECEIVE_FUNDS).toBase58();
+    return bitcoinjWallet.isCompleted()
+      ? bitcoinjWallet.future().value().get().get().freshSegwitAddress(KeyChain.KeyPurpose.RECEIVE_FUNDS).toBase58()
+      : "";
   }
 }

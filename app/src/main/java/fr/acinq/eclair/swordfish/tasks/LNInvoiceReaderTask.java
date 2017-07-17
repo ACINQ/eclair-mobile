@@ -25,7 +25,7 @@ public class LNInvoiceReaderTask extends AsyncTask<String, Integer, PaymentReque
     try {
       extract = PaymentRequest.read(invoiceAsString);
     } catch (Throwable t) {
-      Log.e(TAG, "Could not read invoice " + invoiceAsString, t);
+      Log.d(TAG, "Could not read Lightning invoice " + invoiceAsString, t);
       try {
         BitcoinURI bitcoinURI = new BitcoinURI(invoiceAsString);
       } catch (BitcoinURIParseException e) {
