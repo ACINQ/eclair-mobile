@@ -14,6 +14,7 @@ public class Payment extends SugarRecord {
   public String paymentRequest;
   public String description;
   public int confidenceBlocks;
+  public int confidenceType;
   public String status;
   public Date created;
   public Date updated;

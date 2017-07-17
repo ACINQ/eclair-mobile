@@ -6,6 +6,8 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import org.bitcoinj.core.TransactionConfidence;
+
 import java.text.DateFormat;
 import java.text.NumberFormat;
 
@@ -67,6 +69,7 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
       mFeesUnit.setVisibility(View.GONE);
     }
 
+
     if (PaymentTypes.LN.toString().equals(payment.type)) {
       try {
         if (payment.amountPaidMsat == 0) {
@@ -75,9 +78,9 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
           mAmount.setText("-" + CoinUtils.formatAmountMilliBtc(new MilliSatoshi(payment.amountPaidMsat)));
         }
       } catch (Exception e) {
-        mAmount.setText("-" + CoinUtils.getMilliBTCFormat().format(0));
+        mAmount.setText(CoinUtils.getMilliBTCFormat().format(0));
       }
-      mAmount.setTextColor(mAmount.getResources().getColor(R.color.redFaded));
+      mAmount.setTextColor(itemView.getResources().getColor(R.color.redFaded));
       mDescription.setText(payment.description);
       mStatus.setVisibility(View.VISIBLE);
       mStatus.setText(payment.status);
@@ -91,21 +94,31 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
       mPaymentIcon.setImageResource(R.drawable.icon_bolt_circle_blue);
     } else {
       mStatus.setVisibility(View.VISIBLE);
-      String confidenceBlocks = payment.confidenceBlocks < 7 ? Integer.toString(payment.confidenceBlocks) : "6+";
-      mStatus.setText(confidenceBlocks + " " + itemView.getResources().getString(R.string.paymentitem_confidence_suffix));
-      if (payment.confidenceBlocks < 3) {
-        mStatus.setTextColor(FAILED_PAYMENT_COLOR);
+
+      if (payment.confidenceType == TransactionConfidence.ConfidenceType.BUILDING.getValue()
+        || payment.confidenceType == TransactionConfidence.ConfidenceType.PENDING.getValue()
+        || payment.confidenceType == TransactionConfidence.ConfidenceType.UNKNOWN.getValue()) {
+
+        String confidenceBlocks = payment.confidenceBlocks < 7 ? Integer.toString(payment.confidenceBlocks) : "6+";
+        mStatus.setText(confidenceBlocks + " " + itemView.getResources().getString(R.string.paymentitem_confidence_suffix));
+        if (payment.confidenceBlocks < 2) {
+          mStatus.setTextColor(itemView.getResources().getColor(R.color.colorGrey_1));
+        } else {
+          mStatus.setTextColor(itemView.getResources().getColor(R.color.green));
+        }
+
       } else {
-        mStatus.setTextColor(SUCCESS_PAYMENT_COLOR);
+        mStatus.setText("In conflict");
+        mStatus.setTextColor(FAILED_PAYMENT_COLOR);
       }
       mPaymentIcon.setImageResource(R.drawable.icon_btc_extrude_orange);
       mDescription.setText(payment.paymentReference);
       if (PaymentTypes.BTC_RECEIVED.toString().equals(payment.type)) {
         mAmount.setText(CoinUtils.formatAmountMilliBtc(new MilliSatoshi(payment.amountPaidMsat)));
-        mAmount.setTextColor(mAmount.getResources().getColor(R.color.green));
+        mAmount.setTextColor(itemView.getResources().getColor(R.color.green));
       } else if (PaymentTypes.BTC_SENT.toString().equals(payment.type)) {
         mAmount.setText(CoinUtils.formatAmountMilliBtc(new MilliSatoshi(payment.amountPaidMsat)));
-        mAmount.setTextColor(mAmount.getResources().getColor(R.color.redFaded));
+        mAmount.setTextColor(itemView.getResources().getColor(R.color.redFaded));
       }
     }
   }

@@ -73,14 +73,16 @@ public class EclairHelper {
             public void onCoinsReceived(Wallet wallet, Transaction tx, Coin prevBalance, Coin newBalance) {
               EventBus.getDefault().postSticky(new WalletBalanceUpdateEvent(new Satoshi(newBalance.getValue())));
               final Payment paymentInDB = Payment.getPayment(tx.getHashAsString(), PaymentTypes.BTC_RECEIVED);
-              final Payment paymentSent = paymentInDB == null ? new Payment(PaymentTypes.BTC_RECEIVED) : paymentInDB;
+              final Payment paymentReceived = paymentInDB == null ? new Payment(PaymentTypes.BTC_RECEIVED) : paymentInDB;
               final Coin amountReceived = newBalance.minus(prevBalance);
-              paymentSent.paymentReference = tx.getHashAsString();
-              paymentSent.amountPaidMsat = package$.MODULE$.satoshi2millisatoshi(new Satoshi(amountReceived.getValue())).amount();
-              paymentSent.updated = tx.getUpdateTime();
-              paymentSent.save();
+              paymentReceived.paymentReference = tx.getHashAsString();
+              paymentReceived.amountPaidMsat = package$.MODULE$.satoshi2millisatoshi(new Satoshi(amountReceived.getValue())).amount();
+              paymentReceived.updated = tx.getUpdateTime();
+              paymentReceived.confidenceBlocks = tx.getConfidence().getDepthInBlocks();
+              paymentReceived.confidenceType = tx.getConfidence().getConfidenceType().getValue();
+              paymentReceived.save();
               publishWalletBalance();
-              EventBus.getDefault().post(new BitcoinPaymentEvent(paymentSent));
+              EventBus.getDefault().post(new BitcoinPaymentEvent(paymentReceived));
             }
           });
           wallet().addCoinsSentEventListener(new WalletCoinsSentEventListener() {
@@ -95,6 +97,8 @@ public class EclairHelper {
               if (tx.getFee() != null)
                 paymentSent.feesPaidMsat = package$.MODULE$.satoshi2millisatoshi(new Satoshi(tx.getFee().getValue())).amount();
               paymentSent.updated = tx.getUpdateTime();
+              paymentSent.confidenceBlocks = tx.getConfidence().getDepthInBlocks();
+              paymentSent.confidenceType = tx.getConfidence().getConfidenceType().getValue();
               paymentSent.save();
               publishWalletBalance();
               EventBus.getDefault().post(new BitcoinPaymentEvent(paymentSent));
@@ -106,6 +110,7 @@ public class EclairHelper {
               final Payment paymentInDB = Payment.getPayment(tx.getHashAsString());
               if (paymentInDB != null) {
                 paymentInDB.confidenceBlocks = tx.getConfidence().getDepthInBlocks();
+                paymentInDB.confidenceType = tx.getConfidence().getConfidenceType().getValue();
                 paymentInDB.save();
               }
             }
