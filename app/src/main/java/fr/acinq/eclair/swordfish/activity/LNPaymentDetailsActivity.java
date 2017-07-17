@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.View;
 
 import java.text.DateFormat;
 
@@ -18,6 +19,8 @@ import fr.acinq.eclair.swordfish.utils.CoinUtils;
 public class LNPaymentDetailsActivity extends AppCompatActivity {
 
   private static final String TAG = "LNPaymentDetailsActivity";
+
+  private String paidFormat = "mbtc";
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -36,11 +39,24 @@ public class LNPaymentDetailsActivity extends AppCompatActivity {
     Intent intent = getIntent();
     long paymentId = intent.getLongExtra(PaymentItemHolder.EXTRA_PAYMENT_ID, -1);
     try {
-      Payment p = Payment.findById(Payment.class, paymentId);
+      final Payment p = Payment.findById(Payment.class, paymentId);
 
       // amount
-      DataRow amountPaidRow = (DataRow) findViewById(R.id.paymentdetails_amount_paid);
-      amountPaidRow.setValue(CoinUtils.formatAmountMilliBtc(new MilliSatoshi(p.amountPaidMsat)));
+      final DataRow amountPaidRow = (DataRow) findViewById(R.id.paymentdetails_amount_paid);
+      amountPaidRow.setClickable(true);
+      amountPaidRow.setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+          if ("mbtc".equals(paidFormat)) {
+            amountPaidRow.setValue(CoinUtils.formatAmountBtc(new MilliSatoshi(p.amountPaidMsat)) + " BTC");
+            paidFormat = "btc";
+          } else {
+            amountPaidRow.setValue(CoinUtils.formatAmountMilliBtc(new MilliSatoshi(p.amountPaidMsat)) + " mBTC");
+            paidFormat = "mbtc";
+          }
+        }
+      });
+      amountPaidRow.setValue(CoinUtils.formatAmountMilliBtc(new MilliSatoshi(p.amountPaidMsat)) + " mBTC");
 
       DataRow feesRow = (DataRow) findViewById(R.id.paymentdetails_fees);
       feesRow.setValue(Long.toString(p.feesPaidMsat));
