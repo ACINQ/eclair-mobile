@@ -102,7 +102,7 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
         String confidenceBlocks = payment.confidenceBlocks < 7 ? Integer.toString(payment.confidenceBlocks) : "6+";
         mStatus.setText(confidenceBlocks + " " + itemView.getResources().getString(R.string.paymentitem_confidence_suffix));
         if (payment.confidenceBlocks < 2) {
-          mStatus.setTextColor(itemView.getResources().getColor(R.color.colorGrey_1));
+          mStatus.setTextColor(itemView.getResources().getColor(R.color.colorGrey_2));
         } else {
           mStatus.setTextColor(itemView.getResources().getColor(R.color.green));
         }
