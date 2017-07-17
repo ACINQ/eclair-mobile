@@ -4,7 +4,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import fr.acinq.eclair.wallet.App;
@@ -19,6 +21,7 @@ public class LauncherActivity extends AppCompatActivity implements StartupTask.A
 
   private Button mRestartButton;
   private TextView mSubtitleTextView;
+  private ImageView mLauncherImage;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -27,6 +30,9 @@ public class LauncherActivity extends AppCompatActivity implements StartupTask.A
 
     mRestartButton = (Button) findViewById(R.id.launcher_restart);
     mSubtitleTextView = (TextView) findViewById(R.id.launcher_subtitle);
+    mLauncherImage = (ImageView) findViewById(R.id.launcher_image);
+    mLauncherImage.animate()
+      .alpha(1.0f).setDuration(800).setInterpolator(new DecelerateInterpolator()).start();
 
     Intent intent = getIntent();
     if (intent.getBooleanExtra(EXTRA_AUTOSTART, true)) {

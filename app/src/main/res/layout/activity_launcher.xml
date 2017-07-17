@@ -14,12 +14,15 @@
     android:padding="16dp">
 
     <ImageView
-      android:layout_width="96dp"
-      android:layout_height="96dp"
+      android:id="@+id/launcher_image"
+      android:layout_width="128dp"
+      android:layout_height="128dp"
+      android:alpha="0"
       android:src="@drawable/launcher" />
 
     <TextView
       android:id="@+id/launcher_subtitle"
+      android:layout_marginTop="16dp"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:textAlignment="center"
