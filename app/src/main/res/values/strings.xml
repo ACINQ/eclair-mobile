@@ -199,4 +199,6 @@
   <string name="btc_milli_short">mBTC</string>
   <string name="btc_milli_long">milli-bitcoin</string>
 
+  <string name="chain_test">TESTNET</string>
+
 </resources>

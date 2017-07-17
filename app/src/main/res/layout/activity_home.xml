@@ -13,7 +13,7 @@
       android:id="@+id/home_appbar"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:background="@color/colorPrimary">
+      android:background="@color/colorPrimaryDark">
 
       <android.support.design.widget.CollapsingToolbarLayout
         android:id="@+id/home_collapsingTB"
@@ -32,6 +32,21 @@
             android:layout_height="match_parent"
             android:layout_weight="1">
 
+            <TextView
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:text="@string/chain_test"
+              android:background="@drawable/rounded_corner_yellow"
+              android:textColor="@color/colorGrey_3"
+              android:layout_centerVertical="true"
+              android:elevation="4dp"
+              android:textSize="10sp"
+              android:layout_marginStart="16dp"
+              android:paddingLeft="5dp"
+              android:paddingRight="5dp"
+              android:paddingTop="3dp"
+              android:paddingBottom="3dp" />
+
           </RelativeLayout>
 
           <RelativeLayout
@@ -43,8 +58,7 @@
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
               android:layout_centerVertical="true"
-              android:paddingLeft="16dp"
-              android:paddingRight="16dp">
+              android:paddingLeft="16dp">
 
               <android.support.v7.widget.Toolbar
                 android:id="@+id/toolbar"
@@ -119,7 +133,8 @@
             android:layout_height="wrap_content"
             android:layout_alignTop="@+id/home_balance_ln_label"
             android:layout_marginStart="4dp"
-            android:layout_toEndOf="@+id/home_balance_ln_label" android:text="37.42 mBTC"
+            android:layout_toEndOf="@+id/home_balance_ln_label"
+            android:text="0 mBTC"
             android:textColor="@color/white"
             android:textSize="10sp"
             android:textStyle="bold" />
