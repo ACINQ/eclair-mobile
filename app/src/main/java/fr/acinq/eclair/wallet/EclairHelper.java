@@ -179,7 +179,7 @@ public class EclairHelper {
 
   public String getWalletPublicAddress() {
     return bitcoinjWallet.isCompleted()
-      ? bitcoinjWallet.future().value().get().get().freshSegwitAddress(KeyChain.KeyPurpose.RECEIVE_FUNDS).toBase58()
+      ? bitcoinjWallet.future().value().get().get().currentAddress(KeyChain.KeyPurpose.RECEIVE_FUNDS).toBase58()
       : "";
   }
 }
