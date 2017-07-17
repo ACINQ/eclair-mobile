@@ -6,7 +6,7 @@
   android:clickable="true"
   android:onClick="failure_dismiss"
   android:padding="64dp"
-  tools:context="fr.acinq.eclair.swordfish.activity.PaymentFailureActivity">
+  tools:context="fr.acinq.eclair.wallet.activity.PaymentFailureActivity">
 
   <RelativeLayout
     android:layout_width="wrap_content"

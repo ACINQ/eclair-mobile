@@ -5,7 +5,7 @@
   android:layout_width="match_parent"
   android:layout_height="match_parent"
   android:orientation="vertical"
-  tools:context="fr.acinq.eclair.swordfish.activity.BitcoinTransactionDetailsActivity">
+  tools:context="fr.acinq.eclair.wallet.activity.BitcoinTransactionDetailsActivity">
 
   <!-- Custom toolbar -->
   <include layout="@layout/toolbar" />
@@ -19,7 +19,7 @@
       android:layout_height="wrap_content"
       android:orientation="vertical">
 
-      <fr.acinq.eclair.swordfish.customviews.DataRow
+      <fr.acinq.eclair.wallet.customviews.DataRow
         android:id="@+id/transactiondetails_amount"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -29,7 +29,7 @@
 
       <include layout="@layout/include_separator" />
 
-      <fr.acinq.eclair.swordfish.customviews.DataRow
+      <fr.acinq.eclair.wallet.customviews.DataRow
         android:id="@+id/transactiondetails_fees"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -39,7 +39,7 @@
 
       <include layout="@layout/include_separator" />
 
-      <fr.acinq.eclair.swordfish.customviews.DataRow
+      <fr.acinq.eclair.wallet.customviews.DataRow
         android:id="@+id/transactiondetails_txid"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -49,7 +49,7 @@
 
       <include layout="@layout/include_separator" />
 
-      <fr.acinq.eclair.swordfish.customviews.DataRow
+      <fr.acinq.eclair.wallet.customviews.DataRow
         android:id="@+id/transactiondetails_date"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

@@ -82,7 +82,7 @@
         android:paddingRight="24dp"
         android:paddingTop="0dp">
 
-        <fr.acinq.eclair.swordfish.customviews.CoinAmountView
+        <fr.acinq.eclair.wallet.customviews.CoinAmountView
           android:id="@+id/home_balance_total"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
@@ -168,7 +168,7 @@
       android:orientation="vertical"
       android:visibility="gone">
 
-      <fr.acinq.eclair.swordfish.customviews.FabText
+      <fr.acinq.eclair.wallet.customviews.FabText
         android:id="@+id/home_send_paste"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -176,7 +176,7 @@
         app:icon="@drawable/ic_content_paste_white_24dp"
         app:label="Paste a request" />
 
-      <fr.acinq.eclair.swordfish.customviews.FabText
+      <fr.acinq.eclair.wallet.customviews.FabText
         android:id="@+id/home_send_scan"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -216,7 +216,7 @@
       android:orientation="vertical"
       android:visibility="gone">
 
-      <fr.acinq.eclair.swordfish.customviews.FabText
+      <fr.acinq.eclair.wallet.customviews.FabText
         android:id="@+id/home_openchannel_paste"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -225,7 +225,7 @@
         app:icon="@drawable/ic_content_paste_white_24dp"
         app:label="Paste an address" />
 
-      <fr.acinq.eclair.swordfish.customviews.FabText
+      <fr.acinq.eclair.wallet.customviews.FabText
         android:id="@+id/home_openchannel_scan"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -234,7 +234,7 @@
         app:icon="@drawable/ic_photo_camera_white_24dp"
         app:label="Scan an address" />
 
-      <fr.acinq.eclair.swordfish.customviews.FabText
+      <fr.acinq.eclair.wallet.customviews.FabText
         android:id="@+id/home_openchannel_random"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

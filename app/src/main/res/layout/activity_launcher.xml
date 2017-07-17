@@ -10,17 +10,13 @@
     android:layout_height="wrap_content"
     android:layout_centerVertical="true"
     android:orientation="vertical"
+    android:gravity="center"
     android:padding="16dp">
 
-    <TextView
-      android:id="@+id/launcher_title"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:layout_marginBottom="8dp"
-      android:text="Swordfish"
-      android:textAlignment="center"
-      android:textColor="@android:color/white"
-      android:textSize="36sp" />
+    <ImageView
+      android:layout_width="96dp"
+      android:layout_height="96dp"
+      android:src="@drawable/launcher" />
 
     <TextView
       android:id="@+id/launcher_subtitle"
@@ -28,6 +24,7 @@
       android:layout_height="wrap_content"
       android:textAlignment="center"
       android:textColor="@color/colorPrimaryLight" />
+
   </LinearLayout>
 
   <Button

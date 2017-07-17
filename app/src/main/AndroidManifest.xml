@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-  package="fr.acinq.eclair.swordfish">
+  package="fr.acinq.eclair.wallet">
 
   <uses-permission android:name="android.permission.INTERNET" />
   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -9,7 +9,7 @@
   <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
   <application
-    android:name=".App"
+    android:name="fr.acinq.eclair.wallet.App"
     android:allowBackup="true"
     android:icon="@mipmap/eclair_launcher"
     android:roundIcon="@mipmap/ic_launcher_round"
@@ -20,7 +20,7 @@
     <!-- sugar metas -->
     <meta-data
       android:name="DATABASE"
-      android:value="swordfish.db" />
+      android:value="eclairwallet.db" />
     <meta-data
       android:name="VERSION"
       android:value="12" />
@@ -29,11 +29,11 @@
       android:value="true" />
     <meta-data
       android:name="DOMAIN_PACKAGE_NAME"
-      android:value="fr.acinq.eclair.swordfish.model" />
+      android:value="fr.acinq.eclair.wallet.model" />
 
     <!-- activities -->
     <activity
-      android:name=".activity.LauncherActivity"
+      android:name="fr.acinq.eclair.wallet.activity.LauncherActivity"
       android:screenOrientation="portrait">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
@@ -42,73 +42,73 @@
       </intent-filter>
     </activity>
     <activity
-      android:name=".activity.HomeActivity"
+      android:name="fr.acinq.eclair.wallet.activity.HomeActivity"
       android:label=""
       android:screenOrientation="portrait" />
     <activity
-      android:name=".activity.CreatePaymentActivity"
+      android:name="fr.acinq.eclair.wallet.activity.CreatePaymentActivity"
       android:label=""
       android:noHistory="true"
-      android:parentActivityName=".activity.HomeActivity"
+      android:parentActivityName="fr.acinq.eclair.wallet.activity.HomeActivity"
       android:screenOrientation="portrait"
       android:stateNotNeeded="true"
       android:theme="@style/CustomDialog" />
     <activity
-      android:name=".activity.ScanActivity"
+      android:name="fr.acinq.eclair.wallet.activity.ScanActivity"
       android:noHistory="true"
       android:screenOrientation="portrait"
       android:stateNotNeeded="true"
       android:theme="@style/zxing_CaptureTheme"
       android:windowSoftInputMode="stateAlwaysHidden" />
     <activity
-      android:name=".activity.OpenChannelActivity"
+      android:name="fr.acinq.eclair.wallet.activity.OpenChannelActivity"
       android:label=""
       android:noHistory="true"
-      android:parentActivityName=".activity.HomeActivity"
+      android:parentActivityName="fr.acinq.eclair.wallet.activity.HomeActivity"
       android:screenOrientation="portrait"
       android:stateNotNeeded="true"
       android:theme="@style/CustomDialog" />
     <activity
-      android:name=".activity.SettingsActivity"
+      android:name="fr.acinq.eclair.wallet.activity.SettingsActivity"
       android:label="@string/settings_name"
-      android:parentActivityName=".activity.HomeActivity"
+      android:parentActivityName="fr.acinq.eclair.wallet.activity.HomeActivity"
       android:screenOrientation="portrait" />
     <activity
-      android:name=".activity.LNPaymentDetailsActivity"
+      android:name="fr.acinq.eclair.wallet.activity.LNPaymentDetailsActivity"
       android:label="@string/lnpayment_name"
-      android:parentActivityName=".activity.HomeActivity"
+      android:parentActivityName="fr.acinq.eclair.wallet.activity.HomeActivity"
       android:screenOrientation="portrait" />
     <activity
-      android:name=".activity.BitcoinTransactionDetailsActivity"
+      android:name="fr.acinq.eclair.wallet.activity.BitcoinTransactionDetailsActivity"
       android:label="@string/btcpayment_name"
-      android:parentActivityName=".activity.HomeActivity"
+      android:parentActivityName="fr.acinq.eclair.wallet.activity.HomeActivity"
       android:screenOrientation="portrait" />
     <activity
-      android:name=".activity.NetworkChannelsActivity"
+      android:name="fr.acinq.eclair.wallet.activity.NetworkChannelsActivity"
       android:label="@string/networkchannels_name"
-      android:parentActivityName=".activity.SettingsActivity"
+      android:parentActivityName="fr.acinq.eclair.wallet.activity.SettingsActivity"
       android:screenOrientation="portrait" />
     <activity
-      android:name=".activity.NetworkNodesActivity"
+      android:name="fr.acinq.eclair.wallet.activity.NetworkNodesActivity"
       android:label="@string/networknodes_name"
-      android:parentActivityName=".activity.SettingsActivity"
+      android:parentActivityName="fr.acinq.eclair.wallet.activity.SettingsActivity"
       android:screenOrientation="portrait" />
     <activity
-      android:name=".activity.ChannelDetailsActivity"
+      android:name="fr.acinq.eclair.wallet.activity.ChannelDetailsActivity"
       android:label="@string/channeldetails_name"
-      android:parentActivityName=".activity.HomeActivity"
+      android:parentActivityName="fr.acinq.eclair.wallet.activity.HomeActivity"
       android:screenOrientation="portrait" />
     <activity
-      android:name=".activity.PaymentSuccessActivity"
+      android:name="fr.acinq.eclair.wallet.activity.PaymentSuccessActivity"
       android:noHistory="true"
       android:screenOrientation="portrait" />
     <activity
-      android:name=".activity.PaymentFailureActivity"
+      android:name="fr.acinq.eclair.wallet.activity.PaymentFailureActivity"
       android:noHistory="true"
       android:screenOrientation="portrait" />
-    <activity android:name=".activity.AboutActivity"
+    <activity android:name="fr.acinq.eclair.wallet.activity.AboutActivity"
       android:screenOrientation="portrait"
-      android:parentActivityName=".activity.HomeActivity"
+      android:parentActivityName="fr.acinq.eclair.wallet.activity.HomeActivity"
       android:label="@string/about_name" />
   </application>
 

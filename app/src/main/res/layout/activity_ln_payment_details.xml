@@ -5,7 +5,7 @@
   android:layout_width="match_parent"
   android:layout_height="match_parent"
   android:orientation="vertical"
-  tools:context="fr.acinq.eclair.swordfish.activity.LNPaymentDetailsActivity">
+  tools:context="fr.acinq.eclair.wallet.activity.LNPaymentDetailsActivity">
 
   <!-- Custom toolbar -->
   <include layout="@layout/toolbar" />
@@ -19,7 +19,7 @@
       android:layout_height="wrap_content"
       android:orientation="vertical">
 
-      <fr.acinq.eclair.swordfish.customviews.DataRow
+      <fr.acinq.eclair.wallet.customviews.DataRow
         android:id="@+id/paymentdetails_amount_paid"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -29,7 +29,7 @@
 
       <include layout="@layout/include_separator" />
 
-      <fr.acinq.eclair.swordfish.customviews.DataRow
+      <fr.acinq.eclair.wallet.customviews.DataRow
         android:id="@+id/paymentdetails_fees"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -39,7 +39,7 @@
 
       <include layout="@layout/include_separator" />
 
-      <fr.acinq.eclair.swordfish.customviews.DataRow
+      <fr.acinq.eclair.wallet.customviews.DataRow
         android:id="@+id/paymentdetails_status"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -49,7 +49,7 @@
 
       <include layout="@layout/include_separator" />
 
-      <fr.acinq.eclair.swordfish.customviews.DataRow
+      <fr.acinq.eclair.wallet.customviews.DataRow
         android:id="@+id/paymentdetails_desc"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -69,7 +69,7 @@
         android:textColor="@color/colorGrey_2"
         android:textSize="10sp" />
 
-      <fr.acinq.eclair.swordfish.customviews.DataRow
+      <fr.acinq.eclair.wallet.customviews.DataRow
         android:id="@+id/paymentdetails_amount_requested"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -79,7 +79,7 @@
 
       <include layout="@layout/include_separator" />
 
-      <fr.acinq.eclair.swordfish.customviews.DataRow
+      <fr.acinq.eclair.wallet.customviews.DataRow
         android:id="@+id/paymentdetails_paymenthash"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -89,7 +89,7 @@
 
       <include layout="@layout/include_separator" />
 
-      <fr.acinq.eclair.swordfish.customviews.DataRow
+      <fr.acinq.eclair.wallet.customviews.DataRow
         android:id="@+id/paymentdetails_paymentrequest"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -99,7 +99,7 @@
 
       <include layout="@layout/include_separator" />
 
-      <fr.acinq.eclair.swordfish.customviews.DataRow
+      <fr.acinq.eclair.wallet.customviews.DataRow
         android:id="@+id/paymentdetails_created"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -109,7 +109,7 @@
 
       <include layout="@layout/include_separator" />
 
-      <fr.acinq.eclair.swordfish.customviews.DataRow
+      <fr.acinq.eclair.wallet.customviews.DataRow
         android:id="@+id/paymentdetails_updated"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

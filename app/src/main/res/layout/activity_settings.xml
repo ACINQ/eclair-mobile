@@ -5,7 +5,7 @@
   android:layout_width="match_parent"
   android:layout_height="match_parent"
   android:orientation="vertical"
-  tools:context="fr.acinq.eclair.swordfish.activity.SettingsActivity">
+  tools:context="fr.acinq.eclair.wallet.activity.SettingsActivity">
 
   <include layout="@layout/toolbar" />
 
@@ -31,7 +31,7 @@
         android:textColor="@color/colorGrey_2"
         android:textSize="10sp" />
 
-      <fr.acinq.eclair.swordfish.customviews.DataRow
+      <fr.acinq.eclair.wallet.customviews.DataRow
         android:id="@+id/settings_blockcount"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -43,7 +43,7 @@
 
       <include layout="@layout/include_separator" />
 
-      <fr.acinq.eclair.swordfish.customviews.DataRow
+      <fr.acinq.eclair.wallet.customviews.DataRow
         android:id="@+id/settings_feerate"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -66,7 +66,7 @@
         android:textColor="@color/colorGrey_2"
         android:textSize="10sp" />
 
-      <fr.acinq.eclair.swordfish.customviews.DataRow
+      <fr.acinq.eclair.wallet.customviews.DataRow
         android:id="@+id/settings_nodeid"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -76,7 +76,7 @@
 
       <include layout="@layout/include_separator" />
 
-      <fr.acinq.eclair.swordfish.customviews.DataRow
+      <fr.acinq.eclair.wallet.customviews.DataRow
         android:id="@+id/settings_networkchannels_count"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -88,7 +88,7 @@
 
       <include layout="@layout/include_separator" />
 
-      <fr.acinq.eclair.swordfish.customviews.DataRow
+      <fr.acinq.eclair.wallet.customviews.DataRow
         android:id="@+id/settings_networknodes_count"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

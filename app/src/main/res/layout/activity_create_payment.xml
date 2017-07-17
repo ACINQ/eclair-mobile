@@ -102,7 +102,7 @@
         android:textColor="@color/colorGrey_1"
         android:textSize="12sp" />
 
-      <fr.acinq.eclair.swordfish.customviews.CoinAmountView
+      <fr.acinq.eclair.wallet.customviews.CoinAmountView
         android:id="@+id/payment_value_amount"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

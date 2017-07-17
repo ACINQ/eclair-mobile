@@ -6,7 +6,7 @@
   android:clickable="true"
   android:onClick="success_dismiss"
   android:padding="64dp"
-  tools:context="fr.acinq.eclair.swordfish.activity.PaymentSuccessActivity">
+  tools:context="fr.acinq.eclair.wallet.activity.PaymentSuccessActivity">
 
   <RelativeLayout
     android:layout_width="wrap_content"
