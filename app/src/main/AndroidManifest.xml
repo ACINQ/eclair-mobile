@@ -11,10 +11,8 @@
   <application
     android:name="fr.acinq.eclair.wallet.App"
     android:allowBackup="true"
-    android:icon="@mipmap/ic_launcher_round"
+    android:icon="@mipmap/ic_launcher_testnet"
     android:label="@string/app_name"
-    android:roundIcon="@mipmap/ic_launcher_round"
-    android:supportsRtl="true"
     android:theme="@style/AppTheme.NoActionBar">
 
     <!-- sugar metas -->
@@ -34,7 +32,7 @@
     <!-- activities -->
     <activity
       android:name="fr.acinq.eclair.wallet.activity.HomeActivity"
-      android:label=""
+      android:label="@string/app_name"
       android:screenOrientation="portrait">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />

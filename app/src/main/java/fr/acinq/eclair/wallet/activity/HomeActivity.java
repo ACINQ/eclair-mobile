@@ -78,6 +78,7 @@ public class HomeActivity extends EclairActivity {
     setSupportActionBar(toolbar);
     ActionBar ab = getSupportActionBar();
     ab.setDisplayHomeAsUpEnabled(false);
+    ab.setDisplayShowTitleEnabled(false);
 
     mTotalBalanceView = (CoinAmountView) findViewById(R.id.home_balance_total);
     mWalletBalanceView = (TextView) findViewById(R.id.home_balance_wallet_value);
