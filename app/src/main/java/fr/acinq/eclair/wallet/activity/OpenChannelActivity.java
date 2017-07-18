@@ -97,6 +97,7 @@ public class OpenChannelActivity extends EclairModalActivity {
 
   private void setNodeURI(String uri) {
     if (!Validators.HOST_REGEX.matcher(uri).matches()) {
+      Toast.makeText(this, R.string.openchannel_invalid, Toast.LENGTH_LONG).show();
       goToHome();
     } else {
       String[] uriArray = uri.split("@", 2);
