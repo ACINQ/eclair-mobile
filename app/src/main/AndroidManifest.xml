@@ -13,6 +13,7 @@
     android:allowBackup="true"
     android:icon="@mipmap/ic_launcher_testnet"
     android:label="@string/app_name"
+    android:supportsRtl="true"
     android:theme="@style/AppTheme.NoActionBar">
 
     <!-- sugar metas -->
