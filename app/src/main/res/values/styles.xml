@@ -7,6 +7,9 @@
     <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
     <item name="colorAccent">@color/colorAccent</item>
     <item name="android:textColorSecondary">@color/white</item>
+    <item name="windowActionBar">false</item>
+    <item name="windowNoTitle">true</item>
+    <item name="actionBarTheme">@null</item>
   </style>
 
   <style name="CustomDialog" parent="@style/Theme.AppCompat.Light.Dialog">
@@ -15,10 +18,8 @@
     <item name="android:windowMinWidthMinor">85%</item>
   </style>
 
-  <style name="AppTheme.NoActionBar" parent="AppTheme">
-    <item name="windowActionBar">false</item>
-    <item name="windowNoTitle">true</item>
-    <item name="actionBarTheme">@null</item>
+  <style name="SplashTheme" parent="AppTheme">
+    <item name="android:windowBackground">@drawable/splash</item>
   </style>
 
 </resources>
