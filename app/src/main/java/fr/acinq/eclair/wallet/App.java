@@ -57,82 +57,30 @@ public class App extends SugarApp {
   public final static String DATADIR_NAME = "eclair-wallet-data";
   private final ActorSystem system = ActorSystem.apply("system");
 
-  private final Promise<Wallet> bitcoinjWallet = Futures.promise();
+  private Wallet wallet;
   private Kit eclairKit;
 
   @Override
   public void onCreate() {
-
     try {
-
       final File datadir = new File(getApplicationContext().getFilesDir(), DATADIR_NAME);
       Log.d(TAG, "Accessing Eclair Setup with datadir " + datadir.getAbsolutePath());
-      System.setProperty("eclair.node alias", "ewa");
 
-      BitcoinjKit2 bitcoinjKit2 = new BitcoinjKit2("test", datadir) {
-        @Override
-        public void onSetupCompleted() {
-          wallet().addCoinsReceivedEventListener(new WalletCoinsReceivedEventListener() {
-            @Override
-            public void onCoinsReceived(Wallet wallet, Transaction tx, Coin prevBalance, Coin newBalance) {
-              EventBus.getDefault().postSticky(new WalletBalanceUpdateEvent(new Satoshi(newBalance.getValue())));
-              final Payment paymentInDB = Payment.getPayment(tx.getHashAsString(), PaymentTypes.BTC_RECEIVED);
-              final Payment paymentReceived = paymentInDB == null ? new Payment(PaymentTypes.BTC_RECEIVED) : paymentInDB;
-              final Coin amountReceived = newBalance.minus(prevBalance);
-              paymentReceived.paymentReference = tx.getHashAsString();
-              paymentReceived.amountPaidMsat = package$.MODULE$.satoshi2millisatoshi(new Satoshi(amountReceived.getValue())).amount();
-              paymentReceived.updated = tx.getUpdateTime();
-              paymentReceived.confidenceBlocks = tx.getConfidence().getDepthInBlocks();
-              paymentReceived.confidenceType = tx.getConfidence().getConfidenceType().getValue();
-              paymentReceived.save();
-              EventBus.getDefault().postSticky(new WalletBalanceUpdateEvent(new Satoshi(newBalance.getValue())));
-              EventBus.getDefault().post(new BitcoinPaymentEvent(paymentReceived));
-            }
-          });
-          wallet().addCoinsSentEventListener(new WalletCoinsSentEventListener() {
-            @Override
-            public void onCoinsSent(Wallet wallet, Transaction tx, Coin prevBalance, Coin newBalance) {
-              EventBus.getDefault().postSticky(new WalletBalanceUpdateEvent(new Satoshi(newBalance.getValue())));
-              final Payment paymentInDB = Payment.getPayment(tx.getHashAsString(), PaymentTypes.BTC_SENT);
-              final Payment paymentSent = paymentInDB == null ? new Payment(PaymentTypes.BTC_SENT) : paymentInDB;
-              final Coin amountSent = newBalance.minus(prevBalance);
-              paymentSent.paymentReference = tx.getHashAsString();
-              paymentSent.amountPaidMsat = package$.MODULE$.satoshi2millisatoshi(new Satoshi(amountSent.getValue())).amount();
-              if (tx.getFee() != null)
-                paymentSent.feesPaidMsat = package$.MODULE$.satoshi2millisatoshi(new Satoshi(tx.getFee().getValue())).amount();
-              paymentSent.updated = tx.getUpdateTime();
-              paymentSent.confidenceBlocks = tx.getConfidence().getDepthInBlocks();
-              paymentSent.confidenceType = tx.getConfidence().getConfidenceType().getValue();
-              paymentSent.save();
-              EventBus.getDefault().postSticky(new WalletBalanceUpdateEvent(new Satoshi(newBalance.getValue())));
-              EventBus.getDefault().post(new BitcoinPaymentEvent(paymentSent));
-            }
-          });
-          wallet().addTransactionConfidenceEventListener(new TransactionConfidenceEventListener() {
-            @Override
-            public void onTransactionConfidenceChanged(Wallet wallet, Transaction tx) {
-              final Payment paymentInDB = Payment.getPayment(tx.getHashAsString());
-              if (paymentInDB != null) {
-                paymentInDB.confidenceBlocks = tx.getConfidence().getDepthInBlocks();
-                paymentInDB.confidenceType = tx.getConfidence().getConfidenceType().getValue();
-                paymentInDB.save();
-              }
-            }
-          });
-          bitcoinjWallet.success(wallet());
-          super.onSetupCompleted();
-        }
-      };
-      bitcoinjKit2.startAsync();
+      EclairBitcoinjKit eclairBitcoinjKit = new EclairBitcoinjKit("test", datadir);
+      Future<Wallet> fWallet = eclairBitcoinjKit.getFutureWallet();
+      EclairWallet eclairWallet = new BitcoinjWallet(fWallet, system.dispatcher());
+      eclairBitcoinjKit.startAsync();
 
-      EclairWallet eclairWallet = new BitcoinjWallet(bitcoinjWallet.future(), system.dispatcher());
       Setup setup = new Setup(datadir, Option.apply(eclairWallet), ConfigFactory.empty(), system);
       ActorRef guiUpdater = system.actorOf(Props.create(EclairEventService.class));
       setup.system().eventStream().subscribe(guiUpdater, ChannelEvent.class);
       setup.system().eventStream().subscribe(guiUpdater, PaymentEvent.class);
       setup.system().eventStream().subscribe(guiUpdater, NetworkEvent.class);
       Future<Kit> fKit = setup.bootstrap();
+
+      wallet = Await.result(fWallet, Duration.create(20, "seconds"));
       eclairKit = Await.result(fKit, Duration.create(20, "seconds"));
+
     } catch (Exception e) {
       Log.e(TAG, "Failed to start eclair", e);
       throw new EclairStartException();
@@ -141,13 +89,8 @@ public class App extends SugarApp {
   }
 
   public void publishWalletBalance() {
-    bitcoinjWallet.future().map(new Mapper<Wallet, Long>() {
-      public Long apply(Wallet wallet) {
-        Coin balance = wallet.getBalance();
-        EventBus.getDefault().postSticky(new WalletBalanceUpdateEvent(new Satoshi(balance.getValue())));
-        return Long.valueOf(balance.getValue());
-      }
-    }, system.dispatcher());
+    Coin balance = wallet.getBalance();
+    EventBus.getDefault().postSticky(new WalletBalanceUpdateEvent(new Satoshi(balance.getValue())));
   }
 
   public void sendPayment(int timeout, OnComplete<Object> onComplete, long amountMsat, BinaryData paymentHash, Crypto.PublicKey targetNodeId) {
@@ -170,12 +113,7 @@ public class App extends SugarApp {
   }
 
   public void sendBitcoinPayment(final SendRequest sendRequest) throws InsufficientMoneyException {
-    Future<Wallet> wallet = bitcoinjWallet.future();
-    if (wallet.isCompleted()) {
-      wallet.value().get().get().sendCoins(sendRequest);
-    } else {
-      throw new EclairStartException();
-    }
+    wallet.sendCoins(sendRequest);
   }
 
   public String nodePublicKey() {
@@ -183,10 +121,7 @@ public class App extends SugarApp {
   }
 
   public String getWalletPublicAddress() {
-    Future<Wallet> wallet = bitcoinjWallet.future();
-    return wallet.isCompleted()
-      ? wallet.value().get().get().currentAddress(KeyChain.KeyPurpose.RECEIVE_FUNDS).toBase58()
-      : "";
+    return wallet.currentAddress(KeyChain.KeyPurpose.RECEIVE_FUNDS).toBase58();
   }
 }
 
