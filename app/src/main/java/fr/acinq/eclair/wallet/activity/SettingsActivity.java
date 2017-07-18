@@ -9,7 +9,6 @@ import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
@@ -25,12 +24,10 @@ import java.util.Date;
 import fr.acinq.eclair.Globals;
 import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.EclairEventService;
-import fr.acinq.eclair.wallet.EclairHelper;
-import fr.acinq.eclair.wallet.EclairStartException;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.customviews.DataRow;
 
-public class SettingsActivity extends AppCompatActivity {
+public class SettingsActivity extends EclairActivity {
 
   private static final String TAG = "SettingsActivity";
   private TextView mZipLocationView;
@@ -106,8 +103,8 @@ public class SettingsActivity extends AppCompatActivity {
       outputZipDir.mkdirs();
       @SuppressLint("SimpleDateFormat")
       SimpleDateFormat zipDateFormat = new SimpleDateFormat("yyyy-MM-dd-HHmmss");
-      File outputZipFile = new File(outputZipDir, EclairHelper.DATADIR_NAME + "_" + zipDateFormat.format(new Date()) + ".zip");
-      ZipUtil.pack(new File(getApplicationContext().getFilesDir(), EclairHelper.DATADIR_NAME), outputZipFile);
+      File outputZipFile = new File(outputZipDir, App.DATADIR_NAME + "_" + zipDateFormat.format(new Date()) + ".zip");
+      ZipUtil.pack(new File(getApplicationContext().getFilesDir(), App.DATADIR_NAME), outputZipFile);
       Toast.makeText(this, R.string.zip_datadir_toast_success, Toast.LENGTH_SHORT).show();
       Log.i(TAG, "Successfully extracted datadir to " + outputZipFile.getAbsolutePath());
     } catch (Exception e) {
@@ -138,17 +135,11 @@ public class SettingsActivity extends AppCompatActivity {
   @Override
   public void onResume() {
     super.onResume();
-
-    try {
-      EclairHelper eclairHelper = ((App) getApplication()).getEclairInstance();
-      mNodePublicKeyRow.setValue(eclairHelper.nodePublicKey());
-      mNetworkChannelCount.setValue(Integer.toString(EclairEventService.channelAnnouncementMap.size()));
-      mNetworkNodesCount.setValue(Integer.toString(EclairEventService.nodeAnnouncementMap.size()));
-      mBlockCount.setValue(String.valueOf(Globals.blockCount().get()));
-      mZipLocationView.setText(getString(R.string.zip_datadir_prefix) + getZipDirectory().getAbsolutePath());
-      mFeeRate.setValue(Globals.feeratePerKw().toString());
-    } catch (EclairStartException e) {
-      finish();
-    }
+    mNodePublicKeyRow.setValue(app.nodePublicKey());
+    mNetworkChannelCount.setValue(Integer.toString(EclairEventService.channelAnnouncementMap.size()));
+    mNetworkNodesCount.setValue(Integer.toString(EclairEventService.nodeAnnouncementMap.size()));
+    mBlockCount.setValue(String.valueOf(Globals.blockCount().get()));
+    mZipLocationView.setText(getString(R.string.zip_datadir_prefix) + getZipDirectory().getAbsolutePath());
+    mFeeRate.setValue(Globals.feeratePerKw().toString());
   }
 }

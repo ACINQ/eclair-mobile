@@ -1,6 +1,5 @@
 package fr.acinq.eclair.wallet.activity;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -26,16 +25,13 @@ import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.io.Switchboard;
-import fr.acinq.eclair.wallet.App;
-import fr.acinq.eclair.wallet.EclairHelper;
-import fr.acinq.eclair.wallet.EclairStartException;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.events.LNNewChannelFailureEvent;
 import fr.acinq.eclair.wallet.events.LNNewChannelOpenedEvent;
 import fr.acinq.eclair.wallet.utils.Validators;
 import scala.math.BigDecimal;
 
-public class OpenChannelActivity extends Activity {
+public class OpenChannelActivity extends EclairModalActivity {
 
   public static final String EXTRA_NEW_HOST_URI = "fr.acinq.eclair.swordfish.NEW_HOST_URI";
 
@@ -44,7 +40,6 @@ public class OpenChannelActivity extends Activity {
   private TextView mIPTextView;
   private TextView mPortTextView;
   private Button mOpenButton;
-  private EclairHelper eclairHelper;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -86,16 +81,6 @@ public class OpenChannelActivity extends Activity {
     Intent intent = getIntent();
     String hostURI = intent.getStringExtra(EXTRA_NEW_HOST_URI);
     setNodeURI(hostURI);
-  }
-
-  @Override
-  protected void onResume() {
-    super.onResume();
-    try {
-      eclairHelper = ((App) getApplication()).getEclairInstance();
-    } catch (EclairStartException e) {
-      finish();
-    }
   }
 
   private void setNodeURI(String uri) {
@@ -162,7 +147,8 @@ public class OpenChannelActivity extends Activity {
               }
             }
           };
-          eclairHelper.openChannel(30, onComplete, pubkey, address, new Switchboard.NewChannel(fundingSat, new MilliSatoshi(0), scala.Option.apply(null)));
+          app.openChannel(30, onComplete, pubkey, address,
+            new Switchboard.NewChannel(fundingSat, new MilliSatoshi(0), scala.Option.apply(null)));
         }
       });
     goToHome();

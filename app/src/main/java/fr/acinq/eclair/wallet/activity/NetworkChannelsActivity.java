@@ -2,7 +2,6 @@ package fr.acinq.eclair.wallet.activity;
 
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -17,13 +16,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import fr.acinq.eclair.wallet.EclairEventService;
-import fr.acinq.eclair.wallet.events.NetworkAnnouncementEvent;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.adapters.NetworkChannelItemAdapter;
+import fr.acinq.eclair.wallet.events.NetworkAnnouncementEvent;
 import fr.acinq.eclair.wallet.model.NetworkChannelItem;
 import fr.acinq.eclair.wire.ChannelAnnouncement;
 
-public class NetworkChannelsActivity extends AppCompatActivity {
+public class NetworkChannelsActivity extends EclairActivity {
 
   NetworkChannelItemAdapter adapter;
 

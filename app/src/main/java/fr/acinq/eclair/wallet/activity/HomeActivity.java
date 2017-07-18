@@ -12,7 +12,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -31,10 +30,7 @@ import java.util.List;
 
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.package$;
-import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.EclairEventService;
-import fr.acinq.eclair.wallet.EclairHelper;
-import fr.acinq.eclair.wallet.EclairStartException;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.customviews.CoinAmountView;
 import fr.acinq.eclair.wallet.events.BitcoinPaymentEvent;
@@ -51,7 +47,7 @@ import fr.acinq.eclair.wallet.fragments.ReceivePaymentFragment;
 import fr.acinq.eclair.wallet.utils.CoinUtils;
 import fr.acinq.eclair.wallet.utils.Validators;
 
-public class HomeActivity extends AppCompatActivity {
+public class HomeActivity extends EclairActivity {
 
   public static final String EXTRA_PAGE = "fr.acinq.eclair.swordfish.EXTRA_PAGE";
   private static final String TAG = "Home Activity";
@@ -72,7 +68,6 @@ public class HomeActivity extends AppCompatActivity {
   private CoinAmountView mTotalBalanceView;
   private TextView mWalletBalanceView;
   private TextView mLNBalanceView;
-  private EclairHelper eclairHelper;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -136,13 +131,8 @@ public class HomeActivity extends AppCompatActivity {
       EventBus.getDefault().register(this);
     }
     super.onResume();
-    try {
-      eclairHelper = ((App) getApplication()).getEclairInstance();
-      eclairHelper.publishWalletBalance();
-      EclairEventService.postLNBalanceEvent();
-    } catch (EclairStartException e) {
-      finish();
-    }
+    app.publishWalletBalance();
+    EclairEventService.postLNBalanceEvent();
   }
 
   @Override

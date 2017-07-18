@@ -3,7 +3,6 @@ package fr.acinq.eclair.wallet.activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.animation.AnticipateOvershootInterpolator;
 import android.widget.ImageView;
@@ -11,7 +10,7 @@ import android.widget.TextView;
 
 import fr.acinq.eclair.wallet.R;
 
-public class PaymentFailureActivity extends AppCompatActivity {
+public class PaymentFailureActivity extends EclairActivity {
 
   public static final String EXTRA_PAYMENTFAILURE_AMOUNT = "fr.acinq.eclair.wallet.EXTRA_PAYMENTFAILURE_AMOUNT";
   public static final String EXTRA_PAYMENTFAILURE_DESC = "fr.acinq.eclair.wallet.EXTRA_PAYMENTFAILURE_DESC";

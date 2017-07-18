@@ -1,6 +1,5 @@
 package fr.acinq.eclair.wallet.activity;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -28,9 +27,6 @@ import fr.acinq.eclair.crypto.Sphinx;
 import fr.acinq.eclair.payment.PaymentFailed;
 import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.payment.PaymentSucceeded;
-import fr.acinq.eclair.wallet.App;
-import fr.acinq.eclair.wallet.EclairHelper;
-import fr.acinq.eclair.wallet.EclairStartException;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.customviews.CoinAmountView;
 import fr.acinq.eclair.wallet.events.LNPaymentFailedEvent;
@@ -41,7 +37,7 @@ import fr.acinq.eclair.wallet.tasks.LNInvoiceReaderTask;
 import fr.acinq.eclair.wallet.utils.CoinUtils;
 import scala.util.Either;
 
-public class CreatePaymentActivity extends Activity
+public class CreatePaymentActivity extends EclairModalActivity
   implements LNInvoiceReaderTask.AsyncInvoiceReaderTaskResponse, BitcoinInvoiceReaderTask.AsyncInvoiceReaderTaskResponse {
 
   public static final String EXTRA_INVOICE = "fr.acinq.eclair.wallet.EXTRA_INVOICE";
@@ -63,7 +59,6 @@ public class CreatePaymentActivity extends Activity
   private View mAmountEditableView;
   private EditText mAmountEditableValue;
   private boolean isAmountReadonly = true;
-  private EclairHelper eclairHelper;
   private View mFeesView;
   private EditText mFeesValue;
 
@@ -149,16 +144,6 @@ public class CreatePaymentActivity extends Activity
     new LNInvoiceReaderTask(this, mLNInvoiceAsString).execute();
   }
 
-  @Override
-  protected void onResume() {
-    super.onResume();
-    try {
-      eclairHelper = ((App) getApplication()).getEclairInstance();
-    } catch (EclairStartException e) {
-      finish();
-    }
-  }
-
   public void cancelPayment(View view) {
     finish();
   }
@@ -168,10 +153,10 @@ public class CreatePaymentActivity extends Activity
     toggleButtons();
     try {
       if (mLNInvoice != null) {
-          final long amountMsat = isAmountReadonly
-            ? CoinUtils.getLongAmountFromInvoice(mLNInvoice)
-            : package$.MODULE$.satoshi2millisatoshi(new Satoshi(Coin.parseCoin(mAmountEditableValue.getText().toString()).getValue())).amount();
-          sendLNPayment(amountMsat);
+        final long amountMsat = isAmountReadonly
+          ? CoinUtils.getLongAmountFromInvoice(mLNInvoice)
+          : package$.MODULE$.satoshi2millisatoshi(new Satoshi(Coin.parseCoin(mAmountEditableValue.getText().toString()).getValue())).amount();
+        sendLNPayment(amountMsat);
       } else if (mBitcoinInvoice != null) {
         final Coin amount = isAmountReadonly ? mBitcoinInvoice.getAmount() : Coin.parseCoin(mAmountEditableValue.getText().toString());
         final Coin feesPerKb = Coin.valueOf(Long.parseLong(mFeesValue.getText().toString()));
@@ -253,7 +238,7 @@ public class CreatePaymentActivity extends Activity
           };
 
           // 3 - execute payment future
-          eclairHelper.sendPayment(45, onComplete, amountMsat, pr.paymentHash(), pr.nodeId());
+          app.sendPayment(45, onComplete, amountMsat, pr.paymentHash(), pr.nodeId());
         }
       }
     );
@@ -264,7 +249,7 @@ public class CreatePaymentActivity extends Activity
     try {
       SendRequest request = SendRequest.to(mBitcoinInvoice.getAddress(), amount);
       request.feePerKb = feesPerKb;
-      eclairHelper.sendBitcoinPayment(request);
+      app.sendBitcoinPayment(request);
       Toast.makeText(this, R.string.payment_toast_sentbtc, Toast.LENGTH_SHORT).show();
     } catch (InsufficientMoneyException e) {
       Toast.makeText(this, R.string.payment_toast_balance, Toast.LENGTH_LONG).show();

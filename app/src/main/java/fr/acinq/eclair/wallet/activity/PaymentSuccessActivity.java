@@ -3,7 +3,6 @@ package fr.acinq.eclair.wallet.activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.animation.AnticipateOvershootInterpolator;
 import android.widget.ImageView;
@@ -11,7 +10,7 @@ import android.widget.TextView;
 
 import fr.acinq.eclair.wallet.R;
 
-public class PaymentSuccessActivity extends AppCompatActivity {
+public class PaymentSuccessActivity extends EclairActivity {
 
   public static final String EXTRA_PAYMENTSUCCESS_AMOUNT = "fr.acinq.eclair.wallet.EXTRA_PAYMENTSUCCESS_AMOUNT";
   public static final String EXTRA_PAYMENTSUCCESS_DESC = "fr.acinq.eclair.wallet.EXTRA_PAYMENTSUCCESS_DESC";
@@ -60,6 +59,7 @@ public class PaymentSuccessActivity extends AppCompatActivity {
   public void success_tap(View view) {
     tada();
   }
+
   public void success_dismiss(View view) {
     dismissHandler.removeCallbacks(null);
     finish();

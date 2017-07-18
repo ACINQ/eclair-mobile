@@ -15,8 +15,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import fr.acinq.eclair.wallet.App;
-import fr.acinq.eclair.wallet.EclairHelper;
-import fr.acinq.eclair.wallet.EclairStartException;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.tasks.QRCodeTask;
 
@@ -26,8 +24,6 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
   private ImageView mQRImageView;
   private TextView mAddressTextView;
   private String address;
-  private EclairHelper eclairHelper;
-
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -37,12 +33,7 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
   @Override
   public void onResume() {
     super.onResume();
-    try {
-      eclairHelper = ((App) getActivity().getApplication()).getEclairInstance();
-      address = eclairHelper.getWalletPublicAddress();
-    } catch (EclairStartException e) {
-      getActivity().finish();
-    }
+    address = ((App) getActivity().getApplication()).getWalletPublicAddress();
     mAddressTextView.setText(address);
     new QRCodeTask(this, address, 1000, 1000).execute();
   }
