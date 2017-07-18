@@ -7,6 +7,7 @@ import com.typesafe.config.ConfigFactory;
 
 import org.bitcoinj.core.Coin;
 import org.bitcoinj.core.InsufficientMoneyException;
+import org.bitcoinj.core.PeerGroup;
 import org.bitcoinj.core.Transaction;
 import org.bitcoinj.core.listeners.TransactionConfidenceEventListener;
 import org.bitcoinj.wallet.KeyChain;
@@ -68,7 +69,8 @@ public class App extends SugarApp {
 
       EclairBitcoinjKit eclairBitcoinjKit = new EclairBitcoinjKit("test", datadir);
       Future<Wallet> fWallet = eclairBitcoinjKit.getFutureWallet();
-      EclairWallet eclairWallet = new BitcoinjWallet(fWallet, system.dispatcher());
+      Future<PeerGroup> fPeerGroup = eclairBitcoinjKit.getFuturePeerGroup();
+      EclairWallet eclairWallet = new BitcoinjWallet(fWallet, fPeerGroup, system.dispatcher());
       eclairBitcoinjKit.startAsync();
 
       Setup setup = new Setup(datadir, Option.apply(eclairWallet), ConfigFactory.empty(), system);

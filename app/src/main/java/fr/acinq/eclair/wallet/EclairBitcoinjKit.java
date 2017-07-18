@@ -1,6 +1,7 @@
 package fr.acinq.eclair.wallet;
 
 import org.bitcoinj.core.Coin;
+import org.bitcoinj.core.PeerGroup;
 import org.bitcoinj.core.Transaction;
 import org.bitcoinj.core.listeners.TransactionConfidenceEventListener;
 import org.bitcoinj.wallet.Wallet;
@@ -28,6 +29,7 @@ import scala.concurrent.Promise;
 public class EclairBitcoinjKit extends BitcoinjKit2 {
 
   private final Promise<Wallet> pWallet = Futures.promise();
+  private final Promise<PeerGroup> pPeerGroup = Futures.promise();
 
   public EclairBitcoinjKit(String chain, File datadir) {
     super(chain, datadir);
@@ -36,6 +38,7 @@ public class EclairBitcoinjKit extends BitcoinjKit2 {
   @Override
   public void onSetupCompleted() {
     pWallet.success(wallet());
+    pPeerGroup.success(peerGroup());
     wallet().addCoinsReceivedEventListener(new WalletCoinsReceivedEventListener() {
       @Override
       public void onCoinsReceived(Wallet wallet, Transaction tx, Coin prevBalance, Coin newBalance) {
@@ -88,5 +91,9 @@ public class EclairBitcoinjKit extends BitcoinjKit2 {
 
   public Future<Wallet> getFutureWallet() {
     return pWallet.future();
+  }
+
+  public Future<PeerGroup> getFuturePeerGroup() {
+    return pPeerGroup.future();
   }
 }
