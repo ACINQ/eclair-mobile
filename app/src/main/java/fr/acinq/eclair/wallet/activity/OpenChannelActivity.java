@@ -77,8 +77,15 @@ public class OpenChannelActivity extends EclairModalActivity {
   private boolean checkAmount(String amount) {
     try {
       Long parsedAmountSat = Long.parseLong(amount) * 100000;
-      if (parsedAmountSat < Validators.MIN_FUNDING_SAT || parsedAmountSat >= Validators.MAX_FUNDING_SAT) {
+      if (parsedAmountSat < Validators.MIN_FUNDING_SAT
+        || parsedAmountSat >= Validators.MAX_FUNDING_SAT) {
         mAmountEdit.setTextColor(getColor(R.color.red));
+        mErrorAView.setText(R.string.openchannel_capacity_invalid);
+        mErrorAView.setVisibility(View.VISIBLE);
+        return false;
+      } else if (parsedAmountSat > app.getWalletBalanceSat().getValue()) {
+        mAmountEdit.setTextColor(getColor(R.color.red));
+        mErrorAView.setText(R.string.openchannel_capacity_notenoughfunds);
         mErrorAView.setVisibility(View.VISIBLE);
         return false;
       } else {
@@ -87,6 +94,7 @@ public class OpenChannelActivity extends EclairModalActivity {
         return true;
       }
     } catch (NumberFormatException e) {
+      mErrorAView.setText(R.string.openchannel_capacity_invalid);
       mAmountEdit.setTextColor(getColor(R.color.red));
       mErrorAView.setVisibility(View.VISIBLE);
       return false;

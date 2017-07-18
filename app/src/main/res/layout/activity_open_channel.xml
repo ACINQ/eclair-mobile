@@ -131,7 +131,7 @@
         android:layout_height="wrap_content"
         android:textColor="@color/red"
         android:textAlignment="center"
-        android:text="@string/openchannel_capacity_error"
+        android:text="@string/openchannel_capacity_invalid"
         android:visibility="gone"
         android:paddingLeft="8dp"
         android:paddingRight="8dp"

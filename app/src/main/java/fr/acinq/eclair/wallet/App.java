@@ -95,6 +95,10 @@ public class App extends SugarApp {
     EventBus.getDefault().postSticky(new WalletBalanceUpdateEvent(new Satoshi(balance.getValue())));
   }
 
+  public Coin getWalletBalanceSat() {
+    return wallet.getBalance();
+  }
+
   public void sendPayment(int timeout, OnComplete<Object> onComplete, long amountMsat, BinaryData paymentHash, Crypto.PublicKey targetNodeId) {
     Future<Object> paymentFuture = Patterns.ask(
       eclairKit.paymentInitiator(),
