@@ -40,6 +40,7 @@ public class OpenChannelActivity extends EclairModalActivity {
   private TextView mIPTextView;
   private TextView mPortTextView;
   private Button mOpenButton;
+  private TextView mErrorAView;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +51,7 @@ public class OpenChannelActivity extends EclairModalActivity {
     mIPTextView = (TextView) findViewById(R.id.openchannel_ip);
     mPortTextView = (TextView) findViewById(R.id.openchannel_port);
     mPubkeyTextView = (TextView) findViewById(R.id.openchannel_pubkey);
+    mErrorAView = (TextView) findViewById(R.id.openchannel_error);
 
     mAmountEdit = (EditText) findViewById(R.id.openchannel_capacity);
     mAmountEdit.addTextChangedListener(new TextWatcher() {
@@ -60,16 +62,7 @@ public class OpenChannelActivity extends EclairModalActivity {
       @Override
       public void onTextChanged(CharSequence s, int start, int before, int count) {
         if (s.length() > 0) {
-          try {
-            Long parsedAmountSat = Long.parseLong(s.toString()) * 100000;
-            if (parsedAmountSat < Validators.MIN_FUNDING_SAT || parsedAmountSat >= Validators.MAX_FUNDING_SAT) {
-              mAmountEdit.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.colorPrimary));
-            } else {
-              mAmountEdit.setBackgroundColor(Color.TRANSPARENT);
-            }
-          } catch (NumberFormatException e) {
-            goToHome();
-          }
+          checkAmount(s.toString());
         }
       }
 
@@ -81,6 +74,25 @@ public class OpenChannelActivity extends EclairModalActivity {
     Intent intent = getIntent();
     String hostURI = intent.getStringExtra(EXTRA_NEW_HOST_URI);
     setNodeURI(hostURI);
+  }
+
+  private boolean checkAmount(String amount) {
+    try {
+      Long parsedAmountSat = Long.parseLong(amount) * 100000;
+      if (parsedAmountSat < Validators.MIN_FUNDING_SAT || parsedAmountSat >= Validators.MAX_FUNDING_SAT) {
+        mAmountEdit.setTextColor(getColor(R.color.red));
+        mErrorAView.setVisibility(View.VISIBLE);
+        return false;
+      } else {
+        mAmountEdit.setTextColor(getColor(R.color.colorGrey_4));
+        mErrorAView.setVisibility(View.GONE);
+        return true;
+      }
+    } catch (NumberFormatException e) {
+      mAmountEdit.setTextColor(getColor(R.color.red));
+      mErrorAView.setVisibility(View.VISIBLE);
+      return false;
+    }
   }
 
   private void setNodeURI(String uri) {
@@ -106,19 +118,16 @@ public class OpenChannelActivity extends EclairModalActivity {
   }
 
   public void cancelOpenChannel(View view) {
-    Toast.makeText(this, R.string.cancelled, Toast.LENGTH_SHORT).show();
     goToHome();
   }
 
   private void goToHome() {
-    Intent intent = new Intent(this, HomeActivity.class);
-    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-    intent.putExtra(HomeActivity.EXTRA_PAGE, 2);
-    startActivity(intent);
+    finish();
   }
 
   public void confirmOpenChannel(View view) {
+    if (!checkAmount(mAmountEdit.getText().toString())) return;
+
     mOpenButton.setVisibility(View.GONE);
     final String pubkeyString = mPubkeyTextView.getText().toString();
     final String amountString = mAmountEdit.getText().toString();

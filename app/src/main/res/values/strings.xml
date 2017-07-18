@@ -34,6 +34,7 @@
 
   <string name="openchannel_capacity">Capacity (mBTC)</string>
   <string name="openchannel_capacity_hint">e.g. 42</string>
+  <string name="openchannel_capacity_error">Channel capacity must be between 0.1 and 167 mBTC</string>
   <string name="openchannel_do_open">Open Channel</string>
   <string name="openchannel_pubkey">Public key:</string>
   <string name="openchannel_ip">IP:</string>
