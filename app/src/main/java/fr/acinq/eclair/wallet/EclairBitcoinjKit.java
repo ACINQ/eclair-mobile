@@ -8,6 +8,7 @@ import org.bitcoinj.wallet.Wallet;
 import org.bitcoinj.wallet.listeners.WalletCoinsReceivedEventListener;
 import org.bitcoinj.wallet.listeners.WalletCoinsSentEventListener;
 import org.greenrobot.eventbus.EventBus;
+import org.spongycastle.util.encoders.Hex;
 
 import java.io.File;
 
@@ -47,6 +48,7 @@ public class EclairBitcoinjKit extends BitcoinjKit2 {
         final Payment paymentReceived = paymentInDB == null ? new Payment(PaymentTypes.BTC_RECEIVED) : paymentInDB;
         final Coin amountReceived = newBalance.minus(prevBalance);
         paymentReceived.paymentReference = tx.getHashAsString();
+        paymentReceived.txPayload = Hex.toHexString(tx.bitcoinSerialize());
         paymentReceived.amountPaidMsat = package$.MODULE$.satoshi2millisatoshi(new Satoshi(amountReceived.getValue())).amount();
         paymentReceived.updated = tx.getUpdateTime();
         paymentReceived.confidenceBlocks = tx.getConfidence().getDepthInBlocks();
@@ -64,6 +66,7 @@ public class EclairBitcoinjKit extends BitcoinjKit2 {
         final Payment paymentSent = paymentInDB == null ? new Payment(PaymentTypes.BTC_SENT) : paymentInDB;
         final Coin amountSent = newBalance.minus(prevBalance);
         paymentSent.paymentReference = tx.getHashAsString();
+        paymentSent.txPayload = Hex.toHexString(tx.bitcoinSerialize());
         paymentSent.amountPaidMsat = package$.MODULE$.satoshi2millisatoshi(new Satoshi(amountSent.getValue())).amount();
         if (tx.getFee() != null)
           paymentSent.feesPaidMsat = package$.MODULE$.satoshi2millisatoshi(new Satoshi(tx.getFee().getValue())).amount();

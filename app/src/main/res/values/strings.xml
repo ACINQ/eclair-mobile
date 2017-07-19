@@ -68,8 +68,13 @@
   <string name="transactiondetails_fees_label">Fees</string>
   <string name="transactiondetails_fees_desc">Fees paid to the network</string>
   <string name="transactiondetails_txid_label">Transaction Id</string>
-  <string name="transactiondetails_date_label">Timestamp</string>
   <string name="transactiondetails_txid_desc">Unique identifier of this transaction</string>
+  <string name="transactiondetails_date_label">Timestamp</string>
+  <string name="transactiondetails_confs_label">Confirmations</string>
+  <string name="transactiondetails_confs_type_label">Confidence type</string>
+  <string name="transactiondetails_confs_type_desc">State of the transaction in general terms</string>
+  <string name="transactiondetails_rebroadcast">Rebroadcast Transaction</string>
+  <string name="transactiondetails_rebroadcast_dialog">Rebroadcast this transaction?</string>
 
   <!-- //////////////// local channel details //////////////////// -->
 

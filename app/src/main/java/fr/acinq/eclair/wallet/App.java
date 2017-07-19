@@ -9,13 +9,11 @@ import org.bitcoinj.core.Coin;
 import org.bitcoinj.core.InsufficientMoneyException;
 import org.bitcoinj.core.PeerGroup;
 import org.bitcoinj.core.Transaction;
-import org.bitcoinj.core.listeners.TransactionConfidenceEventListener;
 import org.bitcoinj.wallet.KeyChain;
 import org.bitcoinj.wallet.SendRequest;
 import org.bitcoinj.wallet.Wallet;
-import org.bitcoinj.wallet.listeners.WalletCoinsReceivedEventListener;
-import org.bitcoinj.wallet.listeners.WalletCoinsSentEventListener;
 import org.greenrobot.eventbus.EventBus;
+import org.spongycastle.util.encoders.Hex;
 
 import java.io.File;
 import java.net.InetSocketAddress;
@@ -23,18 +21,14 @@ import java.net.InetSocketAddress;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
-import akka.dispatch.Futures;
-import akka.dispatch.Mapper;
 import akka.dispatch.OnComplete;
 import akka.pattern.Patterns;
 import akka.util.Timeout;
 import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.bitcoin.Crypto;
 import fr.acinq.bitcoin.Satoshi;
-import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.Kit;
 import fr.acinq.eclair.Setup;
-import fr.acinq.eclair.blockchain.spv.BitcoinjKit2;
 import fr.acinq.eclair.blockchain.wallet.BitcoinjWallet;
 import fr.acinq.eclair.blockchain.wallet.EclairWallet;
 import fr.acinq.eclair.channel.ChannelEvent;
@@ -42,14 +36,10 @@ import fr.acinq.eclair.io.Switchboard;
 import fr.acinq.eclair.payment.PaymentEvent;
 import fr.acinq.eclair.payment.SendPayment;
 import fr.acinq.eclair.router.NetworkEvent;
-import fr.acinq.eclair.wallet.events.BitcoinPaymentEvent;
 import fr.acinq.eclair.wallet.events.WalletBalanceUpdateEvent;
-import fr.acinq.eclair.wallet.model.Payment;
-import fr.acinq.eclair.wallet.model.PaymentTypes;
 import scala.Option;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
-import scala.concurrent.Promise;
 import scala.concurrent.duration.Duration;
 
 public class App extends SugarApp {
@@ -58,6 +48,7 @@ public class App extends SugarApp {
   public final static String DATADIR_NAME = "eclair-wallet-data";
   private final ActorSystem system = ActorSystem.apply("system");
 
+  private PeerGroup peerGroup;
   private Wallet wallet;
   private Kit eclairKit;
 
@@ -81,6 +72,7 @@ public class App extends SugarApp {
       Future<Kit> fKit = setup.bootstrap();
 
       wallet = Await.result(fWallet, Duration.create(20, "seconds"));
+      peerGroup = Await.result(fPeerGroup, Duration.create(20, "seconds"));
       eclairKit = Await.result(fKit, Duration.create(20, "seconds"));
 
     } catch (Exception e) {
@@ -120,6 +112,11 @@ public class App extends SugarApp {
 
   public void sendBitcoinPayment(final SendRequest sendRequest) throws InsufficientMoneyException {
     wallet.sendCoins(sendRequest);
+  }
+
+  public void broadcastTx(final String payload) {
+    Transaction tx = new Transaction(wallet.getParams(), Hex.decode(payload));
+    peerGroup.broadcastTransaction(tx);
   }
 
   public String nodePublicKey() {

@@ -67,7 +67,9 @@ public class ChannelDetailsActivity extends EclairActivity {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         final String message = getResources().getString(R.string.close_channel_message)
-          + (!NORMAL.toString().equals(channel.getValue().state) ? "\nWith a " + channel.getValue().state + " state, the closing will be uncooperative!" : "");
+          + (!NORMAL.toString().equals(channel.getValue().state)
+          ? "\n\nWith a " + channel.getValue().state + " state, the closing will be uncooperative!"
+          : "");
         builder.setMessage(message);
         builder.setPositiveButton(R.string.btn_ok, new DialogInterface.OnClickListener() {
           public void onClick(DialogInterface dialog, int id) {
