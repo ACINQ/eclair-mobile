@@ -253,7 +253,7 @@ public class HomeActivity extends EclairActivity {
 
   public void home_doRandomChannel(View view) {
     Intent intent = new Intent(getBaseContext(), OpenChannelActivity.class);
-    intent.putExtra(OpenChannelActivity.EXTRA_NEW_HOST_URI, "03933884aaf1d6b108397e5efe5c86bcf2d8ca8d2f700eda99db9214fc2712b134@54.195.170.196:9735");
+    intent.putExtra(OpenChannelActivity.EXTRA_NEW_HOST_URI, "03933884aaf1d6b108397e5efe5c86bcf2d8ca8d2f700eda99db9214fc2712b134@endurance.acinq.co:9735");
     startActivity(intent);
   }
 
