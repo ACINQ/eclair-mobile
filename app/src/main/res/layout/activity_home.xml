@@ -173,7 +173,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:onClick="home_sendPaste"
-        app:icon="@drawable/ic_content_paste_white_24dp"
+        app:icon="@mipmap/ic_paste"
         app:label="Paste a request" />
 
       <fr.acinq.eclair.wallet.customviews.FabText
@@ -181,7 +181,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:onClick="home_sendScan"
-        app:icon="@drawable/ic_scan"
+        app:icon="@mipmap/ic_scan"
         app:label="Scan a request" />
 
     </LinearLayout>
@@ -194,7 +194,7 @@
       android:layout_marginEnd="@dimen/fab_margin"
       android:layout_marginTop="8dp"
       android:onClick="home_toggleSendButtons"
-      android:src="@drawable/ic_send"
+      android:src="@mipmap/ic_send"
       app:backgroundTint="@color/colorPrimary"
       app:fabSize="normal" />
   </LinearLayout>
@@ -222,7 +222,7 @@
         android:layout_height="wrap_content"
         android:onClick="home_doPasteURI"
         app:bgcolor="@color/green"
-        app:icon="@drawable/ic_content_paste_white_24dp"
+        app:icon="@mipmap/ic_paste"
         app:label="Paste an address" />
 
       <fr.acinq.eclair.wallet.customviews.FabText
@@ -231,7 +231,7 @@
         android:layout_height="wrap_content"
         android:onClick="home_doScanURI"
         app:bgcolor="@color/green"
-        app:icon="@drawable/ic_scan"
+        app:icon="@mipmap/ic_scan"
         app:label="Scan an address" />
 
       <fr.acinq.eclair.wallet.customviews.FabText
@@ -253,7 +253,7 @@
       android:layout_marginEnd="@dimen/fab_margin"
       android:layout_marginTop="8dp"
       android:onClick="home_toggleOpenChannelButtons"
-      android:src="@drawable/ic_plus_white_24dp"
+      android:src="@mipmap/ic_plus"
       app:backgroundTint="@color/green"
       app:fabSize="normal" />
   </LinearLayout>

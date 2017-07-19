@@ -47,7 +47,7 @@ public class FabText extends RelativeLayout {
       if ("".equals(label)) labelTextView.setVisibility(GONE);
 
       fab = (FloatingActionButton) layout.findViewById(R.id.fabtext_button);
-      fab.setImageResource(arr.getResourceId(R.styleable.FabText_icon, R.drawable.ic_plus_white_24dp));
+      fab.setImageResource(arr.getResourceId(R.styleable.FabText_icon, R.mipmap.ic_plus));
       fab.setBackgroundTintList(ColorStateList.valueOf(bgColor));
     } finally {
       arr.recycle();

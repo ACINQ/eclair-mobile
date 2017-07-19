@@ -12,7 +12,7 @@
     android:layout_width="18dp"
     android:layout_height="18dp"
     android:layout_marginEnd="8dp"
-    android:src="@drawable/ic_open_in_new_black_24dp" />
+    android:src="@mipmap/ic_open_new_b" />
 
   <TextView
     android:layout_width="wrap_content"
