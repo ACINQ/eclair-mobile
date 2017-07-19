@@ -181,7 +181,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:onClick="home_sendScan"
-        app:icon="@drawable/ic_photo_camera_white_24dp"
+        app:icon="@drawable/ic_scan"
         app:label="Scan a request" />
 
     </LinearLayout>
@@ -194,7 +194,7 @@
       android:layout_marginEnd="@dimen/fab_margin"
       android:layout_marginTop="8dp"
       android:onClick="home_toggleSendButtons"
-      android:src="@drawable/ic_send_white_24dp"
+      android:src="@drawable/ic_send"
       app:backgroundTint="@color/colorPrimary"
       app:fabSize="normal" />
   </LinearLayout>
@@ -231,7 +231,7 @@
         android:layout_height="wrap_content"
         android:onClick="home_doScanURI"
         app:bgcolor="@color/green"
-        app:icon="@drawable/ic_photo_camera_white_24dp"
+        app:icon="@drawable/ic_scan"
         app:label="Scan an address" />
 
       <fr.acinq.eclair.wallet.customviews.FabText
