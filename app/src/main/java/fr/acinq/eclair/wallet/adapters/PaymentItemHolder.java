@@ -91,7 +91,7 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
       } else {
         mStatus.setTextColor(PENDING_PAYMENT_COLOR);
       }
-      mPaymentIcon.setImageResource(R.drawable.icon_bolt_circle_blue);
+      mPaymentIcon.setImageResource(R.mipmap.ic_bolt_circle);
     } else {
       mStatus.setVisibility(View.VISIBLE);
 
@@ -111,7 +111,7 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
         mStatus.setText("In conflict");
         mStatus.setTextColor(FAILED_PAYMENT_COLOR);
       }
-      mPaymentIcon.setImageResource(R.drawable.icon_btc_extrude_orange);
+      mPaymentIcon.setImageResource(R.mipmap.ic_bitcoin_circle);
       mDescription.setText(payment.paymentReference);
       if (PaymentTypes.BTC_RECEIVED.toString().equals(payment.type)) {
         mAmount.setText(CoinUtils.formatAmountMilliBtc(new MilliSatoshi(payment.amountPaidMsat)));
