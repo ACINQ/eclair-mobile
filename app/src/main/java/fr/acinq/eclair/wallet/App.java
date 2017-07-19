@@ -61,7 +61,7 @@ public class App extends SugarApp {
       EclairBitcoinjKit eclairBitcoinjKit = new EclairBitcoinjKit("test", datadir);
       Future<Wallet> fWallet = eclairBitcoinjKit.getFutureWallet();
       Future<PeerGroup> fPeerGroup = eclairBitcoinjKit.getFuturePeerGroup();
-      EclairWallet eclairWallet = new BitcoinjWallet(fWallet, fPeerGroup, system.dispatcher());
+      EclairWallet eclairWallet = new BitcoinjWallet(fWallet, system.dispatcher());
       eclairBitcoinjKit.startAsync();
 
       Setup setup = new Setup(datadir, Option.apply(eclairWallet), ConfigFactory.empty(), system);
