@@ -35,17 +35,18 @@
             <TextView
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
-              android:text="@string/chain_test"
-              android:background="@drawable/rounded_corner_yellow"
-              android:textColor="@color/colorGrey_3"
               android:layout_centerVertical="true"
-              android:elevation="4dp"
-              android:textSize="10sp"
               android:layout_marginStart="16dp"
+              android:background="@drawable/rounded_corner_green"
+              android:elevation="4dp"
+              android:paddingBottom="3dp"
               android:paddingLeft="5dp"
               android:paddingRight="5dp"
               android:paddingTop="3dp"
-              android:paddingBottom="3dp" />
+              android:text="@string/chain_test"
+              android:textColor="@color/white"
+              android:textSize="10sp"
+              android:textStyle="bold" />
 
           </RelativeLayout>
 
