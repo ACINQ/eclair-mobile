@@ -2,6 +2,8 @@ package fr.acinq.eclair.wallet;
 
 import android.util.Log;
 
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
 import com.orm.SugarApp;
 import com.typesafe.config.ConfigFactory;
 
@@ -17,6 +19,8 @@ import org.spongycastle.util.encoders.Hex;
 
 import java.io.File;
 import java.net.InetSocketAddress;
+
+import javax.annotation.Nullable;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
@@ -115,8 +119,18 @@ public class App extends SugarApp {
   }
 
   public void broadcastTx(final String payload) {
-    Transaction tx = new Transaction(wallet.getParams(), Hex.decode(payload));
-    peerGroup.broadcastTransaction(tx);
+    final Transaction tx = new Transaction(wallet.getParams(), Hex.decode(payload));
+    Futures.addCallback(peerGroup.broadcastTransaction(tx).future(), new FutureCallback<Transaction>() {
+      @Override
+      public void onSuccess(@Nullable Transaction result) {
+        Log.i(TAG, "Successful broadcast of " + tx.getHashAsString());
+      }
+
+      @Override
+      public void onFailure(Throwable t) {
+        Log.e(TAG, "Failed broadcast of " + tx.getHashAsString(), t);
+      }
+    });
   }
 
   public String nodePublicKey() {

@@ -73,11 +73,10 @@ public class BitcoinTransactionDetailsActivity extends EclairActivity {
         public void onClick(DialogInterface dialog, int id) {
           try {
             app.broadcastTx(p.txPayload);
-            Toast.makeText(getApplicationContext(), "Broadcast completed", Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), "Sent Broadcast", Toast.LENGTH_LONG).show();
           } catch (Exception e) {
             Log.e(TAG, "Could not broadcast tx:" + p.paymentReference, e);
-            Toast.makeText(getApplicationContext(),
-              "Could not rebroadcast this transaction", Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), "Broadcast has failed", Toast.LENGTH_LONG).show();
           }
           mRebroadcastDialog.dismiss();
         }
