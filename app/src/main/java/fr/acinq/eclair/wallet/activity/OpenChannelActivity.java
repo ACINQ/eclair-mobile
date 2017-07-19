@@ -83,7 +83,7 @@ public class OpenChannelActivity extends EclairModalActivity {
         mErrorAView.setText(R.string.openchannel_capacity_invalid);
         mErrorAView.setVisibility(View.VISIBLE);
         return false;
-      } else if (parsedAmountSat > app.getWalletBalanceSat().getValue()) {
+      } else if (parsedAmountSat + 100000 > app.getWalletBalanceSat().getValue()) {
         mAmountEdit.setTextColor(getColor(R.color.red));
         mErrorAView.setText(R.string.openchannel_capacity_notenoughfunds);
         mErrorAView.setVisibility(View.VISIBLE);
