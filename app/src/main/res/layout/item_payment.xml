@@ -87,6 +87,19 @@
       android:textSize="8sp" />
 
     <TextView
+      android:id="@+id/paymentitem_fees_prefix"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_alignBaseline="@+id/paymentitem_fees_value"
+      android:layout_marginEnd="2dp"
+      android:layout_toStartOf="@+id/paymentitem_fees_value"
+      android:maxLines="1"
+      android:text="@string/paymentitem_fee_prefix"
+      android:textColor="@color/colorGrey_1"
+      android:textSize="10sp"
+      android:visibility="gone" />
+
+    <TextView
       android:id="@+id/paymentitem_fees_value"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"

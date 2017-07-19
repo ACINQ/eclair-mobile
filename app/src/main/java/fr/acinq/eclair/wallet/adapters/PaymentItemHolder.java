@@ -27,6 +27,7 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
   private static final int SUCCESS_PAYMENT_COLOR = 0xFF00C28C;
   private final ImageView mPaymentIcon;
   private final TextView mDescription;
+  private final TextView mFeesPrefix;
   private final TextView mFees;
   private final TextView mFeesUnit;
   private final TextView mStatus;
@@ -41,6 +42,7 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
     this.mStatus = (TextView) itemView.findViewById(R.id.paymentitem_status);
     this.mDescription = (TextView) itemView.findViewById(R.id.paymentitem_description);
     this.mDate = (TextView) itemView.findViewById(R.id.paymentitem_date);
+    this.mFeesPrefix = (TextView) itemView.findViewById(R.id.paymentitem_fees_prefix);
     this.mFees = (TextView) itemView.findViewById(R.id.paymentitem_fees_value);
     this.mFeesUnit = (TextView) itemView.findViewById(R.id.paymentitem_fees_unit);
     itemView.setOnClickListener(this);
@@ -62,9 +64,11 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
 
     if (!PaymentTypes.BTC_RECEIVED.toString().equals(payment.type)) {
       mFees.setText(NumberFormat.getInstance().format(payment.feesPaidMsat / 1000));
+      mFeesPrefix.setVisibility(View.VISIBLE);
       mFees.setVisibility(View.VISIBLE);
       mFeesUnit.setVisibility(View.VISIBLE);
     } else {
+      mFeesPrefix.setVisibility(View.GONE);
       mFees.setVisibility(View.GONE);
       mFeesUnit.setVisibility(View.GONE);
     }

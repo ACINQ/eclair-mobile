@@ -199,6 +199,7 @@
   <!-- //////////////// payment item //////////////////// -->
 
   <string name="paymentitem_confidence_suffix">conf</string>
+  <string name="paymentitem_fee_prefix">fee:</string>
 
   <!-- //////////////// monetary units //////////////////// -->
 
