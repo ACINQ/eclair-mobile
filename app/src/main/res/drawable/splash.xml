@@ -2,15 +2,15 @@
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
 
   <item
-    android:drawable="@color/white"/>
+    android:drawable="@color/colorPrimary"/>
 
   <item
     android:gravity="center"
-    android:width="150dp"
-    android:height="150dp">
+    android:width="220dp"
+    android:height="220dp">
     <bitmap
       android:gravity="fill_horizontal|fill_vertical"
-      android:src="@drawable/eclair_512x512"/>
+      android:src="@drawable/splash_image"/>
   </item>
 
 </layer-list>
