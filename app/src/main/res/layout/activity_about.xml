@@ -36,6 +36,15 @@
         android:layout_height="wrap_content"
         android:text="@string/about_general_text"
         android:textSize="12sp"
+        android:autoLink="web"
+        android:padding="8dp" />
+
+      <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/about_general_version"
+        android:textSize="12sp"
+        android:textStyle="bold"
         android:padding="8dp" />
 
       <TextView
@@ -76,6 +85,7 @@
         android:layout_height="wrap_content"
         android:text="@string/about_acinq_text"
         android:textSize="12sp"
+        android:autoLink="web"
         android:padding="8dp" />
 
     </LinearLayout>
