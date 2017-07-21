@@ -3,6 +3,7 @@ package fr.acinq.eclair.wallet.activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -65,7 +66,7 @@ public class CreatePaymentActivity extends EclairModalActivity
   @Override
   public void processBitcoinInvoiceFinish(BitcoinURI output) {
     if (output == null || output.getAddress() == null) {
-      mLoadingTextView.setTextColor(getColor(R.color.red));
+      mLoadingTextView.setTextColor(ContextCompat.getColor(this, R.color.red));
       mLoadingTextView.setText(R.string.payment_failure_read_invoice);
       mLoadingView.setClickable(true);
       mLoadingView.setOnClickListener(new View.OnClickListener() {

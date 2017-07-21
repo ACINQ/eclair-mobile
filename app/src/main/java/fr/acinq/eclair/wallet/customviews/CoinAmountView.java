@@ -2,6 +2,7 @@ package fr.acinq.eclair.wallet.customviews;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -63,13 +64,13 @@ public class CoinAmountView extends RelativeLayout {
       }
 
       int amount_size = arr.getDimensionPixelSize(R.styleable.CoinAmountView_amount_size, 0);
-      int amount_color = arr.getColor(R.styleable.CoinAmountView_amount_color, 0);
+      int amount_color = arr.getColor(R.styleable.CoinAmountView_amount_color, ContextCompat.getColor(getContext(), R.color.colorGrey_2));
       amountTextView.setTextSize(TypedValue.COMPLEX_UNIT_PX, amount_size);
       amountTextView.setTextColor(amount_color);
 
       unit = arr.getString(R.styleable.CoinAmountView_unit);
       int unit_size = arr.getDimensionPixelSize(R.styleable.CoinAmountView_unit_size, 0);
-      int unit_color = arr.getColor(R.styleable.CoinAmountView_unit_color, 0);
+      int unit_color = arr.getColor(R.styleable.CoinAmountView_unit_color, ContextCompat.getColor(getContext(), R.color.colorGrey_2));
       unitTextView.setTextSize(TypedValue.COMPLEX_UNIT_PX, unit_size);
       unitTextView.setTextColor(unit_color);
       unitTextView.setText(unit);

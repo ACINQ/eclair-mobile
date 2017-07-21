@@ -1,6 +1,7 @@
 package fr.acinq.eclair.wallet.adapters;
 
 import android.content.Intent;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
@@ -22,9 +23,7 @@ import fr.acinq.eclair.wallet.utils.CoinUtils;
 public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
   public static final String EXTRA_PAYMENT_ID = "fr.acinq.eclair.swordfish.PAYMENT_ID";
-  private static final int FAILED_PAYMENT_COLOR = 0xFFCD1E56;
-  private static final int PENDING_PAYMENT_COLOR = 0xFFFFB81C;
-  private static final int SUCCESS_PAYMENT_COLOR = 0xFF00C28C;
+
   private final ImageView mPaymentIcon;
   private final TextView mDescription;
   private final TextView mFeesPrefix;
@@ -73,7 +72,6 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
       mFeesUnit.setVisibility(View.GONE);
     }
 
-
     if (PaymentTypes.LN.toString().equals(payment.type)) {
       try {
         if (payment.amountPaidMsat == 0) {
@@ -84,16 +82,16 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
       } catch (Exception e) {
         mAmount.setText(CoinUtils.getMilliBTCFormat().format(0));
       }
-      mAmount.setTextColor(itemView.getResources().getColor(R.color.redFaded));
+      mAmount.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.redFaded));
       mDescription.setText(payment.description);
       mStatus.setVisibility(View.VISIBLE);
       mStatus.setText(payment.status);
       if ("FAILED".equals(payment.status)) {
-        mStatus.setTextColor(FAILED_PAYMENT_COLOR);
+        mStatus.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.redFaded));
       } else if ("PAID".equals(payment.status)) {
-        mStatus.setTextColor(SUCCESS_PAYMENT_COLOR);
+        mStatus.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.green));
       } else {
-        mStatus.setTextColor(PENDING_PAYMENT_COLOR);
+        mStatus.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.orange));
       }
       mPaymentIcon.setImageResource(R.mipmap.ic_bolt_circle);
     } else {
@@ -106,23 +104,23 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
         String confidenceBlocks = payment.confidenceBlocks < 7 ? Integer.toString(payment.confidenceBlocks) : "6+";
         mStatus.setText(confidenceBlocks + " " + itemView.getResources().getString(R.string.paymentitem_confidence_suffix));
         if (payment.confidenceBlocks < 2) {
-          mStatus.setTextColor(itemView.getResources().getColor(R.color.colorGrey_2));
+          mStatus.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.colorGrey_2));
         } else {
-          mStatus.setTextColor(itemView.getResources().getColor(R.color.green));
+          mStatus.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.green));
         }
 
       } else {
         mStatus.setText("In conflict");
-        mStatus.setTextColor(FAILED_PAYMENT_COLOR);
+        mStatus.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.redFaded));
       }
       mPaymentIcon.setImageResource(R.mipmap.ic_bitcoin_circle);
       mDescription.setText(payment.paymentReference);
       if (PaymentTypes.BTC_RECEIVED.toString().equals(payment.type)) {
         mAmount.setText(CoinUtils.formatAmountMilliBtc(new MilliSatoshi(payment.amountPaidMsat)));
-        mAmount.setTextColor(itemView.getResources().getColor(R.color.green));
+        mAmount.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.green));
       } else if (PaymentTypes.BTC_SENT.toString().equals(payment.type)) {
         mAmount.setText(CoinUtils.formatAmountMilliBtc(new MilliSatoshi(payment.amountPaidMsat)));
-        mAmount.setTextColor(itemView.getResources().getColor(R.color.redFaded));
+        mAmount.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.redFaded));
       }
     }
   }

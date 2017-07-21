@@ -2,6 +2,7 @@ package fr.acinq.eclair.wallet.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -79,23 +80,23 @@ public class OpenChannelActivity extends EclairModalActivity {
       Long parsedAmountSat = Long.parseLong(amount) * 100000;
       if (parsedAmountSat < Validators.MIN_FUNDING_SAT
         || parsedAmountSat >= Validators.MAX_FUNDING_SAT) {
-        mAmountEdit.setTextColor(getColor(R.color.red));
+        mAmountEdit.setTextColor(ContextCompat.getColor(this, R.color.red));
         mErrorAView.setText(R.string.openchannel_capacity_invalid);
         mErrorAView.setVisibility(View.VISIBLE);
         return false;
       } else if (parsedAmountSat + 100000 > app.getWalletBalanceSat().getValue()) {
-        mAmountEdit.setTextColor(getColor(R.color.red));
+        mAmountEdit.setTextColor(ContextCompat.getColor(this, R.color.red));
         mErrorAView.setText(R.string.openchannel_capacity_notenoughfunds);
         mErrorAView.setVisibility(View.VISIBLE);
         return false;
       } else {
-        mAmountEdit.setTextColor(getColor(R.color.colorGrey_4));
+        mAmountEdit.setTextColor(ContextCompat.getColor(this, R.color.colorGrey_4));
         mErrorAView.setVisibility(View.GONE);
         return true;
       }
     } catch (NumberFormatException e) {
       mErrorAView.setText(R.string.openchannel_capacity_invalid);
-      mAmountEdit.setTextColor(getColor(R.color.red));
+      mAmountEdit.setTextColor(ContextCompat.getColor(this, R.color.red));
       mErrorAView.setVisibility(View.VISIBLE);
       return false;
     }
@@ -149,7 +150,6 @@ public class OpenChannelActivity extends EclairModalActivity {
           final BinaryData pubkeyBinary = BinaryData.apply(pubkeyString);
           final Crypto.Point pubkeyPoint = new Crypto.Point(Crypto.curve().getCurve().decodePoint(package$.MODULE$.binaryData2array(pubkeyBinary)));
           final Crypto.PublicKey pubkey = new Crypto.PublicKey(pubkeyPoint, true);
-
           final Satoshi fundingSat = package$.MODULE$.millibtc2satoshi(new MilliBtc(BigDecimal.exact(amountString)));
 
           final InetSocketAddress address = new InetSocketAddress(ipString, Integer.parseInt(portString));

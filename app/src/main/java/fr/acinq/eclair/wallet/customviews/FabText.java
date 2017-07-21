@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -38,7 +39,7 @@ public class FabText extends RelativeLayout {
       String service = Context.LAYOUT_INFLATER_SERVICE;
       LayoutInflater li = (LayoutInflater) getContext().getSystemService(service);
       layout = li.inflate(R.layout.custom_fab_text, this, true);
-      int bgColor = arr.getColor(R.styleable.FabText_bgcolor, getResources().getColor(R.color.colorPrimary));
+      int bgColor = arr.getColor(R.styleable.FabText_bgcolor, ContextCompat.getColor(getContext(), R.color.colorPrimary));
       String label = arr.getString(R.styleable.FabText_label);
 
       labelTextView = (TextView) layout.findViewById(R.id.fabtext_label);

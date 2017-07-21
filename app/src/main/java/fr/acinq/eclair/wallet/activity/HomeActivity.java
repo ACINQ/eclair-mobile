@@ -10,6 +10,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
@@ -211,26 +212,26 @@ public class HomeActivity extends EclairActivity {
   public void home_toggleSendButtons(View view) {
     boolean isVisible = mSendButtonsToggleView.getVisibility() == View.VISIBLE;
     mSendButton.animate().rotation(isVisible ? 0 : -90).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(150).start();
-    mSendButton.setBackgroundTintList(ColorStateList.valueOf(getColor(isVisible ? R.color.colorPrimary : R.color.colorGrey_4)));
+    mSendButton.setBackgroundTintList(ContextCompat.getColorStateList(this, isVisible ? R.color.colorPrimary : R.color.colorGrey_4));
     mSendButtonsToggleView.setVisibility(isVisible ? View.GONE : View.VISIBLE);
   }
 
   public void home_closeSendButtons() {
     mSendButton.animate().rotation(0).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(150).start();
-    mSendButton.setBackgroundTintList(ColorStateList.valueOf(getColor(R.color.colorPrimary)));
+    mSendButton.setBackgroundTintList(ContextCompat.getColorStateList(this, R.color.colorPrimary));
     mSendButtonsToggleView.setVisibility(View.GONE);
   }
 
   public void home_toggleOpenChannelButtons(View view) {
     boolean isVisible = mOpenChannelButtonsToggleView.getVisibility() == View.VISIBLE;
     mOpenChannelButton.animate().rotation(isVisible ? 0 : 135).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(150).start();
-    mOpenChannelButton.setBackgroundTintList(ColorStateList.valueOf(getColor(isVisible ? R.color.green : R.color.colorGrey_4)));
+    mOpenChannelButton.setBackgroundTintList(ContextCompat.getColorStateList(this, isVisible ? R.color.green : R.color.colorGrey_4));
     mOpenChannelButtonsToggleView.setVisibility(isVisible ? View.GONE : View.VISIBLE);
   }
 
   public void home_closeOpenChannelButtons() {
     mOpenChannelButton.animate().rotation(0).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(150).start();
-    mOpenChannelButton.setBackgroundTintList(ColorStateList.valueOf(getColor(R.color.green)));
+    mOpenChannelButton.setBackgroundTintList(ContextCompat.getColorStateList(this, R.color.green));
     mOpenChannelButtonsToggleView.setVisibility(View.GONE);
   }
 
