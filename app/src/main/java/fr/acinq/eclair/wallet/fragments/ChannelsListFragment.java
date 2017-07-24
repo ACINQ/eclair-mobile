@@ -40,6 +40,12 @@ public class ChannelsListFragment extends Fragment implements SwipeRefreshLayout
   }
 
   @Override
+  public void onResume() {
+    super.onResume();
+    updateList();
+  }
+
+  @Override
   public View onCreateView(LayoutInflater inflater, ViewGroup container,
                            Bundle savedInstanceState) {
     mView = inflater.inflate(R.layout.fragment_channelslist, container, false);
