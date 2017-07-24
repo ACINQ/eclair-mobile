@@ -38,18 +38,20 @@ public class QRCodeTask extends AsyncTask<String, Integer, Bitmap> {
   @Override
   protected Bitmap doInBackground(String... params) {
     final Map<EncodeHintType, Object> hintsMap = new HashMap<>();
-    hintsMap.put(EncodeHintType.CHARACTER_SET, "utf-8");
     hintsMap.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.L);
+    hintsMap.put(EncodeHintType.MARGIN, 2);
+    final int qrWidth = 50;
+    final int qrHeight= 50;
     try {
-      BitMatrix matrix = writer.encode(source, BarcodeFormat.QR_CODE, width, height, hintsMap);
-      final int[] pixels = new int[width * height];
-      for (int j = 0; j < height; j++) {
-        final int offset = j * width;
-        for (int i = 0; i < width; i++) {
-          pixels[offset + i] = matrix.get(i, j) ? Color.BLACK : 0x00ffffff;
+      BitMatrix matrix = writer.encode(source, BarcodeFormat.QR_CODE, qrWidth, qrHeight, hintsMap);
+      final int[] pixels = new int[qrWidth * qrHeight];
+      for (int j = 0; j < qrHeight; j++) {
+        final int offset = j * qrWidth;
+        for (int i = 0; i < qrWidth; i++) {
+          pixels[offset + i] = matrix.get(i, j) ? Color.BLACK : 0xffffffff;
         }
       }
-      return Bitmap.createBitmap(pixels, width, height, Bitmap.Config.ARGB_8888);
+      return Bitmap.createScaledBitmap(Bitmap.createBitmap(pixels, qrWidth, qrHeight, Bitmap.Config.ARGB_8888), width, height, false);
     } catch (WriterException e) {
       Log.e(TAG, "Failed to generate QR code for source " + source, e);
       return null;

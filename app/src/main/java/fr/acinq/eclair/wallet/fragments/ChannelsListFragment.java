@@ -36,28 +36,24 @@ public class ChannelsListFragment extends Fragment implements SwipeRefreshLayout
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setHasOptionsMenu(false);
+    this.mChannelAdapter = new LocalChannelItemAdapter(new ArrayList<ChannelItem>());
   }
 
   @Override
   public View onCreateView(LayoutInflater inflater, ViewGroup container,
                            Bundle savedInstanceState) {
     mView = inflater.inflate(R.layout.fragment_channelslist, container, false);
-
     mRefreshLayout = (SwipeRefreshLayout) mView.findViewById(R.id.localchannels_swiperefresh);
     mRefreshLayout.setColorSchemeResources(R.color.colorPrimary, R.color.green, R.color.colorAccent);
     mRefreshLayout.setOnRefreshListener(this);
     mEmptyLabel = (TextView) mView.findViewById(R.id.localchannels_empty);
-    return mView;
-  }
 
-  @Override
-  public void onStart() {
-    super.onStart();
-    this.mChannelAdapter = new LocalChannelItemAdapter(getChannels());
-    RecyclerView listView = (RecyclerView) mView.findViewById(R.id.localchannels_list);
+    final RecyclerView listView = (RecyclerView) mView.findViewById(R.id.localchannels_list);
     listView.setHasFixedSize(true);
     listView.setLayoutManager(new LinearLayoutManager(mView.getContext()));
     listView.setAdapter(mChannelAdapter);
+
+    return mView;
   }
 
   private List<ChannelItem> getChannels() {

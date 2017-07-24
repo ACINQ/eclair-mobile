@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import fr.acinq.eclair.wallet.R;
@@ -34,6 +35,7 @@ public class PaymentsListFragment extends Fragment implements SwipeRefreshLayout
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setHasOptionsMenu(false);
+    this.mPaymentAdapter = new PaymentListItemAdapter(new ArrayList<Payment>());
   }
 
   @Override
@@ -45,24 +47,18 @@ public class PaymentsListFragment extends Fragment implements SwipeRefreshLayout
   @Override
   public View onCreateView(LayoutInflater inflater, ViewGroup container,
                            Bundle savedInstanceState) {
-
     mView = inflater.inflate(R.layout.fragment_paymentslist, container, false);
     mRefreshLayout = (SwipeRefreshLayout) mView.findViewById(R.id.payments_swiperefresh);
     mRefreshLayout.setColorSchemeResources(R.color.colorPrimary, R.color.green, R.color.colorAccent);
     mRefreshLayout.setOnRefreshListener(this);
     mEmptyLabel = (TextView) mView.findViewById(R.id.payments_empty);
 
-    return mView;
-  }
-
-  @Override
-  public void onStart() {
-    super.onStart();
-    this.mPaymentAdapter = new PaymentListItemAdapter(getPayments());
     RecyclerView listView = (RecyclerView) mView.findViewById(R.id.payments_list);
     listView.setHasFixedSize(true);
     listView.setLayoutManager(new LinearLayoutManager(mView.getContext()));
     listView.setAdapter(mPaymentAdapter);
+
+    return mView;
   }
 
   private List<Payment> getPayments() {
