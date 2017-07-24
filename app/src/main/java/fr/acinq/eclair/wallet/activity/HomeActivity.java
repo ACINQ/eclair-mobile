@@ -197,22 +197,34 @@ public class HomeActivity extends EclairActivity {
   }
 
   public void home_sendPaste(View view) {
-    Intent intent = new Intent(this, CreatePaymentActivity.class);
-    intent.putExtra(CreatePaymentActivity.EXTRA_INVOICE, readFromClipboard());
-    startActivity(intent);
+    if (app.atCurrentBlockHeight()) {
+      Intent intent = new Intent(this, CreatePaymentActivity.class);
+      intent.putExtra(CreatePaymentActivity.EXTRA_INVOICE, readFromClipboard());
+      startActivity(intent);
+    } else {
+      Toast.makeText(this, R.string.home_toast_noconnection, Toast.LENGTH_SHORT).show();
+    }
   }
 
   public void home_sendScan(View view) {
-    Intent intent = new Intent(this, ScanActivity.class);
-    intent.putExtra(ScanActivity.EXTRA_SCAN_TYPE, ScanActivity.TYPE_INVOICE);
-    startActivity(intent);
+    if (app.atCurrentBlockHeight()) {
+      Intent intent = new Intent(this, ScanActivity.class);
+      intent.putExtra(ScanActivity.EXTRA_SCAN_TYPE, ScanActivity.TYPE_INVOICE);
+      startActivity(intent);
+    } else {
+      Toast.makeText(this, R.string.home_toast_noconnection, Toast.LENGTH_SHORT).show();
+    }
   }
 
   public void home_toggleSendButtons(View view) {
-    boolean isVisible = mSendButtonsToggleView.getVisibility() == View.VISIBLE;
-    mSendButton.animate().rotation(isVisible ? 0 : -90).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(150).start();
-    mSendButton.setBackgroundTintList(ContextCompat.getColorStateList(this, isVisible ? R.color.colorPrimary : R.color.colorGrey_4));
-    mSendButtonsToggleView.setVisibility(isVisible ? View.GONE : View.VISIBLE);
+    if (app.atCurrentBlockHeight()) {
+      boolean isVisible = mSendButtonsToggleView.getVisibility() == View.VISIBLE;
+      mSendButton.animate().rotation(isVisible ? 0 : -90).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(150).start();
+      mSendButton.setBackgroundTintList(ContextCompat.getColorStateList(this, isVisible ? R.color.colorPrimary : R.color.colorGrey_4));
+      mSendButtonsToggleView.setVisibility(isVisible ? View.GONE : View.VISIBLE);
+    } else {
+      Toast.makeText(this, R.string.home_toast_noconnection, Toast.LENGTH_SHORT).show();
+    }
   }
 
   public void home_closeSendButtons() {

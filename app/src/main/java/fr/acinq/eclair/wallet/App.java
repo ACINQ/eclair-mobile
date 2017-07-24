@@ -56,6 +56,8 @@ public class App extends SugarApp {
   private Wallet wallet;
   private Kit eclairKit;
 
+  private Future<Object> fAtCurrentHeight;
+
   @Override
   public void onCreate() {
     try {
@@ -74,6 +76,7 @@ public class App extends SugarApp {
       setup.system().eventStream().subscribe(guiUpdater, PaymentEvent.class);
       setup.system().eventStream().subscribe(guiUpdater, NetworkEvent.class);
       Future<Kit> fKit = setup.bootstrap();
+      fAtCurrentHeight = setup.getBitcoinj().atCurrentHeight();
 
       wallet = Await.result(fWallet, Duration.create(20, "seconds"));
       peerGroup = Await.result(fPeerGroup, Duration.create(20, "seconds"));
@@ -84,6 +87,10 @@ public class App extends SugarApp {
       throw new EclairStartException();
     }
     super.onCreate();
+  }
+
+  public boolean atCurrentBlockHeight() {
+    return fAtCurrentHeight.isCompleted();
   }
 
   public void publishWalletBalance() {

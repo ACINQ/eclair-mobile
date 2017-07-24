@@ -20,6 +20,7 @@
   <string name="home_toast_openchannel_invalid">Invalid URI</string>
   <string name="home_toast_openchannel_success">Opening channel with </string>
   <string name="home_toast_openchannel_failed">Failed to open channel: </string>
+  <string name="home_toast_noconnection">Not yet connected to the network</string>
 
   <string name="payment_do_send">Send Payment</string>
   <string name="payment_pending">Please wait… Payment is being sent.</string>
