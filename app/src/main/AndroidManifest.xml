@@ -73,8 +73,8 @@
       android:stateNotNeeded="true"
       android:theme="@style/CustomDialog" />
     <activity
-      android:name="fr.acinq.eclair.wallet.activity.SettingsActivity"
-      android:label="@string/settings_name"
+      android:name="fr.acinq.eclair.wallet.activity.NetworkInfosActivity"
+      android:label="@string/networkinfos_name"
       android:parentActivityName="fr.acinq.eclair.wallet.activity.HomeActivity"
       android:screenOrientation="portrait" />
     <activity
@@ -90,12 +90,12 @@
     <activity
       android:name="fr.acinq.eclair.wallet.activity.NetworkChannelsActivity"
       android:label="@string/networkchannels_name"
-      android:parentActivityName="fr.acinq.eclair.wallet.activity.SettingsActivity"
+      android:parentActivityName="fr.acinq.eclair.wallet.activity.NetworkInfosActivity"
       android:screenOrientation="portrait" />
     <activity
       android:name="fr.acinq.eclair.wallet.activity.NetworkNodesActivity"
       android:label="@string/networknodes_name"
-      android:parentActivityName="fr.acinq.eclair.wallet.activity.SettingsActivity"
+      android:parentActivityName="fr.acinq.eclair.wallet.activity.NetworkInfosActivity"
       android:screenOrientation="portrait" />
     <activity
       android:name="fr.acinq.eclair.wallet.activity.ChannelDetailsActivity"

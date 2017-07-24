@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -176,9 +175,9 @@ public class HomeActivity extends EclairActivity {
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
-      case R.id.menu_home_settings:
-        Intent settingsIntent = new Intent(this, SettingsActivity.class);
-        startActivity(settingsIntent);
+      case R.id.menu_home_networkinfos:
+        Intent networkInfosIntent = new Intent(this, NetworkInfosActivity.class);
+        startActivity(networkInfosIntent);
         return true;
       case R.id.menu_home_about:
         Intent aboutIntent = new Intent(this, AboutActivity.class);

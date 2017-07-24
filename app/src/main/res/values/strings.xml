@@ -4,7 +4,7 @@
 
   <!-- //////////////// activities name //////////////////// -->
 
-  <string name="settings_name">Network Overview</string>
+  <string name="networkinfos_name">Network Overview</string>
   <string name="about_name">About</string>
   <string name="lnpayment_name">Lightning Payment Details</string>
   <string name="btcpayment_name">Transaction Details</string>
@@ -54,7 +54,7 @@
   <!-- /////////////// menus /////////////// -->
 
   <string name="menu_home">Home</string>
-  <string name="menu_settings">Network Overview</string>
+  <string name="menu_networkinfos">Network Overview</string>
   <string name="menu_about">About</string>
 
   <string name="open_in_explorer">Open transaction in explorer</string>
@@ -180,28 +180,28 @@
     "https://github.com/ACINQ/eclair"
   </string>
 
-  <!-- //////////////// settings //////////////////// -->
+  <!-- //////////////// Network Infos //////////////////// -->
 
-  <string name="settings_title_bitcoin">Bitcoin Network</string>
-  <string name="settings_title_lightning">Lightning Network</string>
-  <string name="settings_title_debug">Diagnostics</string>
+  <string name="networkinfos_title_bitcoin">Bitcoin Network</string>
+  <string name="networkinfos_title_lightning">Lightning Network</string>
+  <string name="networkinfos_title_debug">Diagnostics</string>
   <string name="zip_datadir">Extract datadir in Zip</string>
   <string name="zip_datadir_prefix">Located in: </string>
   <string name="zip_datadir_button">Extract</string>
   <string name="zip_datadir_toast_success">Datadir extracted</string>
   <string name="zip_datadir_toast_failure">Could not extract datadir</string>
-  <string name="settings_nodeid_label">Node id</string>
-  <string name="settings_nodeid_desc">Lightning Network\'s public identifier</string>
-  <string name="settings_nodealias_label">Alias</string>
-  <string name="settings_nodealias_desc">Name of the node</string>
-  <string name="settings_blockcount_label">Block count</string>
-  <string name="settings_blockcount_desc">Current blockchain height</string>
-  <string name="settings_feerate_label">Fee rate</string>
-  <string name="settings_feerate_desc">Current fee rate (satoshi/kW)</string>
-  <string name="settings_networkchannels_label">Known channels</string>
-  <string name="settings_networkchannels_desc">Click to display the list</string>
-  <string name="settings_networknodes_label">Known nodes</string>
-  <string name="settings_networknodes_desc">Click to display the list</string>
+  <string name="networkinfos_nodeid_label">Node id</string>
+  <string name="networkinfos_nodeid_desc">Lightning Network\'s public identifier</string>
+  <string name="networkinfos_nodealias_label">Alias</string>
+  <string name="networkinfos_nodealias_desc">Name of the node</string>
+  <string name="networkinfos_blockcount_label">Block count</string>
+  <string name="networkinfos_blockcount_desc">Current blockchain height</string>
+  <string name="networkinfos_feerate_label">Fee rate</string>
+  <string name="networkinfos_feerate_desc">Current fee rate (satoshi/kW)</string>
+  <string name="networkinfos_networkchannels_label">Known channels</string>
+  <string name="networkinfos_networkchannels_desc">Click to display the list</string>
+  <string name="networkinfos_networknodes_label">Known nodes</string>
+  <string name="networkinfos_networknodes_desc">Click to display the list</string>
 
   <!-- //////////////// payment item //////////////////// -->
 

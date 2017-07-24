@@ -5,7 +5,7 @@
   android:layout_width="match_parent"
   android:layout_height="match_parent"
   android:orientation="vertical"
-  tools:context="fr.acinq.eclair.wallet.activity.SettingsActivity">
+  tools:context="fr.acinq.eclair.wallet.activity.NetworkInfosActivity">
 
   <include layout="@layout/toolbar" />
 
@@ -26,31 +26,31 @@
         android:paddingEnd="8dp"
         android:paddingStart="8dp"
         android:paddingTop="16dp"
-        android:text="@string/settings_title_bitcoin"
+        android:text="@string/networkinfos_title_bitcoin"
         android:textAllCaps="true"
         android:textColor="@color/colorGrey_2"
         android:textSize="10sp" />
 
       <fr.acinq.eclair.wallet.customviews.DataRow
-        android:id="@+id/settings_blockcount"
+        android:id="@+id/networkinfos_blockcount"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:clickable="true"
-        android:onClick="settings_refreshCount"
-        app:desc="@string/settings_blockcount_desc"
-        app:label="@string/settings_blockcount_label"
+        android:onClick="networkinfos_refreshCount"
+        app:desc="@string/networkinfos_blockcount_desc"
+        app:label="@string/networkinfos_blockcount_label"
         app:value="@string/unknown" />
 
       <include layout="@layout/include_separator" />
 
       <fr.acinq.eclair.wallet.customviews.DataRow
-        android:id="@+id/settings_feerate"
+        android:id="@+id/networkinfos_feerate"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:clickable="true"
-        android:onClick="settings_refreshFeerate"
-        app:desc="@string/settings_feerate_desc"
-        app:label="@string/settings_feerate_label"
+        android:onClick="networkinfos_refreshFeerate"
+        app:desc="@string/networkinfos_feerate_desc"
+        app:label="@string/networkinfos_feerate_label"
         app:value="@string/unknown" />
 
       <TextView
@@ -61,41 +61,41 @@
         android:paddingEnd="8dp"
         android:paddingStart="8dp"
         android:paddingTop="16dp"
-        android:text="@string/settings_title_lightning"
+        android:text="@string/networkinfos_title_lightning"
         android:textAllCaps="true"
         android:textColor="@color/colorGrey_2"
         android:textSize="10sp" />
 
       <fr.acinq.eclair.wallet.customviews.DataRow
-        android:id="@+id/settings_nodeid"
+        android:id="@+id/networkinfos_nodeid"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:desc="@string/settings_nodeid_desc"
-        app:label="@string/settings_nodeid_label"
+        app:desc="@string/networkinfos_nodeid_desc"
+        app:label="@string/networkinfos_nodeid_label"
         app:value="@string/unknown" />
 
       <include layout="@layout/include_separator" />
 
       <fr.acinq.eclair.wallet.customviews.DataRow
-        android:id="@+id/settings_networkchannels_count"
+        android:id="@+id/networkinfos_networkchannels_count"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:clickable="true"
         android:onClick="goToNetworkChannels"
-        app:desc="@string/settings_networkchannels_desc"
-        app:label="@string/settings_networkchannels_label"
+        app:desc="@string/networkinfos_networkchannels_desc"
+        app:label="@string/networkinfos_networkchannels_label"
         app:value="@string/unknown" />
 
       <include layout="@layout/include_separator" />
 
       <fr.acinq.eclair.wallet.customviews.DataRow
-        android:id="@+id/settings_networknodes_count"
+        android:id="@+id/networkinfos_networknodes_count"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:clickable="true"
         android:onClick="goToNetworkNodes"
-        app:desc="@string/settings_networknodes_desc"
-        app:label="@string/settings_networknodes_label"
+        app:desc="@string/networkinfos_networknodes_desc"
+        app:label="@string/networkinfos_networknodes_label"
         app:value="@string/unknown" />
 
       <include layout="@layout/include_separator" />
@@ -109,7 +109,7 @@
         android:paddingEnd="8dp"
         android:paddingStart="8dp"
         android:paddingTop="16dp"
-        android:text="@string/settings_title_debug"
+        android:text="@string/networkinfos_title_debug"
         android:textAllCaps="true"
         android:textColor="@color/colorGrey_2"
         android:textSize="10sp" />
@@ -139,7 +139,7 @@
       </LinearLayout>
 
       <TextView
-        android:id="@+id/settings_zip_path"
+        android:id="@+id/networkinfos_zip_path"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="8dp"

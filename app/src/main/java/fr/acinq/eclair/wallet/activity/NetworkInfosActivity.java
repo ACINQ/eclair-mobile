@@ -2,21 +2,19 @@ package fr.acinq.eclair.wallet.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import fr.acinq.eclair.Globals;
 import fr.acinq.eclair.wallet.EclairEventService;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.customviews.DataRow;
 
-public class SettingsActivity extends EclairActivity {
+public class NetworkInfosActivity extends EclairActivity {
 
-  private static final String TAG = "SettingsActivity";
+  private static final String TAG = "NetworkInfosActivity";
   private TextView mZipLocationView;
   private DataRow mNodePublicKeyRow;
   private DataRow mNetworkChannelCount;
@@ -27,19 +25,19 @@ public class SettingsActivity extends EclairActivity {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    setContentView(R.layout.activity_settings);
+    setContentView(R.layout.activity_networkinfos);
 
     Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
     ActionBar ab = getSupportActionBar();
     ab.setDisplayHomeAsUpEnabled(true);
 
-    // mZipLocationView = (TextView) findViewById(R.id.settings_zip_path);
-    mNodePublicKeyRow = (DataRow) findViewById(R.id.settings_nodeid);
-    mNetworkNodesCount = (DataRow) findViewById(R.id.settings_networknodes_count);
-    mNetworkChannelCount = (DataRow) findViewById(R.id.settings_networkchannels_count);
-    mBlockCount = (DataRow) findViewById(R.id.settings_blockcount);
-    mFeeRate = (DataRow) findViewById(R.id.settings_feerate);
+    // mZipLocationView = (TextView) findViewById(R.id.networkinfos_zip_path);
+    mNodePublicKeyRow = (DataRow) findViewById(R.id.networkinfos_nodeid);
+    mNetworkNodesCount = (DataRow) findViewById(R.id.networkinfos_networknodes_count);
+    mNetworkChannelCount = (DataRow) findViewById(R.id.networkinfos_networkchannels_count);
+    mBlockCount = (DataRow) findViewById(R.id.networkinfos_blockcount);
+    mFeeRate = (DataRow) findViewById(R.id.networkinfos_feerate);
   }
 
   public void goToNetworkChannels(View view) {
@@ -52,11 +50,11 @@ public class SettingsActivity extends EclairActivity {
     startActivity(intent);
   }
 
-  public void settings_refreshCount(View view) {
+  public void networkinfos_refreshCount(View view) {
     mBlockCount.setValue(String.valueOf(Globals.blockCount().get()));
   }
 
-  public void settings_refreshFeerate(View view) {
+  public void networkinfos_refreshFeerate(View view) {
     mFeeRate.setValue(Globals.feeratePerKw().toString());
   }
 
