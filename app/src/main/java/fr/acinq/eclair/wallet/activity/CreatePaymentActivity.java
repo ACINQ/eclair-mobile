@@ -25,9 +25,12 @@ import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.crypto.Sphinx;
+import fr.acinq.eclair.payment.LocalFailure;
 import fr.acinq.eclair.payment.PaymentFailed;
+import fr.acinq.eclair.payment.PaymentFailure;
 import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.payment.PaymentSucceeded;
+import fr.acinq.eclair.payment.RemoteFailure;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.customviews.CoinAmountView;
 import fr.acinq.eclair.wallet.events.LNPaymentFailedEvent;
@@ -36,6 +39,7 @@ import fr.acinq.eclair.wallet.model.PaymentTypes;
 import fr.acinq.eclair.wallet.tasks.BitcoinInvoiceReaderTask;
 import fr.acinq.eclair.wallet.tasks.LNInvoiceReaderTask;
 import fr.acinq.eclair.wallet.utils.CoinUtils;
+import scala.Option;
 import scala.util.Either;
 
 public class CreatePaymentActivity extends EclairModalActivity
@@ -219,8 +223,15 @@ public class CreatePaymentActivity extends EclairModalActivity
                   } else {
                     String cause = "Unknown Error";
                     if (o instanceof PaymentFailed) {
-                      Sphinx.ErrorPacket error = ((PaymentFailed) o).error().get();
-                      cause = error != null && error.failureMessage() != null ? error.failureMessage().toString() : cause;
+                      Option<PaymentFailure> optFailure = ((PaymentFailed) o).failures().lastOption();
+                      if (optFailure.isDefined()) {
+                        PaymentFailure failure = optFailure.get();
+                        if (failure instanceof RemoteFailure) {
+                          cause = ((RemoteFailure) failure).e().failureMessage().toString();
+                        } else if (failure instanceof LocalFailure) {
+                          cause = ((LocalFailure) failure).t().getMessage();
+                        }
+                      }
                     } else if (t != null) {
                       Log.d(TAG, "Error when sending payment", t);
                       cause = t.getMessage();

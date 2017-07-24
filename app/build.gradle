@@ -46,7 +46,7 @@ dependencies {
   compile 'com.android.support.constraint:constraint-layout:1.0.2'
   compile 'com.google.code.findbugs:jsr305:3.0.1'
   compile 'org.scala-lang:scala-library:2.11.8'
-  compile 'fr.acinq.eclair:eclair-core_2.11:0.2-swordfish-b'
+  compile 'fr.acinq.eclair:eclair-core_2.11:0.2-swordfish-c'
   compile 'com.github.satyan:sugar:1.5'
   compile 'com.journeyapps:zxing-android-embedded:3.5.0'
   compile 'com.android.support:design:25.3.1'

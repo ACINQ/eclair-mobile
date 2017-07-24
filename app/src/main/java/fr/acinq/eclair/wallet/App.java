@@ -76,7 +76,7 @@ public class App extends SugarApp {
       setup.system().eventStream().subscribe(guiUpdater, PaymentEvent.class);
       setup.system().eventStream().subscribe(guiUpdater, NetworkEvent.class);
       Future<Kit> fKit = setup.bootstrap();
-      fAtCurrentHeight = setup.getBitcoinj().atCurrentHeight();
+      fAtCurrentHeight = setup.bitcoin().left().get().atCurrentHeight();
 
       wallet = Await.result(fWallet, Duration.create(20, "seconds"));
       peerGroup = Await.result(fPeerGroup, Duration.create(20, "seconds"));
