@@ -4,7 +4,9 @@ import android.annotation.SuppressLint;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -13,6 +15,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -69,11 +72,28 @@ public class HomeActivity extends EclairActivity {
   private TextView mWalletBalanceView;
   private TextView mLNBalanceView;
 
+  private View mIntroView;
+  private View mIntroWelcome;
+  private View mIntroReceive;
+  private View mIntroOpenChannel;
+  private View mIntroOpenChannelPatience;
+  private View mIntroSendPayment;
+
+  private int introStep = 0;
+
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setTheme(R.style.AppTheme);
     setContentView(R.layout.activity_home);
+
+    mIntroView = findViewById(R.id.home_intro);
+    mIntroView.setVisibility(View.GONE);
+    mIntroWelcome = findViewById(R.id.home_intro_welcome);
+    mIntroReceive = findViewById(R.id.home_intro_receive);
+    mIntroOpenChannel = findViewById(R.id.home_intro_openchannel);
+    mIntroOpenChannelPatience = findViewById(R.id.home_intro_openchannel_patience);
+    mIntroSendPayment = findViewById(R.id.home_intro_sendpayment);
 
     Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
@@ -125,6 +145,47 @@ public class HomeActivity extends EclairActivity {
       Intent intent = getIntent();
       mViewPager.setCurrentItem(intent.getIntExtra(EXTRA_PAGE, 1));
     }
+
+    (new Thread(new Runnable() {
+      @Override
+      public void run() {
+        SharedPreferences getPrefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        boolean isFirstStart = getPrefs.getBoolean("firstStart", true);
+        if (isFirstStart) {
+          runOnUiThread(new Runnable() {
+            @Override public void run() {
+              mIntroView.setVisibility(View.VISIBLE);
+              mIntroView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                  introStep++;
+                  if (introStep > 4) {
+                    mIntroView.setVisibility(View.GONE);
+                  } else {
+                    mIntroView.setVisibility(View.VISIBLE);
+                    mIntroWelcome.setVisibility(introStep == 0 ? View.VISIBLE : View.GONE);
+                    mIntroReceive.setVisibility(introStep == 1 ? View.VISIBLE : View.GONE);
+                    mIntroOpenChannel.setVisibility(introStep == 2 ? View.VISIBLE : View.GONE);
+                    mIntroOpenChannelPatience.setVisibility(introStep == 3 ? View.VISIBLE : View.GONE);
+                    mIntroSendPayment.setVisibility(introStep == 4 ? View.VISIBLE : View.GONE);
+                    if (introStep == 1) {
+                      mViewPager.setCurrentItem(0);
+                    } else if (introStep == 2 || introStep == 3) {
+                      mViewPager.setCurrentItem(2);
+                    } else {
+                      mViewPager.setCurrentItem(1);
+                    }
+                  }
+                }
+              });
+            }
+          });
+          SharedPreferences.Editor e = getPrefs.edit();
+          e.putBoolean("firstStart", false);
+          e.apply();
+        }
+      }
+    })).start();
   }
 
   @Override

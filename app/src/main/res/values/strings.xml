@@ -31,6 +31,19 @@
   <string name="localchannels_empty">No channels yet…\nTo open a new channel click on the button below.</string>
   <string name="receive_title">Your bitcoin address</string>
 
+  <!-- //////////////// home intro //////////////////// -->
+
+  <string name="home_intro_welcome">Welcome!</string>
+  <string name="home_intro_welcome_sub">Tap anywhere to continue this short tour.</string>
+  <string name="home_intro_receive">Swipe Left</string>
+  <string name="home_intro_receive_sub">To display your address and\nreceive funds.</string>
+  <string name="home_intro_openchannel">Swipe Right</string>
+  <string name="home_intro_openchannel_sub">To open a Lightning Network channel.</string>
+  <string name="home_intro_openchannel_patience">Please Be Patient.</string>
+  <string name="home_intro_openchannel_patience_sub">Opening a channel takes 2 confirmations.</string>
+  <string name="home_intro_sendpayment">Click here to send a payment</string>
+  <string name="home_intro_sendpayment_sub">Make sure to have 1 channel\nin NORMAL state</string>
+
   <!-- //////////////// open channel /////////////////// -->
 
   <string name="openchannel_capacity">Capacity (mBTC)</string>

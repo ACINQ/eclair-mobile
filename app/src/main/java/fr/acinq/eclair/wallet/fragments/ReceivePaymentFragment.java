@@ -33,12 +33,9 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
   @Override
   public void onResume() {
     super.onResume();
-    String walletAddress = ((App) getActivity().getApplication()).getWalletPublicAddress();
-    if (!walletAddress.equals(address)) {
-      address = walletAddress;
-      mAddressTextView.setText(address);
-      new QRCodeTask(this, address, 700, 700).execute();
-    }
+    address = ((App) getActivity().getApplication()).getWalletPublicAddress();
+    mAddressTextView.setText(address);
+    new QRCodeTask(this, address, 700, 700).execute();
   }
 
   @Override
