@@ -9,7 +9,7 @@
   <string name="lnpayment_name">Lightning Payment Details</string>
   <string name="btcpayment_name">Transaction Details</string>
   <string name="networkchannels_name">Channels in network</string>
-  <string name="networknodes_name">Nodes in network:</string>
+  <string name="networknodes_name">Nodes in network</string>
   <string name="channeldetails_name">Channel Details</string>
 
   <!-- //////////////// home //////////////////// -->

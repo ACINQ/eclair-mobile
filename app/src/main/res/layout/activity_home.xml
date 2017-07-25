@@ -157,53 +157,77 @@
 
   </android.support.design.widget.CoordinatorLayout>
 
-  <LinearLayout
+  <RelativeLayout
     android:id="@+id/home_send_buttons"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_alignParentBottom="true"
-    android:layout_alignParentEnd="true"
-    android:gravity="end"
-    android:orientation="vertical">
+    android:layout_alignParentEnd="true">
 
     <LinearLayout
-      android:id="@+id/home_send_buttons_toggle"
-      android:layout_width="190dp"
+      android:id="@+id/home_send_buttons_enabled"
+      android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:orientation="vertical"
-      android:visibility="gone">
+      android:layout_alignParentEnd="true"
+      android:gravity="end">
 
-      <fr.acinq.eclair.wallet.customviews.FabText
-        android:id="@+id/home_send_paste"
+      <LinearLayout
+        android:id="@+id/home_send_buttons_toggle"
+        android:layout_width="190dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <fr.acinq.eclair.wallet.customviews.FabText
+          android:id="@+id/home_send_paste"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:onClick="home_sendPaste"
+          app:icon="@mipmap/ic_paste"
+          app:label="Paste a request" />
+
+        <fr.acinq.eclair.wallet.customviews.FabText
+          android:id="@+id/home_send_scan"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:onClick="home_sendScan"
+          app:icon="@mipmap/ic_scan"
+          app:label="Scan a request" />
+
+      </LinearLayout>
+
+      <android.support.design.widget.FloatingActionButton
+        android:id="@+id/home_send_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:onClick="home_sendPaste"
-        app:icon="@mipmap/ic_paste"
-        app:label="Paste a request" />
-
-      <fr.acinq.eclair.wallet.customviews.FabText
-        android:id="@+id/home_send_scan"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:onClick="home_sendScan"
-        app:icon="@mipmap/ic_scan"
-        app:label="Scan a request" />
+        android:layout_marginBottom="@dimen/fab_margin"
+        android:layout_marginEnd="@dimen/fab_margin"
+        android:layout_marginStart="@dimen/fab_margin"
+        android:layout_marginTop="8dp"
+        android:onClick="home_toggleSendButtons"
+        android:src="@mipmap/ic_send"
+        android:visibility="gone"
+        app:backgroundTint="@color/colorPrimary"
+        app:fabSize="normal" />
 
     </LinearLayout>
 
     <android.support.design.widget.FloatingActionButton
-      android:id="@+id/home_send_button"
+      android:id="@+id/home_send_button_disabled"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
+      android:layout_alignParentEnd="true"
       android:layout_marginBottom="@dimen/fab_margin"
       android:layout_marginEnd="@dimen/fab_margin"
-      android:layout_marginStart="16dp"
+      android:layout_marginStart="@dimen/fab_margin"
       android:layout_marginTop="8dp"
-      android:onClick="home_toggleSendButtons"
-      android:src="@mipmap/ic_send"
-      app:backgroundTint="@color/colorPrimary"
+      android:clickable="true"
+      android:src="@mipmap/ic_send_disabled"
+      app:backgroundTint="@color/colorGrey_0"
       app:fabSize="normal" />
-  </LinearLayout>
+
+  </RelativeLayout>
 
   <LinearLayout
     android:id="@+id/home_openchannel_buttons"
@@ -257,7 +281,7 @@
       android:layout_height="wrap_content"
       android:layout_marginBottom="@dimen/fab_margin"
       android:layout_marginEnd="@dimen/fab_margin"
-      android:layout_marginStart="16dp"
+      android:layout_marginStart="@dimen/fab_margin"
       android:layout_marginTop="8dp"
       android:onClick="home_toggleOpenChannelButtons"
       android:src="@mipmap/ic_plus"

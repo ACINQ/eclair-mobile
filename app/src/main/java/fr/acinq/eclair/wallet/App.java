@@ -44,6 +44,7 @@ import fr.acinq.eclair.wallet.events.WalletBalanceUpdateEvent;
 import scala.Option;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
+import scala.concurrent.Promise;
 import scala.concurrent.duration.Duration;
 
 public class App extends SugarApp {
@@ -56,7 +57,7 @@ public class App extends SugarApp {
   private Wallet wallet;
   private Kit eclairKit;
 
-  private Future<Object> fAtCurrentHeight;
+  private Promise<Object> pAtCurrentHeight = akka.dispatch.Futures.promise();
 
   @Override
   public void onCreate() {
@@ -76,7 +77,7 @@ public class App extends SugarApp {
       setup.system().eventStream().subscribe(guiUpdater, PaymentEvent.class);
       setup.system().eventStream().subscribe(guiUpdater, NetworkEvent.class);
       Future<Kit> fKit = setup.bootstrap();
-      fAtCurrentHeight = setup.bitcoin().left().get().atCurrentHeight();
+      pAtCurrentHeight.completeWith(setup.bitcoin().left().get().atCurrentHeight());
 
       wallet = Await.result(fWallet, Duration.create(20, "seconds"));
       peerGroup = Await.result(fPeerGroup, Duration.create(20, "seconds"));
@@ -89,8 +90,8 @@ public class App extends SugarApp {
     super.onCreate();
   }
 
-  public boolean atCurrentBlockHeight() {
-    return fAtCurrentHeight.isCompleted();
+  public Future<Object> fAtCurrentBlockHeight() {
+    return pAtCurrentHeight.future();
   }
 
   public void publishWalletBalance() {

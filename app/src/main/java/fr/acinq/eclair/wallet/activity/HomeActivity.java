@@ -15,7 +15,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -31,6 +30,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.util.ArrayList;
 import java.util.List;
 
+import akka.dispatch.OnComplete;
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.wallet.EclairEventService;
@@ -49,6 +49,7 @@ import fr.acinq.eclair.wallet.fragments.PaymentsListFragment;
 import fr.acinq.eclair.wallet.fragments.ReceivePaymentFragment;
 import fr.acinq.eclair.wallet.utils.CoinUtils;
 import fr.acinq.eclair.wallet.utils.Validators;
+import scala.concurrent.ExecutionContext;
 
 public class HomeActivity extends EclairActivity {
 
@@ -63,6 +64,7 @@ public class HomeActivity extends EclairActivity {
   private ViewGroup mSendButtonsView;
   private ViewGroup mSendButtonsToggleView;
   private FloatingActionButton mSendButton;
+  private FloatingActionButton mDisabledSendButton;
 
   private ViewGroup mOpenChannelsButtonsView;
   private ViewGroup mOpenChannelButtonsToggleView;
@@ -108,6 +110,7 @@ public class HomeActivity extends EclairActivity {
     mSendButtonsView = (ViewGroup) findViewById(R.id.home_send_buttons);
     mSendButtonsToggleView = (ViewGroup) findViewById(R.id.home_send_buttons_toggle);
     mSendButton = (FloatingActionButton) findViewById(R.id.home_send_button);
+    mDisabledSendButton = (FloatingActionButton) findViewById(R.id.home_send_button_disabled);
 
     mOpenChannelsButtonsView = (ViewGroup) findViewById(R.id.home_openchannel_buttons);
     mOpenChannelButtonsToggleView = (ViewGroup) findViewById(R.id.home_openchannel_buttons_toggle);
@@ -153,7 +156,8 @@ public class HomeActivity extends EclairActivity {
         boolean isFirstStart = getPrefs.getBoolean("firstStart", true);
         if (isFirstStart) {
           runOnUiThread(new Runnable() {
-            @Override public void run() {
+            @Override
+            public void run() {
               mIntroView.setVisibility(View.VISIBLE);
               mIntroView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -186,6 +190,22 @@ public class HomeActivity extends EclairActivity {
         }
       }
     })).start();
+
+    app.fAtCurrentBlockHeight().onComplete(new OnComplete<Object>() {
+      @Override
+      public void onComplete(Throwable throwable, Object o) throws Throwable {
+        runOnUiThread(new Runnable() {
+          @Override
+          public void run() {
+            if (!app.fAtCurrentBlockHeight().isCompleted()) {
+              disableSendButton();
+            } else {
+              enableSendButton();
+            }
+          }
+        });
+      }
+    }, ExecutionContext.Implicits$.MODULE$.global());
   }
 
   @Override
@@ -194,6 +214,11 @@ public class HomeActivity extends EclairActivity {
       EventBus.getDefault().register(this);
     }
     super.onResume();
+    if (!app.fAtCurrentBlockHeight().isCompleted()) {
+      disableSendButton();
+    } else {
+      enableSendButton();
+    }
     app.publishWalletBalance();
     EclairEventService.postLNBalanceEvent();
   }
@@ -258,34 +283,32 @@ public class HomeActivity extends EclairActivity {
   }
 
   public void home_sendPaste(View view) {
-    if (app.atCurrentBlockHeight()) {
-      Intent intent = new Intent(this, CreatePaymentActivity.class);
-      intent.putExtra(CreatePaymentActivity.EXTRA_INVOICE, readFromClipboard());
-      startActivity(intent);
-    } else {
-      Toast.makeText(this, R.string.home_toast_noconnection, Toast.LENGTH_SHORT).show();
-    }
+    Intent intent = new Intent(this, CreatePaymentActivity.class);
+    intent.putExtra(CreatePaymentActivity.EXTRA_INVOICE, readFromClipboard());
+    startActivity(intent);
   }
 
   public void home_sendScan(View view) {
-    if (app.atCurrentBlockHeight()) {
-      Intent intent = new Intent(this, ScanActivity.class);
-      intent.putExtra(ScanActivity.EXTRA_SCAN_TYPE, ScanActivity.TYPE_INVOICE);
-      startActivity(intent);
-    } else {
-      Toast.makeText(this, R.string.home_toast_noconnection, Toast.LENGTH_SHORT).show();
-    }
+    Intent intent = new Intent(this, ScanActivity.class);
+    intent.putExtra(ScanActivity.EXTRA_SCAN_TYPE, ScanActivity.TYPE_INVOICE);
+    startActivity(intent);
   }
 
   public void home_toggleSendButtons(View view) {
-    if (app.atCurrentBlockHeight()) {
-      boolean isVisible = mSendButtonsToggleView.getVisibility() == View.VISIBLE;
-      mSendButton.animate().rotation(isVisible ? 0 : -90).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(150).start();
-      mSendButton.setBackgroundTintList(ContextCompat.getColorStateList(this, isVisible ? R.color.colorPrimary : R.color.colorGrey_4));
-      mSendButtonsToggleView.setVisibility(isVisible ? View.GONE : View.VISIBLE);
-    } else {
-      Toast.makeText(this, R.string.home_toast_noconnection, Toast.LENGTH_SHORT).show();
-    }
+    boolean isVisible = mSendButtonsToggleView.getVisibility() == View.VISIBLE;
+    mSendButton.animate().rotation(isVisible ? 0 : -90).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(150).start();
+    mSendButton.setBackgroundTintList(ContextCompat.getColorStateList(this, isVisible ? R.color.colorPrimary : R.color.colorGrey_4));
+    mSendButtonsToggleView.setVisibility(isVisible ? View.GONE : View.VISIBLE);
+  }
+
+  private void enableSendButton() {
+    mDisabledSendButton.setVisibility(View.GONE);
+    mSendButton.setVisibility(View.VISIBLE);
+  }
+
+  private void disableSendButton() {
+    mDisabledSendButton.setVisibility(View.VISIBLE);
+    mSendButton.setVisibility(View.GONE);
   }
 
   public void home_closeSendButtons() {
