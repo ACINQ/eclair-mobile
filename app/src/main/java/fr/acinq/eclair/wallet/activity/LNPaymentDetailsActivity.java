@@ -42,20 +42,7 @@ public class LNPaymentDetailsActivity extends EclairActivity {
 
       // amount
       final DataRow amountPaidRow = (DataRow) findViewById(R.id.paymentdetails_amount_paid);
-      amountPaidRow.setClickable(true);
-      amountPaidRow.setOnClickListener(new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-          if ("mbtc".equals(paidFormat)) {
-            amountPaidRow.setValue(CoinUtils.formatAmountBtc(new MilliSatoshi(p.amountPaidMsat)) + " BTC");
-            paidFormat = "btc";
-          } else {
-            amountPaidRow.setValue(CoinUtils.formatAmountMilliBtc(new MilliSatoshi(p.amountPaidMsat)) + " mBTC");
-            paidFormat = "mbtc";
-          }
-        }
-      });
-      amountPaidRow.setValue(CoinUtils.formatAmountMilliBtc(new MilliSatoshi(p.amountPaidMsat)) + " mBTC");
+      amountPaidRow.setValue(CoinUtils.formatAmountMilliBtc(new MilliSatoshi(p.amountPaidMsat)));
 
       DataRow feesRow = (DataRow) findViewById(R.id.paymentdetails_fees);
       feesRow.setValue(Long.toString(p.feesPaidMsat));

@@ -129,9 +129,9 @@
 
   <string name="paymentdetails_technicals_title">TECHNICAL INFORMATION</string>
   <string name="paymentdetails_amount_paid_label">Amount</string>
-  <string name="paymentdetails_amount_paid_desc">Amount paid</string>
+  <string name="paymentdetails_amount_paid_desc">Amount paid (mBTC)</string>
   <string name="paymentdetails_fees_label">Fees</string>
-  <string name="paymentdetails_fees_desc">Routing fees (satoshi)</string>
+  <string name="paymentdetails_fees_desc">Routing fees (milliSatoshi)</string>
   <string name="paymentdetails_status_label">Status</string>
   <string name="paymentdetails_status_desc">PAID/PENDING/FAILED.</string>
   <string name="paymentdetails_desc_label">Description</string>
