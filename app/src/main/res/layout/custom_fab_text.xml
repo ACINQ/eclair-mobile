@@ -18,7 +18,7 @@
     android:layout_height="wrap_content"
     android:layout_alignBottom="@+id/fabtext_button"
     android:layout_alignTop="@+id/fabtext_button"
-    android:layout_marginEnd="-4dp"
+    android:layout_marginEnd="-8dp"
     android:layout_toStartOf="@+id/fabtext_button"
     android:gravity="center">
 
@@ -26,9 +26,11 @@
       android:id="@+id/fabtext_label"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
+      android:elevation="1dp"
       android:background="@color/colorPrimaryDark_2"
       android:ellipsize="end"
       android:maxLines="1"
+      android:layout_margin="4dp"
       android:paddingBottom="3dp"
       android:paddingStart="6dp"
       android:paddingEnd="8dp"
