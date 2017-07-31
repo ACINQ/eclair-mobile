@@ -174,7 +174,7 @@
     \n\n
     "This software is compliant with the BOLT specifications (Lightning Network standard)."
   </string>
-  <string name="about_general_version">version: 0.1.3</string>
+  <string name="about_general_version">version: 0.1.4</string>
   <string name="about_limitations_title">Software Limitations</string>
   <string name="about_limitations_text">
     "This wallet is experimental, bugs and crashes should be expected."
