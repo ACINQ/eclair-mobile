@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:orientation="vertical"
+  tools:context="fr.acinq.eclair.wallet.activities.NetworkInfosActivity">
+
+  <include layout="@layout/toolbar" />
+
+  <ScrollView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:orientation="vertical">
+
+      <fr.acinq.eclair.wallet.customviews.TitleBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/networkinfos_title_bitcoin" />
+
+      <fr.acinq.eclair.wallet.customviews.DataRow
+        android:id="@+id/networkinfos_blockcount"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:onClick="networkinfos_refreshCount"
+        app:desc="@string/networkinfos_blockcount_desc"
+        app:label="@string/networkinfos_blockcount_label"
+        app:value="@string/unknown" />
+
+      <include layout="@layout/include_separator" />
+
+      <fr.acinq.eclair.wallet.customviews.DataRow
+        android:id="@+id/networkinfos_feerate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:onClick="networkinfos_refreshFeerate"
+        app:desc="@string/networkinfos_feerate_desc"
+        app:label="@string/networkinfos_feerate_label"
+        app:value="@string/unknown" />
+
+      <fr.acinq.eclair.wallet.customviews.TitleBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/networkinfos_title_lightning" />
+
+      <fr.acinq.eclair.wallet.customviews.DataRow
+        android:id="@+id/networkinfos_nodeid"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:desc="@string/networkinfos_nodeid_desc"
+        app:label="@string/networkinfos_nodeid_label"
+        app:value="@string/unknown" />
+
+      <include layout="@layout/include_separator" />
+
+      <fr.acinq.eclair.wallet.customviews.DataRow
+        android:id="@+id/networkinfos_networkchannels_count"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:onClick="goToNetworkChannels"
+        app:desc="@string/networkinfos_networkchannels_desc"
+        app:label="@string/networkinfos_networkchannels_label"
+        app:value="@string/unknown" />
+
+      <include layout="@layout/include_separator" />
+
+      <fr.acinq.eclair.wallet.customviews.DataRow
+        android:id="@+id/networkinfos_networknodes_count"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:onClick="goToNetworkNodes"
+        app:desc="@string/networkinfos_networknodes_desc"
+        app:label="@string/networkinfos_networknodes_label"
+        app:value="@string/unknown" />
+
+      <include layout="@layout/include_separator" />
+
+    </LinearLayout>
+
+  </ScrollView>
+
+</LinearLayout>

@@ -1,0 +1,45 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  android:layout_width="wrap_content"
+  android:layout_height="wrap_content">
+
+  <android.support.design.widget.FloatingActionButton
+    android:id="@+id/fabtext_button"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_alignParentEnd="true"
+    android:layout_marginBottom="8dp"
+    android:layout_marginEnd="@dimen/fab_margin"
+    app:backgroundTint="@color/colorPrimary"
+    app:fabSize="mini" />
+
+  <LinearLayout
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_alignBottom="@+id/fabtext_button"
+    android:layout_alignTop="@+id/fabtext_button"
+    android:layout_marginEnd="-8dp"
+    android:layout_toStartOf="@+id/fabtext_button"
+    android:gravity="center">
+
+    <TextView
+      android:id="@+id/fabtext_label"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:elevation="1dp"
+      android:background="@color/colorPrimaryDark_2"
+      android:ellipsize="end"
+      android:maxLines="1"
+      android:layout_margin="4dp"
+      android:paddingBottom="3dp"
+      android:paddingStart="6dp"
+      android:paddingEnd="8dp"
+      android:paddingTop="3dp"
+      android:text="@string/unknown"
+      android:textAllCaps="true"
+      android:textColor="@color/white"
+      android:textSize="12sp" />
+  </LinearLayout>
+
+
+</RelativeLayout>

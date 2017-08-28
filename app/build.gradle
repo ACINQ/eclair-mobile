@@ -1,0 +1,73 @@
+apply plugin: 'com.android.application'
+apply plugin: 'org.greenrobot.greendao'
+
+android {
+  compileSdkVersion 25
+  buildToolsVersion "25.0.3"
+  defaultConfig {
+    applicationId "fr.acinq.eclair.wallet"
+    minSdkVersion 21
+    targetSdkVersion 25
+    versionCode 6
+    versionName "0.1.4-fix"
+    testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    multiDexEnabled true
+  }
+  buildTypes {
+    release {
+      debuggable false
+      minifyEnabled false
+      proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+    }
+    debug {
+      debuggable true
+    }
+  }
+  configurations.all {
+    resolutionStrategy.force 'com.google.code.findbugs:jsr305:3.0.1'
+  }
+  packagingOptions {
+    exclude 'META-INF/LICENSE*'
+    exclude 'META-INF/NOTICE.txt'
+  }
+}
+
+greendao {
+  // increment when changing DB structure
+  schemaVersion 3
+}
+
+dependencies {
+  compile fileTree(include: ['*.jar'], dir: 'libs')
+  androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+    exclude group: 'com.android.support', module: 'support-annotations'
+  })
+  compile 'com.android.support:design:25.3.1'
+  compile 'com.android.support:appcompat-v7:25.3.1'
+  compile 'com.android.support.constraint:constraint-layout:1.0.2'
+  compile 'com.google.code.findbugs:jsr305:3.0.1'
+
+  // logging
+  compile 'org.slf4j:slf4j-api:1.7.25'
+  compile 'com.github.tony19:logback-android-core:1.1.1-6'
+  compile('com.github.tony19:logback-android-classic:1.1.1-6') {
+    // workaround issue #73
+    exclude group: 'com.google.android', module: 'android'
+  }
+
+  // eclair core
+  compile 'org.scala-lang:scala-library:2.11.8'
+  compile 'fr.acinq.eclair:eclair-core_2.11:0.2-android-SNAPSHOT'
+
+  // database orm
+  compile 'org.greenrobot:greendao:3.2.2'
+  // required for greendao encryption
+  compile 'net.zetetic:android-database-sqlcipher:3.5.6'
+
+  // qr codes
+  compile 'com.journeyapps:zxing-android-embedded:3.5.0'
+
+  // events
+  compile 'org.greenrobot:eventbus:3.0.0'
+  testCompile 'junit:junit:4.12'
+}

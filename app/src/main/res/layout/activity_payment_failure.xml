@@ -1,0 +1,65 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:background="@color/redFaded"
+  android:clickable="true"
+  android:onClick="failure_dismiss"
+  android:padding="64dp"
+  tools:context="fr.acinq.eclair.wallet.activities.PaymentFailureActivity">
+
+  <RelativeLayout
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_centerInParent="true">
+
+    <ImageView
+      android:id="@+id/paymentfailure_sad"
+      android:layout_width="74dp"
+      android:layout_height="74dp"
+      android:layout_margin="10dp"
+      android:layout_centerHorizontal="true"
+      android:background="@drawable/icon_sad_white" />
+
+    <TextView
+      android:id="@+id/paymentfailure_title"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_below="@+id/paymentfailure_sad"
+      android:layout_centerHorizontal="true"
+      android:layout_marginTop="32dp"
+      android:text="@string/paymentfailure_title"
+      android:textAllCaps="true"
+      android:textColor="@color/white"
+      android:textSize="18sp"
+      android:textStyle="bold" />
+
+    <TextView
+      android:id="@+id/paymentfailure_cause"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_below="@+id/paymentfailure_title"
+      android:layout_centerHorizontal="true"
+      android:layout_marginTop="6dp"
+      android:text="@string/paymentfailure_cause"
+      android:textAlignment="center"
+      android:textColor="@color/white" />
+
+    <TextView
+      android:id="@+id/paymentfailure_desc"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_below="@+id/paymentfailure_cause"
+      android:layout_centerHorizontal="true"
+      android:layout_marginTop="8dp"
+      android:alpha="0.6"
+      android:ellipsize="end"
+      android:maxLines="3"
+      android:text="@string/unknown"
+      android:textAlignment="center"
+      android:textColor="@color/white"
+      android:textSize="12sp" />
+
+  </RelativeLayout>
+
+</RelativeLayout>

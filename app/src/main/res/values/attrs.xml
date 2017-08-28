@@ -1,0 +1,26 @@
+<resources>
+  <attr name="label" format="string" />
+  <declare-styleable name="CoinAmountView">
+    <attr name="alignment" format="enum">
+      <enum name="left" value="0" />
+      <enum name="center" value="1" />
+      <enum name="right" value="2" />
+    </attr>
+    <attr name="amount_size" format="dimension" />
+    <attr name="amount_color" format="color" />
+    <attr name="unit" format="string" />
+    <attr name="unit_size" format="dimension" />
+    <attr name="unit_color" format="color" />
+  </declare-styleable>
+  <declare-styleable name="DataRow">
+    <attr name="label" />
+    <attr name="desc" format="string" />
+    <attr name="value" format="string" />
+  </declare-styleable>
+  <declare-styleable name="FabText">
+    <attr name="label" />
+    <attr name="icon" format="reference" />
+    <attr name="bgcolor" format="color" />
+  </declare-styleable>
+
+</resources>

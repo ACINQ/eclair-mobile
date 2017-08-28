@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  tools:context=".activities.HomeActivity">
+
+  <ViewStub
+    android:id="@+id/home_stub_breaking"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout="@layout/include_home_breaking" />
+
+  <ViewStub
+    android:id="@+id/home_stub_disclaimer"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout="@layout/include_home_disclaimer" />
+
+  <ViewStub
+    android:id="@+id/home_stub_backup"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout="@layout/include_home_backup" />
+
+  <ViewStub
+    android:id="@+id/home_stub_intro"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout="@layout/include_home_intro" />
+
+  <android.support.design.widget.CoordinatorLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <android.support.design.widget.AppBarLayout
+      android:id="@+id/home_appbar"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:background="@color/colorPrimary">
+
+      <android.support.design.widget.CollapsingToolbarLayout
+        android:id="@+id/home_collapsingTB"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent">
+
+        <LinearLayout
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:orientation="horizontal"
+          app:layout_collapseMode="pin">
+
+          <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1">
+
+            <TextView
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_centerVertical="true"
+              android:layout_marginStart="16dp"
+              android:background="@drawable/rounded_corner_green"
+              android:elevation="2dp"
+              android:paddingBottom="3dp"
+              android:paddingLeft="5dp"
+              android:paddingRight="5dp"
+              android:paddingTop="3dp"
+              android:text="@string/chain_test"
+              android:textColor="@color/white"
+              android:textSize="10sp"
+              android:textStyle="bold" />
+
+          </RelativeLayout>
+
+          <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="0">
+
+            <LinearLayout
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_centerVertical="true"
+              android:paddingLeft="16dp">
+
+              <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent" />
+
+            </LinearLayout>
+          </RelativeLayout>
+
+        </LinearLayout>
+
+      </android.support.design.widget.CollapsingToolbarLayout>
+
+      <RelativeLayout
+        android:id="@+id/home_balance"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingBottom="18dp"
+        android:paddingLeft="24dp"
+        android:paddingRight="24dp"
+        android:paddingTop="0dp">
+
+        <fr.acinq.eclair.wallet.customviews.CoinAmountView
+          android:id="@+id/home_balance_total"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_alignParentTop="true"
+          app:alignment="center"
+          app:amount_color="@color/white"
+          app:amount_size="42sp"
+          app:unit="mBTC"
+          app:unit_color="@color/white"
+          app:unit_size="12sp" />
+
+        <RelativeLayout
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_below="@+id/home_balance_total"
+          android:layout_centerHorizontal="true"
+          android:layout_marginTop="4dp"
+          android:alpha="0.75">
+
+          <ImageView
+            android:id="@+id/home_balance_wallet_label"
+            android:layout_width="12dp"
+            android:layout_height="12dp"
+            android:src="@drawable/icon_btc_shape_white" />
+
+          <TextView
+            android:id="@+id/home_balance_wallet_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_toEndOf="@+id/home_balance_wallet_label"
+            android:textColor="@color/white"
+            android:textSize="10sp"
+            android:textStyle="bold" />
+
+          <ImageView
+            android:id="@+id/home_balance_ln_label"
+            android:layout_width="12dp"
+            android:layout_height="12dp"
+            android:layout_alignEnd="@+id/home_balance_wallet_label"
+            android:layout_below="@+id/home_balance_wallet_label"
+            android:layout_marginTop="4dp"
+            android:src="@drawable/icon_bolt_shape_white" />
+
+          <TextView
+            android:id="@+id/home_balance_ln_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/home_balance_ln_label"
+            android:layout_marginStart="4dp"
+            android:layout_toEndOf="@+id/home_balance_ln_label"
+            android:text="0 mBTC"
+            android:textColor="@color/white"
+            android:textSize="10sp"
+            android:textStyle="bold" />
+        </RelativeLayout>
+
+      </RelativeLayout>
+
+    </android.support.design.widget.AppBarLayout>
+
+    <android.support.v4.view.ViewPager
+      android:id="@+id/home_viewpager"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
+  </android.support.design.widget.CoordinatorLayout>
+
+  <RelativeLayout
+    android:id="@+id/home_send_buttons"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_alignParentBottom="true"
+    android:layout_alignParentEnd="true">
+
+    <LinearLayout
+      android:id="@+id/home_send_buttons_enabled"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_alignParentEnd="true"
+      android:gravity="end"
+      android:orientation="vertical">
+
+      <LinearLayout
+        android:id="@+id/home_send_buttons_toggle"
+        android:layout_width="190dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <fr.acinq.eclair.wallet.customviews.FabText
+          android:id="@+id/home_send_paste"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:onClick="home_sendPaste"
+          app:icon="@mipmap/ic_paste"
+          app:label="Paste a request" />
+
+        <fr.acinq.eclair.wallet.customviews.FabText
+          android:id="@+id/home_send_scan"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:onClick="home_sendScan"
+          app:icon="@mipmap/ic_scan"
+          app:label="Scan a request" />
+
+      </LinearLayout>
+
+      <android.support.design.widget.FloatingActionButton
+        android:id="@+id/home_send_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/fab_margin"
+        android:layout_marginEnd="@dimen/fab_margin"
+        android:layout_marginStart="@dimen/fab_margin"
+        android:layout_marginTop="8dp"
+        android:onClick="home_toggleSendButtons"
+        android:src="@mipmap/ic_send"
+        android:visibility="gone"
+        app:backgroundTint="@color/colorPrimary"
+        app:fabSize="normal" />
+
+    </LinearLayout>
+
+    <android.support.design.widget.FloatingActionButton
+      android:id="@+id/home_send_button_disabled"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_alignParentEnd="true"
+      android:layout_marginBottom="@dimen/fab_margin"
+      android:layout_marginEnd="@dimen/fab_margin"
+      android:layout_marginStart="@dimen/fab_margin"
+      android:layout_marginTop="8dp"
+      android:clickable="true"
+      android:src="@mipmap/ic_send_disabled"
+      app:backgroundTint="@color/colorGrey_0"
+      app:fabSize="normal" />
+
+  </RelativeLayout>
+
+  <LinearLayout
+    android:id="@+id/home_openchannel_buttons"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_alignParentBottom="true"
+    android:layout_alignParentEnd="true"
+    android:gravity="end"
+    android:orientation="vertical"
+    android:visibility="gone">
+
+    <LinearLayout
+      android:id="@+id/home_openchannel_buttons_toggle"
+      android:layout_width="190dp"
+      android:layout_height="wrap_content"
+      android:orientation="vertical"
+      android:visibility="gone">
+
+      <fr.acinq.eclair.wallet.customviews.FabText
+        android:id="@+id/home_openchannel_paste"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="home_doPasteURI"
+        app:bgcolor="@color/green"
+        app:icon="@mipmap/ic_paste"
+        app:label="Paste an address" />
+
+      <fr.acinq.eclair.wallet.customviews.FabText
+        android:id="@+id/home_openchannel_scan"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="home_doScanURI"
+        app:bgcolor="@color/green"
+        app:icon="@mipmap/ic_scan"
+        app:label="Scan an address" />
+
+      <fr.acinq.eclair.wallet.customviews.FabText
+        android:id="@+id/home_openchannel_random"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="home_doRandomChannel"
+        app:bgcolor="@color/green"
+        app:icon="@drawable/icon_random_white"
+        app:label="Autoconnect" />
+
+    </LinearLayout>
+
+    <android.support.design.widget.FloatingActionButton
+      android:id="@+id/home_openchannel_button"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginBottom="@dimen/fab_margin"
+      android:layout_marginEnd="@dimen/fab_margin"
+      android:layout_marginStart="@dimen/fab_margin"
+      android:layout_marginTop="8dp"
+      android:onClick="home_toggleOpenChannelButtons"
+      android:src="@mipmap/ic_plus"
+      app:backgroundTint="@color/green"
+      app:fabSize="normal" />
+  </LinearLayout>
+
+</RelativeLayout>

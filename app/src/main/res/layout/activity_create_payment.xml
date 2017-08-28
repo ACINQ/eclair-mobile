@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent">
+
+  <TextView
+    android:id="@+id/payment_loading"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_centerInParent="true"
+    android:layout_margin="16dp"
+    android:elevation="4dp"
+    android:padding="16dp"
+    android:text="@string/payment_loading_pleasewait"
+    android:textAlignment="center"
+    android:textColor="@color/colorGrey_2" />
+
+  <LinearLayout
+    android:id="@+id/payment_form"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_centerInParent="true"
+    android:orientation="vertical"
+    android:visibility="gone">
+
+    <LinearLayout
+      android:id="@+id/payment_amount_editable"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:background="@color/colorGrey_0"
+      android:gravity="center"
+      android:orientation="vertical"
+      android:paddingBottom="24dp"
+      android:paddingLeft="16dp"
+      android:paddingRight="16dp"
+      android:paddingTop="32dp"
+      android:visibility="gone">
+
+      <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="6dp"
+        android:text="@string/payment_amount_to_send_editable"
+        android:textAlignment="center"
+        android:textColor="@color/colorGrey_1"
+        android:textSize="12sp" />
+
+      <EditText
+        android:id="@+id/payment_amount_editable_value"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@android:color/transparent"
+        android:inputType="numberDecimal"
+        android:maxLines="1"
+        android:textAlignment="center"
+        android:textColor="@color/colorGrey_4"
+        android:textSize="22sp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+      android:id="@+id/payment_amount_readonly"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:background="@color/colorGrey_0"
+      android:orientation="vertical"
+      android:paddingBottom="24dp"
+      android:paddingLeft="16dp"
+      android:paddingRight="16dp"
+      android:paddingTop="32dp"
+      android:visibility="gone">
+
+      <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="6dp"
+        android:text="@string/payment_amount_to_send_readonly"
+        android:textAlignment="center"
+        android:textColor="@color/colorGrey_1"
+        android:textSize="12sp" />
+
+      <fr.acinq.eclair.wallet.customviews.CoinAmountView
+        android:id="@+id/payment_value_amount"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:alignment="center"
+        app:amount_color="@color/colorGrey_4"
+        app:amount_size="48sp"
+        app:unit="mBTC"
+        app:unit_color="@color/colorGrey_4"
+        app:unit_size="12sp" />
+
+    </LinearLayout>
+
+    <View
+      android:layout_width="match_parent"
+      android:layout_height="1dp"
+      android:background="@color/colorGrey_0p" />
+
+    <LinearLayout
+      android:id="@+id/payment_fees"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:background="@color/white"
+      android:orientation="vertical"
+      android:visibility="gone">
+
+      <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="12dp">
+
+        <TextView
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_marginEnd="8dp"
+          android:layout_weight="1"
+          android:text="@string/payment_fees"
+          android:textAlignment="viewEnd"
+          android:textSize="12sp"
+          android:textStyle="bold" />
+
+        <EditText
+          android:id="@+id/payment_fees_value"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_weight="1"
+          android:background="@android:color/transparent"
+          android:inputType="numberDecimal"
+          android:maxLines="1"
+          android:textSize="12sp" />
+
+      </LinearLayout>
+
+      <include layout="@layout/include_separator" />
+
+    </LinearLayout>
+
+    <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:background="@color/white"
+      android:orientation="vertical"
+      android:padding="12dp">
+
+      <TextView
+        android:id="@+id/paymentitem_description_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textStyle="bold" />
+
+      <TextView
+        android:id="@+id/payment_description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:maxLines="2"
+        android:textIsSelectable="true"
+        android:textSize="12sp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+      android:id="@+id/payment_error"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:orientation="vertical"
+      android:visibility="gone">
+
+      <include layout="@layout/include_separator" />
+
+      <TextView
+        android:id="@+id/payment_error_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:elevation="4dp"
+        android:padding="8dp"
+        android:text="@string/payment_error"
+        android:textAlignment="center"
+        android:textColor="@color/redFaded"
+        android:textSize="12sp" />
+
+    </LinearLayout>
+
+    <include layout="@layout/include_separator" />
+
+    <LinearLayout
+      android:id="@+id/payment_layout_buttons"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:gravity="center"
+      android:orientation="horizontal">
+
+      <Button
+        android:id="@+id/payment_btn_cancel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:background="@android:color/transparent"
+        android:onClick="cancelPayment"
+        android:padding="16dp"
+        android:text="@string/btn_cancel"
+        android:textColor="@color/colorGrey_1" />
+
+      <include layout="@layout/include_separator_vertical" />
+
+      <Button
+        android:id="@+id/payment_btn_send"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:background="@android:color/transparent"
+        android:onClick="sendPayment"
+        android:text="@string/payment_do_send"
+        android:textColor="@color/green" />
+    </LinearLayout>
+  </LinearLayout>
+</RelativeLayout>

@@ -1,0 +1,65 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:background="@color/green"
+  android:clickable="true"
+  android:onClick="success_dismiss"
+  android:padding="64dp"
+  tools:context="fr.acinq.eclair.wallet.activities.PaymentSuccessActivity">
+
+  <RelativeLayout
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_centerInParent="true">
+
+    <ImageView
+      android:id="@+id/paymentsuccess_circle"
+      android:layout_width="128dp"
+      android:layout_height="128dp"
+      android:layout_centerHorizontal="true"
+      android:layout_margin="10dp"
+      android:background="@drawable/icon_circle_white"
+      android:clickable="true"
+      android:onClick="success_tap" />
+
+    <ImageView
+      android:id="@+id/paymentsuccess_check"
+      android:layout_width="128dp"
+      android:layout_height="128dp"
+      android:layout_centerHorizontal="true"
+      android:layout_margin="10dp"
+      android:background="@drawable/icon_check_nocircle_white"
+      android:onClick="success_tap" />
+
+    <TextView
+      android:id="@+id/paymentsuccess_title"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_below="@+id/paymentsuccess_circle"
+      android:layout_centerHorizontal="true"
+      android:layout_marginTop="16dp"
+      android:text="@string/paymentsuccess_title"
+      android:textAlignment="center"
+      android:textAllCaps="true"
+      android:textColor="@color/white"
+      android:textSize="18sp"
+      android:textStyle="bold" />
+
+    <TextView
+      android:id="@+id/paymentsuccess_desc"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_below="@+id/paymentsuccess_title"
+      android:layout_centerHorizontal="true"
+      android:layout_marginTop="8dp"
+      android:alpha="0.8"
+      android:ellipsize="end"
+      android:maxLines="3"
+      android:text="@string/unknown"
+      android:textAlignment="center"
+      android:textColor="@color/white"
+      android:textSize="12sp" />
+
+  </RelativeLayout>
+</RelativeLayout>

@@ -1,0 +1,14 @@
+<resources>
+
+  <!-- app padding -->
+  <dimen name="app_padding">10dp</dimen>
+  <dimen name="app_bar_height">180dp</dimen>
+  <dimen name="fab_margin">16dp</dimen>
+  <dimen name="text_margin">16dp</dimen>
+
+  <dimen name="item_height">44dp</dimen>
+
+  <dimen name="title_bar_padding_sm">8dp</dimen>
+  <dimen name="title_bar_padding_lg">16dp</dimen>
+  <dimen name="title_bar_text_size">10sp</dimen>
+</resources>

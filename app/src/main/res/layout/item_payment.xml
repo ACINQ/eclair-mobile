@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="match_parent"
+  android:layout_height="@dimen/item_height"
+  android:background="?android:attr/selectableItemBackground">
+
+  <ImageView
+    android:id="@+id/paymentitem_image"
+    android:layout_width="22dp"
+    android:layout_height="22dp"
+    android:layout_alignParentStart="true"
+    android:layout_centerVertical="true"
+    android:layout_gravity="center"
+    android:layout_marginEnd="8dp"
+    android:layout_marginStart="8dp" />
+
+  <RelativeLayout
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_centerVertical="true"
+    android:layout_marginEnd="8dp"
+    android:layout_toEndOf="@+id/paymentitem_image"
+    android:layout_toStartOf="@+id/paymentitem_amount"
+    android:orientation="vertical">
+
+    <TextView
+      android:id="@+id/paymentitem_description"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:ellipsize="end"
+      android:maxLines="1"
+      android:text="@string/unknown"
+      android:textSize="12sp" />
+
+    <TextView
+      android:id="@+id/paymentitem_status"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_below="@+id/paymentitem_description"
+      android:layout_marginEnd="4dp"
+      android:text="@string/unknown"
+      android:textColor="@color/colorPrimary"
+      android:textSize="10sp" />
+
+    <TextView
+      android:id="@+id/paymentitem_date"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_below="@+id/paymentitem_description"
+      android:layout_toEndOf="@+id/paymentitem_status"
+      android:text="@string/unknown"
+      android:textColor="@color/colorGrey_1"
+      android:textSize="10sp" />
+
+  </RelativeLayout>
+
+  <RelativeLayout
+    android:id="@+id/paymentitem_amount"
+    android:layout_width="104dp"
+    android:layout_height="wrap_content"
+    android:layout_alignParentEnd="true"
+    android:layout_centerVertical="true"
+    android:layout_marginEnd="8dp"
+    android:gravity="end|center_vertical"
+    android:orientation="horizontal">
+
+    <TextView
+      android:id="@+id/paymentitem_amount_value"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_alignParentTop="true"
+      android:layout_marginEnd="4dp"
+      android:layout_toStartOf="@+id/paymentitem_amount_unit"
+      android:maxLines="1"
+      android:text="0.00"
+      android:textSize="16sp" />
+
+    <TextView
+      android:id="@+id/paymentitem_amount_unit"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_alignBaseline="@+id/paymentitem_amount_value"
+      android:layout_alignParentEnd="true"
+      android:text="@string/btc_milli_short"
+      android:textColor="@color/colorGrey_1"
+      android:textSize="8sp" />
+
+    <TextView
+      android:id="@+id/paymentitem_fees_prefix"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_alignBaseline="@+id/paymentitem_fees_value"
+      android:layout_marginEnd="2dp"
+      android:layout_toStartOf="@+id/paymentitem_fees_value"
+      android:maxLines="1"
+      android:text="@string/paymentitem_fee_prefix"
+      android:textColor="@color/colorGrey_1"
+      android:textSize="10sp"
+      android:visibility="gone" />
+
+    <TextView
+      android:id="@+id/paymentitem_fees_value"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_below="@+id/paymentitem_amount_value"
+      android:layout_marginEnd="4dp"
+      android:layout_toStartOf="@+id/paymentitem_amount_unit"
+      android:maxLines="1"
+      android:text="0"
+      android:textColor="@color/colorGrey_2"
+      android:textSize="10sp"
+      android:visibility="gone" />
+
+    <TextView
+      android:id="@+id/paymentitem_fees_unit"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_alignBaseline="@+id/paymentitem_fees_value"
+      android:layout_alignStart="@+id/paymentitem_amount_unit"
+      android:text="@string/btc_sat_short"
+      android:textColor="@color/colorGrey_1"
+      android:textSize="8sp"
+      android:visibility="gone" />
+
+  </RelativeLayout>
+
+  <View
+    android:layout_width="match_parent"
+    android:layout_height="1dp"
+    android:layout_alignParentBottom="true"
+    android:background="@color/colorGrey_0" />
+
+</RelativeLayout>

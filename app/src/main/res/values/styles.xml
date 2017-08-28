@@ -1,0 +1,30 @@
+<resources>
+
+  <!-- Base application theme. -->
+  <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <item name="android:textColor">@color/colorGrey_4</item>
+    <item name="colorPrimary">@color/colorPrimary</item>
+    <item name="colorPrimaryDark">@color/colorPrimary</item>
+    <item name="colorAccent">@color/colorPrimary</item>
+    <item name="android:textColorSecondary">@color/white</item>
+
+    <!-- forced white bg for consistency with older android versions -->
+    <item name="android:windowBackground">@color/almostWhite</item>
+    <item name="android:colorBackground">@color/almostWhite</item>
+
+    <item name="windowActionBar">false</item>
+    <item name="windowNoTitle">true</item>
+    <item name="actionBarTheme">@null</item>
+  </style>
+
+  <style name="CustomDialog" parent="@style/Theme.AppCompat.Light.Dialog">
+    <item name="android:textColor">@color/colorGrey_4</item>
+    <item name="android:windowMinWidthMajor">85%</item>
+    <item name="android:windowMinWidthMinor">85%</item>
+  </style>
+
+  <style name="SplashTheme" parent="AppTheme">
+    <item name="android:windowBackground">@drawable/splash</item>
+  </style>
+
+</resources>

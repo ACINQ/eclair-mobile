@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:orientation="vertical"
+  tools:context="fr.acinq.eclair.wallet.activities.LNPaymentDetailsActivity">
+
+  <!-- Custom toolbar -->
+  <include layout="@layout/toolbar" />
+
+  <android.support.v4.widget.NestedScrollView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:orientation="vertical">
+
+      <fr.acinq.eclair.wallet.customviews.DataRow
+        android:id="@+id/paymentdetails_amount_paid"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:desc="@string/paymentdetails_amount_paid_desc"
+        app:label="@string/paymentdetails_amount_paid_label"
+        app:value="@string/unknown" />
+
+      <include layout="@layout/include_separator" />
+
+      <fr.acinq.eclair.wallet.customviews.DataRow
+        android:id="@+id/paymentdetails_fees"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:desc="@string/paymentdetails_fees_desc"
+        app:label="@string/paymentdetails_fees_label"
+        app:value="@string/unknown" />
+
+      <include layout="@layout/include_separator" />
+
+      <fr.acinq.eclair.wallet.customviews.DataRow
+        android:id="@+id/paymentdetails_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:desc="@string/paymentdetails_status_desc"
+        app:label="@string/paymentdetails_status_label"
+        app:value="@string/unknown" />
+
+      <include layout="@layout/include_separator" />
+
+      <fr.acinq.eclair.wallet.customviews.DataRow
+        android:id="@+id/paymentdetails_desc"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:desc="@string/paymentdetails_desc_desc"
+        app:label="@string/paymentdetails_desc_label"
+        app:value="@string/unknown" />
+
+      <fr.acinq.eclair.wallet.customviews.TitleBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/paymentdetails_technicals_title" />
+
+      <fr.acinq.eclair.wallet.customviews.DataRow
+        android:id="@+id/paymentdetails_amount_requested"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:desc="@string/paymentdetails_amount_requested_desc"
+        app:label="@string/paymentdetails_amount_requested_label"
+        app:value="@string/unknown" />
+
+      <include layout="@layout/include_separator" />
+
+      <fr.acinq.eclair.wallet.customviews.DataRow
+        android:id="@+id/paymentdetails_paymenthash"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:desc="@string/paymentdetails_paymenthash_desc"
+        app:label="@string/paymentdetails_paymenthash_label"
+        app:value="@string/unknown" />
+
+      <include layout="@layout/include_separator" />
+
+      <fr.acinq.eclair.wallet.customviews.DataRow
+        android:id="@+id/paymentdetails_paymentrequest"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:desc="@string/paymentdetails_paymentrequest_desc"
+        app:label="@string/paymentdetails_paymentrequest_label"
+        app:value="@string/unknown" />
+
+      <include layout="@layout/include_separator" />
+
+      <fr.acinq.eclair.wallet.customviews.DataRow
+        android:id="@+id/paymentdetails_created"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:desc="@string/paymentdetails_created_desc"
+        app:label="@string/paymentdetails_created_label"
+        app:value="@string/unknown" />
+
+      <include layout="@layout/include_separator" />
+
+      <fr.acinq.eclair.wallet.customviews.DataRow
+        android:id="@+id/paymentdetails_updated"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:desc="@string/paymentdetails_updated_desc"
+        app:label="@string/paymentdetails_updated_label"
+        app:value="@string/unknown" />
+    </LinearLayout>
+  </android.support.v4.widget.NestedScrollView>
+
+</LinearLayout>
