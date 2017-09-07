@@ -90,6 +90,7 @@ public class App extends Application {
       EclairWallet eclairWallet = new BitcoinjWallet(fWallet, system.dispatcher());
       eclairBitcoinjKit.startAsync();
 
+      Class.forName("org.sqlite.JDBC");
       Setup setup = new Setup(datadir, Option.apply(eclairWallet), ConfigFactory.empty(), system);
       ActorRef guiUpdater = system.actorOf(Props.create(EclairEventService.class, dbHelper));
       setup.system().eventStream().subscribe(guiUpdater, ChannelEvent.class);
@@ -101,7 +102,13 @@ public class App extends Application {
       wallet = Await.result(fWallet, Duration.create(20, "seconds"));
       peerGroup = Await.result(fPeerGroup, Duration.create(20, "seconds"));
       eclairKit = Await.result(fKit, Duration.create(20, "seconds"));
-      isDBCompatible = DBCompatChecker.isDBCompatible(setup.nodeParams());
+      try {
+        DBCompatChecker.checkDBCompatibility(setup.nodeParams());
+        isDBCompatible = true;
+      }
+      catch(Exception e) {
+        isDBCompatible = false;
+      }
     } catch (Exception e) {
       Log.e(TAG, "Failed to start eclair", e);
       // the wallet must crash at this point

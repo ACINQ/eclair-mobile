@@ -30,6 +30,11 @@ android {
     exclude 'META-INF/LICENSE*'
     exclude 'META-INF/NOTICE.txt'
   }
+  externalNativeBuild {
+    cmake {
+      path 'CMakeLists.txt'
+    }
+  }
 }
 
 greendao {
