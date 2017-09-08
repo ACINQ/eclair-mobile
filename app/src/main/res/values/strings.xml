@@ -45,26 +45,15 @@
 
   <!-- //////////////// disclaimer /////////////////// -->
 
-  <string name="home_disclaimer_button_quit">Quit</string>
   <string name="home_disclaimer_1"><![CDATA[
-    <h1>Attention</h1>
-    <p>This Wallet is experimental and runs on the <b>%1$s</b> Bitcoin blockchain.</p>
-    <p>Nullam id tincidunt diam. Integer eros odio, vulputate tristique tellus in, porttitor
-    tristique massa. Donec eu mauris non mauris suscipit scelerisque vel at justo. Sed varius
-    dignissim ligula placerat hendrerit. Nulla facilisi. Phasellus vestibulum maximus elit, sit
-    amet molestie nibh vestibulum id.</p>
+    <h1>WARNING</h1>
+    <p>Eclair Wallet is experimental and runs on the <b>%1$s</b> Bitcoin blockchain.</p>
+    <p>This software and the Lightning Network are under heavy development. Make sure you
+    run the latest version because there may be backward incompatible changes.</p>
     ]]>
   </string>
-  <string name="home_disclaimer_1_button_ok">I understand the risk (1)</string>
-  <string name="home_disclaimer_2"><![CDATA[
-    <b>Disclaimer #2.</b>
-    <p>Vivamus tincidunt condimentum neque, non imperdiet elit. Quisque pellentesque, magna ut
-    rhoncus faucibus, augue libero tristique erat, a dignissim purus nunc vel risus.</p>
-    <p>Mauris id convallis ex, ac ultrices eros. Mauris sapien erat, pellentesque nec nisi at,
-    volutpat faucibus metus.</p>
-    ]]>
-  </string>
-  <string name="home_disclaimer_2_button_ok">I understand the risk (2)</string>
+  <string name="home_disclaimer_1_button_ok">I UNDERSTAND</string>
+  <string name="home_disclaimer_button_quit">QUIT</string>
 
   <!-- //////////////// backup /////////////////// -->
 

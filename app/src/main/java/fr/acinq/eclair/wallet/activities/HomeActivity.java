@@ -273,18 +273,9 @@ public class HomeActivity extends EclairActivity {
         }
       });
       ((TextView) findViewById(R.id.home_disclaimer_1_text)).setText(Html.fromHtml(
-        getString(R.string.home_disclaimer_1, app.getWalletNetworkProtocol().toUpperCase())));
+        getString(R.string.home_disclaimer_1, "TESTNET")));
     } else {
       home_startBackup(showRecovery, showIntro, prefs);
-    }
-  }
-
-  public void home_nextDisclaimerPage(View view) {
-    if (mStubDisclaimerInflated.getVisibility() == View.VISIBLE) {
-      findViewById(R.id.home_disclaimer_1).setVisibility(View.GONE);
-      findViewById(R.id.home_disclaimer_2).setVisibility(View.VISIBLE);
-      ((TextView) findViewById(R.id.home_disclaimer_2_text)).setText(Html.fromHtml(
-        getString(R.string.home_disclaimer_2)));
     }
   }
 

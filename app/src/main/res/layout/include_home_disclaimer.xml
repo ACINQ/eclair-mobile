@@ -35,10 +35,10 @@
           android:layout_margin="16dp" />
 
         <Button
+          android:id="@+id/home_disclaimer_finish"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:background="@android:color/transparent"
-          android:onClick="home_nextDisclaimerPage"
           android:text="@string/home_disclaimer_1_button_ok"
           android:textColor="@color/green" />
 
@@ -52,37 +52,6 @@
 
       </LinearLayout>
 
-      <LinearLayout
-        android:id="@+id/home_disclaimer_2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/white"
-        android:orientation="vertical"
-        android:visibility="gone">
-
-        <TextView
-          android:id="@+id/home_disclaimer_2_text"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:layout_margin="16dp" />
-
-        <Button
-          android:id="@+id/home_disclaimer_finish"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:background="@android:color/transparent"
-          android:text="@string/home_disclaimer_2_button_ok"
-          android:textColor="@color/green" />
-
-        <Button
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:background="@android:color/transparent"
-          android:onClick="home_closeApp"
-          android:text="@string/home_disclaimer_button_quit"
-          android:textColor="@color/redFaded" />
-
-      </LinearLayout>
     </LinearLayout>
   </ScrollView>
 </RelativeLayout>
