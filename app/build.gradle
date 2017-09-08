@@ -66,8 +66,8 @@ dependencies {
 
   // database orm
   compile 'org.greenrobot:greendao:3.2.2'
-  // required for greendao encryption
-  compile 'net.zetetic:android-database-sqlcipher:3.5.6'
+  // required for greendao encryption, disabled for now
+  // compile 'net.zetetic:android-database-sqlcipher:3.5.6'
 
   // qr codes
   compile 'com.journeyapps:zxing-android-embedded:3.5.0'

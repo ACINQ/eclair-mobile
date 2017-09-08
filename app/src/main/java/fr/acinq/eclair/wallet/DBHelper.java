@@ -15,14 +15,12 @@ import fr.acinq.eclair.wallet.models.PaymentType;
 
 public class DBHelper {
 
-  public static final boolean IS_DB_ENCRYPTED = true;
   private DaoSession daoSession;
 
   public DBHelper(Context context) {
 
-    DBMigrationHelper helper = new DBMigrationHelper(context,
-      IS_DB_ENCRYPTED ? "eclair-wallet-enc" : "eclair-wallet");
-    Database db = IS_DB_ENCRYPTED ? helper.getEncryptedReadableDb("temp_secret") : helper.getWritableDb();
+    DBMigrationHelper helper = new DBMigrationHelper(context, "eclair-wallet");
+    Database db = helper.getWritableDb();
     daoSession = new DaoMaster(db).newSession();
   }
 
