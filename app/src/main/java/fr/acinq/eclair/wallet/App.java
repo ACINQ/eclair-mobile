@@ -104,7 +104,6 @@ public class App extends Application {
       eclairKit = Await.result(fKit, Duration.create(20, "seconds"));
       try {
         DBCompatChecker.checkDBCompatibility(setup.nodeParams());
-        isDBCompatible = true;
       }
       catch(Exception e) {
         isDBCompatible = false;
