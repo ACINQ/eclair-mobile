@@ -292,6 +292,22 @@ public class HomeActivity extends EclairActivity {
           home_startIntro(showIntro, prefs);
         }
       });
+
+      // Allow the user to skip the recovery phase for TESTNET only.
+      if (!app.isProduction()) {
+        findViewById(R.id.home_backup_skip).setVisibility(View.VISIBLE);
+        findViewById(R.id.home_backup_skip).setOnClickListener(new View.OnClickListener() {
+          @Override
+          public void onClick(View v) {
+            mStubBackup.setVisibility(View.GONE);
+            SharedPreferences.Editor e = prefs.edit();
+            e.putBoolean("showRecovery", false);
+            e.apply();
+            home_startIntro(showIntro, prefs);
+          }
+        });
+      }
+
       ((TextView) findViewById(R.id.home_backup_text)).setText(Html.fromHtml(
         getString(R.string.home_backup_text, app.getRecoveryPhrase())));
     } else {
@@ -323,6 +339,7 @@ public class HomeActivity extends EclairActivity {
         && app.checkWordRecoveryPhrase(recoveryPositions.get(1), words[1])
         && app.checkWordRecoveryPhrase(recoveryPositions.get(2), words[2])) {
         findViewById(R.id.home_backup_2).setVisibility(View.GONE);
+        findViewById(R.id.home_backup_skip).setVisibility(View.GONE);
         findViewById(R.id.home_backup_success).setVisibility(View.VISIBLE);
         return;
       }

@@ -64,6 +64,7 @@
   ]]>
   </string>
   <string name="home_backup_button">Ok, got it</string>
+  <string name="home_backup_button_skip">Skip</string>
   <string name="home_backup_check"><![CDATA[
     <p>What are the #%1$d, #%2$d and #%3$d words of your recovery phrase?</p>
   ]]>

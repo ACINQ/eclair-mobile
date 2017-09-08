@@ -32,13 +32,14 @@
         android:id="@+id/home_backup_1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:visibility="visible">
 
         <TextView
           android:id="@+id/home_backup_text"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:layout_marginBottom="16dp"
+          android:layout_marginBottom="32dp"
           android:text="@string/home_backup_text"
           android:textColor="@color/white" />
 
@@ -46,11 +47,14 @@
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:layout_gravity="center"
-          android:background="@color/white"
+          android:backgroundTint="@color/white"
           android:onClick="home_initCheckRecoveryPhrase"
-          android:padding="16dp"
+          android:paddingBottom="8dp"
+          android:paddingLeft="16dp"
+          android:paddingRight="16dp"
+          android:paddingTop="8dp"
           android:text="@string/home_backup_button"
-          android:textColor="@color/colorPrimary" />
+          android:textColor="@color/colorPrimaryDark" />
 
       </LinearLayout>
 
@@ -88,11 +92,14 @@
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:layout_gravity="center"
-          android:background="@color/white"
+          android:backgroundTint="@color/white"
           android:onClick="home_doCheckRecoveryPhrase"
-          android:padding="16dp"
+          android:paddingBottom="8dp"
+          android:paddingLeft="16dp"
+          android:paddingRight="16dp"
+          android:paddingTop="8dp"
           android:text="@string/home_backup_do_check_button"
-          android:textColor="@color/colorPrimary" />
+          android:textColor="@color/colorPrimaryDark" />
 
       </LinearLayout>
 
@@ -109,13 +116,32 @@
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:layout_gravity="center"
-          android:background="@color/white"
-          android:padding="16dp"
+          android:backgroundTint="@color/white"
+          android:paddingBottom="8dp"
+          android:paddingLeft="16dp"
+          android:paddingRight="16dp"
+          android:paddingTop="8dp"
           android:text="@string/home_backup_finish_button"
-          android:textColor="@color/colorPrimary" />
+          android:textColor="@color/colorPrimaryDark" />
 
       </LinearLayout>
     </LinearLayout>
   </ScrollView>
+
+  <Button
+    android:id="@+id/home_backup_skip"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_alignParentBottom="true"
+    android:layout_gravity="center"
+    android:background="@color/colorPrimaryFaded"
+    android:elevation="4dp"
+    android:paddingBottom="8dp"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:paddingTop="8dp"
+    android:text="@string/home_backup_button_skip"
+    android:textColor="@color/white"
+    android:visibility="visible" />
 
 </RelativeLayout>
