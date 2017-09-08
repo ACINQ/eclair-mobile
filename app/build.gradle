@@ -29,6 +29,7 @@ android {
   packagingOptions {
     exclude 'META-INF/LICENSE*'
     exclude 'META-INF/NOTICE.txt'
+    merge 'reference.conf'
   }
   externalNativeBuild {
     cmake {
@@ -61,7 +62,6 @@ dependencies {
   }
 
   // eclair core
-  compile 'org.scala-lang:scala-library:2.11.8'
   compile 'fr.acinq.eclair:eclair-core_2.11:0.2-android-SNAPSHOT'
 
   // database orm
