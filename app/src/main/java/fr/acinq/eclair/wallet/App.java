@@ -158,12 +158,12 @@ public class App extends Application {
   }
 
   public void publishWalletBalance() {
-    Coin balance = wallet.getBalance();
+    Coin balance = getWalletBalanceSat();
     EventBus.getDefault().postSticky(new WalletBalanceUpdateEvent(new Satoshi(balance.getValue())));
   }
 
   public Coin getWalletBalanceSat() {
-    return wallet.getBalance();
+    return wallet.getBalance(Wallet.BalanceType.AVAILABLE_SPENDABLE);
   }
 
   public void sendLNPayment(int timeout, OnComplete<Object> onComplete, long amountMsat, BinaryData paymentHash, Crypto.PublicKey targetNodeId) {
