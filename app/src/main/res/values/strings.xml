@@ -145,7 +145,7 @@
   <!-- //////////////// send payment //////////////////// -->
 
   <string name="payment_failure_read_invoice">Could not read invoice!</string>
-  <string name="payment_invalid_address">Invalid address (wrong chain?)</string>
+  <string name="payment_invalid_address">Not a valid Bitcoin Testnet address</string>
   <string name="payment_description">Description</string>
   <string name="payment_destination_address">Destination address</string>
   <string name="payment_fees">Fees in satoshi/kb</string>
