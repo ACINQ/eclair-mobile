@@ -22,6 +22,7 @@ import java.util.Date;
 
 import akka.dispatch.OnComplete;
 import fr.acinq.bitcoin.BinaryData;
+import fr.acinq.bitcoin.MilliBtc;
 import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.payment.LocalFailure;
@@ -188,7 +189,7 @@ public class CreatePaymentActivity extends EclairModalActivity
       if (mLNInvoice != null) {
         final long amountMsat = isAmountReadonly
           ? CoinUtils.getLongAmountFromInvoice(mLNInvoice)
-          : package$.MODULE$.satoshi2millisatoshi(new Satoshi(Coin.parseCoin(mAmountEditableValue.getText().toString()).getValue())).amount();
+          : package$.MODULE$.satoshi2millisatoshi(new Satoshi(Coin.parseCoin(mAmountEditableValue.getText().toString()).div(1000).getValue())).amount();
         if (EclairEventService.hasActiveChannelsWithBalance(amountMsat)) {
           sendLNPayment(amountMsat);
           finish();
@@ -204,7 +205,7 @@ public class CreatePaymentActivity extends EclairModalActivity
           mPaymentErrorView.setVisibility(View.VISIBLE);
         }
       } else if (mBitcoinInvoice != null) {
-        final Coin amount = isAmountReadonly ? mBitcoinInvoice.getAmount() : Coin.parseCoin(mAmountEditableValue.getText().toString());
+        final Coin amount = isAmountReadonly ? mBitcoinInvoice.getAmount() : Coin.parseCoin(mAmountEditableValue.getText().toString()).div(1000);
         final Coin feesPerKb = Coin.valueOf(Long.parseLong(mFeesValue.getText().toString()));
         sendBitcoinPayment(amount, feesPerKb);
         finish();

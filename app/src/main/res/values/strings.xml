@@ -151,7 +151,7 @@
   <string name="payment_fees">Fees in satoshi/kb</string>
   <string name="payment_loading_pleasewait">Reading the invoice, please wait…</string>
   <string name="payment_amount_to_send_readonly">Amount to send</string>
-  <string name="payment_amount_to_send_editable">Enter the amount, in Bitcoin</string>
+  <string name="payment_amount_to_send_editable">Amount in mBTC</string>
   <string name="payment_toast_sentbtc">Payment sent</string>
   <string name="payment_toast_balance">Insufficient balance</string>
   <string name="payment_toast_failure">Could not send transaction</string>
