@@ -487,11 +487,11 @@ public class HomeActivity extends EclairActivity {
 
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void handleLNPaymentFailedEvent(LNPaymentFailedEvent event) {
-
     Intent intent = new Intent(this, PaymentFailureActivity.class);
     intent.putExtra(PaymentFailureActivity.EXTRA_PAYMENTFAILURE_DESC, event.payment.getDescription());
     intent.putExtra(PaymentFailureActivity.EXTRA_PAYMENTFAILURE_AMOUNT, event.payment.getAmountPaidMsat());
     intent.putExtra(PaymentFailureActivity.EXTRA_PAYMENTFAILURE_CAUSE, event.cause);
+    intent.putExtra(PaymentFailureActivity.EXTRA_PAYMENTFAILURE_DETAILED_CAUSE, event.detailedCause);
     startActivity(intent);
     mPaymentsListFragment.updateList();
   }

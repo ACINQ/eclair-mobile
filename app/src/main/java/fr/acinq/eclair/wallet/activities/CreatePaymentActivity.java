@@ -18,19 +18,23 @@ import org.bitcoinj.wallet.SendRequest;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.util.AsyncExecutor;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import akka.dispatch.OnComplete;
 import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.bitcoin.MilliBtc;
 import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.bitcoin.package$;
+import fr.acinq.eclair.channel.ChannelException;
 import fr.acinq.eclair.payment.LocalFailure;
 import fr.acinq.eclair.payment.PaymentFailed;
 import fr.acinq.eclair.payment.PaymentFailure;
 import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.payment.PaymentSucceeded;
 import fr.acinq.eclair.payment.RemoteFailure;
+import fr.acinq.eclair.router.Hop;
 import fr.acinq.eclair.wallet.EclairEventService;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.customviews.CoinAmountView;
@@ -42,7 +46,11 @@ import fr.acinq.eclair.wallet.models.PaymentType;
 import fr.acinq.eclair.wallet.tasks.BitcoinInvoiceReaderTask;
 import fr.acinq.eclair.wallet.tasks.LNInvoiceReaderTask;
 import fr.acinq.eclair.wallet.utils.CoinUtils;
+import fr.acinq.eclair.wire.FailureMessage;
 import scala.Option;
+import scala.collection.Iterator;
+import scala.collection.Seq;
+import scala.collection.mutable.StringBuilder;
 import scala.util.Either;
 
 public class CreatePaymentActivity extends EclairModalActivity
@@ -252,7 +260,7 @@ public class CreatePaymentActivity extends EclairModalActivity
             p.setUpdated(new Date());
             app.getDBHelper().insertOrUpdatePayment(p);
           } else if (PaymentStatus.PAID.equals(paymentForH.getStatus())) {
-            EventBus.getDefault().post(new LNPaymentFailedEvent(p, "Invoice already paid."));
+            EventBus.getDefault().post(new LNPaymentFailedEvent(p, "This invoice has already been paid.", null));
             return;
           }
 
@@ -269,27 +277,22 @@ public class CreatePaymentActivity extends EclairModalActivity
                   if (o instanceof PaymentSucceeded && t == null) {
                     // do nothing, will be handled by PaymentSent event...
                   } else {
-                    String cause = "Unknown Error";
+                    String lastErrorCause = null;
+                    String detailedErrorMessage = null;
                     if (o instanceof PaymentFailed) {
-                      Option<PaymentFailure> optFailure = ((PaymentFailed) o).failures().lastOption();
-                      if (optFailure.isDefined()) {
-                        PaymentFailure failure = optFailure.get();
-                        if (failure instanceof RemoteFailure) {
-                          cause = ((RemoteFailure) failure).e().failureMessage().toString();
-                        } else if (failure instanceof LocalFailure) {
-                          cause = ((LocalFailure) failure).t().getMessage();
-                        }
+                      final Seq<PaymentFailure> failures = ((PaymentFailed) o).failures();
+                      if (failures.size() > 0) {
+                        detailedErrorMessage = generateDetailedErrorCause(failures).toString();
                       }
                     } else if (t != null) {
                       Log.d(TAG, "Error when sending payment", t);
-                      cause = t.getMessage();
+                      lastErrorCause = t.getMessage();
                     }
                     if (!PaymentStatus.PAID.toString().equals(paymentInDB.getStatus())) {
                       // if the payment has not already been paid, lets update the status...
                       paymentInDB.setStatus(PaymentStatus.FAILED);
-                      paymentInDB.setLastErrorCause(cause);
                     }
-                    EventBus.getDefault().post(new LNPaymentFailedEvent(p, cause));
+                    EventBus.getDefault().post(new LNPaymentFailedEvent(p, lastErrorCause, detailedErrorMessage));
                     app.getDBHelper().insertOrUpdatePayment(paymentInDB);
                   }
                 }
@@ -331,6 +334,50 @@ public class CreatePaymentActivity extends EclairModalActivity
   public void onRestoreInstanceState(Bundle savedInstanceState) {
     super.onRestoreInstanceState(savedInstanceState);
     toggleButtons();
+  }
+
+  private final static String html_error_tab = "&nbsp;&nbsp;&nbsp;&nbsp;";
+  private final static String html_error_new_line = "<br />" + html_error_tab;
+  private final static String html_error_new_line_bullet = html_error_new_line + "&middot;&nbsp;&nbsp;";
+  private final static String html_error_new_line_bullet_inner = html_error_new_line + html_error_tab + "&middot;&nbsp;&nbsp;";
+
+  private StringBuilder generateDetailedErrorCause(final Seq<PaymentFailure> failures) {
+    final StringBuilder sbErrors = new StringBuilder().append("<p><b>").append(failures.size()).append(" attempt(s) made.</b></p>").append("<small><ul>");
+    for (int i = 0; i < failures.size(); i++) {
+      final PaymentFailure f = failures.apply(i);
+      sbErrors.append("<li>&nbsp;&nbsp;<b>Attempt ").append(i+1).append(" of ").append(failures.size());
+      if (f instanceof RemoteFailure) {
+        final RemoteFailure rf = (RemoteFailure) f;
+        sbErrors.append(": Remote failure</b>");
+        if (rf.route().size() > 0) {
+          final scala.collection.immutable.List<Hop> hops = rf.route().toList();
+          sbErrors.append(html_error_new_line_bullet).append(" Route (").append(hops.size()).append(" hops):");
+          for (int hi = 0; hi < hops.size(); hi++) {
+            Hop h = hops.apply(hi);
+            if (hi == 0) sbErrors.append(html_error_new_line_bullet_inner).append(h.nodeId().toString());
+            sbErrors.append(html_error_new_line_bullet_inner).append(h.nextNodeId().toString());
+          }
+        }
+        sbErrors.append(html_error_new_line_bullet).append(" Origin: ").append(rf.e().originNode().toString());
+        FailureMessage rfMessage = rf.e().failureMessage();
+        if (rfMessage != null) {
+          sbErrors.append(html_error_new_line_bullet).append(" Cause: ").append(rfMessage.getClass().getSimpleName());
+        }
+        sbErrors.append("</li>");
+      } else if (f instanceof LocalFailure) {
+        final LocalFailure lf = (LocalFailure) f;
+        sbErrors.append(": Local failure</b>");
+        if (lf.t() instanceof ChannelException) {
+          sbErrors.append(html_error_new_line_bullet).append(" Origin: ")
+            .append(((ChannelException) lf.t()).getChannelId());
+        }
+        sbErrors.append(html_error_new_line_bullet).append(" Cause: ").append(((LocalFailure) f).t().getClass().getSimpleName()).append("</li>");
+      } else {
+        sbErrors.append(": No information available</b></li>");
+      }
+    }
+    sbErrors.append("</ul></small>");
+    return sbErrors;
   }
 
 }
