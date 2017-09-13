@@ -4,7 +4,7 @@
       <pattern>%logger{12}</pattern>
     </tagEncoder>
     <encoder>
-      <pattern>[%-20thread] %msg</pattern>
+      <pattern>%d %-5level %logger{36} %X{akkaSource} %X{channelId} - %msg%ex{24}%n</pattern>
     </encoder>
   </appender>
 
@@ -13,6 +13,8 @@
   <logger name="org.bitcoinj" level="INFO" />
   <logger name="org.bitcoinj.core.PeerGroup" level="WARN" />
   <logger name="org.bitcoinj.core.PeerSocketHandler" level="WARN" />
+  <logger name="org.bitcoinj.net.NioClientManager" level="ERROR" />
+  <logger name="org.bitcoinj.net.ConnectionHandler" level="ERROR" />
 
   <root level="DEBUG">
     <appender-ref ref="logcat" />
