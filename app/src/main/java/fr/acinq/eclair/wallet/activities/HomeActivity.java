@@ -162,7 +162,7 @@ public class HomeActivity extends EclairActivity {
       @Override
       public void run() {
         final SharedPreferences getPrefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        final boolean showDisclaimer = getPrefs.getBoolean("showDisclaimer", true);
+        final boolean showDisclaimer = false;
         final boolean showRecovery = getPrefs.getBoolean("showRecovery", true);
         final boolean showIntro = getPrefs.getBoolean("showIntro", true);
         if (showDisclaimer || showRecovery || showIntro) {
