@@ -60,7 +60,9 @@ dependencies {
     exclude group: 'com.google.android', module: 'android'
   }
   // eclair core
-  compile 'fr.acinq.eclair:eclair-core_2.11:0.2-android-alpha5'
+  compile 'org.scala-lang:scala-library:2.11.11'
+  compile 'org.scala-lang:scala-reflect:2.11.11'
+  compile 'fr.acinq.eclair:eclair-core_2.11:0.2-android-elecapi-SNAPSHOT'
   // database orm
   compile 'org.greenrobot:greendao:3.2.2'
   // required for greendao encryption, disabled for now
@@ -70,4 +72,7 @@ dependencies {
   // events
   compile 'org.greenrobot:eventbus:3.0.0'
   testCompile 'junit:junit:4.12'
+  androidTestCompile('com.typesafe.akka:akka-testkit_2.11:2.3.14') {
+    exclude group: 'org.scala-lang', module: 'scala-library'
+  }
 }

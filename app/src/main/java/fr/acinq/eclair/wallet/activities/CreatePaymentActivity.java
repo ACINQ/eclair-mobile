@@ -111,13 +111,14 @@ public class CreatePaymentActivity extends EclairModalActivity
         mAmountView.setAmountMsat(package$.MODULE$.satoshi2millisatoshi(new Satoshi(output.getAmount().getValue())));
       }
       mFeesView.setVisibility(View.VISIBLE);
-      mFeesValue.setText(Long.toString(Context.get().getFeePerKb().getValue()));
+      mFeesValue.setText(Long.toString(2000)); // FIXME Context.get().getFeePerKb().getValue()));
       mDescriptionView.setText(output.getAddress().toBase58());
       mLoadingTextView.setVisibility(View.GONE);
       mFormView.setVisibility(View.VISIBLE);
     }
   }
 
+// mgEmdok8Efi4aQkzxdxMBGjzyHLwHD5xNy
   @Override
   public void processLNInvoiceFinish(PaymentRequest output) {
     if (output == null) {
@@ -310,9 +311,7 @@ public class CreatePaymentActivity extends EclairModalActivity
   private void sendBitcoinPayment(final Coin amount, final Coin feesPerKb) {
     Log.d(TAG, "Sending Bitcoin payment for invoice " + mBitcoinInvoice.toString());
     try {
-      SendRequest request = SendRequest.to(mBitcoinInvoice.getAddress(), amount);
-      request.feePerKb = feesPerKb;
-      app.sendBitcoinPayment(request);
+      app.sendBitcoinPayment(Satoshi.apply(amount.getValue()), mBitcoinInvoice.getAddress().toBase58());
       Toast.makeText(this, R.string.payment_toast_sentbtc, Toast.LENGTH_SHORT).show();
     } catch (InsufficientMoneyException e) {
       Toast.makeText(this, R.string.payment_toast_balance, Toast.LENGTH_LONG).show();

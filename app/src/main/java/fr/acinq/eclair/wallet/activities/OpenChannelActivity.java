@@ -61,7 +61,11 @@ public class OpenChannelActivity extends EclairModalActivity {
       @Override
       public void onTextChanged(CharSequence s, int start, int before, int count) {
         if (s.length() > 0) {
-          checkAmount(s.toString());
+          try {
+            checkAmount(s.toString());
+          } catch (Exception e) {
+            e.printStackTrace();
+          }
         }
       }
 
@@ -75,7 +79,7 @@ public class OpenChannelActivity extends EclairModalActivity {
     setNodeURI(hostURI);
   }
 
-  private boolean checkAmount(String amount) {
+  private boolean checkAmount(String amount)  {
     try {
       Long parsedAmountSat = Long.parseLong(amount) * 100000;
       if (parsedAmountSat < Validators.MIN_FUNDING_SAT
@@ -84,7 +88,7 @@ public class OpenChannelActivity extends EclairModalActivity {
         mErrorAView.setText(R.string.openchannel_capacity_invalid);
         mErrorAView.setVisibility(View.VISIBLE);
         return false;
-      } else if (parsedAmountSat + 100000 > app.getWalletBalanceSat().getValue()) {
+      } else if (parsedAmountSat + 100000 > app.getWalletBalanceSat().amount()) {
         mAmountEdit.setTextColor(ContextCompat.getColor(this, R.color.red));
         mErrorAView.setText(R.string.openchannel_capacity_notenoughfunds);
         mErrorAView.setVisibility(View.VISIBLE);

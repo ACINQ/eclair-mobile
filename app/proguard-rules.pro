@@ -29,3 +29,7 @@
 -keepclassmembers class * extends org.greenrobot.greendao.AbstractDao {
 public static java.lang.String PAYMENT
 }
+
+-keepattributes Signature,*Annotation*
+
+-keep fr.acinq.eclair.blockchain.rpc.** { *; }

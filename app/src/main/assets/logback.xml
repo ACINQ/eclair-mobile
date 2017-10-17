@@ -15,6 +15,7 @@
   <logger name="org.bitcoinj.core.PeerSocketHandler" level="WARN" />
   <logger name="org.bitcoinj.net.NioClientManager" level="ERROR" />
   <logger name="org.bitcoinj.net.ConnectionHandler" level="ERROR" />
+  <logger name="fr.acinq.eclair.blockchain.electrum" level="DEBUG" />
 
   <root level="DEBUG">
     <appender-ref ref="logcat" />

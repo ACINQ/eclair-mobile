@@ -33,7 +33,11 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
   @Override
   public void onResume() {
     super.onResume();
-    address = ((App) getActivity().getApplication()).getWalletPublicAddress();
+    try {
+      address = ((App) getActivity().getApplication()).getWalletPublicAddress();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
     mAddressTextView.setText(address);
     new QRCodeTask(this, address, 700, 700).execute();
   }

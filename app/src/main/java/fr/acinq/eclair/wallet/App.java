@@ -9,28 +9,17 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.google.common.base.Joiner;
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
 import com.typesafe.config.ConfigFactory;
 
 import org.bitcoinj.core.Address;
-import org.bitcoinj.core.Coin;
 import org.bitcoinj.core.InsufficientMoneyException;
-import org.bitcoinj.core.NetworkParameters;
-import org.bitcoinj.core.PeerGroup;
-import org.bitcoinj.core.Transaction;
-import org.bitcoinj.wallet.KeyChain;
-import org.bitcoinj.wallet.SendRequest;
-import org.bitcoinj.wallet.Wallet;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-import org.spongycastle.util.encoders.Hex;
 
 import java.io.File;
 import java.net.InetSocketAddress;
-
-import javax.annotation.Nullable;
+import java.util.List;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
@@ -41,10 +30,12 @@ import akka.util.Timeout;
 import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.bitcoin.Crypto;
 import fr.acinq.bitcoin.Satoshi;
+import fr.acinq.bitcoin.Transaction;
+import fr.acinq.eclair.DBCompatChecker;
 import fr.acinq.eclair.Kit;
 import fr.acinq.eclair.Setup;
-import fr.acinq.eclair.blockchain.wallet.BitcoinjWallet;
 import fr.acinq.eclair.blockchain.wallet.EclairWallet;
+import fr.acinq.eclair.blockchain.wallet.ElectrumWallet;
 import fr.acinq.eclair.channel.ChannelEvent;
 import fr.acinq.eclair.io.Switchboard;
 import fr.acinq.eclair.payment.PaymentEvent;
@@ -58,8 +49,6 @@ import scala.concurrent.Future;
 import scala.concurrent.Promise;
 import scala.concurrent.duration.Duration;
 
-import fr.acinq.eclair.DBCompatChecker;
-
 public class App extends Application {
 
   public final static String TAG = "App";
@@ -67,9 +56,11 @@ public class App extends Application {
   private final ActorSystem system = ActorSystem.apply("system");
 
   private DBHelper dbHelper;
-  private PeerGroup peerGroup;
-  private Wallet wallet;
+  private ElectrumWallet electrumWallet;
+  private ActorRef wallet;
+  private ActorRef paymentSupervisor;
   private Kit eclairKit;
+  private List<String> mnemonics;
 
   private Promise<Object> pAtCurrentHeight = akka.dispatch.Futures.promise();
   private boolean isDBCompatible = true;
@@ -84,24 +75,30 @@ public class App extends Application {
       final File datadir = new File(getApplicationContext().getFilesDir(), DATADIR_NAME);
       Log.d(TAG, "Accessing Eclair Setup with datadir " + datadir.getAbsolutePath());
 
-      EclairBitcoinjKit eclairBitcoinjKit = new EclairBitcoinjKit("test", datadir, this);
-      Future<Wallet> fWallet = eclairBitcoinjKit.getFutureWallet();
-      Future<PeerGroup> fPeerGroup = eclairBitcoinjKit.getFuturePeerGroup();
-      EclairWallet eclairWallet = new BitcoinjWallet(fWallet, system.dispatcher());
-      eclairBitcoinjKit.startAsync();
+//      EclairBitcoinjKit eclairBitcoinjKit = new EclairBitcoinjKit("test", datadir, this);
+//      Future<Wallet> fWallet = eclairBitcoinjKit.getFutureWallet();
+//      Future<PeerGroup> fPeerGroup = eclairBitcoinjKit.getFuturePeerGroup();
+//      EclairWallet eclairWallet = new BitcoinjWallet(fWallet, system.dispatcher());
+//      eclairBitcoinjKit.startAsync();
 
       Class.forName("org.sqlite.JDBC");
-      Setup setup = new Setup(datadir, Option.apply(eclairWallet), ConfigFactory.empty(), system);
+      Setup setup = new Setup(datadir, Option.apply((EclairWallet)null), ConfigFactory.empty(), system);
       ActorRef guiUpdater = system.actorOf(Props.create(EclairEventService.class, dbHelper));
       setup.system().eventStream().subscribe(guiUpdater, ChannelEvent.class);
       setup.system().eventStream().subscribe(guiUpdater, PaymentEvent.class);
       setup.system().eventStream().subscribe(guiUpdater, NetworkEvent.class);
       Future<Kit> fKit = setup.bootstrap();
-      pAtCurrentHeight.completeWith(setup.bitcoin().left().get().atCurrentHeight());
-
-      wallet = Await.result(fWallet, Duration.create(20, "seconds"));
-      peerGroup = Await.result(fPeerGroup, Duration.create(20, "seconds"));
+//      pAtCurrentHeight.completeWith(setup.bitcoin().left().get().atCurrentHeight());
+//
+//      wallet = Await.result(fWallet, Duration.create(20, "seconds"));
+//      peerGroup = Await.result(fPeerGroup, Duration.create(20, "seconds"));
       eclairKit = Await.result(fKit, Duration.create(20, "seconds"));
+      pAtCurrentHeight.success(null);
+      electrumWallet = (fr.acinq.eclair.blockchain.wallet.ElectrumWallet) eclairKit.wallet();
+      wallet = electrumWallet.wallet();
+      paymentSupervisor = system.actorOf(Props.create(PaymentSupervisor.class, this, wallet), "payments");
+      mnemonics = scala.collection.JavaConverters.seqAsJavaListConverter(Await.result(electrumWallet.getMnemonics(), Duration.create(500, "milliseconds")).toList()).asJava();
+
       try {
         DBCompatChecker.checkDBCompatibility(setup.nodeParams());
       }
@@ -158,12 +155,17 @@ public class App extends Application {
   }
 
   public void publishWalletBalance() {
-    Coin balance = getWalletBalanceSat();
-    EventBus.getDefault().postSticky(new WalletBalanceUpdateEvent(new Satoshi(balance.getValue())));
+    Satoshi balance = getWalletBalanceSat();
+    EventBus.getDefault().postSticky(new WalletBalanceUpdateEvent(balance));
   }
 
-  public Coin getWalletBalanceSat() {
-    return wallet.getBalance(Wallet.BalanceType.AVAILABLE_SPENDABLE);
+  public Satoshi getWalletBalanceSat() {
+    try {
+      return Await.result(electrumWallet.getBalance(), Duration.create(100, "milliseconds"));
+    } catch (Exception e) {
+      e.printStackTrace();
+      return Satoshi.apply(0);
+    }
   }
 
   public void sendLNPayment(int timeout, OnComplete<Object> onComplete, long amountMsat, BinaryData paymentHash, Crypto.PublicKey targetNodeId) {
@@ -186,50 +188,43 @@ public class App extends Application {
   }
 
   public boolean checkAddress(final Address address) {
-    return wallet.getNetworkParameters() == address.getParameters();
+    return true; // FIXME wallet.getNetworkParameters() == address.getParameters();
   }
 
-  public void sendBitcoinPayment(final SendRequest sendRequest) throws InsufficientMoneyException {
-    wallet.sendCoins(sendRequest);
-  }
-
-  public String getWalletNetworkProtocol() {
-    return wallet.getNetworkParameters().getPaymentProtocolId();
+  public void sendBitcoinPayment(Satoshi amount, String address) throws InsufficientMoneyException {
+    electrumWallet.sendPayment(amount, address);
   }
 
   public boolean isProduction() {
-    return NetworkParameters.ID_MAINNET.equals(wallet.getNetworkParameters().getId());
+    return false; // FIXME NetworkParameters.ID_MAINNET.equals(wallet.getNetworkParameters().getId());
   }
 
   public void broadcastTx(final String payload) {
-    final Transaction tx = new Transaction(wallet.getParams(), Hex.decode(payload));
-    Futures.addCallback(peerGroup.broadcastTransaction(tx).future(), new FutureCallback<Transaction>() {
-      @Override
-      public void onSuccess(@Nullable Transaction result) {
-        Log.i(TAG, "Successful broadcast of " + tx.getHashAsString());
-      }
-
-      @Override
-      public void onFailure(Throwable t) {
-        Log.e(TAG, "Failed broadcast of " + tx.getHashAsString(), t);
-      }
-    });
+    final Transaction tx = (Transaction) Transaction.read(payload);
+    Future<Object> future = electrumWallet.commit(tx);
+    try {
+      Boolean success = (Boolean) Await.result(future, Duration.create(500, "milliseconds"));
+      if (success)  Log.i(TAG, "Successful broadcast of " + tx.txid());
+      else  Log.e(TAG, "cannot broadcast " + tx.txid());
+    } catch (Exception e) {
+      Log.e(TAG, "Failed broadcast of " + tx.txid(), e);
+    }
   }
 
   public String nodePublicKey() {
     return eclairKit.nodeParams().privateKey().publicKey().toBin().toString();
   }
 
-  public String getWalletPublicAddress() {
-    return wallet.currentAddress(KeyChain.KeyPurpose.RECEIVE_FUNDS).toBase58();
+  public String getWalletPublicAddress() throws Exception {
+    return Await.result(electrumWallet.getFinalAddress(), Duration.create(100, "milliseconds"));
   }
 
   public String getRecoveryPhrase() {
-    return Joiner.on(" ").join(wallet.getKeyChainSeed().getMnemonicCode());
+    return Joiner.on(" ").join(mnemonics);
   }
 
   public boolean checkWordRecoveryPhrase(int position, String word) {
-    return wallet.getKeyChainSeed().getMnemonicCode().get(position).equals(word);
+    return mnemonics.get(position).equals(word);
   }
 
   public DBHelper getDBHelper() {
