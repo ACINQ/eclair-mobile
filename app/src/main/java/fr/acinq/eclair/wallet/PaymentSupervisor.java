@@ -44,12 +44,12 @@ public class PaymentSupervisor extends UntypedActor {
       log.info("Received WalletTransactionReceive message: {}", message);
       ElectrumWallet.WalletTransactionReceive walletTransactionReceive = (ElectrumWallet.WalletTransactionReceive)message;
       final Transaction tx = walletTransactionReceive.tx();
-      final PaymentDirection direction = (walletTransactionReceive.received().$greater$eq(walletTransactionReceive.spent()))
+      final PaymentDirection direction = (walletTransactionReceive.newBalance().$greater$eq(walletTransactionReceive.oldBalance()))
         ? PaymentDirection.RECEIVED
         : PaymentDirection.SENT;
-      final Satoshi amount = (walletTransactionReceive.received().$greater$eq(walletTransactionReceive.spent()))
-        ? walletTransactionReceive.received().$minus(walletTransactionReceive.spent())
-        : walletTransactionReceive.spent().$minus(walletTransactionReceive.received());
+      final Satoshi amount = (walletTransactionReceive.newBalance().$greater$eq(walletTransactionReceive.oldBalance()))
+        ? walletTransactionReceive.newBalance().$minus(walletTransactionReceive.oldBalance())
+        : walletTransactionReceive.oldBalance().$minus(walletTransactionReceive.newBalance());
       final Payment paymentInDB = app.getDBHelper().getPayment(tx.txid().toString(), PaymentType.BTC_ONCHAIN, PaymentDirection.RECEIVED);
       ByteArrayOutputStream bos = new ByteArrayOutputStream();
       Transaction.write(tx, bos, Protocol.PROTOCOL_VERSION());
@@ -67,7 +67,7 @@ public class PaymentSupervisor extends UntypedActor {
       app.getDBHelper().insertOrUpdatePayment(paymentReceived);
 
       // dispatch news
-      EventBus.getDefault().postSticky(new WalletBalanceUpdateEvent(amountReceived));
+      EventBus.getDefault().postSticky(new WalletBalanceUpdateEvent(walletTransactionReceive.newBalance()));
       EventBus.getDefault().post(new BitcoinPaymentEvent(paymentReceived));
 
       getSender().tell(message, getSelf());
