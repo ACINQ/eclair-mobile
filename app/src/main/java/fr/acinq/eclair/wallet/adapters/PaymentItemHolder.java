@@ -7,8 +7,6 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import org.bitcoinj.core.TransactionConfidence;
-
 import java.text.DateFormat;
 import java.text.NumberFormat;
 
@@ -102,10 +100,8 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
       }
       mPaymentIcon.setImageResource(R.mipmap.ic_bolt_circle);
     } else {
-
-      if (payment.getConfidenceType() == TransactionConfidence.ConfidenceType.BUILDING.getValue()
-        || payment.getConfidenceType() == TransactionConfidence.ConfidenceType.PENDING.getValue()
-        || payment.getConfidenceType() == TransactionConfidence.ConfidenceType.UNKNOWN.getValue()) {
+      // convention: negative number of confirmations means conflicted
+      if (payment.getConfidenceBlocks() >= 0) {
 
         // text
         String confidenceBlocks = payment.getConfidenceBlocks() < 7 ?

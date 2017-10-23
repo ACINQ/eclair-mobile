@@ -44,13 +44,13 @@ public class PaymentSupervisor extends UntypedActor {
       log.info("Received WalletTransactionReceive message: {}", message);
       ElectrumWallet.WalletTransactionReceive walletTransactionReceive = (ElectrumWallet.WalletTransactionReceive)message;
       final Transaction tx = walletTransactionReceive.tx();
-      final PaymentDirection direction = (walletTransactionReceive.newBalance().$greater$eq(walletTransactionReceive.oldBalance()))
+      final PaymentDirection direction = (walletTransactionReceive.received().$greater$eq(walletTransactionReceive.sent()))
         ? PaymentDirection.RECEIVED
         : PaymentDirection.SENT;
-      final Satoshi amount = (walletTransactionReceive.newBalance().$greater$eq(walletTransactionReceive.oldBalance()))
-        ? walletTransactionReceive.newBalance().$minus(walletTransactionReceive.oldBalance())
-        : walletTransactionReceive.oldBalance().$minus(walletTransactionReceive.newBalance());
-      final Payment paymentInDB = app.getDBHelper().getPayment(tx.txid().toString(), PaymentType.BTC_ONCHAIN, PaymentDirection.RECEIVED);
+      final Satoshi amount = (walletTransactionReceive.received().$greater$eq(walletTransactionReceive.sent()))
+        ? walletTransactionReceive.received().$minus(walletTransactionReceive.sent())
+        : walletTransactionReceive.sent().$minus(walletTransactionReceive.received());
+      final Payment paymentInDB = app.getDBHelper().getPayment(tx.txid().toString(), PaymentType.BTC_ONCHAIN, direction);
       ByteArrayOutputStream bos = new ByteArrayOutputStream();
       Transaction.write(tx, bos, Protocol.PROTOCOL_VERSION());
 
@@ -62,15 +62,28 @@ public class PaymentSupervisor extends UntypedActor {
       paymentReceived.setTxPayload(Hex.toHexString(bos.toByteArray()));
       paymentReceived.setAmountPaidMsat(package$.MODULE$.satoshi2millisatoshi(amount).amount());
       paymentReceived.setUpdated(new Date());
-      paymentReceived.setConfidenceBlocks(0);
+      paymentReceived.setConfidenceBlocks((int) walletTransactionReceive.depth());
       paymentReceived.setConfidenceType(0);
       app.getDBHelper().insertOrUpdatePayment(paymentReceived);
 
       // dispatch news
-      EventBus.getDefault().postSticky(new WalletBalanceUpdateEvent(walletTransactionReceive.newBalance()));
       EventBus.getDefault().post(new BitcoinPaymentEvent(paymentReceived));
 
-      getSender().tell(message, getSelf());
+      // ask for balance
+      wallet.tell(ElectrumWallet.GetBalance$.MODULE$, getSelf());
+    } else if (message instanceof ElectrumWallet.WalletTransactionConfidenceChanged) {
+      log.info("Received WalletTransactionConfidenceChanged message: {}", message);
+      ElectrumWallet.WalletTransactionConfidenceChanged walletTransactionConfidenceChanged= (ElectrumWallet.WalletTransactionConfidenceChanged)message;
+      final Payment p = app.getDBHelper().getPayment(walletTransactionConfidenceChanged.txid().toString(), PaymentType.BTC_ONCHAIN);
+      if (p != null) {
+        p.setConfidenceBlocks((int) walletTransactionConfidenceChanged.depth());
+        // p.setConfidenceType();
+        app.getDBHelper().updatePayment(p);
+      }
+    } else if (message instanceof ElectrumWallet.GetBalanceResponse) {
+      log.info("Received GetBalanceResponse message: {}", message);
+      ElectrumWallet.GetBalanceResponse getBalanceResponse = (ElectrumWallet.GetBalanceResponse) message;
+      EventBus.getDefault().postSticky(new WalletBalanceUpdateEvent(getBalanceResponse.confirmed())); // TODO: use unconfirmed balance instead ?
     } else
       unhandled(message);
   }

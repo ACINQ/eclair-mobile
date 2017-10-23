@@ -11,8 +11,6 @@ import android.util.Log;
 import com.google.common.base.Joiner;
 import com.typesafe.config.ConfigFactory;
 
-import org.bitcoinj.core.Address;
-import org.bitcoinj.core.InsufficientMoneyException;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -75,7 +73,6 @@ public class App extends Application {
       final File datadir = new File(getApplicationContext().getFilesDir(), DATADIR_NAME);
       Log.d(TAG, "Accessing Eclair Setup with datadir " + datadir.getAbsolutePath());
 
-//      EclairBitcoinjKit eclairBitcoinjKit = new EclairBitcoinjKit("test", datadir, this);
 //      Future<Wallet> fWallet = eclairBitcoinjKit.getFutureWallet();
 //      Future<PeerGroup> fPeerGroup = eclairBitcoinjKit.getFuturePeerGroup();
 //      EclairWallet eclairWallet = new BitcoinjWallet(fWallet, system.dispatcher());
@@ -187,11 +184,11 @@ public class App extends Application {
     }
   }
 
-  public boolean checkAddress(final Address address) {
+  public boolean checkAddress(final String address) {
     return true; // FIXME wallet.getNetworkParameters() == address.getParameters();
   }
 
-  public void sendBitcoinPayment(Satoshi amount, String address) throws InsufficientMoneyException {
+  public void sendBitcoinPayment(Satoshi amount, String address) {
     electrumWallet.sendPayment(amount, address);
   }
 

@@ -1,9 +1,11 @@
 package fr.acinq.eclair.wallet.utils;
 
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
 import fr.acinq.bitcoin.MilliSatoshi;
+import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.payment.PaymentRequest;
 
@@ -55,5 +57,15 @@ public class CoinUtils {
   }
   public static String formatAmountBtc(MilliSatoshi amount) {
     return CoinUtils.getBTCFormat().format(package$.MODULE$.millisatoshi2btc(amount).amount());
+  }
+
+  public static Satoshi parseBitcoinAmout(String input) {
+    long amount = new BigDecimal(input).movePointRight(8).longValueExact();
+    return new Satoshi(amount);
+  }
+
+  public static Satoshi parseMilliSatoshiAmout(String input) {
+    long amount = new BigDecimal(input).movePointRight(8).divide(BigDecimal.valueOf(1000)).longValueExact();
+    return new Satoshi(amount);
   }
 }

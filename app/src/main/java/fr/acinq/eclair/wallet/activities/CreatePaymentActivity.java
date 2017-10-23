@@ -10,11 +10,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.bitcoinj.core.Coin;
-import org.bitcoinj.core.Context;
-import org.bitcoinj.core.InsufficientMoneyException;
-import org.bitcoinj.uri.BitcoinURI;
-import org.bitcoinj.wallet.SendRequest;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.util.AsyncExecutor;
 
@@ -45,6 +40,7 @@ import fr.acinq.eclair.wallet.models.PaymentStatus;
 import fr.acinq.eclair.wallet.models.PaymentType;
 import fr.acinq.eclair.wallet.tasks.BitcoinInvoiceReaderTask;
 import fr.acinq.eclair.wallet.tasks.LNInvoiceReaderTask;
+import fr.acinq.eclair.wallet.utils.BitcoinURI;
 import fr.acinq.eclair.wallet.utils.CoinUtils;
 import fr.acinq.eclair.wire.FailureMessage;
 import scala.Option;
@@ -108,11 +104,11 @@ public class CreatePaymentActivity extends EclairModalActivity
       setAmountViewVisibility();
       mDescriptionLabelView.setText(R.string.payment_destination_address);
       if (isAmountReadonly) {
-        mAmountView.setAmountMsat(package$.MODULE$.satoshi2millisatoshi(new Satoshi(output.getAmount().getValue())));
+        mAmountView.setAmountMsat(package$.MODULE$.satoshi2millisatoshi(output.getAmount()));
       }
       mFeesView.setVisibility(View.VISIBLE);
       mFeesValue.setText(Long.toString(2000)); // FIXME Context.get().getFeePerKb().getValue()));
-      mDescriptionView.setText(output.getAddress().toBase58());
+      mDescriptionView.setText(output.getAddress());
       mLoadingTextView.setVisibility(View.GONE);
       mFormView.setVisibility(View.VISIBLE);
     }
@@ -198,7 +194,7 @@ public class CreatePaymentActivity extends EclairModalActivity
       if (mLNInvoice != null) {
         final long amountMsat = isAmountReadonly
           ? CoinUtils.getLongAmountFromInvoice(mLNInvoice)
-          : package$.MODULE$.satoshi2millisatoshi(new Satoshi(Coin.parseCoin(mAmountEditableValue.getText().toString()).div(1000).getValue())).amount();
+          : package$.MODULE$.satoshi2millisatoshi(CoinUtils.parseMilliSatoshiAmout(mAmountEditableValue.getText().toString())).amount();
         if (EclairEventService.hasActiveChannelsWithBalance(amountMsat)) {
           sendLNPayment(amountMsat);
           finish();
@@ -214,8 +210,8 @@ public class CreatePaymentActivity extends EclairModalActivity
           mPaymentErrorView.setVisibility(View.VISIBLE);
         }
       } else if (mBitcoinInvoice != null) {
-        final Coin amount = isAmountReadonly ? mBitcoinInvoice.getAmount() : Coin.parseCoin(mAmountEditableValue.getText().toString()).div(1000);
-        final Coin feesPerKb = Coin.valueOf(Long.parseLong(mFeesValue.getText().toString()));
+        final Satoshi amount = isAmountReadonly ? mBitcoinInvoice.getAmount() : CoinUtils.parseMilliSatoshiAmout(mAmountEditableValue.getText().toString());
+        final Satoshi feesPerKb = new Satoshi(Long.parseLong(mFeesValue.getText().toString()));
         sendBitcoinPayment(amount, feesPerKb);
         finish();
       }
@@ -308,13 +304,11 @@ public class CreatePaymentActivity extends EclairModalActivity
     );
   }
 
-  private void sendBitcoinPayment(final Coin amount, final Coin feesPerKb) {
+  private void sendBitcoinPayment(final Satoshi amount, final Satoshi feesPerKb) {
     Log.d(TAG, "Sending Bitcoin payment for invoice " + mBitcoinInvoice.toString());
     try {
-      app.sendBitcoinPayment(Satoshi.apply(amount.getValue()), mBitcoinInvoice.getAddress().toBase58());
+      app.sendBitcoinPayment(amount, mBitcoinInvoice.getAddress());
       Toast.makeText(this, R.string.payment_toast_sentbtc, Toast.LENGTH_SHORT).show();
-    } catch (InsufficientMoneyException e) {
-      Toast.makeText(this, R.string.payment_toast_balance, Toast.LENGTH_LONG).show();
     } catch (Throwable t) {
       Toast.makeText(this, R.string.payment_toast_failure, Toast.LENGTH_LONG).show();
       Log.e(TAG, "Could not send Bitcoin payment", t);

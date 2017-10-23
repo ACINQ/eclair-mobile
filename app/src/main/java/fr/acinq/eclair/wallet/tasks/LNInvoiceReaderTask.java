@@ -2,10 +2,6 @@ package fr.acinq.eclair.wallet.tasks;
 
 import android.os.AsyncTask;
 import android.util.Log;
-
-import org.bitcoinj.uri.BitcoinURI;
-import org.bitcoinj.uri.BitcoinURIParseException;
-
 import fr.acinq.eclair.payment.PaymentRequest;
 
 public class LNInvoiceReaderTask extends AsyncTask<String, Integer, PaymentRequest> {

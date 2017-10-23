@@ -10,8 +10,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import org.bitcoinj.core.TransactionConfidence;
-
 import java.text.DateFormat;
 
 import fr.acinq.bitcoin.MilliSatoshi;
@@ -94,12 +92,13 @@ public class BitcoinTransactionDetailsActivity extends EclairActivity {
       mUpdateDateRow.setValue(DateFormat.getDateTimeInstance().format(p.getUpdated()));
       mOpenInExplorer.setOnClickListener(WalletUtils.getOpenTxListener(p.getReference()));
       mTxConfs.setValue(Integer.toString(p.getConfidenceBlocks()));
-      for (TransactionConfidence.ConfidenceType t : TransactionConfidence.ConfidenceType.values()) {
-        if (t.getValue() == p.getConfidenceType()) {
-          mTxConfsType.setValue(t.toString());
-          break;
-        }
-      }
+// FIXME
+//      for (TransactionConfidence.ConfidenceType t : TransactionConfidence.ConfidenceType.values()) {
+//        if (t.getValue() == p.getConfidenceType()) {
+//          mTxConfsType.setValue(t.toString());
+//          break;
+//        }
+//      }
 
       if (p.getConfidenceBlocks() == 0) {
         mRebroadcastTxView.setVisibility(View.VISIBLE);
