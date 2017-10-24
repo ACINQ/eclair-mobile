@@ -30,6 +30,8 @@ import fr.acinq.eclair.router.ChannelDiscovered;
 import fr.acinq.eclair.router.ChannelLost;
 import fr.acinq.eclair.router.NodeDiscovered;
 import fr.acinq.eclair.router.NodeLost;
+import fr.acinq.eclair.transactions.Htlc;
+import fr.acinq.eclair.transactions.OUT$;
 import fr.acinq.eclair.wallet.events.ChannelUpdateEvent;
 import fr.acinq.eclair.wallet.events.LNBalanceUpdateEvent;
 import fr.acinq.eclair.wallet.events.LNPaymentEvent;
@@ -41,6 +43,7 @@ import fr.acinq.eclair.wallet.models.PaymentType;
 import fr.acinq.eclair.wallet.utils.CoinUtils;
 import fr.acinq.eclair.wire.ChannelAnnouncement;
 import fr.acinq.eclair.wire.NodeAnnouncement;
+import scala.collection.Iterator;
 
 public class EclairEventService extends UntypedActor {
 
@@ -131,7 +134,15 @@ public class EclairEventService extends UntypedActor {
     else if (message instanceof ChannelSignatureReceived && channelDetailsMap.containsKey(((ChannelSignatureReceived) message).channel())) {
       ChannelSignatureReceived csr = (ChannelSignatureReceived) message;
       ChannelDetails cd = channelDetailsMap.get(csr.channel());
-      cd.balanceMsat = new MilliSatoshi(csr.Commitments().localCommit().spec().toLocalMsat());
+      long outHtlcsAmount = 0L;
+      Iterator<Htlc> htlcsIterator = csr.Commitments().localCommit().spec().htlcs().iterator();
+      while (htlcsIterator.hasNext()) {
+        Htlc h = htlcsIterator.next();
+        if (h.direction() instanceof OUT$) {
+          outHtlcsAmount += h.add().amountMsat();
+        }
+      }
+      cd.balanceMsat = new MilliSatoshi(csr.Commitments().localCommit().spec().toLocalMsat() + outHtlcsAmount);
       cd.capacityMsat = new MilliSatoshi(csr.Commitments().localCommit().spec().totalFunds());
       EventBus.getDefault().post(new ChannelUpdateEvent());
       postLNBalanceEvent();
