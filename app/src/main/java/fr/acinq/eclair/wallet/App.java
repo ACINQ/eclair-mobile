@@ -50,9 +50,14 @@ import fr.acinq.eclair.io.Switchboard;
 import fr.acinq.eclair.payment.PaymentEvent;
 import fr.acinq.eclair.payment.SendPayment;
 import fr.acinq.eclair.router.NetworkEvent;
+import fr.acinq.eclair.wallet.events.NetworkChannelsCountEvent;
+import fr.acinq.eclair.wallet.events.NetworkNodesCountEvent;
 import fr.acinq.eclair.wallet.events.NotificationEvent;
 import fr.acinq.eclair.wallet.events.WalletBalanceUpdateEvent;
 import scala.Option;
+import scala.Symbol;
+import scala.collection.Iterable;
+import scala.collection.MapLike;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.Promise;
@@ -230,6 +235,34 @@ public class App extends Application {
 
   public boolean checkWordRecoveryPhrase(int position, String word) {
     return wallet.getKeyChainSeed().getMnemonicCode().get(position).equals(word);
+  }
+
+  public void getNetworkNodesCount() {
+    Future<Object> paymentFuture = Patterns.ask(eclairKit.router(), new Symbol("nodes"), new Timeout(Duration.create(10, "seconds")));
+    paymentFuture.onComplete(new OnComplete<Object>() {
+      @Override
+      public void onComplete(Throwable throwable, Object o) throws Throwable {
+        if (throwable == null && o != null && o instanceof Iterable) {
+          EventBus.getDefault().post(new NetworkNodesCountEvent(((Iterable) o).size()));
+        } else {
+          EventBus.getDefault().post(new NetworkNodesCountEvent(-1));
+        }
+      }
+    }, system.dispatcher());
+  }
+
+  public void getNetworkChannelsCount() {
+    Future<Object> paymentFuture = Patterns.ask(eclairKit.router(), new Symbol("channels"), new Timeout(Duration.create(10, "seconds")));
+    paymentFuture.onComplete(new OnComplete<Object>() {
+      @Override
+      public void onComplete(Throwable throwable, Object o) throws Throwable {
+        if (throwable == null && o != null && o instanceof Iterable) {
+          EventBus.getDefault().post(new NetworkChannelsCountEvent(((Iterable) o).size()));
+        } else {
+          EventBus.getDefault().post(new NetworkChannelsCountEvent(-1));
+        }
+      }
+    }, system.dispatcher());
   }
 
   public DBHelper getDBHelper() {

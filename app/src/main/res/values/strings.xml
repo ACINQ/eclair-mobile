@@ -8,8 +8,6 @@
   <string name="about_name">About</string>
   <string name="lnpayment_name">Lightning Payment Details</string>
   <string name="btcpayment_name">Transaction Details</string>
-  <string name="networkchannels_name">Channels in network</string>
-  <string name="networknodes_name">Nodes in network</string>
   <string name="channeldetails_name">Channel Details</string>
 
   <!-- //////////////// home //////////////////// -->
@@ -197,17 +195,6 @@
   <string name="paymentdetails_updated_label">Last update</string>
   <string name="paymentdetails_updated_desc">Last time the payment was updated</string>
 
-  <!-- //////////////// network channels/nodes //////////////////// -->
-
-  <string name="networkchannels_empty">No channels announced yet.</string>
-  <string name="networknodes_empty">No nodes announced yet.</string>
-
-  <string name="networkchannelitem_channelid">Short Id</string>
-  <string name="networkchannelitem_node1">Node 1</string>
-  <string name="networkchannelitem_node2">Node 2</string>
-  <string name="networknodeitem_alias">Alias</string>
-  <string name="networknodeitem_pubkey">Public Key</string>
-
   <!-- //////////////// payment splash //////////////////// -->
 
   <string name="paymentsuccess_title">Payment sent!</string>
@@ -268,9 +255,9 @@
   <string name="networkinfos_feerate_label">Fee rate</string>
   <string name="networkinfos_feerate_desc">Current fee rate (satoshi/kW)</string>
   <string name="networkinfos_networkchannels_label">Known channels</string>
-  <string name="networkinfos_networkchannels_desc">Click to display the list</string>
+  <string name="networkinfos_networkchannels_desc">Channels count in network</string>
   <string name="networkinfos_networknodes_label">Known nodes</string>
-  <string name="networkinfos_networknodes_desc">Click to display the list</string>
+  <string name="networkinfos_networknodes_desc">Nodes count in network</string>
 
   <!-- //////////////// payment item //////////////////// -->
 
