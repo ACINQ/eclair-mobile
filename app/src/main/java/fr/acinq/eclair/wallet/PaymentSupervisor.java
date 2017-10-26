@@ -68,9 +68,6 @@ public class PaymentSupervisor extends UntypedActor {
 
       // dispatch news
       EventBus.getDefault().post(new BitcoinPaymentEvent(paymentReceived));
-
-      // ask for balance
-      wallet.tell(ElectrumWallet.GetBalance$.MODULE$, getSelf());
     } else if (message instanceof ElectrumWallet.WalletTransactionConfidenceChanged) {
       log.info("Received WalletTransactionConfidenceChanged message: {}", message);
       ElectrumWallet.WalletTransactionConfidenceChanged walletTransactionConfidenceChanged= (ElectrumWallet.WalletTransactionConfidenceChanged)message;
@@ -83,8 +80,11 @@ public class PaymentSupervisor extends UntypedActor {
     } else if (message instanceof ElectrumWallet.GetBalanceResponse) {
       log.info("Received GetBalanceResponse message: {}", message);
       ElectrumWallet.GetBalanceResponse getBalanceResponse = (ElectrumWallet.GetBalanceResponse) message;
-      EventBus.getDefault().postSticky(new WalletBalanceUpdateEvent(getBalanceResponse.confirmed())); // TODO: use unconfirmed balance instead ?
-    } else
-      unhandled(message);
+      EventBus.getDefault().postSticky(new WalletBalanceUpdateEvent(getBalanceResponse.confirmed().$plus(getBalanceResponse.unconfirmed())));
+    } else if (message instanceof ElectrumWallet.Ready) {
+      log.info("Received Ready message: {}", message);
+      ElectrumWallet.Ready ready = (ElectrumWallet.Ready) message;
+      EventBus.getDefault().postSticky(new WalletBalanceUpdateEvent(ready.confirmedBalance().$plus(ready.unconfirmedBalance())));
+    } else unhandled(message);
   }
 }

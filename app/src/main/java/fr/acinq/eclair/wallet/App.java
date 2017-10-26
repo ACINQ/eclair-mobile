@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.common.base.Joiner;
 import com.typesafe.config.ConfigFactory;
@@ -152,8 +153,7 @@ public class App extends Application {
   }
 
   public void publishWalletBalance() {
-    Satoshi balance = getWalletBalanceSat();
-    EventBus.getDefault().postSticky(new WalletBalanceUpdateEvent(balance));
+    wallet.tell(fr.acinq.eclair.blockchain.electrum.ElectrumWallet.GetBalance$.MODULE$, paymentSupervisor);
   }
 
   public Satoshi getWalletBalanceSat() {
@@ -188,8 +188,8 @@ public class App extends Application {
     return true; // FIXME wallet.getNetworkParameters() == address.getParameters();
   }
 
-  public void sendBitcoinPayment(Satoshi amount, String address) {
-    electrumWallet.sendPayment(amount, address);
+  public ElectrumWallet getWallet() {
+    return electrumWallet;
   }
 
   public boolean isProduction() {

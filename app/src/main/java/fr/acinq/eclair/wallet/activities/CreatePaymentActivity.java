@@ -1,5 +1,6 @@
 package fr.acinq.eclair.wallet.activities;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
@@ -22,6 +23,7 @@ import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.bitcoin.MilliBtc;
 import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.bitcoin.package$;
+import fr.acinq.eclair.blockchain.wallet.ElectrumWallet;
 import fr.acinq.eclair.channel.ChannelException;
 import fr.acinq.eclair.payment.LocalFailure;
 import fr.acinq.eclair.payment.PaymentFailed;
@@ -306,13 +308,36 @@ public class CreatePaymentActivity extends EclairModalActivity
 
   private void sendBitcoinPayment(final Satoshi amount, final Satoshi feesPerKb) {
     Log.d(TAG, "Sending Bitcoin payment for invoice " + mBitcoinInvoice.toString());
-    try {
-      app.sendBitcoinPayment(amount, mBitcoinInvoice.getAddress());
-      Toast.makeText(this, R.string.payment_toast_sentbtc, Toast.LENGTH_SHORT).show();
-    } catch (Throwable t) {
-      Toast.makeText(this, R.string.payment_toast_failure, Toast.LENGTH_LONG).show();
-      Log.e(TAG, "Could not send Bitcoin payment", t);
-    }
+    final CreatePaymentActivity context = this;
+    app.getWallet().sendPayment(amount, mBitcoinInvoice.getAddress(), new ElectrumWallet.CompletionCallback<Boolean>() {
+      @Override
+      public void onSuccess(Boolean value) {
+        if (value) {
+          context.runOnUiThread(new Runnable() {
+            public void run() {
+              Toast.makeText(context, R.string.payment_toast_sentbtc, Toast.LENGTH_SHORT).show();
+            }
+          });
+        } else {
+          context.runOnUiThread(new Runnable() {
+            public void run() {
+              Toast.makeText(context, R.string.payment_toast_failure, Toast.LENGTH_LONG).show();
+            }
+          });
+          Log.e(TAG, "Could not send Bitcoin payment");
+        }
+      }
+
+      @Override
+      public void onFailure(Throwable t) {
+        context.runOnUiThread(new Runnable() {
+          public void run() {
+            Toast.makeText(context, R.string.payment_toast_failure, Toast.LENGTH_LONG).show();
+          }
+        });
+        Log.e(TAG, "Could not send Bitcoin payment", t);
+      }
+    });
   }
 
   private void toggleButtons() {
