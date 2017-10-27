@@ -213,7 +213,7 @@ public class CreatePaymentActivity extends EclairModalActivity
         }
       } else if (mBitcoinInvoice != null) {
         final Satoshi amount = isAmountReadonly ? mBitcoinInvoice.getAmount() : CoinUtils.parseMilliSatoshiAmout(mAmountEditableValue.getText().toString());
-        final Satoshi feesPerKb = new Satoshi(Long.parseLong(mFeesValue.getText().toString()));
+        final Long feesPerKb = Long.parseLong(mFeesValue.getText().toString());
         sendBitcoinPayment(amount, feesPerKb);
         finish();
       }
@@ -306,10 +306,10 @@ public class CreatePaymentActivity extends EclairModalActivity
     );
   }
 
-  private void sendBitcoinPayment(final Satoshi amount, final Satoshi feesPerKb) {
+  private void sendBitcoinPayment(final Satoshi amount, final Long feesPerKb) {
     Log.d(TAG, "Sending Bitcoin payment for invoice " + mBitcoinInvoice.toString());
     final CreatePaymentActivity context = this;
-    app.getWallet().sendPayment(amount, mBitcoinInvoice.getAddress(), new ElectrumWallet.CompletionCallback<Boolean>() {
+    app.getWallet().sendPayment(amount, mBitcoinInvoice.getAddress(), feesPerKb, new ElectrumWallet.CompletionCallback<Boolean>() {
       @Override
       public void onSuccess(Boolean value) {
         if (value) {
