@@ -14,15 +14,12 @@ import java.net.InetSocketAddress;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
-import akka.actor.UntypedActor;
 import akka.testkit.JavaTestKit;
 import fr.acinq.bitcoin.BinaryData;
-import fr.acinq.bitcoin.BinaryData$;
 import fr.acinq.bitcoin.Crypto;
 import fr.acinq.bitcoin.Transaction;
 import fr.acinq.bitcoin.package$;
 import scala.collection.JavaConversions$;
-import scala.concurrent.duration.Duration;
 
 public class ElectrumClientTest {
 

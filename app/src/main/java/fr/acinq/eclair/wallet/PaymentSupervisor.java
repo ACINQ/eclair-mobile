@@ -1,5 +1,7 @@
 package fr.acinq.eclair.wallet;
 
+import android.util.Log;
+
 import org.greenrobot.eventbus.EventBus;
 import org.spongycastle.util.encoders.Hex;
 
@@ -8,8 +10,6 @@ import java.util.Date;
 
 import akka.actor.ActorRef;
 import akka.actor.UntypedActor;
-import akka.event.Logging;
-import akka.event.LoggingAdapter;
 import fr.acinq.bitcoin.Protocol;
 import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.bitcoin.Transaction;
@@ -28,6 +28,7 @@ import fr.acinq.eclair.wallet.models.PaymentType;
  */
 
 public class PaymentSupervisor extends UntypedActor {
+  public final static String TAG = "PaymentSupervisor";
   private App app;
   private ActorRef wallet;
 
@@ -37,12 +38,10 @@ public class PaymentSupervisor extends UntypedActor {
     wallet.tell(new ElectrumClient.AddStatusListener(getSelf()), getSelf());
   }
 
-  LoggingAdapter log = Logging.getLogger(getContext().system(), this);
-
   public void onReceive(Object message) throws Exception {
     if (message instanceof ElectrumWallet.WalletTransactionReceive) {
-      log.info("Received WalletTransactionReceive message: {}", message);
-      ElectrumWallet.WalletTransactionReceive walletTransactionReceive = (ElectrumWallet.WalletTransactionReceive)message;
+      Log.d(TAG, "Received WalletTransactionReceive message: " + message);
+      ElectrumWallet.WalletTransactionReceive walletTransactionReceive = (ElectrumWallet.WalletTransactionReceive) message;
       final Transaction tx = walletTransactionReceive.tx();
       final PaymentDirection direction = (walletTransactionReceive.received().$greater$eq(walletTransactionReceive.sent()))
         ? PaymentDirection.RECEIVED
@@ -61,28 +60,30 @@ public class PaymentSupervisor extends UntypedActor {
       paymentReceived.setReference(walletTransactionReceive.tx().txid().toString());
       paymentReceived.setTxPayload(Hex.toHexString(bos.toByteArray()));
       paymentReceived.setAmountPaidMsat(package$.MODULE$.satoshi2millisatoshi(amount).amount());
-      paymentReceived.setUpdated(new Date());
+      if (paymentInDB == null) {
+        paymentReceived.setUpdated(new Date());
+      }
       paymentReceived.setConfidenceBlocks((int) walletTransactionReceive.depth());
       paymentReceived.setConfidenceType(0);
       app.getDBHelper().insertOrUpdatePayment(paymentReceived);
 
       // dispatch news
+      app.publishWalletBalance();
       EventBus.getDefault().post(new BitcoinPaymentEvent(paymentReceived));
     } else if (message instanceof ElectrumWallet.WalletTransactionConfidenceChanged) {
-      log.info("Received WalletTransactionConfidenceChanged message: {}", message);
-      ElectrumWallet.WalletTransactionConfidenceChanged walletTransactionConfidenceChanged= (ElectrumWallet.WalletTransactionConfidenceChanged)message;
+      Log.d(TAG, "Received WalletTransactionConfidenceChanged message: " + message);
+      ElectrumWallet.WalletTransactionConfidenceChanged walletTransactionConfidenceChanged = (ElectrumWallet.WalletTransactionConfidenceChanged) message;
       final Payment p = app.getDBHelper().getPayment(walletTransactionConfidenceChanged.txid().toString(), PaymentType.BTC_ONCHAIN);
       if (p != null) {
         p.setConfidenceBlocks((int) walletTransactionConfidenceChanged.depth());
-        // p.setConfidenceType();
         app.getDBHelper().updatePayment(p);
       }
     } else if (message instanceof ElectrumWallet.GetBalanceResponse) {
-      log.info("Received GetBalanceResponse message: {}", message);
+      Log.d(TAG, "Received GetBalanceResponse message: " + message);
       ElectrumWallet.GetBalanceResponse getBalanceResponse = (ElectrumWallet.GetBalanceResponse) message;
       EventBus.getDefault().postSticky(new WalletBalanceUpdateEvent(getBalanceResponse.confirmed().$plus(getBalanceResponse.unconfirmed())));
     } else if (message instanceof ElectrumWallet.Ready) {
-      log.info("Received Ready message: {}", message);
+      Log.d(TAG, "Received Ready message: " + message);
       ElectrumWallet.Ready ready = (ElectrumWallet.Ready) message;
       EventBus.getDefault().postSticky(new WalletBalanceUpdateEvent(ready.confirmedBalance().$plus(ready.unconfirmedBalance())));
     } else unhandled(message);

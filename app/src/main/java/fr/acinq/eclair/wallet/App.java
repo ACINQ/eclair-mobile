@@ -74,11 +74,6 @@ public class App extends Application {
       final File datadir = new File(getApplicationContext().getFilesDir(), DATADIR_NAME);
       Log.d(TAG, "Accessing Eclair Setup with datadir " + datadir.getAbsolutePath());
 
-//      Future<Wallet> fWallet = eclairBitcoinjKit.getFutureWallet();
-//      Future<PeerGroup> fPeerGroup = eclairBitcoinjKit.getFuturePeerGroup();
-//      EclairWallet eclairWallet = new BitcoinjWallet(fWallet, system.dispatcher());
-//      eclairBitcoinjKit.startAsync();
-
       Class.forName("org.sqlite.JDBC");
       Setup setup = new Setup(datadir, Option.apply((EclairWallet)null), ConfigFactory.empty(), system);
       ActorRef guiUpdater = system.actorOf(Props.create(EclairEventService.class, dbHelper));
@@ -86,16 +81,12 @@ public class App extends Application {
       setup.system().eventStream().subscribe(guiUpdater, PaymentEvent.class);
       setup.system().eventStream().subscribe(guiUpdater, NetworkEvent.class);
       Future<Kit> fKit = setup.bootstrap();
-//      pAtCurrentHeight.completeWith(setup.bitcoin().left().get().atCurrentHeight());
-//
-//      wallet = Await.result(fWallet, Duration.create(20, "seconds"));
-//      peerGroup = Await.result(fPeerGroup, Duration.create(20, "seconds"));
       eclairKit = Await.result(fKit, Duration.create(20, "seconds"));
       pAtCurrentHeight.success(null);
       electrumWallet = (fr.acinq.eclair.blockchain.wallet.ElectrumWallet) eclairKit.wallet();
       wallet = electrumWallet.wallet();
       paymentSupervisor = system.actorOf(Props.create(PaymentSupervisor.class, this, wallet), "payments");
-      mnemonics = scala.collection.JavaConverters.seqAsJavaListConverter(Await.result(electrumWallet.getMnemonics(), Duration.create(500, "milliseconds")).toList()).asJava();
+      mnemonics = scala.collection.JavaConverters.seqAsJavaListConverter(Await.result(electrumWallet.getMnemonics(), Duration.create(2000, "milliseconds")).toList()).asJava();
 
       try {
         DBCompatChecker.checkDBCompatibility(setup.nodeParams());
@@ -158,7 +149,7 @@ public class App extends Application {
 
   public Satoshi getWalletBalanceSat() {
     try {
-      return Await.result(electrumWallet.getBalance(), Duration.create(100, "milliseconds"));
+      return Await.result(electrumWallet.getBalance(), Duration.create(200, "milliseconds"));
     } catch (Exception e) {
       e.printStackTrace();
       return Satoshi.apply(0);
