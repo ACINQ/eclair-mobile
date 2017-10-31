@@ -9,7 +9,7 @@ import org.bitcoinj.uri.BitcoinURIParseException;
 
 public class BitcoinInvoiceReaderTask extends AsyncTask<String, Integer, BitcoinURI> {
 
-  private static final String TAG = "LNInvoiceReaderTask";
+  private static final String TAG = "BitcoinInvoiceReader";
   private final String invoiceAsString;
   private final AsyncInvoiceReaderTaskResponse delegate;
 

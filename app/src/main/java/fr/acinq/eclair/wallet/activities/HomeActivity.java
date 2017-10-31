@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -28,10 +29,19 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.greenrobot.eventbus.util.ThrowableFailureEvent;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,6 +57,7 @@ import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.customviews.CoinAmountView;
 import fr.acinq.eclair.wallet.events.BitcoinPaymentEvent;
 import fr.acinq.eclair.wallet.events.ChannelUpdateEvent;
+import fr.acinq.eclair.wallet.events.ExchangeRateEvent;
 import fr.acinq.eclair.wallet.events.LNBalanceUpdateEvent;
 import fr.acinq.eclair.wallet.events.LNNewChannelFailureEvent;
 import fr.acinq.eclair.wallet.events.LNNewChannelOpenedEvent;
@@ -88,6 +99,10 @@ public class HomeActivity extends EclairActivity {
   private ViewStub mStubBackup;
   private View mStubBackupInflated;
   private int introStep = 0;
+
+  private Handler mExchangeRateHandler;
+  private Runnable mExchangeRateRunnable;
+  private JsonObjectRequest mExchangeRateRequest;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -191,6 +206,37 @@ public class HomeActivity extends EclairActivity {
         });
       }
     }, ExecutionContext.Implicits$.MODULE$.global());
+
+    final RequestQueue queue = Volley.newRequestQueue(this);
+    mExchangeRateRequest = new JsonObjectRequest(Request.Method.GET, "https://api.coindesk.com/v1/bpi/currentprice.json", null,
+      new Response.Listener<JSONObject>() {
+        @SuppressLint("SetTextI18n")
+        @Override
+        public void onResponse(JSONObject response) {
+          try {
+            JSONObject bpi = response.getJSONObject("bpi");
+            JSONObject eur = bpi.getJSONObject("EUR");
+            JSONObject usd = bpi.getJSONObject("USD");
+            app.updateExchangeRate(eur.getDouble("rate_float"), usd.getDouble("rate_float"));
+          } catch (JSONException e) {
+            Log.e("ExchangeRate", "Could not read coindesk response", e);
+          }
+        }
+      }, new Response.ErrorListener() {
+      @Override
+      public void onErrorResponse(VolleyError error) {
+        Log.e("ExchangeRate", "Error when querying coindesk api", error);
+      }
+    });
+    mExchangeRateHandler = new Handler();
+    mExchangeRateRunnable = new Runnable() {
+      @Override
+      public void run() {
+        queue.add(mExchangeRateRequest);
+        mExchangeRateHandler.postDelayed(this, 5 * 60 * 1000);
+      }
+    };
+
   }
 
   @Override
@@ -204,6 +250,7 @@ public class HomeActivity extends EclairActivity {
     } else {
       enableSendButton();
     }
+    mExchangeRateHandler.post(mExchangeRateRunnable);
     app.publishWalletBalance();
     EclairEventService.postLNBalanceEvent();
   }
@@ -211,6 +258,7 @@ public class HomeActivity extends EclairActivity {
   @Override
   public void onPause() {
     super.onPause();
+    mExchangeRateHandler.removeCallbacks(mExchangeRateRunnable);
     home_closeSendButtons();
     home_closeOpenChannelButtons();
   }

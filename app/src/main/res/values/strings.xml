@@ -144,12 +144,16 @@
 
   <string name="payment_failure_read_invoice">Could not read invoice!</string>
   <string name="payment_invalid_address">Not a valid Bitcoin Testnet address</string>
-  <string name="payment_description">Description</string>
-  <string name="payment_destination_address">Destination address</string>
-  <string name="payment_fees">Fees in satoshi/kb</string>
+  <string name="payment_type_onchain">On-Chain Payment</string>
+  <string name="payment_type_lightning">Lightning Payment</string>
+  <string name="payment_fees_slow">Slow</string>
+  <string name="payment_fees_medium">Medium</string>
+  <string name="payment_fees_fast">Fast</string>
+  <string name="payment_description">Desc.</string>
+  <string name="payment_destination_address">To</string>
+  <string name="payment_fees">Fees</string>
   <string name="payment_loading_pleasewait">Reading the invoice, please wait…</string>
-  <string name="payment_amount_to_send_readonly">Amount to send</string>
-  <string name="payment_amount_to_send_editable">Amount in mBTC</string>
+  <string name="payment_amount_to_send">Amount to send</string>
   <string name="payment_toast_sentbtc">Payment sent</string>
   <string name="payment_toast_balance">Insufficient balance</string>
   <string name="payment_toast_failure">Could not send transaction</string>

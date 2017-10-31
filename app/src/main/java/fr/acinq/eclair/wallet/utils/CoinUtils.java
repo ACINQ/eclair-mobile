@@ -12,8 +12,18 @@ public class CoinUtils {
   public final static String MILLI_BTC_PATTERN = "###,##0.00";
   private static DecimalFormat btcFormat;
   private static DecimalFormat milliBtcFormat;
+  private static NumberFormat fiatFormat;
 
   private CoinUtils() {
+  }
+
+  public static NumberFormat getFiatFormat() {
+    if (fiatFormat == null) {
+      fiatFormat = NumberFormat.getInstance();
+      fiatFormat.setMinimumFractionDigits(2);
+      fiatFormat.setMaximumFractionDigits(2);
+    }
+    return fiatFormat;
   }
 
   public static DecimalFormat getBTCFormat() {

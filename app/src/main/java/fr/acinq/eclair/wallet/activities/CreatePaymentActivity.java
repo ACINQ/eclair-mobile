@@ -1,30 +1,42 @@
 package fr.acinq.eclair.wallet.activities;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
+import android.text.Editable;
 import android.text.Html;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+
 import org.bitcoinj.core.Coin;
-import org.bitcoinj.core.Context;
 import org.bitcoinj.core.InsufficientMoneyException;
 import org.bitcoinj.uri.BitcoinURI;
 import org.bitcoinj.wallet.SendRequest;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.util.AsyncExecutor;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-import java.util.ArrayList;
+import java.text.NumberFormat;
 import java.util.Date;
-import java.util.List;
 
 import akka.dispatch.OnComplete;
 import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.bitcoin.MilliBtc;
+import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.channel.ChannelException;
@@ -47,10 +59,9 @@ import fr.acinq.eclair.wallet.tasks.BitcoinInvoiceReaderTask;
 import fr.acinq.eclair.wallet.tasks.LNInvoiceReaderTask;
 import fr.acinq.eclair.wallet.utils.CoinUtils;
 import fr.acinq.eclair.wire.FailureMessage;
-import scala.Option;
-import scala.collection.Iterator;
 import scala.collection.Seq;
 import scala.collection.mutable.StringBuilder;
+import scala.math.BigDecimal;
 import scala.util.Either;
 
 public class CreatePaymentActivity extends EclairModalActivity
@@ -58,69 +69,35 @@ public class CreatePaymentActivity extends EclairModalActivity
 
   public static final String EXTRA_INVOICE = "fr.acinq.eclair.wallet.EXTRA_INVOICE";
   private static final String TAG = "CreatePayment";
-
+  private final static String html_error_tab = "&nbsp;&nbsp;&nbsp;&nbsp;";
+  private final static String html_error_new_line = "<br />" + html_error_tab;
+  private final static String html_error_new_line_bullet = html_error_new_line + "&middot;&nbsp;&nbsp;";
+  private final static String html_error_new_line_bullet_inner = html_error_new_line + html_error_tab + "&middot;&nbsp;&nbsp;";
   private boolean isProcessingPayment = false;
   private PaymentRequest mLNInvoice = null;
   private BitcoinURI mBitcoinInvoice = null;
   private String mInvoice = null;
-
   private TextView mLoadingTextView;
   private View mFormView;
-  private CoinAmountView mAmountView;
-  private TextView mDescriptionLabelView;
+  private CoinAmountView mAmountReadonlyValue;
   private TextView mDescriptionView;
+  private TextView mDescriptionLabelView;
   private View mPaymentErrorView;
   private TextView mPaymentErrorTextView;
-  private View mAmountReadonlyView;
   private View mAmountEditableView;
   private EditText mAmountEditableValue;
+  private TextView mAmountFiatView;
+  private TextView mPaymentTypeView;
   private boolean isAmountReadonly = true;
-  private View mFeesView;
   private EditText mFeesValue;
+  private Button mFeesButton;
   private View mButtonsView;
 
-  @Override
-  public void processBitcoinInvoiceFinish(BitcoinURI output) {
-    if (output == null || output.getAddress() == null) {
-      mLoadingTextView.setTextColor(ContextCompat.getColor(this, R.color.redFaded));
-      mLoadingTextView.setText(R.string.payment_failure_read_invoice);
-      mLoadingTextView.setClickable(true);
-      mLoadingTextView.setOnClickListener(new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-          finish();
-        }
-      });
-    } else if (!app.checkAddress(output.getAddress())) {
-      mLoadingTextView.setTextColor(ContextCompat.getColor(this, R.color.redFaded));
-      mLoadingTextView.setText(R.string.payment_invalid_address);
-      mLoadingTextView.setClickable(true);
-      mLoadingTextView.setOnClickListener(new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-          finish();
-        }
-      });
-    } else {
-      this.app.publishWalletBalance();
-      mBitcoinInvoice = output;
-      isAmountReadonly = output.getAmount() != null;
-      setAmountViewVisibility();
-      mDescriptionLabelView.setText(R.string.payment_destination_address);
-      if (isAmountReadonly) {
-        mAmountView.setAmountMsat(package$.MODULE$.satoshi2millisatoshi(new Satoshi(output.getAmount().getValue())));
-      }
-      mFeesView.setVisibility(View.VISIBLE);
-      mFeesValue.setText(Long.toString(Context.get().getFeePerKb().getValue()));
-      mDescriptionView.setText(output.getAddress().toBase58());
-      mLoadingTextView.setVisibility(View.GONE);
-      mFormView.setVisibility(View.VISIBLE);
-    }
-  }
-
+  @SuppressLint("SetTextI18n")
   @Override
   public void processLNInvoiceFinish(PaymentRequest output) {
     if (output == null) {
+      // try reading invoice as a bitcoin uri
       new BitcoinInvoiceReaderTask(this, mInvoice).execute();
     } else {
       // check if the user has any channels
@@ -128,32 +105,81 @@ public class CreatePaymentActivity extends EclairModalActivity
         mButtonsView.setVisibility(View.GONE);
         mPaymentErrorTextView.setText(Html.fromHtml(getString(R.string.payment_error_amount_ln_no_channels)));
         mPaymentErrorView.setVisibility(View.VISIBLE);
-      } else {
-        mPaymentErrorView.setVisibility(View.GONE);
-        mButtonsView.setVisibility(View.VISIBLE);
       }
-
       mLNInvoice = output;
-      mDescriptionLabelView.setText(R.string.payment_description);
-      isAmountReadonly = output.amount().isDefined();
+      isAmountReadonly = mLNInvoice.amount().isDefined();
       setAmountViewVisibility();
       if (isAmountReadonly) {
-        mAmountView.setAmountMsat(CoinUtils.getAmountFromInvoice(output));
+        MilliSatoshi amountMsat = CoinUtils.getAmountFromInvoice(mLNInvoice);
+        mAmountReadonlyValue.setAmountMsat(amountMsat);
+        setFiatAmount(amountMsat);
       }
+      mDescriptionView.setEnabled(false);
       Either<String, BinaryData> desc = output.description();
-      mDescriptionView.setText(desc.isLeft() ? desc.left().get() : desc.right().get().toString());
-      mLoadingTextView.setVisibility(View.GONE);
-      mFormView.setVisibility(View.VISIBLE);
+      invoiceReadSuccessfully(R.string.payment_description, desc.isLeft() ? desc.left().get() : desc.right().get().toString(),
+        R.string.payment_type_lightning, R.color.colorPrimaryLight);
     }
+  }
+
+  @Override
+  public void processBitcoinInvoiceFinish(BitcoinURI output) {
+    if (output == null || output.getAddress() == null) {
+      couldNotReadInvoice(R.string.payment_failure_read_invoice);
+    } else if (!app.checkAddress(output.getAddress())) {
+      couldNotReadInvoice(R.string.payment_invalid_address);
+    } else {
+      mBitcoinInvoice = output;
+      isAmountReadonly = mBitcoinInvoice.getAmount() != null;
+      if (isAmountReadonly) {
+        MilliSatoshi amountMsat = package$.MODULE$.satoshi2millisatoshi(new Satoshi(mBitcoinInvoice.getAmount().getValue()));
+        mAmountReadonlyValue.setAmountMsat(amountMsat);
+        setFiatAmount(amountMsat);
+      }
+      setFastFees(null);
+      invoiceReadSuccessfully(R.string.payment_destination_address, output.getAddress().toBase58(),
+        R.string.payment_type_onchain, R.color.orange);
+    }
+  }
+
+  private void setFiatAmount(final MilliSatoshi amountMsat) {
+    Double amountEur = package$.MODULE$.millisatoshi2btc(amountMsat).amount().doubleValue() * app.getEurRate();
+    mAmountReadonlyValue.setAmountMsat(amountMsat);
+    mAmountFiatView.setText(CoinUtils.getFiatFormat().format(amountEur) + " EUR");
+  }
+
+  private void couldNotReadInvoice(int causeMessageId) {
+    mLoadingTextView.setTextColor(ContextCompat.getColor(this, R.color.redFaded));
+    mLoadingTextView.setText(causeMessageId);
+    mLoadingTextView.setClickable(true);
+    mLoadingTextView.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        finish();
+      }
+    });
+  }
+
+  private void invoiceReadSuccessfully(int descriptionLabel, String description, int paymentTypeLabel, int paymentTypeColor) {
+    setAmountViewVisibility();
+    // description
+    mDescriptionLabelView.setText(descriptionLabel);
+    mDescriptionView.setText(description);
+    // payment type label
+    mPaymentTypeView.setText(paymentTypeLabel);
+    mPaymentTypeView.setBackgroundColor(getResources().getColor(paymentTypeColor));
+    mPaymentTypeView.setVisibility(View.VISIBLE);
+    // change visibility
+    mLoadingTextView.setVisibility(View.GONE);
+    mFormView.setVisibility(View.VISIBLE);
   }
 
   private void setAmountViewVisibility() {
     if (isAmountReadonly) {
-      mAmountReadonlyView.setVisibility(View.VISIBLE);
+      mAmountReadonlyValue.setVisibility(View.VISIBLE);
       mAmountEditableView.setVisibility(View.GONE);
       mAmountEditableValue.clearFocus();
     } else {
-      mAmountReadonlyView.setVisibility(View.GONE);
+      mAmountReadonlyValue.setVisibility(View.GONE);
       mAmountEditableView.setVisibility(View.VISIBLE);
       mAmountEditableValue.requestFocus();
     }
@@ -166,21 +192,78 @@ public class CreatePaymentActivity extends EclairModalActivity
 
     mFormView = findViewById(R.id.payment_form);
     mLoadingTextView = (TextView) findViewById(R.id.payment_loading);
-    mAmountView = (CoinAmountView) findViewById(R.id.payment_value_amount);
-    mDescriptionLabelView = (TextView) findViewById(R.id.paymentitem_description_label);
     mDescriptionView = (TextView) findViewById(R.id.payment_description);
-    mAmountReadonlyView = findViewById(R.id.payment_amount_readonly);
+    mDescriptionLabelView = (TextView) findViewById(R.id.payment_description_label);
+    mAmountReadonlyValue = (CoinAmountView) findViewById(R.id.payment_amount_readonly_value);
     mAmountEditableView = findViewById(R.id.payment_amount_editable);
     mAmountEditableValue = (EditText) findViewById(R.id.payment_amount_editable_value);
+    mAmountEditableValue.addTextChangedListener(new TextWatcher() {
+      @Override
+      public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+      @Override
+      public void onTextChanged(CharSequence s, int start, int before, int count) {
+        if (s.length() > 0) {
+          try {
+            BigDecimal amount = BigDecimal.exact(s.toString());
+            setFiatAmount(package$.MODULE$.millibtc2millisatoshi(new MilliBtc(amount)));
+          } catch (NumberFormatException e) {
+            Log.d(TAG, "Could not read amount", e);
+          }
+        }
+      }
+
+      @Override
+      public void afterTextChanged(Editable s) {}
+    });
+    mAmountFiatView = (TextView) findViewById(R.id.payment_amount_fiat);
+    mPaymentTypeView = (TextView) findViewById(R.id.payment_type);
     mPaymentErrorView = findViewById(R.id.payment_error);
     mPaymentErrorTextView = (TextView) findViewById(R.id.payment_error_text);
-    mFeesView = findViewById(R.id.payment_fees);
+    mFeesButton = (Button) findViewById(R.id.payment_fees_rating);
     mFeesValue = (EditText) findViewById(R.id.payment_fees_value);
+    mFeesValue.addTextChangedListener(new TextWatcher() {
+      @Override
+      public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+      }
+
+      @Override
+      public void onTextChanged(CharSequence s, int start, int before, int count) {
+        if (s.length() > 0) {
+          try {
+            Long feesSatPerByte = Long.parseLong(s.toString());
+            if (feesSatPerByte <= app.estimateSlowFees()) {
+              mFeesButton.setText(R.string.payment_fees_slow);
+            } else if (feesSatPerByte <= app.estimateMediumFees()) {
+              mFeesButton.setText(R.string.payment_fees_medium);
+            } else {
+              mFeesButton.setText(R.string.payment_fees_fast);
+            }
+          } catch (NumberFormatException e) {
+          }
+        }
+      }
+      @Override
+      public void afterTextChanged(Editable s) {
+      }
+    });
     mButtonsView = findViewById(R.id.payment_layout_buttons);
 
     Intent intent = getIntent();
     mInvoice = intent.getStringExtra(EXTRA_INVOICE);
     new LNInvoiceReaderTask(this, mInvoice).execute();
+  }
+
+  public void setSlowFees(View view) {
+    mFeesValue.setText(app.estimateSlowFees().toString());
+  }
+
+  public void setMediumFees(View view) {
+    mFeesValue.setText(app.estimateMediumFees().toString());
+  }
+
+  public void setFastFees(View view) {
+    mFeesValue.setText(app.estimateFastFees().toString());
   }
 
   public void cancelPayment(View view) {
@@ -336,16 +419,11 @@ public class CreatePaymentActivity extends EclairModalActivity
     toggleButtons();
   }
 
-  private final static String html_error_tab = "&nbsp;&nbsp;&nbsp;&nbsp;";
-  private final static String html_error_new_line = "<br />" + html_error_tab;
-  private final static String html_error_new_line_bullet = html_error_new_line + "&middot;&nbsp;&nbsp;";
-  private final static String html_error_new_line_bullet_inner = html_error_new_line + html_error_tab + "&middot;&nbsp;&nbsp;";
-
   private StringBuilder generateDetailedErrorCause(final Seq<PaymentFailure> failures) {
     final StringBuilder sbErrors = new StringBuilder().append("<p><b>").append(failures.size()).append(" attempt(s) made.</b></p>").append("<small><ul>");
     for (int i = 0; i < failures.size(); i++) {
       final PaymentFailure f = failures.apply(i);
-      sbErrors.append("<li>&nbsp;&nbsp;<b>Attempt ").append(i+1).append(" of ").append(failures.size());
+      sbErrors.append("<li>&nbsp;&nbsp;<b>Attempt ").append(i + 1).append(" of ").append(failures.size());
       if (f instanceof RemoteFailure) {
         final RemoteFailure rf = (RemoteFailure) f;
         sbErrors.append(": Remote failure</b>");
@@ -354,7 +432,8 @@ public class CreatePaymentActivity extends EclairModalActivity
           sbErrors.append(html_error_new_line_bullet).append(" Route (").append(hops.size()).append(" hops):");
           for (int hi = 0; hi < hops.size(); hi++) {
             Hop h = hops.apply(hi);
-            if (hi == 0) sbErrors.append(html_error_new_line_bullet_inner).append(h.nodeId().toString());
+            if (hi == 0)
+              sbErrors.append(html_error_new_line_bullet_inner).append(h.nodeId().toString());
             sbErrors.append(html_error_new_line_bullet_inner).append(h.nextNodeId().toString());
           }
         }
@@ -379,5 +458,4 @@ public class CreatePaymentActivity extends EclairModalActivity
     sbErrors.append("</ul></small>");
     return sbErrors;
   }
-
 }

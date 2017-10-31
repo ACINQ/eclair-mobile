@@ -7,9 +7,11 @@
   <color name="colorPrimaryLight">#68d2ff</color>
   <color name="colorPrimaryFaded">#01adf7</color>
   <color name="colorAccent">#ba3259</color>
+  <color name="colorGrey_000">#f6f6f6</color>
   <color name="colorGrey_00">#f2f2f2</color>
   <color name="colorGrey_0">#ecedef</color>
   <color name="colorGrey_0p">#dedede</color>
+  <color name="colorGrey_11">#c3c3c3</color>
   <color name="colorGrey_1">#bbbbbb</color>
   <color name="colorGrey_2">#888888</color>
   <color name="colorGrey_3">#555555</color>

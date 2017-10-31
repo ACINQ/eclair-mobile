@@ -3,8 +3,12 @@ package fr.acinq.eclair.wallet;
 import android.app.Application;
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.os.Handler;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
@@ -54,10 +58,10 @@ import fr.acinq.eclair.wallet.events.NetworkChannelsCountEvent;
 import fr.acinq.eclair.wallet.events.NetworkNodesCountEvent;
 import fr.acinq.eclair.wallet.events.NotificationEvent;
 import fr.acinq.eclair.wallet.events.WalletBalanceUpdateEvent;
+import fr.acinq.eclair.wallet.jobs.ExchangeRateJob;
 import scala.Option;
 import scala.Symbol;
 import scala.collection.Iterable;
-import scala.collection.MapLike;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.Promise;
@@ -79,12 +83,28 @@ public class App extends Application {
   private Promise<Object> pAtCurrentHeight = akka.dispatch.Futures.promise();
   private boolean isDBCompatible = true;
 
+  private ExchangeRate exchangeRate;
+
   @Override
   public void onCreate() {
     if (!EventBus.getDefault().isRegistered(this)) {
       EventBus.getDefault().register(this);
     }
     dbHelper = new DBHelper(getApplicationContext());
+
+    exchangeRate = new ExchangeRate();
+
+//    ComponentName serviceComponent = new ComponentName(getApplicationContext(), ExchangeRateJob.class);
+//    JobInfo.Builder builder = new JobInfo.Builder(0, serviceComponent);
+////    builder.setMinimumLatency(1 * 1000); // wait at least
+////    builder.setOverrideDeadline(3 * 1000); // maximum delay
+//    builder.setRequiresDeviceIdle(false); // device should be idle
+//    builder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY);
+//    builder.setRequiresCharging(false); // we don't care if the device is charging or not
+//    builder.setPeriodic(10 /** 60*/ * 1000L);
+//    JobScheduler jobScheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
+//    jobScheduler.schedule(builder.build());
+
     try {
       final File datadir = new File(getApplicationContext().getFilesDir(), DATADIR_NAME);
       Log.d(TAG, "Accessing Eclair Setup with datadir " + datadir.getAbsolutePath());
@@ -237,6 +257,18 @@ public class App extends Application {
     return wallet.getKeyChainSeed().getMnemonicCode().get(position).equals(word);
   }
 
+  public Long estimateSlowFees() {
+    return 100L;
+  }
+
+  public Long estimateMediumFees() {
+    return 215L;
+  }
+
+  public Long estimateFastFees() {
+    return 350L;
+  }
+
   public void getNetworkNodesCount() {
     Future<Object> paymentFuture = Patterns.ask(eclairKit.router(), new Symbol("nodes"), new Timeout(Duration.create(10, "seconds")));
     paymentFuture.onComplete(new OnComplete<Object>() {
@@ -267,6 +299,26 @@ public class App extends Application {
 
   public DBHelper getDBHelper() {
     return dbHelper;
+  }
+
+  static class ExchangeRate {
+    public Double eurRate = 0.0;
+    public Double usdRate = 0.0;
+  }
+
+  public void updateExchangeRate(Double eurRate, Double usdRate) {
+    if (this.exchangeRate != null) {
+      this.exchangeRate.eurRate = eurRate;
+      this.exchangeRate.usdRate = usdRate;
+    }
+  }
+
+  public Double getEurRate() {
+    return this.exchangeRate.eurRate;
+  }
+
+  public Double getUsdRate() {
+    return this.exchangeRate.usdRate;
   }
 }
 
