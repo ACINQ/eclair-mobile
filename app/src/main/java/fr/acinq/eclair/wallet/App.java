@@ -3,12 +3,8 @@ package fr.acinq.eclair.wallet;
 import android.app.Application;
 import android.app.Notification;
 import android.app.NotificationManager;
-import android.app.job.JobInfo;
-import android.app.job.JobScheduler;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.os.Handler;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
@@ -45,6 +41,7 @@ import akka.util.Timeout;
 import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.bitcoin.Crypto;
 import fr.acinq.bitcoin.Satoshi;
+import fr.acinq.eclair.DBCompatChecker;
 import fr.acinq.eclair.Kit;
 import fr.acinq.eclair.Setup;
 import fr.acinq.eclair.blockchain.wallet.BitcoinjWallet;
@@ -58,7 +55,6 @@ import fr.acinq.eclair.wallet.events.NetworkChannelsCountEvent;
 import fr.acinq.eclair.wallet.events.NetworkNodesCountEvent;
 import fr.acinq.eclair.wallet.events.NotificationEvent;
 import fr.acinq.eclair.wallet.events.WalletBalanceUpdateEvent;
-import fr.acinq.eclair.wallet.jobs.ExchangeRateJob;
 import scala.Option;
 import scala.Symbol;
 import scala.collection.Iterable;
@@ -66,8 +62,6 @@ import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.Promise;
 import scala.concurrent.duration.Duration;
-
-import fr.acinq.eclair.DBCompatChecker;
 
 public class App extends Application {
 
@@ -83,7 +77,7 @@ public class App extends Application {
   private Promise<Object> pAtCurrentHeight = akka.dispatch.Futures.promise();
   private boolean isDBCompatible = true;
 
-  private ExchangeRate exchangeRate;
+  private ExchangeRate exchangeRate = new ExchangeRate();
 
   @Override
   public void onCreate() {
@@ -91,19 +85,6 @@ public class App extends Application {
       EventBus.getDefault().register(this);
     }
     dbHelper = new DBHelper(getApplicationContext());
-
-    exchangeRate = new ExchangeRate();
-
-//    ComponentName serviceComponent = new ComponentName(getApplicationContext(), ExchangeRateJob.class);
-//    JobInfo.Builder builder = new JobInfo.Builder(0, serviceComponent);
-////    builder.setMinimumLatency(1 * 1000); // wait at least
-////    builder.setOverrideDeadline(3 * 1000); // maximum delay
-//    builder.setRequiresDeviceIdle(false); // device should be idle
-//    builder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY);
-//    builder.setRequiresCharging(false); // we don't care if the device is charging or not
-//    builder.setPeriodic(10 /** 60*/ * 1000L);
-//    JobScheduler jobScheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
-//    jobScheduler.schedule(builder.build());
 
     try {
       final File datadir = new File(getApplicationContext().getFilesDir(), DATADIR_NAME);
@@ -129,8 +110,7 @@ public class App extends Application {
       eclairKit = Await.result(fKit, Duration.create(20, "seconds"));
       try {
         DBCompatChecker.checkDBCompatibility(setup.nodeParams());
-      }
-      catch(Exception e) {
+      } catch (Exception e) {
         isDBCompatible = false;
       }
     } catch (Exception e) {
@@ -270,7 +250,7 @@ public class App extends Application {
   }
 
   public void getNetworkNodesCount() {
-    Future<Object> paymentFuture = Patterns.ask(eclairKit.router(), new Symbol("nodes"), new Timeout(Duration.create(10, "seconds")));
+    Future<Object> paymentFuture = Patterns.ask(eclairKit.router(), Symbol.apply("nodes"), new Timeout(Duration.create(10, "seconds")));
     paymentFuture.onComplete(new OnComplete<Object>() {
       @Override
       public void onComplete(Throwable throwable, Object o) throws Throwable {
@@ -284,7 +264,7 @@ public class App extends Application {
   }
 
   public void getNetworkChannelsCount() {
-    Future<Object> paymentFuture = Patterns.ask(eclairKit.router(), new Symbol("channels"), new Timeout(Duration.create(10, "seconds")));
+    Future<Object> paymentFuture = Patterns.ask(eclairKit.router(), Symbol.apply("channels"), new Timeout(Duration.create(10, "seconds")));
     paymentFuture.onComplete(new OnComplete<Object>() {
       @Override
       public void onComplete(Throwable throwable, Object o) throws Throwable {
@@ -301,16 +281,9 @@ public class App extends Application {
     return dbHelper;
   }
 
-  static class ExchangeRate {
-    public Double eurRate = 0.0;
-    public Double usdRate = 0.0;
-  }
-
   public void updateExchangeRate(Double eurRate, Double usdRate) {
-    if (this.exchangeRate != null) {
-      this.exchangeRate.eurRate = eurRate;
-      this.exchangeRate.usdRate = usdRate;
-    }
+    this.exchangeRate.eurRate = eurRate;
+    this.exchangeRate.usdRate = usdRate;
   }
 
   public Double getEurRate() {
@@ -319,6 +292,11 @@ public class App extends Application {
 
   public Double getUsdRate() {
     return this.exchangeRate.usdRate;
+  }
+
+  static class ExchangeRate {
+    public Double eurRate = 0.0;
+    public Double usdRate = 0.0;
   }
 }
 

@@ -105,9 +105,12 @@
       android:label="@string/about_name"
       android:parentActivityName="fr.acinq.eclair.wallet.activities.HomeActivity"
       android:screenOrientation="portrait" />
-    <service
-      android:name=".jobs.ExchangeRateJob"
-      android:permission="android.permission.BIND_JOB_SERVICE" />
+    <activity
+      android:name="fr.acinq.eclair.wallet.activities.PreferencesActivity"
+      android:label="@string/menu_preferences"
+      android:parentActivityName="fr.acinq.eclair.wallet.activities.PreferencesActivity"
+      android:theme="@style/AppTheme.ForceBar"
+      android:screenOrientation="portrait" />
   </application>
 
 </manifest>

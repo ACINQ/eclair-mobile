@@ -121,7 +121,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:maxLines="1"
-        android:text="~50 USD"
         android:textColor="@color/colorGrey_1"
         android:textSize="12sp" />
 
@@ -141,7 +140,7 @@
 
       <TextView
         android:id="@+id/payment_description_label"
-        android:layout_width="46dp"
+        android:layout_width="36dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="6dp"
         android:text="@string/payment_destination_address"
@@ -150,20 +149,20 @@
         android:textColor="@color/colorGrey_1"
         android:textSize="12sp" />
 
-      <EditText
+      <TextView
         android:id="@+id/payment_description"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@android:color/transparent"
-        android:ellipsize="end"
-        android:maxLines="4"
-        android:scrollHorizontally="true"
+        android:ellipsize="middle"
+        android:maxLines="1"
         android:textSize="12sp" />
 
     </LinearLayout>
 
     <!-- onchain fees -->
     <LinearLayout
+      android:id="@+id/payment_fees_onchain"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:gravity="start|center"
@@ -174,7 +173,7 @@
       android:paddingTop="8dp">
 
       <TextView
-        android:layout_width="46dp"
+        android:layout_width="36dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="6dp"
         android:text="@string/payment_fees"
@@ -198,7 +197,9 @@
           android:inputType="numberDecimal"
           android:maxLength="6"
           android:maxLines="1"
-          android:textAlignment="viewEnd"
+          android:minWidth="0dp"
+          android:paddingLeft="0dp"
+          android:paddingRight="4dp"
           android:textColorHint="@color/colorGrey_1"
           android:textSize="12sp" />
 
@@ -218,9 +219,9 @@
         android:background="@color/colorPrimary"
         android:minHeight="0dp"
         android:minWidth="64dp"
-        android:onClick="setSlowFees"
+        android:onClick="pickFees"
         android:padding="8dp"
-        android:text="Medium"
+        android:text="@string/payment_fees_fast"
         android:textColor="@color/white"
         android:textSize="12sp" />
 

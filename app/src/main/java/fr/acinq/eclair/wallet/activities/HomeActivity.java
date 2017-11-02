@@ -57,7 +57,6 @@ import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.customviews.CoinAmountView;
 import fr.acinq.eclair.wallet.events.BitcoinPaymentEvent;
 import fr.acinq.eclair.wallet.events.ChannelUpdateEvent;
-import fr.acinq.eclair.wallet.events.ExchangeRateEvent;
 import fr.acinq.eclair.wallet.events.LNBalanceUpdateEvent;
 import fr.acinq.eclair.wallet.events.LNNewChannelFailureEvent;
 import fr.acinq.eclair.wallet.events.LNNewChannelOpenedEvent;
@@ -111,36 +110,36 @@ public class HomeActivity extends EclairActivity {
     setContentView(R.layout.activity_home);
 
     if (app.hasBreakingChanges()) {
-      mStubBreakingChanges = (ViewStub) findViewById(R.id.home_stub_breaking);
+      mStubBreakingChanges = findViewById(R.id.home_stub_breaking);
       mStubBreakingChanges.inflate();
       ((TextView) findViewById(R.id.home_breaking_changes_text)).setText(Html.fromHtml(
         getString(R.string.breaking_changes_text)));
     }
 
-    mStubDisclaimer = (ViewStub) findViewById(R.id.home_stub_disclaimer);
-    mStubIntro = (ViewStub) findViewById(R.id.home_stub_intro);
-    mStubBackup = (ViewStub) findViewById(R.id.home_stub_backup);
+    mStubDisclaimer = findViewById(R.id.home_stub_disclaimer);
+    mStubIntro = findViewById(R.id.home_stub_intro);
+    mStubBackup = findViewById(R.id.home_stub_backup);
 
-    Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+    Toolbar toolbar = findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
     ActionBar ab = getSupportActionBar();
     ab.setDisplayHomeAsUpEnabled(false);
     ab.setDisplayShowTitleEnabled(false);
 
-    mTotalBalanceView = (CoinAmountView) findViewById(R.id.home_balance_total);
-    mWalletBalanceView = (TextView) findViewById(R.id.home_balance_wallet_value);
-    mLNBalanceView = (TextView) findViewById(R.id.home_balance_ln_value);
+    mTotalBalanceView = findViewById(R.id.home_balance_total);
+    mWalletBalanceView = findViewById(R.id.home_balance_wallet_value);
+    mLNBalanceView = findViewById(R.id.home_balance_ln_value);
 
-    mSendButtonsView = (ViewGroup) findViewById(R.id.home_send_buttons);
-    mSendButtonsToggleView = (ViewGroup) findViewById(R.id.home_send_buttons_toggle);
-    mSendButton = (FloatingActionButton) findViewById(R.id.home_send_button);
-    mDisabledSendButton = (FloatingActionButton) findViewById(R.id.home_send_button_disabled);
+    mSendButtonsView = findViewById(R.id.home_send_buttons);
+    mSendButtonsToggleView = findViewById(R.id.home_send_buttons_toggle);
+    mSendButton = findViewById(R.id.home_send_button);
+    mDisabledSendButton = findViewById(R.id.home_send_button_disabled);
 
-    mOpenChannelsButtonsView = (ViewGroup) findViewById(R.id.home_openchannel_buttons);
-    mOpenChannelButtonsToggleView = (ViewGroup) findViewById(R.id.home_openchannel_buttons_toggle);
-    mOpenChannelButton = (FloatingActionButton) findViewById(R.id.home_openchannel_button);
+    mOpenChannelsButtonsView = findViewById(R.id.home_openchannel_buttons);
+    mOpenChannelButtonsToggleView = findViewById(R.id.home_openchannel_buttons_toggle);
+    mOpenChannelButton = findViewById(R.id.home_openchannel_button);
 
-    mViewPager = (ViewPager) findViewById(R.id.home_viewpager);
+    mViewPager = findViewById(R.id.home_viewpager);
     mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
       @Override
       public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -225,7 +224,7 @@ public class HomeActivity extends EclairActivity {
       }, new Response.ErrorListener() {
       @Override
       public void onErrorResponse(VolleyError error) {
-        Log.e("ExchangeRate", "Error when querying coindesk api", error);
+        Log.d("ExchangeRate", "Error when querying coindesk api", error);
       }
     });
     mExchangeRateHandler = new Handler();
@@ -301,6 +300,10 @@ public class HomeActivity extends EclairActivity {
       case R.id.menu_home_about:
         Intent aboutIntent = new Intent(this, AboutActivity.class);
         startActivity(aboutIntent);
+        return true;
+      case R.id.menu_home_preferences:
+        Intent prefsIntent = new Intent(this, PreferencesActivity.class);
+        startActivity(prefsIntent);
         return true;
       default:
         return super.onOptionsItemSelected(item);
@@ -379,7 +382,7 @@ public class HomeActivity extends EclairActivity {
     view.clearFocus();
     InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
     imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-    EditText edit = (EditText) findViewById(R.id.home_backup_input);
+    EditText edit = findViewById(R.id.home_backup_input);
     if (edit.getText() != null) {
       String[] words = edit.getText().toString().split(" ");
       if (words.length == 3

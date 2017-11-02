@@ -35,7 +35,7 @@ public class ChannelDetailsActivity extends EclairActivity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_channel_details);
 
-    Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+    Toolbar toolbar = findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
     ActionBar ab = getSupportActionBar();
     ab.setDisplayHomeAsUpEnabled(true);
@@ -50,19 +50,19 @@ public class ChannelDetailsActivity extends EclairActivity {
       final Map.Entry<ActorRef, EclairEventService.ChannelDetails> channel = getChannel(channelId);
 
       if (channel.getValue() != null && channel.getKey() != null && channel.getValue() != null) {
-        DataRow idRow = (DataRow) findViewById(R.id.channeldetails_id);
+        DataRow idRow = findViewById(R.id.channeldetails_id);
         idRow.setValue(channel.getValue().channelId);
-        DataRow balanceRow = (DataRow) findViewById(R.id.channeldetails_balance);
+        DataRow balanceRow = findViewById(R.id.channeldetails_balance);
         balanceRow.setValue(CoinUtils.formatAmountMilliBtc(channel.getValue().balanceMsat));
-        DataRow capacityRow = (DataRow) findViewById(R.id.channeldetails_capacity);
+        DataRow capacityRow = findViewById(R.id.channeldetails_capacity);
         capacityRow.setValue(CoinUtils.formatAmountMilliBtc(channel.getValue().capacityMsat));
-        DataRow nodeIdRow = (DataRow) findViewById(R.id.channeldetails_nodeid);
+        DataRow nodeIdRow = findViewById(R.id.channeldetails_nodeid);
         nodeIdRow.setValue(channel.getValue().remoteNodeId);
-        DataRow stateRow = (DataRow) findViewById(R.id.channeldetails_state);
+        DataRow stateRow = findViewById(R.id.channeldetails_state);
         stateRow.setValue(channel.getValue().state);
 
         if (CLOSING.toString().equals(channel.getValue().state)) {
-          DataRow closingTypeRow = (DataRow) findViewById(R.id.channeldetails_state_closing_type);
+          DataRow closingTypeRow = findViewById(R.id.channeldetails_state_closing_type);
           if (channel.getValue().isCooperativeClosing) {
             closingTypeRow.setValue(getString(R.string.channeldetails_closingtype_mutual));
           } else if (channel.getValue().isLocalClosing) {
@@ -76,7 +76,7 @@ public class ChannelDetailsActivity extends EclairActivity {
           closingTypeRow.setVisibility(View.VISIBLE);
         }
 
-        DataRow transactionIdRow = (DataRow) findViewById(R.id.channeldetails_transactionid);
+        DataRow transactionIdRow = findViewById(R.id.channeldetails_transactionid);
         transactionIdRow.setValue(channel.getValue().transactionId);
         View openInExplorer = findViewById(R.id.open_in_explorer);
         openInExplorer.setOnClickListener(WalletUtils.getOpenTxListener(channel.getValue().transactionId));

@@ -1,0 +1,27 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+  <PreferenceCategory
+    android:title="@string/prefs_display">
+
+    <ListPreference
+      android:key="fiat_currency"
+      android:title="@string/prefs_fiat_currency"
+      android:summary="%s"
+      android:defaultValue="eur"
+      android:dialogTitle="@string/prefs_fiat_currency_dialog"
+      android:entries="@array/fiat_labels"
+      android:entryValues="@array/fiat_values" />
+
+    <ListPreference
+      android:key="btc_denomination"
+      android:title="@string/prefs_btc_denomination"
+      android:summary="%s"
+      android:defaultValue="mbtc"
+      android:enabled="false"
+      android:dialogTitle="@string/prefs_btc_denomination"
+      android:entries="@array/btc_denomination_labels"
+      android:entryValues="@array/btc_denomination_values" />
+
+  </PreferenceCategory>
+
+</PreferenceScreen>

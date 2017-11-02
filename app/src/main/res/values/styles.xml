@@ -17,6 +17,13 @@
     <item name="actionBarTheme">@null</item>
   </style>
 
+  <style name="AppTheme.ForceBar" parent="AppTheme">
+    <item name="windowActionBar">true</item>
+    <item name="windowNoTitle">false</item>
+    <item name="actionBarTheme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
+    <item name="android:textColorSecondary">@color/colorGrey_1</item>
+  </style>
+
   <style name="CustomDialog" parent="@style/Theme.AppCompat.Light.Dialog">
     <item name="android:textColor">@color/colorGrey_4</item>
     <item name="android:windowMinWidthMajor">85%</item>

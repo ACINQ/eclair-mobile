@@ -42,8 +42,8 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
   public View onCreateView(LayoutInflater inflater, ViewGroup container,
                            Bundle savedInstanceState) {
     mView = inflater.inflate(R.layout.fragment_receive_payment, container, false);
-    mQRImageView = (ImageView) mView.findViewById(R.id.receivepayment_qr);
-    mAddressTextView = (TextView) mView.findViewById(R.id.receivepayment_address);
+    mQRImageView = mView.findViewById(R.id.receivepayment_qr);
+    mAddressTextView = mView.findViewById(R.id.receivepayment_address);
     return mView;
   }
 

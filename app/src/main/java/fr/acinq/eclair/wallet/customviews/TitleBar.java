@@ -28,7 +28,7 @@ public class TitleBar extends AppCompatTextView {
 
   private void init(AttributeSet attrs, int defStyle) {
     setTextColor(ContextCompat.getColor(getContext(), R.color.colorGrey_2));
-    setBackgroundColor(ContextCompat.getColor(getContext(), R.color.colorGrey_0));
+    setBackgroundColor(ContextCompat.getColor(getContext(), R.color.colorGrey_00));
     int smPadding = (int) getResources().getDimension(R.dimen.title_bar_padding_sm);
     int lgPadding = (int) getResources().getDimension(R.dimen.title_bar_padding_lg);
     setPadding(smPadding, lgPadding, smPadding, smPadding);
