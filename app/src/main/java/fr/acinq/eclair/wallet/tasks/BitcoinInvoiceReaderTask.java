@@ -29,7 +29,7 @@ public class BitcoinInvoiceReaderTask extends AsyncTask<String, Integer, Bitcoin
         extract = new BitcoinURI(AbstractBitcoinNetParams.BITCOIN_SCHEME + ":" + invoiceAsString);
       }
     } catch (BitcoinURIParseException e) {
-      Log.e(TAG, "Could not read Bitcoin invoice " + invoiceAsString + " with cause: " + e.getMessage());
+      Log.d(TAG, "Could not read Bitcoin invoice " + invoiceAsString + " with cause: " + e.getMessage());
     }
     return extract;
   }

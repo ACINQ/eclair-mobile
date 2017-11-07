@@ -237,16 +237,16 @@ public class App extends Application {
     return wallet.getKeyChainSeed().getMnemonicCode().get(position).equals(word);
   }
 
-  public Long estimateSlowFees() {
-    return 100L;
+  public long estimateSlowFees() {
+    return 100;
   }
 
-  public Long estimateMediumFees() {
-    return 215L;
+  public long estimateMediumFees() {
+    return 215;
   }
 
-  public Long estimateFastFees() {
-    return 350L;
+  public long estimateFastFees() {
+    return 350;
   }
 
   public void getNetworkNodesCount() {

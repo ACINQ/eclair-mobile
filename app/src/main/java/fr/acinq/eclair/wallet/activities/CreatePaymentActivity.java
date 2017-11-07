@@ -8,6 +8,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
 import android.text.Editable;
 import android.text.Html;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
@@ -72,18 +73,25 @@ public class CreatePaymentActivity extends EclairModalActivity
   private TextView mLoadingTextView;
   private View mFormView;
   private CoinAmountView mAmountReadonlyValue;
-  private TextView mDescriptionView;
-  private TextView mDescriptionLabelView;
+  private View mDescriptionView;
+  private TextView mDescriptionValue;
+  private View mRecipientView;
+  private TextView mRecipientValue;
   private View mPaymentErrorView;
   private TextView mPaymentErrorTextView;
   private View mAmountEditableView;
   private EditText mAmountEditableValue;
   private TextView mAmountFiatView;
-  private TextView mPaymentTypeView;
+  private View mPaymentTypeOnchainView;
+  private View mPaymentTypeLightningView;
   private boolean isAmountReadonly = true;
+  private View mFeesOnchainView;
   private EditText mFeesValue;
   private Button mFeesButton;
+  private TextView mFeesWarning;
   private View mButtonsView;
+
+  private String preferredFiatCurrency;
 
   @SuppressLint("SetTextI18n")
   @Override
@@ -94,11 +102,10 @@ public class CreatePaymentActivity extends EclairModalActivity
     } else {
       // check if the user has any channels
       if (EclairEventService.getChannelsMap().size() == 0) {
-        mButtonsView.setVisibility(View.GONE);
-        mPaymentErrorTextView.setText(Html.fromHtml(getString(R.string.payment_error_amount_ln_no_channels)));
-        mPaymentErrorView.setVisibility(View.VISIBLE);
+        handlePaymentError(R.string.payment_error_amount_ln_no_channels, true);
       }
       mLNInvoice = output;
+      mFeesOnchainView.setVisibility(View.GONE);
       isAmountReadonly = mLNInvoice.amount().isDefined();
       setAmountViewVisibility();
       if (isAmountReadonly) {
@@ -107,8 +114,8 @@ public class CreatePaymentActivity extends EclairModalActivity
         setFiatAmount(amountMsat);
       }
       Either<String, BinaryData> desc = output.description();
-      invoiceReadSuccessfully(R.string.payment_description, desc.isLeft() ? desc.left().get() : desc.right().get().toString(),
-        R.string.payment_type_lightning, R.color.colorPrimaryLight);
+      mDescriptionValue.setText(desc.isLeft() ? desc.left().get() : desc.right().get().toString());
+      invoiceReadSuccessfully(true);
     }
   }
 
@@ -127,18 +134,17 @@ public class CreatePaymentActivity extends EclairModalActivity
         setFiatAmount(amountMsat);
       }
       setFeesDefault();
-      invoiceReadSuccessfully(R.string.payment_destination_address, output.getAddress().toBase58(),
-        R.string.payment_type_onchain, R.color.orange);
+      mRecipientValue.setText(output.getAddress().toBase58());
+      invoiceReadSuccessfully(false);
     }
   }
 
+  @SuppressLint("SetTextI18n")
   private void setFiatAmount(final MilliSatoshi amountMsat) {
-    SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-    String fiatCurrency = sharedPref.getString("fiat_currency", "eur");
-    Double rate = fiatCurrency.equals("eur") ? app.getEurRate() : app.getUsdRate();
+    Double rate = preferredFiatCurrency.equals("eur") ? app.getEurRate() : app.getUsdRate();
     final Double amountEur = package$.MODULE$.millisatoshi2btc(amountMsat).amount().doubleValue() * rate;
     mAmountReadonlyValue.setAmountMsat(amountMsat);
-    mAmountFiatView.setText(CoinUtils.getFiatFormat().format(amountEur) + " " + fiatCurrency.toUpperCase());
+    mAmountFiatView.setText(CoinUtils.getFiatFormat().format(amountEur) + " " + preferredFiatCurrency.toUpperCase());
   }
 
   private void couldNotReadInvoice(int causeMessageId) {
@@ -153,16 +159,24 @@ public class CreatePaymentActivity extends EclairModalActivity
     });
   }
 
-  private void invoiceReadSuccessfully(int descriptionLabel, String description, int paymentTypeLabel, int paymentTypeColor) {
+  /**
+   * Fill the payment form fields with a description and a payment type.
+   */
+  private void invoiceReadSuccessfully(final boolean isLightning) {
     setAmountViewVisibility();
-    // description
-    mDescriptionLabelView.setText(descriptionLabel);
-    mDescriptionView.setText(description);
-    // payment type label
-    mPaymentTypeView.setText(paymentTypeLabel);
-    mPaymentTypeView.setBackgroundColor(getResources().getColor(paymentTypeColor));
-    mPaymentTypeView.setVisibility(View.VISIBLE);
-    // change visibility
+    if (isLightning) {
+      mFeesOnchainView.setVisibility(View.GONE);
+      mPaymentTypeOnchainView.setVisibility(View.GONE);
+      mPaymentTypeLightningView.setVisibility(View.VISIBLE);
+      mDescriptionView.setVisibility(View.VISIBLE);
+      mRecipientView.setVisibility(View.GONE);
+    } else {
+      mPaymentTypeOnchainView.setVisibility(View.VISIBLE);
+      mPaymentTypeLightningView.setVisibility(View.GONE);
+      mDescriptionView.setVisibility(View.GONE);
+      mRecipientView.setVisibility(View.VISIBLE);
+    }
+    // display form
     mLoadingTextView.setVisibility(View.GONE);
     mFormView.setVisibility(View.VISIBLE);
   }
@@ -184,10 +198,15 @@ public class CreatePaymentActivity extends EclairModalActivity
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_create_payment);
 
+    final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+    preferredFiatCurrency = sharedPref.getString("fiat_currency", "eur");
+
     mFormView = findViewById(R.id.payment_form);
     mLoadingTextView = findViewById(R.id.payment_loading);
     mDescriptionView = findViewById(R.id.payment_description);
-    mDescriptionLabelView = findViewById(R.id.payment_description_label);
+    mDescriptionValue = findViewById(R.id.payment_description_value);
+    mRecipientView = findViewById(R.id.payment_recipient);
+    mRecipientValue = findViewById(R.id.payment_recipient_value);
     mAmountReadonlyValue = findViewById(R.id.payment_amount_readonly_value);
     mAmountEditableView = findViewById(R.id.payment_amount_editable);
     mAmountEditableValue = findViewById(R.id.payment_amount_editable_value);
@@ -198,13 +217,12 @@ public class CreatePaymentActivity extends EclairModalActivity
 
       @Override
       public void onTextChanged(CharSequence s, int start, int before, int count) {
-        if (s.length() > 0) {
-          try {
-            BigDecimal amount = BigDecimal.exact(s.toString());
-            setFiatAmount(package$.MODULE$.millibtc2millisatoshi(new MilliBtc(amount)));
-          } catch (NumberFormatException e) {
-            Log.d(TAG, "Could not read amount", e);
-          }
+        try {
+          BigDecimal amount = BigDecimal.exact(s.toString());
+          setFiatAmount(package$.MODULE$.millibtc2millisatoshi(new MilliBtc(amount)));
+        } catch (NumberFormatException e) {
+          Log.d(TAG, "Could not read amount with cause=" + e.getMessage());
+          setFiatAmount(new MilliSatoshi(0));
         }
       }
 
@@ -213,11 +231,14 @@ public class CreatePaymentActivity extends EclairModalActivity
       }
     });
     mAmountFiatView = findViewById(R.id.payment_amount_fiat);
-    mPaymentTypeView = findViewById(R.id.payment_type);
+    mPaymentTypeOnchainView = findViewById(R.id.payment_type_onchain);
+    mPaymentTypeLightningView = findViewById(R.id.payment_type_lightning);
     mPaymentErrorView = findViewById(R.id.payment_error);
     mPaymentErrorTextView = findViewById(R.id.payment_error_text);
+    mFeesOnchainView = findViewById(R.id.payment_fees_onchain);
     mFeesButton = findViewById(R.id.payment_fees_rating);
     mFeesValue = findViewById(R.id.payment_fees_value);
+    mFeesWarning = findViewById(R.id.payment_fees_warning);
     mFeesValue.addTextChangedListener(new TextWatcher() {
       @Override
       public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -226,20 +247,28 @@ public class CreatePaymentActivity extends EclairModalActivity
       @SuppressLint("SetTextI18n")
       @Override
       public void onTextChanged(CharSequence s, int start, int before, int count) {
-        if (s.length() > 0) {
-          try {
-            Long feesSatPerByte = Long.parseLong(s.toString());
-            if (feesSatPerByte <= app.estimateSlowFees()) {
-              mFeesButton.setText(R.string.payment_fees_slow);
-            } else if (feesSatPerByte <= app.estimateMediumFees()) {
-              mFeesButton.setText(R.string.payment_fees_medium);
-            } else {
-              mFeesButton.setText(R.string.payment_fees_fast);
-            }
-          } catch (NumberFormatException e) {
-            Log.e(TAG, "Could not read fees", e);
-            setFeesDefault();
+        try {
+          Long feesSatPerByte = Long.parseLong(s.toString());
+          if (feesSatPerByte == app.estimateSlowFees()) {
+            mFeesButton.setText(R.string.payment_fees_slow);
+          } else if (feesSatPerByte == app.estimateMediumFees()) {
+            mFeesButton.setText(R.string.payment_fees_medium);
+          } else if (feesSatPerByte == app.estimateFastFees()) {
+            mFeesButton.setText(R.string.payment_fees_fast);
+          } else {
+            mFeesButton.setText(R.string.payment_fees_custom);
           }
+          if (feesSatPerByte <= app.estimateSlowFees() / 2) {
+            mFeesWarning.setText(R.string.payment_fees_verylow);
+            mFeesWarning.setVisibility(View.VISIBLE);
+          } else if (feesSatPerByte >= app.estimateFastFees() * 2) {
+            mFeesWarning.setText(R.string.payment_fees_veryhigh);
+            mFeesWarning.setVisibility(View.VISIBLE);
+          } else {
+            mFeesWarning.setVisibility(View.GONE);
+          }
+        } catch (NumberFormatException e) {
+          Log.e(TAG, "Could not read fees", e);
         }
       }
 
@@ -259,27 +288,32 @@ public class CreatePaymentActivity extends EclairModalActivity
     try {
       Long feesSatPerByte = Long.parseLong(mFeesValue.getText().toString());
       if (feesSatPerByte <= app.estimateSlowFees()) {
-        mFeesValue.setText(app.estimateMediumFees().toString());
+        mFeesValue.setText(String.valueOf(app.estimateMediumFees()));
       } else if (feesSatPerByte <= app.estimateMediumFees()) {
-        mFeesValue.setText(app.estimateFastFees().toString());
+        mFeesValue.setText(String.valueOf(app.estimateFastFees()));
       } else {
-        mFeesValue.setText(app.estimateSlowFees().toString());
+        mFeesValue.setText(String.valueOf(app.estimateSlowFees()));
       }
     } catch (NumberFormatException e) {
       Log.e(TAG, "Could not read fees", e);
-      setFeesDefault();
+      mFeesValue.setText(String.valueOf(app.estimateSlowFees()));
     }
   }
 
   @SuppressLint("SetTextI18n")
   private void setFeesDefault() {
-    mFeesValue.setText(app.estimateFastFees().toString());
+    mFeesValue.setText(String.valueOf(app.estimateFastFees()));
   }
 
   public void cancelPayment(View view) {
     finish();
   }
 
+  /**
+   * Executes the current payment request stored in the activity, be it an on-chain payment or a lightning payment.
+   *
+   * @param view
+   */
   public void sendPayment(final View view) {
     if (isProcessingPayment) return;
 
@@ -292,18 +326,16 @@ public class CreatePaymentActivity extends EclairModalActivity
           ? CoinUtils.getLongAmountFromInvoice(mLNInvoice)
           : package$.MODULE$.satoshi2millisatoshi(new Satoshi(Coin.parseCoin(mAmountEditableValue.getText().toString()).div(1000).getValue())).amount();
         if (EclairEventService.hasActiveChannelsWithBalance(amountMsat)) {
-          sendLNPayment(amountMsat);
+          sendLNPayment(amountMsat, mLNInvoice, mInvoice);
           finish();
         } else {
           if (EclairEventService.hasActiveChannels()) {
             // Refine the error message to guide the user: he does not have enough balance on any of the channels
-            mPaymentErrorTextView.setText(Html.fromHtml(getString(R.string.payment_error_amount_ln_insufficient_funds)));
+            handlePaymentError(R.string.payment_error_amount_ln_insufficient_funds, true);
           } else {
             // The user simply does not have any active channels
-            mPaymentErrorTextView.setText(Html.fromHtml(getString(R.string.payment_error_amount_ln_no_active_channels)));
+            handlePaymentError(R.string.payment_error_amount_ln_no_active_channels, true);
           }
-          mButtonsView.setVisibility(View.GONE);
-          mPaymentErrorView.setVisibility(View.VISIBLE);
         }
       } else if (mBitcoinInvoice != null) {
         final Coin amount = isAmountReadonly ? mBitcoinInvoice.getAmount() : Coin.parseCoin(mAmountEditableValue.getText().toString()).div(1000);
@@ -312,30 +344,41 @@ public class CreatePaymentActivity extends EclairModalActivity
           sendBitcoinPayment(amount, feesPerKb);
           finish();
         } catch (NumberFormatException e) {
-          mPaymentErrorTextView.setText(R.string.payment_error_fees_onchain);
-          handlePaymentError();
+          handlePaymentError(R.string.payment_error_fees_onchain, false);
         }
       }
     } catch (NumberFormatException e) {
-      mPaymentErrorTextView.setText(R.string.payment_error_amount);
-      handlePaymentError();
+      handlePaymentError(R.string.payment_error_amount, false);
     } catch (Exception e) {
       Log.e(TAG, "Could not send payment", e);
-      mPaymentErrorTextView.setText(R.string.payment_error); // generic message
-      handlePaymentError();
+      handlePaymentError(R.string.payment_error, false);
     }
   }
 
-  private void handlePaymentError() {
+  /**
+   * Displays an error message when a payment has failed.
+   *
+   * @param messageId resource id of the the message
+   * @param isHtml
+   */
+  private void handlePaymentError(final int messageId, final boolean isHtml) {
     isProcessingPayment = false;
+    if (isHtml) {
+      mPaymentErrorTextView.setText(Html.fromHtml(getString(messageId)));
+    } else {
+      mPaymentErrorTextView.setText(messageId);
+    }
     mButtonsView.setVisibility(View.VISIBLE);
     mPaymentErrorView.setVisibility(View.VISIBLE);
   }
 
-  private void sendLNPayment(final long amountMsat) {
+  /**
+   * Executes a Lightning payment in an asynchronous task.
+   *
+   * @param amountMsat amount of the payment in milli satoshis
+   */
+  private void sendLNPayment(final long amountMsat, final PaymentRequest pr, final String prAsString) {
     Log.d(TAG, "Sending LN payment for invoice " + mInvoice);
-    final PaymentRequest pr = mLNInvoice;
-    final String prAsString = mInvoice;
     AsyncExecutor.create().execute(
       new AsyncExecutor.RunnableEx() {
         @Override

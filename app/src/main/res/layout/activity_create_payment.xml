@@ -16,15 +16,16 @@
     android:text="@string/payment_loading_pleasewait"
     android:textAlignment="center"
     android:textColor="@color/colorGrey_2"
-    android:visibility="gone" />
+    android:visibility="visible" />
 
   <LinearLayout
     android:id="@+id/payment_form"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_centerInParent="true"
+    android:gravity="top|center"
     android:orientation="vertical"
-    android:visibility="visible">
+    android:visibility="gone">
 
     <LinearLayout
       android:layout_width="match_parent"
@@ -36,20 +37,61 @@
       android:paddingLeft="16dp"
       android:paddingRight="16dp">
 
-      <!-- payment type: onchain or offchain (LN) -->
-      <TextView
-        android:id="@+id/payment_type"
+      <!-- payment type: onchain -->
+      <LinearLayout
+        android:id="@+id/payment_type_onchain"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="6dp"
-        android:background="@color/colorGrey_000"
-        android:paddingBottom="2dp"
-        android:paddingLeft="4dp"
-        android:paddingRight="4dp"
-        android:paddingTop="2dp"
-        android:text="@string/unknown"
-        android:textColor="@color/colorGrey_3"
-        android:textSize="10sp" />
+        android:background="@drawable/rounded_corner_grey_bottom"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingBottom="3dp"
+        android:paddingLeft="6dp"
+        android:paddingRight="6dp"
+        android:paddingTop="2dp">
+
+        <ImageView
+          android:layout_width="16dp"
+          android:layout_height="16dp"
+          android:layout_marginEnd="4dp"
+          android:src="@mipmap/ic_bitcoin_circle" />
+
+        <TextView
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="@string/payment_type_onchain"
+          android:textColor="@color/colorGrey_2"
+          android:textSize="10sp" />
+      </LinearLayout>
+
+      <!-- payment type: lightning -->
+      <LinearLayout
+        android:id="@+id/payment_type_lightning"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="6dp"
+        android:background="@drawable/rounded_corner_grey_bottom"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingBottom="4dp"
+        android:paddingLeft="6dp"
+        android:paddingRight="6dp"
+        android:paddingTop="3dp">
+
+        <ImageView
+          android:layout_width="16dp"
+          android:layout_height="16dp"
+          android:layout_marginEnd="4dp"
+          android:src="@mipmap/ic_bolt_circle" />
+
+        <TextView
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="@string/payment_type_lightning"
+          android:textColor="@color/colorGrey_2"
+          android:textSize="10sp" />
+      </LinearLayout>
 
       <TextView
         android:layout_width="match_parent"
@@ -126,12 +168,12 @@
 
     </LinearLayout>
 
-    <!-- payment description: can be the onchain address or the LN invoice description -->
+    <!-- payment description: shown only for LN payments -->
     <LinearLayout
+      android:id="@+id/payment_description"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:background="@color/colorGrey_000"
-      android:gravity="start|top"
       android:orientation="horizontal"
       android:paddingBottom="12dp"
       android:paddingLeft="12dp"
@@ -139,7 +181,38 @@
       android:paddingTop="12dp">
 
       <TextView
-        android:id="@+id/payment_description_label"
+        android:layout_width="36dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="6dp"
+        android:text="@string/payment_description"
+        android:textAlignment="textEnd"
+        android:textAllCaps="true"
+        android:textColor="@color/colorGrey_1"
+        android:textSize="12sp" />
+
+      <TextView
+        android:id="@+id/payment_description_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:maxLines="3"
+        android:textSize="12sp" />
+
+    </LinearLayout>
+
+    <!-- payment description: shown only for LN payments -->
+    <LinearLayout
+      android:id="@+id/payment_recipient"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:background="@color/colorGrey_000"
+      android:orientation="horizontal"
+      android:paddingBottom="12dp"
+      android:paddingLeft="12dp"
+      android:paddingRight="12dp"
+      android:paddingTop="12dp">
+
+      <TextView
         android:layout_width="36dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="6dp"
@@ -150,12 +223,11 @@
         android:textSize="12sp" />
 
       <TextView
-        android:id="@+id/payment_description"
+        android:id="@+id/payment_recipient_value"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
         android:ellipsize="middle"
-        android:maxLines="1"
+        android:singleLine="true"
         android:textSize="12sp" />
 
     </LinearLayout>
@@ -167,10 +239,10 @@
       android:layout_height="wrap_content"
       android:gravity="start|center"
       android:orientation="horizontal"
-      android:paddingBottom="8dp"
+      android:paddingBottom="4dp"
       android:paddingLeft="12dp"
       android:paddingRight="12dp"
-      android:paddingTop="8dp">
+      android:paddingTop="4dp">
 
       <TextView
         android:layout_width="36dp"
@@ -198,7 +270,6 @@
           android:maxLength="6"
           android:maxLines="1"
           android:minWidth="0dp"
-          android:paddingLeft="0dp"
           android:paddingRight="4dp"
           android:textColorHint="@color/colorGrey_1"
           android:textSize="12sp" />
@@ -209,6 +280,7 @@
           android:text="sat/byte"
           android:textColor="@color/colorGrey_2"
           android:textSize="12sp" />
+
       </LinearLayout>
 
       <Button
@@ -216,16 +288,33 @@
         style="?android:attr/borderlessButtonStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@color/colorPrimary"
+        android:background="@drawable/rounded_corner_green"
         android:minHeight="0dp"
         android:minWidth="64dp"
         android:onClick="pickFees"
-        android:padding="8dp"
+        android:paddingBottom="4dp"
+        android:paddingLeft="6dp"
+        android:paddingRight="6dp"
+        android:paddingTop="4dp"
         android:text="@string/payment_fees_fast"
         android:textColor="@color/white"
         android:textSize="12sp" />
 
     </LinearLayout>
+
+    <TextView
+      android:id="@+id/payment_fees_warning"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginLeft="32dp"
+      android:layout_marginRight="32dp"
+      android:drawablePadding="6dp"
+      android:drawableStart="@drawable/ic_warning"
+      android:gravity="start|center"
+      android:paddingBottom="12dp"
+      android:textColor="@color/colorGrey_3"
+      android:textSize="10sp"
+      android:visibility="gone" />
 
     <!-- error message if input by user is not valid -->
     <LinearLayout
@@ -234,8 +323,6 @@
       android:layout_height="wrap_content"
       android:orientation="vertical"
       android:visibility="gone">
-
-      <include layout="@layout/include_separator" />
 
       <TextView
         android:id="@+id/payment_error_text"
