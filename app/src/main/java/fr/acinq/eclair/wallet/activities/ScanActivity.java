@@ -61,7 +61,7 @@ public class ScanActivity extends Activity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_scan);
-    mBarcodeView = (DecoratedBarcodeView) findViewById(R.id.scanview);
+    mBarcodeView = findViewById(R.id.scanview);
 
     Intent intent = getIntent();
     String type = intent.getStringExtra(EXTRA_SCAN_TYPE);

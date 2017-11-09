@@ -11,7 +11,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import akka.actor.ActorRef;
 import akka.actor.Terminated;
 import akka.actor.UntypedActor;
-import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.eclair.channel.CLOSED;
 import fr.acinq.eclair.channel.CLOSING;
@@ -26,14 +25,11 @@ import fr.acinq.eclair.channel.NORMAL;
 import fr.acinq.eclair.channel.OFFLINE;
 import fr.acinq.eclair.channel.WAIT_FOR_INIT_INTERNAL;
 import fr.acinq.eclair.payment.PaymentSent;
-import fr.acinq.eclair.router.ChannelDiscovered;
-import fr.acinq.eclair.router.ChannelLost;
-import fr.acinq.eclair.router.NodeDiscovered;
-import fr.acinq.eclair.router.NodeLost;
+import fr.acinq.eclair.transactions.Htlc;
+import fr.acinq.eclair.transactions.OUT$;
 import fr.acinq.eclair.wallet.events.ChannelUpdateEvent;
 import fr.acinq.eclair.wallet.events.LNBalanceUpdateEvent;
 import fr.acinq.eclair.wallet.events.LNPaymentEvent;
-import fr.acinq.eclair.wallet.events.NetworkAnnouncementEvent;
 import fr.acinq.eclair.wallet.events.NotificationEvent;
 import fr.acinq.eclair.wallet.models.Payment;
 import fr.acinq.eclair.wallet.models.PaymentStatus;
@@ -41,6 +37,7 @@ import fr.acinq.eclair.wallet.models.PaymentType;
 import fr.acinq.eclair.wallet.utils.CoinUtils;
 import fr.acinq.eclair.wire.ChannelAnnouncement;
 import fr.acinq.eclair.wire.NodeAnnouncement;
+import scala.collection.Iterator;
 
 public class EclairEventService extends UntypedActor {
 
@@ -51,8 +48,6 @@ public class EclairEventService extends UntypedActor {
   }
 
   private static final String TAG = "EclairEventService";
-  public static Map<String, NodeAnnouncement> nodeAnnouncementMap = new ConcurrentHashMap<>();
-  public static Map<Long, ChannelAnnouncement> channelAnnouncementMap = new ConcurrentHashMap<>();
   private static Map<ActorRef, ChannelDetails> channelDetailsMap = new ConcurrentHashMap<>();
 
   public static Map<ActorRef, ChannelDetails> getChannelsMap() {
@@ -92,10 +87,6 @@ public class EclairEventService extends UntypedActor {
     return channelDetailsMap.containsKey(ref) ? channelDetailsMap.get(ref) : new ChannelDetails();
   }
 
-  public static String getNodeAlias(String pk) {
-    return nodeAnnouncementMap.containsKey(pk) ? nodeAnnouncementMap.get(pk).alias() : "";
-  }
-
   @Override
   public void onReceive(final Object message) {
     Log.d(TAG, "######## Event: " + message);
@@ -131,7 +122,15 @@ public class EclairEventService extends UntypedActor {
     else if (message instanceof ChannelSignatureReceived && channelDetailsMap.containsKey(((ChannelSignatureReceived) message).channel())) {
       ChannelSignatureReceived csr = (ChannelSignatureReceived) message;
       ChannelDetails cd = channelDetailsMap.get(csr.channel());
-      cd.balanceMsat = new MilliSatoshi(csr.Commitments().localCommit().spec().toLocalMsat());
+      long outHtlcsAmount = 0L;
+      Iterator<Htlc> htlcsIterator = csr.Commitments().localCommit().spec().htlcs().iterator();
+      while (htlcsIterator.hasNext()) {
+        Htlc h = htlcsIterator.next();
+        if (h.direction() instanceof OUT$) {
+          outHtlcsAmount += h.add().amountMsat();
+        }
+      }
+      cd.balanceMsat = new MilliSatoshi(csr.Commitments().localCommit().spec().toLocalMsat() + outHtlcsAmount);
       cd.capacityMsat = new MilliSatoshi(csr.Commitments().localCommit().spec().totalFunds());
       EventBus.getDefault().post(new ChannelUpdateEvent());
       postLNBalanceEvent();
@@ -166,8 +165,6 @@ public class EclairEventService extends UntypedActor {
         if (cd.state != null && !CLOSED.toString().equals(cs.currentState().toString()) && !WAIT_FOR_INIT_INTERNAL.toString().equals(cd.state)) {
           Log.d(TAG, "########## CLOSING => from " + cd.state + " to " + cs.currentState().toString());
           String notifTitle = "Closing channel with " + cd.remoteNodeId.substring(0, 7) + "...";
-          if (nodeAnnouncementMap.containsKey(cd.remoteNodeId))
-            notifTitle += "(" + nodeAnnouncementMap.get(cd.remoteNodeId).alias() + ")";
           final String notifMessage = "Your final balance: " + CoinUtils.formatAmountMilliBtc(new MilliSatoshi(d.commitments().localCommit().spec().toLocalMsat())) + " mBTC";
           final String notifBigMessage = notifMessage +
             "\n" + (cd.isLocalClosing
@@ -200,24 +197,6 @@ public class EclairEventService extends UntypedActor {
         dbHelper.insertOrUpdatePayment(paymentInDB);
         EventBus.getDefault().post(new LNPaymentEvent(paymentInDB));
       }
-    }
-    // ---- announcement events
-    else if (message instanceof NodeDiscovered) {
-      NodeAnnouncement na = ((NodeDiscovered) message).ann();
-      nodeAnnouncementMap.put(na.nodeId().toBin().toString(), na);
-      EventBus.getDefault().post(new NetworkAnnouncementEvent());
-    } else if (message instanceof NodeLost) {
-      BinaryData nodeId = ((NodeLost) message).nodeId();
-      nodeAnnouncementMap.remove(nodeId.toString());
-      EventBus.getDefault().post(new NetworkAnnouncementEvent());
-    } else if (message instanceof ChannelDiscovered) {
-      ChannelAnnouncement ca = ((ChannelDiscovered) message).ann();
-      channelAnnouncementMap.put(ca.shortChannelId(), ca);
-      EventBus.getDefault().post(new NetworkAnnouncementEvent());
-    } else if (message instanceof ChannelLost) {
-      long channelId = ((ChannelLost) message).channelId();
-      channelAnnouncementMap.remove(channelId);
-      EventBus.getDefault().post(new NetworkAnnouncementEvent());
     }
   }
 

@@ -42,12 +42,12 @@ public class FabText extends RelativeLayout {
       int bgColor = arr.getColor(R.styleable.FabText_bgcolor, ContextCompat.getColor(getContext(), R.color.colorPrimary));
       String label = arr.getString(R.styleable.FabText_label);
 
-      labelTextView = (TextView) layout.findViewById(R.id.fabtext_label);
+      labelTextView = layout.findViewById(R.id.fabtext_label);
       labelTextView.setText(label);
       labelTextView.setBackgroundColor(bgColor);
       if ("".equals(label)) labelTextView.setVisibility(GONE);
 
-      fab = (FloatingActionButton) layout.findViewById(R.id.fabtext_button);
+      fab = layout.findViewById(R.id.fabtext_button);
       fab.setImageResource(arr.getResourceId(R.styleable.FabText_icon, R.mipmap.ic_plus));
       fab.setBackgroundTintList(ColorStateList.valueOf(bgColor));
     } finally {

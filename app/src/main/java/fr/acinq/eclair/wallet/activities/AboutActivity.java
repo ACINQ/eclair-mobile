@@ -15,7 +15,7 @@ public class AboutActivity extends EclairActivity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_about);
 
-    Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+    Toolbar toolbar = findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
     ActionBar ab = getSupportActionBar();
     ab.setDisplayHomeAsUpEnabled(true);

@@ -48,9 +48,9 @@ public class CoinAmountView extends RelativeLayout {
       String service = Context.LAYOUT_INFLATER_SERVICE;
       LayoutInflater li = (LayoutInflater) getContext().getSystemService(service);
       View layout = li.inflate(R.layout.custom_coin_amount_view, this, true);
-      amountTextView = (TextView) layout.findViewById(R.id.view_amount);
-      unitTextView = (TextView) layout.findViewById(R.id.view_unit);
-      RelativeLayout relativeLayout = (RelativeLayout) layout.findViewById(R.id.view_relative);
+      amountTextView = layout.findViewById(R.id.view_amount);
+      unitTextView = layout.findViewById(R.id.view_unit);
+      RelativeLayout relativeLayout = layout.findViewById(R.id.view_relative);
 
       switch (arr.getInt(R.styleable.CoinAmountView_alignment, 0)) {
         case 1:

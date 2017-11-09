@@ -40,9 +40,13 @@ import fr.acinq.eclair.io.Switchboard;
 import fr.acinq.eclair.payment.PaymentEvent;
 import fr.acinq.eclair.payment.SendPayment;
 import fr.acinq.eclair.router.NetworkEvent;
+import fr.acinq.eclair.wallet.events.NetworkChannelsCountEvent;
+import fr.acinq.eclair.wallet.events.NetworkNodesCountEvent;
 import fr.acinq.eclair.wallet.events.NotificationEvent;
 import fr.acinq.eclair.wallet.events.WalletBalanceUpdateEvent;
 import scala.Option;
+import scala.Symbol;
+import scala.collection.Iterable;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.Promise;
@@ -64,12 +68,15 @@ public class App extends Application {
   private Promise<Object> pAtCurrentHeight = akka.dispatch.Futures.promise();
   private boolean isDBCompatible = true;
 
+  private ExchangeRate exchangeRate = new ExchangeRate();
+
   @Override
   public void onCreate() {
     if (!EventBus.getDefault().isRegistered(this)) {
       EventBus.getDefault().register(this);
     }
     dbHelper = new DBHelper(getApplicationContext());
+
     try {
       final File datadir = new File(getApplicationContext().getFilesDir(), DATADIR_NAME);
       Log.d(TAG, "Accessing Eclair Setup with datadir " + datadir.getAbsolutePath());
@@ -90,8 +97,7 @@ public class App extends Application {
 
       try {
         DBCompatChecker.checkDBCompatibility(setup.nodeParams());
-      }
-      catch(Exception e) {
+      } catch (Exception e) {
         isDBCompatible = false;
       }
     } catch (Exception e) {
@@ -215,8 +221,66 @@ public class App extends Application {
     return mnemonics.get(position).equals(word);
   }
 
+  public long estimateSlowFees() {
+    return 100;
+  }
+
+  public long estimateMediumFees() {
+    return 215;
+  }
+
+  public long estimateFastFees() {
+    return 350;
+  }
+
+  public void getNetworkNodesCount() {
+    Future<Object> paymentFuture = Patterns.ask(eclairKit.router(), Symbol.apply("nodes"), new Timeout(Duration.create(10, "seconds")));
+    paymentFuture.onComplete(new OnComplete<Object>() {
+      @Override
+      public void onComplete(Throwable throwable, Object o) throws Throwable {
+        if (throwable == null && o != null && o instanceof Iterable) {
+          EventBus.getDefault().post(new NetworkNodesCountEvent(((Iterable) o).size()));
+        } else {
+          EventBus.getDefault().post(new NetworkNodesCountEvent(-1));
+        }
+      }
+    }, system.dispatcher());
+  }
+
+  public void getNetworkChannelsCount() {
+    Future<Object> paymentFuture = Patterns.ask(eclairKit.router(), Symbol.apply("channels"), new Timeout(Duration.create(10, "seconds")));
+    paymentFuture.onComplete(new OnComplete<Object>() {
+      @Override
+      public void onComplete(Throwable throwable, Object o) throws Throwable {
+        if (throwable == null && o != null && o instanceof Iterable) {
+          EventBus.getDefault().post(new NetworkChannelsCountEvent(((Iterable) o).size()));
+        } else {
+          EventBus.getDefault().post(new NetworkChannelsCountEvent(-1));
+        }
+      }
+    }, system.dispatcher());
+  }
+
   public DBHelper getDBHelper() {
     return dbHelper;
+  }
+
+  public void updateExchangeRate(Double eurRate, Double usdRate) {
+    this.exchangeRate.eurRate = eurRate;
+    this.exchangeRate.usdRate = usdRate;
+  }
+
+  public Double getEurRate() {
+    return this.exchangeRate.eurRate;
+  }
+
+  public Double getUsdRate() {
+    return this.exchangeRate.usdRate;
+  }
+
+  static class ExchangeRate {
+    public Double eurRate = 0.0;
+    public Double usdRate = 0.0;
   }
 }
 

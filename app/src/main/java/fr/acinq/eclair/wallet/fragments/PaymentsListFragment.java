@@ -50,12 +50,12 @@ public class PaymentsListFragment extends Fragment implements SwipeRefreshLayout
   public View onCreateView(LayoutInflater inflater, ViewGroup container,
                            Bundle savedInstanceState) {
     mView = inflater.inflate(R.layout.fragment_paymentslist, container, false);
-    mRefreshLayout = (SwipeRefreshLayout) mView.findViewById(R.id.payments_swiperefresh);
+    mRefreshLayout = mView.findViewById(R.id.payments_swiperefresh);
     mRefreshLayout.setColorSchemeResources(R.color.colorPrimary, R.color.green, R.color.colorAccent);
     mRefreshLayout.setOnRefreshListener(this);
-    mEmptyLabel = (TextView) mView.findViewById(R.id.payments_empty);
+    mEmptyLabel = mView.findViewById(R.id.payments_empty);
 
-    RecyclerView listView = (RecyclerView) mView.findViewById(R.id.payments_list);
+    RecyclerView listView = mView.findViewById(R.id.payments_list);
     listView.setHasFixedSize(true);
     listView.setLayoutManager(new LinearLayoutManager(mView.getContext()));
     listView.setAdapter(mPaymentAdapter);

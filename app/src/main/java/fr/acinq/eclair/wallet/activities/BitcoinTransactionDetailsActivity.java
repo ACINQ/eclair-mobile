@@ -39,17 +39,17 @@ public class BitcoinTransactionDetailsActivity extends EclairActivity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_bitcoin_transaction_details);
 
-    Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+    Toolbar toolbar = findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
     ActionBar ab = getSupportActionBar();
     ab.setDisplayHomeAsUpEnabled(true);
 
-    mAmountPaidRow = (DataRow) findViewById(R.id.transactiondetails_amount);
-    mFeesRow = (DataRow) findViewById(R.id.transactiondetails_fees);
-    mPaymentHashRow = (DataRow) findViewById(R.id.transactiondetails_txid);
-    mUpdateDateRow = (DataRow) findViewById(R.id.transactiondetails_date);
-    mTxConfs = (DataRow) findViewById(R.id.transactiondetails_confs);
-    mTxConfsType = (DataRow) findViewById(R.id.transactiondetails_confs_type);
+    mAmountPaidRow = findViewById(R.id.transactiondetails_amount);
+    mFeesRow = findViewById(R.id.transactiondetails_fees);
+    mPaymentHashRow = findViewById(R.id.transactiondetails_txid);
+    mUpdateDateRow = findViewById(R.id.transactiondetails_date);
+    mTxConfs = findViewById(R.id.transactiondetails_confs);
+    mTxConfsType = findViewById(R.id.transactiondetails_confs_type);
     mOpenInExplorer = findViewById(R.id.open_in_explorer);
     mRebroadcastTxView = findViewById(R.id.transactiondetails_rebroadcast);
     mRebroadcastTxView.setVisibility(View.GONE);

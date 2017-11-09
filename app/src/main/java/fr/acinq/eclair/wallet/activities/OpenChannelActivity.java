@@ -30,7 +30,7 @@ import fr.acinq.eclair.wallet.events.LNNewChannelOpenedEvent;
 import fr.acinq.eclair.wallet.utils.Validators;
 import scala.math.BigDecimal;
 
-public class OpenChannelActivity extends EclairModalActivity {
+public class OpenChannelActivity extends EclairActivity {
 
   public static final String EXTRA_NEW_HOST_URI = "fr.acinq.eclair.swordfish.NEW_HOST_URI";
 
@@ -46,13 +46,13 @@ public class OpenChannelActivity extends EclairModalActivity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_open_channel);
 
-    mOpenButton = (Button) findViewById(R.id.openchannel_do_open);
-    mIPTextView = (TextView) findViewById(R.id.openchannel_ip);
-    mPortTextView = (TextView) findViewById(R.id.openchannel_port);
-    mPubkeyTextView = (TextView) findViewById(R.id.openchannel_pubkey);
-    mErrorAView = (TextView) findViewById(R.id.openchannel_error);
+    mOpenButton = findViewById(R.id.openchannel_do_open);
+    mIPTextView = findViewById(R.id.openchannel_ip);
+    mPortTextView = findViewById(R.id.openchannel_port);
+    mPubkeyTextView = findViewById(R.id.openchannel_pubkey);
+    mErrorAView = findViewById(R.id.openchannel_error);
 
-    mAmountEdit = (EditText) findViewById(R.id.openchannel_capacity);
+    mAmountEdit = findViewById(R.id.openchannel_capacity);
     mAmountEdit.addTextChangedListener(new TextWatcher() {
       @Override
       public void beforeTextChanged(CharSequence s, int start, int count, int after) {

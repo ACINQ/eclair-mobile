@@ -22,15 +22,13 @@ public class LocalChannelItemHolder extends RecyclerView.ViewHolder implements V
   private final TextView state;
   private final TextView balance;
   private final TextView node;
-  private final TextView nodeAlias;
   private ChannelItem channelItem;
 
   public LocalChannelItemHolder(View itemView) {
     super(itemView);
-    this.state = (TextView) itemView.findViewById(R.id.channelitem_state);
-    this.balance = (TextView) itemView.findViewById(R.id.channelitem_balance_value);
-    this.node = (TextView) itemView.findViewById(R.id.channelitem_node);
-    this.nodeAlias = (TextView) itemView.findViewById(R.id.channelitem_nodealias);
+    this.state = itemView.findViewById(R.id.channelitem_state);
+    this.balance = itemView.findViewById(R.id.channelitem_balance_value);
+    this.node = itemView.findViewById(R.id.channelitem_node);
     itemView.setOnClickListener(this);
   }
 
@@ -55,8 +53,6 @@ public class LocalChannelItemHolder extends RecyclerView.ViewHolder implements V
       state.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.orange));
     }
     balance.setText(CoinUtils.formatAmountMilliBtc(channelItem.balanceMsat));
-    String targetAlias = EclairEventService.getNodeAlias(channelItem.targetPubkey);
-    if (targetAlias.length() > 0) nodeAlias.setText("(" + targetAlias + ")");
     node.setText("With " + channelItem.targetPubkey);
   }
 }

@@ -36,14 +36,14 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
 
   public PaymentItemHolder(View itemView) {
     super(itemView);
-    this.mPaymentIcon = (ImageView) itemView.findViewById(R.id.paymentitem_image);
-    this.mAmount = (TextView) itemView.findViewById(R.id.paymentitem_amount_value);
-    this.mStatus = (TextView) itemView.findViewById(R.id.paymentitem_status);
-    this.mDescription = (TextView) itemView.findViewById(R.id.paymentitem_description);
-    this.mDate = (TextView) itemView.findViewById(R.id.paymentitem_date);
-    this.mFeesPrefix = (TextView) itemView.findViewById(R.id.paymentitem_fees_prefix);
-    this.mFees = (TextView) itemView.findViewById(R.id.paymentitem_fees_value);
-    this.mFeesUnit = (TextView) itemView.findViewById(R.id.paymentitem_fees_unit);
+    this.mPaymentIcon = itemView.findViewById(R.id.paymentitem_image);
+    this.mAmount = itemView.findViewById(R.id.paymentitem_amount_value);
+    this.mStatus = itemView.findViewById(R.id.paymentitem_status);
+    this.mDescription = itemView.findViewById(R.id.paymentitem_description);
+    this.mDate = itemView.findViewById(R.id.paymentitem_date);
+    this.mFeesPrefix = itemView.findViewById(R.id.paymentitem_fees_prefix);
+    this.mFees = itemView.findViewById(R.id.paymentitem_fees_value);
+    this.mFeesUnit = itemView.findViewById(R.id.paymentitem_fees_unit);
     itemView.setOnClickListener(this);
   }
 

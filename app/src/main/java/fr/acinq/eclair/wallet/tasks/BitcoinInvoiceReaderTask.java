@@ -9,7 +9,7 @@ import fr.acinq.eclair.wallet.utils.BitcoinURIParseException;
 
 public class BitcoinInvoiceReaderTask extends AsyncTask<String, Integer, BitcoinURI> {
 
-  private static final String TAG = "LNInvoiceReaderTask";
+  private static final String TAG = "BitcoinInvoiceReader";
   private final String invoiceAsString;
   private final AsyncInvoiceReaderTaskResponse delegate;
 
@@ -29,7 +29,7 @@ public class BitcoinInvoiceReaderTask extends AsyncTask<String, Integer, Bitcoin
         extract = new BitcoinURI("bitcoin:" + invoiceAsString);
       }
     } catch (BitcoinURIParseException e) {
-      Log.e(TAG, "Could not read Bitcoin invoice " + invoiceAsString + " with cause: " + e.getMessage());
+      Log.d(TAG, "Could not read Bitcoin invoice " + invoiceAsString + " with cause: " + e.getMessage());
     }
     return extract;
   }
