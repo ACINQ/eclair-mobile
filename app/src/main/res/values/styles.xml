@@ -28,6 +28,14 @@
     <item name="android:textColor">@color/colorGrey_4</item>
     <item name="android:windowMinWidthMajor">85%</item>
     <item name="android:windowMinWidthMinor">85%</item>
+    <item name="windowActionBar">false</item>
+    <item name="windowNoTitle">true</item>
+    <item name="actionBarTheme">@null</item>
+  </style>
+
+  <style name="CustomAlertDialog" parent="CustomDialog">
+    <item name="android:windowMinWidthMajor">70%</item>
+    <item name="android:windowMinWidthMinor">70%</item>
   </style>
 
   <style name="SplashTheme" parent="AppTheme">

@@ -20,7 +20,7 @@
   <string name="home_toast_openchannel_failed">Failed to open channel: </string>
   <string name="home_toast_noconnection">Not yet connected to the network</string>
 
-  <string name="payment_do_send">Send Payment</string>
+  <string name="payment_do_send">Pay</string>
 
   <string name="payments_title">Transaction history</string>
   <string name="payments_empty">No transactions yet…</string>
@@ -157,7 +157,7 @@
   <string name="payment_fees_verylow">The fees are very low and your transaction could take a very long time to confirm.</string>
   <string name="payment_fees_veryhigh">The fees seem very high. Please make sure that this amount is correct.</string>
   <string name="payment_loading_pleasewait">Reading the invoice, please wait…</string>
-  <string name="payment_amount_to_send">Amount to send</string>
+  <string name="payment_amount_to_send">Amount in </string>
   <string name="payment_toast_sentbtc">Payment sent</string>
   <string name="payment_toast_balance">Insufficient balance</string>
   <string name="payment_toast_failure">Could not send transaction</string>
@@ -175,6 +175,7 @@
   <string name="payment_error_amount_ln_insufficient_funds"><![CDATA[
     <p><b>Not enough funds in your LN channels</b></p>
   ]]></string>
+  <string name="payment_error_incorrect_pin">PIN is incorrect.</string>
 
   <!-- //////////////// LN payment details //////////////////// -->
 
@@ -279,9 +280,18 @@
   <string name="chain_test">TESTNET</string>
 
   <!-- //////////////// Preferences //////////////////// -->
+
+  <string name="pindialog_title_default">Please enter your PIN</string>
+  <string name="pindialog_title_createnew">Define a 6 digits PIN code</string>
+
+  <!-- //////////////// Preferences //////////////////// -->
+
   <string name="prefs_display">Display</string>
   <string name="prefs_fiat_currency">Fiat currency</string>
   <string name="prefs_fiat_currency_dialog">Display in fiat currency</string>
-  <string name="prefs_btc_denomination">Bitcoin denomination</string>
+  <string name="prefs_btc_denomination">Bitcoin denomination (disabled)</string>
+  <string name="prefs_pin_title">Ask for PIN before payment</string>
+  <string name="prefs_pin_default_info">Pin is a 6 digits number</string>
+  <string name="prefs_pin_lastupdate">Last update:</string>
 
 </resources>

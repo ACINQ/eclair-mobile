@@ -16,7 +16,7 @@
       android:layout_toStartOf="@+id/view_unit"
       android:ellipsize="none"
       android:fontFamily="sans-serif-light"
-      android:maxLines="1"
+      android:singleLine="true"
       android:text="0,00"
       android:textSize="30sp" />
 

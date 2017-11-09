@@ -30,7 +30,7 @@ import fr.acinq.eclair.wallet.events.LNNewChannelOpenedEvent;
 import fr.acinq.eclair.wallet.utils.Validators;
 import scala.math.BigDecimal;
 
-public class OpenChannelActivity extends EclairModalActivity {
+public class OpenChannelActivity extends EclairActivity {
 
   public static final String EXTRA_NEW_HOST_URI = "fr.acinq.eclair.swordfish.NEW_HOST_URI";
 

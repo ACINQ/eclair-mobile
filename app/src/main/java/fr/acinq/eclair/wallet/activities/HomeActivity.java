@@ -67,6 +67,7 @@ import fr.acinq.eclair.wallet.fragments.ChannelsListFragment;
 import fr.acinq.eclair.wallet.fragments.PaymentsListFragment;
 import fr.acinq.eclair.wallet.fragments.ReceivePaymentFragment;
 import fr.acinq.eclair.wallet.utils.CoinUtils;
+import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.Validators;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 import scala.concurrent.ExecutionContext;
@@ -177,8 +178,8 @@ public class HomeActivity extends EclairActivity {
       public void run() {
         final SharedPreferences getPrefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         final boolean showDisclaimer = false;
-        final boolean showRecovery = getPrefs.getBoolean("showRecovery", true);
-        final boolean showIntro = getPrefs.getBoolean("showIntro", true);
+        final boolean showRecovery = getPrefs.getBoolean(Constants.SETTING_SHOW_RECOVERY, true);
+        final boolean showIntro = getPrefs.getBoolean(Constants.SETTING_SHOW_INTRO, true);
         if (showDisclaimer || showRecovery || showIntro) {
           runOnUiThread(new Runnable() {
             @Override
@@ -318,7 +319,7 @@ public class HomeActivity extends EclairActivity {
         public void onClick(View v) {
           mStubDisclaimer.setVisibility(View.GONE);
           SharedPreferences.Editor e = prefs.edit();
-          e.putBoolean("showDisclaimer", false);
+          e.putBoolean(Constants.SETTING_SHOW_DISCLAIMER, false);
           e.apply();
           home_startBackup(showRecovery, showIntro, prefs);
         }
@@ -338,7 +339,7 @@ public class HomeActivity extends EclairActivity {
         public void onClick(View v) {
           mStubBackup.setVisibility(View.GONE);
           SharedPreferences.Editor e = prefs.edit();
-          e.putBoolean("showRecovery", false);
+          e.putBoolean(Constants.SETTING_SHOW_RECOVERY, false);
           e.apply();
           home_startIntro(showIntro, prefs);
         }
@@ -352,7 +353,7 @@ public class HomeActivity extends EclairActivity {
           public void onClick(View v) {
             mStubBackup.setVisibility(View.GONE);
             SharedPreferences.Editor e = prefs.edit();
-            e.putBoolean("showRecovery", false);
+            e.putBoolean(Constants.SETTING_SHOW_RECOVERY, false);
             e.apply();
             home_startIntro(showIntro, prefs);
           }
@@ -417,7 +418,7 @@ public class HomeActivity extends EclairActivity {
         if (introStep > 4) {
           mStubIntro.setVisibility(View.GONE);
           SharedPreferences.Editor e = prefs.edit();
-          e.putBoolean("showIntro", false);
+          e.putBoolean(Constants.SETTING_SHOW_INTRO, false);
           e.apply();
         } else {
           introWelcome.setVisibility(View.GONE);
