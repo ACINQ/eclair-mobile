@@ -53,8 +53,6 @@ public class BitcoinTransactionDetailsActivity extends EclairActivity {
     mOpenInExplorer = findViewById(R.id.open_in_explorer);
     mRebroadcastTxView = findViewById(R.id.transactiondetails_rebroadcast);
     mRebroadcastTxView.setVisibility(View.GONE);
-
-
   }
 
   @Override
@@ -92,13 +90,8 @@ public class BitcoinTransactionDetailsActivity extends EclairActivity {
       mUpdateDateRow.setValue(DateFormat.getDateTimeInstance().format(p.getUpdated()));
       mOpenInExplorer.setOnClickListener(WalletUtils.getOpenTxListener(p.getReference()));
       mTxConfs.setValue(Integer.toString(p.getConfidenceBlocks()));
-// FIXME
-//      for (TransactionConfidence.ConfidenceType t : TransactionConfidence.ConfidenceType.values()) {
-//        if (t.getValue() == p.getConfidenceType()) {
-//          mTxConfsType.setValue(t.toString());
-//          break;
-//        }
-//      }
+      // TODO confidence type should be human readable
+      mTxConfsType.setValue(Integer.toString(p.getConfidenceType()));
 
       if (p.getConfidenceBlocks() == 0) {
         mRebroadcastTxView.setVisibility(View.VISIBLE);
@@ -114,5 +107,4 @@ public class BitcoinTransactionDetailsActivity extends EclairActivity {
       finish();
     }
   }
-
 }

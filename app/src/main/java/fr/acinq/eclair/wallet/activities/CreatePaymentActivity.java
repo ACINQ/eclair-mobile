@@ -136,7 +136,7 @@ public class CreatePaymentActivity extends EclairActivity
       mBitcoinInvoice = output;
       isAmountReadonly = mBitcoinInvoice.getAmount() != null;
       if (isAmountReadonly) {
-        final MilliSatoshi amountMsat = package$.MODULE$.satoshi2millisatoshi(new Satoshi(mBitcoinInvoice.getAmount().getValue()));
+        final MilliSatoshi amountMsat = package$.MODULE$.satoshi2millisatoshi(mBitcoinInvoice.getAmount());
         mAmountReadonlyValue.setAmountMsat(amountMsat);
         setFiatAmount(amountMsat);
       }
@@ -372,13 +372,9 @@ public class CreatePaymentActivity extends EclairActivity
           }
         }
       } else if (mBitcoinInvoice != null) {
-        final Satoshi amount = isAmountReadonly ? mBitcoinInvoice.getAmount() : CoinUtils.parseMilliSatoshiAmout(mAmountEditableValue.getText().toString());
-        final Long feesPerKb = Long.parseLong(mFeesValue.getText().toString());
-        sendBitcoinPayment(amount, feesPerKb);
-        finish();
-        final Coin amount = isAmountReadonly ? mBitcoinInvoice.getAmount() : Coin.parseCoin(mAmountEditableValue.getText().toString()).div(1000);
         try {
-          final Coin feesPerKb = Coin.valueOf(Long.parseLong(mFeesValue.getText().toString()));
+          final Satoshi amount = isAmountReadonly ? mBitcoinInvoice.getAmount() : CoinUtils.parseMilliSatoshiAmout(mAmountEditableValue.getText().toString());
+          final Long feesPerKb = Long.parseLong(mFeesValue.getText().toString());
           if (isPinRequired()) {
             pinDialog = new PinDialog(CreatePaymentActivity.this, R.style.CustomAlertDialog, new PinDialog.PinDialogCallback() {
               public void onPinConfirm(final PinDialog dialog, final String pinValue) {
