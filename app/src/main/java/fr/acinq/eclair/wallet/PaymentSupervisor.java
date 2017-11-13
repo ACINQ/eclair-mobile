@@ -82,10 +82,6 @@ public class PaymentSupervisor extends UntypedActor {
       Log.d(TAG, "Received GetBalanceResponse message: " + message);
       ElectrumWallet.GetBalanceResponse getBalanceResponse = (ElectrumWallet.GetBalanceResponse) message;
       EventBus.getDefault().postSticky(new WalletBalanceUpdateEvent(getBalanceResponse.confirmed().$plus(getBalanceResponse.unconfirmed())));
-    } else if (message instanceof ElectrumWallet.Ready) {
-      Log.d(TAG, "Received Ready message: " + message);
-      ElectrumWallet.Ready ready = (ElectrumWallet.Ready) message;
-      EventBus.getDefault().postSticky(new WalletBalanceUpdateEvent(ready.confirmedBalance().$plus(ready.unconfirmedBalance())));
     } else unhandled(message);
   }
 }
