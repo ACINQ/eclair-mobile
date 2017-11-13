@@ -286,12 +286,15 @@
 
   <!-- //////////////// Preferences //////////////////// -->
 
-  <string name="prefs_display">Display</string>
+  <string name="prefs_cat_display">Display</string>
+  <string name="prefs_cat_lightning">Lightning</string>
   <string name="prefs_fiat_currency">Fiat currency</string>
   <string name="prefs_fiat_currency_dialog">Display in fiat currency</string>
   <string name="prefs_btc_denomination">Bitcoin denomination (disabled)</string>
   <string name="prefs_pin_title">Ask for PIN before payment</string>
   <string name="prefs_pin_default_info">Pin is a 6 digits number</string>
   <string name="prefs_pin_lastupdate">Last update:</string>
+  <string name="prefs_lightning_max_fee">Maximum Lightning fees</string>
+  <string name="prefs_lightning_max_fee_desc">Fail payments if the fees exceeds 1% of the amount. This prevents overpaying opportunistic nodes in the middle of the route.</string>
 
 </resources>

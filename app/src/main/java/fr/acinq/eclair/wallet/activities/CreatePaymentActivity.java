@@ -92,6 +92,8 @@ public class CreatePaymentActivity extends EclairActivity
   private View mButtonsView;
 
   private String preferredFiatCurrency;
+  private boolean maxFeeLightning = true;
+  private int maxFeeLightningValue = 1;
   private PinDialog pinDialog;
 
   @SuppressLint("SetTextI18n")
@@ -141,6 +143,11 @@ public class CreatePaymentActivity extends EclairActivity
     }
   }
 
+  /**
+   * Converts the value of the payment's amount to the preferred fiat currency and updates the UI.
+   *
+   * @param amountMsat
+   */
   @SuppressLint("SetTextI18n")
   private void setFiatAmount(final MilliSatoshi amountMsat) {
     Double rate = preferredFiatCurrency.equals("eur") ? app.getEurRate() : app.getUsdRate();
@@ -162,7 +169,7 @@ public class CreatePaymentActivity extends EclairActivity
   }
 
   /**
-   * Fill the payment form fields with a description and a payment type.
+   * Displays the various fields in the payment form, depending on the payment type.
    */
   private void invoiceReadSuccessfully(final boolean isLightning) {
     setAmountViewVisibility();
@@ -203,6 +210,8 @@ public class CreatePaymentActivity extends EclairActivity
 
     final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
     preferredFiatCurrency = sharedPref.getString(Constants.SETTING_SELECTED_FIAT_CURRENCY, "eur");
+    maxFeeLightning = sharedPref.getBoolean(Constants.SETTING_LIGHTNING_MAX_FEE, true);
+    maxFeeLightningValue = sharedPref.getInt(Constants.SETTING_LIGHTNING_MAX_FEE_VALUE, 1);
 
     mFormView = findViewById(R.id.payment_form);
     mLoadingTextView = findViewById(R.id.payment_loading);
@@ -425,7 +434,7 @@ public class CreatePaymentActivity extends EclairActivity
 
   @Override
   protected void onPause() {
-    Log.d(TAG, "On pause create payment activity...");
+    // dismiss the pin dialog if it exists to prevent leak.
     if (pinDialog != null) {
       pinDialog.dismiss();
     }
@@ -436,6 +445,8 @@ public class CreatePaymentActivity extends EclairActivity
    * Executes a Lightning payment in an asynchronous task.
    *
    * @param amountMsat amount of the payment in milli satoshis
+   * @param pr Lightning payment request
+   * @param prAsString payment request as a string (used for display)
    */
   private final void sendLNPayment(final long amountMsat, final PaymentRequest pr, final String prAsString) {
     Log.d(TAG, "Sending LN payment for invoice " + prAsString);
@@ -508,10 +519,17 @@ public class CreatePaymentActivity extends EclairActivity
     );
   }
 
-  private void sendBitcoinPayment(final Satoshi amount, final Long feesPerKb, final BitcoinURI bitcoinURI) {
+  /**
+   * Sends a Bitcoin transaction.
+   *
+   * @param amountSat amount of the tx in satoshis
+   * @param feesPerKb fees to the network in satoshis per kb
+   * @param bitcoinURI contains the bitcoin address
+   */
+  private void sendBitcoinPayment(final Satoshi amountSat, final Long feesPerKb, final BitcoinURI bitcoinURI) {
     Log.d(TAG, "Sending Bitcoin payment for invoice " + mBitcoinInvoice.toString());
     final CreatePaymentActivity context = this;
-    app.getWallet().sendPayment(amount, bitcoinURI.getAddress(), feesPerKb, new ElectrumWallet.CompletionCallback<Boolean>() {
+    app.getWallet().sendPayment(amountSat, bitcoinURI.getAddress(), feesPerKb, new ElectrumWallet.CompletionCallback<Boolean>() {
       @Override
       public void onSuccess(Boolean value) {
         if (value) {
@@ -544,20 +562,24 @@ public class CreatePaymentActivity extends EclairActivity
 
   /**
    * Handle the visibility and interactivity of form's elements according to the state of the payment.
-   * If the payment is being processed (or the PIN dialog is shown) editable inputs are disabled and buttons are hidden.
+   * If the payment is being processed (or the PIN dialog is shown) editable inputs and buttons are disabled.
    */
   private void toggleForm() {
     if (isProcessingPayment) {
       mAmountEditableValue.setEnabled(false);
       mFeesValue.setEnabled(false);
       mFeesButton.setEnabled(false);
-      mButtonsView.setVisibility(View.GONE);
+      mButtonsView.setClickable(false);
+      mButtonsView.setFocusable(false);
+      mButtonsView.setAlpha(0.3f);
       mPaymentErrorView.setVisibility(View.GONE);
     } else {
       mAmountEditableValue.setEnabled(true);
       mFeesValue.setEnabled(true);
       mFeesButton.setEnabled(true);
-      mButtonsView.setVisibility(View.VISIBLE);
+      mButtonsView.setClickable(true);
+      mButtonsView.setFocusable(true);
+      mButtonsView.setAlpha(1);
     }
   }
 
@@ -567,7 +589,7 @@ public class CreatePaymentActivity extends EclairActivity
     toggleForm();
   }
 
-  private StringBuilder generateDetailedErrorCause(final Seq<PaymentFailure> failures) {
+  private static StringBuilder generateDetailedErrorCause(final Seq<PaymentFailure> failures) {
     final StringBuilder sbErrors = new StringBuilder().append("<p><b>").append(failures.size()).append(" attempt(s) made.</b></p>").append("<small><ul>");
     for (int i = 0; i < failures.size(); i++) {
       final PaymentFailure f = failures.apply(i);

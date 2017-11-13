@@ -1,27 +1,34 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-  <PreferenceCategory
-    android:title="@string/prefs_display">
+  <PreferenceCategory android:title="@string/prefs_cat_display">
 
     <ListPreference
-      android:key="fiat_currency"
-      android:title="@string/prefs_fiat_currency"
-      android:summary="%s"
       android:defaultValue="eur"
       android:dialogTitle="@string/prefs_fiat_currency_dialog"
       android:entries="@array/fiat_labels"
-      android:entryValues="@array/fiat_values" />
+      android:entryValues="@array/fiat_values"
+      android:key="fiat_currency"
+      android:summary="%s"
+      android:title="@string/prefs_fiat_currency" />
 
     <ListPreference
-      android:key="btc_denomination"
-      android:title="@string/prefs_btc_denomination"
-      android:summary="%s"
       android:defaultValue="mbtc"
-      android:enabled="false"
       android:dialogTitle="@string/prefs_btc_denomination"
+      android:enabled="false"
       android:entries="@array/btc_denomination_labels"
-      android:entryValues="@array/btc_denomination_values" />
-
+      android:entryValues="@array/btc_denomination_values"
+      android:key="btc_denomination"
+      android:summary="%s"
+      android:title="@string/prefs_btc_denomination" />
   </PreferenceCategory>
 
+  <PreferenceCategory android:title="@string/prefs_cat_lightning">
+
+    <SwitchPreference
+      android:defaultValue="true"
+      android:key="lightning_max_fee"
+      android:summary="@string/prefs_lightning_max_fee_desc"
+      android:title="@string/prefs_lightning_max_fee" />
+
+  </PreferenceCategory>
 </PreferenceScreen>
