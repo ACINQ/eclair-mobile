@@ -1,6 +1,5 @@
 package fr.acinq.eclair.wallet.activities;
 
-import android.content.Context;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -20,9 +19,7 @@ import android.widget.Toast;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.util.AsyncExecutor;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 import akka.dispatch.OnComplete;
 import fr.acinq.bitcoin.BinaryData;
@@ -54,8 +51,6 @@ import fr.acinq.eclair.wallet.utils.BitcoinURI;
 import fr.acinq.eclair.wallet.utils.CoinUtils;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wire.FailureMessage;
-import scala.Option;
-import scala.collection.Iterator;
 import scala.collection.Seq;
 import scala.collection.mutable.StringBuilder;
 import scala.math.BigDecimal;
@@ -176,7 +171,9 @@ public class CreatePaymentActivity extends EclairActivity
       mPaymentTypeOnchainView.setVisibility(View.GONE);
       mPaymentTypeLightningView.setVisibility(View.VISIBLE);
       mDescriptionView.setVisibility(View.VISIBLE);
+      mRecipientView.setVisibility(View.VISIBLE);
     } else {
+      mFeesOnchainView.setVisibility(View.VISIBLE);
       mPaymentTypeOnchainView.setVisibility(View.VISIBLE);
       mPaymentTypeLightningView.setVisibility(View.GONE);
       mDescriptionView.setVisibility(View.GONE);
