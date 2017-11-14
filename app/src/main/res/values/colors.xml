@@ -4,7 +4,11 @@
   <color name="colorPrimaryDark">#0190cf</color>
   <color name="colorPrimaryDark_1">#087eb2</color>
   <color name="colorPrimaryDark_2">#0f729e</color>
-  <color name="colorPrimaryLight">#68d2ff</color>
+  <color name="primary_light_00">#e5f7fd</color>
+  <color name="primary_light_0">#c8eefc</color>
+  <color name="primary_light_0_text">#9bb6c0</color>
+  <color name="primary_light_1">#85d8f7</color>
+  <color name="primary_light_2">#4bc2ef</color>
   <color name="colorPrimaryFaded">#01adf7</color>
   <color name="colorAccent">#ba3259</color>
   <color name="colorGrey_000">#f6f6f6</color>
@@ -18,6 +22,7 @@
   <color name="colorGrey_4">#333333</color>
   <color name="bluegreen">#00d0c9</color>
   <color name="green">#00c28c</color>
+  <color name="green_light_0">#bff5f8</color>
   <color name="yellow">#ffe88a</color>
   <color name="yellowLight">#feedc5</color>
   <color name="orange">#ffb81c</color>
@@ -30,4 +35,5 @@
   <color name="almostWhite">#fbfbfb</color>
   <color name="black">#000000</color>
   <color name="intro">#ffe785</color>
+  <color name="bluegrey_light">#d0ecfd</color>
 </resources>

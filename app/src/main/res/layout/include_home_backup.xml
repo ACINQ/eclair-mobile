@@ -85,7 +85,7 @@
           android:inputType="text"
           android:maxLines="2"
           android:textColor="@color/white"
-          android:textColorHint="@color/colorPrimaryLight"
+          android:textColorHint="@color/primary_light_1"
           android:textCursorDrawable="@null" />
 
         <Button

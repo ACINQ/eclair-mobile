@@ -235,7 +235,7 @@ public class CreatePaymentActivity extends EclairActivity
         // toggle hint depending on amount input
         mAmountEditableHint.setVisibility(s == null || s.length() == 0 ? View.VISIBLE : View.GONE);
         try {
-          BigDecimal amount = BigDecimal.exact(s.toString());
+          final BigDecimal amount = BigDecimal.exact(s.toString());
           setFiatAmount(package$.MODULE$.millibtc2millisatoshi(new MilliBtc(amount)));
         } catch (NumberFormatException e) {
           Log.d(TAG, "Could not read amount with cause=" + e.getMessage());

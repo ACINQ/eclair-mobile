@@ -510,14 +510,10 @@ public class HomeActivity extends EclairActivity {
   }
 
   public void home_doPasteURI(View view) {
-    String uri = readFromClipboard();
-    if (Validators.HOST_REGEX.matcher(uri).matches()) {
-      Intent intent = new Intent(getBaseContext(), OpenChannelActivity.class);
-      intent.putExtra(OpenChannelActivity.EXTRA_NEW_HOST_URI, uri);
-      startActivity(intent);
-    } else {
-      Toast.makeText(this, R.string.home_toast_openchannel_invalid, Toast.LENGTH_SHORT).show();
-    }
+    final String uri = readFromClipboard();
+    final Intent intent = new Intent(getBaseContext(), OpenChannelActivity.class);
+    intent.putExtra(OpenChannelActivity.EXTRA_NEW_HOST_URI, uri);
+    startActivity(intent);
   }
 
   public void home_doScanURI(View view) {
