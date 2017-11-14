@@ -10,6 +10,7 @@ import java.util.Date;
 
 import akka.actor.ActorRef;
 import akka.actor.UntypedActor;
+import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.Protocol;
 import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.bitcoin.Transaction;
@@ -77,7 +78,7 @@ public class PaymentSupervisor extends UntypedActor {
       EventBus.getDefault().post(new BitcoinPaymentEvent(paymentReceived));
     } else if (message instanceof ElectrumWallet.WalletTransactionConfidenceChanged) {
       Log.d(TAG, "Received WalletTransactionConfidenceChanged message: " + message);
-      ElectrumWallet.WalletTransactionConfidenceChanged walletTransactionConfidenceChanged = (ElectrumWallet.WalletTransactionConfidenceChanged) message;
+      final ElectrumWallet.WalletTransactionConfidenceChanged walletTransactionConfidenceChanged = (ElectrumWallet.WalletTransactionConfidenceChanged) message;
       final Payment p = app.getDBHelper().getPayment(walletTransactionConfidenceChanged.txid().toString(), PaymentType.BTC_ONCHAIN);
       if (p != null) {
         p.setConfidenceBlocks((int) walletTransactionConfidenceChanged.depth());
@@ -85,8 +86,15 @@ public class PaymentSupervisor extends UntypedActor {
       }
     } else if (message instanceof ElectrumWallet.GetBalanceResponse) {
       Log.d(TAG, "Received GetBalanceResponse message: " + message);
-      ElectrumWallet.GetBalanceResponse getBalanceResponse = (ElectrumWallet.GetBalanceResponse) message;
-      EventBus.getDefault().postSticky(new WalletBalanceUpdateEvent(getBalanceResponse.confirmed().$plus(getBalanceResponse.unconfirmed())));
+      final ElectrumWallet.GetBalanceResponse getBalanceResponse = (ElectrumWallet.GetBalanceResponse) message;
+      final Satoshi total = getBalanceResponse.confirmed().$plus(getBalanceResponse.unconfirmed());
+      // if total amount equals 0, lets get the balance from payment DB
+      if (total.amount() == 0) {
+        EventBus.getDefault().postSticky(new WalletBalanceUpdateEvent(
+          package$.MODULE$.millisatoshi2satoshi(new MilliSatoshi(app.getDBHelper().getOnchainBalanceMsat()))));
+      } else {
+        EventBus.getDefault().postSticky(new WalletBalanceUpdateEvent(total));
+      }
     } else unhandled(message);
   }
 }

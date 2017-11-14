@@ -173,11 +173,6 @@ public class HomeActivity extends EclairActivity {
       mViewPager.setCurrentItem(intent.getIntExtra(EXTRA_PAGE, 1));
     }
 
-    EventBus.getDefault().register(this);
-    final MilliSatoshi onchainBalanceMsat = new MilliSatoshi(app.getDBHelper().getOnchainBalanceMsat());
-    mTotalBalanceView.setAmountMsat(onchainBalanceMsat);
-    EventBus.getDefault().postSticky(new WalletBalanceUpdateEvent(package$.MODULE$.millisatoshi2satoshi(onchainBalanceMsat)));
-
     (new Thread(new Runnable() {
       @Override
       public void run() {
@@ -230,7 +225,7 @@ public class HomeActivity extends EclairActivity {
       }, new Response.ErrorListener() {
       @Override
       public void onErrorResponse(VolleyError error) {
-        Log.d("ExchangeRate", "Error when querying coindesk api", error);
+        Log.d("ExchangeRate", "Error when querying coindesk api with cause " + error.getMessage());
       }
     });
     mExchangeRateHandler = new Handler();
