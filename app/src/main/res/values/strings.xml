@@ -283,6 +283,7 @@
 
   <string name="pindialog_title_default">Please enter your PIN</string>
   <string name="pindialog_title_createnew">Define a 6 digits PIN code</string>
+  <string name="pindialog_pwd_placeholder">●●●●●●</string>
 
   <!-- //////////////// Preferences //////////////////// -->
 

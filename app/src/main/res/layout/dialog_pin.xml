@@ -10,17 +10,17 @@
     android:gravity="top|center"
     android:orientation="vertical">
 
-    <LinearLayout
+    <RelativeLayout
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:background="@color/yellowLight"
-      android:gravity="top|center"
-      android:orientation="vertical">
+      android:background="@color/yellowLight">
 
       <TextView
         android:id="@+id/pin_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
         android:background="@drawable/rounded_corner_yellow_bottom"
         android:paddingBottom="3dp"
         android:paddingEnd="6dp"
@@ -32,21 +32,36 @@
         android:textSize="12sp" />
 
       <TextView
+        android:id="@+id/pin_display_placeholder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/pin_title"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="24dp"
+        android:layout_marginTop="28dp"
+        android:alpha="0.15"
+        android:background="@android:color/transparent"
+        android:gravity="center"
+        android:letterSpacing="0.2"
+        android:text="@string/pindialog_pwd_placeholder"
+        android:textColor="@color/colorGrey_3"
+        android:textSize="18sp" />
+
+      <TextView
         android:id="@+id/pin_display"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="24dp"
-        android:layout_marginTop="28dp"
+        android:layout_alignBaseline="@+id/pin_display_placeholder"
+        android:layout_alignStart="@+id/pin_display_placeholder"
         android:background="@android:color/transparent"
         android:enabled="false"
-        android:gravity="center"
-        android:inputType="textPassword"
+        android:letterSpacing="0.2"
         android:lines="1"
         android:maxLines="1"
         android:textColor="@color/colorGrey_3"
-        android:textSize="28sp" />
+        android:textSize="18sp" />
 
-    </LinearLayout>
+    </RelativeLayout>
 
     <GridLayout
       android:layout_width="match_parent"

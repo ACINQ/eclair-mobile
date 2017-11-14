@@ -3,9 +3,12 @@ package fr.acinq.eclair.wallet.fragments;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+
+import com.google.common.base.Strings;
 
 import org.greenrobot.greendao.annotation.NotNull;
 
@@ -17,7 +20,9 @@ import fr.acinq.eclair.wallet.R;
 public class PinDialog extends Dialog {
 
   private static final String TAG = "PinDialog";
+  private static final String PIN_PLACEHOLDER = "\u25CF";
   private TextView mPinTitle;
+  private String mPinValue = "";
   private TextView mPinDisplay;
   private List<View> mButtonsList = new ArrayList<>();
   private PinDialogCallback mPinCallback;
@@ -62,9 +67,12 @@ public class PinDialog extends Dialog {
       v.setOnClickListener(new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-          if (mPinDisplay.getText() == null || mPinDisplay.getText().length() < 6) {
-            String val = ((Button) view).getText().toString();
-            mPinDisplay.setText(mPinDisplay.getText() + val);
+          if (mPinValue == null) mPinValue = "";
+          if (mPinValue.equals("") || mPinValue.length() < 6) {
+            final String val = ((Button) view).getText().toString();
+            mPinValue = mPinValue.concat(val);
+            Log.d(TAG, "pinValue = " + mPinValue + " with val = " + val + " of length = " + mPinValue.length() + " ===> placeholder = " + Strings.repeat(PIN_PLACEHOLDER, mPinValue.length()));
+            mPinDisplay.setText(Strings.repeat(PIN_PLACEHOLDER, mPinValue.length()));
           }
         }
       });
@@ -72,13 +80,14 @@ public class PinDialog extends Dialog {
     findViewById(R.id.pin_num_clear).setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View view) {
+        mPinValue = "";
         mPinDisplay.setText("");
       }
     });
     findViewById(R.id.pin_submit).setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View view) {
-        mPinCallback.onPinConfirm(PinDialog.this, mPinDisplay.getText().toString());
+        mPinCallback.onPinConfirm(PinDialog.this, mPinValue);
       }
     });
   }
