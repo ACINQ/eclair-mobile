@@ -63,8 +63,8 @@ public class CreatePaymentActivity extends EclairActivity
   private static final String TAG = "CreatePayment";
   private final static String html_error_tab = "&nbsp;&nbsp;&nbsp;&nbsp;";
   private final static String html_error_new_line = "<br />" + html_error_tab;
-  private final static String html_error_new_line_bullet = html_error_new_line + "&middot;&nbsp;&nbsp;";
-  private final static String html_error_new_line_bullet_inner = html_error_new_line + html_error_tab + "&middot;&nbsp;&nbsp;";
+  private final static String html_error_new_line_bullet = html_error_new_line + "&#9679;&nbsp;&nbsp;";
+  private final static String html_error_new_line_bullet_inner = html_error_new_line + html_error_tab + "&#9679;&nbsp;&nbsp;";
   private boolean isProcessingPayment = false;
   private PaymentRequest mLNInvoice = null;
   private BitcoinURI mBitcoinInvoice = null;
@@ -90,6 +90,8 @@ public class CreatePaymentActivity extends EclairActivity
   private Button mFeesButton;
   private TextView mFeesWarning;
   private View mButtonsView;
+  private Button mSendButton;
+  private Button mCancelButton;
 
   private String preferredFiatCurrency;
   private boolean maxFeeLightning = true;
@@ -293,6 +295,8 @@ public class CreatePaymentActivity extends EclairActivity
       }
     });
     mButtonsView = findViewById(R.id.payment_layout_buttons);
+    mSendButton = findViewById(R.id.payment_btn_send);
+    mCancelButton = findViewById(R.id.payment_btn_cancel);
 
     Intent intent = getIntent();
     mInvoice = intent.getStringExtra(EXTRA_INVOICE);
@@ -569,16 +573,16 @@ public class CreatePaymentActivity extends EclairActivity
       mAmountEditableValue.setEnabled(false);
       mFeesValue.setEnabled(false);
       mFeesButton.setEnabled(false);
-      mButtonsView.setClickable(false);
-      mButtonsView.setFocusable(false);
+      mSendButton.setEnabled(false);
+      mCancelButton.setEnabled(false);
       mButtonsView.setAlpha(0.3f);
       mPaymentErrorView.setVisibility(View.GONE);
     } else {
       mAmountEditableValue.setEnabled(true);
       mFeesValue.setEnabled(true);
       mFeesButton.setEnabled(true);
-      mButtonsView.setClickable(true);
-      mButtonsView.setFocusable(true);
+      mSendButton.setEnabled(true);
+      mCancelButton.setEnabled(true);
       mButtonsView.setAlpha(1);
     }
   }
