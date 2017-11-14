@@ -249,13 +249,13 @@ public class App extends Application {
   }
 
   /**
-   * Returns the onchain public address. Throws an exception if the wallet does not answer after 200ms.
+   * Returns the onchain public address. Throws an exception if the wallet does not answer after 500ms.
    *
    * @return
    * @throws Exception
    */
   public String getOnchainPublicAddress() throws Exception {
-    return Await.result(electrumWallet.getFinalAddress(), Duration.create(200, "milliseconds"));
+    return Await.result(electrumWallet.getFinalAddress(), Duration.create(500, "milliseconds"));
   }
 
   /**
