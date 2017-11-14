@@ -1,6 +1,8 @@
 package fr.acinq.eclair.wallet;
 
 import android.content.Context;
+import android.database.Cursor;
+import android.util.Log;
 
 import org.greenrobot.greendao.DaoException;
 import org.greenrobot.greendao.database.Database;
@@ -15,6 +17,7 @@ import fr.acinq.eclair.wallet.models.PaymentType;
 
 public class DBHelper {
 
+  private final static String TAG = "DBHelper";
   private DaoSession daoSession;
 
   public DBHelper(Context context) {
@@ -47,6 +50,7 @@ public class DBHelper {
 
   /**
    * Returns unique offchain or onchain Bitcoin Payment stored in DB
+   *
    * @param reference payment hash of the LN payment
    * @param type of the payment (onchain, offchain)
    * @return
@@ -57,6 +61,38 @@ public class DBHelper {
     qb.where(PaymentDao.Properties.Reference.eq(reference),
       PaymentDao.Properties.Type.eq(type));
     return qb.unique();
+  }
+
+  private final static String rawQueryOnchainReceived = new StringBuilder("SELECT SUM(").append(PaymentDao.Properties.AmountPaidMsat.columnName)
+    .append(") FROM ").append(PaymentDao.TABLENAME)
+    .append(" WHERE ").append(PaymentDao.Properties.Type.columnName).append(" = '").append(PaymentType.BTC_ONCHAIN).append("'")
+    .append(" AND ").append(PaymentDao.Properties.Direction.columnName).append(" = '").append(PaymentDirection.RECEIVED).append("'")
+    .toString();
+
+  private final static String rawQueryOnchainSent = new StringBuilder("SELECT SUM(").append(PaymentDao.Properties.AmountPaidMsat.columnName)
+    .append(") FROM ").append(PaymentDao.TABLENAME)
+    .append(" WHERE ").append(PaymentDao.Properties.Type.columnName).append(" = '").append(PaymentType.BTC_ONCHAIN).append("'")
+    .append(" AND ").append(PaymentDao.Properties.Direction.columnName).append(" = '").append(PaymentDirection.SENT).append("'")
+    .toString();
+
+  /**
+   * Returns the current onchain balance by aggregating the on-chain payments known in the database.
+   * Used to initialize the onchain wallet balance at the start of the app.
+   *
+   * @return balance in milli-satoshis.
+   */
+  public long getOnchainBalanceMsat() {
+    final Cursor cursorReceived = daoSession.getDatabase().rawQuery(rawQueryOnchainReceived, new String []{});
+    final Cursor cursorSent = daoSession.getDatabase().rawQuery(rawQueryOnchainSent, new String []{});
+    long receivedMsat = 0;
+    long sentMsat = 0;
+    if (cursorReceived.moveToFirst()) {
+      receivedMsat = cursorReceived.getLong(0);
+    }
+    if (cursorSent.moveToFirst()) {
+      sentMsat = cursorSent.getLong(0);
+    }
+    return Math.max(receivedMsat - sentMsat, 0);
   }
 
   public void insertOrUpdatePayment(Payment p) {

@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +25,7 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
   private ImageView mQRImageView;
   private TextView mAddressTextView;
   private String address;
+
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -34,12 +36,13 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
   public void onResume() {
     super.onResume();
     try {
-      address = ((App) getActivity().getApplication()).getWalletPublicAddress();
+      address = ((App) getActivity().getApplication()).getOnchainPublicAddress();
+      mAddressTextView.setText(address);
+      new QRCodeTask(this, address, 700, 700).execute();
     } catch (Exception e) {
-      e.printStackTrace();
+      Log.e(TAG, "Could not retrieve onchain public address", e);
+      mAddressTextView.setText("Error when retrieving wallet's address.");
     }
-    mAddressTextView.setText(address);
-    new QRCodeTask(this, address, 700, 700).execute();
   }
 
   @Override

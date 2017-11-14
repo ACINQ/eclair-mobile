@@ -39,6 +39,9 @@ import fr.acinq.eclair.wire.ChannelAnnouncement;
 import fr.acinq.eclair.wire.NodeAnnouncement;
 import scala.collection.Iterator;
 
+/**
+ * This actor handles the messages sent by the Eclair node.
+ */
 public class EclairEventService extends UntypedActor {
 
   private DBHelper dbHelper;
@@ -54,6 +57,10 @@ public class EclairEventService extends UntypedActor {
     return channelDetailsMap;
   }
 
+  /**
+   * Sends a event containing the new Lightning balance of the channels in the Eclair node.
+   * The balance accounts for the state of its channel and thus can be of various type.
+   */
   public static void postLNBalanceEvent() {
     long availableTotal = 0;
     long pendingTotal = 0;

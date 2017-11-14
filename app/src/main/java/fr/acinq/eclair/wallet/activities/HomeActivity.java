@@ -173,6 +173,11 @@ public class HomeActivity extends EclairActivity {
       mViewPager.setCurrentItem(intent.getIntExtra(EXTRA_PAGE, 1));
     }
 
+    EventBus.getDefault().register(this);
+    final MilliSatoshi onchainBalanceMsat = new MilliSatoshi(app.getDBHelper().getOnchainBalanceMsat());
+    mTotalBalanceView.setAmountMsat(onchainBalanceMsat);
+    EventBus.getDefault().postSticky(new WalletBalanceUpdateEvent(package$.MODULE$.millisatoshi2satoshi(onchainBalanceMsat)));
+
     (new Thread(new Runnable() {
       @Override
       public void run() {
@@ -251,7 +256,7 @@ public class HomeActivity extends EclairActivity {
       enableSendButton();
     }
     mExchangeRateHandler.post(mExchangeRateRunnable);
-    app.publishWalletBalance();
+    app.requestOnchainBalanceUpdate();
     EclairEventService.postLNBalanceEvent();
   }
 
@@ -359,9 +364,13 @@ public class HomeActivity extends EclairActivity {
           }
         });
       }
-
-      ((TextView) findViewById(R.id.home_backup_text)).setText(Html.fromHtml(
-        getString(R.string.home_backup_text, app.getRecoveryPhrase())));
+      try {
+        ((TextView) findViewById(R.id.home_backup_text)).setText(Html.fromHtml(
+          getString(R.string.home_backup_text, app.getRecoveryPhrase())));
+      } catch (Exception e) {
+        Log.e(TAG, "Could not generate recovery phrase", e);
+        ((TextView) findViewById(R.id.home_backup_text)).setText("Could not generate recovery phrase...");
+      }
     } else {
       home_startIntro(showIntro, prefs);
     }
@@ -381,19 +390,25 @@ public class HomeActivity extends EclairActivity {
 
   public void home_doCheckRecoveryPhrase(View view) {
     view.clearFocus();
-    InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
-    imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-    EditText edit = findViewById(R.id.home_backup_input);
+    final InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+    if (imm != null) {
+      imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+    final EditText edit = findViewById(R.id.home_backup_input);
     if (edit.getText() != null) {
-      String[] words = edit.getText().toString().split(" ");
-      if (words.length == 3
-        && app.checkWordRecoveryPhrase(recoveryPositions.get(0), words[0])
-        && app.checkWordRecoveryPhrase(recoveryPositions.get(1), words[1])
-        && app.checkWordRecoveryPhrase(recoveryPositions.get(2), words[2])) {
-        findViewById(R.id.home_backup_2).setVisibility(View.GONE);
-        findViewById(R.id.home_backup_skip).setVisibility(View.GONE);
-        findViewById(R.id.home_backup_success).setVisibility(View.VISIBLE);
-        return;
+      final String[] words = edit.getText().toString().split(" ");
+      try {
+        if (words.length == 3
+          && app.checkWordRecoveryPhrase(recoveryPositions.get(0), words[0])
+          && app.checkWordRecoveryPhrase(recoveryPositions.get(1), words[1])
+          && app.checkWordRecoveryPhrase(recoveryPositions.get(2), words[2])) {
+          findViewById(R.id.home_backup_2).setVisibility(View.GONE);
+          findViewById(R.id.home_backup_skip).setVisibility(View.GONE);
+          findViewById(R.id.home_backup_success).setVisibility(View.VISIBLE);
+          return;
+        }
+      } catch (Exception e) {
+        Log.e(TAG, "Could not check the recovery phrase", e);
       }
     }
     edit.setText("");

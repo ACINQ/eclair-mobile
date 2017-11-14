@@ -126,10 +126,10 @@ public class CreatePaymentActivity extends EclairActivity
   public void processBitcoinInvoiceFinish(final BitcoinURI output) {
     if (output == null || output.getAddress() == null) {
       couldNotReadInvoice(R.string.payment_failure_read_invoice);
-    } else if (!app.checkAddress(output.getAddress())) {
+    } else if (!app.checkAddressParameters(output.getAddress())) {
       couldNotReadInvoice(R.string.payment_invalid_address);
     } else {
-      this.app.publishWalletBalance();
+      this.app.requestOnchainBalanceUpdate();
       mBitcoinInvoice = output;
       isAmountReadonly = mBitcoinInvoice.getAmount() != null;
       if (isAmountReadonly) {

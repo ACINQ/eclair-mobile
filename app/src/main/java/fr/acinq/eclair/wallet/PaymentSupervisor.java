@@ -22,11 +22,9 @@ import fr.acinq.eclair.wallet.models.Payment;
 import fr.acinq.eclair.wallet.models.PaymentDirection;
 import fr.acinq.eclair.wallet.models.PaymentType;
 
-
 /**
- * Created by fabrice on 16/10/17.
+ * This actor handles the various messages received from Electrum Wallet.
  */
-
 public class PaymentSupervisor extends UntypedActor {
   public final static String TAG = "PaymentSupervisor";
   private App app;
@@ -38,6 +36,12 @@ public class PaymentSupervisor extends UntypedActor {
     wallet.tell(new ElectrumClient.AddStatusListener(getSelf()), getSelf());
   }
 
+  /**
+   * Handles messages from the wallet: new txs, balance update, tx confidences update.
+   *
+   * @param message message sent by the wallet
+   * @throws Exception
+   */
   public void onReceive(Object message) throws Exception {
     if (message instanceof ElectrumWallet.WalletTransactionReceive) {
       Log.d(TAG, "Received WalletTransactionReceive message: " + message);
@@ -60,15 +64,16 @@ public class PaymentSupervisor extends UntypedActor {
       paymentReceived.setReference(walletTransactionReceive.tx().txid().toString());
       paymentReceived.setTxPayload(Hex.toHexString(bos.toByteArray()));
       paymentReceived.setAmountPaidMsat(package$.MODULE$.satoshi2millisatoshi(amount).amount());
-      if (paymentInDB == null) {
-        paymentReceived.setUpdated(new Date());
-      }
       paymentReceived.setConfidenceBlocks((int) walletTransactionReceive.depth());
       paymentReceived.setConfidenceType(0);
+      if (paymentInDB == null) {
+        // timestamp is updated only if the transaction is not already known
+        paymentReceived.setUpdated(new Date());
+      }
       app.getDBHelper().insertOrUpdatePayment(paymentReceived);
 
-      // dispatch news
-      app.publishWalletBalance();
+      // dispatch news and ask for on-chain balance update
+      app.requestOnchainBalanceUpdate();
       EventBus.getDefault().post(new BitcoinPaymentEvent(paymentReceived));
     } else if (message instanceof ElectrumWallet.WalletTransactionConfidenceChanged) {
       Log.d(TAG, "Received WalletTransactionConfidenceChanged message: " + message);

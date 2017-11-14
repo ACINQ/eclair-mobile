@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -33,6 +34,7 @@ import scala.math.BigDecimal;
 public class OpenChannelActivity extends EclairActivity {
 
   public static final String EXTRA_NEW_HOST_URI = "fr.acinq.eclair.swordfish.NEW_HOST_URI";
+  private static final String TAG = "OpenChannelActivity";
 
   private EditText mAmountEdit;
   private TextView mPubkeyTextView;
@@ -64,7 +66,7 @@ public class OpenChannelActivity extends EclairActivity {
           try {
             checkAmount(s.toString());
           } catch (Exception e) {
-            e.printStackTrace();
+            Log.d(TAG, "Could not convert amount to number with cause " + e.getMessage());
           }
         }
       }
@@ -79,7 +81,7 @@ public class OpenChannelActivity extends EclairActivity {
     setNodeURI(hostURI);
   }
 
-  private boolean checkAmount(String amount)  {
+  private boolean checkAmount(String amount) {
     try {
       Long parsedAmountSat = Long.parseLong(amount) * 100000;
       if (parsedAmountSat < Validators.MIN_FUNDING_SAT
@@ -88,7 +90,7 @@ public class OpenChannelActivity extends EclairActivity {
         mErrorAView.setText(R.string.openchannel_capacity_invalid);
         mErrorAView.setVisibility(View.VISIBLE);
         return false;
-      } else if (parsedAmountSat + 100000 > app.getWalletBalanceSat().amount()) {
+      } else if (parsedAmountSat + 100000 > app.getOnchainBalanceSat().amount()) {
         mAmountEdit.setTextColor(ContextCompat.getColor(this, R.color.red));
         mErrorAView.setText(R.string.openchannel_capacity_notenoughfunds);
         mErrorAView.setVisibility(View.VISIBLE);
