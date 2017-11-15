@@ -32,8 +32,8 @@ import fr.acinq.bitcoin.Transaction;
 import fr.acinq.eclair.DBCompatChecker;
 import fr.acinq.eclair.Kit;
 import fr.acinq.eclair.Setup;
-import fr.acinq.eclair.blockchain.wallet.EclairWallet;
-import fr.acinq.eclair.blockchain.wallet.ElectrumWallet;
+import fr.acinq.eclair.blockchain.EclairWallet;
+import fr.acinq.eclair.blockchain.electrum.ElectrumEclairWallet;
 import fr.acinq.eclair.channel.ChannelEvent;
 import fr.acinq.eclair.io.Switchboard;
 import fr.acinq.eclair.payment.PaymentEvent;
@@ -54,11 +54,11 @@ public class App extends Application {
 
   public final static String TAG = "App";
   public final static String DATADIR_NAME = "eclair-wallet-data";
-  private final ActorSystem system = ActorSystem.apply("system");
+  public final ActorSystem system = ActorSystem.apply("system");
   private final Promise<Object> pAtCurrentHeight = akka.dispatch.Futures.promise();
   private final ExchangeRate exchangeRate = new ExchangeRate();
   private DBHelper dbHelper;
-  private ElectrumWallet electrumWallet;
+  private ElectrumEclairWallet electrumWallet;
   private ActorRef wallet;
   private ActorRef paymentSupervisor;
   private Kit eclairKit;
@@ -84,7 +84,7 @@ public class App extends Application {
       Future<Kit> fKit = setup.bootstrap();
       eclairKit = Await.result(fKit, Duration.create(20, "seconds"));
       pAtCurrentHeight.success(null);
-      electrumWallet = (fr.acinq.eclair.blockchain.wallet.ElectrumWallet) eclairKit.wallet();
+      electrumWallet = (fr.acinq.eclair.blockchain.electrum.ElectrumEclairWallet) eclairKit.wallet();
       wallet = electrumWallet.wallet();
       paymentSupervisor = system.actorOf(Props.create(PaymentSupervisor.class, this, wallet), "payments");
 
@@ -173,11 +173,11 @@ public class App extends Application {
    * @param paymentHash Hash of the payment preimage
    * @param publicKey   public key of the recipient node
    */
-  public void sendLNPayment(final int timeout, final OnComplete<Object> onComplete,
-                            final long amountMsat, final BinaryData paymentHash, final Crypto.PublicKey publicKey) {
+  public void sendLNPayment(final int timeout, final OnComplete<Object> onComplete, final long amountMsat,
+                            final BinaryData paymentHash, final Crypto.PublicKey publicKey, final int minFinalCltvExpiry) {
     Future<Object> paymentFuture = Patterns.ask(
       eclairKit.paymentInitiator(),
-      new SendPayment(amountMsat, paymentHash, publicKey, 5),
+      new SendPayment(amountMsat, paymentHash, publicKey, minFinalCltvExpiry, 5),
       new Timeout(Duration.create(timeout, "seconds")));
     paymentFuture.onComplete(onComplete, system.dispatcher());
   }
@@ -214,7 +214,7 @@ public class App extends Application {
     return true; // FIXME wallet.getNetworkParameters() == address.getParameters();
   }
 
-  public ElectrumWallet getWallet() {
+  public ElectrumEclairWallet getWallet() {
     return electrumWallet;
   }
 

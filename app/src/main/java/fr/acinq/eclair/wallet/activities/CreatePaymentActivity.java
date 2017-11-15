@@ -27,15 +27,16 @@ import fr.acinq.bitcoin.MilliBtc;
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.bitcoin.package$;
-import fr.acinq.eclair.blockchain.wallet.ElectrumWallet;
+import fr.acinq.eclair.blockchain.electrum.ElectrumEclairWallet;
 import fr.acinq.eclair.channel.ChannelException;
+import fr.acinq.eclair.payment.Hop;
 import fr.acinq.eclair.payment.LocalFailure;
 import fr.acinq.eclair.payment.PaymentFailed;
 import fr.acinq.eclair.payment.PaymentFailure;
+import fr.acinq.eclair.payment.PaymentLifecycle;
 import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.payment.PaymentSucceeded;
 import fr.acinq.eclair.payment.RemoteFailure;
-import fr.acinq.eclair.router.Hop;
 import fr.acinq.eclair.wallet.EclairEventService;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.customviews.CoinAmountView;
@@ -53,6 +54,7 @@ import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wire.FailureMessage;
 import scala.collection.Seq;
 import scala.collection.mutable.StringBuilder;
+import scala.concurrent.Future;
 import scala.math.BigDecimal;
 import scala.util.Either;
 
@@ -97,6 +99,47 @@ public class CreatePaymentActivity extends EclairActivity
   private boolean maxFeeLightning = true;
   private int maxFeeLightningValue = 1;
   private PinDialog pinDialog;
+
+  private static StringBuilder generateDetailedErrorCause(final Seq<PaymentFailure> failures) {
+    final StringBuilder sbErrors = new StringBuilder().append("<p><b>").append(failures.size()).append(" attempt(s) made.</b></p>").append("<small><ul>");
+    for (int i = 0; i < failures.size(); i++) {
+      final PaymentFailure f = failures.apply(i);
+      sbErrors.append("<li>&nbsp;&nbsp;<b>Attempt ").append(i + 1).append(" of ").append(failures.size());
+      if (f instanceof RemoteFailure) {
+        final RemoteFailure rf = (RemoteFailure) f;
+        sbErrors.append(": Remote failure</b>");
+        if (rf.route().size() > 0) {
+          final scala.collection.immutable.List<Hop> hops = rf.route().toList();
+          sbErrors.append(html_error_new_line_bullet).append(" Route (").append(hops.size()).append(" hops):");
+          for (int hi = 0; hi < hops.size(); hi++) {
+            Hop h = hops.apply(hi);
+            if (hi == 0) {
+              sbErrors.append(html_error_new_line_bullet_inner).append(h.nodeId().toString());
+            }
+            sbErrors.append(html_error_new_line_bullet_inner).append(h.nextNodeId().toString());
+          }
+        }
+        sbErrors.append(html_error_new_line_bullet).append(" Origin: ").append(rf.e().originNode().toString());
+        FailureMessage rfMessage = rf.e().failureMessage();
+        if (rfMessage != null) {
+          sbErrors.append(html_error_new_line_bullet).append(" Cause: ").append(rfMessage.getClass().getSimpleName());
+        }
+        sbErrors.append("</li>");
+      } else if (f instanceof LocalFailure) {
+        final LocalFailure lf = (LocalFailure) f;
+        sbErrors.append(": Local failure</b>");
+        if (lf.t() instanceof ChannelException) {
+          sbErrors.append(html_error_new_line_bullet).append(" Origin: ")
+            .append(((ChannelException) lf.t()).getChannelId());
+        }
+        sbErrors.append(html_error_new_line_bullet).append(" Cause: ").append(((LocalFailure) f).t().getClass().getSimpleName()).append("</li>");
+      } else {
+        sbErrors.append(": No information available</b></li>");
+      }
+    }
+    sbErrors.append("</ul></small>");
+    return sbErrors;
+  }
 
   @SuppressLint("SetTextI18n")
   @Override
@@ -449,7 +492,7 @@ public class CreatePaymentActivity extends EclairActivity
    * Executes a Lightning payment in an asynchronous task.
    *
    * @param amountMsat amount of the payment in milli satoshis
-   * @param pr Lightning payment request
+   * @param pr         Lightning payment request
    * @param prAsString payment request as a string (used for display)
    */
   private final void sendLNPayment(final long amountMsat, final PaymentRequest pr, final String prAsString) {
@@ -516,8 +559,12 @@ public class CreatePaymentActivity extends EclairActivity
             }
           };
 
+          int minFinalCltvExpiry = PaymentLifecycle.defaultMinFinalCltvExpiry();
+          if (pr.minFinalCltvExpiry().isDefined() && pr.minFinalCltvExpiry().get() instanceof Integer) {
+            minFinalCltvExpiry = (Integer) pr.minFinalCltvExpiry().get();
+          }
           // 3 - execute payment future
-          app.sendLNPayment(45, onComplete, amountMsat, pr.paymentHash(), pr.nodeId());
+          app.sendLNPayment(45, onComplete, amountMsat, pr.paymentHash(), pr.nodeId(), minFinalCltvExpiry);
         }
       }
     );
@@ -526,42 +573,29 @@ public class CreatePaymentActivity extends EclairActivity
   /**
    * Sends a Bitcoin transaction.
    *
-   * @param amountSat amount of the tx in satoshis
-   * @param feesPerKb fees to the network in satoshis per kb
+   * @param amountSat  amount of the tx in satoshis
+   * @param feesPerKb  fees to the network in satoshis per kb
    * @param bitcoinURI contains the bitcoin address
    */
   private void sendBitcoinPayment(final Satoshi amountSat, final Long feesPerKb, final BitcoinURI bitcoinURI) {
     Log.d(TAG, "Sending Bitcoin payment for invoice " + mBitcoinInvoice.toString());
     final CreatePaymentActivity context = this;
-    app.getWallet().sendPayment(amountSat, bitcoinURI.getAddress(), feesPerKb, new ElectrumWallet.CompletionCallback<Boolean>() {
-      @Override
-      public void onSuccess(Boolean value) {
-        if (value) {
+    Future fBitcoinPayment = app.getWallet().sendPayment(amountSat, bitcoinURI.getAddress(), feesPerKb);
+    fBitcoinPayment.onComplete(new OnComplete<Object>() {
+        @Override
+        public void onComplete(final Throwable t, final Object o) {
           context.runOnUiThread(new Runnable() {
             public void run() {
-              Toast.makeText(context, R.string.payment_toast_sentbtc, Toast.LENGTH_SHORT).show();
+              if (t == null && o instanceof Boolean && ((Boolean) o)) {
+                Toast.makeText(context, R.string.payment_toast_sentbtc, Toast.LENGTH_SHORT).show();
+              } else {
+                Log.e(TAG, "Could not send Bitcoin payment", t);
+                Toast.makeText(context, R.string.payment_toast_failure, Toast.LENGTH_LONG).show();
+              }
             }
           });
-        } else {
-          context.runOnUiThread(new Runnable() {
-            public void run() {
-              Toast.makeText(context, R.string.payment_toast_failure, Toast.LENGTH_LONG).show();
-            }
-          });
-          Log.e(TAG, "Could not send Bitcoin payment");
         }
-      }
-
-      @Override
-      public void onFailure(Throwable t) {
-        context.runOnUiThread(new Runnable() {
-          public void run() {
-            Toast.makeText(context, R.string.payment_toast_failure, Toast.LENGTH_LONG).show();
-          }
-        });
-        Log.e(TAG, "Could not send Bitcoin payment", t);
-      }
-    });
+      }, app.system.dispatcher());
   }
 
   /**
@@ -591,47 +625,6 @@ public class CreatePaymentActivity extends EclairActivity
   public void onRestoreInstanceState(Bundle savedInstanceState) {
     super.onRestoreInstanceState(savedInstanceState);
     toggleForm();
-  }
-
-  private static StringBuilder generateDetailedErrorCause(final Seq<PaymentFailure> failures) {
-    final StringBuilder sbErrors = new StringBuilder().append("<p><b>").append(failures.size()).append(" attempt(s) made.</b></p>").append("<small><ul>");
-    for (int i = 0; i < failures.size(); i++) {
-      final PaymentFailure f = failures.apply(i);
-      sbErrors.append("<li>&nbsp;&nbsp;<b>Attempt ").append(i + 1).append(" of ").append(failures.size());
-      if (f instanceof RemoteFailure) {
-        final RemoteFailure rf = (RemoteFailure) f;
-        sbErrors.append(": Remote failure</b>");
-        if (rf.route().size() > 0) {
-          final scala.collection.immutable.List<Hop> hops = rf.route().toList();
-          sbErrors.append(html_error_new_line_bullet).append(" Route (").append(hops.size()).append(" hops):");
-          for (int hi = 0; hi < hops.size(); hi++) {
-            Hop h = hops.apply(hi);
-            if (hi == 0) {
-              sbErrors.append(html_error_new_line_bullet_inner).append(h.nodeId().toString());
-            }
-            sbErrors.append(html_error_new_line_bullet_inner).append(h.nextNodeId().toString());
-          }
-        }
-        sbErrors.append(html_error_new_line_bullet).append(" Origin: ").append(rf.e().originNode().toString());
-        FailureMessage rfMessage = rf.e().failureMessage();
-        if (rfMessage != null) {
-          sbErrors.append(html_error_new_line_bullet).append(" Cause: ").append(rfMessage.getClass().getSimpleName());
-        }
-        sbErrors.append("</li>");
-      } else if (f instanceof LocalFailure) {
-        final LocalFailure lf = (LocalFailure) f;
-        sbErrors.append(": Local failure</b>");
-        if (lf.t() instanceof ChannelException) {
-          sbErrors.append(html_error_new_line_bullet).append(" Origin: ")
-            .append(((ChannelException) lf.t()).getChannelId());
-        }
-        sbErrors.append(html_error_new_line_bullet).append(" Cause: ").append(((LocalFailure) f).t().getClass().getSimpleName()).append("</li>");
-      } else {
-        sbErrors.append(": No information available</b></li>");
-      }
-    }
-    sbErrors.append("</ul></small>");
-    return sbErrors;
   }
 
 }

@@ -17,27 +17,40 @@
       <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/green_light_0"
+        android:background="@color/primary_light_0"
         android:gravity="center|top"
         android:orientation="vertical"
         android:paddingBottom="24dp"
         android:paddingLeft="24dp"
         android:paddingRight="24dp">
 
-        <TextView
+        <!-- payment type: lightning -->
+        <LinearLayout
           android:id="@+id/openchannel_title"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
-          android:layout_marginBottom="24dp"
+          android:layout_marginBottom="20dp"
           android:background="@drawable/rounded_corner_blue_bottom"
+          android:gravity="center"
+          android:orientation="horizontal"
           android:paddingBottom="3dp"
-          android:paddingLeft="6dp"
+          android:paddingLeft="4dp"
           android:paddingRight="6dp"
-          android:paddingTop="2dp"
-          android:text="@string/openchannel_title"
-          android:textAlignment="center"
-          android:textColor="@color/white"
-          android:textSize="10sp" />
+          android:paddingTop="3dp">
+
+          <ImageView
+            android:layout_width="14dp"
+            android:layout_height="14dp"
+            android:layout_marginEnd="4dp"
+            android:src="@drawable/icon_bolt_shape_white" />
+
+          <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/openchannel_title"
+            android:textColor="@color/white"
+            android:textSize="10sp" />
+        </LinearLayout>
 
         <RelativeLayout
           android:layout_width="wrap_content"
@@ -52,9 +65,9 @@
             android:background="@android:color/transparent"
             android:fontFamily="sans-serif-light"
             android:inputType="numberDecimal"
-            android:maxLength="9"
+            android:maxLength="6"
             android:maxLines="1"
-            android:minWidth="24dp"
+            android:minWidth="48dp"
             android:textAlignment="viewEnd"
             android:textColor="@color/colorGrey_4"
             android:textCursorDrawable="@drawable/cursor_grey"
