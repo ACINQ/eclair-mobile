@@ -1,5 +1,6 @@
 package fr.acinq.eclair.wallet.adapters;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
@@ -34,7 +35,7 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
   private final TextView mAmount;
   private Payment mPayment;
 
-  public PaymentItemHolder(View itemView) {
+  public PaymentItemHolder(final View itemView) {
     super(itemView);
     this.mPaymentIcon = itemView.findViewById(R.id.paymentitem_image);
     this.mAmount = itemView.findViewById(R.id.paymentitem_amount_value);
@@ -48,15 +49,16 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
   }
 
   @Override
-  public void onClick(View v) {
-    Intent intent = PaymentType.BTC_LN.equals(mPayment.getType())
+  public void onClick(final View v) {
+    final Intent intent = PaymentType.BTC_LN.equals(mPayment.getType())
       ? new Intent(v.getContext(), LNPaymentDetailsActivity.class)
       : new Intent(v.getContext(), BitcoinTransactionDetailsActivity.class);
     intent.putExtra(EXTRA_PAYMENT_ID, mPayment.getId().longValue());
     v.getContext().startActivity(intent);
   }
 
-  public void bindPaymentItem(Payment payment) {
+  @SuppressLint("SetTextI18n")
+  public void bindPaymentItem(final Payment payment) {
     this.mPayment = payment;
 
     if (payment.getUpdated() != null) {
@@ -104,7 +106,7 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
       if (payment.getConfidenceBlocks() >= 0) {
 
         // text
-        String confidenceBlocks = payment.getConfidenceBlocks() < 7 ?
+        final String confidenceBlocks = payment.getConfidenceBlocks() < 7 ?
           Integer.toString(payment.getConfidenceBlocks()) : "6+";
         mStatus.setText(confidenceBlocks + " " + itemView.getResources().getString(R.string.paymentitem_confidence_suffix));
 
@@ -122,7 +124,8 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
       mPaymentIcon.setImageResource(R.mipmap.ic_bitcoin_circle);
       mDescription.setText(payment.getReference());
 
-      mAmount.setText(CoinUtils.formatAmountMilliBtc(new MilliSatoshi(payment.getAmountPaidMsat())));
+      mAmount.setText((payment.getDirection() == PaymentDirection.SENT ? "-" : "") +
+        CoinUtils.formatAmountMilliBtc(new MilliSatoshi(payment.getAmountPaidMsat())));
     }
   }
 
