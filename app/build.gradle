@@ -7,7 +7,7 @@ android {
   defaultConfig {
     applicationId "fr.acinq.eclair.wallet_electrum"
     minSdkVersion 21
-    targetSdkVersion 27
+    targetSdkVersion 26
     versionCode 9
     versionName "0.1.6"
     testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
