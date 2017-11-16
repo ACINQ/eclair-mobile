@@ -30,6 +30,7 @@ import fr.acinq.bitcoin.Crypto;
 import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.bitcoin.Transaction;
 import fr.acinq.eclair.DBCompatChecker;
+import fr.acinq.eclair.Globals;
 import fr.acinq.eclair.Kit;
 import fr.acinq.eclair.Setup;
 import fr.acinq.eclair.blockchain.EclairWallet;
@@ -284,15 +285,15 @@ public class App extends Application {
   }
 
   public long estimateSlowFees() {
-    return 100;
+    return Globals.feeratesPerByte().get().blocks_72();
   }
 
   public long estimateMediumFees() {
-    return 215;
+    return Globals.feeratesPerByte().get().blocks_12();
   }
 
   public long estimateFastFees() {
-    return 350;
+    return Globals.feeratesPerByte().get().blocks_2();
   }
 
   /**

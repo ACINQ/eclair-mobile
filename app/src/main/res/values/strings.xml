@@ -152,9 +152,9 @@
   <string name="payment_type_onchain">On-Chain Payment</string>
   <string name="payment_type_lightning">Lightning Payment</string>
   <string name="payment_fees_custom">Custom</string>
-  <string name="payment_fees_slow">Slow</string>
-  <string name="payment_fees_medium">Medium</string>
-  <string name="payment_fees_fast">Fast</string>
+  <string name="payment_fees_slow">Slow (12h)</string>
+  <string name="payment_fees_medium">Medium (2h)</string>
+  <string name="payment_fees_fast">Fast (20min)</string>
   <string name="payment_description">Desc.</string>
   <string name="payment_destination_address">To</string>
   <string name="payment_fees">Fees</string>

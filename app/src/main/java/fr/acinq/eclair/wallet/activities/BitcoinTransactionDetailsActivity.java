@@ -11,8 +11,10 @@ import android.view.View;
 import android.widget.Toast;
 
 import java.text.DateFormat;
+import java.text.NumberFormat;
 
 import fr.acinq.bitcoin.MilliSatoshi;
+import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.adapters.PaymentItemHolder;
 import fr.acinq.eclair.wallet.customviews.DataRow;
@@ -85,7 +87,7 @@ public class BitcoinTransactionDetailsActivity extends EclairActivity {
       mRebroadcastDialog = builder.create();
 
       mAmountPaidRow.setValue(CoinUtils.formatAmountBtc(new MilliSatoshi(p.getAmountPaidMsat())));
-      mFeesRow.setValue(Long.toString(p.getFeesPaidMsat()));
+      mFeesRow.setValue(NumberFormat.getInstance().format(package$.MODULE$.millisatoshi2satoshi(new MilliSatoshi(p.getFeesPaidMsat())).amount()) + " sat");
       mPaymentHashRow.setValue(p.getReference());
       mUpdateDateRow.setValue(DateFormat.getDateTimeInstance().format(p.getUpdated()));
       mOpenInExplorer.setOnClickListener(WalletUtils.getOpenTxListener(p.getReference()));

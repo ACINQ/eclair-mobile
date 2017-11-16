@@ -314,7 +314,6 @@ public class CreatePaymentActivity extends EclairActivity
             mFeesButton.setText(R.string.payment_fees_slow);
           } else if (feesSatPerByte == app.estimateMediumFees()) {
             mFeesButton.setText(R.string.payment_fees_medium);
-            mFeesButton.setText(R.string.payment_fees_medium);
           } else if (feesSatPerByte == app.estimateFastFees()) {
             mFeesButton.setText(R.string.payment_fees_fast);
           } else {
@@ -429,12 +428,12 @@ public class CreatePaymentActivity extends EclairActivity
       } else if (mBitcoinInvoice != null) {
         final Satoshi amount = isAmountReadonly ? mBitcoinInvoice.getAmount() : CoinUtils.parseMilliSatoshiAmount(mAmountEditableValue.getText().toString());
         try {
-          final Long feesPerKb = Long.parseLong(mFeesValue.getText().toString());
+          final Long feesPerKw = fr.acinq.eclair.package$.MODULE$.feerateByte2Kw(Long.parseLong(mFeesValue.getText().toString()));
           if (isPinRequired()) {
             pinDialog = new PinDialog(CreatePaymentActivity.this, R.style.CustomAlertDialog, new PinDialog.PinDialogCallback() {
               public void onPinConfirm(final PinDialog dialog, final String pinValue) {
                 if (isPinCorrect(pinValue, dialog)) {
-                  sendBitcoinPayment(amount, feesPerKb, mBitcoinInvoice);
+                  sendBitcoinPayment(amount, feesPerKw, mBitcoinInvoice);
                   finish();
                 } else {
                   handlePaymentError(R.string.payment_error_incorrect_pin, false);
@@ -449,7 +448,7 @@ public class CreatePaymentActivity extends EclairActivity
             });
             pinDialog.show();
           } else {
-            sendBitcoinPayment(amount, feesPerKb, mBitcoinInvoice);
+            sendBitcoinPayment(amount, feesPerKw, mBitcoinInvoice);
             finish();
           }
         } catch (NumberFormatException e) {
