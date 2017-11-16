@@ -51,6 +51,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import akka.dispatch.OnComplete;
 import fr.acinq.bitcoin.MilliSatoshi;
+import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.wallet.EclairEventService;
 import fr.acinq.eclair.wallet.R;
@@ -236,7 +237,10 @@ public class HomeActivity extends EclairActivity {
         mExchangeRateHandler.postDelayed(this, 5 * 60 * 1000);
       }
     };
-
+    if (!EventBus.getDefault().isRegistered(this)) {
+      EventBus.getDefault().register(this);
+    }
+    EventBus.getDefault().postSticky(new WalletBalanceUpdateEvent(package$.MODULE$.millisatoshi2satoshi(new MilliSatoshi(app.getDBHelper().getOnchainBalanceMsat()))));
   }
 
   @Override
@@ -251,7 +255,6 @@ public class HomeActivity extends EclairActivity {
       enableSendButton();
     }
     mExchangeRateHandler.post(mExchangeRateRunnable);
-    app.requestOnchainBalanceUpdate();
     EclairEventService.postLNBalanceEvent();
   }
 

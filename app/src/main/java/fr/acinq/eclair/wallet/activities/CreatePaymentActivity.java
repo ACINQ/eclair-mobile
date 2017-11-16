@@ -26,7 +26,6 @@ import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.bitcoin.MilliBtc;
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.Satoshi;
-import fr.acinq.bitcoin.Transaction;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.channel.ChannelException;
 import fr.acinq.eclair.payment.Hop;
@@ -175,7 +174,6 @@ public class CreatePaymentActivity extends EclairActivity
     } else if (!app.checkAddressParameters(output.getAddress())) {
       couldNotReadInvoice(R.string.payment_invalid_address);
     } else {
-      this.app.requestOnchainBalanceUpdate();
       mBitcoinInvoice = output;
       isAmountReadonly = mBitcoinInvoice.getAmount() != null;
       if (isAmountReadonly) {
@@ -587,15 +585,7 @@ public class CreatePaymentActivity extends EclairActivity
         @Override
         public void onComplete(final Throwable t, final String txId) {
           if (t == null) {
-            // insert tx in db
-            final Payment txAsPayment = new Payment();
-            txAsPayment.setType(PaymentType.BTC_ONCHAIN);
-            txAsPayment.setDirection(PaymentDirection.SENT);
-            txAsPayment.setReference(txId);
-            txAsPayment.setConfidenceType(0);
-            txAsPayment.setUpdated(new Date());
-            app.getDBHelper().insertOrUpdatePayment(txAsPayment);
-            EventBus.getDefault().post(new BitcoinPaymentEvent(txAsPayment));
+            Log.i(TAG, "Successfully sent tx " + txId);
           } else {
             Log.e(TAG, "Could not send Bitcoin tx", t);
             context.runOnUiThread(new Runnable() {

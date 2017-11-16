@@ -82,7 +82,6 @@ public class PaymentSupervisor extends UntypedActor {
       app.getDBHelper().insertOrUpdatePayment(paymentReceived);
 
       // dispatch news and ask for on-chain balance update
-      app.requestOnchainBalanceUpdate();
       EventBus.getDefault().post(new BitcoinPaymentEvent(paymentReceived));
     } else if (message instanceof ElectrumWallet.WalletTransactionConfidenceChanged) {
       Log.d(TAG, "Received WalletTransactionConfidenceChanged message: " + message);
@@ -92,17 +91,11 @@ public class PaymentSupervisor extends UntypedActor {
         p.setConfidenceBlocks((int) walletTransactionConfidenceChanged.depth());
         app.getDBHelper().updatePayment(p);
       }
-    } else if (message instanceof ElectrumWallet.GetBalanceResponse) {
-      Log.d(TAG, "Received GetBalanceResponse message: " + message);
-      final ElectrumWallet.GetBalanceResponse getBalanceResponse = (ElectrumWallet.GetBalanceResponse) message;
-      final Satoshi total = getBalanceResponse.confirmed().$plus(getBalanceResponse.unconfirmed());
-      // if total amount equals 0, lets get the balance from payment DB
-      if (total.amount() == 0) {
-        EventBus.getDefault().postSticky(new WalletBalanceUpdateEvent(
-          package$.MODULE$.millisatoshi2satoshi(new MilliSatoshi(app.getDBHelper().getOnchainBalanceMsat()))));
-      } else {
-        EventBus.getDefault().postSticky(new WalletBalanceUpdateEvent(total));
-      }
+      EventBus.getDefault().post(new BitcoinPaymentEvent(null));
+    } else if (message instanceof ElectrumWallet.Ready) {
+      Log.d(TAG, "Received Ready message: {}" + message);
+      ElectrumWallet.Ready ready = (ElectrumWallet.Ready) message;
+      EventBus.getDefault().postSticky(new WalletBalanceUpdateEvent(ready.confirmedBalance().$plus(ready.unconfirmedBalance())));
     } else unhandled(message);
   }
 }

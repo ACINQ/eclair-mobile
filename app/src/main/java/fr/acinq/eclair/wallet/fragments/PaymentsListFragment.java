@@ -85,7 +85,7 @@ public class PaymentsListFragment extends Fragment implements SwipeRefreshLayout
   }
 
   public void updateList() {
-    if (getActivity().getApplication() != null) {
+    if (getActivity() != null && getActivity().getApplication() != null) {
       mPaymentAdapter.update(getPayments());
     }
   }

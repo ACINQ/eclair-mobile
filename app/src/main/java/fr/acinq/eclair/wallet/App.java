@@ -144,20 +144,13 @@ public class App extends Application {
   }
 
   /**
-   * Asks for the current onchain balance. Asynchronous call.
-   */
-  public void requestOnchainBalanceUpdate() {
-    wallet.tell(fr.acinq.eclair.blockchain.electrum.ElectrumWallet.GetBalance$.MODULE$, paymentSupervisor);
-  }
-
-  /**
-   * Returns the current onchain balance. If the wallet does not answer back in 200ms, returns 0.
+   * Returns the current onchain balance. If the wallet does not answer back in 500ms, returns 0.
    *
    * @return the balance in satoshis.
    */
   public Satoshi getOnchainBalanceSat() {
     try {
-      return Await.result(electrumWallet.getBalance(), Duration.create(200, "milliseconds"));
+      return Await.result(electrumWallet.getBalance(), Duration.create(500, "milliseconds"));
     } catch (Exception e) {
       Log.e(TAG, "Could not retrieve onchain balance in time", e);
       return Satoshi.apply(0);
