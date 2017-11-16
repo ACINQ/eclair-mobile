@@ -26,8 +26,8 @@ import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.bitcoin.MilliBtc;
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.Satoshi;
+import fr.acinq.bitcoin.Transaction;
 import fr.acinq.bitcoin.package$;
-import fr.acinq.eclair.blockchain.electrum.ElectrumEclairWallet;
 import fr.acinq.eclair.channel.ChannelException;
 import fr.acinq.eclair.payment.Hop;
 import fr.acinq.eclair.payment.LocalFailure;
@@ -40,6 +40,7 @@ import fr.acinq.eclair.payment.RemoteFailure;
 import fr.acinq.eclair.wallet.EclairEventService;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.customviews.CoinAmountView;
+import fr.acinq.eclair.wallet.events.BitcoinPaymentEvent;
 import fr.acinq.eclair.wallet.events.LNPaymentFailedEvent;
 import fr.acinq.eclair.wallet.fragments.PinDialog;
 import fr.acinq.eclair.wallet.models.Payment;
@@ -343,6 +344,7 @@ public class CreatePaymentActivity extends EclairActivity
 
     Intent intent = getIntent();
     mInvoice = intent.getStringExtra(EXTRA_INVOICE);
+    Log.i(TAG, "Initializing payment with invoice=" + mInvoice);
     new LNInvoiceReaderTask(this, mInvoice).execute();
   }
 
@@ -390,7 +392,7 @@ public class CreatePaymentActivity extends EclairActivity
       if (mLNInvoice != null) {
         final long amountMsat = isAmountReadonly
           ? CoinUtils.getLongAmountFromInvoice(mLNInvoice)
-          : package$.MODULE$.satoshi2millisatoshi(CoinUtils.parseMilliSatoshiAmout(mAmountEditableValue.getText().toString())).amount();
+          : package$.MODULE$.satoshi2millisatoshi(CoinUtils.parseMilliSatoshiAmount(mAmountEditableValue.getText().toString())).amount();
         if (EclairEventService.hasActiveChannelsWithBalance(amountMsat)) {
           if (isPinRequired()) {
             pinDialog = new PinDialog(CreatePaymentActivity.this, R.style.CustomAlertDialog, new PinDialog.PinDialogCallback() {
@@ -425,8 +427,8 @@ public class CreatePaymentActivity extends EclairActivity
           }
         }
       } else if (mBitcoinInvoice != null) {
+        final Satoshi amount = isAmountReadonly ? mBitcoinInvoice.getAmount() : CoinUtils.parseMilliSatoshiAmount(mAmountEditableValue.getText().toString());
         try {
-          final Satoshi amount = isAmountReadonly ? mBitcoinInvoice.getAmount() : CoinUtils.parseMilliSatoshiAmout(mAmountEditableValue.getText().toString());
           final Long feesPerKb = Long.parseLong(mFeesValue.getText().toString());
           if (isPinRequired()) {
             pinDialog = new PinDialog(CreatePaymentActivity.this, R.style.CustomAlertDialog, new PinDialog.PinDialogCallback() {
@@ -574,28 +576,41 @@ public class CreatePaymentActivity extends EclairActivity
    * Sends a Bitcoin transaction.
    *
    * @param amountSat  amount of the tx in satoshis
-   * @param feesPerKb  fees to the network in satoshis per kb
+   * @param feesPerKw  fees to the network in satoshis per kb
    * @param bitcoinURI contains the bitcoin address
    */
-  private void sendBitcoinPayment(final Satoshi amountSat, final Long feesPerKb, final BitcoinURI bitcoinURI) {
+  private void sendBitcoinPayment(final Satoshi amountSat, final Long feesPerKw, final BitcoinURI bitcoinURI) {
     Log.d(TAG, "Sending Bitcoin payment for invoice " + mBitcoinInvoice.toString());
-    final CreatePaymentActivity context = this;
-    Future fBitcoinPayment = app.getWallet().sendPayment(amountSat, bitcoinURI.getAddress(), feesPerKb);
-    fBitcoinPayment.onComplete(new OnComplete<Object>() {
+    try {
+      final CreatePaymentActivity context = this;
+      Future fBitcoinPayment = app.getWallet().sendPayment(amountSat, bitcoinURI.getAddress(), feesPerKw);
+      fBitcoinPayment.onComplete(new OnComplete<String>() {
         @Override
-        public void onComplete(final Throwable t, final Object o) {
-          context.runOnUiThread(new Runnable() {
-            public void run() {
-              if (t == null && o instanceof Boolean && ((Boolean) o)) {
-                Toast.makeText(context, R.string.payment_toast_sentbtc, Toast.LENGTH_SHORT).show();
-              } else {
-                Log.e(TAG, "Could not send Bitcoin payment", t);
+        public void onComplete(final Throwable t, final String txId) {
+          if (t == null) {
+            // insert tx in db
+            final Payment txAsPayment = new Payment();
+            txAsPayment.setType(PaymentType.BTC_ONCHAIN);
+            txAsPayment.setDirection(PaymentDirection.SENT);
+            txAsPayment.setReference(txId);
+            txAsPayment.setConfidenceType(0);
+            txAsPayment.setUpdated(new Date());
+            app.getDBHelper().insertOrUpdatePayment(txAsPayment);
+            EventBus.getDefault().post(new BitcoinPaymentEvent(txAsPayment));
+          } else {
+            Log.e(TAG, "Could not send Bitcoin tx", t);
+            context.runOnUiThread(new Runnable() {
+              public void run() {
                 Toast.makeText(context, R.string.payment_toast_failure, Toast.LENGTH_LONG).show();
               }
-            }
-          });
+            });
+          }
         }
       }, app.system.dispatcher());
+    } catch (Throwable t) {
+      Log.e(TAG, "Could not send Bitcoin tx", t);
+      Toast.makeText(getApplicationContext(), R.string.payment_toast_failure, Toast.LENGTH_LONG).show();
+    }
   }
 
   /**

@@ -43,7 +43,7 @@ public class PaymentSupervisor extends UntypedActor {
    * @param message message sent by the wallet
    * @throws Exception
    */
-  public void onReceive(Object message) throws Exception {
+  public void onReceive(final Object message) throws Exception {
     if (message instanceof ElectrumWallet.WalletTransactionReceive) {
       Log.d(TAG, "Received WalletTransactionReceive message: " + message);
       ElectrumWallet.WalletTransactionReceive walletTransactionReceive = (ElectrumWallet.WalletTransactionReceive) message;
@@ -55,18 +55,26 @@ public class PaymentSupervisor extends UntypedActor {
         ? walletTransactionReceive.received().$minus(walletTransactionReceive.sent())
         : walletTransactionReceive.sent().$minus(walletTransactionReceive.received());
       final Payment paymentInDB = app.getDBHelper().getPayment(tx.txid().toString(), PaymentType.BTC_ONCHAIN, direction);
+      final Satoshi fee = walletTransactionReceive.feeOpt().isDefined() ? walletTransactionReceive.feeOpt().get() : new Satoshi(0);
       ByteArrayOutputStream bos = new ByteArrayOutputStream();
       Transaction.write(tx, bos, Protocol.PROTOCOL_VERSION());
+      Log.d(TAG, "WalletTransactionReceive tx = [ " + walletTransactionReceive.tx().txid()
+        + ", amt " + amount + ", fee " + fee + ", dir " + direction
+        + ", already known " + (paymentInDB != null) + " ]");
 
       // insert or update received payment in DB
       final Payment paymentReceived = paymentInDB == null ? new Payment() : paymentInDB;
       paymentReceived.setType(PaymentType.BTC_ONCHAIN);
       paymentReceived.setDirection(direction);
       paymentReceived.setReference(walletTransactionReceive.tx().txid().toString());
+      if (direction == PaymentDirection.SENT) { // fee makes sense only if the tx is sent by us
+        paymentReceived.setFeesPaidMsat(package$.MODULE$.satoshi2millisatoshi(fee).amount());
+      }
       paymentReceived.setTxPayload(Hex.toHexString(bos.toByteArray()));
       paymentReceived.setAmountPaidMsat(package$.MODULE$.satoshi2millisatoshi(amount).amount());
       paymentReceived.setConfidenceBlocks((int) walletTransactionReceive.depth());
       paymentReceived.setConfidenceType(0);
+
       if (paymentInDB == null) {
         // timestamp is updated only if the transaction is not already known
         paymentReceived.setUpdated(new Date());

@@ -29,7 +29,7 @@ public class PaymentsListFragment extends Fragment implements SwipeRefreshLayout
 
   @Override
   public void onRefresh() {
-    mPaymentAdapter.update(getPayments());
+    updateList();
     mRefreshLayout.setRefreshing(false);
   }
 
@@ -71,7 +71,7 @@ public class PaymentsListFragment extends Fragment implements SwipeRefreshLayout
    * @return list of payments
    */
   private List<Payment> getPayments() {
-    List<Payment> list = ((App) getActivity().getApplication()).getDBHelper().getDaoSession().getPaymentDao()
+    final List<Payment> list = ((App) getActivity().getApplication()).getDBHelper().getDaoSession().getPaymentDao()
       .queryBuilder().orderDesc(PaymentDao.Properties.Updated).limit(100).list();
 
     if (mEmptyLabel != null) {
@@ -85,7 +85,9 @@ public class PaymentsListFragment extends Fragment implements SwipeRefreshLayout
   }
 
   public void updateList() {
-    mPaymentAdapter.update(getPayments());
+    if (getActivity().getApplication() != null) {
+      mPaymentAdapter.update(getPayments());
+    }
   }
 
 }

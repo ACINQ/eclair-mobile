@@ -74,7 +74,7 @@ public class CoinUtils {
     return new Satoshi(amount);
   }
 
-  public static Satoshi parseMilliSatoshiAmout(String input) {
+  public static Satoshi parseMilliSatoshiAmount(String input) {
     long amount = new BigDecimal(input).movePointRight(8).divide(BigDecimal.valueOf(1000)).longValueExact();
     return new Satoshi(amount);
   }

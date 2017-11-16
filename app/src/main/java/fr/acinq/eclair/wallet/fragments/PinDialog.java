@@ -71,7 +71,6 @@ public class PinDialog extends Dialog {
           if (mPinValue.equals("") || mPinValue.length() < 6) {
             final String val = ((Button) view).getText().toString();
             mPinValue = mPinValue.concat(val);
-            Log.d(TAG, "pinValue = " + mPinValue + " with val = " + val + " of length = " + mPinValue.length() + " ===> placeholder = " + Strings.repeat(PIN_PLACEHOLDER, mPinValue.length()));
             mPinDisplay.setText(Strings.repeat(PIN_PLACEHOLDER, mPinValue.length()));
           }
         }
