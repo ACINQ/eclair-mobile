@@ -241,6 +241,7 @@ public class HomeActivity extends EclairActivity {
       EventBus.getDefault().register(this);
     }
     EventBus.getDefault().postSticky(new WalletBalanceUpdateEvent(package$.MODULE$.millisatoshi2satoshi(new MilliSatoshi(app.getDBHelper().getOnchainBalanceMsat()))));
+    Log.i(TAG, "Home.onCreate done");
   }
 
   @Override
@@ -256,6 +257,7 @@ public class HomeActivity extends EclairActivity {
     }
     mExchangeRateHandler.post(mExchangeRateRunnable);
     EclairEventService.postLNBalanceEvent();
+    Log.i(TAG, "Home.onResume done");
   }
 
   @Override

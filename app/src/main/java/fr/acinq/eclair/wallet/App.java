@@ -94,11 +94,13 @@ public class App extends Application {
       } catch (Exception e) {
         isDBCompatible = false;
       }
+      Log.i(TAG, "Wallet started, App.onCreate done");
     } catch (Exception e) {
       Log.e(TAG, "Failed to start eclair", e);
       // the wallet must crash at this point
       throw new EclairStartException();
     }
+
     super.onCreate();
   }
 
