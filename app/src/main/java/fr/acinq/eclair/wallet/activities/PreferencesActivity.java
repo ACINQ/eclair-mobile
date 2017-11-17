@@ -37,6 +37,7 @@ public class PreferencesActivity extends EclairActivity {
 
     mPinSwitchWrapper = findViewById(R.id.preference_pin_switch_wrapper);
     mPinSwitch = findViewById(R.id.preference_pin_switch);
+    // when the switch is clicked, start the according action (remove pin, create pin)
     mPinSwitchWrapper.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(final View view) {
@@ -66,7 +67,7 @@ public class PreferencesActivity extends EclairActivity {
   }
 
   /**
-   * Refresh the Switch and the last update TextView with the current PIN preferences values.
+   * Refresh the Switch state and the last update TextView with the current values stored in preferences.
    * @param sharedPreferences
    */
   private void refreshPinDisplays(final SharedPreferences sharedPreferences) {
@@ -79,31 +80,48 @@ public class PreferencesActivity extends EclairActivity {
   }
 
   /**
-   * Opens a Dialog window to set the PIN to a new value.
+   * Opens a Dialog window to set the PIN to a new value. If the value is correct, saves the value in preferences.
    */
   private void setNewPinValue() {
     final PinDialog newPinDialog = new PinDialog(PreferencesActivity.this, R.style.CustomAlertDialog, new PinDialog.PinDialogCallback() {
       @SuppressLint("ApplySharedPref")
       @Override
-      public void onPinConfirm(final PinDialog dialog, final String pinValue) {
+      public void onPinConfirm(final PinDialog pNewPinDialog, final String newPinValue) {
         try {
-          if ((pinValue.length() == Constants.PIN_LENGTH)) {
-            Integer.parseInt(pinValue); // check that the pin is a digit
-            // 2nd check before disabling
-            if (isPinCorrect(Constants.PIN_UNDEFINED_VALUE, dialog)) {
-              getApplicationContext().getSharedPreferences(Constants.SETTINGS_SECURITY_FILE, MODE_PRIVATE).edit()
-                .putString(Constants.SETTING_PIN_VALUE, pinValue)
-                .putLong(Constants.SETTING_PIN_LAST_UPDATE, (new Date()).getTime())
-                .commit();
-            } else {
-              // The PIN value has been set between the moment the user asked to set a PIN value and now
-              Toast.makeText(getApplicationContext(), "The PIN has already been set.", Toast.LENGTH_SHORT).show();
-            }
+          if (newPinValue != null && newPinValue.length() == Constants.PIN_LENGTH) {
+            Integer.parseInt(newPinValue); // check that the pin is a digit
+            final PinDialog confirmNewPinDialog = new PinDialog(PreferencesActivity.this, R.style.CustomAlertDialog, new PinDialog.PinDialogCallback() {
+              @Override
+              public void onPinConfirm(final PinDialog pConfirmPinDialog, final String confirmPinValue) {
+                // PINs must match
+                final SharedPreferences prefs = getSharedPreferences(Constants.SETTINGS_SECURITY_FILE, MODE_PRIVATE);
+                if (!newPinValue.equals(confirmPinValue)) {
+                  Toast.makeText(getApplicationContext(), R.string.pindialog_error_donotmatch, Toast.LENGTH_LONG).show();
+                }
+                // 2nd check and final before setting new PIN: the current PIN value must be the undefined value!
+                // If not, it means that the PIN value has been set between the moment the user asked to set a new PIN value and now.
+                // The PIN can only be set if the PIN is not already set.
+                else if (!prefs.getString(Constants.SETTING_PIN_VALUE, Constants.PIN_UNDEFINED_VALUE).equals(Constants.PIN_UNDEFINED_VALUE)) {
+                  Toast.makeText(getApplicationContext(), R.string.pindialog_error_alreadyset, Toast.LENGTH_LONG).show();
+                } else {
+                  getApplicationContext().getSharedPreferences(Constants.SETTINGS_SECURITY_FILE, MODE_PRIVATE).edit()
+                    .putString(Constants.SETTING_PIN_VALUE, confirmPinValue)
+                    .putLong(Constants.SETTING_PIN_LAST_UPDATE, (new Date()).getTime())
+                    .commit();
+                }
+                pConfirmPinDialog.dismiss();
+              }
+              @Override
+              public void onPinCancel(final PinDialog dialog) {
+              }
+            }, getString(R.string.pindialog_title_confirmnew));
+            pNewPinDialog.dismiss();
+            confirmNewPinDialog.show();
           } else {
-            Toast.makeText(getApplicationContext(), "The PIN must be a " + Constants.PIN_LENGTH + " digits number.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), R.string.pindialog_error_length, Toast.LENGTH_SHORT).show();
           }
         } catch (NumberFormatException e) {
-          Toast.makeText(getApplicationContext(), "The PIN must be a number.", Toast.LENGTH_SHORT).show();
+          Toast.makeText(getApplicationContext(), R.string.pindialog_error_notanumber, Toast.LENGTH_SHORT).show();
         }
       }
 
@@ -115,7 +133,8 @@ public class PreferencesActivity extends EclairActivity {
   }
 
   /**
-   * Opens a Dialog window to remove the PIN if the input is correct
+   * Removes the pin value in the preferences. The user has to confirm the previous PIN before the pin is
+   * removed from the preferences. If the PIN is incorrect, the action fails.
    */
   private void removePinValue() {
     final PinDialog removePinDialog = new PinDialog(PreferencesActivity.this, R.style.CustomAlertDialog, new PinDialog.PinDialogCallback() {

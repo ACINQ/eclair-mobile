@@ -288,7 +288,12 @@
 
   <string name="pindialog_title_default">Please enter your PIN</string>
   <string name="pindialog_title_createnew">Define a 6 digits PIN code</string>
+  <string name="pindialog_title_confirmnew">Confirm PIN code</string>
   <string name="pindialog_pwd_placeholder">●●●●●●</string>
+  <string name="pindialog_error_length">Failed: the PIN must be a 6 digits number.</string>
+  <string name="pindialog_error_notanumber">Failed: the PIN must be a number.</string>
+  <string name="pindialog_error_donotmatch">Failed: PINs do not match.</string>
+  <string name="pindialog_error_alreadyset">Failed: the PIN has already been set.</string>
 
   <!-- //////////////// Preferences //////////////////// -->
 
