@@ -81,7 +81,6 @@
       android:layout_height="wrap_content"
       android:layout_alignBaseline="@+id/paymentitem_amount_value"
       android:layout_alignParentEnd="true"
-      android:text="@string/btc_milli_short"
       android:textColor="@color/colorGrey_1"
       android:textSize="8sp" />
 

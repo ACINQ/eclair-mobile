@@ -1,5 +1,6 @@
 package fr.acinq.eclair.wallet.adapters;
 
+import android.preference.PreferenceManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,6 +10,7 @@ import java.util.List;
 
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.models.Payment;
+import fr.acinq.eclair.wallet.utils.CoinUtils;
 
 public class PaymentListItemAdapter extends RecyclerView.Adapter<PaymentItemHolder> {
 
@@ -20,8 +22,9 @@ public class PaymentListItemAdapter extends RecyclerView.Adapter<PaymentItemHold
 
   @Override
   public PaymentItemHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-    View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_payment, parent, false);
-    return new PaymentItemHolder(view);
+    final View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_payment, parent, false);
+    final String prefUnit = CoinUtils.getBtcPreferredUnit(PreferenceManager.getDefaultSharedPreferences(view.getContext()));
+    return new PaymentItemHolder(view, prefUnit);
   }
 
   @Override

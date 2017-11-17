@@ -13,13 +13,12 @@
 
     <ListPreference
       android:defaultValue="mbtc"
-      android:dialogTitle="@string/prefs_btc_denomination"
-      android:enabled="false"
-      android:entries="@array/btc_denomination_labels"
-      android:entryValues="@array/btc_denomination_values"
-      android:key="btc_denomination"
+      android:dialogTitle="@string/prefs_btc_unit"
+      android:entries="@array/btc_unit_labels"
+      android:entryValues="@array/btc_unit_values"
+      android:key="btc_unit"
       android:summary="%s"
-      android:title="@string/prefs_btc_denomination" />
+      android:title="@string/prefs_btc_unit" />
   </PreferenceCategory>
 
   <PreferenceCategory android:title="@string/prefs_cat_lightning">

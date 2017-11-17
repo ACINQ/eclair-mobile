@@ -33,12 +33,16 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
   private final TextView mStatus;
   private final TextView mDate;
   private final TextView mAmount;
+  private final TextView mAmountUnit;
   private Payment mPayment;
+  final private String prefUnit;
 
-  public PaymentItemHolder(final View itemView) {
+  public PaymentItemHolder(final View itemView, final String prefUnit) {
     super(itemView);
     this.mPaymentIcon = itemView.findViewById(R.id.paymentitem_image);
     this.mAmount = itemView.findViewById(R.id.paymentitem_amount_value);
+    this.mAmountUnit = itemView.findViewById(R.id.paymentitem_amount_unit);
+    this.mAmountUnit.setText(prefUnit);
     this.mStatus = itemView.findViewById(R.id.paymentitem_status);
     this.mDescription = itemView.findViewById(R.id.paymentitem_description);
     this.mDate = itemView.findViewById(R.id.paymentitem_date);
@@ -46,6 +50,7 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
     this.mFees = itemView.findViewById(R.id.paymentitem_fees_value);
     this.mFeesUnit = itemView.findViewById(R.id.paymentitem_fees_unit);
     itemView.setOnClickListener(this);
+    this.prefUnit = prefUnit;
   }
 
   @Override
@@ -79,15 +84,18 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
       mFeesUnit.setVisibility(View.VISIBLE);
     }
 
+    // Adding a "-" prefix to the amount if this is an outgoing payment
+    final String amountPrefix = PaymentDirection.SENT.equals(payment.getDirection()) ? "-" : "";
+
     if (PaymentType.BTC_LN.equals(payment.getType())) {
       try {
         if (payment.getAmountPaidMsat() == 0) {
-          mAmount.setText("-" + CoinUtils.formatAmountMilliBtc(new MilliSatoshi(payment.getAmountRequestedMsat())));
+          mAmount.setText(amountPrefix + CoinUtils.formatAmountInUnit(new MilliSatoshi(payment.getAmountRequestedMsat()), prefUnit));
         } else {
-          mAmount.setText("-" + CoinUtils.formatAmountMilliBtc(new MilliSatoshi(payment.getAmountPaidMsat())));
+          mAmount.setText(amountPrefix + CoinUtils.formatAmountInUnit(new MilliSatoshi(payment.getAmountPaidMsat()), prefUnit));
         }
       } catch (Exception e) {
-        mAmount.setText(CoinUtils.getMilliBTCFormat().format(0));
+        mAmount.setText(amountPrefix + CoinUtils.formatAmountInUnit(new MilliSatoshi(0), prefUnit));
       }
 
       mDescription.setText(payment.getDescription());
@@ -104,12 +112,10 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
     } else {
       // convention: negative number of confirmations means conflicted
       if (payment.getConfidenceBlocks() >= 0) {
-
         // text
         final String confidenceBlocks = payment.getConfidenceBlocks() < 7 ?
           Integer.toString(payment.getConfidenceBlocks()) : "6+";
         mStatus.setText(confidenceBlocks + " " + itemView.getResources().getString(R.string.paymentitem_confidence_suffix));
-
         // color: green above 2
         if (payment.getConfidenceBlocks() < 2) {
           mStatus.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.colorGrey_2));
@@ -123,9 +129,7 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
 
       mPaymentIcon.setImageResource(R.mipmap.ic_bitcoin_circle);
       mDescription.setText(payment.getReference());
-
-      mAmount.setText((payment.getDirection() == PaymentDirection.SENT ? "-" : "") +
-        CoinUtils.formatAmountMilliBtc(new MilliSatoshi(payment.getAmountPaidMsat())));
+      mAmount.setText(amountPrefix + CoinUtils.formatAmountInUnit(new MilliSatoshi(payment.getAmountPaidMsat()), prefUnit));
     }
   }
 
