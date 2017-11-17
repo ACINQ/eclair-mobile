@@ -86,12 +86,15 @@ public class PaymentSupervisor extends UntypedActor {
     } else if (message instanceof ElectrumWallet.WalletTransactionConfidenceChanged) {
       Log.d(TAG, "Received WalletTransactionConfidenceChanged message: " + message);
       final ElectrumWallet.WalletTransactionConfidenceChanged walletTransactionConfidenceChanged = (ElectrumWallet.WalletTransactionConfidenceChanged) message;
-      final Payment p = app.getDBHelper().getPayment(walletTransactionConfidenceChanged.txid().toString(), PaymentType.BTC_ONCHAIN);
-      if (p != null) {
-        p.setConfidenceBlocks((int) walletTransactionConfidenceChanged.depth());
-        app.getDBHelper().updatePayment(p);
+      final int depth = (int) walletTransactionConfidenceChanged.depth();
+      if (depth < 10) { // ignore tx with confidence > 10 for perfs reasons
+        final Payment p = app.getDBHelper().getPayment(walletTransactionConfidenceChanged.txid().toString(), PaymentType.BTC_ONCHAIN);
+        if (p != null) {
+          p.setConfidenceBlocks(depth);
+          app.getDBHelper().updatePayment(p);
+          EventBus.getDefault().post(new BitcoinPaymentEvent(null));
+        }
       }
-      EventBus.getDefault().post(new BitcoinPaymentEvent(null));
     } else if (message instanceof ElectrumWallet.Ready) {
       Log.d(TAG, "Received Ready message: {}" + message);
       ElectrumWallet.Ready ready = (ElectrumWallet.Ready) message;

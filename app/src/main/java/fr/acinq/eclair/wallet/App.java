@@ -43,6 +43,7 @@ import fr.acinq.eclair.router.NetworkEvent;
 import fr.acinq.eclair.wallet.events.NetworkChannelsCountEvent;
 import fr.acinq.eclair.wallet.events.NetworkNodesCountEvent;
 import fr.acinq.eclair.wallet.events.NotificationEvent;
+import fr.acinq.eclair.wallet.utils.EclairStartException;
 import scala.Option;
 import scala.Symbol;
 import scala.collection.Iterable;

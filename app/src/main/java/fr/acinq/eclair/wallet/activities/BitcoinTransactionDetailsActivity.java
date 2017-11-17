@@ -91,7 +91,8 @@ public class BitcoinTransactionDetailsActivity extends EclairActivity {
       mPaymentHashRow.setValue(p.getReference());
       mUpdateDateRow.setValue(DateFormat.getDateTimeInstance().format(p.getUpdated()));
       mOpenInExplorer.setOnClickListener(WalletUtils.getOpenTxListener(p.getReference()));
-      mTxConfs.setValue(Integer.toString(p.getConfidenceBlocks()));
+      final int txConfs = p.getConfidenceBlocks();
+      mTxConfs.setValue(txConfs > 6 ? "6+" : Integer.toString(txConfs));
       // TODO confidence type should be human readable
       mTxConfsType.setValue(Integer.toString(p.getConfidenceType()));
 

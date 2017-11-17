@@ -40,7 +40,7 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
       mAddressTextView.setText(address);
       new QRCodeTask(this, address, 700, 700).execute();
     } catch (Exception e) {
-      Log.e(TAG, "Could not retrieve onchain public address", e);
+      Log.e(TAG, "Could not retrieve onchain public address " + e.getMessage());
       mAddressTextView.setText("Error when retrieving wallet's address.");
     }
   }
