@@ -3,13 +3,13 @@ package fr.acinq.eclair.wallet.tasks;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import org.bitcoinj.params.AbstractBitcoinNetParams;
-import org.bitcoinj.uri.BitcoinURI;
-import org.bitcoinj.uri.BitcoinURIParseException;
+import fr.acinq.eclair.wallet.utils.BitcoinURI;
+import fr.acinq.eclair.wallet.utils.BitcoinURIParseException;
+
 
 public class BitcoinInvoiceReaderTask extends AsyncTask<String, Integer, BitcoinURI> {
 
-  private static final String TAG = "LNInvoiceReaderTask";
+  private static final String TAG = "BitcoinInvoiceReader";
   private final String invoiceAsString;
   private final AsyncInvoiceReaderTaskResponse delegate;
 
@@ -22,14 +22,14 @@ public class BitcoinInvoiceReaderTask extends AsyncTask<String, Integer, Bitcoin
   protected BitcoinURI doInBackground(String... params) {
     BitcoinURI extract = null;
     try {
-      if (invoiceAsString.startsWith(AbstractBitcoinNetParams.BITCOIN_SCHEME + ":")) {
+      if (invoiceAsString.startsWith("bitcoin:")) {
         extract = new BitcoinURI(invoiceAsString);
       } else {
         // to handle raw address
-        extract = new BitcoinURI(AbstractBitcoinNetParams.BITCOIN_SCHEME + ":" + invoiceAsString);
+        extract = new BitcoinURI("bitcoin:" + invoiceAsString);
       }
     } catch (BitcoinURIParseException e) {
-      Log.e(TAG, "Could not read Bitcoin invoice " + invoiceAsString + " with cause: " + e.getMessage());
+      Log.d(TAG, "Could not read Bitcoin invoice " + invoiceAsString + " with cause: " + e.getMessage());
     }
     return extract;
   }

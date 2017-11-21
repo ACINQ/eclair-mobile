@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="match_parent"
+  android:layout_height="wrap_content"
+  android:scrollbars="vertical">
+
+  <LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="top|center"
+    android:orientation="vertical">
+
+    <RelativeLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:background="@color/yellowLight">
+
+      <TextView
+        android:id="@+id/pin_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/rounded_corner_yellow_bottom"
+        android:paddingBottom="3dp"
+        android:paddingEnd="6dp"
+        android:paddingStart="6dp"
+        android:paddingTop="3dp"
+        android:text="@string/pindialog_title_default"
+        android:textAlignment="center"
+        android:textColor="@color/colorGrey_3"
+        android:textSize="12sp" />
+
+      <TextView
+        android:id="@+id/pin_display_placeholder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/pin_title"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="24dp"
+        android:layout_marginTop="28dp"
+        android:alpha="0.15"
+        android:background="@android:color/transparent"
+        android:gravity="center"
+        android:letterSpacing="0.2"
+        android:text="@string/pindialog_pwd_placeholder"
+        android:textColor="@color/colorGrey_3"
+        android:textSize="18sp" />
+
+      <TextView
+        android:id="@+id/pin_display"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/pin_display_placeholder"
+        android:layout_alignStart="@+id/pin_display_placeholder"
+        android:background="@android:color/transparent"
+        android:enabled="false"
+        android:letterSpacing="0.2"
+        android:lines="1"
+        android:maxLines="1"
+        android:textColor="@color/colorGrey_3"
+        android:textSize="18sp" />
+
+    </RelativeLayout>
+
+    <GridLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="1dp"
+      android:columnCount="3">
+
+      <Button
+        android:id="@+id/pin_num_1"
+        android:layout_columnWeight="1"
+        android:layout_gravity="clip_horizontal"
+        android:background="?android:attr/selectableItemBackground"
+        android:fontFamily="sans-serif-light"
+        android:gravity="center"
+        android:minWidth="52dp"
+        android:text="1"
+        android:textColor="@color/colorGrey_3"
+        android:textSize="20sp" />
+
+      <Button
+        android:id="@+id/pin_num_2"
+        android:layout_columnWeight="1"
+        android:layout_gravity="fill_horizontal"
+        android:background="?android:attr/selectableItemBackground"
+        android:fontFamily="sans-serif-light"
+        android:gravity="center"
+        android:minWidth="52dp"
+        android:text="2"
+        android:textColor="@color/colorGrey_3"
+        android:textSize="20sp" />
+
+      <Button
+        android:id="@+id/pin_num_3"
+        android:layout_columnWeight="1"
+        android:layout_gravity="fill_horizontal"
+        android:background="?android:attr/selectableItemBackground"
+        android:fontFamily="sans-serif-light"
+        android:gravity="center"
+        android:minWidth="52dp"
+        android:text="3"
+        android:textColor="@color/colorGrey_3"
+        android:textSize="20sp" />
+
+      <Button
+        android:id="@+id/pin_num_4"
+        android:layout_columnWeight="1"
+        android:layout_gravity="fill_horizontal"
+        android:background="?android:attr/selectableItemBackground"
+        android:fontFamily="sans-serif-light"
+        android:gravity="center"
+        android:minWidth="52dp"
+        android:text="4"
+        android:textColor="@color/colorGrey_3"
+        android:textSize="20sp" />
+
+      <Button
+        android:id="@+id/pin_num_5"
+        android:layout_columnWeight="1"
+        android:layout_gravity="fill_horizontal"
+        android:background="?android:attr/selectableItemBackground"
+        android:fontFamily="sans-serif-light"
+        android:gravity="center"
+        android:minWidth="52dp"
+        android:text="5"
+        android:textColor="@color/colorGrey_3"
+        android:textSize="20sp" />
+
+      <Button
+        android:id="@+id/pin_num_6"
+        android:layout_columnWeight="1"
+        android:layout_gravity="fill_horizontal"
+        android:background="?android:attr/selectableItemBackground"
+        android:fontFamily="sans-serif-light"
+        android:gravity="center"
+        android:minWidth="52dp"
+        android:text="6"
+        android:textColor="@color/colorGrey_3"
+        android:textSize="20sp" />
+
+      <Button
+        android:id="@+id/pin_num_7"
+        android:layout_columnWeight="1"
+        android:layout_gravity="fill_horizontal"
+        android:background="?android:attr/selectableItemBackground"
+        android:fontFamily="sans-serif-light"
+        android:gravity="center"
+        android:minWidth="52dp"
+        android:text="7"
+        android:textColor="@color/colorGrey_3"
+        android:textSize="20sp" />
+
+      <Button
+        android:id="@+id/pin_num_8"
+        android:layout_columnWeight="1"
+        android:layout_gravity="fill_horizontal"
+        android:background="?android:attr/selectableItemBackground"
+        android:fontFamily="sans-serif-light"
+        android:gravity="center"
+        android:minWidth="52dp"
+        android:text="8"
+        android:textColor="@color/colorGrey_3"
+        android:textSize="20sp" />
+
+      <Button
+        android:id="@+id/pin_num_9"
+        android:layout_columnWeight="1"
+        android:layout_gravity="fill_horizontal"
+        android:background="?android:attr/selectableItemBackground"
+        android:fontFamily="sans-serif-light"
+        android:gravity="center"
+        android:minWidth="52dp"
+        android:text="9"
+        android:textColor="@color/colorGrey_3"
+        android:textSize="20sp" />
+
+      <ImageButton
+        android:id="@+id/pin_num_clear"
+        android:layout_columnWeight="1"
+        android:layout_gravity="fill_horizontal"
+        android:background="?android:attr/selectableItemBackground"
+        android:fontFamily="sans-serif-light"
+        android:gravity="center"
+        android:minHeight="48dp"
+        android:minWidth="52dp"
+        android:src="@drawable/ic_delete"
+        android:textColor="@color/redFaded"
+        android:textSize="14sp" />
+
+      <Button
+        android:id="@+id/pin_num_0"
+        android:layout_columnWeight="1"
+        android:layout_gravity="fill_horizontal"
+        android:background="?android:attr/selectableItemBackground"
+        android:fontFamily="sans-serif-light"
+        android:gravity="center"
+        android:minWidth="52dp"
+        android:text="0"
+        android:textColor="@color/colorGrey_3"
+        android:textSize="20sp" />
+
+      <ImageButton
+        android:id="@+id/pin_submit"
+        android:layout_columnWeight="1"
+        android:layout_gravity="fill_horizontal"
+        android:background="?android:attr/selectableItemBackground"
+        android:fontFamily="sans-serif-light"
+        android:gravity="center"
+        android:minHeight="48dp"
+        android:minWidth="52dp"
+        android:src="@drawable/ic_check"
+        android:textColor="@color/green"
+        android:textSize="14sp" />
+
+    </GridLayout>
+  </LinearLayout>
+</ScrollView>

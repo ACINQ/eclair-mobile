@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string-array name="fiat_labels">
+    <item>Euro</item>
+    <item>US Dollar</item>
+  </string-array>
+  <string-array name="fiat_values">
+    <item>eur</item>
+    <item>usd</item>
+  </string-array>
+  <string-array name="btc_unit_labels">
+    <item>Milli-Bitcoin</item>
+    <item>Bitcoin</item>
+  </string-array>
+  <string-array name="btc_unit_values">
+    <item>mbtc</item>
+    <item>btc</item>
+  </string-array>
+</resources>

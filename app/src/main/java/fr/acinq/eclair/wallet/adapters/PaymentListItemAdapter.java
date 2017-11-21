@@ -9,10 +9,15 @@ import java.util.List;
 
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.models.Payment;
+import fr.acinq.eclair.wallet.utils.Constants;
 
 public class PaymentListItemAdapter extends RecyclerView.Adapter<PaymentItemHolder> {
 
+  private static final String TAG = "PaymentAdapter";
   private List<Payment> payments;
+  private String fiatCode = Constants.FIAT_USD;
+  private String prefUnit = Constants.MILLI_BTC_CODE;
+  private boolean displayAmountAsFiat = false; // by default always show amounts in bitcoin
 
   public PaymentListItemAdapter(List<Payment> payments) {
     this.payments = payments;
@@ -20,14 +25,14 @@ public class PaymentListItemAdapter extends RecyclerView.Adapter<PaymentItemHold
 
   @Override
   public PaymentItemHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-    View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_payment, parent, false);
+    final View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_payment, parent, false);
     return new PaymentItemHolder(view);
   }
 
   @Override
   public void onBindViewHolder(PaymentItemHolder holder, int position) {
-    Payment payment = this.payments.get(position);
-    holder.bindPaymentItem(payment);
+    final Payment payment = this.payments.get(position);
+    holder.bindPaymentItem(payment, this.fiatCode, this.prefUnit, this.displayAmountAsFiat);
   }
 
   @Override
@@ -35,10 +40,17 @@ public class PaymentListItemAdapter extends RecyclerView.Adapter<PaymentItemHold
     return this.payments == null ? 0 : this.payments.size();
   }
 
-  public void update(List<Payment> payments) {
+  public void update(final String fiatCode, final String prefUnit, final boolean displayAmountAsFiat) {
+    update(this.payments, fiatCode, prefUnit, displayAmountAsFiat);
+  }
+
+  public void update(final List<Payment> payments, final String fiatCode, final String prefUnit, final boolean displayAmountAsFiat) {
+    this.fiatCode = fiatCode;
+    this.prefUnit = prefUnit;
+    this.displayAmountAsFiat = displayAmountAsFiat;
     if (payments == null) {
       this.payments = payments;
-    } else {
+    } else if (!this.payments.equals(payments)) {
       this.payments.clear();
       this.payments.addAll(payments);
     }

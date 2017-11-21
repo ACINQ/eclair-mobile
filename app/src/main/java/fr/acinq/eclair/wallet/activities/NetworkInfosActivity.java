@@ -10,6 +10,9 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.text.NumberFormat;
+
+import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.eclair.Globals;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.customviews.DataRow;
@@ -31,18 +34,18 @@ public class NetworkInfosActivity extends EclairActivity implements SwipeRefresh
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_networkinfos);
 
-    Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+    Toolbar toolbar = findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
     ActionBar ab = getSupportActionBar();
     ab.setDisplayHomeAsUpEnabled(true);
 
-    mNodePublicKeyRow = (DataRow) findViewById(R.id.networkinfos_nodeid);
-    mNetworkNodesCount = (DataRow) findViewById(R.id.networkinfos_networknodes_count);
-    mNetworkChannelCount = (DataRow) findViewById(R.id.networkinfos_networkchannels_count);
-    mBlockCount = (DataRow) findViewById(R.id.networkinfos_blockcount);
-    mFeeRate = (DataRow) findViewById(R.id.networkinfos_feerate);
+    mNodePublicKeyRow = findViewById(R.id.networkinfos_nodeid);
+    mNetworkNodesCount = findViewById(R.id.networkinfos_networknodes_count);
+    mNetworkChannelCount = findViewById(R.id.networkinfos_networkchannels_count);
+    mBlockCount = findViewById(R.id.networkinfos_blockcount);
+    mFeeRate = findViewById(R.id.networkinfos_feerate);
 
-    mRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.networkinfos_swiperefresh);
+    mRefreshLayout = findViewById(R.id.networkinfos_swiperefresh);
     mRefreshLayout.setColorSchemeResources(R.color.colorPrimary, R.color.green, R.color.colorAccent);
     mRefreshLayout.setOnRefreshListener(this);
   }
@@ -54,7 +57,7 @@ public class NetworkInfosActivity extends EclairActivity implements SwipeRefresh
 
   private void refreshData() {
     mBlockCount.setValue(String.valueOf(Globals.blockCount().get()));
-    mFeeRate.setValue(Globals.feeratePerKw().toString());
+    mFeeRate.setValue(NumberFormat.getInstance().format(Globals.feeratesPerKw().get().block_1()) + " sat/kw");
     app.getNetworkNodesCount();
     app.getNetworkChannelsCount();
     mRefreshLayout.setRefreshing(false);

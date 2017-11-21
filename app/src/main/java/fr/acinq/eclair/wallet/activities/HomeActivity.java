@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -25,13 +26,23 @@ import android.view.ViewStub;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.greenrobot.eventbus.util.ThrowableFailureEvent;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,6 +53,8 @@ import java.util.concurrent.ThreadLocalRandom;
 import akka.dispatch.OnComplete;
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.package$;
+import fr.acinq.eclair.blockchain.electrum.ElectrumClient;
+import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.EclairEventService;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.customviews.CoinAmountView;
@@ -57,7 +70,7 @@ import fr.acinq.eclair.wallet.fragments.ChannelsListFragment;
 import fr.acinq.eclair.wallet.fragments.PaymentsListFragment;
 import fr.acinq.eclair.wallet.fragments.ReceivePaymentFragment;
 import fr.acinq.eclair.wallet.utils.CoinUtils;
-import fr.acinq.eclair.wallet.utils.Validators;
+import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 import scala.concurrent.ExecutionContext;
 
@@ -65,7 +78,7 @@ public class HomeActivity extends EclairActivity {
 
   public static final String EXTRA_PAGE = "fr.acinq.eclair.swordfish.EXTRA_PAGE";
   private static final String TAG = "Home Activity";
-  List<Integer> recoveryPositions = Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11);
+  List<Integer> recoveryPositions = Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23);
 
   private ViewPager mViewPager;
   private PaymentsListFragment mPaymentsListFragment;
@@ -78,16 +91,22 @@ public class HomeActivity extends EclairActivity {
   private ViewGroup mOpenChannelsButtonsView;
   private ViewGroup mOpenChannelButtonsToggleView;
   private FloatingActionButton mOpenChannelButton;
+  private View mBalanceView;
   private CoinAmountView mTotalBalanceView;
-  private TextView mWalletBalanceView;
-  private TextView mLNBalanceView;
+  private CoinAmountView mOnchainBalanceView;
+  private CoinAmountView mLNBalanceView;
   private ViewStub mStubBreakingChanges;
   private ViewStub mStubDisclaimer;
   private View mStubDisclaimerInflated;
   private ViewStub mStubIntro;
   private ViewStub mStubBackup;
   private View mStubBackupInflated;
+  private TextView mConnectionStatus;
   private int introStep = 0;
+
+  private Handler mExchangeRateHandler;
+  private Runnable mExchangeRateRunnable;
+  private JsonObjectRequest mExchangeRateRequest;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -96,36 +115,52 @@ public class HomeActivity extends EclairActivity {
     setContentView(R.layout.activity_home);
 
     if (app.hasBreakingChanges()) {
-      mStubBreakingChanges = (ViewStub) findViewById(R.id.home_stub_breaking);
+      mStubBreakingChanges = findViewById(R.id.home_stub_breaking);
       mStubBreakingChanges.inflate();
       ((TextView) findViewById(R.id.home_breaking_changes_text)).setText(Html.fromHtml(
         getString(R.string.breaking_changes_text)));
     }
 
-    mStubDisclaimer = (ViewStub) findViewById(R.id.home_stub_disclaimer);
-    mStubIntro = (ViewStub) findViewById(R.id.home_stub_intro);
-    mStubBackup = (ViewStub) findViewById(R.id.home_stub_backup);
+    mStubDisclaimer = findViewById(R.id.home_stub_disclaimer);
+    mStubIntro = findViewById(R.id.home_stub_intro);
+    mStubBackup = findViewById(R.id.home_stub_backup);
 
-    Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+    Toolbar toolbar = findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
     ActionBar ab = getSupportActionBar();
     ab.setDisplayHomeAsUpEnabled(false);
     ab.setDisplayShowTitleEnabled(false);
 
-    mTotalBalanceView = (CoinAmountView) findViewById(R.id.home_balance_total);
-    mWalletBalanceView = (TextView) findViewById(R.id.home_balance_wallet_value);
-    mLNBalanceView = (TextView) findViewById(R.id.home_balance_ln_value);
+    final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 
-    mSendButtonsView = (ViewGroup) findViewById(R.id.home_send_buttons);
-    mSendButtonsToggleView = (ViewGroup) findViewById(R.id.home_send_buttons_toggle);
-    mSendButton = (FloatingActionButton) findViewById(R.id.home_send_button);
-    mDisabledSendButton = (FloatingActionButton) findViewById(R.id.home_send_button_disabled);
+    mConnectionStatus = findViewById(R.id.home_connection_status);
 
-    mOpenChannelsButtonsView = (ViewGroup) findViewById(R.id.home_openchannel_buttons);
-    mOpenChannelButtonsToggleView = (ViewGroup) findViewById(R.id.home_openchannel_buttons_toggle);
-    mOpenChannelButton = (FloatingActionButton) findViewById(R.id.home_openchannel_button);
+    mBalanceView = findViewById(R.id.home_balance);
+    mTotalBalanceView = findViewById(R.id.home_balance_total);
+    mOnchainBalanceView = findViewById(R.id.home_balance_onchain_value);
+    mLNBalanceView = findViewById(R.id.home_balance_ln_value);
+    mBalanceView.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View view) {
+        boolean displayBalanceAsFiat = CoinUtils.shouldDisplayInFiat(prefs);
+        prefs.edit().putBoolean(Constants.SETTING_DISPLAY_IN_FIAT, !displayBalanceAsFiat).commit();
+        mOnchainBalanceView.refreshUnits();
+        mTotalBalanceView.refreshUnits();
+        mLNBalanceView.refreshUnits();
+        mPaymentsListFragment.refreshList();
+      }
+    });
 
-    mViewPager = (ViewPager) findViewById(R.id.home_viewpager);
+    mSendButtonsView = findViewById(R.id.home_send_buttons);
+    mSendButtonsToggleView = findViewById(R.id.home_send_buttons_toggle);
+    mSendButton = findViewById(R.id.home_send_button);
+    mDisabledSendButton = findViewById(R.id.home_send_button_disabled);
+
+    mOpenChannelsButtonsView = findViewById(R.id.home_openchannel_buttons);
+    mOpenChannelButtonsToggleView = findViewById(R.id.home_openchannel_buttons_toggle);
+    mOpenChannelButton = findViewById(R.id.home_openchannel_button);
+
+    mViewPager = findViewById(R.id.home_viewpager);
     mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
       @Override
       public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -161,15 +196,15 @@ public class HomeActivity extends EclairActivity {
     (new Thread(new Runnable() {
       @Override
       public void run() {
-        final SharedPreferences getPrefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+
         final boolean showDisclaimer = false;
-        final boolean showRecovery = getPrefs.getBoolean("showRecovery", true);
-        final boolean showIntro = getPrefs.getBoolean("showIntro", true);
+        final boolean showRecovery = prefs.getBoolean(Constants.SETTING_SHOW_RECOVERY, true);
+        final boolean showIntro = prefs.getBoolean(Constants.SETTING_SHOW_INTRO, true);
         if (showDisclaimer || showRecovery || showIntro) {
           runOnUiThread(new Runnable() {
             @Override
             public void run() {
-              home_startDisclaimer(showDisclaimer, showRecovery, showIntro, getPrefs);
+              home_startDisclaimer(showDisclaimer, showRecovery, showIntro, prefs);
             }
           });
         }
@@ -191,6 +226,41 @@ public class HomeActivity extends EclairActivity {
         });
       }
     }, ExecutionContext.Implicits$.MODULE$.global());
+
+    final RequestQueue queue = Volley.newRequestQueue(this);
+    mExchangeRateRequest = new JsonObjectRequest(Request.Method.GET, "https://api.coindesk.com/v1/bpi/currentprice.json", null,
+      new Response.Listener<JSONObject>() {
+        @SuppressLint("SetTextI18n")
+        @Override
+        public void onResponse(JSONObject response) {
+          try {
+            JSONObject bpi = response.getJSONObject("bpi");
+            JSONObject eur = bpi.getJSONObject("EUR");
+            JSONObject usd = bpi.getJSONObject("USD");
+            App.updateExchangeRate(eur.getDouble("rate_float"), usd.getDouble("rate_float"));
+          } catch (JSONException e) {
+            Log.e("ExchangeRate", "Could not read coindesk response", e);
+          }
+        }
+      }, new Response.ErrorListener() {
+      @Override
+      public void onErrorResponse(VolleyError error) {
+        Log.d("ExchangeRate", "Error when querying coindesk api with cause " + error.getMessage());
+      }
+    });
+    mExchangeRateHandler = new Handler();
+    mExchangeRateRunnable = new Runnable() {
+      @Override
+      public void run() {
+        queue.add(mExchangeRateRequest);
+        mExchangeRateHandler.postDelayed(this, 5 * 60 * 1000);
+      }
+    };
+    if (!EventBus.getDefault().isRegistered(this)) {
+      EventBus.getDefault().register(this);
+    }
+    EventBus.getDefault().postSticky(new WalletBalanceUpdateEvent(package$.MODULE$.millisatoshi2satoshi(new MilliSatoshi(app.getDBHelper().getOnchainBalanceMsat()))));
+    Log.i(TAG, "Home.onCreate done");
   }
 
   @Override
@@ -204,13 +274,21 @@ public class HomeActivity extends EclairActivity {
     } else {
       enableSendButton();
     }
-    app.publishWalletBalance();
+    // starts refreshing the exchange rate
+    mExchangeRateHandler.post(mExchangeRateRunnable);
+    // refresh balance after possible prefs change
+    mTotalBalanceView.refreshUnits();
+    mOnchainBalanceView.refreshUnits();
+    mLNBalanceView.refreshUnits();
+    // ask for LN balance
     EclairEventService.postLNBalanceEvent();
+    Log.i(TAG, "Home.onResume done");
   }
 
   @Override
   public void onPause() {
     super.onPause();
+    mExchangeRateHandler.removeCallbacks(mExchangeRateRunnable);
     home_closeSendButtons();
     home_closeOpenChannelButtons();
   }
@@ -254,6 +332,10 @@ public class HomeActivity extends EclairActivity {
         Intent aboutIntent = new Intent(this, AboutActivity.class);
         startActivity(aboutIntent);
         return true;
+      case R.id.menu_home_preferences:
+        Intent prefsIntent = new Intent(this, PreferencesActivity.class);
+        startActivity(prefsIntent);
+        return true;
       default:
         return super.onOptionsItemSelected(item);
     }
@@ -267,7 +349,7 @@ public class HomeActivity extends EclairActivity {
         public void onClick(View v) {
           mStubDisclaimer.setVisibility(View.GONE);
           SharedPreferences.Editor e = prefs.edit();
-          e.putBoolean("showDisclaimer", false);
+          e.putBoolean(Constants.SETTING_SHOW_DISCLAIMER, false);
           e.apply();
           home_startBackup(showRecovery, showIntro, prefs);
         }
@@ -287,7 +369,7 @@ public class HomeActivity extends EclairActivity {
         public void onClick(View v) {
           mStubBackup.setVisibility(View.GONE);
           SharedPreferences.Editor e = prefs.edit();
-          e.putBoolean("showRecovery", false);
+          e.putBoolean(Constants.SETTING_SHOW_RECOVERY, false);
           e.apply();
           home_startIntro(showIntro, prefs);
         }
@@ -301,15 +383,19 @@ public class HomeActivity extends EclairActivity {
           public void onClick(View v) {
             mStubBackup.setVisibility(View.GONE);
             SharedPreferences.Editor e = prefs.edit();
-            e.putBoolean("showRecovery", false);
+            e.putBoolean(Constants.SETTING_SHOW_RECOVERY, false);
             e.apply();
             home_startIntro(showIntro, prefs);
           }
         });
       }
-
-      ((TextView) findViewById(R.id.home_backup_text)).setText(Html.fromHtml(
-        getString(R.string.home_backup_text, app.getRecoveryPhrase())));
+      try {
+        ((TextView) findViewById(R.id.home_backup_text)).setText(Html.fromHtml(
+          getString(R.string.home_backup_text, app.getRecoveryPhrase())));
+      } catch (Exception e) {
+        Log.e(TAG, "Could not generate recovery phrase", e);
+        ((TextView) findViewById(R.id.home_backup_text)).setText("Could not generate recovery phrase...");
+      }
     } else {
       home_startIntro(showIntro, prefs);
     }
@@ -329,19 +415,25 @@ public class HomeActivity extends EclairActivity {
 
   public void home_doCheckRecoveryPhrase(View view) {
     view.clearFocus();
-    InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
-    imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-    EditText edit = (EditText) findViewById(R.id.home_backup_input);
+    final InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+    if (imm != null) {
+      imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+    final EditText edit = findViewById(R.id.home_backup_input);
     if (edit.getText() != null) {
-      String[] words = edit.getText().toString().split(" ");
-      if (words.length == 3
-        && app.checkWordRecoveryPhrase(recoveryPositions.get(0), words[0])
-        && app.checkWordRecoveryPhrase(recoveryPositions.get(1), words[1])
-        && app.checkWordRecoveryPhrase(recoveryPositions.get(2), words[2])) {
-        findViewById(R.id.home_backup_2).setVisibility(View.GONE);
-        findViewById(R.id.home_backup_skip).setVisibility(View.GONE);
-        findViewById(R.id.home_backup_success).setVisibility(View.VISIBLE);
-        return;
+      final String[] words = edit.getText().toString().split(" ");
+      try {
+        if (words.length == 3
+          && app.checkWordRecoveryPhrase(recoveryPositions.get(0), words[0])
+          && app.checkWordRecoveryPhrase(recoveryPositions.get(1), words[1])
+          && app.checkWordRecoveryPhrase(recoveryPositions.get(2), words[2])) {
+          findViewById(R.id.home_backup_2).setVisibility(View.GONE);
+          findViewById(R.id.home_backup_skip).setVisibility(View.GONE);
+          findViewById(R.id.home_backup_success).setVisibility(View.VISIBLE);
+          return;
+        }
+      } catch (Exception e) {
+        Log.e(TAG, "Could not check the recovery phrase", e);
       }
     }
     edit.setText("");
@@ -366,7 +458,7 @@ public class HomeActivity extends EclairActivity {
         if (introStep > 4) {
           mStubIntro.setVisibility(View.GONE);
           SharedPreferences.Editor e = prefs.edit();
-          e.putBoolean("showIntro", false);
+          e.putBoolean(Constants.SETTING_SHOW_INTRO, false);
           e.apply();
         } else {
           introWelcome.setVisibility(View.GONE);
@@ -448,14 +540,10 @@ public class HomeActivity extends EclairActivity {
   }
 
   public void home_doPasteURI(View view) {
-    String uri = readFromClipboard();
-    if (Validators.HOST_REGEX.matcher(uri).matches()) {
-      Intent intent = new Intent(getBaseContext(), OpenChannelActivity.class);
-      intent.putExtra(OpenChannelActivity.EXTRA_NEW_HOST_URI, uri);
-      startActivity(intent);
-    } else {
-      Toast.makeText(this, R.string.home_toast_openchannel_invalid, Toast.LENGTH_SHORT).show();
-    }
+    final String uri = readFromClipboard();
+    final Intent intent = new Intent(getBaseContext(), OpenChannelActivity.class);
+    intent.putExtra(OpenChannelActivity.EXTRA_NEW_HOST_URI, uri);
+    startActivity(intent);
   }
 
   public void home_doScanURI(View view) {
@@ -527,18 +615,27 @@ public class HomeActivity extends EclairActivity {
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void handleThrowableEvent(ThrowableFailureEvent event) {
     Log.e(TAG, "Event failed", event.getThrowable());
-    Toast.makeText(this, getString(R.string.generic_error), Toast.LENGTH_LONG);
   }
 
   @SuppressLint("SetTextI18n")
   private void updateBalance() {
-    LNBalanceUpdateEvent lnBalanceEvent = EventBus.getDefault().getStickyEvent(LNBalanceUpdateEvent.class);
-    long lnBalance = lnBalanceEvent == null ? 0 : lnBalanceEvent.total().amount();
-    WalletBalanceUpdateEvent walletBalanceEvent = EventBus.getDefault().getStickyEvent(WalletBalanceUpdateEvent.class);
-    long walletBalance = walletBalanceEvent == null ? 0 : package$.MODULE$.satoshi2millisatoshi(walletBalanceEvent.walletBalance).amount();
-    mTotalBalanceView.setAmountMsat(new MilliSatoshi(lnBalance + walletBalance));
-    mWalletBalanceView.setText(CoinUtils.formatAmountMilliBtc(new MilliSatoshi(walletBalance)) + " mBTC");
-    mLNBalanceView.setText(CoinUtils.formatAmountMilliBtc(new MilliSatoshi(lnBalance)) + " mBTC");
+    final LNBalanceUpdateEvent lnBalanceEvent = EventBus.getDefault().getStickyEvent(LNBalanceUpdateEvent.class);
+    final MilliSatoshi lnBalance = lnBalanceEvent == null ? new MilliSatoshi(0) : lnBalanceEvent.total();
+    final WalletBalanceUpdateEvent walletBalanceEvent = EventBus.getDefault().getStickyEvent(WalletBalanceUpdateEvent.class);
+    final MilliSatoshi walletBalance = walletBalanceEvent == null ? new MilliSatoshi(0) : package$.MODULE$.satoshi2millisatoshi(walletBalanceEvent.walletBalance);
+    mTotalBalanceView.setAmountMsat(new MilliSatoshi(lnBalance.amount() + walletBalance.amount()));
+    mOnchainBalanceView.setAmountMsat(walletBalance);
+    mLNBalanceView.setAmountMsat(lnBalance);
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN)
+  public void handleDisconnectionEvent(ElectrumClient.ElectrumDisconnected$ event) {
+    // mConnectionStatus.setVisibility(View.VISIBLE);
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN)
+  public void handleConnectionEvent(ElectrumClient.ElectrumConnected$ event) {
+    // mConnectionStatus.setVisibility(View.GONE);
   }
 
   private class HomePagerAdapter extends FragmentStatePagerAdapter {

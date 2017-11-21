@@ -40,22 +40,28 @@
       android:layout_height="wrap_content"
       android:background="@color/colorPrimary">
 
-      <android.support.design.widget.CollapsingToolbarLayout
-        android:id="@+id/home_collapsingTB"
+      <LinearLayout
+        android:id="@+id/home_balance"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@android:color/transparent">
+        android:background="?android:attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:orientation="vertical">
 
         <LinearLayout
+          android:id="@+id/home_topbar"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:orientation="horizontal"
           app:layout_collapseMode="pin">
 
-          <RelativeLayout
+          <LinearLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="1">
+            android:layout_weight="1"
+            android:gravity="start|center"
+            android:orientation="horizontal">
 
             <TextView
               android:layout_width="wrap_content"
@@ -73,7 +79,20 @@
               android:textSize="10sp"
               android:textStyle="bold" />
 
-          </RelativeLayout>
+            <TextView
+              android:id="@+id/home_connection_status"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_marginLeft="4dp"
+              android:visibility="gone"
+              android:alpha="0.7"
+              android:textColor="@color/white"
+              android:drawableEnd="@drawable/circle_red"
+              android:drawablePadding="4dp"
+              android:textAllCaps="true"
+              android:textSize="8sp" />
+
+          </LinearLayout>
 
           <RelativeLayout
             android:layout_width="wrap_content"
@@ -97,77 +116,63 @@
 
         </LinearLayout>
 
-      </android.support.design.widget.CollapsingToolbarLayout>
-
-      <RelativeLayout
-        android:id="@+id/home_balance"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:paddingBottom="18dp"
-        android:paddingLeft="24dp"
-        android:paddingRight="24dp"
-        android:paddingTop="0dp">
-
-        <fr.acinq.eclair.wallet.customviews.CoinAmountView
-          android:id="@+id/home_balance_total"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:layout_alignParentTop="true"
-          app:alignment="center"
-          app:amount_color="@color/white"
-          app:amount_size="42sp"
-          app:unit="mBTC"
-          app:unit_color="@color/white"
-          app:unit_size="12sp" />
-
         <RelativeLayout
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:layout_below="@+id/home_balance_total"
-          android:layout_centerHorizontal="true"
-          android:layout_marginTop="4dp"
-          android:alpha="0.75">
 
-          <ImageView
-            android:id="@+id/home_balance_wallet_label"
-            android:layout_width="12dp"
-            android:layout_height="12dp"
-            android:src="@drawable/icon_btc_shape_white" />
+          android:layout_width="match_parent"
+          android:layout_height="match_parent"
+          android:paddingBottom="16dp"
+          android:paddingLeft="24dp"
+          android:paddingRight="24dp"
+          android:paddingTop="8dp">
 
-          <TextView
-            android:id="@+id/home_balance_wallet_value"
+          <fr.acinq.eclair.wallet.customviews.CoinAmountView
+            android:id="@+id/home_balance_total"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="4dp"
-            android:layout_toEndOf="@+id/home_balance_wallet_label"
-            android:textColor="@color/white"
-            android:textSize="10sp"
-            android:textStyle="bold" />
+            android:layout_alignParentTop="true"
+            app:alignment="center"
+            app:amount_color="@color/white"
+            app:amount_size="42sp"
+            app:unit="mBTC"
+            app:unit_color="@color/white"
+            app:unit_size="12sp" />
 
-          <ImageView
-            android:id="@+id/home_balance_ln_label"
-            android:layout_width="12dp"
-            android:layout_height="12dp"
-            android:layout_alignEnd="@+id/home_balance_wallet_label"
-            android:layout_below="@+id/home_balance_wallet_label"
+          <fr.acinq.eclair.wallet.customviews.CoinAmountView
+            android:id="@+id/home_balance_onchain_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/home_balance_total"
             android:layout_marginTop="4dp"
-            android:src="@drawable/icon_bolt_shape_white" />
+            android:alpha="0.8"
+            app:alignment="center"
+            app:amount_bold="true"
+            app:amount_color="@color/white"
+            app:amount_size="11sp"
+            app:image_size="12dp"
+            app:image_src="@drawable/icon_btc_shape_white"
+            app:unit="mBTC"
+            app:unit_color="@color/white"
+            app:unit_size="10sp" />
 
-          <TextView
+          <fr.acinq.eclair.wallet.customviews.CoinAmountView
             android:id="@+id/home_balance_ln_value"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignTop="@+id/home_balance_ln_label"
-            android:layout_marginStart="4dp"
-            android:layout_toEndOf="@+id/home_balance_ln_label"
-            android:text="0 mBTC"
-            android:textColor="@color/white"
-            android:textSize="10sp"
-            android:textStyle="bold" />
+            android:layout_below="@+id/home_balance_onchain_value"
+            android:alpha="0.8"
+            app:alignment="center"
+            app:amount_bold="true"
+            app:amount_color="@color/white"
+            app:amount_size="11sp"
+            app:image_size="12dp"
+            app:image_src="@drawable/icon_bolt_shape_white"
+            app:unit="mBTC"
+            app:unit_color="@color/white"
+            app:unit_size="10sp" />
+
         </RelativeLayout>
 
-      </RelativeLayout>
-
+      </LinearLayout>
     </android.support.design.widget.AppBarLayout>
 
     <android.support.v4.view.ViewPager

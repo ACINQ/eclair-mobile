@@ -29,9 +29,9 @@ public class PaymentSuccessActivity extends EclairActivity {
     Intent intent = getIntent();
     String desc = intent.getStringExtra(EXTRA_PAYMENTSUCCESS_DESC);
 
-    mDescView = (TextView) findViewById(R.id.paymentsuccess_desc);
-    mCircleImage = (ImageView) findViewById(R.id.paymentsuccess_circle);
-    mCheckImage = (ImageView) findViewById(R.id.paymentsuccess_check);
+    mDescView = findViewById(R.id.paymentsuccess_desc);
+    mCircleImage = findViewById(R.id.paymentsuccess_circle);
+    mCheckImage = findViewById(R.id.paymentsuccess_check);
     mDescView.setText(desc);
     tada();
 

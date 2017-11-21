@@ -36,9 +36,9 @@ public class PaymentFailureActivity extends EclairActivity {
     mDetailedCause = intent.getStringExtra(EXTRA_PAYMENTFAILURE_DETAILED_CAUSE);
     mSimpleCause = intent.getStringExtra(EXTRA_PAYMENTFAILURE_CAUSE);
 
-    mSimpleCauseView = (TextView) findViewById(R.id.paymentfailure_simplecause);
-    mToggleDetailsButton = (TextView) findViewById(R.id.paymentfailure_button_toggle_details);
-    mDetailedCauseView = (TextView) findViewById(R.id.paymentfailure_detailed_cause);
+    mSimpleCauseView = findViewById(R.id.paymentfailure_simplecause);
+    mToggleDetailsButton = findViewById(R.id.paymentfailure_button_toggle_details);
+    mDetailedCauseView = findViewById(R.id.paymentfailure_detailed_cause);
     if (mDetailedCause != null && mDetailedCause.length() > 0) {
       mToggleDetailsButton.setVisibility(View.VISIBLE);
       mDetailedCauseView.setText(Html.fromHtml(mDetailedCause));
@@ -49,7 +49,7 @@ public class PaymentFailureActivity extends EclairActivity {
       mSimpleCauseView.setVisibility(View.VISIBLE);
     }
 
-    ImageView mSadImage = (ImageView) findViewById(R.id.paymentfailure_sad);
+    ImageView mSadImage = findViewById(R.id.paymentfailure_sad);
     mSadImage.setAlpha(0f);
     mSadImage.setScaleX(0.6f);
     mSadImage.setScaleY(0.6f);

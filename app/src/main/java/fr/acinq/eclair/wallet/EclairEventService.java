@@ -25,7 +25,7 @@ import fr.acinq.eclair.channel.NORMAL;
 import fr.acinq.eclair.channel.OFFLINE;
 import fr.acinq.eclair.channel.WAIT_FOR_INIT_INTERNAL;
 import fr.acinq.eclair.payment.PaymentSent;
-import fr.acinq.eclair.transactions.Htlc;
+import fr.acinq.eclair.transactions.DirectedHtlc;
 import fr.acinq.eclair.transactions.OUT$;
 import fr.acinq.eclair.wallet.events.ChannelUpdateEvent;
 import fr.acinq.eclair.wallet.events.LNBalanceUpdateEvent;
@@ -35,10 +35,11 @@ import fr.acinq.eclair.wallet.models.Payment;
 import fr.acinq.eclair.wallet.models.PaymentStatus;
 import fr.acinq.eclair.wallet.models.PaymentType;
 import fr.acinq.eclair.wallet.utils.CoinUtils;
-import fr.acinq.eclair.wire.ChannelAnnouncement;
-import fr.acinq.eclair.wire.NodeAnnouncement;
 import scala.collection.Iterator;
 
+/**
+ * This actor handles the messages sent by the Eclair node.
+ */
 public class EclairEventService extends UntypedActor {
 
   private DBHelper dbHelper;
@@ -54,6 +55,10 @@ public class EclairEventService extends UntypedActor {
     return channelDetailsMap;
   }
 
+  /**
+   * Sends a event containing the new Lightning balance of the channels in the Eclair node.
+   * The balance accounts for the state of its channel and thus can be of various type.
+   */
   public static void postLNBalanceEvent() {
     long availableTotal = 0;
     long pendingTotal = 0;
@@ -123,9 +128,9 @@ public class EclairEventService extends UntypedActor {
       ChannelSignatureReceived csr = (ChannelSignatureReceived) message;
       ChannelDetails cd = channelDetailsMap.get(csr.channel());
       long outHtlcsAmount = 0L;
-      Iterator<Htlc> htlcsIterator = csr.Commitments().localCommit().spec().htlcs().iterator();
+      Iterator<DirectedHtlc> htlcsIterator = csr.Commitments().localCommit().spec().htlcs().iterator();
       while (htlcsIterator.hasNext()) {
-        Htlc h = htlcsIterator.next();
+        DirectedHtlc h = htlcsIterator.next();
         if (h.direction() instanceof OUT$) {
           outHtlcsAmount += h.add().amountMsat();
         }

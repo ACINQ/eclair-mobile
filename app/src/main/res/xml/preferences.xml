@@ -1,0 +1,34 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+  <PreferenceCategory android:title="@string/prefs_cat_display">
+
+    <ListPreference
+      android:defaultValue="usd"
+      android:dialogTitle="@string/prefs_fiat_currency_dialog"
+      android:entries="@array/fiat_labels"
+      android:entryValues="@array/fiat_values"
+      android:key="fiat_currency"
+      android:summary="%s"
+      android:title="@string/prefs_fiat_currency" />
+
+    <ListPreference
+      android:defaultValue="mbtc"
+      android:dialogTitle="@string/prefs_btc_unit"
+      android:entries="@array/btc_unit_labels"
+      android:entryValues="@array/btc_unit_values"
+      android:key="btc_unit"
+      android:summary="%s"
+      android:title="@string/prefs_btc_unit" />
+  </PreferenceCategory>
+
+  <PreferenceCategory android:title="@string/prefs_cat_lightning">
+
+    <SwitchPreference
+      android:defaultValue="false"
+      android:enabled="false"
+      android:key="lightning_max_fee"
+      android:summary="@string/prefs_lightning_max_fee_desc"
+      android:title="@string/prefs_lightning_max_fee" />
+
+  </PreferenceCategory>
+</PreferenceScreen>

@@ -15,6 +15,7 @@
     android:layout_marginStart="8dp" />
 
   <RelativeLayout
+    android:id="@+id/paymentitem_content"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_centerVertical="true"
@@ -56,13 +57,13 @@
 
   <RelativeLayout
     android:id="@+id/paymentitem_amount"
-    android:layout_width="104dp"
-    android:layout_height="wrap_content"
+    android:layout_width="128dp"
+    android:layout_height="match_parent"
+    android:minWidth="40dp"
     android:layout_alignParentEnd="true"
     android:layout_centerVertical="true"
     android:layout_marginEnd="8dp"
-    android:gravity="end|center_vertical"
-    android:orientation="horizontal">
+    android:gravity="end|center_vertical">
 
     <TextView
       android:id="@+id/paymentitem_amount_value"
@@ -77,12 +78,11 @@
 
     <TextView
       android:id="@+id/paymentitem_amount_unit"
-      android:layout_width="wrap_content"
+      android:layout_width="24dp"
       android:layout_height="wrap_content"
       android:layout_alignBaseline="@+id/paymentitem_amount_value"
       android:layout_alignParentEnd="true"
-      android:text="@string/btc_milli_short"
-      android:textColor="@color/colorGrey_1"
+      android:textColor="@color/colorGrey_2"
       android:textSize="8sp" />
 
     <TextView
@@ -117,7 +117,6 @@
       android:layout_height="wrap_content"
       android:layout_alignBaseline="@+id/paymentitem_fees_value"
       android:layout_alignStart="@+id/paymentitem_amount_unit"
-      android:text="@string/btc_sat_short"
       android:textColor="@color/colorGrey_1"
       android:textSize="8sp"
       android:visibility="gone" />

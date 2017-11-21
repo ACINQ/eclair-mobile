@@ -13,7 +13,7 @@ public class LNInvoiceReaderTask extends AsyncTask<String, Integer, PaymentReque
   private static final String TAG = "LNInvoiceReaderTask";
   private final String invoiceAsString;
   private final AsyncInvoiceReaderTaskResponse delegate;
-  private final static List<String> LIGHTNING_PREFIXES = Arrays.asList("lightning://");
+  private final static List<String> LIGHTNING_PREFIXES = Arrays.asList("lightning:", "lightning://");
 
   public LNInvoiceReaderTask(AsyncInvoiceReaderTaskResponse delegate, String invoiceAsString) {
     this.delegate = delegate;

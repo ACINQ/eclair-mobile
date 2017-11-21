@@ -10,11 +10,11 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import org.bitcoinj.core.TransactionConfidence;
-
 import java.text.DateFormat;
+import java.text.NumberFormat;
 
 import fr.acinq.bitcoin.MilliSatoshi;
+import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.adapters.PaymentItemHolder;
 import fr.acinq.eclair.wallet.customviews.DataRow;
@@ -41,22 +41,20 @@ public class BitcoinTransactionDetailsActivity extends EclairActivity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_bitcoin_transaction_details);
 
-    Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+    Toolbar toolbar = findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
     ActionBar ab = getSupportActionBar();
     ab.setDisplayHomeAsUpEnabled(true);
 
-    mAmountPaidRow = (DataRow) findViewById(R.id.transactiondetails_amount);
-    mFeesRow = (DataRow) findViewById(R.id.transactiondetails_fees);
-    mPaymentHashRow = (DataRow) findViewById(R.id.transactiondetails_txid);
-    mUpdateDateRow = (DataRow) findViewById(R.id.transactiondetails_date);
-    mTxConfs = (DataRow) findViewById(R.id.transactiondetails_confs);
-    mTxConfsType = (DataRow) findViewById(R.id.transactiondetails_confs_type);
+    mAmountPaidRow = findViewById(R.id.transactiondetails_amount);
+    mFeesRow = findViewById(R.id.transactiondetails_fees);
+    mPaymentHashRow = findViewById(R.id.transactiondetails_txid);
+    mUpdateDateRow = findViewById(R.id.transactiondetails_date);
+    mTxConfs = findViewById(R.id.transactiondetails_confs);
+    mTxConfsType = findViewById(R.id.transactiondetails_confs_type);
     mOpenInExplorer = findViewById(R.id.open_in_explorer);
     mRebroadcastTxView = findViewById(R.id.transactiondetails_rebroadcast);
     mRebroadcastTxView.setVisibility(View.GONE);
-
-
   }
 
   @Override
@@ -89,17 +87,14 @@ public class BitcoinTransactionDetailsActivity extends EclairActivity {
       mRebroadcastDialog = builder.create();
 
       mAmountPaidRow.setValue(CoinUtils.formatAmountBtc(new MilliSatoshi(p.getAmountPaidMsat())));
-      mFeesRow.setValue(Long.toString(p.getFeesPaidMsat()));
+      mFeesRow.setValue(NumberFormat.getInstance().format(package$.MODULE$.millisatoshi2satoshi(new MilliSatoshi(p.getFeesPaidMsat())).amount()) + " sat");
       mPaymentHashRow.setValue(p.getReference());
       mUpdateDateRow.setValue(DateFormat.getDateTimeInstance().format(p.getUpdated()));
       mOpenInExplorer.setOnClickListener(WalletUtils.getOpenTxListener(p.getReference()));
-      mTxConfs.setValue(Integer.toString(p.getConfidenceBlocks()));
-      for (TransactionConfidence.ConfidenceType t : TransactionConfidence.ConfidenceType.values()) {
-        if (t.getValue() == p.getConfidenceType()) {
-          mTxConfsType.setValue(t.toString());
-          break;
-        }
-      }
+      final int txConfs = p.getConfidenceBlocks();
+      mTxConfs.setValue(txConfs > 6 ? "6+" : Integer.toString(txConfs));
+      // TODO confidence type should be human readable
+      mTxConfsType.setValue(Integer.toString(p.getConfidenceType()));
 
       if (p.getConfidenceBlocks() == 0) {
         mRebroadcastTxView.setVisibility(View.VISIBLE);
@@ -115,5 +110,4 @@ public class BitcoinTransactionDetailsActivity extends EclairActivity {
       finish();
     }
   }
-
 }

@@ -1,36 +1,39 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-  android:layout_width="match_parent"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  android:id="@+id/view_relative"
+  android:layout_width="wrap_content"
   android:layout_height="wrap_content"
   android:gravity="center">
 
-  <RelativeLayout
-    android:id="@+id/view_relative"
+  <ImageView
+    android:id="@+id/view_image"
+    android:layout_width="12dp"
+    android:layout_height="12dp"
+    android:layout_toStartOf="@+id/view_amount"
+    android:layout_centerVertical="true"
+    android:layout_marginRight="4dp"
+    android:visibility="gone" />
+
+  <TextView
+    android:id="@+id/view_amount"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:gravity="center">
+    android:layout_toStartOf="@+id/view_unit"
+    android:ellipsize="none"
+    android:fontFamily="sans-serif-light"
+    android:singleLine="true"
+    android:text="0,00"
+    android:textSize="30sp" />
 
-    <TextView
-      android:id="@+id/view_amount"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_toStartOf="@+id/view_unit"
-      android:ellipsize="none"
-      android:fontFamily="sans-serif-light"
-      android:maxLines="1"
-      android:text="0,00"
-      android:textSize="30sp" />
+  <TextView
+    android:id="@+id/view_unit"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_alignBaseline="@+id/view_amount"
+    android:layout_alignParentEnd="true"
+    android:fontFamily="sans-serif-light"
+    android:maxLines="1"
+    android:paddingEnd="0dp"
+    android:paddingStart="4dp"
+    android:text="@string/btc_milli_short" />
 
-    <TextView
-      android:id="@+id/view_unit"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_alignParentEnd="true"
-      android:layout_alignBaseline="@+id/view_amount"
-      android:fontFamily="sans-serif-light"
-      android:maxLines="1"
-      android:paddingStart="4dp"
-      android:paddingEnd="0dp"
-      android:text="@string/btc_milli_short" />
-
-  </RelativeLayout>
-</LinearLayout>
+</RelativeLayout>
