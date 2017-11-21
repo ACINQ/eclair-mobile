@@ -227,11 +227,10 @@
 
   <string name="about_general_title">About Eclair Wallet</string>
   <string name="about_general_text"><![CDATA[
-    <p>An advanced Lightning/Bitcoin mobile wallet by ACINQ. It connects directly to the Bitcoin
-    network and doesn\'t rely on external APIs, except for retrieving the current fee.</p>
-    <p>Eclair Wallet uses a modified, segwit-enabled version of bitcoinj for its bitcoin wallet.</p>
+    <p>An advanced Lightning/Bitcoin mobile wallet by ACINQ. It relies on Electrum servers for access to the Bitcoin network.</p>
+    <p>Fees are retrieved from https://bitcoinfees.earn.com. USD/EUR rates are retrieved from Coindesk API.</p>
     <p>This software is compliant with the BOLT specifications (Lightning Network standard).</p>
-    <p>Installed version: %1$s</p>
+    <p><b>Installed version: %1$s</b></p>
     ]]>
   </string>
   <string name="about_limitations_title">Software Limitations</string>
