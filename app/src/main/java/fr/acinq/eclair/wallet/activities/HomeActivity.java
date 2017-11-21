@@ -78,7 +78,7 @@ public class HomeActivity extends EclairActivity {
 
   public static final String EXTRA_PAGE = "fr.acinq.eclair.swordfish.EXTRA_PAGE";
   private static final String TAG = "Home Activity";
-  List<Integer> recoveryPositions = Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11);
+  List<Integer> recoveryPositions = Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23);
 
   private ViewPager mViewPager;
   private PaymentsListFragment mPaymentsListFragment;
