@@ -15,9 +15,9 @@ public class PaymentListItemAdapter extends RecyclerView.Adapter<PaymentItemHold
 
   private static final String TAG = "PaymentAdapter";
   private List<Payment> payments;
-  private double fiatRate = 0.0;
   private String fiatCode = Constants.FIAT_EURO;
   private String prefUnit = Constants.MILLI_BTC_CODE;
+  private boolean displayAmountAsFiat = false; // by default always show amounts in bitcoin
 
   public PaymentListItemAdapter(List<Payment> payments) {
     this.payments = payments;
@@ -32,7 +32,7 @@ public class PaymentListItemAdapter extends RecyclerView.Adapter<PaymentItemHold
   @Override
   public void onBindViewHolder(PaymentItemHolder holder, int position) {
     final Payment payment = this.payments.get(position);
-    holder.bindPaymentItem(payment, this.fiatRate, this.fiatCode, this.prefUnit);
+    holder.bindPaymentItem(payment, this.fiatCode, this.prefUnit, this.displayAmountAsFiat);
   }
 
   @Override
@@ -40,10 +40,10 @@ public class PaymentListItemAdapter extends RecyclerView.Adapter<PaymentItemHold
     return this.payments == null ? 0 : this.payments.size();
   }
 
-  public void update(List<Payment> payments, double fiatRate, String fiatCode, String prefUnit) {
-    this.fiatRate = fiatRate;
+  public void update(final List<Payment> payments, final String fiatCode, final String prefUnit, final boolean displayAmountAsFiat) {
     this.fiatCode = fiatCode;
     this.prefUnit = prefUnit;
+    this.displayAmountAsFiat = displayAmountAsFiat;
     if (payments == null) {
       this.payments = payments;
     } else {

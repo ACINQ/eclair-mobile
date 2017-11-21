@@ -195,10 +195,8 @@ public class CreatePaymentActivity extends EclairActivity
    */
   @SuppressLint("SetTextI18n")
   private void setFiatAmount(final MilliSatoshi amountMsat) {
-    final Double rate = preferredFiatCurrency.equals("eur") ? App.getEurRate() : App.getUsdRate();
-    final Double amountEur = package$.MODULE$.millisatoshi2btc(amountMsat).amount().doubleValue() * rate;
     mAmountReadonlyValue.setAmountMsat(amountMsat);
-    mAmountFiatView.setText(CoinUtils.getFiatFormat().format(amountEur) + " " + preferredFiatCurrency.toUpperCase());
+    mAmountFiatView.setText(CoinUtils.convertMsatToFiat(amountMsat.amount(), preferredFiatCurrency) + " " + preferredFiatCurrency.toUpperCase());
   }
 
   private void couldNotReadInvoice(final int causeMessageId) {

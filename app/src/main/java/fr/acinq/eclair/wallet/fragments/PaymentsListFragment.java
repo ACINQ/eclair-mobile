@@ -19,11 +19,11 @@ import java.util.List;
 
 import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.R;
+import fr.acinq.eclair.wallet.activities.HomeActivity;
 import fr.acinq.eclair.wallet.adapters.PaymentListItemAdapter;
 import fr.acinq.eclair.wallet.models.Payment;
 import fr.acinq.eclair.wallet.models.PaymentDao;
 import fr.acinq.eclair.wallet.utils.CoinUtils;
-import fr.acinq.eclair.wallet.utils.Constants;
 
 public class PaymentsListFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
@@ -45,19 +45,7 @@ public class PaymentsListFragment extends Fragment implements SwipeRefreshLayout
     super.onCreate(savedInstanceState);
     setHasOptionsMenu(false);
     this.mPaymentAdapter = new PaymentListItemAdapter(new ArrayList<Payment>());
-    prefListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
-      @SuppressLint("SetTextI18n")
-      @Override
-      public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        switch (key) {
-          case Constants.SETTING_BTC_UNIT:
-          case Constants.SETTING_SELECTED_FIAT_CURRENCY:
-            updateList();
-            break;
-          default :
-        }
-      }
-    };
+
   }
 
   @Override
@@ -118,9 +106,9 @@ public class PaymentsListFragment extends Fragment implements SwipeRefreshLayout
   public void updateList() {
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
     final String prefUnit = CoinUtils.getBtcPreferredUnit(prefs);
-    final String fiatCode = prefs.getString(Constants.SETTING_SELECTED_FIAT_CURRENCY, Constants.FIAT_EURO);
-    final double fiatRate = Constants.FIAT_EURO.equals(fiatCode) ? App.getEurRate() : App.getUsdRate();
-    mPaymentAdapter.update(getPayments(), fiatRate, fiatCode, prefUnit);
+    final String fiatCode = CoinUtils.getPreferredFiat(prefs);
+    final boolean displayBalanceAsFiat = CoinUtils.shouldDisplayInFiat(prefs);
+    mPaymentAdapter.update(getPayments(), fiatCode, prefUnit, displayBalanceAsFiat);
   }
 }
 

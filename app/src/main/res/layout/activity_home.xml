@@ -103,7 +103,9 @@
         android:id="@+id/home_balance"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingBottom="18dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:paddingBottom="16dp"
         android:paddingLeft="24dp"
         android:paddingRight="24dp"
         android:paddingTop="0dp">
@@ -120,51 +122,38 @@
           app:unit_color="@color/white"
           app:unit_size="12sp" />
 
-        <RelativeLayout
+        <fr.acinq.eclair.wallet.customviews.CoinAmountView
+          android:id="@+id/home_balance_onchain_value"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:layout_below="@+id/home_balance_total"
-          android:layout_centerHorizontal="true"
           android:layout_marginTop="4dp"
-          android:alpha="0.75">
+          android:alpha="0.8"
+          app:alignment="center"
+          app:amount_bold="true"
+          app:amount_color="@color/white"
+          app:amount_size="11sp"
+          app:image_size="12dp"
+          app:image_src="@drawable/icon_btc_shape_white"
+          app:unit="mBTC"
+          app:unit_color="@color/white"
+          app:unit_size="10sp" />
 
-          <ImageView
-            android:id="@+id/home_balance_wallet_label"
-            android:layout_width="12dp"
-            android:layout_height="12dp"
-            android:src="@drawable/icon_btc_shape_white" />
-
-          <TextView
-            android:id="@+id/home_balance_wallet_value"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="4dp"
-            android:layout_toEndOf="@+id/home_balance_wallet_label"
-            android:textColor="@color/white"
-            android:textSize="10sp"
-            android:textStyle="bold" />
-
-          <ImageView
-            android:id="@+id/home_balance_ln_label"
-            android:layout_width="12dp"
-            android:layout_height="12dp"
-            android:layout_alignEnd="@+id/home_balance_wallet_label"
-            android:layout_below="@+id/home_balance_wallet_label"
-            android:layout_marginTop="4dp"
-            android:src="@drawable/icon_bolt_shape_white" />
-
-          <TextView
-            android:id="@+id/home_balance_ln_value"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignTop="@+id/home_balance_ln_label"
-            android:layout_marginStart="4dp"
-            android:layout_toEndOf="@+id/home_balance_ln_label"
-            android:text="0 mBTC"
-            android:textColor="@color/white"
-            android:textSize="10sp"
-            android:textStyle="bold" />
-        </RelativeLayout>
+        <fr.acinq.eclair.wallet.customviews.CoinAmountView
+          android:id="@+id/home_balance_ln_value"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_below="@+id/home_balance_onchain_value"
+          android:alpha="0.8"
+          app:alignment="center"
+          app:amount_bold="true"
+          app:amount_color="@color/white"
+          app:amount_size="11sp"
+          app:image_size="12dp"
+          app:image_src="@drawable/icon_bolt_shape_white"
+          app:unit="mBTC"
+          app:unit_color="@color/white"
+          app:unit_size="10sp" />
 
       </RelativeLayout>
 

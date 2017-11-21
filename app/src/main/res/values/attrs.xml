@@ -6,11 +6,15 @@
       <enum name="center" value="1" />
       <enum name="right" value="2" />
     </attr>
+    <attr name="image_src" format="reference" />
+    <attr name="image_size" format="dimension" />
     <attr name="amount_size" format="dimension" />
     <attr name="amount_color" format="color" />
+    <attr name="amount_bold" format="boolean" />
     <attr name="unit" format="string" />
     <attr name="unit_size" format="dimension" />
     <attr name="unit_color" format="color" />
+    <attr name="unit_bold" format="boolean" />
   </declare-styleable>
   <declare-styleable name="DataRow">
     <attr name="label" />

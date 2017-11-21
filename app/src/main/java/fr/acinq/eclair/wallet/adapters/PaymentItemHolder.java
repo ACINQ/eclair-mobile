@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -39,7 +40,6 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
   private final TextView mAmountValue;
   private final TextView mAmountUnit;
   private Payment mPayment;
-  private boolean displayAmountAsFiat = false;
 
   public PaymentItemHolder(final View itemView) {
     super(itemView);
@@ -66,46 +66,30 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
   }
 
   @SuppressLint("SetTextI18n")
-  public void bindPaymentItem(final Payment payment, final double fiatRate, final String fiatCode, final String prefUnit) {
+  public void bindPaymentItem(final Payment payment, final String fiatCode, final String prefUnit, final boolean displayAmountAsFiat) {
     this.mPayment = payment;
-
+    Log.d(TAG, "bind payment display fiat=" + displayAmountAsFiat);
     if (payment.getUpdated() != null) {
       mDate.setText(DateFormat.getDateTimeInstance().format(payment.getUpdated()));
     }
 
     // amount should be the amount paid, fallback to requested (useful for LN)
-    final MilliSatoshi amountMsat = new MilliSatoshi(payment.getAmountPaidMsat() == 0
-      ? payment.getAmountRequestedMsat() : payment.getAmountPaidMsat());
+    final long amountMsat = payment.getAmountPaidMsat() == 0 ? payment.getAmountRequestedMsat() : payment.getAmountPaidMsat();
     // Adding a "-" prefix to the amount if this is an outgoing payment
     final String amountPrefix = PaymentDirection.SENT.equals(payment.getDirection()) ? "-" : "";
 
-    // setting amount & unit + interactive conversion to fiat
-    mAmountValue.setText(amountPrefix + CoinUtils.formatAmountInUnit(amountMsat, prefUnit));
-    mAmountUnit.setText(CoinUtils.getShortLabel(prefUnit));
-    mFees.setText(NumberFormat.getInstance().format(package$.MODULE$.millisatoshi2satoshi(new MilliSatoshi(payment.getFeesPaidMsat())).amount()));
-    mFeesUnit.setText(Constants.SATOSHI_CODE);
-    mAmountView.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(final View view) {
-        displayAmountAsFiat = !displayAmountAsFiat;
-        if (displayAmountAsFiat) {
-          if (fiatRate <= 0) {
-            // fiat rate not available for w/e reason
-            mAmountValue.setText(R.string.unknown);
-          } else {
-            mAmountValue.setText(amountPrefix + CoinUtils.getFiatFormat().format(package$.MODULE$.millisatoshi2btc(amountMsat).amount().doubleValue() * fiatRate));
-            mFees.setText(CoinUtils.getFiatFormat().format(package$.MODULE$.millisatoshi2btc(new MilliSatoshi(payment.getFeesPaidMsat())).amount().doubleValue() * fiatRate));
-          }
-          mFeesUnit.setText(fiatCode.toUpperCase());
-          mAmountUnit.setText(fiatCode.toUpperCase());
-        } else {
-          mAmountValue.setText(amountPrefix + CoinUtils.formatAmountInUnit(amountMsat, prefUnit));
-          mAmountUnit.setText(CoinUtils.getShortLabel(prefUnit));
-          mFees.setText(NumberFormat.getInstance().format(package$.MODULE$.millisatoshi2satoshi(new MilliSatoshi(payment.getFeesPaidMsat())).amount()));
-          mFeesUnit.setText(Constants.SATOSHI_CODE);
-        }
-      }
-    });
+    // setting amount & unit with optional conversion to fiat
+    if (displayAmountAsFiat) {
+      mAmountValue.setText(amountPrefix + CoinUtils.convertMsatToFiat(amountMsat, fiatCode));
+      mFees.setText(CoinUtils.convertMsatToFiat(payment.getFeesPaidMsat(), fiatCode));
+      mFeesUnit.setText(fiatCode.toUpperCase());
+      mAmountUnit.setText(fiatCode.toUpperCase());
+    } else {
+      mAmountValue.setText(amountPrefix + CoinUtils.formatAmountInUnit(new MilliSatoshi(amountMsat), prefUnit));
+      mAmountUnit.setText(CoinUtils.getShortLabel(prefUnit));
+      mFees.setText(NumberFormat.getInstance().format(package$.MODULE$.millisatoshi2satoshi(new MilliSatoshi(payment.getFeesPaidMsat())).amount()));
+      mFeesUnit.setText(Constants.SATOSHI_CODE);
+    }
 
     // Fees display & amount text color depends on payment direction
     if (PaymentDirection.RECEIVED.equals(payment.getDirection())) {

@@ -51,7 +51,6 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import akka.dispatch.OnComplete;
 import fr.acinq.bitcoin.MilliSatoshi;
-import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.EclairEventService;
@@ -70,7 +69,6 @@ import fr.acinq.eclair.wallet.fragments.PaymentsListFragment;
 import fr.acinq.eclair.wallet.fragments.ReceivePaymentFragment;
 import fr.acinq.eclair.wallet.utils.CoinUtils;
 import fr.acinq.eclair.wallet.utils.Constants;
-import fr.acinq.eclair.wallet.utils.Validators;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 import scala.concurrent.ExecutionContext;
 
@@ -91,9 +89,10 @@ public class HomeActivity extends EclairActivity {
   private ViewGroup mOpenChannelsButtonsView;
   private ViewGroup mOpenChannelButtonsToggleView;
   private FloatingActionButton mOpenChannelButton;
+  private View mBalanceView;
   private CoinAmountView mTotalBalanceView;
-  private TextView mWalletBalanceView;
-  private TextView mLNBalanceView;
+  private CoinAmountView mOnchainBalanceView;
+  private CoinAmountView mLNBalanceView;
   private ViewStub mStubBreakingChanges;
   private ViewStub mStubDisclaimer;
   private View mStubDisclaimerInflated;
@@ -129,9 +128,23 @@ public class HomeActivity extends EclairActivity {
     ab.setDisplayHomeAsUpEnabled(false);
     ab.setDisplayShowTitleEnabled(false);
 
+    final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+
+    mBalanceView = findViewById(R.id.home_balance);
     mTotalBalanceView = findViewById(R.id.home_balance_total);
-    mWalletBalanceView = findViewById(R.id.home_balance_wallet_value);
+    mOnchainBalanceView = findViewById(R.id.home_balance_onchain_value);
     mLNBalanceView = findViewById(R.id.home_balance_ln_value);
+    mBalanceView.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View view) {
+        boolean displayBalanceAsFiat = CoinUtils.shouldDisplayInFiat(prefs);
+        prefs.edit().putBoolean(Constants.SETTING_DISPLAY_IN_FIAT, !displayBalanceAsFiat).commit();
+        mOnchainBalanceView.refreshUnits();
+        mTotalBalanceView.refreshUnits();
+        mLNBalanceView.refreshUnits();
+        mPaymentsListFragment.updateList();
+      }
+    });
 
     mSendButtonsView = findViewById(R.id.home_send_buttons);
     mSendButtonsToggleView = findViewById(R.id.home_send_buttons_toggle);
@@ -178,15 +191,15 @@ public class HomeActivity extends EclairActivity {
     (new Thread(new Runnable() {
       @Override
       public void run() {
-        final SharedPreferences getPrefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+
         final boolean showDisclaimer = false;
-        final boolean showRecovery = getPrefs.getBoolean(Constants.SETTING_SHOW_RECOVERY, true);
-        final boolean showIntro = getPrefs.getBoolean(Constants.SETTING_SHOW_INTRO, true);
+        final boolean showRecovery = prefs.getBoolean(Constants.SETTING_SHOW_RECOVERY, true);
+        final boolean showIntro = prefs.getBoolean(Constants.SETTING_SHOW_INTRO, true);
         if (showDisclaimer || showRecovery || showIntro) {
           runOnUiThread(new Runnable() {
             @Override
             public void run() {
-              home_startDisclaimer(showDisclaimer, showRecovery, showIntro, getPrefs);
+              home_startDisclaimer(showDisclaimer, showRecovery, showIntro, prefs);
             }
           });
         }
@@ -256,7 +269,13 @@ public class HomeActivity extends EclairActivity {
     } else {
       enableSendButton();
     }
+    // starts refreshing the exchange rate
     mExchangeRateHandler.post(mExchangeRateRunnable);
+    // refresh balance after possible prefs change
+    mTotalBalanceView.refreshUnits();
+    mOnchainBalanceView.refreshUnits();
+    mLNBalanceView.refreshUnits();
+    // ask for LN balance
     EclairEventService.postLNBalanceEvent();
     Log.i(TAG, "Home.onResume done");
   }
@@ -591,18 +610,17 @@ public class HomeActivity extends EclairActivity {
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void handleThrowableEvent(ThrowableFailureEvent event) {
     Log.e(TAG, "Event failed", event.getThrowable());
-    Toast.makeText(this, getString(R.string.generic_error), Toast.LENGTH_LONG);
   }
 
   @SuppressLint("SetTextI18n")
   private void updateBalance() {
-    LNBalanceUpdateEvent lnBalanceEvent = EventBus.getDefault().getStickyEvent(LNBalanceUpdateEvent.class);
-    long lnBalance = lnBalanceEvent == null ? 0 : lnBalanceEvent.total().amount();
-    WalletBalanceUpdateEvent walletBalanceEvent = EventBus.getDefault().getStickyEvent(WalletBalanceUpdateEvent.class);
-    long walletBalance = walletBalanceEvent == null ? 0 : package$.MODULE$.satoshi2millisatoshi(walletBalanceEvent.walletBalance).amount();
-    mTotalBalanceView.setAmountMsat(new MilliSatoshi(lnBalance + walletBalance));
-    mWalletBalanceView.setText(CoinUtils.formatAmountMilliBtc(new MilliSatoshi(walletBalance)) + " mBTC");
-    mLNBalanceView.setText(CoinUtils.formatAmountMilliBtc(new MilliSatoshi(lnBalance)) + " mBTC");
+    final LNBalanceUpdateEvent lnBalanceEvent = EventBus.getDefault().getStickyEvent(LNBalanceUpdateEvent.class);
+    final MilliSatoshi lnBalance = lnBalanceEvent == null ? new MilliSatoshi(0) : lnBalanceEvent.total();
+    final WalletBalanceUpdateEvent walletBalanceEvent = EventBus.getDefault().getStickyEvent(WalletBalanceUpdateEvent.class);
+    final MilliSatoshi walletBalance = walletBalanceEvent == null ? new MilliSatoshi(0) : package$.MODULE$.satoshi2millisatoshi(walletBalanceEvent.walletBalance);
+    mTotalBalanceView.setAmountMsat(new MilliSatoshi(lnBalance.amount() + walletBalance.amount()));
+    mOnchainBalanceView.setAmountMsat(walletBalance);
+    mLNBalanceView.setAmountMsat(lnBalance);
   }
 
   private class HomePagerAdapter extends FragmentStatePagerAdapter {

@@ -14,6 +14,7 @@ import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.payment.PaymentRequest;
+import fr.acinq.eclair.wallet.App;
 
 import static fr.acinq.eclair.wallet.utils.Constants.MILLI_SATOSHI_CODE;
 import static fr.acinq.eclair.wallet.utils.Constants.SATOSHI_CODE;
@@ -38,6 +39,20 @@ public class CoinUtils {
       fiatFormat.setMaximumFractionDigits(2);
     }
     return fiatFormat;
+  }
+
+  public static boolean shouldDisplayInFiat(final SharedPreferences prefs) {
+    return prefs.getBoolean(Constants.SETTING_DISPLAY_IN_FIAT, false);
+  }
+
+  public static String getPreferredFiat(final SharedPreferences prefs) {
+    return prefs.getString(Constants.SETTING_SELECTED_FIAT_CURRENCY, Constants.FIAT_EURO);
+  }
+
+  public static String convertMsatToFiat(final long amountMsat, final String fiatCurrency) {
+    final double rate = Constants.FIAT_USD.equals(fiatCurrency) ? App.getUsdRate() : App.getEurRate();
+    if (rate <= 0) return "N/A";
+    return CoinUtils.getFiatFormat().format(package$.MODULE$.millisatoshi2btc(new MilliSatoshi(amountMsat)).amount().doubleValue() * rate);
   }
 
   public static String getBtcPreferredUnit(final SharedPreferences prefs) {

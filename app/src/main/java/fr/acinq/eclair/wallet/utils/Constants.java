@@ -13,13 +13,17 @@ public interface Constants {
   String SETTING_SHOW_RECOVERY = "showRecovery";
   String SETTING_SHOW_INTRO = "showIntro";
 
+  // currencies
   String SETTING_SELECTED_FIAT_CURRENCY = "fiat_currency";
   String FIAT_EURO = "eur";
   String FIAT_USD = "usd";
-
   String SETTING_BTC_UNIT = "btc_unit";
+  String SETTING_DISPLAY_IN_FIAT = "display_in_fiat";
+
+  // lightning
   String SETTING_LIGHTNING_MAX_FEE = "lightning_max_fee";
   String SETTING_LIGHTNING_MAX_FEE_VALUE = "lightning_max_fee_value";
+
 
   /* ----------- SETTINGS - PIN CODES ------------ */
 
