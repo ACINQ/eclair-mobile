@@ -8,8 +8,8 @@ android {
     applicationId "fr.acinq.eclair.wallet"
     minSdkVersion 21
     targetSdkVersion 26
-    versionCode 9
-    versionName "0.1.6"
+    versionCode 10
+    versionName "0.2.0"
     testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     multiDexEnabled true
   }
@@ -60,7 +60,7 @@ dependencies {
     exclude group: 'com.google.android', module: 'android'
   }
   // eclair core
-  compile 'fr.acinq.eclair:eclair-core_2.11:0.2-android-SNAPSHOT'
+  compile 'fr.acinq.eclair:eclair-core_2.11:0.2-android-alpha8'
   // database orm
   compile 'org.greenrobot:greendao:3.2.2'
   // required for greendao encryption, disabled for now

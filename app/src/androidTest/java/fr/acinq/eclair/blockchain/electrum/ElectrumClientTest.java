@@ -47,7 +47,7 @@ public class ElectrumClientTest {
         protected void run() {
 
           subject.tell(new ElectrumClient.AddStatusListener(getRef()), getRef());
-          expectMsgEquals(duration("1 second"), ElectrumClient.Ready$.MODULE$);
+          expectMsgEquals(duration("1 second"), ElectrumClient.ElectrumReady$.MODULE$);
         }
       };
 
