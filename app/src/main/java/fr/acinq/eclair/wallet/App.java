@@ -25,9 +25,12 @@ import akka.actor.Props;
 import akka.dispatch.OnComplete;
 import akka.pattern.Patterns;
 import akka.util.Timeout;
+import fr.acinq.bitcoin.Base58;
+import fr.acinq.bitcoin.Base58Check;
 import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.bitcoin.Crypto;
 import fr.acinq.bitcoin.Satoshi;
+import fr.acinq.bitcoin.Script;
 import fr.acinq.bitcoin.Transaction;
 import fr.acinq.eclair.DBCompatChecker;
 import fr.acinq.eclair.Globals;
@@ -210,14 +213,21 @@ public class App extends Application {
   }
 
   /**
-   * Checks if the bitcoin address parameters match with the wallet's network parameters. For example, if the
-   * address is a Testnet address and the wallet runs on Livenet, it will return false.
+   * Checks if the bitcoin address parameters match with the wallet's chain.
    *
    * @param address bitcoin public address
-   * @return false if the parameters do not match.
+   * @return false if address chain does not match the wallet's.
    */
   public boolean checkAddressParameters(final String address) {
-    return true; // FIXME wallet.getNetworkParameters() == address.getParameters();
+    try {
+      Object byte1 = Base58Check.decode(address)._1();
+      boolean isTestNet = byte1.equals(Base58.Prefix$.MODULE$.PubkeyAddressTestnet()) || byte1.equals(Base58.Prefix$.MODULE$.ScriptAddressTestnet());
+      boolean isMainNet = byte1.equals(Base58.Prefix$.MODULE$.PubkeyAddress()) || byte1.equals(Base58.Prefix$.MODULE$.ScriptAddress());
+      return isTestNet;
+    } catch (Throwable t) {
+      Log.e(TAG, "Could not check address parameter", t);
+    }
+    return false;
   }
 
   public ElectrumEclairWallet getWallet() {
