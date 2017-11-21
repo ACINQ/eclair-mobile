@@ -90,6 +90,9 @@ public class PaymentsListFragment extends Fragment implements SwipeRefreshLayout
    * @return list of payments
    */
   private List<Payment> getPayments() {
+
+    if (getActivity() == null || getActivity().getApplication() == null) return new ArrayList<>();
+
     final List<Payment> list = ((App) getActivity().getApplication()).getDBHelper().getDaoSession().getPaymentDao()
       .queryBuilder().orderDesc(PaymentDao.Properties.Updated).limit(100).list();
 
@@ -101,6 +104,14 @@ public class PaymentsListFragment extends Fragment implements SwipeRefreshLayout
       }
     }
     return list;
+  }
+
+  public void refreshList() {
+    final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+    final String prefUnit = CoinUtils.getBtcPreferredUnit(prefs);
+    final String fiatCode = CoinUtils.getPreferredFiat(prefs);
+    final boolean displayBalanceAsFiat = CoinUtils.shouldDisplayInFiat(prefs);
+    mPaymentAdapter.update(fiatCode, prefUnit, displayBalanceAsFiat);
   }
 
   public void updateList() {

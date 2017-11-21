@@ -40,13 +40,17 @@ public class PaymentListItemAdapter extends RecyclerView.Adapter<PaymentItemHold
     return this.payments == null ? 0 : this.payments.size();
   }
 
+  public void update(final String fiatCode, final String prefUnit, final boolean displayAmountAsFiat) {
+    update(this.payments, fiatCode, prefUnit, displayAmountAsFiat);
+  }
+
   public void update(final List<Payment> payments, final String fiatCode, final String prefUnit, final boolean displayAmountAsFiat) {
     this.fiatCode = fiatCode;
     this.prefUnit = prefUnit;
     this.displayAmountAsFiat = displayAmountAsFiat;
     if (payments == null) {
       this.payments = payments;
-    } else {
+    } else if (!this.payments.equals(payments)) {
       this.payments.clear();
       this.payments.addAll(payments);
     }

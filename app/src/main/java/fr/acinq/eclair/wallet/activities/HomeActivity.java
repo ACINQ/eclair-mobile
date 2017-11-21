@@ -147,7 +147,7 @@ public class HomeActivity extends EclairActivity {
         mOnchainBalanceView.refreshUnits();
         mTotalBalanceView.refreshUnits();
         mLNBalanceView.refreshUnits();
-        mPaymentsListFragment.updateList();
+        mPaymentsListFragment.refreshList();
       }
     });
 
