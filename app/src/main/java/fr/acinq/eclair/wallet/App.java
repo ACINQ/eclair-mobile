@@ -35,6 +35,7 @@ import fr.acinq.eclair.Kit;
 import fr.acinq.eclair.Setup;
 import fr.acinq.eclair.blockchain.EclairWallet;
 import fr.acinq.eclair.blockchain.electrum.ElectrumEclairWallet;
+import fr.acinq.eclair.blockchain.electrum.ElectrumWallet;
 import fr.acinq.eclair.channel.ChannelEvent;
 import fr.acinq.eclair.io.Switchboard;
 import fr.acinq.eclair.payment.PaymentEvent;
@@ -142,6 +143,15 @@ public class App extends Application {
     mNotificationManager.notify(notificationEvent.tag, notificationEvent.id, notification.build());
   }
 
+  private String walletAddress = "N/A";
+  @Subscribe(threadMode = ThreadMode.MAIN)
+  public void handleNewWalletAddreess(final ElectrumWallet.NewWalletReceiveAddress addressEvent) {
+    walletAddress = addressEvent.address();
+  }
+  public String getWalletAddress() {
+    return this.walletAddress;
+  }
+
   public Future<Object> fAtCurrentBlockHeight() {
     return pAtCurrentHeight.future();
   }
@@ -243,16 +253,6 @@ public class App extends Application {
    */
   public String nodePublicKey() {
     return eclairKit.nodeParams().privateKey().publicKey().toBin().toString();
-  }
-
-  /**
-   * Returns the onchain public address. Throws an exception if the wallet does not answer after 500ms.
-   *
-   * @return
-   * @throws Exception
-   */
-  public String getOnchainPublicAddress() throws Exception {
-    return Await.result(electrumWallet.getFinalAddress(), Duration.create(500, "milliseconds"));
   }
 
   /**

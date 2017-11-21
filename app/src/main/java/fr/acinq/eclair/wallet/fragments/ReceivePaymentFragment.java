@@ -15,8 +15,15 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
+import fr.acinq.eclair.blockchain.electrum.ElectrumWallet;
 import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.R;
+import fr.acinq.eclair.wallet.events.ChannelUpdateEvent;
+import fr.acinq.eclair.wallet.events.WalletBalanceUpdateEvent;
 import fr.acinq.eclair.wallet.tasks.QRCodeTask;
 
 public class ReceivePaymentFragment extends Fragment implements QRCodeTask.AsyncQRCodeResponse {
@@ -24,7 +31,6 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
   private View mView;
   private ImageView mQRImageView;
   private TextView mAddressTextView;
-  private String address;
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -35,18 +41,37 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
   @Override
   public void onResume() {
     super.onResume();
-    try {
-      address = ((App) getActivity().getApplication()).getOnchainPublicAddress();
-      mAddressTextView.setText(address);
-      new QRCodeTask(this, address, 700, 700).execute();
-    } catch (Exception e) {
-      Log.e(TAG, "Could not retrieve onchain public address " + e.getMessage());
-      mAddressTextView.setText("Error when retrieving wallet's address.");
+    if (!EventBus.getDefault().isRegistered(this)) {
+      EventBus.getDefault().register(this);
     }
+    displayAddress();
   }
 
   @Override
-  public View onCreateView(LayoutInflater inflater, ViewGroup container,
+  public void onPause() {
+    EventBus.getDefault().unregister(this);
+    super.onPause();
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN)
+  public void handleNewWalletAddreess(final ElectrumWallet.NewWalletReceiveAddress addressEvent) {
+    displayAddress();
+  }
+
+  private void displayAddress() {
+
+        mAddressTextView.setText(getAddress());
+        new QRCodeTask(this, getAddress(), 700, 700).execute();
+  }
+
+  private String getAddress() {
+    if (getActivity() != null && getActivity().getApplication() != null) {
+      return ((App) getActivity().getApplication()).getWalletAddress();
+    } else return "Not available";
+  }
+
+  @Override
+  public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
                            Bundle savedInstanceState) {
     mView = inflater.inflate(R.layout.fragment_receive_payment, container, false);
     mQRImageView = mView.findViewById(R.id.receivepayment_qr);
@@ -55,7 +80,7 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
   }
 
   @Override
-  public void processFinish(Bitmap output) {
+  public void processFinish(final Bitmap output) {
     if (output != null) {
       mQRImageView.setImageBitmap(output);
     }
@@ -63,7 +88,7 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
 
   public void copyReceptionAddress() {
     ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
-    clipboard.setPrimaryClip(ClipData.newPlainText("Bitcoin address", address));
+    clipboard.setPrimaryClip(ClipData.newPlainText("Bitcoin address", getAddress()));
     Toast.makeText(this.getContext(), "Copied address to clipboard", Toast.LENGTH_SHORT).show();
   }
 }
