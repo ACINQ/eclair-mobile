@@ -1,6 +1,5 @@
 package fr.acinq.eclair.wallet.adapters;
 
-import android.preference.PreferenceManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,11 +9,15 @@ import java.util.List;
 
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.models.Payment;
-import fr.acinq.eclair.wallet.utils.CoinUtils;
+import fr.acinq.eclair.wallet.utils.Constants;
 
 public class PaymentListItemAdapter extends RecyclerView.Adapter<PaymentItemHolder> {
 
+  private static final String TAG = "PaymentAdapter";
   private List<Payment> payments;
+  private double fiatRate = 0.0;
+  private String fiatCode = Constants.FIAT_EURO;
+  private String prefUnit = Constants.MILLI_BTC_CODE;
 
   public PaymentListItemAdapter(List<Payment> payments) {
     this.payments = payments;
@@ -23,14 +26,13 @@ public class PaymentListItemAdapter extends RecyclerView.Adapter<PaymentItemHold
   @Override
   public PaymentItemHolder onCreateViewHolder(ViewGroup parent, int viewType) {
     final View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_payment, parent, false);
-    final String prefUnit = CoinUtils.getBtcPreferredUnit(PreferenceManager.getDefaultSharedPreferences(view.getContext()));
-    return new PaymentItemHolder(view, prefUnit);
+    return new PaymentItemHolder(view);
   }
 
   @Override
   public void onBindViewHolder(PaymentItemHolder holder, int position) {
-    Payment payment = this.payments.get(position);
-    holder.bindPaymentItem(payment);
+    final Payment payment = this.payments.get(position);
+    holder.bindPaymentItem(payment, this.fiatRate, this.fiatCode, this.prefUnit);
   }
 
   @Override
@@ -38,7 +40,10 @@ public class PaymentListItemAdapter extends RecyclerView.Adapter<PaymentItemHold
     return this.payments == null ? 0 : this.payments.size();
   }
 
-  public void update(List<Payment> payments) {
+  public void update(List<Payment> payments, double fiatRate, String fiatCode, String prefUnit) {
+    this.fiatRate = fiatRate;
+    this.fiatCode = fiatCode;
+    this.prefUnit = prefUnit;
     if (payments == null) {
       this.payments = payments;
     } else {

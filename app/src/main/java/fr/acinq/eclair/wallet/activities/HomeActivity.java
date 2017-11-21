@@ -53,6 +53,7 @@ import akka.dispatch.OnComplete;
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.bitcoin.package$;
+import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.EclairEventService;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.customviews.CoinAmountView;
@@ -218,7 +219,7 @@ public class HomeActivity extends EclairActivity {
             JSONObject bpi = response.getJSONObject("bpi");
             JSONObject eur = bpi.getJSONObject("EUR");
             JSONObject usd = bpi.getJSONObject("USD");
-            app.updateExchangeRate(eur.getDouble("rate_float"), usd.getDouble("rate_float"));
+            App.updateExchangeRate(eur.getDouble("rate_float"), usd.getDouble("rate_float"));
           } catch (JSONException e) {
             Log.e("ExchangeRate", "Could not read coindesk response", e);
           }

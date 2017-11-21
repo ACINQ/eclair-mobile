@@ -12,7 +12,11 @@ public interface Constants {
   String SETTING_SHOW_DISCLAIMER = "showDisclaimer";
   String SETTING_SHOW_RECOVERY = "showRecovery";
   String SETTING_SHOW_INTRO = "showIntro";
+
   String SETTING_SELECTED_FIAT_CURRENCY = "fiat_currency";
+  String FIAT_EURO = "eur";
+  String FIAT_USD = "usd";
+
   String SETTING_BTC_UNIT = "btc_unit";
   String SETTING_LIGHTNING_MAX_FEE = "lightning_max_fee";
   String SETTING_LIGHTNING_MAX_FEE_VALUE = "lightning_max_fee_value";
@@ -31,5 +35,6 @@ public interface Constants {
   String SATOSHI_CODE = "sat";
   String MILLI_BTC_CODE = "mbtc";
   String BTC_CODE = "btc";
+
 
 }

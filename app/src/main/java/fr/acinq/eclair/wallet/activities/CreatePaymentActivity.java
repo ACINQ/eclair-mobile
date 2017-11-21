@@ -36,6 +36,7 @@ import fr.acinq.eclair.payment.PaymentLifecycle;
 import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.payment.PaymentSucceeded;
 import fr.acinq.eclair.payment.RemoteFailure;
+import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.EclairEventService;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.customviews.CoinAmountView;
@@ -194,7 +195,7 @@ public class CreatePaymentActivity extends EclairActivity
    */
   @SuppressLint("SetTextI18n")
   private void setFiatAmount(final MilliSatoshi amountMsat) {
-    Double rate = preferredFiatCurrency.equals("eur") ? app.getEurRate() : app.getUsdRate();
+    final Double rate = preferredFiatCurrency.equals("eur") ? App.getEurRate() : App.getUsdRate();
     final Double amountEur = package$.MODULE$.millisatoshi2btc(amountMsat).amount().doubleValue() * rate;
     mAmountReadonlyValue.setAmountMsat(amountMsat);
     mAmountFiatView.setText(CoinUtils.getFiatFormat().format(amountEur) + " " + preferredFiatCurrency.toUpperCase());
@@ -253,7 +254,7 @@ public class CreatePaymentActivity extends EclairActivity
     setContentView(R.layout.activity_create_payment);
 
     final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-    preferredFiatCurrency = sharedPref.getString(Constants.SETTING_SELECTED_FIAT_CURRENCY, "eur");
+    preferredFiatCurrency = sharedPref.getString(Constants.SETTING_SELECTED_FIAT_CURRENCY, Constants.FIAT_EURO);
     maxFeeLightning = sharedPref.getBoolean(Constants.SETTING_LIGHTNING_MAX_FEE, true);
     maxFeeLightningValue = sharedPref.getInt(Constants.SETTING_LIGHTNING_MAX_FEE_VALUE, 1);
 

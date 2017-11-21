@@ -15,11 +15,14 @@ import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.payment.PaymentRequest;
 
+import static fr.acinq.eclair.wallet.utils.Constants.MILLI_SATOSHI_CODE;
+import static fr.acinq.eclair.wallet.utils.Constants.SATOSHI_CODE;
+
 public class CoinUtils {
 
-  private static final String TAG = "CoinUtils";
   public final static String BTC_PATTERN = "###,##0.000#####";
   public final static String MILLI_BTC_PATTERN = "###,##0.00";
+  private static final String TAG = "CoinUtils";
   private static DecimalFormat btcFormat;
   private static DecimalFormat milliBtcFormat;
   private static NumberFormat fiatFormat;
@@ -46,7 +49,7 @@ public class CoinUtils {
    * set in the user preferences.
    *
    * @param amount Bitcoin amount, should be {@link MilliSatoshi}, {@link Satoshi}, {@link MilliBtc} or {@link Btc}
-   * @param prefs user default preferences
+   * @param prefs  user default preferences
    * @return formatted String
    */
   public static String formatAmountInUnit(final BtcAmount amount, final SharedPreferences prefs) {
@@ -57,7 +60,7 @@ public class CoinUtils {
    * Returns a localized formatted string representing the bitcoin amount converted to the btc unit.
    *
    * @param amount Bitcoin amount, should be {@link MilliSatoshi}, {@link Satoshi}, {@link MilliBtc} or {@link Btc}
-   * @param unit unit to convert amount to
+   * @param unit   unit to convert amount to
    * @return formatted String
    */
   public static String formatAmountInUnit(final BtcAmount amount, final String unit) {
@@ -67,9 +70,9 @@ public class CoinUtils {
     if (amount instanceof MilliSatoshi) {
       final MilliSatoshi amountMsat = (MilliSatoshi) amount;
       switch (unit) {
-        case Constants.MILLI_SATOSHI_CODE:
+        case MILLI_SATOSHI_CODE:
           return satoshiFormat.format(amountMsat.amount());
-        case Constants.SATOSHI_CODE:
+        case SATOSHI_CODE:
           return satoshiFormat.format(package$.MODULE$.millisatoshi2satoshi(amountMsat).amount());
         case Constants.MILLI_BTC_CODE:
           return getMilliBTCFormat().format(package$.MODULE$.millisatoshi2millibtc(amountMsat).amount());
@@ -79,9 +82,9 @@ public class CoinUtils {
     } else if (amount instanceof Satoshi) {
       final Satoshi amountSat = (Satoshi) amount;
       switch (unit) {
-        case Constants.MILLI_SATOSHI_CODE:
+        case MILLI_SATOSHI_CODE:
           return satoshiFormat.format(package$.MODULE$.satoshi2millisatoshi(amountSat).amount());
-        case Constants.SATOSHI_CODE:
+        case SATOSHI_CODE:
           return satoshiFormat.format(amountSat.amount());
         case Constants.MILLI_BTC_CODE:
           return getMilliBTCFormat().format(package$.MODULE$.satoshi2millibtc(amountSat).amount());
@@ -91,21 +94,22 @@ public class CoinUtils {
     } else if (amount instanceof MilliBtc) {
       final MilliBtc amountMbtc = (MilliBtc) amount;
       switch (unit) {
-        case Constants.MILLI_SATOSHI_CODE:
+        case MILLI_SATOSHI_CODE:
           return satoshiFormat.format(package$.MODULE$.millibtc2millisatoshi(amountMbtc).amount());
-        case Constants.SATOSHI_CODE:
+        case SATOSHI_CODE:
           return satoshiFormat.format(package$.MODULE$.millibtc2satoshi(amountMbtc).amount());
         case Constants.MILLI_BTC_CODE:
           return getMilliBTCFormat().format(amountMbtc.amount());
         case Constants.BTC_CODE:
           return getBTCFormat().format(package$.MODULE$.millibtc2btc(amountMbtc).amount());
       }
-    } if (amount instanceof Btc) {
+    }
+    if (amount instanceof Btc) {
       final Btc amountBtc = (Btc) amount;
       switch (unit) {
-        case Constants.MILLI_SATOSHI_CODE:
+        case MILLI_SATOSHI_CODE:
           return satoshiFormat.format(package$.MODULE$.btc2millisatoshi(amountBtc).amount());
-        case Constants.SATOSHI_CODE:
+        case SATOSHI_CODE:
           return satoshiFormat.format(package$.MODULE$.btc2satoshi(amountBtc).amount());
         case Constants.MILLI_BTC_CODE:
           return getMilliBTCFormat().format(package$.MODULE$.btc2millibtc(amountBtc).amount());
@@ -156,6 +160,7 @@ public class CoinUtils {
   public static String formatAmountMilliBtc(MilliSatoshi amount) {
     return CoinUtils.getMilliBTCFormat().format(package$.MODULE$.millisatoshi2millibtc(amount).amount());
   }
+
   public static String formatAmountBtc(MilliSatoshi amount) {
     return CoinUtils.getBTCFormat().format(package$.MODULE$.millisatoshi2btc(amount).amount());
   }
@@ -168,5 +173,24 @@ public class CoinUtils {
   public static Satoshi parseMilliSatoshiAmount(String input) {
     long amount = new BigDecimal(input).movePointRight(8).divide(BigDecimal.valueOf(1000)).longValueExact();
     return new Satoshi(amount);
+  }
+
+  /**
+   * Get the short label of a bitcoin unit
+   *
+   * @param code
+   * @return
+   */
+  public static String getShortLabel(final String code) {
+    switch (code) {
+      case Constants.MILLI_SATOSHI_CODE:
+        return "mSat";
+      case Constants.MILLI_BTC_CODE:
+        return "mBTC";
+      case Constants.BTC_CODE:
+        return "BTC";
+      default:
+    }
+    return code;
   }
 }

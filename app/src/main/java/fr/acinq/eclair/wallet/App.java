@@ -59,11 +59,10 @@ public class App extends Application {
   public final static String DATADIR_NAME = "eclair-wallet-data";
   public final ActorSystem system = ActorSystem.apply("system");
   private final Promise<Object> pAtCurrentHeight = akka.dispatch.Futures.promise();
-  private final ExchangeRate exchangeRate = new ExchangeRate();
+  private final static ExchangeRate exchangeRate = new ExchangeRate();
   private DBHelper dbHelper;
   private ElectrumEclairWallet electrumWallet;
   private ActorRef wallet;
-  private ActorRef paymentSupervisor;
   private Kit eclairKit;
   private boolean isDBCompatible = true;
 
@@ -89,7 +88,7 @@ public class App extends Application {
       pAtCurrentHeight.success(null);
       electrumWallet = (fr.acinq.eclair.blockchain.electrum.ElectrumEclairWallet) eclairKit.wallet();
       wallet = electrumWallet.wallet();
-      paymentSupervisor = system.actorOf(Props.create(PaymentSupervisor.class, this, wallet), "payments");
+      system.actorOf(Props.create(PaymentSupervisor.class, this, wallet), "payments");
 
       try {
         DBCompatChecker.checkDBCompatibility(setup.nodeParams());
@@ -338,9 +337,9 @@ public class App extends Application {
    * @param eurRate value of 1 BTC in EURO
    * @param usdRate value of 1 BTC in USD
    */
-  public void updateExchangeRate(final Double eurRate, final Double usdRate) {
-    this.exchangeRate.eurRate = eurRate;
-    this.exchangeRate.usdRate = usdRate;
+  public static void updateExchangeRate(final Double eurRate, final Double usdRate) {
+    exchangeRate.eurRate = eurRate;
+    exchangeRate.usdRate = usdRate;
   }
 
   /**
@@ -348,8 +347,8 @@ public class App extends Application {
    *
    * @return
    */
-  public Double getEurRate() {
-    return this.exchangeRate.eurRate;
+  public static Double getEurRate() {
+    return exchangeRate.eurRate;
   }
 
   /**
@@ -357,8 +356,8 @@ public class App extends Application {
    *
    * @return
    */
-  public Double getUsdRate() {
-    return this.exchangeRate.usdRate;
+  public static Double getUsdRate() {
+    return exchangeRate.usdRate;
   }
 
   private static class ExchangeRate {

@@ -1,6 +1,9 @@
 package fr.acinq.eclair.wallet.fragments;
 
+import android.annotation.SuppressLint;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -19,13 +22,17 @@ import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.adapters.PaymentListItemAdapter;
 import fr.acinq.eclair.wallet.models.Payment;
 import fr.acinq.eclair.wallet.models.PaymentDao;
+import fr.acinq.eclair.wallet.utils.CoinUtils;
+import fr.acinq.eclair.wallet.utils.Constants;
 
 public class PaymentsListFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
+  private static final String TAG = "PaymentListFrag";
   private View mView;
   private PaymentListItemAdapter mPaymentAdapter;
   private SwipeRefreshLayout mRefreshLayout;
   private TextView mEmptyLabel;
+  private SharedPreferences.OnSharedPreferenceChangeListener prefListener;
 
   @Override
   public void onRefresh() {
@@ -38,12 +45,36 @@ public class PaymentsListFragment extends Fragment implements SwipeRefreshLayout
     super.onCreate(savedInstanceState);
     setHasOptionsMenu(false);
     this.mPaymentAdapter = new PaymentListItemAdapter(new ArrayList<Payment>());
+    prefListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+      @SuppressLint("SetTextI18n")
+      @Override
+      public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        switch (key) {
+          case Constants.SETTING_BTC_UNIT:
+          case Constants.SETTING_SELECTED_FIAT_CURRENCY:
+            updateList();
+            break;
+          default :
+        }
+      }
+    };
   }
 
   @Override
   public void onResume() {
     super.onResume();
+    if (getActivity() != null && prefListener != null) {
+      PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext()).registerOnSharedPreferenceChangeListener(prefListener);
+    }
     updateList();
+  }
+
+  @Override
+  public void onPause() {
+    super.onPause();
+    if (getActivity() != null && prefListener != null) {
+      PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext()).unregisterOnSharedPreferenceChangeListener(prefListener);
+    }
   }
 
   @Override
@@ -65,7 +96,7 @@ public class PaymentsListFragment extends Fragment implements SwipeRefreshLayout
 
   /**
    * Fetches the last 100 payments from DB, ordered by update date (desc).
-   *
+   * <p>
    * TODO seek + infinite scroll
    *
    * @return list of payments
@@ -85,9 +116,11 @@ public class PaymentsListFragment extends Fragment implements SwipeRefreshLayout
   }
 
   public void updateList() {
-    if (getActivity() != null && getActivity().getApplication() != null) {
-      mPaymentAdapter.update(getPayments());
-    }
+    final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+    final String prefUnit = CoinUtils.getBtcPreferredUnit(prefs);
+    final String fiatCode = prefs.getString(Constants.SETTING_SELECTED_FIAT_CURRENCY, Constants.FIAT_EURO);
+    final double fiatRate = Constants.FIAT_EURO.equals(fiatCode) ? App.getEurRate() : App.getUsdRate();
+    mPaymentAdapter.update(getPayments(), fiatRate, fiatCode, prefUnit);
   }
-
 }
+
