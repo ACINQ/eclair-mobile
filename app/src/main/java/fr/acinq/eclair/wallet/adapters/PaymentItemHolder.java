@@ -68,7 +68,7 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
   @SuppressLint("SetTextI18n")
   public void bindPaymentItem(final Payment payment, final String fiatCode, final String prefUnit, final boolean displayAmountAsFiat) {
     this.mPayment = payment;
-    Log.d(TAG, "bind payment display fiat=" + displayAmountAsFiat);
+
     if (payment.getUpdated() != null) {
       mDate.setText(DateFormat.getDateTimeInstance().format(payment.getUpdated()));
     }

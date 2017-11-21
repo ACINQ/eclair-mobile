@@ -93,7 +93,7 @@ public class OpenChannelActivity extends EclairActivity {
         || parsedAmountSat >= Validators.MAX_FUNDING_SAT) {
         toggleError(R.string.openchannel_capacity_invalid);
         return false;
-      } else if (parsedAmountSat + 100000 > app.getOnchainBalanceSat().amount()) {
+      } else if (parsedAmountSat + 100000 > app.onChainBalance.get().amount()) {
         toggleError(R.string.openchannel_capacity_notenoughfunds);
         return false;
       } else {

@@ -18,6 +18,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.io.File;
 import java.net.InetSocketAddress;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
@@ -30,7 +31,6 @@ import fr.acinq.bitcoin.Base58Check;
 import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.bitcoin.Crypto;
 import fr.acinq.bitcoin.Satoshi;
-import fr.acinq.bitcoin.Script;
 import fr.acinq.bitcoin.Transaction;
 import fr.acinq.eclair.DBCompatChecker;
 import fr.acinq.eclair.Globals;
@@ -60,14 +60,45 @@ public class App extends Application {
 
   public final static String TAG = "App";
   public final static String DATADIR_NAME = "eclair-wallet-data";
+  private final static ExchangeRate exchangeRate = new ExchangeRate();
   public final ActorSystem system = ActorSystem.apply("system");
   private final Promise<Object> pAtCurrentHeight = akka.dispatch.Futures.promise();
-  private final static ExchangeRate exchangeRate = new ExchangeRate();
+  public AtomicReference<Satoshi> onChainBalance = new AtomicReference<>(new Satoshi(0));
   private DBHelper dbHelper;
   private ElectrumEclairWallet electrumWallet;
   private ActorRef wallet;
   private Kit eclairKit;
   private boolean isDBCompatible = true;
+  private String walletAddress = "N/A";
+
+  /**
+   * Update the application's exchange rate in BTCUSD and BTCEUR.
+   *
+   * @param eurRate value of 1 BTC in EURO
+   * @param usdRate value of 1 BTC in USD
+   */
+  public static void updateExchangeRate(final Double eurRate, final Double usdRate) {
+    exchangeRate.eurRate = eurRate;
+    exchangeRate.usdRate = usdRate;
+  }
+
+  /**
+   * Returns the value of 1 BTC in EURO.
+   *
+   * @return
+   */
+  public static Double getEurRate() {
+    return exchangeRate.eurRate;
+  }
+
+  /**
+   * Returns the value of 1 BTC in USD.
+   *
+   * @return
+   */
+  public static Double getUsdRate() {
+    return exchangeRate.usdRate;
+  }
 
   @Override
   public void onCreate() {
@@ -145,31 +176,17 @@ public class App extends Application {
     mNotificationManager.notify(notificationEvent.tag, notificationEvent.id, notification.build());
   }
 
-  private String walletAddress = "N/A";
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void handleNewWalletAddreess(final ElectrumWallet.NewWalletReceiveAddress addressEvent) {
     walletAddress = addressEvent.address();
   }
+
   public String getWalletAddress() {
     return this.walletAddress;
   }
 
   public Future<Object> fAtCurrentBlockHeight() {
     return pAtCurrentHeight.future();
-  }
-
-  /**
-   * Returns the current onchain balance. If the wallet does not answer back in 500ms, returns 0.
-   *
-   * @return the balance in satoshis.
-   */
-  public Satoshi getOnchainBalanceSat() {
-    try {
-      return Await.result(electrumWallet.getBalance(), Duration.create(500, "milliseconds"));
-    } catch (Exception e) {
-      Log.e(TAG, "Could not retrieve onchain balance in time", e);
-      return Satoshi.apply(0);
-    }
   }
 
   /**
@@ -339,35 +356,6 @@ public class App extends Application {
 
   public DBHelper getDBHelper() {
     return dbHelper;
-  }
-
-  /**
-   * Update the application's exchange rate in BTCUSD and BTCEUR.
-   *
-   * @param eurRate value of 1 BTC in EURO
-   * @param usdRate value of 1 BTC in USD
-   */
-  public static void updateExchangeRate(final Double eurRate, final Double usdRate) {
-    exchangeRate.eurRate = eurRate;
-    exchangeRate.usdRate = usdRate;
-  }
-
-  /**
-   * Returns the value of 1 BTC in EURO.
-   *
-   * @return
-   */
-  public static Double getEurRate() {
-    return exchangeRate.eurRate;
-  }
-
-  /**
-   * Returns the value of 1 BTC in USD.
-   *
-   * @return
-   */
-  public static Double getUsdRate() {
-    return exchangeRate.usdRate;
   }
 
   private static class ExchangeRate {
