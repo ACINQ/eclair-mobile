@@ -3,7 +3,7 @@
   <PreferenceCategory android:title="@string/prefs_cat_display">
 
     <ListPreference
-      android:defaultValue="eur"
+      android:defaultValue="usd"
       android:dialogTitle="@string/prefs_fiat_currency_dialog"
       android:entries="@array/fiat_labels"
       android:entryValues="@array/fiat_values"

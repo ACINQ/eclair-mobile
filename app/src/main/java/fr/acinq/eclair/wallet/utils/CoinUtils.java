@@ -45,12 +45,24 @@ public class CoinUtils {
     return prefs.getBoolean(Constants.SETTING_DISPLAY_IN_FIAT, false);
   }
 
+  /**
+   * Gets the user's preferred fiat currency. Defaults is USD
+   * @param prefs
+   * @return
+   */
   public static String getPreferredFiat(final SharedPreferences prefs) {
-    return prefs.getString(Constants.SETTING_SELECTED_FIAT_CURRENCY, Constants.FIAT_EURO);
+    return prefs.getString(Constants.SETTING_SELECTED_FIAT_CURRENCY, Constants.FIAT_USD);
   }
 
+  /**
+   * Converts bitcoin amount to the fiat in parameter. Defaults to USD if the fiat code is unknown
+   *
+   * @param amountMsat amount in milli satoshis
+   * @param fiatCurrency Fiat currency code, EUR/USD, defaults to USD
+   * @return localized formatted string of the converted amount
+   */
   public static String convertMsatToFiat(final long amountMsat, final String fiatCurrency) {
-    final double rate = Constants.FIAT_USD.equals(fiatCurrency) ? App.getUsdRate() : App.getEurRate();
+    final double rate = Constants.FIAT_EURO.equals(fiatCurrency) ? App.getEurRate() : App.getUsdRate();
     if (rate <= 0) return "N/A";
     return CoinUtils.getFiatFormat().format(package$.MODULE$.millisatoshi2btc(new MilliSatoshi(amountMsat)).amount().doubleValue() * rate);
   }

@@ -252,7 +252,7 @@ public class CreatePaymentActivity extends EclairActivity
     setContentView(R.layout.activity_create_payment);
 
     final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-    preferredFiatCurrency = sharedPref.getString(Constants.SETTING_SELECTED_FIAT_CURRENCY, Constants.FIAT_EURO);
+    preferredFiatCurrency = CoinUtils.getPreferredFiat(sharedPref);
     maxFeeLightning = sharedPref.getBoolean(Constants.SETTING_LIGHTNING_MAX_FEE, true);
     maxFeeLightningValue = sharedPref.getInt(Constants.SETTING_LIGHTNING_MAX_FEE_VALUE, 1);
 

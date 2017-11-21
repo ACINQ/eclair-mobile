@@ -15,7 +15,7 @@ public class PaymentListItemAdapter extends RecyclerView.Adapter<PaymentItemHold
 
   private static final String TAG = "PaymentAdapter";
   private List<Payment> payments;
-  private String fiatCode = Constants.FIAT_EURO;
+  private String fiatCode = Constants.FIAT_USD;
   private String prefUnit = Constants.MILLI_BTC_CODE;
   private boolean displayAmountAsFiat = false; // by default always show amounts in bitcoin
 
