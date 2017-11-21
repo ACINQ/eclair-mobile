@@ -309,7 +309,7 @@
   <string name="prefs_pin_title">Ask for PIN before payment</string>
   <string name="prefs_pin_default_info">Pin is a 6 digits number</string>
   <string name="prefs_pin_lastupdate">Last update:</string>
-  <string name="prefs_lightning_max_fee">Cap Lightning fees</string>
+  <string name="prefs_lightning_max_fee">Cap Lightning fees (disabled)</string>
   <string name="prefs_lightning_max_fee_desc">Fail payments if the fees exceeds 1% of the amount. This prevents overpaying opportunistic nodes in the middle of the route.</string>
 
 </resources>
