@@ -28,6 +28,10 @@
   <string name="localchannels_empty">No channels yet…\nTo open a new channel click on the button below.</string>
   <string name="receive_title">Your bitcoin address</string>
 
+
+  <string name="home_status_disconnected">Disconnected</string>
+  <string name="home_status_connected"></string>
+
   <!-- //////////////// Home Intro //////////////////// -->
 
   <string name="home_intro_welcome">Welcome!</string>

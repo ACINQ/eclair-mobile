@@ -26,6 +26,7 @@ import android.view.ViewStub;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -52,6 +53,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import akka.dispatch.OnComplete;
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.package$;
+import fr.acinq.eclair.blockchain.electrum.ElectrumClient;
 import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.EclairEventService;
 import fr.acinq.eclair.wallet.R;
@@ -99,6 +101,7 @@ public class HomeActivity extends EclairActivity {
   private ViewStub mStubIntro;
   private ViewStub mStubBackup;
   private View mStubBackupInflated;
+  private TextView mConnectionStatus;
   private int introStep = 0;
 
   private Handler mExchangeRateHandler;
@@ -129,6 +132,8 @@ public class HomeActivity extends EclairActivity {
     ab.setDisplayShowTitleEnabled(false);
 
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+
+    mConnectionStatus = findViewById(R.id.home_connection_status);
 
     mBalanceView = findViewById(R.id.home_balance);
     mTotalBalanceView = findViewById(R.id.home_balance_total);
@@ -621,6 +626,16 @@ public class HomeActivity extends EclairActivity {
     mTotalBalanceView.setAmountMsat(new MilliSatoshi(lnBalance.amount() + walletBalance.amount()));
     mOnchainBalanceView.setAmountMsat(walletBalance);
     mLNBalanceView.setAmountMsat(lnBalance);
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN)
+  public void handleDisconnectionEvent(ElectrumClient.ElectrumDisconnected$ event) {
+    // mConnectionStatus.setVisibility(View.VISIBLE);
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN)
+  public void handleConnectionEvent(ElectrumClient.ElectrumConnected$ event) {
+    // mConnectionStatus.setVisibility(View.GONE);
   }
 
   private class HomePagerAdapter extends FragmentStatePagerAdapter {
