@@ -138,9 +138,9 @@
   <string name="channeldetails_state_closing_type_label">Closing type</string>
   <string name="channeldetails_state_closing_type_desc">MUTUAL/LOCAL/REMOTE/OTHER</string>
   <string name="channeldetails_capacity_label">Capacity</string>
-  <string name="channeldetails_capacity_desc">Channel capacity (mBTC)</string>
+  <string name="channeldetails_capacity_desc">Funds locked in the channel</string>
   <string name="channeldetails_balance_label">Balance</string>
-  <string name="channeldetails_balance_desc">Your current balance (mBTC)"</string>
+  <string name="channeldetails_balance_desc">Your current balance"</string>
   <string name="channeldetails_transactionid_label">Transaction Id</string>
   <string name="channeldetails_transactionid_desc">Id of the onchain transaction that funded the channel</string>
   <string name="channeldetails_closingtype_mutual">MUTUAL</string>

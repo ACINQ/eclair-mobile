@@ -2,7 +2,9 @@ package fr.acinq.eclair.wallet.activities;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
@@ -50,14 +52,22 @@ public class ChannelDetailsActivity extends EclairActivity {
       final Map.Entry<ActorRef, EclairEventService.ChannelDetails> channel = getChannel(channelId);
 
       if (channel.getValue() != null && channel.getKey() != null && channel.getValue() != null) {
+
+        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        final String prefUnit = CoinUtils.getBtcPreferredUnit(prefs);
+
         DataRow idRow = findViewById(R.id.channeldetails_id);
         idRow.setValue(channel.getValue().channelId);
+
         DataRow balanceRow = findViewById(R.id.channeldetails_balance);
-        balanceRow.setValue(CoinUtils.formatAmountMilliBtc(channel.getValue().balanceMsat));
+        balanceRow.setValue(CoinUtils.formatAmountInUnitWithUnit(channel.getValue().balanceMsat, prefUnit));
+
         DataRow capacityRow = findViewById(R.id.channeldetails_capacity);
-        capacityRow.setValue(CoinUtils.formatAmountMilliBtc(channel.getValue().capacityMsat));
+        capacityRow.setValue(CoinUtils.formatAmountInUnitWithUnit(channel.getValue().capacityMsat, prefUnit));
+
         DataRow nodeIdRow = findViewById(R.id.channeldetails_nodeid);
         nodeIdRow.setValue(channel.getValue().remoteNodeId);
+
         DataRow stateRow = findViewById(R.id.channeldetails_state);
         stateRow.setValue(channel.getValue().state);
 
