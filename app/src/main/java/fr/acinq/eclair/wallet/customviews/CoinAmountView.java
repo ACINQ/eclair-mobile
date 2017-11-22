@@ -7,7 +7,6 @@ import android.graphics.Typeface;
 import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -57,7 +56,7 @@ public class CoinAmountView extends RelativeLayout {
       unitTextView.setText(prefFiatCurrency.toUpperCase());
     } else {
       amountTextView.setText(CoinUtils.formatAmountInUnit(amountMsat, prefBtcUnit));
-      unitTextView.setText(CoinUtils.getShortLabel(prefBtcUnit));
+      unitTextView.setText(CoinUtils.getBitcoinUnitShortLabel(prefBtcUnit));
     }
     refreshView();
   }

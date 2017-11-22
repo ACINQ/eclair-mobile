@@ -180,6 +180,10 @@ public class CoinUtils {
     return paymentRequest.amount().isEmpty() ? new MilliSatoshi(0) : paymentRequest.amount().get();
   }
 
+  public static String formatAmountMilliSatoshi(MilliSatoshi amount) {
+    return CoinUtils.satoshiFormat.format(amount.amount());
+  }
+
   public static String formatAmountSatoshi(MilliSatoshi amount) {
     return CoinUtils.satoshiFormat.format(package$.MODULE$.millisatoshi2satoshi(amount).amount());
   }
@@ -208,7 +212,7 @@ public class CoinUtils {
    * @param code
    * @return
    */
-  public static String getShortLabel(final String code) {
+  public static String getBitcoinUnitShortLabel(final String code) {
     switch (code) {
       case Constants.MILLI_SATOSHI_CODE:
         return "mSat";

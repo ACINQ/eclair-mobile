@@ -1,7 +1,9 @@
 package fr.acinq.eclair.wallet.activities;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 
@@ -37,11 +39,14 @@ public class LNPaymentDetailsActivity extends EclairActivity {
     try {
       final Payment p = app.getDBHelper().getPayment(paymentId);
 
+      final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+      final String prefUnit = CoinUtils.getBtcPreferredUnit(prefs);
+
       final DataRow amountPaidRow = findViewById(R.id.paymentdetails_amount_paid);
-      amountPaidRow.setValue(CoinUtils.formatAmountMilliBtc(new MilliSatoshi(p.getAmountPaidMsat())));
+      amountPaidRow.setValue(CoinUtils.formatAmountInUnit(new MilliSatoshi(p.getAmountPaidMsat()), prefUnit) + " " + CoinUtils.getBitcoinUnitShortLabel(prefUnit));
 
       DataRow feesRow = findViewById(R.id.paymentdetails_fees);
-      feesRow.setValue(Long.toString(p.getFeesPaidMsat()));
+      feesRow.setValue(CoinUtils.formatAmountInUnit(new MilliSatoshi(p.getFeesPaidMsat()), prefUnit) + " " + CoinUtils.getBitcoinUnitShortLabel(prefUnit));
 
       DataRow statusRow = findViewById(R.id.paymentdetails_status);
       statusRow.setValue(p.getStatus().name());
@@ -50,7 +55,7 @@ public class LNPaymentDetailsActivity extends EclairActivity {
       descRow.setValue(p.getDescription());
 
       DataRow amountRequestedRow = findViewById(R.id.paymentdetails_amount_requested);
-      amountRequestedRow.setValue(CoinUtils.formatAmountMilliBtc(new MilliSatoshi(p.getAmountRequestedMsat())));
+      amountRequestedRow.setValue(CoinUtils.formatAmountInUnit(new MilliSatoshi(p.getAmountRequestedMsat()), prefUnit) + " " + CoinUtils.getBitcoinUnitShortLabel(prefUnit));
 
       DataRow paymentHashRow = findViewById(R.id.paymentdetails_paymenthash);
       paymentHashRow.setValue(p.getReference());

@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -86,7 +85,7 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
       mAmountUnit.setText(fiatCode.toUpperCase());
     } else {
       mAmountValue.setText(amountPrefix + CoinUtils.formatAmountInUnit(new MilliSatoshi(amountMsat), prefUnit));
-      mAmountUnit.setText(CoinUtils.getShortLabel(prefUnit));
+      mAmountUnit.setText(CoinUtils.getBitcoinUnitShortLabel(prefUnit));
       mFees.setText(NumberFormat.getInstance().format(package$.MODULE$.millisatoshi2satoshi(new MilliSatoshi(payment.getFeesPaidMsat())).amount()));
       mFeesUnit.setText(Constants.SATOSHI_CODE);
     }
