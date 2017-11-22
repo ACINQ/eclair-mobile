@@ -43,10 +43,10 @@ public class LNPaymentDetailsActivity extends EclairActivity {
       final String prefUnit = CoinUtils.getBtcPreferredUnit(prefs);
 
       final DataRow amountPaidRow = findViewById(R.id.paymentdetails_amount_paid);
-      amountPaidRow.setValue(CoinUtils.formatAmountInUnit(new MilliSatoshi(p.getAmountPaidMsat()), prefUnit) + " " + CoinUtils.getBitcoinUnitShortLabel(prefUnit));
+      amountPaidRow.setValue(CoinUtils.formatAmountInUnitWithUnit(new MilliSatoshi(p.getAmountPaidMsat()), prefUnit));
 
       DataRow feesRow = findViewById(R.id.paymentdetails_fees);
-      feesRow.setValue(CoinUtils.formatAmountInUnit(new MilliSatoshi(p.getFeesPaidMsat()), prefUnit) + " " + CoinUtils.getBitcoinUnitShortLabel(prefUnit));
+      feesRow.setValue(CoinUtils.formatAmountInUnitWithUnit(new MilliSatoshi(p.getFeesPaidMsat()), prefUnit));
 
       DataRow statusRow = findViewById(R.id.paymentdetails_status);
       statusRow.setValue(p.getStatus().name());
@@ -55,7 +55,7 @@ public class LNPaymentDetailsActivity extends EclairActivity {
       descRow.setValue(p.getDescription());
 
       DataRow amountRequestedRow = findViewById(R.id.paymentdetails_amount_requested);
-      amountRequestedRow.setValue(CoinUtils.formatAmountInUnit(new MilliSatoshi(p.getAmountRequestedMsat()), prefUnit) + " " + CoinUtils.getBitcoinUnitShortLabel(prefUnit));
+      amountRequestedRow.setValue(CoinUtils.formatAmountInUnitWithUnit(new MilliSatoshi(p.getAmountRequestedMsat()), prefUnit));
 
       DataRow paymentHashRow = findViewById(R.id.paymentdetails_paymenthash);
       paymentHashRow.setValue(p.getReference());

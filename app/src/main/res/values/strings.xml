@@ -114,10 +114,10 @@
 
   <!-- //////////////// Bitcoin Transaction Details //////////////////// -->
 
-  <string name="transactiondetails_amount_label">Amount</string>
-  <string name="transactiondetails_amount_desc">Amount in bitcoin</string>
+  <string name="transactiondetails_amount_label">Amount paid</string>
+  <string name="transactiondetails_amount_desc">Includes fees</string>
   <string name="transactiondetails_fees_label">Fees</string>
-  <string name="transactiondetails_fees_desc">Fees paid to the network</string>
+  <string name="transactiondetails_fees_desc">Paid to the Bitcoin network\'s miners</string>
   <string name="transactiondetails_txid_label">Transaction Id</string>
   <string name="transactiondetails_txid_desc">Unique identifier of this transaction</string>
   <string name="transactiondetails_date_label">Timestamp</string>

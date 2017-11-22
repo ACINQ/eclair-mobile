@@ -72,6 +72,18 @@ public class CoinUtils {
   }
 
   /**
+   * Returns a localized formatted string representing the bitcoin amount converted to the btc unit,
+   * concatenated with the formatted short unit label.
+   *
+   * @param amount Bitcoin amount, should be {@link MilliSatoshi}, {@link Satoshi}, {@link MilliBtc} or {@link Btc}
+   * @param unit   unit to convert amount to
+   * @return formatted String
+   */
+  public static String formatAmountInUnitWithUnit(final BtcAmount amount, final String unit) {
+    return CoinUtils.formatAmountInUnit(amount, unit) + " " + CoinUtils.getBitcoinUnitShortLabel(unit);
+  }
+
+  /**
    * Returns a localized formatted string representing the bitcoin amount converted to the btc unit
    * set in the user preferences.
    *
