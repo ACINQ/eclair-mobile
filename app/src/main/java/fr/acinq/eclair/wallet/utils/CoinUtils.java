@@ -22,7 +22,7 @@ import static fr.acinq.eclair.wallet.utils.Constants.SATOSHI_CODE;
 public class CoinUtils {
 
   public final static String BTC_PATTERN = "###,##0.000#####";
-  public final static String MILLI_BTC_PATTERN = "###,##0.00";
+  public final static String MILLI_BTC_PATTERN = "###,##0.00###";
   private static final String TAG = "CoinUtils";
   private static DecimalFormat btcFormat;
   private static DecimalFormat milliBtcFormat;
