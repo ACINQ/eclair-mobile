@@ -1,26 +1,35 @@
 package fr.acinq.eclair.wallet.adapters;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.os.Build;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.TextView;
 
+import java.text.NumberFormat;
+
+import fr.acinq.bitcoin.MilliSatoshi;
+import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.channel.CLOSING;
 import fr.acinq.eclair.channel.NORMAL;
 import fr.acinq.eclair.channel.OFFLINE;
+import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.EclairEventService;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.activities.ChannelDetailsActivity;
 import fr.acinq.eclair.wallet.models.ChannelItem;
 import fr.acinq.eclair.wallet.utils.CoinUtils;
+import fr.acinq.eclair.wallet.utils.Constants;
 
 public class LocalChannelItemHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-  public static final String EXTRA_CHANNEL_ID = "fr.acinq.eclair.swordfish.CHANNEL_ID";
+  public static final String EXTRA_CHANNEL_ID = BuildConfig.APPLICATION_ID + "CHANNEL_ID";
 
   private final TextView state;
   private final TextView balance;
+  private final TextView balanceUnit;
   private final TextView node;
   private ChannelItem channelItem;
 
@@ -29,6 +38,7 @@ public class LocalChannelItemHolder extends RecyclerView.ViewHolder implements V
     this.state = itemView.findViewById(R.id.channelitem_state);
     this.balance = itemView.findViewById(R.id.channelitem_balance_value);
     this.node = itemView.findViewById(R.id.channelitem_node);
+    this.balanceUnit = itemView.findViewById(R.id.channelitem_balance_unit);
     itemView.setOnClickListener(this);
   }
 
@@ -39,7 +49,8 @@ public class LocalChannelItemHolder extends RecyclerView.ViewHolder implements V
     v.getContext().startActivity(intent);
   }
 
-  protected void bindItem(final ChannelItem channelItem) {
+  @SuppressLint("SetTextI18n")
+  protected void bindItem(final ChannelItem channelItem, final String fiatCode, final String prefUnit, final boolean displayAmountAsFiat) {
     this.channelItem = channelItem;
     state.setText(channelItem.state);
     if (NORMAL.toString().equals(channelItem.state)) {
@@ -52,7 +63,15 @@ public class LocalChannelItemHolder extends RecyclerView.ViewHolder implements V
       }
       state.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.orange));
     }
-    balance.setText(CoinUtils.formatAmountMilliBtc(channelItem.balanceMsat));
+
+    // setting amount & unit with optional conversion to fiat
+    if (displayAmountAsFiat) {
+      balance.setText(CoinUtils.convertMsatToFiat(channelItem.balanceMsat.amount(), fiatCode));
+      balanceUnit.setText(fiatCode.toUpperCase());
+    } else {
+      balance.setText(CoinUtils.formatAmountInUnit(channelItem.balanceMsat, prefUnit));
+      balanceUnit.setText(CoinUtils.getBitcoinUnitShortLabel(prefUnit));
+    }
     node.setText("With " + channelItem.targetPubkey);
   }
 }

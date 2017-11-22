@@ -1,6 +1,8 @@
 package fr.acinq.eclair.wallet.fragments;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -18,6 +20,7 @@ import fr.acinq.eclair.wallet.EclairEventService;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.adapters.LocalChannelItemAdapter;
 import fr.acinq.eclair.wallet.models.ChannelItem;
+import fr.acinq.eclair.wallet.utils.CoinUtils;
 
 public class ChannelsListFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
@@ -28,7 +31,7 @@ public class ChannelsListFragment extends Fragment implements SwipeRefreshLayout
 
   @Override
   public void onRefresh() {
-    mChannelAdapter.update(getChannels());
+    updateList();
     mRefreshLayout.setRefreshing(false);
   }
 
@@ -36,7 +39,7 @@ public class ChannelsListFragment extends Fragment implements SwipeRefreshLayout
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setHasOptionsMenu(false);
-    this.mChannelAdapter = new LocalChannelItemAdapter(new ArrayList<ChannelItem>());
+    mChannelAdapter = new LocalChannelItemAdapter(new ArrayList<ChannelItem>());
   }
 
   @Override
@@ -86,6 +89,12 @@ public class ChannelsListFragment extends Fragment implements SwipeRefreshLayout
   }
 
   public void updateList() {
-    if (mChannelAdapter != null) mChannelAdapter.update(getChannels());
+    if (mChannelAdapter != null && getContext() != null) {
+      final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+      final String prefUnit = CoinUtils.getBtcPreferredUnit(prefs);
+      final String fiatCode = CoinUtils.getPreferredFiat(prefs);
+      final boolean displayBalanceAsFiat = CoinUtils.shouldDisplayInFiat(prefs);
+      mChannelAdapter.update(getChannels(), fiatCode, prefUnit, displayBalanceAsFiat);
+    }
   }
 }
