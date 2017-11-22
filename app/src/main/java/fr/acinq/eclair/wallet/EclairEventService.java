@@ -64,6 +64,7 @@ public class EclairEventService extends UntypedActor {
     long pendingTotal = 0;
     long offlineTotal = 0;
     long closingTotal = 0;
+    long ignoredBalanceMsat = 0;
     for (ChannelDetails d : channelDetailsMap.values()) {
       if (NORMAL.toString().equals(d.state)) {
         availableTotal += d.balanceMsat.amount();
@@ -73,11 +74,13 @@ public class EclairEventService extends UntypedActor {
         closingTotal += d.balanceMsat.amount();
       } else if (OFFLINE.toString().equals(d.state)) {
         offlineTotal += d.balanceMsat.amount();
+      } else if (d.state == null || d.state.startsWith("ERR_")) {
+        ignoredBalanceMsat += d.balanceMsat.amount();
       } else {
         pendingTotal += d.balanceMsat.amount();
       }
     }
-    EventBus.getDefault().postSticky(new LNBalanceUpdateEvent(availableTotal, pendingTotal, offlineTotal, closingTotal));
+    EventBus.getDefault().postSticky(new LNBalanceUpdateEvent(availableTotal, pendingTotal, offlineTotal, closingTotal, ignoredBalanceMsat));
   }
 
   public static MilliSatoshi getBalanceMsatOf(String channelId) {

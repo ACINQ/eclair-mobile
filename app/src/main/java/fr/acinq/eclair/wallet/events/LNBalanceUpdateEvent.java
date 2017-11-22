@@ -17,12 +17,14 @@ public class LNBalanceUpdateEvent {
   public final long pendingBalanceMsat;
   public final long offlineBalanceMsat;
   public final long closingBalanceMsat;
+  public final long ignoredBalanceMsat;
 
-  public LNBalanceUpdateEvent(long availableBalanceMsat, long pendingBalanceMsat, long offlineBalanceMsat, long closingBalanceMsat) {
+  public LNBalanceUpdateEvent(long availableBalanceMsat, long pendingBalanceMsat, long offlineBalanceMsat, long closingBalanceMsat, long ignoredBalanceMsat) {
     this.availableBalanceMsat = availableBalanceMsat;
     this.pendingBalanceMsat = pendingBalanceMsat;
     this.offlineBalanceMsat = offlineBalanceMsat;
     this.closingBalanceMsat = closingBalanceMsat;
+    this.ignoredBalanceMsat = ignoredBalanceMsat;
   }
 
   /**
