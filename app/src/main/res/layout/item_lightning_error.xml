@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="match_parent"
+  android:layout_height="wrap_content"
+  android:paddingTop="8dp"
+  android:paddingBottom="8dp"
+  android:background="@color/redFadedDark">
+
+  <TextView
+    android:id="@+id/lightning_error_counter"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="4dp"
+    android:text="@string/paymentfailure_error_counter"
+    android:textSize="12sp"
+    android:textColor="@color/redFadedLight" />
+
+  <TextView
+    android:id="@+id/lightning_error_type"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_alignBaseline="@+id/lightning_error_counter"
+    android:layout_marginEnd="4dp"
+    android:layout_marginStart="4dp"
+    android:layout_toEndOf="@+id/lightning_error_counter"
+    android:text="@string/unknown"
+    android:textColor="@color/white"
+    android:textStyle="bold" />
+
+  <TextView
+    android:id="@+id/lightning_error_cause"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_alignStart="@+id/lightning_error_type"
+    android:layout_below="@+id/lightning_error_type"
+    android:text="@string/paymentfailure_error_cause"
+    android:textColor="@color/white"
+    android:textSize="12sp" />
+
+  <TextView
+    android:id="@+id/lightning_error_origin"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_alignBaseline="@+id/lightning_error_cause"
+    android:layout_marginEnd="4dp"
+    android:layout_marginStart="4dp"
+    android:layout_toEndOf="@+id/lightning_error_cause"
+    android:text="@string/paymentfailure_error_origin"
+    android:textColor="@color/white"
+    android:textSize="12sp"
+    android:visibility="gone" />
+
+  <TextView
+    android:id="@+id/lightning_error_hops"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_alignStart="@+id/lightning_error_type"
+    android:layout_below="@+id/lightning_error_cause"
+    android:layout_marginEnd="4dp"
+    android:alpha="0.7"
+    android:textColor="@color/white"
+    android:textSize="12sp"
+    android:visibility="gone" />
+
+</RelativeLayout>

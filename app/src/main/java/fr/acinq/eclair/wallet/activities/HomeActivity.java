@@ -26,7 +26,6 @@ import android.view.ViewStub;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -576,10 +575,9 @@ public class HomeActivity extends EclairActivity {
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void handleLNPaymentFailedEvent(LNPaymentFailedEvent event) {
     Intent intent = new Intent(this, PaymentFailureActivity.class);
-    intent.putExtra(PaymentFailureActivity.EXTRA_PAYMENTFAILURE_DESC, event.payment.getDescription());
-    intent.putExtra(PaymentFailureActivity.EXTRA_PAYMENTFAILURE_AMOUNT, event.payment.getAmountPaidMsat());
-    intent.putExtra(PaymentFailureActivity.EXTRA_PAYMENTFAILURE_CAUSE, event.cause);
-    intent.putExtra(PaymentFailureActivity.EXTRA_PAYMENTFAILURE_DETAILED_CAUSE, event.detailedCause);
+    intent.putExtra(PaymentFailureActivity.EXTRA_PAYMENT_SIMPLE_ONLY, event.isSimple);
+    intent.putExtra(PaymentFailureActivity.EXTRA_PAYMENT_SIMPLE_MESSAGE, event.simpleMessage);
+    intent.putParcelableArrayListExtra(PaymentFailureActivity.EXTRA_PAYMENT_ERRORS, event.errors);
     startActivity(intent);
     mPaymentsListFragment.updateList();
   }

@@ -28,7 +28,6 @@
   <string name="localchannels_empty">No channels yet…\nTo open a new channel click on the button below.</string>
   <string name="receive_title">Your bitcoin address</string>
 
-
   <string name="home_status_disconnected">Disconnected</string>
   <string name="home_status_connected"></string>
 
@@ -211,7 +210,11 @@
 
   <string name="paymentsuccess_title">Payment sent!</string>
   <string name="paymentfailure_title">Payment failed!</string>
-  <string name="paymentfailure_cause">Unknown cause</string>
+  <string name="paymentfailure_toggle_details">Click here for details.</string>
+  <string name="paymentfailure_error_size">%1$d attempt(s) made.</string>
+  <string name="paymentfailure_error_counter">#%1$d of %2$d:</string>
+  <string name="paymentfailure_error_cause">Cause: %1$s</string>
+  <string name="paymentfailure_error_origin">\@ %1$s</string>
 
   <!-- //////////////// Breaking changes //////////////////// -->
 

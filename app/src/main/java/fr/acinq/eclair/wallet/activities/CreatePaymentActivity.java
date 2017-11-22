@@ -19,6 +19,7 @@ import android.widget.Toast;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.util.AsyncExecutor;
 
+import java.util.ArrayList;
 import java.util.Date;
 
 import akka.dispatch.OnComplete;
@@ -27,22 +28,17 @@ import fr.acinq.bitcoin.MilliBtc;
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.bitcoin.package$;
-import fr.acinq.eclair.channel.ChannelException;
-import fr.acinq.eclair.payment.Hop;
-import fr.acinq.eclair.payment.LocalFailure;
 import fr.acinq.eclair.payment.PaymentFailed;
 import fr.acinq.eclair.payment.PaymentFailure;
 import fr.acinq.eclair.payment.PaymentLifecycle;
 import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.payment.PaymentSucceeded;
-import fr.acinq.eclair.payment.RemoteFailure;
-import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.EclairEventService;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.customviews.CoinAmountView;
-import fr.acinq.eclair.wallet.events.BitcoinPaymentEvent;
 import fr.acinq.eclair.wallet.events.LNPaymentFailedEvent;
 import fr.acinq.eclair.wallet.fragments.PinDialog;
+import fr.acinq.eclair.wallet.models.LightningPaymentError;
 import fr.acinq.eclair.wallet.models.Payment;
 import fr.acinq.eclair.wallet.models.PaymentDirection;
 import fr.acinq.eclair.wallet.models.PaymentStatus;
@@ -52,9 +48,7 @@ import fr.acinq.eclair.wallet.tasks.LNInvoiceReaderTask;
 import fr.acinq.eclair.wallet.utils.BitcoinURI;
 import fr.acinq.eclair.wallet.utils.CoinUtils;
 import fr.acinq.eclair.wallet.utils.Constants;
-import fr.acinq.eclair.wire.FailureMessage;
 import scala.collection.Seq;
-import scala.collection.mutable.StringBuilder;
 import scala.concurrent.Future;
 import scala.math.BigDecimal;
 import scala.util.Either;
@@ -64,14 +58,13 @@ public class CreatePaymentActivity extends EclairActivity
 
   public static final String EXTRA_INVOICE = "fr.acinq.eclair.wallet.EXTRA_INVOICE";
   private static final String TAG = "CreatePayment";
-  private final static String html_error_tab = "&nbsp;&nbsp;&nbsp;&nbsp;";
-  private final static String html_error_new_line = "<br />" + html_error_tab;
-  private final static String html_error_new_line_bullet = html_error_new_line + "&#9679;&nbsp;&nbsp;";
-  private final static String html_error_new_line_bullet_inner = html_error_new_line + html_error_tab + "&#9679;&nbsp;&nbsp;";
+
   private boolean isProcessingPayment = false;
   private PaymentRequest mLNInvoice = null;
   private BitcoinURI mBitcoinInvoice = null;
   private String mInvoice = null;
+  private boolean isAmountReadonly = true;
+
   private TextView mLoadingTextView;
   private View mFormView;
   private CoinAmountView mAmountReadonlyValue;
@@ -87,7 +80,6 @@ public class CreatePaymentActivity extends EclairActivity
   private TextView mAmountFiatView;
   private View mPaymentTypeOnchainView;
   private View mPaymentTypeLightningView;
-  private boolean isAmountReadonly = true;
   private View mFeesOnchainView;
   private EditText mFeesValue;
   private Button mFeesButton;
@@ -100,47 +92,6 @@ public class CreatePaymentActivity extends EclairActivity
   private boolean maxFeeLightning = true;
   private int maxFeeLightningValue = 1;
   private PinDialog pinDialog;
-
-  private static StringBuilder generateDetailedErrorCause(final Seq<PaymentFailure> failures) {
-    final StringBuilder sbErrors = new StringBuilder().append("<p><b>").append(failures.size()).append(" attempt(s) made.</b></p>").append("<small><ul>");
-    for (int i = 0; i < failures.size(); i++) {
-      final PaymentFailure f = failures.apply(i);
-      sbErrors.append("<li>&nbsp;&nbsp;<b>Attempt ").append(i + 1).append(" of ").append(failures.size());
-      if (f instanceof RemoteFailure) {
-        final RemoteFailure rf = (RemoteFailure) f;
-        sbErrors.append(": Remote failure</b>");
-        if (rf.route().size() > 0) {
-          final scala.collection.immutable.List<Hop> hops = rf.route().toList();
-          sbErrors.append(html_error_new_line_bullet).append(" Route (").append(hops.size()).append(" hops):");
-          for (int hi = 0; hi < hops.size(); hi++) {
-            Hop h = hops.apply(hi);
-            if (hi == 0) {
-              sbErrors.append(html_error_new_line_bullet_inner).append(h.nodeId().toString());
-            }
-            sbErrors.append(html_error_new_line_bullet_inner).append(h.nextNodeId().toString());
-          }
-        }
-        sbErrors.append(html_error_new_line_bullet).append(" Origin: ").append(rf.e().originNode().toString());
-        FailureMessage rfMessage = rf.e().failureMessage();
-        if (rfMessage != null) {
-          sbErrors.append(html_error_new_line_bullet).append(" Cause: ").append(rfMessage.getClass().getSimpleName());
-        }
-        sbErrors.append("</li>");
-      } else if (f instanceof LocalFailure) {
-        final LocalFailure lf = (LocalFailure) f;
-        sbErrors.append(": Local failure</b>");
-        if (lf.t() instanceof ChannelException) {
-          sbErrors.append(html_error_new_line_bullet).append(" Origin: ")
-            .append(((ChannelException) lf.t()).getChannelId());
-        }
-        sbErrors.append(html_error_new_line_bullet).append(" Cause: ").append(((LocalFailure) f).t().getClass().getSimpleName()).append("</li>");
-      } else {
-        sbErrors.append(": No information available</b></li>");
-      }
-    }
-    sbErrors.append("</ul></small>");
-    return sbErrors;
-  }
 
   @SuppressLint("SetTextI18n")
   @Override
@@ -517,7 +468,7 @@ public class CreatePaymentActivity extends EclairActivity
             p.setUpdated(new Date());
             app.getDBHelper().insertOrUpdatePayment(p);
           } else if (PaymentStatus.PAID.equals(paymentForH.getStatus())) {
-            EventBus.getDefault().post(new LNPaymentFailedEvent(p, "This invoice has already been paid.", null));
+            EventBus.getDefault().post(new LNPaymentFailedEvent(true, "This invoice has already been paid.", null));
             return;
           }
 
@@ -529,29 +480,32 @@ public class CreatePaymentActivity extends EclairActivity
               if (paymentInDB != null) {
                 if (t != null && t instanceof akka.pattern.AskTimeoutException) {
                   // payment is taking too long, let's do nothing and keep waiting
+                } else if (o instanceof PaymentSucceeded && t == null) {
+                  // do nothing, will be handled by PaymentSent event in EclairEventService...
                 } else {
-                  p.setUpdated(new Date());
-                  if (o instanceof PaymentSucceeded && t == null) {
-                    // do nothing, will be handled by PaymentSent event...
-                  } else {
-                    String lastErrorCause = null;
-                    String detailedErrorMessage = null;
-                    if (o instanceof PaymentFailed) {
-                      final Seq<PaymentFailure> failures = ((PaymentFailed) o).failures();
-                      if (failures.size() > 0) {
-                        detailedErrorMessage = generateDetailedErrorCause(failures).toString();
+                  final ArrayList<LightningPaymentError> errorList = new ArrayList<>();
+                  // extract failure cause to generate a pretty error message
+                  if (o instanceof PaymentFailed) {
+                    final Seq<PaymentFailure> failures = ((PaymentFailed) o).failures();
+                    if (failures.size() > 0) {
+                      for (int i = 0; i < failures.size(); i++) {
+                        errorList.add(LightningPaymentError.generateDetailedErrorCause(failures.apply(i)));
                       }
-                    } else if (t != null) {
-                      Log.d(TAG, "Error when sending payment", t);
-                      lastErrorCause = t.getMessage();
                     }
-                    if (!PaymentStatus.PAID.equals(paymentInDB.getStatus())) {
-                      // if the payment has not already been paid, lets update the status...
-                      paymentInDB.setStatus(PaymentStatus.FAILED);
-                    }
-                    EventBus.getDefault().post(new LNPaymentFailedEvent(p, lastErrorCause, detailedErrorMessage));
-                    app.getDBHelper().insertOrUpdatePayment(paymentInDB);
+                  } else if (t != null) {
+                    Log.d(TAG, "Error when sending payment", t);
                   }
+
+                  // update payment in base
+                  p.setUpdated(new Date());
+                  if (!PaymentStatus.PAID.equals(paymentInDB.getStatus())) {
+                    // if the payment has not already been paid, lets update the status...
+                    paymentInDB.setStatus(PaymentStatus.FAILED);
+                  }
+                  app.getDBHelper().insertOrUpdatePayment(paymentInDB);
+
+                  // dispatch failure event to display the error message
+                  EventBus.getDefault().post(new LNPaymentFailedEvent(false, null, errorList));
                 }
               }
             }

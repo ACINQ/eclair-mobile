@@ -1,15 +1,18 @@
 package fr.acinq.eclair.wallet.events;
 
-import fr.acinq.eclair.wallet.models.Payment;
+import java.util.ArrayList;
+import java.util.List;
+
+import fr.acinq.eclair.wallet.models.LightningPaymentError;
 
 public class LNPaymentFailedEvent {
-  public final Payment payment;
-  public final String cause;
-  public final String detailedCause;
+  public final boolean isSimple;
+  public final String simpleMessage;
+  public final ArrayList<LightningPaymentError> errors;
 
-  public LNPaymentFailedEvent(Payment payment, String cause, String detailedCause) {
-    this.payment = payment;
-    this.cause = cause;
-    this.detailedCause = detailedCause;
+  public LNPaymentFailedEvent(final boolean isSimple, final String simpleMessage, final ArrayList<LightningPaymentError> errors) {
+    this.isSimple = isSimple;
+    this.simpleMessage = simpleMessage;
+    this.errors = errors;
   }
 }

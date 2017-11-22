@@ -44,8 +44,7 @@ public class PaymentsListFragment extends Fragment implements SwipeRefreshLayout
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setHasOptionsMenu(false);
-    this.mPaymentAdapter = new PaymentListItemAdapter(new ArrayList<Payment>());
-
+    mPaymentAdapter = new PaymentListItemAdapter(new ArrayList<Payment>());
   }
 
   @Override
@@ -115,11 +114,13 @@ public class PaymentsListFragment extends Fragment implements SwipeRefreshLayout
   }
 
   public void updateList() {
-    final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
-    final String prefUnit = CoinUtils.getBtcPreferredUnit(prefs);
-    final String fiatCode = CoinUtils.getPreferredFiat(prefs);
-    final boolean displayBalanceAsFiat = CoinUtils.shouldDisplayInFiat(prefs);
-    mPaymentAdapter.update(getPayments(), fiatCode, prefUnit, displayBalanceAsFiat);
+    if (getContext() != null) {
+      final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+      final String prefUnit = CoinUtils.getBtcPreferredUnit(prefs);
+      final String fiatCode = CoinUtils.getPreferredFiat(prefs);
+      final boolean displayBalanceAsFiat = CoinUtils.shouldDisplayInFiat(prefs);
+      mPaymentAdapter.update(getPayments(), fiatCode, prefUnit, displayBalanceAsFiat);
+    }
   }
 }
 
