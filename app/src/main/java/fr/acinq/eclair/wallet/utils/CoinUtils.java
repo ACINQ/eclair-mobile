@@ -208,7 +208,7 @@ public class CoinUtils {
     return CoinUtils.getBTCFormat().format(package$.MODULE$.millisatoshi2btc(amount).amount());
   }
 
-  public static Satoshi parseBitcoinAmout(String input) {
+  public static Satoshi parseBitcoinAmount(String input) {
     long amount = new BigDecimal(input).movePointRight(8).longValueExact();
     return new Satoshi(amount);
   }

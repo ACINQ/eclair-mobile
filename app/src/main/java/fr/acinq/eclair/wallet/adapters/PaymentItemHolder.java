@@ -13,6 +13,7 @@ import java.text.NumberFormat;
 
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.package$;
+import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.activities.BitcoinTransactionDetailsActivity;
 import fr.acinq.eclair.wallet.activities.LNPaymentDetailsActivity;
@@ -25,7 +26,7 @@ import fr.acinq.eclair.wallet.utils.Constants;
 
 public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-  public static final String EXTRA_PAYMENT_ID = "fr.acinq.eclair.swordfish.PAYMENT_ID";
+  public static final String EXTRA_PAYMENT_ID = BuildConfig.APPLICATION_ID + "PAYMENT_ID";
   private static final String TAG = "PaymentItemHolder";
 
   private final ImageView mPaymentIcon;

@@ -23,6 +23,7 @@ import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.io.Switchboard;
+import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.events.LNNewChannelFailureEvent;
 import fr.acinq.eclair.wallet.events.LNNewChannelOpenedEvent;
@@ -31,7 +32,7 @@ import scala.math.BigDecimal;
 
 public class OpenChannelActivity extends EclairActivity {
 
-  public static final String EXTRA_NEW_HOST_URI = "fr.acinq.eclair.swordfish.NEW_HOST_URI";
+  public static final String EXTRA_NEW_HOST_URI = BuildConfig.APPLICATION_ID +  "NEW_HOST_URI";
   private static final String TAG = "OpenChannelActivity";
 
   private TextView mCapacityHint;
@@ -86,7 +87,7 @@ public class OpenChannelActivity extends EclairActivity {
     setNodeURI(hostURI);
   }
 
-  private boolean checkAmount(String amount) {
+  private boolean checkAmount(final String amount) {
     try {
       Long parsedAmountSat = Long.parseLong(amount) * 100000;
       if (parsedAmountSat < Validators.MIN_FUNDING_SAT

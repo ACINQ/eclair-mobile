@@ -54,6 +54,7 @@ import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.blockchain.electrum.ElectrumClient;
 import fr.acinq.eclair.wallet.App;
+import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.EclairEventService;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.customviews.CoinAmountView;
@@ -75,7 +76,7 @@ import scala.concurrent.ExecutionContext;
 
 public class HomeActivity extends EclairActivity {
 
-  public static final String EXTRA_PAGE = "fr.acinq.eclair.swordfish.EXTRA_PAGE";
+  public static final String EXTRA_PAGE = BuildConfig.APPLICATION_ID + "EXTRA_PAGE";
   private static final String TAG = "Home Activity";
   List<Integer> recoveryPositions = Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23);
 
