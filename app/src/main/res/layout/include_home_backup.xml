@@ -142,6 +142,6 @@
     android:paddingTop="8dp"
     android:text="@string/home_backup_button_skip"
     android:textColor="@color/white"
-    android:visibility="visible" />
+    android:visibility="gone" />
 
 </RelativeLayout>

@@ -5,7 +5,7 @@ android {
   compileSdkVersion 27
   buildToolsVersion "26.0.2"
   defaultConfig {
-    applicationId "fr.acinq.eclair.wallet"
+    applicationId "fr.acinq.eclair.wallet_livenet"
     minSdkVersion 21
     targetSdkVersion 26
     versionCode 10
@@ -60,7 +60,7 @@ dependencies {
     exclude group: 'com.google.android', module: 'android'
   }
   // eclair core
-  compile 'fr.acinq.eclair:eclair-core_2.11:0.2-android-alpha8'
+  compile 'fr.acinq.eclair:eclair-core_2.11:0.2-android-SNAPSHOT'
   // database orm
   compile 'org.greenrobot:greendao:3.2.2'
   // required for greendao encryption, disabled for now

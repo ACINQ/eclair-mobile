@@ -8,7 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class WalletUtils {
-  public final static String EXPLORER_TRANSACTION_URI = "https://api.blockcypher.com/v1/btc/test3/txs/";
+  public final static String EXPLORER_TRANSACTION_URI = "https://api.blockcypher.com/v1/btc/main/txs/";
   public final static List<String> LN_NODES = Arrays.asList(
     "03933884aaf1d6b108397e5efe5c86bcf2d8ca8d2f700eda99db9214fc2712b134@endurance.acinq.co:9735"
   );
