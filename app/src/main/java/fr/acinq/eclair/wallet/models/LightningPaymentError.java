@@ -39,14 +39,15 @@ public class LightningPaymentError implements Parcelable {
     this.type = type;
     this.cause = cause;
     this.origin = origin;
-    this.hops = hops;
+    this.hops = hops == null ? new ArrayList<String>() : hops;
   }
 
   public LightningPaymentError(Parcel in) {
     type = in.readString();
     cause = in.readString();
     origin = in.readString();
-    in.readList(hops, List.class.getClassLoader());
+    List<String> h = new ArrayList<>();
+    in.readList(h, List.class.getClassLoader());
   }
 
   /**

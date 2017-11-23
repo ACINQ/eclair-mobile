@@ -16,6 +16,7 @@ public class LightningErrorHolder extends RecyclerView.ViewHolder {
   private final TextView mErrorCounter;
   private final TextView mErrorType;
   private final TextView mErrorCause;
+  private final TextView mErrorOriginLabel;
   private final TextView mErrorOrigin;
   private final TextView mErrorHops;
 
@@ -26,6 +27,7 @@ public class LightningErrorHolder extends RecyclerView.ViewHolder {
     mErrorCounter = itemView.findViewById(R.id.lightning_error_counter);
     mErrorType = itemView.findViewById(R.id.lightning_error_type);
     mErrorCause = itemView.findViewById(R.id.lightning_error_cause);
+    mErrorOriginLabel = itemView.findViewById(R.id.lightning_error_origin_label);
     mErrorOrigin = itemView.findViewById(R.id.lightning_error_origin);
     mErrorHops = itemView.findViewById(R.id.lightning_error_hops);
   }
@@ -36,6 +38,7 @@ public class LightningErrorHolder extends RecyclerView.ViewHolder {
     mErrorType.setText(error.getType());
     mErrorCause.setText(itemView.getResources().getString(R.string.paymentfailure_error_cause, error.getCause()));
     if (error.getOrigin() != null) {
+      mErrorOriginLabel.setVisibility(View.VISIBLE);
       mErrorOrigin.setVisibility(View.VISIBLE);
       mErrorOrigin.setText(itemView.getResources().getString(R.string.paymentfailure_error_origin, error.getOrigin()));
     }

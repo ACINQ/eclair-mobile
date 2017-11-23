@@ -2,18 +2,18 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="match_parent"
   android:layout_height="wrap_content"
-  android:paddingTop="8dp"
+  android:background="@color/redFadedDark"
   android:paddingBottom="8dp"
-  android:background="@color/redFadedDark">
+  android:paddingTop="8dp">
 
   <TextView
     android:id="@+id/lightning_error_counter"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_marginStart="4dp"
+    android:layout_marginStart="20dp"
     android:text="@string/paymentfailure_error_counter"
-    android:textSize="12sp"
-    android:textColor="@color/redFadedLight" />
+    android:textColor="@color/redFadedLight"
+    android:textStyle="bold" />
 
   <TextView
     android:id="@+id/lightning_error_type"
@@ -25,28 +25,54 @@
     android:layout_toEndOf="@+id/lightning_error_counter"
     android:text="@string/unknown"
     android:textColor="@color/white"
+    android:textIsSelectable="true"
     android:textStyle="bold" />
+
+  <TextView
+    android:id="@+id/lightning_error_cause_label"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_alignEnd="@+id/lightning_error_counter"
+    android:layout_below="@+id/lightning_error_type"
+    android:text="@string/paymentfailure_error_cause_label"
+    android:textColor="@color/redFadedLight"
+    android:textSize="12sp" />
 
   <TextView
     android:id="@+id/lightning_error_cause"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_alignStart="@+id/lightning_error_type"
     android:layout_below="@+id/lightning_error_type"
+    android:layout_marginEnd="4dp"
+    android:layout_marginStart="4dp"
+    android:layout_toEndOf="@+id/lightning_error_cause_label"
     android:text="@string/paymentfailure_error_cause"
     android:textColor="@color/white"
+    android:textIsSelectable="true"
     android:textSize="12sp" />
+
+  <TextView
+    android:id="@+id/lightning_error_origin_label"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_alignEnd="@+id/lightning_error_counter"
+    android:layout_below="@+id/lightning_error_cause"
+    android:text="@string/paymentfailure_error_origin_label"
+    android:textColor="@color/redFadedLight"
+    android:textSize="12sp"
+    android:visibility="gone" />
 
   <TextView
     android:id="@+id/lightning_error_origin"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_alignBaseline="@+id/lightning_error_cause"
+    android:layout_below="@+id/lightning_error_cause"
     android:layout_marginEnd="4dp"
     android:layout_marginStart="4dp"
-    android:layout_toEndOf="@+id/lightning_error_cause"
+    android:layout_toEndOf="@+id/lightning_error_origin_label"
     android:text="@string/paymentfailure_error_origin"
     android:textColor="@color/white"
+    android:textIsSelectable="true"
     android:textSize="12sp"
     android:visibility="gone" />
 
@@ -55,10 +81,11 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_alignStart="@+id/lightning_error_type"
-    android:layout_below="@+id/lightning_error_cause"
+    android:layout_below="@+id/lightning_error_origin"
     android:layout_marginEnd="4dp"
-    android:alpha="0.7"
+    android:alpha="0.8"
     android:textColor="@color/white"
+    android:textIsSelectable="true"
     android:textSize="12sp"
     android:visibility="gone" />
 
