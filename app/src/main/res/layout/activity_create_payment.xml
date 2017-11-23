@@ -104,8 +104,7 @@
           android:layout_height="wrap_content"
           android:layout_marginBottom="4dp"
           android:layout_marginTop="16dp"
-          android:gravity="center"
-          android:visibility="visible">
+          android:gravity="center">
 
           <EditText
             android:id="@+id/payment_amount_editable_value"
@@ -149,20 +148,6 @@
             android:text="@string/btc_milli_short" />
 
         </RelativeLayout>
-
-        <!-- READ ONLY payment amount -->
-        <fr.acinq.eclair.wallet.customviews.CoinAmountView
-          android:id="@+id/payment_amount_readonly_value"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:layout_marginTop="12dp"
-          android:visibility="gone"
-          app:alignment="center"
-          app:amount_color="@color/colorGrey_4"
-          app:amount_size="48sp"
-          app:unit="mBTC"
-          app:unit_color="@color/colorGrey_4"
-          app:unit_size="12sp" />
 
         <TextView
           android:id="@+id/payment_amount_fiat"

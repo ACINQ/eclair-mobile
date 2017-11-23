@@ -67,6 +67,10 @@ public class CoinUtils {
     return CoinUtils.getFiatFormat().format(package$.MODULE$.millisatoshi2btc(new MilliSatoshi(amountMsat)).amount().doubleValue() * rate);
   }
 
+  public static String convertMsatToFiatWithUnit(final long amountMsat, final String fiatCurrency) {
+    return CoinUtils.convertMsatToFiat(amountMsat, fiatCurrency) + " " + fiatCurrency.toUpperCase();
+  }
+
   public static String getBtcPreferredUnit(final SharedPreferences prefs) {
     return prefs.getString(Constants.SETTING_BTC_UNIT, Constants.MILLI_BTC_CODE);
   }
