@@ -339,7 +339,7 @@ public class CreatePaymentActivity extends EclairActivity
       if (mLNInvoice != null) {
         final long amountMsat = isAmountReadonly
           ? CoinUtils.getLongAmountFromInvoice(mLNInvoice)
-          : package$.MODULE$.satoshi2millisatoshi(CoinUtils.parseMilliSatoshiAmount(mAmountEditableValue.getText().toString())).amount();
+          : package$.MODULE$.satoshi2millisatoshi(CoinUtils.parseMilliBtcToSatoshi(mAmountEditableValue.getText().toString())).amount();
         if (EclairEventService.hasActiveChannelsWithBalance(amountMsat)) {
           if (isPinRequired()) {
             pinDialog = new PinDialog(CreatePaymentActivity.this, R.style.CustomAlertDialog, new PinDialog.PinDialogCallback() {
@@ -374,7 +374,7 @@ public class CreatePaymentActivity extends EclairActivity
           }
         }
       } else if (mBitcoinInvoice != null) {
-        final Satoshi amount = isAmountReadonly ? mBitcoinInvoice.getAmount() : CoinUtils.parseMilliSatoshiAmount(mAmountEditableValue.getText().toString());
+        final Satoshi amount = isAmountReadonly ? mBitcoinInvoice.getAmount() : CoinUtils.parseMilliBtcToSatoshi(mAmountEditableValue.getText().toString());
         try {
           final Long feesPerKw = fr.acinq.eclair.package$.MODULE$.feerateByte2Kw(Long.parseLong(mFeesValue.getText().toString()));
           if (isPinRequired()) {

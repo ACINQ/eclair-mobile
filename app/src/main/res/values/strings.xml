@@ -100,6 +100,7 @@
   <string name="cancelled">Cancelled</string>
   <string name="generic_error">Action failed</string>
   <string name="error_icon">Error Icon</string>
+  <string name="error_generic">Internal Error</string>
 
   <!-- /////////////// Menus /////////////// -->
 

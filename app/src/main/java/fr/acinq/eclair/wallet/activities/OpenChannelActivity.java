@@ -1,7 +1,7 @@
 package fr.acinq.eclair.wallet.activities;
 
-import android.content.Intent;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -18,7 +18,6 @@ import java.net.InetSocketAddress;
 import akka.dispatch.OnComplete;
 import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.bitcoin.Crypto;
-import fr.acinq.bitcoin.MilliBtc;
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.bitcoin.package$;
@@ -27,27 +26,32 @@ import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.events.LNNewChannelFailureEvent;
 import fr.acinq.eclair.wallet.events.LNNewChannelOpenedEvent;
+import fr.acinq.eclair.wallet.utils.CoinUtils;
+import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.Validators;
-import scala.math.BigDecimal;
 
 public class OpenChannelActivity extends EclairActivity {
 
-  public static final String EXTRA_NEW_HOST_URI = BuildConfig.APPLICATION_ID +  "NEW_HOST_URI";
+  public static final String EXTRA_NEW_HOST_URI = BuildConfig.APPLICATION_ID + "NEW_HOST_URI";
   private static final String TAG = "OpenChannelActivity";
 
   private TextView mCapacityHint;
   private EditText mCapacityValue;
+  private TextView mCapacityUnit;
   private TextView mPubkeyTextView;
   private TextView mIPTextView;
   private TextView mPortTextView;
   private Button mOpenButton;
   private View mErrorView;
   private TextView mErrorValue;
+  private String prefUnit = Constants.MILLI_BTC_CODE;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_open_channel);
+
+    prefUnit = CoinUtils.getBtcPreferredUnit(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()));
 
     mOpenButton = findViewById(R.id.openchannel_do_open);
     mIPTextView = findViewById(R.id.openchannel_ip);
@@ -67,42 +71,62 @@ public class OpenChannelActivity extends EclairActivity {
       public void onTextChanged(CharSequence s, int start, int before, int count) {
         // toggle hint depending on amount input
         mCapacityHint.setVisibility(s == null || s.length() == 0 ? View.VISIBLE : View.GONE);
-        if (s.length() > 0) {
-          try {
-            checkAmount(s.toString());
-          } catch (Exception e) {
-            Log.d(TAG, "Could not convert amount to number with cause " + e.getMessage());
-            toggleError(R.string.openchannel_error_capacity_nan);
-          }
-        }
+        checkAmount(s.toString());
       }
 
       @Override
       public void afterTextChanged(Editable s) {
       }
     });
+    mCapacityUnit = findViewById(R.id.openchannel_capacity_unit);
+    mCapacityUnit.setText(CoinUtils.getBitcoinUnitShortLabel(prefUnit));
 
-    Intent intent = getIntent();
-    String hostURI = intent.getStringExtra(EXTRA_NEW_HOST_URI);
-    setNodeURI(hostURI);
+    setNodeURI(getIntent().getStringExtra(EXTRA_NEW_HOST_URI));
   }
 
+  /**
+   * Checks if the String amount respects the following rules:
+   * <ul>
+   * <li>numeric</li>
+   * <li>convertible to MilliSatoshi in the current user preferred unit</li>
+   * <li>exceeds the minimal capacity amount (1mBTC)</li>
+   * <li>does not exceed the maximal capacity amount (167 mBTC)</li>
+   * <li>does not exceed the available onchain balance (confirmed + unconfirmed), accounting a minimal required leftover</li>
+   * </ul>
+   * <p>
+   * Shows an error in the open channel form if one of the rules is not respected
+   *
+   * @param amount string amount
+   * @return
+   */
   private boolean checkAmount(final String amount) {
     try {
-      Long parsedAmountSat = Long.parseLong(amount) * 100000;
-      if (parsedAmountSat < Validators.MIN_FUNDING_SAT
-        || parsedAmountSat >= Validators.MAX_FUNDING_SAT) {
+      if (amount == null || amount.length() == 0) {
         toggleError(R.string.openchannel_capacity_invalid);
         return false;
-      } else if (parsedAmountSat + 100000 > app.onChainBalance.get().amount()) {
+      }
+      final MilliSatoshi amountMsat = CoinUtils.parseStringToMsat(amount, prefUnit);
+      if (amountMsat.amount() < Validators.MIN_FUNDING_MSAT
+        || amountMsat.amount() >= Validators.MAX_FUNDING_MSAT) {
+        toggleError(R.string.openchannel_capacity_invalid);
+        return false;
+      } else if (package$.MODULE$.millisatoshi2satoshi(amountMsat).amount() + Validators.MIN_LEFTOVER_ONCHAIN_BALANCE_SAT > app.onChainBalance.get().amount()) {
         toggleError(R.string.openchannel_capacity_notenoughfunds);
         return false;
       } else {
         mErrorView.setVisibility(View.GONE);
         return true;
       }
-    } catch (NumberFormatException e) {
-      toggleError(R.string.openchannel_capacity_invalid);
+    } catch (IllegalArgumentException ilex) {
+      // the user's preferred unit may be unknown
+      Log.w(TAG, "Could not convert amount, check preferred unit? " + ilex.getMessage());
+      toggleError(R.string.error_generic);
+      disableActions();
+      finish(); // prevent any further issue by closing the activity.
+      return false;
+    } catch (Exception e) {
+      Log.d(TAG, "Could not convert amount to number with cause " + e.getMessage());
+      toggleError(R.string.openchannel_error_capacity_nan);
       return false;
     }
   }
@@ -132,7 +156,12 @@ public class OpenChannelActivity extends EclairActivity {
       }
     }
     toggleError(R.string.openchannel_error_address);
+    disableActions();
+  }
+
+  private void disableActions() {
     mOpenButton.setEnabled(false);
+    mOpenButton.setOnClickListener(null);
     mCapacityValue.setEnabled(false);
     mOpenButton.setAlpha(0.3f);
   }
@@ -146,13 +175,15 @@ public class OpenChannelActivity extends EclairActivity {
   }
 
   public void confirmOpenChannel(View view) {
-    if (!checkAmount(mCapacityValue.getText().toString())) return;
+    if (!checkAmount(mCapacityValue.getText().toString())) {
+      return;
+    }
+    disableActions();
 
-    mOpenButton.setVisibility(View.GONE);
     final String pubkeyString = mPubkeyTextView.getText().toString();
-    final String amountString = mCapacityValue.getText().toString();
     final String ipString = mIPTextView.getText().toString();
     final String portString = mPortTextView.getText().toString();
+    final Satoshi fundingSat = package$.MODULE$.millisatoshi2satoshi(CoinUtils.parseStringToMsat(mCapacityValue.getText().toString(), prefUnit));
 
     AsyncExecutor.create().execute(
       new AsyncExecutor.RunnableEx() {
@@ -162,7 +193,6 @@ public class OpenChannelActivity extends EclairActivity {
           final BinaryData pubkeyBinary = BinaryData.apply(pubkeyString);
           final Crypto.Point pubkeyPoint = new Crypto.Point(Crypto.curve().getCurve().decodePoint(package$.MODULE$.binaryData2array(pubkeyBinary)));
           final Crypto.PublicKey pubkey = new Crypto.PublicKey(pubkeyPoint, true);
-          final Satoshi fundingSat = package$.MODULE$.millibtc2satoshi(new MilliBtc(BigDecimal.exact(amountString)));
 
           final InetSocketAddress address = new InetSocketAddress(ipString, Integer.parseInt(portString));
           OnComplete<Object> onComplete = new OnComplete<Object>() {

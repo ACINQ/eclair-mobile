@@ -179,6 +179,74 @@ public class CoinUtils {
   }
 
   /**
+   * Reads a numeric String, parses the amount and converts the amount from Bitcoin to {@link MilliSatoshi}.
+   *
+   * @param amountBitcoin must be numeric
+   * @return
+   * @throws NumberFormatException if the string is not numeric
+   */
+  public static MilliSatoshi parseBitcoinStringToMsat(final String amountBitcoin) throws NumberFormatException {
+    return new MilliSatoshi(new BigDecimal(amountBitcoin).movePointRight(8 + 3).longValueExact());
+  }
+
+  /**
+   * Reads a numeric String, parses the amount and converts the amount from MilliBitcoin to {@link MilliSatoshi}.
+   *
+   * @param amountMilliBitcoin must be numeric
+   * @return
+   * @throws NumberFormatException if the string is not numeric
+   */
+  public static MilliSatoshi parseMilliBitcoinStringToMsat(final String amountMilliBitcoin) throws NumberFormatException {
+    return new MilliSatoshi(new BigDecimal(amountMilliBitcoin).movePointRight(5 + 3).longValueExact());
+  }
+
+  /**
+   * Reads a numeric String, parses the amount and converts the amount from Satoshi to {@link MilliSatoshi}.
+   *
+   * @param amountSatoshi must be numeric
+   * @return
+   * @throws NumberFormatException if the string is not numeric
+   */
+  public static MilliSatoshi parseSatoshiStringToMsat(final String amountSatoshi) throws NumberFormatException {
+    return new MilliSatoshi(new BigDecimal(amountSatoshi).movePointRight(3).longValueExact());
+  }
+
+  /**
+   * Reads a numeric String, parses the amount and converts the amount from MilliSatoshi to {@link MilliSatoshi}.
+   *
+   * @param amountMilliSatoshi must be numeric
+   * @return
+   * @throws NumberFormatException if the string is not numeric
+   */
+  public static MilliSatoshi parseMilliSatoshiStringToMsat(final String amountMilliSatoshi) throws NumberFormatException {
+    return new MilliSatoshi(new BigDecimal(amountMilliSatoshi).longValueExact());
+  }
+
+  /**
+   * Reads a numeric String, parses the amount and converts the amount from the specified unit to {@link MilliSatoshi}.
+   *
+   * @param amountInUnit Numeric string representing a bitcoin amount in the unit in parameter
+   * @param unit unit code of the amount, must be the code corresponding to {@link MilliSatoshi}, {@link Satoshi}, {@link MilliBtc} or {@link Btc}
+   * @return the amount in MilliSatoshi
+   * @throws NumberFormatException if the amount is not a numeric String
+   * @throws IllegalArgumentException if the unit is not known
+   */
+  public static MilliSatoshi parseStringToMsat(final String amountInUnit, final String unit) throws NumberFormatException, IllegalArgumentException {
+    switch (unit) {
+      case Constants.MILLI_SATOSHI_CODE:
+        return parseMilliSatoshiStringToMsat(amountInUnit);
+      case Constants.SATOSHI_CODE:
+        return parseSatoshiStringToMsat(amountInUnit);
+      case Constants.MILLI_BTC_CODE:
+        return parseMilliBitcoinStringToMsat(amountInUnit);
+      case Constants.BTC_CODE:
+        return parseBitcoinStringToMsat(amountInUnit);
+      default:
+        throw new IllegalArgumentException("Unknown unit");
+    }
+  }
+
+  /**
    * Return amount as Long, in millisatoshi
    *
    * @param paymentRequest
@@ -208,12 +276,12 @@ public class CoinUtils {
     return CoinUtils.getBTCFormat().format(package$.MODULE$.millisatoshi2btc(amount).amount());
   }
 
-  public static Satoshi parseBitcoinAmount(String input) {
+  public static Satoshi parseBitcoinToSatoshi(String input) {
     long amount = new BigDecimal(input).movePointRight(8).longValueExact();
     return new Satoshi(amount);
   }
 
-  public static Satoshi parseMilliSatoshiAmount(String input) {
+  public static Satoshi parseMilliBtcToSatoshi(String input) {
     long amount = new BigDecimal(input).movePointRight(8).divide(BigDecimal.valueOf(1000)).longValueExact();
     return new Satoshi(amount);
   }

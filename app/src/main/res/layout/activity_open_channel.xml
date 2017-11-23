@@ -65,7 +65,7 @@
             android:background="@android:color/transparent"
             android:fontFamily="sans-serif-light"
             android:inputType="numberDecimal"
-            android:maxLength="6"
+            android:maxLength="8"
             android:maxLines="1"
             android:minWidth="48dp"
             android:textAlignment="viewEnd"

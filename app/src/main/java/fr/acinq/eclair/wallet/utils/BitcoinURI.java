@@ -166,7 +166,7 @@ public class BitcoinURI {
       // Parse the amount.
       if (FIELD_AMOUNT.equals(nameToken)) {
         // Decode the amount (contains an optional decimal component to 8dp).
-        Satoshi amount = CoinUtils.parseBitcoinAmount(valueToken);
+        Satoshi amount = CoinUtils.parseBitcoinToSatoshi(valueToken);
         if (amount.toLong() < 0)
           throw new ArithmeticException("Negative coins specified");
         putWithValidation(FIELD_AMOUNT, amount);
