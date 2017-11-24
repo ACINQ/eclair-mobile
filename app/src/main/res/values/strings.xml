@@ -317,4 +317,9 @@
   <string name="prefs_lightning_max_fee">Cap Lightning fees (disabled)</string>
   <string name="prefs_lightning_max_fee_desc">Fail payments if the fees exceeds 1% of the amount. This prevents overpaying opportunistic nodes in the middle of the route.</string>
 
+  <!-- //////////////// Preferences //////////////////// -->
+
+  <string name="scan_title_invoice">Please scan a Bitcoin address or a Lightning payment request QR code.</string>
+  <string name="scan_title_ln_uri">Please scan the URI of a Lightning Network\'s node.</string>
+
 </resources>
