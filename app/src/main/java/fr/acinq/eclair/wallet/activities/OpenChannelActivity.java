@@ -26,6 +26,7 @@ import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.events.LNNewChannelFailureEvent;
 import fr.acinq.eclair.wallet.events.LNNewChannelOpenedEvent;
+import fr.acinq.eclair.wallet.fragments.PinDialog;
 import fr.acinq.eclair.wallet.utils.CoinUtils;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.Validators;
@@ -45,6 +46,8 @@ public class OpenChannelActivity extends EclairActivity {
   private View mErrorView;
   private TextView mErrorValue;
   private String prefUnit = Constants.MILLI_BTC_CODE;
+
+  private PinDialog pinDialog;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -84,6 +87,15 @@ public class OpenChannelActivity extends EclairActivity {
     setNodeURI(getIntent().getStringExtra(EXTRA_NEW_HOST_URI));
   }
 
+  @Override
+  protected void onPause() {
+    // dismiss the pin dialog if it exists to prevent leak.
+    if (pinDialog != null) {
+      pinDialog.dismiss();
+    }
+    super.onPause();
+  }
+
   /**
    * Checks if the String amount respects the following rules:
    * <ul>
@@ -121,7 +133,7 @@ public class OpenChannelActivity extends EclairActivity {
       // the user's preferred unit may be unknown
       Log.w(TAG, "Could not convert amount, check preferred unit? " + ilex.getMessage());
       toggleError(R.string.error_generic);
-      disableActions();
+      disableForm();
       finish(); // prevent any further issue by closing the activity.
       return false;
     } catch (Exception e) {
@@ -156,14 +168,18 @@ public class OpenChannelActivity extends EclairActivity {
       }
     }
     toggleError(R.string.openchannel_error_address);
-    disableActions();
+    disableForm();
   }
 
-  private void disableActions() {
+  private void disableForm() {
     mOpenButton.setEnabled(false);
-    mOpenButton.setOnClickListener(null);
     mCapacityValue.setEnabled(false);
     mOpenButton.setAlpha(0.3f);
+  }
+  private void enableForm() {
+    mOpenButton.setEnabled(true);
+    mCapacityValue.setEnabled(true);
+    mOpenButton.setAlpha(1f);
   }
 
   public void cancelOpenChannel(View view) {
@@ -178,7 +194,31 @@ public class OpenChannelActivity extends EclairActivity {
     if (!checkAmount(mCapacityValue.getText().toString())) {
       return;
     }
-    disableActions();
+
+    disableForm();
+    if (isPinRequired()) {
+      pinDialog = new PinDialog(OpenChannelActivity.this, R.style.CustomAlertDialog, new PinDialog.PinDialogCallback() {
+        @Override
+        public void onPinConfirm(final PinDialog dialog, final String pinValue) {
+          if (isPinCorrect(pinValue, dialog)) {
+            doOpenChannel();
+          } else {
+            toggleError(R.string.payment_error_incorrect_pin);
+            enableForm();
+          }
+        }
+        @Override
+        public void onPinCancel(PinDialog dialog) {
+          enableForm();
+        }
+      });
+      pinDialog.show();
+    } else {
+      doOpenChannel();
+    }
+  }
+
+  private void doOpenChannel() {
 
     final String pubkeyString = mPubkeyTextView.getText().toString();
     final String ipString = mIPTextView.getText().toString();

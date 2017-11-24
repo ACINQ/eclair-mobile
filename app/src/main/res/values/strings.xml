@@ -82,7 +82,7 @@
   <string name="openchannel_capacity_hint">Channel capacity in</string>
   <string name="openchannel_capacity_invalid">Channel capacity must be between 1 and 167 mBTC</string>
   <string name="openchannel_capacity_notenoughfunds">Not enough funds</string>
-  <string name="openchannel_error_capacity_nan">Capacity must be a number</string>
+  <string name="openchannel_error_capacity_nan">Capacity amount is not valid</string>
   <string name="openchannel_error_address">This is not a valid address.\nFormat is [pubkey]@[ip]:[port]</string>
   <string name="openchannel_do_open">Open</string>
   <string name="openchannel_pubkey">Node\'s Public key</string>
