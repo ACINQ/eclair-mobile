@@ -242,7 +242,7 @@ public class App extends Application {
       boolean isMainNet = byte1.equals(Base58.Prefix$.MODULE$.PubkeyAddress()) || byte1.equals(Base58.Prefix$.MODULE$.ScriptAddress());
       return isTestNet;
     } catch (Throwable t) {
-      Log.e(TAG, "Could not check address parameter", t);
+      Log.e(TAG, "Could not check address parameter for address=" + address, t);
     }
     return false;
   }
