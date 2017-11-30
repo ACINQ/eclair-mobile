@@ -18,4 +18,12 @@
     <item>mbtc</item>
     <item>btc</item>
   </string-array>
+  <string-array name="onchain_explorer_uri_labels">
+    <item>Blockcypher API (Testnet)</item>
+    <item>Blockcypher Web (Testnet)</item>
+  </string-array>
+  <string-array name="onchain_explorer_uri_values">
+    <item>https://api.blockcypher.com/v1/btc/test3/txs/</item>
+    <item>https://live.blockcypher.com/btc-testnet/tx/</item>
+  </string-array>
 </resources>

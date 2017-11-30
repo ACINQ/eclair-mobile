@@ -20,6 +20,9 @@ public interface Constants {
   String SETTING_BTC_UNIT = "btc_unit";
   String SETTING_DISPLAY_IN_FIAT = "display_in_fiat";
 
+  // onchain explorer
+  String SETTING_ONCHAIN_EXPLORER = "onchain_explorer";
+
   // lightning
   String SETTING_LIGHTNING_MAX_FEE = "lightning_max_fee";
   String SETTING_LIGHTNING_MAX_FEE_VALUE = "lightning_max_fee_value";

@@ -19,6 +19,15 @@
       android:key="btc_unit"
       android:summary="%s"
       android:title="@string/prefs_btc_unit" />
+
+    <ListPreference
+      android:defaultValue="https://api.blockcypher.com/v1/btc/test3/txs/"
+      android:dialogTitle="@string/prefs_onchain_explorer_dialog"
+      android:entries="@array/onchain_explorer_uri_labels"
+      android:entryValues="@array/onchain_explorer_uri_values"
+      android:key="onchain_explorer"
+      android:summary="%s"
+      android:title="@string/prefs_onchain_explorer" />
   </PreferenceCategory>
 
   <PreferenceCategory android:title="@string/prefs_cat_lightning">
