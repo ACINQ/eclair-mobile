@@ -5,6 +5,7 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -109,21 +110,10 @@ public class HomeActivity extends EclairActivity {
   private JsonObjectRequest mExchangeRateRequest;
 
   @Override
-  protected void onCreate(Bundle savedInstanceState) {
+  protected void onCreate(final Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setTheme(R.style.AppTheme);
     setContentView(R.layout.activity_home);
-
-    if (app.hasBreakingChanges()) {
-      mStubBreakingChanges = findViewById(R.id.home_stub_breaking);
-      mStubBreakingChanges.inflate();
-      ((TextView) findViewById(R.id.home_breaking_changes_text)).setText(Html.fromHtml(
-        getString(R.string.breaking_changes_text)));
-    }
-
-    mStubDisclaimer = findViewById(R.id.home_stub_disclaimer);
-    mStubIntro = findViewById(R.id.home_stub_intro);
-    mStubBackup = findViewById(R.id.home_stub_backup);
 
     Toolbar toolbar = findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
@@ -133,35 +123,75 @@ public class HomeActivity extends EclairActivity {
 
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 
-    mConnectionStatus = findViewById(R.id.home_connection_status);
+    // --- stubs
+    mStubDisclaimer = findViewById(R.id.home_stub_disclaimer);
+    mStubIntro = findViewById(R.id.home_stub_intro);
+    mStubBackup = findViewById(R.id.home_stub_backup);
 
+    // --- tabs view page
+    mViewPager = findViewById(R.id.home_viewpager);
+
+    // --- top view
+    mConnectionStatus = findViewById(R.id.home_connection_status);
     mBalanceView = findViewById(R.id.home_balance);
     mTotalBalanceView = findViewById(R.id.home_balance_total);
     mOnchainBalanceView = findViewById(R.id.home_balance_onchain_value);
     mLNBalanceView = findViewById(R.id.home_balance_ln_value);
-    mBalanceView.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View view) {
-        boolean displayBalanceAsFiat = CoinUtils.shouldDisplayInFiat(prefs);
-        prefs.edit().putBoolean(Constants.SETTING_DISPLAY_IN_FIAT, !displayBalanceAsFiat).commit();
-        mOnchainBalanceView.refreshUnits();
-        mTotalBalanceView.refreshUnits();
-        mLNBalanceView.refreshUnits();
-        mPaymentsListFragment.refreshList();
-        mChannelsListFragment.updateList();
-      }
-    });
 
+    // --- send payment button
     mSendButtonsView = findViewById(R.id.home_send_buttons);
     mSendButtonsToggleView = findViewById(R.id.home_send_buttons_toggle);
     mSendButton = findViewById(R.id.home_send_button);
     mDisabledSendButton = findViewById(R.id.home_send_button_disabled);
 
+    // --- open channel button
     mOpenChannelsButtonsView = findViewById(R.id.home_openchannel_buttons);
     mOpenChannelButtonsToggleView = findViewById(R.id.home_openchannel_buttons_toggle);
     mOpenChannelButton = findViewById(R.id.home_openchannel_button);
 
-    mViewPager = findViewById(R.id.home_viewpager);
+    // --- check app state
+    checkBreakingChanges();
+    checkFirstTimeStart(prefs);
+
+    // setup content
+    setUpTabs(savedInstanceState);
+    setUpBalanceInteraction(prefs);
+    setUpPaymentButtonStateListener();
+    setUpExchangeRate();
+
+    // check intent
+    final Uri paymentRequest = getIntent().getData();
+    if (paymentRequest != null) {
+      switch (paymentRequest.getScheme()) {
+        case "bitcoin":
+        case "lightning":
+          Intent paymentIntent = new Intent(this, CreatePaymentActivity.class);
+          paymentIntent.putExtra(CreatePaymentActivity.EXTRA_INVOICE, paymentRequest.toString());
+          startActivity(paymentIntent);
+          break;
+        default:
+          Log.i(TAG, "Unhandled payment scheme=" + paymentRequest);
+      }
+    }
+
+    if (!EventBus.getDefault().isRegistered(this)) {
+      EventBus.getDefault().register(this);
+    }
+    EventBus.getDefault().postSticky(new WalletBalanceUpdateEvent(
+      package$.MODULE$.millisatoshi2satoshi(new MilliSatoshi(app.getDBHelper().getOnchainBalanceMsat()))));
+    Log.d(TAG, "Home.onCreate done");
+  }
+
+  private void checkBreakingChanges() {
+    if (app.hasBreakingChanges()) {
+      mStubBreakingChanges = findViewById(R.id.home_stub_breaking);
+      mStubBreakingChanges.inflate();
+      ((TextView) findViewById(R.id.home_breaking_changes_text)).setText(Html.fromHtml(
+        getString(R.string.breaking_changes_text)));
+    }
+  }
+
+  private void setUpTabs(final Bundle savedInstanceState) {
     mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
       @Override
       public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -193,7 +223,9 @@ public class HomeActivity extends EclairActivity {
       Intent intent = getIntent();
       mViewPager.setCurrentItem(intent.getIntExtra(EXTRA_PAGE, 1));
     }
+  }
 
+  private void checkFirstTimeStart(final SharedPreferences prefs) {
     (new Thread(new Runnable() {
       @Override
       public void run() {
@@ -211,7 +243,24 @@ public class HomeActivity extends EclairActivity {
         }
       }
     })).start();
+  }
 
+  private void setUpBalanceInteraction(final SharedPreferences prefs) {
+    mBalanceView.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View view) {
+        boolean displayBalanceAsFiat = CoinUtils.shouldDisplayInFiat(prefs);
+        prefs.edit().putBoolean(Constants.SETTING_DISPLAY_IN_FIAT, !displayBalanceAsFiat).commit();
+        mOnchainBalanceView.refreshUnits();
+        mTotalBalanceView.refreshUnits();
+        mLNBalanceView.refreshUnits();
+        mPaymentsListFragment.refreshList();
+        mChannelsListFragment.updateList();
+      }
+    });
+  }
+
+  private void setUpPaymentButtonStateListener() {
     app.fAtCurrentBlockHeight().onComplete(new OnComplete<Object>() {
       @Override
       public void onComplete(Throwable throwable, Object o) throws Throwable {
@@ -227,7 +276,9 @@ public class HomeActivity extends EclairActivity {
         });
       }
     }, ExecutionContext.Implicits$.MODULE$.global());
+  }
 
+  private void setUpExchangeRate() {
     final RequestQueue queue = Volley.newRequestQueue(this);
     mExchangeRateRequest = new JsonObjectRequest(Request.Method.GET, "https://api.coindesk.com/v1/bpi/currentprice.json", null,
       new Response.Listener<JSONObject>() {
@@ -257,11 +308,6 @@ public class HomeActivity extends EclairActivity {
         mExchangeRateHandler.postDelayed(this, 5 * 60 * 1000);
       }
     };
-    if (!EventBus.getDefault().isRegistered(this)) {
-      EventBus.getDefault().register(this);
-    }
-    EventBus.getDefault().postSticky(new WalletBalanceUpdateEvent(package$.MODULE$.millisatoshi2satoshi(new MilliSatoshi(app.getDBHelper().getOnchainBalanceMsat()))));
-    Log.i(TAG, "Home.onCreate done");
   }
 
   @Override
@@ -283,7 +329,7 @@ public class HomeActivity extends EclairActivity {
     mLNBalanceView.refreshUnits();
     // ask for LN balance
     EclairEventService.postLNBalanceEvent();
-    Log.i(TAG, "Home.onResume done");
+    Log.d(TAG, "Home.onResume done");
   }
 
   @Override

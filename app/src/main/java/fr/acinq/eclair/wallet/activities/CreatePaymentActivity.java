@@ -32,6 +32,7 @@ import fr.acinq.eclair.payment.PaymentFailure;
 import fr.acinq.eclair.payment.PaymentLifecycle;
 import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.payment.PaymentSucceeded;
+import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.EclairEventService;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.events.LNPaymentFailedEvent;
@@ -53,7 +54,7 @@ import scala.util.Either;
 public class CreatePaymentActivity extends EclairActivity
   implements LNInvoiceReaderTask.AsyncInvoiceReaderTaskResponse, BitcoinInvoiceReaderTask.AsyncInvoiceReaderTaskResponse {
 
-  public static final String EXTRA_INVOICE = "fr.acinq.eclair.wallet.EXTRA_INVOICE";
+  public static final String EXTRA_INVOICE = BuildConfig.APPLICATION_ID + "EXTRA_INVOICE";
   private static final String TAG = "CreatePayment";
 
   private boolean isProcessingPayment = false;
@@ -287,7 +288,9 @@ public class CreatePaymentActivity extends EclairActivity
     mSendButton = findViewById(R.id.payment_btn_send);
     mCancelButton = findViewById(R.id.payment_btn_cancel);
 
-    Intent intent = getIntent();
+    // --- read invoice from intent
+    final Intent intent = getIntent();
+    Log.d(TAG, "Started with intent=" + intent.getDataString());
     mInvoice = intent.getStringExtra(EXTRA_INVOICE);
     Log.i(TAG, "Initializing payment with invoice=" + mInvoice);
     new LNInvoiceReaderTask(this, mInvoice).execute();

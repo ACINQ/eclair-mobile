@@ -28,8 +28,8 @@ public class BitcoinInvoiceReaderTask extends AsyncTask<String, Integer, Bitcoin
         // to handle raw address
         extract = new BitcoinURI("bitcoin:" + invoiceAsString);
       }
-    } catch (BitcoinURIParseException e) {
-      Log.d(TAG, "Could not read Bitcoin invoice " + invoiceAsString + " with cause: " + e.getMessage());
+    } catch (Throwable t) {
+      Log.d(TAG, "Could not read Bitcoin invoice " + invoiceAsString + " with cause: " + t.getMessage());
     }
     return extract;
   }
