@@ -511,9 +511,9 @@ public class CreatePaymentActivity extends EclairActivity
             }
           };
 
-          int minFinalCltvExpiry = PaymentLifecycle.defaultMinFinalCltvExpiry();
-          if (pr.minFinalCltvExpiry().isDefined() && pr.minFinalCltvExpiry().get() instanceof Integer) {
-            minFinalCltvExpiry = (Integer) pr.minFinalCltvExpiry().get();
+          Long minFinalCltvExpiry = PaymentLifecycle.defaultMinFinalCltvExpiry();
+          if (pr.minFinalCltvExpiry().isDefined() && pr.minFinalCltvExpiry().get() instanceof Long) {
+            minFinalCltvExpiry = (Long) pr.minFinalCltvExpiry().get();
           }
           // 3 - execute payment future
           app.sendLNPayment(45, onComplete, amountMsat, pr.paymentHash(), pr.nodeId(), minFinalCltvExpiry);

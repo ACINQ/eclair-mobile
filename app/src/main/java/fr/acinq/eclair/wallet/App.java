@@ -200,7 +200,7 @@ public class App extends Application {
    * @param publicKey   public key of the recipient node
    */
   public void sendLNPayment(final int timeout, final OnComplete<Object> onComplete, final long amountMsat,
-                            final BinaryData paymentHash, final Crypto.PublicKey publicKey, final int minFinalCltvExpiry) {
+                            final BinaryData paymentHash, final Crypto.PublicKey publicKey, final Long minFinalCltvExpiry) {
     Future<Object> paymentFuture = Patterns.ask(
       eclairKit.paymentInitiator(),
       new SendPayment(amountMsat, paymentHash, publicKey, minFinalCltvExpiry, 5),
