@@ -80,7 +80,7 @@ public class LightningPaymentError implements Parcelable {
       final LocalFailure lf = (LocalFailure) failure;
       final String type = lf.getClass().getSimpleName();
       final String cause = lf.t().getClass().getSimpleName();
-      final String origin = lf.t() instanceof ChannelException ? ((ChannelException) lf.t()).getChannelId().toString() : null;
+      final String origin = "";//lf.t() instanceof ChannelException ? ((ChannelException) lf.t()).getChannelId().toString() : null;
       return new LightningPaymentError(type, cause, origin, null);
     } else {
       return new LightningPaymentError("Unknown Error", "Unknow Cause", null, null);
