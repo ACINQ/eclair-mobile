@@ -68,9 +68,6 @@ public class LightningPaymentError implements Parcelable {
       final String type = rf.getClass().getSimpleName();
       final String cause = rf.e().failureMessage() == null ? "Unknown cause" : rf.e().failureMessage().getClass().getSimpleName();
       final String origin = rf.e().originNode().toString();
-      Log.i("LnPaymentErr", "##### failure=" + type);
-      Log.i("LnPaymentErr", "cause=" + cause);
-      Log.i("LnPaymentErr", "origin=" + origin);
       String originChannelId = null;
       final List<String> hopsNodesPK = new ArrayList<>();
       if (rf.route().size() > 0) {
@@ -94,7 +91,6 @@ public class LightningPaymentError implements Parcelable {
       final String origin = lf.t() instanceof ChannelException ? ((ChannelException) lf.t()).channelId().toString() : null;
       return new LightningPaymentError(type, cause, origin, null, null);
     } else {
-      Log.i("LnPaymentErr", "##### failure=unknown");
       return new LightningPaymentError("Unknown Error", "Unknown Cause", null, null, null);
     }
   }

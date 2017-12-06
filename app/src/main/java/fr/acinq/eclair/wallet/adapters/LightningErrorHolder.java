@@ -40,7 +40,9 @@ public class LightningErrorHolder extends RecyclerView.ViewHolder {
   public void bindErrorItem(final LightningPaymentError error, final int counter, final int total) {
     mErrorCounter.setText(itemView.getResources().getString(R.string.paymentfailure_error_counter, (counter + 1), total));
     mErrorType.setText(error.getType());
-    mErrorCause.setText(itemView.getResources().getString(R.string.paymentfailure_error_cause, error.getCause()));
+    if (error.getCause() != null) {
+      mErrorCause.setText(itemView.getResources().getString(R.string.paymentfailure_error_cause, error.getCause().replace("$","")));
+    }
     if (error.getOrigin() != null) {
       mErrorOriginLabel.setVisibility(View.VISIBLE);
       mErrorOrigin.setVisibility(View.VISIBLE);
