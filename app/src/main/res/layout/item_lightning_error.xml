@@ -77,6 +77,31 @@
     android:visibility="gone" />
 
   <TextView
+    android:id="@+id/lightning_error_origin_channel_id_label"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_alignEnd="@+id/lightning_error_counter"
+    android:layout_below="@+id/lightning_error_origin"
+    android:text="@string/paymentfailure_error_origin_channel_label"
+    android:textColor="@color/redFadedLight"
+    android:textSize="12sp"
+    android:visibility="gone" />
+
+  <TextView
+    android:id="@+id/lightning_error_origin_channel_id"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_below="@+id/lightning_error_origin"
+    android:layout_marginEnd="4dp"
+    android:layout_marginStart="4dp"
+    android:layout_toEndOf="@+id/lightning_error_origin_label"
+    android:textColor="@color/white"
+    android:textIsSelectable="true"
+    android:textSize="12sp"
+    android:visibility="gone" />
+
+
+  <TextView
     android:id="@+id/lightning_error_hops"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"

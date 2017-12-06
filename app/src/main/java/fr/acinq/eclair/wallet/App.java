@@ -193,11 +193,11 @@ public class App extends Application {
    * Asks the eclair node to asynchronously execute a Lightning payment. Completes with a
    * {@link akka.pattern.AskTimeoutException} after the timeout has expired.
    *
-   * @param timeout     timeout in milliseconds
+   * @param timeout     Timeout in milliseconds
    * @param onComplete  Callback executed once the future completes (with success or failure)
    * @param amountMsat  Amount of the payment in millisatoshis
    * @param paymentHash Hash of the payment preimage
-   * @param publicKey   public key of the recipient node
+   * @param publicKey   Public key of the recipient node
    */
   public void sendLNPayment(final int timeout, final OnComplete<Object> onComplete, final long amountMsat,
                             final BinaryData paymentHash, final Crypto.PublicKey publicKey, final Long minFinalCltvExpiry) {

@@ -12,13 +12,13 @@
     android:focusable="true"
     android:gravity="center"
     android:onClick="failure_dismiss"
-    android:orientation="vertical"
-    android:paddingTop="148dp">
+    android:orientation="vertical">
 
     <ImageView
       android:id="@+id/paymentfailure_sad"
       android:layout_width="74dp"
       android:layout_height="74dp"
+      android:layout_marginTop="64dp"
       android:layout_marginBottom="32dp"
       android:background="@drawable/icon_sad_white" />
 
@@ -30,15 +30,16 @@
       android:textAllCaps="true"
       android:textColor="@color/white"
       android:textSize="18sp"
+      android:layout_marginBottom="16dp"
       android:textStyle="bold" />
 
     <TextView
       android:id="@+id/paymentfailure_simple"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:layout_marginTop="16dp"
       android:text="@string/unknown"
       android:textAlignment="center"
+      android:layout_marginBottom="32dp"
       android:textColor="@color/white" />
 
     <Button
@@ -46,7 +47,7 @@
       style="?android:attr/borderlessButtonStyle"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:layout_marginTop="16dp"
+      android:layout_marginBottom="16dp"
       android:background="@drawable/rounded_corner_white"
       android:minHeight="0dp"
       android:padding="6dp"

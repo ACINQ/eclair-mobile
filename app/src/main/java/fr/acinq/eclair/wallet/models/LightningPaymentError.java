@@ -2,6 +2,7 @@ package fr.acinq.eclair.wallet.models;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,12 +34,14 @@ public class LightningPaymentError implements Parcelable {
   private String type;
   private String cause;
   private String origin;
+  private String originChannelId;
   private List<String> hops;
 
-  public LightningPaymentError(String type, String cause, String origin, List<String> hops) {
+  public LightningPaymentError(String type, String cause, String origin, String originChannelId, List<String> hops) {
     this.type = type;
     this.cause = cause;
     this.origin = origin;
+    this.originChannelId = originChannelId;
     this.hops = hops == null ? new ArrayList<String>() : hops;
   }
 
@@ -46,6 +49,7 @@ public class LightningPaymentError implements Parcelable {
     type = in.readString();
     cause = in.readString();
     origin = in.readString();
+    originChannelId = in.readString();
     List<String> h = new ArrayList<>();
     in.readList(h, List.class.getClassLoader());
   }
@@ -64,26 +68,41 @@ public class LightningPaymentError implements Parcelable {
       final String type = rf.getClass().getSimpleName();
       final String cause = rf.e().failureMessage() == null ? "Unknown cause" : rf.e().failureMessage().getClass().getSimpleName();
       final String origin = rf.e().originNode().toString();
+      Log.i("LnPaymentErr", "##### failure=" + type);
+      Log.i("LnPaymentErr", "cause=" + cause);
+      Log.i("LnPaymentErr", "origin=" + origin);
+      String originChannelId = null;
       final List<String> hopsNodesPK = new ArrayList<>();
       if (rf.route().size() > 0) {
         final scala.collection.immutable.List<Hop> hops = rf.route().toList();
         for (int hi = 0; hi < hops.size(); hi++) {
           Hop h = hops.apply(hi);
+          Log.i("LnPaymentErr", "HOP=" + h.toString());
+          Log.i("LnPaymentErr", "nodeId=" + h.nodeId().toString());
+          Log.i("LnPaymentErr", "next nodeId=" + h.nextNodeId().toString());
+          Log.i("LnPaymentErr", "channel id=" + h.lastUpdate().shortChannelId() + " hex=" + Long.toHexString(h.lastUpdate().shortChannelId()));
           if (hi == 0) {
             hopsNodesPK.add(h.nodeId().toString());
+          }
+          if (origin.equals(h.nodeId().toString())) {
+            originChannelId = Long.toHexString(h.lastUpdate().shortChannelId());
           }
           hopsNodesPK.add(h.nextNodeId().toString());
         }
       }
-      return new LightningPaymentError(type, cause, origin, hopsNodesPK);
+      return new LightningPaymentError(type, cause, origin, originChannelId, hopsNodesPK);
     } else if (failure instanceof LocalFailure) {
       final LocalFailure lf = (LocalFailure) failure;
       final String type = lf.getClass().getSimpleName();
       final String cause = lf.t().getClass().getSimpleName();
-      final String origin = lf.t() instanceof ChannelException ? ((ChannelException) lf.t()).getChannelId().toString() : null;
-      return new LightningPaymentError(type, cause, origin, null);
+      final String origin = lf.t() instanceof ChannelException ? ((ChannelException) lf.t()).channelId().toString() : null;
+      Log.i("LnPaymentErr", "##### failure=" + type);
+      Log.i("LnPaymentErr", "cause=" + cause);
+      Log.i("LnPaymentErr", "origin=" + origin);
+      return new LightningPaymentError(type, cause, origin, null, null);
     } else {
-      return new LightningPaymentError("Unknown Error", "Unknow Cause", null, null);
+      Log.i("LnPaymentErr", "##### failure=unknown");
+      return new LightningPaymentError("Unknown Error", "Unknown Cause", null, null, null);
     }
   }
 
@@ -97,6 +116,10 @@ public class LightningPaymentError implements Parcelable {
 
   public String getOrigin() {
     return origin;
+  }
+
+  public String getOriginChannelId() {
+    return originChannelId;
   }
 
   public List<String> getHops() {
@@ -113,6 +136,7 @@ public class LightningPaymentError implements Parcelable {
     parcel.writeString(type);
     parcel.writeString(cause);
     parcel.writeString(origin);
+    parcel.writeString(originChannelId);
     parcel.writeList(hops);
   }
 }

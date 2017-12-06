@@ -217,6 +217,7 @@
   <string name="paymentfailure_error_cause_label">Cause:</string>
   <string name="paymentfailure_error_cause">%1$s</string>
   <string name="paymentfailure_error_origin_label">Origin:</string>
+  <string name="paymentfailure_error_origin_channel_label">Origin Channel:</string>
   <string name="paymentfailure_error_origin">%1$s</string>
 
   <!-- //////////////// Breaking changes //////////////////// -->

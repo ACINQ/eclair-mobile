@@ -18,6 +18,8 @@ public class LightningErrorHolder extends RecyclerView.ViewHolder {
   private final TextView mErrorCause;
   private final TextView mErrorOriginLabel;
   private final TextView mErrorOrigin;
+  private final TextView mErrorOriginChannelIdLabel;
+  private final TextView mErrorOriginChannelId;
   private final TextView mErrorHops;
 
   private final static String bullet = "&#9679;&nbsp;&nbsp;";
@@ -29,6 +31,8 @@ public class LightningErrorHolder extends RecyclerView.ViewHolder {
     mErrorCause = itemView.findViewById(R.id.lightning_error_cause);
     mErrorOriginLabel = itemView.findViewById(R.id.lightning_error_origin_label);
     mErrorOrigin = itemView.findViewById(R.id.lightning_error_origin);
+    mErrorOriginChannelIdLabel = itemView.findViewById(R.id.lightning_error_origin_channel_id_label);
+    mErrorOriginChannelId = itemView.findViewById(R.id.lightning_error_origin_channel_id);
     mErrorHops = itemView.findViewById(R.id.lightning_error_hops);
   }
 
@@ -41,6 +45,11 @@ public class LightningErrorHolder extends RecyclerView.ViewHolder {
       mErrorOriginLabel.setVisibility(View.VISIBLE);
       mErrorOrigin.setVisibility(View.VISIBLE);
       mErrorOrigin.setText(itemView.getResources().getString(R.string.paymentfailure_error_origin, error.getOrigin()));
+    }
+    if (error.getOriginChannelId() != null) {
+      mErrorOriginChannelIdLabel.setVisibility(View.VISIBLE);
+      mErrorOriginChannelId.setVisibility(View.VISIBLE);
+      mErrorOriginChannelId.setText(error.getOriginChannelId());
     }
     if (error.getHops() != null && !error.getHops().isEmpty()) {
       final StringBuilder hopsBuilder = new StringBuilder();
