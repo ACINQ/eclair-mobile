@@ -77,10 +77,6 @@ public class LightningPaymentError implements Parcelable {
         final scala.collection.immutable.List<Hop> hops = rf.route().toList();
         for (int hi = 0; hi < hops.size(); hi++) {
           Hop h = hops.apply(hi);
-          Log.i("LnPaymentErr", "HOP=" + h.toString());
-          Log.i("LnPaymentErr", "nodeId=" + h.nodeId().toString());
-          Log.i("LnPaymentErr", "next nodeId=" + h.nextNodeId().toString());
-          Log.i("LnPaymentErr", "channel id=" + h.lastUpdate().shortChannelId() + " hex=" + Long.toHexString(h.lastUpdate().shortChannelId()));
           if (hi == 0) {
             hopsNodesPK.add(h.nodeId().toString());
           }
@@ -96,9 +92,6 @@ public class LightningPaymentError implements Parcelable {
       final String type = lf.getClass().getSimpleName();
       final String cause = lf.t().getClass().getSimpleName();
       final String origin = lf.t() instanceof ChannelException ? ((ChannelException) lf.t()).channelId().toString() : null;
-      Log.i("LnPaymentErr", "##### failure=" + type);
-      Log.i("LnPaymentErr", "cause=" + cause);
-      Log.i("LnPaymentErr", "origin=" + origin);
       return new LightningPaymentError(type, cause, origin, null, null);
     } else {
       Log.i("LnPaymentErr", "##### failure=unknown");
