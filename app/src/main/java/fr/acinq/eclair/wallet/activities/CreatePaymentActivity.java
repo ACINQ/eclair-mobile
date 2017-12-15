@@ -1,6 +1,7 @@
 package fr.acinq.eclair.wallet.activities;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -11,6 +12,7 @@ import android.text.Html;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -182,6 +184,13 @@ public class CreatePaymentActivity extends EclairActivity
     // display form
     mLoadingTextView.setVisibility(View.GONE);
     mFormView.setVisibility(View.VISIBLE);
+    if (!isAmountReadonly) {
+      InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+      if (inputMethodManager != null) {
+        inputMethodManager.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, 0);
+        mAmountEditableValue.requestFocus();
+      }
+    }
   }
 
   @Override
@@ -294,6 +303,10 @@ public class CreatePaymentActivity extends EclairActivity
     mInvoice = intent.getStringExtra(EXTRA_INVOICE);
     Log.i(TAG, "Initializing payment with invoice=" + mInvoice);
     new LNInvoiceReaderTask(this, mInvoice).execute();
+  }
+
+  public void focusAmount(final View view) {
+    mAmountEditableValue.requestFocus();
   }
 
   @SuppressLint("SetTextI18n")
