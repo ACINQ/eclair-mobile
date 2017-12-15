@@ -22,7 +22,7 @@
       android:maxLines="1"
       android:text="0.00"
       android:layout_toStartOf="@+id/channelitem_balance_unit"
-      android:textSize="20sp" />
+      android:textSize="16sp" />
 
     <TextView
       android:id="@+id/channelitem_balance_unit"
