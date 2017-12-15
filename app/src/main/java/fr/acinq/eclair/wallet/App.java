@@ -203,7 +203,7 @@ public class App extends Application {
                             final BinaryData paymentHash, final Crypto.PublicKey publicKey, final Long minFinalCltvExpiry) {
     Future<Object> paymentFuture = Patterns.ask(
       eclairKit.paymentInitiator(),
-      new SendPayment(amountMsat, paymentHash, publicKey, minFinalCltvExpiry, 5),
+      new SendPayment(amountMsat, paymentHash, publicKey, minFinalCltvExpiry, 20),
       new Timeout(Duration.create(timeout, "seconds")));
     paymentFuture.onComplete(onComplete, system.dispatcher());
   }
