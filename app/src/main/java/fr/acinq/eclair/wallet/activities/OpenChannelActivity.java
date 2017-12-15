@@ -148,27 +148,34 @@ public class OpenChannelActivity extends EclairActivity {
     mErrorView.setVisibility(View.VISIBLE);
   }
 
-  private void setNodeURI(String uri) {
-    if (Validators.HOST_REGEX.matcher(uri).matches()) {
+  private void setNodeURI(final String uri) {
+    if (uri != null && Validators.HOST_REGEX.matcher(uri).matches()) {
       String[] uriArray = uri.split("@", 2);
       if (uriArray.length == 2) {
-        String pubkey = uriArray[0];
-        String host = uriArray[1];
-        String[] hostArray = host.split(":", 2);
-        if (hostArray.length == 2) {
-          String ip = hostArray[0];
-          String port = hostArray[1];
-
-          mPubkeyTextView.setText(pubkey);
-          mIPTextView.setText(ip);
-          mPortTextView.setText(port);
-          mOpenButton.setVisibility(View.VISIBLE);
+        final String pubkey = uriArray[0];
+        String[] hostArray = uriArray[1].split(":", 2);
+        if (hostArray.length == 1) {
+          final String ip = hostArray[0];
+          final String port = "9735"; // if the port is not set in the URI, default to 9735
+          setURIFields(pubkey, ip, port);
+          return;
+        } else if (hostArray.length == 2) {
+          final String ip = hostArray[0];
+          final String port = hostArray[1];
+          setURIFields(pubkey, ip, port);
           return;
         }
       }
     }
     toggleError(R.string.openchannel_error_address);
     disableForm();
+  }
+
+  private void setURIFields(final String pubkey, final String ip, final String port) {
+    mPubkeyTextView.setText(pubkey);
+    mIPTextView.setText(ip);
+    mPortTextView.setText(port);
+    mOpenButton.setVisibility(View.VISIBLE);
   }
 
   private void disableForm() {
