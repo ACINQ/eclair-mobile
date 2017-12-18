@@ -175,11 +175,6 @@ public class HomeActivity extends EclairActivity {
       }
     }
 
-    if (!EventBus.getDefault().isRegistered(this)) {
-      EventBus.getDefault().register(this);
-    }
-    EventBus.getDefault().postSticky(new WalletBalanceUpdateEvent(
-      package$.MODULE$.millisatoshi2satoshi(new MilliSatoshi(app.getDBHelper().getOnchainBalanceMsat()))));
     Log.d(TAG, "Home.onCreate done");
   }
 
@@ -673,8 +668,7 @@ public class HomeActivity extends EclairActivity {
   private void updateBalance() {
     final LNBalanceUpdateEvent lnBalanceEvent = EventBus.getDefault().getStickyEvent(LNBalanceUpdateEvent.class);
     final MilliSatoshi lnBalance = lnBalanceEvent == null ? new MilliSatoshi(0) : lnBalanceEvent.total();
-    final WalletBalanceUpdateEvent walletBalanceEvent = EventBus.getDefault().getStickyEvent(WalletBalanceUpdateEvent.class);
-    final MilliSatoshi walletBalance = walletBalanceEvent == null ? new MilliSatoshi(0) : package$.MODULE$.satoshi2millisatoshi(walletBalanceEvent.walletBalance);
+    final MilliSatoshi walletBalance = app == null ? new MilliSatoshi(0) : package$.MODULE$.satoshi2millisatoshi(app.onChainBalance.get());
     mTotalBalanceView.setAmountMsat(new MilliSatoshi(lnBalance.amount() + walletBalance.amount()));
     mOnchainBalanceView.setAmountMsat(walletBalance);
     mLNBalanceView.setAmountMsat(lnBalance);

@@ -30,8 +30,10 @@ import fr.acinq.bitcoin.Base58;
 import fr.acinq.bitcoin.Base58Check;
 import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.bitcoin.Crypto;
+import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.bitcoin.Transaction;
+import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.DBCompatChecker;
 import fr.acinq.eclair.Globals;
 import fr.acinq.eclair.Kit;
@@ -106,6 +108,9 @@ public class App extends Application {
       EventBus.getDefault().register(this);
     }
     dbHelper = new DBHelper(getApplicationContext());
+
+    // on-chain balance is initialized with what can be found from the database
+    this.onChainBalance.set(package$.MODULE$.millisatoshi2satoshi(new MilliSatoshi(dbHelper.getOnchainBalanceMsat())));
 
     try {
       final File datadir = new File(getApplicationContext().getFilesDir(), DATADIR_NAME);

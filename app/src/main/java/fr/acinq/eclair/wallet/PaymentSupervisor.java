@@ -99,7 +99,7 @@ public class PaymentSupervisor extends UntypedActor {
       Log.d(TAG, "Received WalletReady message: {}" + message);
       ElectrumWallet.WalletReady ready = (ElectrumWallet.WalletReady) message;
       app.onChainBalance.set(ready.confirmedBalance().$plus(ready.unconfirmedBalance()));
-      EventBus.getDefault().postSticky(new WalletBalanceUpdateEvent(ready.confirmedBalance().$plus(ready.unconfirmedBalance())));
+      EventBus.getDefault().post(new WalletBalanceUpdateEvent());
     } else if (message instanceof ElectrumWallet.NewWalletReceiveAddress) {
       Log.d(TAG, "Received NewWalletReceiveAddress message: {}" + message);
       ElectrumWallet.NewWalletReceiveAddress address = (ElectrumWallet.NewWalletReceiveAddress) message;
