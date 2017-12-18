@@ -7,7 +7,6 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,8 +21,6 @@ import org.greenrobot.eventbus.ThreadMode;
 import fr.acinq.eclair.blockchain.electrum.ElectrumWallet;
 import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.R;
-import fr.acinq.eclair.wallet.events.ChannelUpdateEvent;
-import fr.acinq.eclair.wallet.events.WalletBalanceUpdateEvent;
 import fr.acinq.eclair.wallet.tasks.QRCodeTask;
 
 public class ReceivePaymentFragment extends Fragment implements QRCodeTask.AsyncQRCodeResponse {

@@ -37,6 +37,7 @@ import fr.acinq.eclair.payment.PaymentSucceeded;
 import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.EclairEventService;
 import fr.acinq.eclair.wallet.R;
+import fr.acinq.eclair.wallet.events.BitcoinPaymentFailedEvent;
 import fr.acinq.eclair.wallet.events.LNPaymentFailedEvent;
 import fr.acinq.eclair.wallet.fragments.PinDialog;
 import fr.acinq.eclair.wallet.models.LightningPaymentError;
@@ -548,7 +549,6 @@ public class CreatePaymentActivity extends EclairActivity
   private void sendBitcoinPayment(final Satoshi amountSat, final Long feesPerKw, final BitcoinURI bitcoinURI) {
     Log.d(TAG, "Sending Bitcoin payment for invoice " + mBitcoinInvoice.toString() + " with amount = " + amountSat);
     try {
-      final CreatePaymentActivity context = this;
       Future fBitcoinPayment = app.getWallet().sendPayment(amountSat, bitcoinURI.getAddress(), feesPerKw);
       fBitcoinPayment.onComplete(new OnComplete<String>() {
         @Override
@@ -556,18 +556,14 @@ public class CreatePaymentActivity extends EclairActivity
           if (t == null) {
             Log.i(TAG, "Successfully sent tx " + txId);
           } else {
-            Log.e(TAG, "Could not send Bitcoin tx", t);
-            context.runOnUiThread(new Runnable() {
-              public void run() {
-                Toast.makeText(context, R.string.payment_toast_failure, Toast.LENGTH_LONG).show();
-              }
-            });
+            Log.e(TAG, "Bitcoin tx has failed ", t);
+            EventBus.getDefault().post(new BitcoinPaymentFailedEvent());
           }
         }
       }, app.system.dispatcher());
     } catch (Throwable t) {
-      Log.e(TAG, "Could not send Bitcoin tx", t);
-      Toast.makeText(getApplicationContext(), R.string.payment_toast_failure, Toast.LENGTH_LONG).show();
+      Log.e(TAG, "Could not send Bitcoin tx ", t);
+      EventBus.getDefault().post(new BitcoinPaymentFailedEvent());
     }
   }
 

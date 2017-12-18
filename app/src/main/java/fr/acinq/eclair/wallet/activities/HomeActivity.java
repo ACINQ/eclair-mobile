@@ -60,6 +60,7 @@ import fr.acinq.eclair.wallet.EclairEventService;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.customviews.CoinAmountView;
 import fr.acinq.eclair.wallet.events.BitcoinPaymentEvent;
+import fr.acinq.eclair.wallet.events.BitcoinPaymentFailedEvent;
 import fr.acinq.eclair.wallet.events.ChannelUpdateEvent;
 import fr.acinq.eclair.wallet.events.LNBalanceUpdateEvent;
 import fr.acinq.eclair.wallet.events.LNNewChannelFailureEvent;
@@ -642,6 +643,11 @@ public class HomeActivity extends EclairActivity {
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void handleBitcoinPaymentEvent(BitcoinPaymentEvent event) {
     mPaymentsListFragment.updateList();
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN)
+  public void handleBitcoinPaymentFailedEvent(BitcoinPaymentFailedEvent event) {
+    Toast.makeText(getApplicationContext(), R.string.payment_toast_failure, Toast.LENGTH_LONG).show();
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
