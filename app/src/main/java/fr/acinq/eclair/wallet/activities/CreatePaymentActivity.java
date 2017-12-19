@@ -487,6 +487,9 @@ public class CreatePaymentActivity extends EclairActivity
           } else if (PaymentStatus.PAID.equals(paymentForH.getStatus())) {
             EventBus.getDefault().post(new LNPaymentFailedEvent(true, "This invoice has already been paid.", null));
             return;
+          } else if (PaymentStatus.PENDING.equals(paymentForH.getStatus())) {
+            EventBus.getDefault().post(new LNPaymentFailedEvent(true, "This invoice is already known and the payment is pending.", null));
+            return;
           }
 
           // 2 - setup future callback
