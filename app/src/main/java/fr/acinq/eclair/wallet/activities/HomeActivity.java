@@ -171,7 +171,7 @@ public class HomeActivity extends EclairActivity {
           startActivity(paymentIntent);
           break;
         default:
-          Log.i(TAG, "Unhandled payment scheme=" + paymentRequest);
+          Log.d(TAG, "Unhandled payment scheme=" + paymentRequest);
       }
     }
 
