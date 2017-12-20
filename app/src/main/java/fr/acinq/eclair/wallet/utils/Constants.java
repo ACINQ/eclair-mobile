@@ -19,6 +19,8 @@ public interface Constants {
   String FIAT_USD = "usd";
   String SETTING_BTC_UNIT = "btc_unit";
   String SETTING_DISPLAY_IN_FIAT = "display_in_fiat";
+  String SETTING_LAST_KNOWN_RATE_BTC_EUR = "last_known_rate_btc_eur";
+  String SETTING_LAST_KNOWN_RATE_BTC_USD = "last_known_rate_btc_usd";
 
   // onchain explorer
   String SETTING_ONCHAIN_EXPLORER = "onchain_explorer";
@@ -26,7 +28,6 @@ public interface Constants {
   // lightning
   String SETTING_LIGHTNING_MAX_FEE = "lightning_max_fee";
   String SETTING_LIGHTNING_MAX_FEE_VALUE = "lightning_max_fee_value";
-
 
   /* ----------- SETTINGS - PIN CODES ------------ */
 

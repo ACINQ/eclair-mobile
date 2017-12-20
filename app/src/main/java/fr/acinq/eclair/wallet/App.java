@@ -4,7 +4,9 @@ import android.app.Application;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
@@ -49,6 +51,7 @@ import fr.acinq.eclair.router.NetworkEvent;
 import fr.acinq.eclair.wallet.events.NetworkChannelsCountEvent;
 import fr.acinq.eclair.wallet.events.NetworkNodesCountEvent;
 import fr.acinq.eclair.wallet.events.NotificationEvent;
+import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.EclairStartException;
 import scala.Option;
 import scala.Symbol;
@@ -79,7 +82,7 @@ public class App extends Application {
    * @param eurRate value of 1 BTC in EURO
    * @param usdRate value of 1 BTC in USD
    */
-  public static void updateExchangeRate(final Double eurRate, final Double usdRate) {
+  public static void updateExchangeRate(final float eurRate, final float usdRate) {
     exchangeRate.eurRate = eurRate;
     exchangeRate.usdRate = usdRate;
   }
@@ -89,7 +92,7 @@ public class App extends Application {
    *
    * @return
    */
-  public static Double getEurRate() {
+  public static float getEurRate() {
     return exchangeRate.eurRate;
   }
 
@@ -98,7 +101,7 @@ public class App extends Application {
    *
    * @return
    */
-  public static Double getUsdRate() {
+  public static float getUsdRate() {
     return exchangeRate.usdRate;
   }
 
@@ -111,6 +114,10 @@ public class App extends Application {
 
     // on-chain balance is initialized with what can be found from the database
     this.onChainBalance.set(package$.MODULE$.millisatoshi2satoshi(new MilliSatoshi(dbHelper.getOnchainBalanceMsat())));
+
+    final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+    updateExchangeRate(prefs.getFloat(Constants.SETTING_LAST_KNOWN_RATE_BTC_EUR, 0.0f),
+      prefs.getFloat(Constants.SETTING_LAST_KNOWN_RATE_BTC_USD, 0.0f));
 
     try {
       final File datadir = new File(getApplicationContext().getFilesDir(), DATADIR_NAME);
@@ -364,8 +371,8 @@ public class App extends Application {
   }
 
   private static class ExchangeRate {
-    private Double eurRate = 0.0;
-    private Double usdRate = 0.0;
+    private float eurRate;
+    private float usdRate;
   }
 }
 

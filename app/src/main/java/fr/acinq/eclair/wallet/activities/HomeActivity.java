@@ -283,9 +283,13 @@ public class HomeActivity extends EclairActivity {
         public void onResponse(JSONObject response) {
           try {
             JSONObject bpi = response.getJSONObject("bpi");
-            JSONObject eur = bpi.getJSONObject("EUR");
-            JSONObject usd = bpi.getJSONObject("USD");
-            App.updateExchangeRate(eur.getDouble("rate_float"), usd.getDouble("rate_float"));
+            float btc_eur = (float) bpi.getJSONObject("EUR").getDouble("rate_float");
+            float btc_usd = (float) bpi.getJSONObject("USD").getDouble("rate_float");
+            App.updateExchangeRate(btc_eur, btc_usd);
+            // also save in prefs
+            final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+            prefs.edit().putFloat(Constants.SETTING_LAST_KNOWN_RATE_BTC_EUR, btc_eur)
+              .putFloat(Constants.SETTING_LAST_KNOWN_RATE_BTC_USD, btc_usd).apply();
           } catch (JSONException e) {
             Log.e("ExchangeRate", "Could not read coindesk response", e);
           }
@@ -301,7 +305,7 @@ public class HomeActivity extends EclairActivity {
       @Override
       public void run() {
         queue.add(mExchangeRateRequest);
-        mExchangeRateHandler.postDelayed(this, 5 * 60 * 1000);
+        mExchangeRateHandler.postDelayed(this, 10 * 60 * 1000);
       }
     };
   }
