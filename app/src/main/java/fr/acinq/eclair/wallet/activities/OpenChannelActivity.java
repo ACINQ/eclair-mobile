@@ -18,9 +18,11 @@ import java.net.InetSocketAddress;
 import akka.dispatch.OnComplete;
 import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.bitcoin.Crypto;
+import fr.acinq.bitcoin.MilliBtc;
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.bitcoin.package$;
+import fr.acinq.eclair.channel.Channel;
 import fr.acinq.eclair.io.Switchboard;
 import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.R;
@@ -46,6 +48,8 @@ public class OpenChannelActivity extends EclairActivity {
   private View mErrorView;
   private TextView mErrorValue;
   private String prefUnit = Constants.MILLI_BTC_CODE;
+  final MilliSatoshi minFunding = new MilliSatoshi(100000000); // 1 mBTC
+  final MilliSatoshi maxFunding = package$.MODULE$.satoshi2millisatoshi(new Satoshi(Channel.MAX_FUNDING_SATOSHIS()));
 
   private PinDialog pinDialog;
 
@@ -117,18 +121,20 @@ public class OpenChannelActivity extends EclairActivity {
    * @return
    */
   private boolean checkAmount(final String amount) {
+
     try {
       if (amount == null || amount.length() == 0) {
-        toggleError(R.string.openchannel_capacity_invalid);
+        toggleError(getString(R.string.openchannel_capacity_invalid, CoinUtils.formatAmountInUnit(minFunding, prefUnit),
+          CoinUtils.formatAmountInUnitWithUnit(maxFunding, prefUnit)));
         return false;
       }
       final MilliSatoshi amountMsat = CoinUtils.parseStringToMsat(amount, prefUnit);
-      if (amountMsat.amount() < Validators.MIN_FUNDING_MSAT
-        || amountMsat.amount() >= Validators.MAX_FUNDING_MSAT) {
-        toggleError(R.string.openchannel_capacity_invalid);
+      if (amountMsat.amount() < minFunding.amount() || amountMsat.amount() >= maxFunding.amount()) {
+        toggleError(getString(R.string.openchannel_capacity_invalid, CoinUtils.formatAmountInUnit(minFunding, prefUnit),
+          CoinUtils.formatAmountInUnitWithUnit(maxFunding, prefUnit)));
         return false;
       } else if (package$.MODULE$.millisatoshi2satoshi(amountMsat).amount() + Validators.MIN_LEFTOVER_ONCHAIN_BALANCE_SAT > app.onChainBalance.get().amount()) {
-        toggleError(R.string.openchannel_capacity_notenoughfunds);
+        toggleError(getString(R.string.openchannel_capacity_notenoughfunds));
         return false;
       } else {
         mErrorView.setVisibility(View.GONE);
@@ -137,19 +143,19 @@ public class OpenChannelActivity extends EclairActivity {
     } catch (IllegalArgumentException ilex) {
       // the user's preferred unit may be unknown
       Log.w(TAG, "Could not convert amount, check preferred unit? " + ilex.getMessage());
-      toggleError(R.string.error_generic);
+      toggleError(getString(R.string.error_generic));
       disableForm();
       finish(); // prevent any further issue by closing the activity.
       return false;
     } catch (Exception e) {
       Log.d(TAG, "Could not convert amount to number with cause " + e.getMessage());
-      toggleError(R.string.openchannel_error_capacity_nan);
+      toggleError(getString(R.string.openchannel_error_capacity_nan));
       return false;
     }
   }
 
-  private void toggleError(final int errorLabelId) {
-    mErrorValue.setText(errorLabelId);
+  private void toggleError(final String errorLabel) {
+    mErrorValue.setText(errorLabel);
     mErrorView.setVisibility(View.VISIBLE);
   }
 
@@ -172,7 +178,7 @@ public class OpenChannelActivity extends EclairActivity {
         }
       }
     }
-    toggleError(R.string.openchannel_error_address);
+    toggleError(getString(R.string.openchannel_error_address));
     disableForm();
   }
 
@@ -215,7 +221,7 @@ public class OpenChannelActivity extends EclairActivity {
           if (isPinCorrect(pinValue, dialog)) {
             doOpenChannel();
           } else {
-            toggleError(R.string.payment_error_incorrect_pin);
+            toggleError(getString(R.string.payment_error_incorrect_pin));
             enableForm();
           }
         }

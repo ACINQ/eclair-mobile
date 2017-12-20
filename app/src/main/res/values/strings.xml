@@ -80,7 +80,7 @@
   <string name="openchannel_title">Open a new Lightning Channel</string>
   <string name="openchannel_capacity">CAPACITY</string>
   <string name="openchannel_capacity_hint">Channel capacity in</string>
-  <string name="openchannel_capacity_invalid">Channel capacity must be between 1 and 167 mBTC</string>
+  <string name="openchannel_capacity_invalid">Channel capacity must be between %1$s and %2$s</string>
   <string name="openchannel_capacity_notenoughfunds">Not enough funds</string>
   <string name="openchannel_error_capacity_nan">Capacity amount is not valid</string>
   <string name="openchannel_error_address">This is not a valid address.\nFormat is [pubkey]@[ip]:[port]</string>
