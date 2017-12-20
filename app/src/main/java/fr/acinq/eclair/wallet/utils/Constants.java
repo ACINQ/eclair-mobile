@@ -40,6 +40,7 @@ public interface Constants {
 
   String MILLI_SATOSHI_CODE = "msat";
   String SATOSHI_CODE = "sat";
+  String BITS_CODE = "bits";
   String MILLI_BTC_CODE = "mbtc";
   String BTC_CODE = "btc";
 

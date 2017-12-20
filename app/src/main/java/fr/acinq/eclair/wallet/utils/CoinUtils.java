@@ -16,6 +16,9 @@ import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.wallet.App;
 
+import static fr.acinq.eclair.wallet.utils.Constants.BITS_CODE;
+import static fr.acinq.eclair.wallet.utils.Constants.BTC_CODE;
+import static fr.acinq.eclair.wallet.utils.Constants.MILLI_BTC_CODE;
 import static fr.acinq.eclair.wallet.utils.Constants.MILLI_SATOSHI_CODE;
 import static fr.acinq.eclair.wallet.utils.Constants.SATOSHI_CODE;
 
@@ -72,7 +75,7 @@ public class CoinUtils {
   }
 
   public static String getBtcPreferredUnit(final SharedPreferences prefs) {
-    return prefs.getString(Constants.SETTING_BTC_UNIT, Constants.MILLI_BTC_CODE);
+    return prefs.getString(Constants.SETTING_BTC_UNIT, MILLI_BTC_CODE);
   }
 
   /**
@@ -117,9 +120,11 @@ public class CoinUtils {
           return satoshiFormat.format(amountMsat.amount());
         case SATOSHI_CODE:
           return satoshiFormat.format(package$.MODULE$.millisatoshi2satoshi(amountMsat).amount());
-        case Constants.MILLI_BTC_CODE:
+        case BITS_CODE:
+          return getFiatFormat().format(package$.MODULE$.millisatoshi2millibtc(amountMsat).amount().$times(scala.math.BigDecimal.exact(1000L)));
+        case MILLI_BTC_CODE:
           return getMilliBTCFormat().format(package$.MODULE$.millisatoshi2millibtc(amountMsat).amount());
-        case Constants.BTC_CODE:
+        case BTC_CODE:
           return getBTCFormat().format(package$.MODULE$.millisatoshi2btc(amountMsat).amount());
       }
     } else if (amount instanceof Satoshi) {
@@ -129,9 +134,11 @@ public class CoinUtils {
           return satoshiFormat.format(package$.MODULE$.satoshi2millisatoshi(amountSat).amount());
         case SATOSHI_CODE:
           return satoshiFormat.format(amountSat.amount());
-        case Constants.MILLI_BTC_CODE:
+        case BITS_CODE:
+          return getFiatFormat().format(package$.MODULE$.satoshi2millibtc(amountSat).amount().$times(scala.math.BigDecimal.exact(1000L)));
+        case MILLI_BTC_CODE:
           return getMilliBTCFormat().format(package$.MODULE$.satoshi2millibtc(amountSat).amount());
-        case Constants.BTC_CODE:
+        case BTC_CODE:
           return getBTCFormat().format(package$.MODULE$.satoshi2btc(amountSat).amount());
       }
     } else if (amount instanceof MilliBtc) {
@@ -141,9 +148,11 @@ public class CoinUtils {
           return satoshiFormat.format(package$.MODULE$.millibtc2millisatoshi(amountMbtc).amount());
         case SATOSHI_CODE:
           return satoshiFormat.format(package$.MODULE$.millibtc2satoshi(amountMbtc).amount());
-        case Constants.MILLI_BTC_CODE:
+        case BITS_CODE:
+          return getFiatFormat().format(amountMbtc.amount().$times(scala.math.BigDecimal.exact(1000L)));
+        case MILLI_BTC_CODE:
           return getMilliBTCFormat().format(amountMbtc.amount());
-        case Constants.BTC_CODE:
+        case BTC_CODE:
           return getBTCFormat().format(package$.MODULE$.millibtc2btc(amountMbtc).amount());
       }
     }
@@ -154,9 +163,11 @@ public class CoinUtils {
           return satoshiFormat.format(package$.MODULE$.btc2millisatoshi(amountBtc).amount());
         case SATOSHI_CODE:
           return satoshiFormat.format(package$.MODULE$.btc2satoshi(amountBtc).amount());
-        case Constants.MILLI_BTC_CODE:
+        case BITS_CODE:
+          return getFiatFormat().format(package$.MODULE$.btc2millibtc(amountBtc).amount().$times(scala.math.BigDecimal.exact(1000L)));
+        case MILLI_BTC_CODE:
           return getMilliBTCFormat().format(package$.MODULE$.btc2millibtc(amountBtc).amount());
-        case Constants.BTC_CODE:
+        case BTC_CODE:
           return getBTCFormat().format(amountBtc.amount());
       }
     } else {
@@ -205,6 +216,17 @@ public class CoinUtils {
   }
 
   /**
+   * Reads a numeric String, parses the amount and converts the amount from Bits to {@link MilliSatoshi}.
+   *
+   * @param amountBits must be numeric
+   * @return
+   * @throws NumberFormatException if the string is not numeric
+   */
+  public static MilliSatoshi parseBitsStringToMsat(final String amountBits) throws NumberFormatException {
+    return new MilliSatoshi(new BigDecimal(amountBits).movePointRight(2 + 3).longValueExact());
+  }
+
+  /**
    * Reads a numeric String, parses the amount and converts the amount from Satoshi to {@link MilliSatoshi}.
    *
    * @param amountSatoshi must be numeric
@@ -237,13 +259,15 @@ public class CoinUtils {
    */
   public static MilliSatoshi parseStringToMsat(final String amountInUnit, final String unit) throws NumberFormatException, IllegalArgumentException {
     switch (unit) {
-      case Constants.MILLI_SATOSHI_CODE:
+      case MILLI_SATOSHI_CODE:
         return parseMilliSatoshiStringToMsat(amountInUnit);
-      case Constants.SATOSHI_CODE:
+      case SATOSHI_CODE:
         return parseSatoshiStringToMsat(amountInUnit);
-      case Constants.MILLI_BTC_CODE:
+      case BITS_CODE:
+        return parseBitsStringToMsat(amountInUnit);
+      case MILLI_BTC_CODE:
         return parseMilliBitcoinStringToMsat(amountInUnit);
-      case Constants.BTC_CODE:
+      case BTC_CODE:
         return parseBitcoinStringToMsat(amountInUnit);
       default:
         throw new IllegalArgumentException("Unknown unit");
@@ -300,9 +324,9 @@ public class CoinUtils {
     switch (code) {
       case Constants.MILLI_SATOSHI_CODE:
         return "mSat";
-      case Constants.MILLI_BTC_CODE:
+      case MILLI_BTC_CODE:
         return "mBTC";
-      case Constants.BTC_CODE:
+      case BTC_CODE:
         return "BTC";
       default:
     }

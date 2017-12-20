@@ -9,12 +9,14 @@
     <item>usd</item>
   </string-array>
   <string-array name="btc_unit_labels">
-    <item>Satoshi</item>
-    <item>Milli-Bitcoin</item>
+    <item>Satoshi (0.00000001 BTC)</item>
+    <item>Bits (0.000001 BTC)</item>
+    <item>Milli-Bitcoin (0.001 BTC)</item>
     <item>Bitcoin</item>
   </string-array>
   <string-array name="btc_unit_values">
     <item>sat</item>
+    <item>bits</item>
     <item>mbtc</item>
     <item>btc</item>
   </string-array>
