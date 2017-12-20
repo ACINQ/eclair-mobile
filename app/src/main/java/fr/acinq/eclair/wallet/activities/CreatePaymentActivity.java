@@ -300,10 +300,13 @@ public class CreatePaymentActivity extends EclairActivity
 
     // --- read invoice from intent
     final Intent intent = getIntent();
-    Log.d(TAG, "Started with intent=" + intent.getDataString());
     mInvoice = intent.getStringExtra(EXTRA_INVOICE);
-    Log.i(TAG, "Initializing payment with invoice=" + mInvoice);
-    new LNInvoiceReaderTask(this, mInvoice).execute();
+    Log.d(TAG, "Initializing payment with invoice=" + mInvoice);
+    if (mInvoice != null) {
+      new LNInvoiceReaderTask(this, mInvoice.trim()).execute();
+    } else {
+      couldNotReadInvoice(R.string.payment_failure_read_invoice);
+    }
   }
 
   public void focusAmount(final View view) {
