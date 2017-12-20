@@ -172,7 +172,8 @@
 
   <string name="payment_error">This payment is not valid.</string>
   <string name="payment_error_fees_onchain">The fees value is not valid.</string>
-  <string name="payment_error_amount">This amount is not valid.</string>
+  <string name="payment_error_amount_onchain_insufficient_funds">The amount exceeds your balance.</string>
+  <string name="payment_error_amount">The amount is not valid.</string>
   <string name="payment_error_amount_ln_no_channels"><![CDATA[
     You first need to open a Lightning channel to execute this payment.
   ]]></string>

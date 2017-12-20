@@ -396,6 +396,10 @@ public class CreatePaymentActivity extends EclairActivity
         final Satoshi amountSat = isAmountReadonly
           ? mBitcoinInvoice.getAmount()
           : package$.MODULE$.millisatoshi2satoshi(CoinUtils.parseStringToMsat(mAmountEditableValue.getText().toString(), preferredBitcoinUnit));
+        if (amountSat.$greater(app.onChainBalance.get())) {
+          handlePaymentError(R.string.payment_error_amount_onchain_insufficient_funds, false);
+          return;
+        }
         try {
           final Long feesPerKw = fr.acinq.eclair.package$.MODULE$.feerateByte2Kw(Long.parseLong(mFeesValue.getText().toString()));
           if (isPinRequired()) {
