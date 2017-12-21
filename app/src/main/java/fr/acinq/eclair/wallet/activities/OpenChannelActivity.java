@@ -1,5 +1,6 @@
 package fr.acinq.eclair.wallet.activities;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.Editable;
@@ -18,7 +19,6 @@ import java.net.InetSocketAddress;
 import akka.dispatch.OnComplete;
 import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.bitcoin.Crypto;
-import fr.acinq.bitcoin.MilliBtc;
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.bitcoin.package$;
@@ -41,13 +41,16 @@ public class OpenChannelActivity extends EclairActivity {
   private TextView mCapacityHint;
   private EditText mCapacityValue;
   private TextView mCapacityUnit;
+  private TextView mCapacityFiat;
   private TextView mPubkeyTextView;
   private TextView mIPTextView;
   private TextView mPortTextView;
   private Button mOpenButton;
   private View mErrorView;
   private TextView mErrorValue;
-  private String prefUnit = Constants.MILLI_BTC_CODE;
+
+  private String preferredFiatCurrency = Constants.FIAT_USD;
+  private String preferredBitcoinUnit = Constants.MILLI_BTC_CODE;
   final MilliSatoshi minFunding = new MilliSatoshi(100000000); // 1 mBTC
   final MilliSatoshi maxFunding = package$.MODULE$.satoshi2millisatoshi(new Satoshi(Channel.MAX_FUNDING_SATOSHIS()));
 
@@ -58,7 +61,9 @@ public class OpenChannelActivity extends EclairActivity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_open_channel);
 
-    prefUnit = CoinUtils.getBtcPreferredUnit(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()));
+    final SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+    preferredFiatCurrency = CoinUtils.getPreferredFiat(sharedPrefs);
+    preferredBitcoinUnit = CoinUtils.getBtcPreferredUnit(sharedPrefs);
 
     mOpenButton = findViewById(R.id.openchannel_do_open);
     mIPTextView = findViewById(R.id.openchannel_ip);
@@ -90,7 +95,8 @@ public class OpenChannelActivity extends EclairActivity {
       }
     });
     mCapacityUnit = findViewById(R.id.openchannel_capacity_unit);
-    mCapacityUnit.setText(CoinUtils.getBitcoinUnitShortLabel(prefUnit));
+    mCapacityUnit.setText(CoinUtils.getBitcoinUnitShortLabel(preferredBitcoinUnit));
+    mCapacityFiat = findViewById(R.id.openchannel_capacity_fiat);
 
     setNodeURI(getIntent().getStringExtra(EXTRA_NEW_HOST_URI));
     mCapacityValue.requestFocus();
@@ -126,10 +132,11 @@ public class OpenChannelActivity extends EclairActivity {
    * @return true if amount is valid, false otherwise
    */
   private boolean checkAmount(final String amount) throws IllegalArgumentException, NullPointerException {
-    final MilliSatoshi amountMsat = CoinUtils.parseStringToMsat(amount, prefUnit);
+    final MilliSatoshi amountMsat = CoinUtils.parseStringToMsat(amount, preferredBitcoinUnit);
+    mCapacityFiat.setText(CoinUtils.convertMsatToFiatWithUnit(amountMsat.amount(), preferredFiatCurrency));
     if (amountMsat.amount() < minFunding.amount() || amountMsat.amount() >= maxFunding.amount()) {
-      toggleError(getString(R.string.openchannel_capacity_invalid, CoinUtils.formatAmountInUnit(minFunding, prefUnit),
-        CoinUtils.formatAmountInUnitWithUnit(maxFunding, prefUnit)));
+      toggleError(getString(R.string.openchannel_capacity_invalid, CoinUtils.formatAmountInUnit(minFunding, preferredBitcoinUnit),
+        CoinUtils.formatAmountInUnitWithUnit(maxFunding, preferredBitcoinUnit)));
       return false;
     } else if (package$.MODULE$.millisatoshi2satoshi(amountMsat).amount() + Validators.MIN_LEFTOVER_ONCHAIN_BALANCE_SAT > app.onChainBalance.get().amount()) {
       toggleError(getString(R.string.openchannel_capacity_notenoughfunds));
@@ -232,7 +239,7 @@ public class OpenChannelActivity extends EclairActivity {
     final String pubkeyString = mPubkeyTextView.getText().toString();
     final String ipString = mIPTextView.getText().toString();
     final String portString = mPortTextView.getText().toString();
-    final Satoshi fundingSat = package$.MODULE$.millisatoshi2satoshi(CoinUtils.parseStringToMsat(mCapacityValue.getText().toString(), prefUnit));
+    final Satoshi fundingSat = package$.MODULE$.millisatoshi2satoshi(CoinUtils.parseStringToMsat(mCapacityValue.getText().toString(), preferredBitcoinUnit));
 
     AsyncExecutor.create().execute(
       new AsyncExecutor.RunnableEx() {

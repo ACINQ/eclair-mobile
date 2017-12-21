@@ -57,6 +57,7 @@
         <RelativeLayout
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
+          android:layout_marginBottom="4dp"
           android:gravity="center">
 
           <EditText
@@ -99,6 +100,15 @@
             android:text="@string/btc_milli_short" />
 
         </RelativeLayout>
+
+        <TextView
+          android:id="@+id/openchannel_capacity_fiat"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:maxLines="1"
+          android:textColor="@color/colorGrey_1"
+          android:textSize="12sp" />
+
       </LinearLayout>
 
       <!-- PUBKEY -->
