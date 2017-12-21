@@ -233,6 +233,15 @@ public class CreatePaymentActivity extends EclairActivity
         try {
           final MilliSatoshi amountMsat = CoinUtils.parseStringToMsat(s.toString(), preferredBitcoinUnit);
           mAmountFiatView.setText(CoinUtils.convertMsatToFiatWithUnit(amountMsat.amount(), preferredFiatCurrency));
+
+          if (mBitcoinInvoice != null) {
+            if (package$.MODULE$.millisatoshi2satoshi(amountMsat).$greater(app.onChainBalance.get())) {
+              handlePaymentError(R.string.payment_error_amount_onchain_insufficient_funds, false);
+            } else {
+              mPaymentErrorView.setVisibility(View.GONE);
+            }
+          }
+
         } catch (Exception e) {
           Log.e(TAG, "Could not read amount with cause=" + e.getMessage());
           mAmountFiatView.setText("0 " + preferredFiatCurrency.toUpperCase());
@@ -445,12 +454,12 @@ public class CreatePaymentActivity extends EclairActivity
   private void handlePaymentError(final int messageId, final boolean isHtml) {
     isProcessingPayment = false;
     toggleForm();
-    mPaymentErrorView.setVisibility(View.VISIBLE);
     if (isHtml) {
       mPaymentErrorTextView.setText(Html.fromHtml(getString(messageId)));
     } else {
       mPaymentErrorTextView.setText(messageId);
     }
+    mPaymentErrorView.setVisibility(View.VISIBLE);
   }
 
   @Override
