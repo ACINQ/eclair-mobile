@@ -78,7 +78,11 @@ public class OpenChannelActivity extends EclairActivity {
       public void onTextChanged(CharSequence s, int start, int before, int count) {
         // toggle hint depending on amount input
         mCapacityHint.setVisibility(s == null || s.length() == 0 ? View.VISIBLE : View.GONE);
-        checkAmount(s.toString());
+        try {
+          checkAmount(s.toString());
+        } catch (Exception e) {
+          Log.d(TAG, "Could not convert amount to number with cause " + e.getMessage());
+        }
       }
 
       @Override
@@ -115,42 +119,24 @@ public class OpenChannelActivity extends EclairActivity {
    * <li>does not exceed the available onchain balance (confirmed + unconfirmed), accounting a minimal required leftover</li>
    * </ul>
    * <p>
-   * Shows an error in the open channel form if one of the rules is not respected
+   * Show an error in the open channel form if one of the rules is not respected.
    *
    * @param amount string amount
-   * @return
+   *
+   * @return true if amount is valid, false otherwise
    */
-  private boolean checkAmount(final String amount) {
-
-    try {
-      if (amount == null || amount.length() == 0) {
-        toggleError(getString(R.string.openchannel_capacity_invalid, CoinUtils.formatAmountInUnit(minFunding, prefUnit),
-          CoinUtils.formatAmountInUnitWithUnit(maxFunding, prefUnit)));
-        return false;
-      }
-      final MilliSatoshi amountMsat = CoinUtils.parseStringToMsat(amount, prefUnit);
-      if (amountMsat.amount() < minFunding.amount() || amountMsat.amount() >= maxFunding.amount()) {
-        toggleError(getString(R.string.openchannel_capacity_invalid, CoinUtils.formatAmountInUnit(minFunding, prefUnit),
-          CoinUtils.formatAmountInUnitWithUnit(maxFunding, prefUnit)));
-        return false;
-      } else if (package$.MODULE$.millisatoshi2satoshi(amountMsat).amount() + Validators.MIN_LEFTOVER_ONCHAIN_BALANCE_SAT > app.onChainBalance.get().amount()) {
-        toggleError(getString(R.string.openchannel_capacity_notenoughfunds));
-        return false;
-      } else {
-        mErrorView.setVisibility(View.GONE);
-        return true;
-      }
-    } catch (IllegalArgumentException ilex) {
-      // the user's preferred unit may be unknown
-      Log.w(TAG, "Could not convert amount, check preferred unit? " + ilex.getMessage());
-      toggleError(getString(R.string.error_generic));
-      disableForm();
-      finish(); // prevent any further issue by closing the activity.
+  private boolean checkAmount(final String amount) throws IllegalArgumentException, NullPointerException {
+    final MilliSatoshi amountMsat = CoinUtils.parseStringToMsat(amount, prefUnit);
+    if (amountMsat.amount() < minFunding.amount() || amountMsat.amount() >= maxFunding.amount()) {
+      toggleError(getString(R.string.openchannel_capacity_invalid, CoinUtils.formatAmountInUnit(minFunding, prefUnit),
+        CoinUtils.formatAmountInUnitWithUnit(maxFunding, prefUnit)));
       return false;
-    } catch (Exception e) {
-      Log.d(TAG, "Could not convert amount to number with cause " + e.getMessage());
-      toggleError(getString(R.string.openchannel_error_capacity_nan));
+    } else if (package$.MODULE$.millisatoshi2satoshi(amountMsat).amount() + Validators.MIN_LEFTOVER_ONCHAIN_BALANCE_SAT > app.onChainBalance.get().amount()) {
+      toggleError(getString(R.string.openchannel_capacity_notenoughfunds));
       return false;
+    } else {
+      mErrorView.setVisibility(View.GONE);
+      return true;
     }
   }
 
@@ -209,10 +195,15 @@ public class OpenChannelActivity extends EclairActivity {
   }
 
   public void confirmOpenChannel(View view) {
-    if (!checkAmount(mCapacityValue.getText().toString())) {
+    try {
+      if (!checkAmount(mCapacityValue.getText().toString())) {
+        return;
+      }
+    } catch (Exception e) {
+      Log.d(TAG, "Could not convert amount to number with cause " + e.getMessage());
+      toggleError(getString(R.string.openchannel_error_capacity_nan));
       return;
     }
-
     disableForm();
     if (isPinRequired()) {
       pinDialog = new PinDialog(OpenChannelActivity.this, R.style.CustomAlertDialog, new PinDialog.PinDialogCallback() {

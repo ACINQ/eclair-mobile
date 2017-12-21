@@ -27,7 +27,6 @@
         android:paddingLeft="24dp"
         android:paddingRight="24dp">
 
-        <!-- payment type: lightning -->
         <LinearLayout
           android:id="@+id/openchannel_title"
           android:layout_width="wrap_content"

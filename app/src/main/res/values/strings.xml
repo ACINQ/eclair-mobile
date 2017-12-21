@@ -85,8 +85,8 @@
   <string name="openchannel_error_capacity_nan">Capacity amount is not valid</string>
   <string name="openchannel_error_address">This is not a valid address.\nFormat is [pubkey]@[ip]:[port]</string>
   <string name="openchannel_do_open">Open</string>
-  <string name="openchannel_pubkey">Node\'s Public key</string>
-  <string name="openchannel_ip">Node\'s IP</string>
+  <string name="openchannel_pubkey">Node Public Key</string>
+  <string name="openchannel_ip">Node IP</string>
   <string name="openchannel_port">Port</string>
   <string name="openchannel_invalid">Invalid address</string>
 
