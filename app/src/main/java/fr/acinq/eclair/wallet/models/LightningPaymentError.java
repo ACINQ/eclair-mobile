@@ -2,16 +2,15 @@ package fr.acinq.eclair.wallet.models;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import fr.acinq.eclair.channel.ChannelException;
-import fr.acinq.eclair.payment.Hop;
 import fr.acinq.eclair.payment.LocalFailure;
 import fr.acinq.eclair.payment.PaymentFailure;
 import fr.acinq.eclair.payment.RemoteFailure;
+import fr.acinq.eclair.router.Hop;
 
 /**
  * Contains a detailed error in a Lightning payment.

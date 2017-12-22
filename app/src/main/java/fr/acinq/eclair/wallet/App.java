@@ -44,10 +44,13 @@ import fr.acinq.eclair.blockchain.EclairWallet;
 import fr.acinq.eclair.blockchain.electrum.ElectrumEclairWallet;
 import fr.acinq.eclair.blockchain.electrum.ElectrumWallet;
 import fr.acinq.eclair.channel.ChannelEvent;
-import fr.acinq.eclair.io.Switchboard;
+import fr.acinq.eclair.io.NodeURI;
+import fr.acinq.eclair.io.Peer;
 import fr.acinq.eclair.payment.PaymentEvent;
+import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.payment.SendPayment;
 import fr.acinq.eclair.router.NetworkEvent;
+import fr.acinq.eclair.wallet.events.LNNewChannelFailureEvent;
 import fr.acinq.eclair.wallet.events.NetworkChannelsCountEvent;
 import fr.acinq.eclair.wallet.events.NetworkNodesCountEvent;
 import fr.acinq.eclair.wallet.events.NotificationEvent;
@@ -56,6 +59,8 @@ import fr.acinq.eclair.wallet.utils.EclairStartException;
 import scala.Option;
 import scala.Symbol;
 import scala.collection.Iterable;
+import scala.collection.Seq$;
+import scala.collection.immutable.Seq;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.Promise;
@@ -215,7 +220,7 @@ public class App extends Application {
                             final BinaryData paymentHash, final Crypto.PublicKey publicKey, final Long minFinalCltvExpiry) {
     Future<Object> paymentFuture = Patterns.ask(
       eclairKit.paymentInitiator(),
-      new SendPayment(amountMsat, paymentHash, publicKey, minFinalCltvExpiry, 20),
+      new SendPayment(amountMsat, paymentHash, publicKey, (Seq<scala.collection.Seq<PaymentRequest.ExtraHop>>) Seq$.MODULE$.empty(), minFinalCltvExpiry, 20),
       new Timeout(Duration.create(timeout, "seconds")));
     paymentFuture.onComplete(onComplete, system.dispatcher());
   }
@@ -228,16 +233,33 @@ public class App extends Application {
    * @param onComplete Callback executed once the future completes (with success or failure)
    * @param publicKey  public key of the node
    * @param address    ip:port of the node
-   * @param channel    channel to create, contains the capacity of the channel, in satoshis
+   * @param open    channel to create, contains the capacity of the channel, in satoshis
    */
   public void openChannel(final int timeout, final OnComplete<Object> onComplete,
-                          final Crypto.PublicKey publicKey, final InetSocketAddress address, final Switchboard.NewChannel channel) {
-    if (publicKey != null && address != null && channel != null) {
-      Future<Object> openChannelFuture = Patterns.ask(
+                          final Crypto.PublicKey publicKey, final InetSocketAddress address, final Peer.OpenChannel open) {
+    if (publicKey != null && address != null && open != null) {
+
+      OnComplete<Object> onConnectComplete = new OnComplete<Object>() {
+        @Override
+        public void onComplete(Throwable throwable, Object result) throws Throwable {
+          if (throwable != null) {
+            EventBus.getDefault().post(new LNNewChannelFailureEvent(throwable.getMessage()));
+          } else if ("connected".equals(result.toString()) || "already connected".equals(result.toString())) {
+            Future<Object> openFuture = Patterns.ask(
+              eclairKit.switchboard(), open, new Timeout(Duration.create(timeout, "seconds")));
+            openFuture.onComplete(onComplete, system.dispatcher());
+          } else {
+            EventBus.getDefault().post(new LNNewChannelFailureEvent(result.toString()));
+          }
+        }
+      };
+
+      Future<Object> connectFuture = Patterns.ask(
         eclairKit.switchboard(),
-        new Switchboard.NewConnection(publicKey, address, Option.apply(channel)),
+        new Peer.Connect(new NodeURI(publicKey, address)),
         new Timeout(Duration.create(timeout, "seconds")));
-      openChannelFuture.onComplete(onComplete, system.dispatcher());
+
+      connectFuture.onComplete(onConnectComplete, system.dispatcher());
     }
   }
 

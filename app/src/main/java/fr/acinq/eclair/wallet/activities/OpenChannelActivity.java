@@ -23,6 +23,7 @@ import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.channel.Channel;
+import fr.acinq.eclair.io.Peer;
 import fr.acinq.eclair.io.Switchboard;
 import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.R;
@@ -262,7 +263,7 @@ public class OpenChannelActivity extends EclairActivity {
             }
           };
           app.openChannel(30, onComplete, pubkey, address,
-            new Switchboard.NewChannel(fundingSat, new MilliSatoshi(0), scala.Option.apply(null)));
+            new Peer.OpenChannel(pubkey, fundingSat, new MilliSatoshi(0), scala.Option.apply(null)));
         }
       });
     goToHome();
