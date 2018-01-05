@@ -54,7 +54,7 @@
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:orientation="horizontal"
-          app:layout_collapseMode="pin">
+          android:baselineAligned="false">
 
           <LinearLayout
             android:layout_width="0dp"
@@ -66,7 +66,6 @@
             <TextView
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
-              android:layout_centerVertical="true"
               android:layout_marginStart="16dp"
               android:background="@drawable/rounded_corner_green"
               android:elevation="2dp"
@@ -79,45 +78,46 @@
               android:textSize="10sp"
               android:textStyle="bold" />
 
-            <TextView
+            <LinearLayout
               android:id="@+id/home_connection_status"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
-              android:layout_marginLeft="4dp"
-              android:visibility="gone"
-              android:alpha="0.7"
-              android:textColor="@color/white"
-              android:drawableEnd="@drawable/circle_red"
-              android:drawablePadding="4dp"
-              android:textAllCaps="true"
-              android:textSize="8sp" />
+              android:layout_marginStart="8dp"
+              android:orientation="horizontal"
+              android:gravity="start|center"
+              tools:ignore="UseCompoundDrawables">
+
+              <ImageView
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:src="@drawable/ic_warning_tri"
+                android:contentDescription="@string/chain_disconnected" />
+
+              <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/chain_disconnected"
+                android:alpha="0.6"
+                android:layout_marginStart="2dp"
+                android:textColor="@color/white"
+                android:drawablePadding="4dp"
+                android:textAllCaps="true"
+                android:textSize="8sp" />
+            </LinearLayout>
 
           </LinearLayout>
 
-          <RelativeLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight="0">
-
-            <LinearLayout
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:layout_centerVertical="true"
-              android:paddingLeft="16dp">
-
-              <android.support.v7.widget.Toolbar
-                android:id="@+id/toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@android:color/transparent" />
-
-            </LinearLayout>
-          </RelativeLayout>
+            <android.support.v7.widget.Toolbar
+              android:id="@+id/toolbar"
+              android:layout_width="0dp"
+              android:layout_height="match_parent"
+              android:layout_weight="0.5"
+              android:layout_marginStart="16dp"
+              android:background="@android:color/transparent" />
 
         </LinearLayout>
 
         <RelativeLayout
-
           android:layout_width="match_parent"
           android:layout_height="match_parent"
           android:paddingBottom="16dp"
@@ -171,7 +171,6 @@
             app:unit_size="10sp" />
 
         </RelativeLayout>
-
       </LinearLayout>
     </android.support.design.widget.AppBarLayout>
 

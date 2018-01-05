@@ -62,6 +62,7 @@ import fr.acinq.eclair.wallet.customviews.CoinAmountView;
 import fr.acinq.eclair.wallet.events.BitcoinPaymentEvent;
 import fr.acinq.eclair.wallet.events.BitcoinPaymentFailedEvent;
 import fr.acinq.eclair.wallet.events.ChannelUpdateEvent;
+import fr.acinq.eclair.wallet.events.ElectrumConnectionEvent;
 import fr.acinq.eclair.wallet.events.LNBalanceUpdateEvent;
 import fr.acinq.eclair.wallet.events.LNNewChannelFailureEvent;
 import fr.acinq.eclair.wallet.events.LNNewChannelOpenedEvent;
@@ -103,7 +104,7 @@ public class HomeActivity extends EclairActivity {
   private ViewStub mStubIntro;
   private ViewStub mStubBackup;
   private View mStubBackupInflated;
-  private TextView mConnectionStatus;
+  private View mConnectionStatus;
   private int introStep = 0;
 
   private Handler mExchangeRateHandler;
@@ -678,14 +679,9 @@ public class HomeActivity extends EclairActivity {
     mLNBalanceView.setAmountMsat(lnBalance);
   }
 
-  @Subscribe(threadMode = ThreadMode.MAIN)
-  public void handleDisconnectionEvent(ElectrumClient.ElectrumDisconnected$ event) {
-    // mConnectionStatus.setVisibility(View.VISIBLE);
-  }
-
-  @Subscribe(threadMode = ThreadMode.MAIN)
-  public void handleConnectionEvent(ElectrumClient.ElectrumConnected$ event) {
-    // mConnectionStatus.setVisibility(View.GONE);
+  @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
+  public void handleConnectionEvent(ElectrumConnectionEvent event) {
+     mConnectionStatus.setVisibility(event.connected ? View.GONE : View.VISIBLE);
   }
 
   private class HomePagerAdapter extends FragmentStatePagerAdapter {

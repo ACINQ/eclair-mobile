@@ -17,6 +17,7 @@ import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.blockchain.electrum.ElectrumClient;
 import fr.acinq.eclair.blockchain.electrum.ElectrumWallet;
 import fr.acinq.eclair.wallet.events.BitcoinPaymentEvent;
+import fr.acinq.eclair.wallet.events.ElectrumConnectionEvent;
 import fr.acinq.eclair.wallet.events.WalletBalanceUpdateEvent;
 import fr.acinq.eclair.wallet.models.Payment;
 import fr.acinq.eclair.wallet.models.PaymentDirection;
@@ -106,10 +107,10 @@ public class PaymentSupervisor extends UntypedActor {
       EventBus.getDefault().postSticky(address);
     } else if (message instanceof ElectrumClient.ElectrumDisconnected$) {
       Log.d(TAG, "Received DISCONNECTED");
-      EventBus.getDefault().postSticky(message);
+      EventBus.getDefault().post(new ElectrumConnectionEvent(false));
     } else if (message instanceof ElectrumClient.ElectrumConnected$) {
       Log.d(TAG, "Received CONNECTED");
-      EventBus.getDefault().postSticky(message);
+      EventBus.getDefault().postSticky(new ElectrumConnectionEvent(true));
     } else unhandled(message);
   }
 }

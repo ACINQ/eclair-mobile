@@ -212,7 +212,7 @@
 
   <string name="paymentsuccess_title">Payment sent!</string>
   <string name="paymentfailure_title">Payment failed!</string>
-  <string name="paymentfailure_toggle_details">Click here for details.</string>
+  <string name="paymentfailure_show_details">Click here for details</string>
   <string name="paymentfailure_error_size">%1$d attempt(s) made.</string>
   <string name="paymentfailure_error_counter">#%1$d of %2$d:</string>
   <string name="paymentfailure_error_cause_label">Cause:</string>
@@ -294,6 +294,7 @@
   <string name="fiat_usd">USD</string>
 
   <string name="chain_test">TESTNET</string>
+  <string name="chain_disconnected">Electrum disconnected</string>
 
   <!-- //////////////// Preferences //////////////////// -->
 
