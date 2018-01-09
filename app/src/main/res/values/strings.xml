@@ -283,16 +283,9 @@
   <string name="paymentitem_confidence_suffix">conf</string>
   <string name="paymentitem_fee_prefix">fee:</string>
 
-  <!-- //////////////// Monetary Units //////////////////// -->
+  <!-- //////////////// General //////////////////// -->
 
-  <string name="btc_sat_short">sat</string>
-  <string name="btc_sat_long">satoshi</string>
-  <string name="btc_milli_short">mBTC</string>
-  <string name="btc_milli_long">milli-bitcoin</string>
   <string name="btc_fee_unit">sat/byte</string>
-  <string name="fiat_eur">EUR</string>
-  <string name="fiat_usd">USD</string>
-
   <string name="chain_test">TESTNET</string>
   <string name="chain_disconnected">Electrum disconnected</string>
 
@@ -322,7 +315,7 @@
   <string name="prefs_onchain_explorer">Preferred onchain explorer</string>
   <string name="prefs_onchain_explorer_dialog">Explore onchain tx with</string>
 
-  <!-- //////////////// Preferences //////////////////// -->
+  <!-- //////////////// Scanner messages //////////////////// -->
 
   <string name="scan_title_invoice">Please scan a Bitcoin address or a Lightning payment request QR code.</string>
   <string name="scan_title_ln_uri">Please scan the URI of a Lightning Network\'s node.</string>

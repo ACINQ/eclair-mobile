@@ -96,8 +96,7 @@
             android:fontFamily="sans-serif-light"
             android:maxLines="1"
             android:paddingEnd="0dp"
-            android:paddingStart="6dp"
-            android:text="@string/btc_milli_short" />
+            android:paddingStart="6dp" />
 
         </RelativeLayout>
 
