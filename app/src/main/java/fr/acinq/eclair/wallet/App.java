@@ -184,7 +184,7 @@ public class App extends Application {
       .setVisibility(NotificationCompat.VISIBILITY_SECRET)
       .setPriority(Notification.PRIORITY_HIGH)
       .setDefaults(Notification.DEFAULT_SOUND)
-      .setVibrate(new long[]{0l})
+      .setVibrate(new long[]{0})
       .setSmallIcon(R.drawable.eclair_256x256)
       .setContentTitle(notificationEvent.title)
       .setContentText(notificationEvent.message)

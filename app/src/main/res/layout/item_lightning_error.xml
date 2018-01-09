@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="match_parent"
   android:layout_height="wrap_content"
-  android:background="@color/redFadedDark"
+  android:background="@color/red_faded_darker_x2"
   android:paddingBottom="8dp"
   android:paddingTop="8dp">
 
@@ -10,9 +10,11 @@
     android:id="@+id/lightning_error_counter"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_marginStart="20dp"
+    android:layout_marginStart="10dp"
+    android:minWidth="64dp"
     android:text="@string/paymentfailure_error_counter"
-    android:textColor="@color/redFadedLight"
+    android:textAlignment="viewEnd"
+    android:textColor="@color/red_faded_light"
     android:textStyle="bold" />
 
   <TextView
@@ -24,7 +26,7 @@
     android:layout_marginStart="4dp"
     android:layout_toEndOf="@+id/lightning_error_counter"
     android:text="@string/unknown"
-    android:textColor="@color/white"
+    android:textColor="@color/almostWhite"
     android:textIsSelectable="true"
     android:textStyle="bold" />
 
@@ -36,7 +38,7 @@
     android:layout_below="@+id/lightning_error_type"
     android:text="@string/paymentfailure_error_cause_label"
     android:textAlignment="viewEnd"
-    android:textColor="@color/redFadedLight"
+    android:textColor="@color/red_faded_light"
     android:textSize="12sp" />
 
   <TextView
@@ -48,7 +50,7 @@
     android:layout_marginStart="4dp"
     android:layout_toEndOf="@+id/lightning_error_cause_label"
     android:text="@string/paymentfailure_error_cause"
-    android:textColor="@color/white"
+    android:textColor="@color/red_faded_light_x2"
     android:textIsSelectable="true"
     android:textSize="12sp" />
 
@@ -60,7 +62,7 @@
     android:layout_below="@+id/lightning_error_cause"
     android:text="@string/paymentfailure_error_origin_label"
     android:textAlignment="viewEnd"
-    android:textColor="@color/redFadedLight"
+    android:textColor="@color/red_faded_light"
     android:textSize="12sp"
     android:visibility="gone" />
 
@@ -73,7 +75,7 @@
     android:layout_marginStart="4dp"
     android:layout_toEndOf="@+id/lightning_error_origin_label"
     android:text="@string/paymentfailure_error_origin"
-    android:textColor="@color/white"
+    android:textColor="@color/red_faded_light_x2"
     android:textIsSelectable="true"
     android:textSize="12sp"
     android:visibility="gone" />
@@ -86,7 +88,7 @@
     android:layout_below="@+id/lightning_error_origin"
     android:text="@string/paymentfailure_error_origin_channel_label"
     android:textAlignment="viewEnd"
-    android:textColor="@color/redFadedLight"
+    android:textColor="@color/red_faded_light"
     android:textSize="12sp"
     android:visibility="gone" />
 
@@ -98,7 +100,7 @@
     android:layout_marginEnd="4dp"
     android:layout_marginStart="4dp"
     android:layout_toEndOf="@+id/lightning_error_origin_channel_id_label"
-    android:textColor="@color/white"
+    android:textColor="@color/red_faded_light_x2"
     android:textIsSelectable="true"
     android:textSize="12sp"
     android:visibility="gone" />
@@ -112,7 +114,7 @@
     android:layout_below="@+id/lightning_error_origin"
     android:layout_marginEnd="4dp"
     android:alpha="0.8"
-    android:textColor="@color/white"
+    android:textColor="@color/red_faded_light_x2"
     android:textIsSelectable="true"
     android:textSize="12sp"
     android:visibility="gone" />

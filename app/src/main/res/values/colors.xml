@@ -28,8 +28,11 @@
   <color name="orange">#ffb81c</color>
   <color name="red">#cd1e56</color>
   <color name="redFaded">#ca4747</color>
+  <color name="red_faded_darker_x1">#be4141</color>
+  <color name="red_faded_darker_x2">#b13a3a</color>
+  <color name="red_faded_light">#ff6c6c</color>
+  <color name="red_faded_light_x2">#ffa4a4</color>
   <color name="redFadedLight">#d77272</color>
-  <color name="redFadedDark">#bb3838</color>
   <color name="lightred">#ffe0e2</color>
   <color name="white">#ffffff</color>
   <color name="almostWhite">#fbfbfb</color>

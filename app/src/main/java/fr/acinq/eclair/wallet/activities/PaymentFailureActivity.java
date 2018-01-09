@@ -3,11 +3,15 @@ package fr.acinq.eclair.wallet.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.AnticipateOvershootInterpolator;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -25,11 +29,11 @@ public class PaymentFailureActivity extends EclairActivity {
   public static final String EXTRA_PAYMENT_ERRORS = BuildConfig.APPLICATION_ID + "EXTRA_PAYMENT_ERRORS";
   private static final String TAG = "PaymentFailureActivity";
 
-  private Handler dismissHandler;
-  private Runnable dismissRunnable;
   private TextView mMessageView;
-  private Button mToggleDetailed;
+  private Button mShowDetailed;
+  private ImageButton mClose;
   private RecyclerView mErrorsView;
+  private AppBarLayout appBarLayout;
 
   private LightningErrorListAdapter mLightningErrorsAdapter;
 
@@ -37,15 +41,6 @@ public class PaymentFailureActivity extends EclairActivity {
   protected void onCreate(final Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_payment_failure);
-
-    // close activity after a few seconds
-    dismissHandler = new Handler();
-    dismissRunnable = new Runnable() {
-      public void run() {
-        finish();
-      }
-    };
-    dismissHandler.postDelayed(dismissRunnable, 4000);
 
     final Intent intent = getIntent();
     final boolean displaySimpleMessageOnly = intent.getBooleanExtra(EXTRA_PAYMENT_SIMPLE_ONLY, true);
@@ -56,21 +51,27 @@ public class PaymentFailureActivity extends EclairActivity {
     } else {
       final List<LightningPaymentError> errors = intent.getParcelableArrayListExtra(EXTRA_PAYMENT_ERRORS);
       mMessageView.setText(getString(R.string.paymentfailure_error_size, errors.size()));
+      appBarLayout = findViewById(R.id.paymentfailure_appbar);
 
-      mLightningErrorsAdapter = new LightningErrorListAdapter(errors);
-      mErrorsView = findViewById(R.id.paymentfailure_errors);
-      mErrorsView.setHasFixedSize(true);
-      mErrorsView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
-      mErrorsView.setAdapter(mLightningErrorsAdapter);
-
-      mToggleDetailed = findViewById(R.id.paymentfailure_toggle);
-      mToggleDetailed.setVisibility(View.VISIBLE);
-      mToggleDetailed.setOnClickListener(new View.OnClickListener() {
+      mShowDetailed = findViewById(R.id.paymentfailure_show_details);
+      mShowDetailed.setVisibility(View.VISIBLE);
+      mShowDetailed.setOnClickListener(new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-          dismissHandler.removeCallbacks(dismissRunnable); // give time to read errors
-          mToggleDetailed.setVisibility(View.GONE);
+          mShowDetailed.setVisibility(View.GONE);
+          mLightningErrorsAdapter = new LightningErrorListAdapter(errors);
+          mErrorsView = findViewById(R.id.paymentfailure_errors);
+          mErrorsView.setHasFixedSize(true);
+          mErrorsView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+          mErrorsView.setAdapter(mLightningErrorsAdapter);
           mErrorsView.setVisibility(View.VISIBLE);
+        }
+      });
+      mClose = findViewById(R.id.paymentfailure_close);
+      mClose.setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+          finish();
         }
       });
     }
@@ -82,10 +83,5 @@ public class PaymentFailureActivity extends EclairActivity {
     mSadImage.setScaleY(0.6f);
     mSadImage.animate().alpha(1).scaleX(1).scaleY(1)
       .setInterpolator(new AnticipateOvershootInterpolator()).setStartDelay(80).setDuration(500).start();
-  }
-
-  public void failure_dismiss(final View view) {
-    dismissHandler.removeCallbacks(dismissRunnable);
-    finish();
   }
 }
