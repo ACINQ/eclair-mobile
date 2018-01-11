@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v4.content.ContextCompat;
 import android.text.Editable;
 import android.text.Html;
 import android.text.TextWatcher;
@@ -16,7 +15,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.util.AsyncExecutor;
@@ -132,7 +130,7 @@ public class CreatePaymentActivity extends EclairActivity
   @Override
   public void processBitcoinInvoiceFinish(final BitcoinURI output) {
     if (output == null || output.getAddress() == null) {
-      couldNotReadInvoice(R.string.payment_failure_read_invoice);
+      couldNotReadInvoice(R.string.payment_invalid_address);
     } else if (!app.checkAddressParameters(output.getAddress())) {
       couldNotReadInvoice(R.string.payment_invalid_address);
     } else {
@@ -154,15 +152,8 @@ public class CreatePaymentActivity extends EclairActivity
   }
 
   private void couldNotReadInvoice(final int causeMessageId) {
-    mLoadingTextView.setTextColor(ContextCompat.getColor(this, R.color.redFaded));
+    mLoadingTextView.setTextIsSelectable(true);
     mLoadingTextView.setText(causeMessageId);
-    mLoadingTextView.setClickable(true);
-    mLoadingTextView.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View v) {
-        finish();
-      }
-    });
   }
 
   /**
@@ -315,7 +306,7 @@ public class CreatePaymentActivity extends EclairActivity
     if (mInvoice != null) {
       new LNInvoiceReaderTask(this, mInvoice.trim()).execute();
     } else {
-      couldNotReadInvoice(R.string.payment_failure_read_invoice);
+      couldNotReadInvoice(R.string.payment_invalid_address);
     }
   }
 

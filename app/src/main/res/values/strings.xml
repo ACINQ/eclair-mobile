@@ -15,7 +15,6 @@
   <string name="home_onchain_balance">WALLET:</string>
   <string name="home_offchain_balance">LIGHTNING:</string>
   <string name="home_balance_available">Offchain Spendable</string>
-  <string name="home_toast_openchannel_invalid">Invalid URI</string>
   <string name="home_toast_openchannel_success">Opening channel with </string>
   <string name="home_toast_openchannel_failed">Failed to open channel: </string>
   <string name="home_toast_noconnection">Not yet connected to the network</string>
@@ -77,18 +76,19 @@
 
   <!-- //////////////// Open Channel /////////////////// -->
 
+  <string name="openchannel_loading_pleasewait">Reading the node address, please wait…</string>
   <string name="openchannel_title">Open a new Lightning Channel</string>
   <string name="openchannel_capacity">CAPACITY</string>
   <string name="openchannel_capacity_hint">Channel capacity in</string>
   <string name="openchannel_capacity_invalid">Channel capacity must be between %1$s and %2$s</string>
   <string name="openchannel_capacity_notenoughfunds">Not enough funds</string>
   <string name="openchannel_error_capacity_nan">Capacity amount is not valid</string>
-  <string name="openchannel_error_address">This is not a valid address.\nFormat is [pubkey]@[ip]:[port]</string>
+  <string name="openchannel_address_expected_format">Expected format is nodeId@host:port</string>
+  <string name="openchannel_error_address">This is not a valid address for a Lightning node.\n\n%1$s</string>
   <string name="openchannel_do_open">Open</string>
-  <string name="openchannel_pubkey">Node Public Key</string>
-  <string name="openchannel_ip">Node IP</string>
+  <string name="openchannel_pubkey">Node id</string>
+  <string name="openchannel_ip">Node ip</string>
   <string name="openchannel_port">Port</string>
-  <string name="openchannel_invalid">Invalid address</string>
 
   <!-- //////////////// Commons /////////////////// -->
 
@@ -151,8 +151,7 @@
 
   <!-- //////////////// Send Payment //////////////////// -->
 
-  <string name="payment_failure_read_invoice">This is not a valid Bitcoin or Lightning payment request.</string>
-  <string name="payment_invalid_address">This is not a valid Bitcoin address</string>
+  <string name="payment_invalid_address">This is not a valid payment address.\n\nPlease use a Bitcoin address or a Lightning payment request to initiate a payment.</string>
   <string name="payment_type_onchain">On-Chain Payment</string>
   <string name="payment_type_lightning">Lightning Payment</string>
   <string name="payment_fees_custom">Custom</string>
@@ -318,6 +317,6 @@
   <!-- //////////////// Scanner messages //////////////////// -->
 
   <string name="scan_title_invoice">Please scan a Bitcoin address or a Lightning payment request QR code.</string>
-  <string name="scan_title_ln_uri">Please scan the URI of a Lightning Network\'s node.</string>
+  <string name="scan_title_ln_uri">Please scan the address of a Lightning Network node.</string>
 
 </resources>

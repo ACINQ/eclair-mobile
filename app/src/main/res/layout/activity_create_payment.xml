@@ -14,7 +14,7 @@
     android:padding="16dp"
     android:text="@string/payment_loading_pleasewait"
     android:textAlignment="center"
-    android:textColor="@color/colorGrey_2"
+    android:textColor="@color/colorGrey_3"
     android:visibility="visible" />
 
   <ScrollView

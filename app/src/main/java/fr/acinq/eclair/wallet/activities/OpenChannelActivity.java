@@ -17,28 +17,30 @@ import org.greenrobot.eventbus.util.AsyncExecutor;
 import java.net.InetSocketAddress;
 
 import akka.dispatch.OnComplete;
-import fr.acinq.bitcoin.BinaryData;
-import fr.acinq.bitcoin.Crypto;
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.channel.Channel;
+import fr.acinq.eclair.io.NodeURI;
 import fr.acinq.eclair.io.Peer;
-import fr.acinq.eclair.io.Switchboard;
 import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.events.LNNewChannelFailureEvent;
 import fr.acinq.eclair.wallet.events.LNNewChannelOpenedEvent;
 import fr.acinq.eclair.wallet.fragments.PinDialog;
+import fr.acinq.eclair.wallet.tasks.NodeURIReaderTask;
 import fr.acinq.eclair.wallet.utils.CoinUtils;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.Validators;
 
-public class OpenChannelActivity extends EclairActivity {
+public class OpenChannelActivity extends EclairActivity implements NodeURIReaderTask.AsyncNodeURIReaderTaskResponse {
 
   public static final String EXTRA_NEW_HOST_URI = BuildConfig.APPLICATION_ID + "NEW_HOST_URI";
   private static final String TAG = "OpenChannelActivity";
-
+  final MilliSatoshi minFunding = new MilliSatoshi(100000000); // 1 mBTC
+  final MilliSatoshi maxFunding = package$.MODULE$.satoshi2millisatoshi(new Satoshi(Channel.MAX_FUNDING_SATOSHIS()));
+  private View mForm;
+  private TextView mLoadingText;
   private TextView mCapacityHint;
   private EditText mCapacityValue;
   private TextView mCapacityUnit;
@@ -49,12 +51,10 @@ public class OpenChannelActivity extends EclairActivity {
   private Button mOpenButton;
   private View mErrorView;
   private TextView mErrorValue;
-
+  private String remoteNodeURIAsString = "";
+  private NodeURI remoteNodeURI = null;
   private String preferredFiatCurrency = Constants.FIAT_USD;
   private String preferredBitcoinUnit = Constants.MILLI_BTC_CODE;
-  final MilliSatoshi minFunding = new MilliSatoshi(100000000); // 1 mBTC
-  final MilliSatoshi maxFunding = package$.MODULE$.satoshi2millisatoshi(new Satoshi(Channel.MAX_FUNDING_SATOSHIS()));
-
   private PinDialog pinDialog;
 
   @Override
@@ -65,6 +65,9 @@ public class OpenChannelActivity extends EclairActivity {
     final SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
     preferredFiatCurrency = CoinUtils.getPreferredFiat(sharedPrefs);
     preferredBitcoinUnit = CoinUtils.getBtcPreferredUnit(sharedPrefs);
+
+    mForm = findViewById(R.id.openchannel_form);
+    mLoadingText = findViewById(R.id.openchannel_loading);
 
     mOpenButton = findViewById(R.id.openchannel_do_open);
     mIPTextView = findViewById(R.id.openchannel_ip);
@@ -99,8 +102,8 @@ public class OpenChannelActivity extends EclairActivity {
     mCapacityUnit.setText(CoinUtils.getBitcoinUnitShortLabel(preferredBitcoinUnit));
     mCapacityFiat = findViewById(R.id.openchannel_capacity_fiat);
 
-    setNodeURI(getIntent().getStringExtra(EXTRA_NEW_HOST_URI));
-    mCapacityValue.requestFocus();
+    remoteNodeURIAsString = getIntent().getStringExtra(EXTRA_NEW_HOST_URI).trim();
+    new NodeURIReaderTask(this, remoteNodeURIAsString).execute();
   }
 
   public void focusAmount(final View view) {
@@ -129,7 +132,6 @@ public class OpenChannelActivity extends EclairActivity {
    * Show an error in the open channel form if one of the rules is not respected.
    *
    * @param amount string amount
-   *
    * @return true if amount is valid, false otherwise
    */
   private boolean checkAmount(final String amount) throws IllegalArgumentException, NullPointerException {
@@ -153,29 +155,6 @@ public class OpenChannelActivity extends EclairActivity {
     mErrorView.setVisibility(View.VISIBLE);
   }
 
-  private void setNodeURI(final String uri) {
-    if (uri != null && Validators.HOST_REGEX.matcher(uri).matches()) {
-      String[] uriArray = uri.split("@", 2);
-      if (uriArray.length == 2) {
-        final String pubkey = uriArray[0];
-        String[] hostArray = uriArray[1].split(":", 2);
-        if (hostArray.length == 1) {
-          final String ip = hostArray[0];
-          final String port = "9735"; // if the port is not set in the URI, default to 9735
-          setURIFields(pubkey, ip, port);
-          return;
-        } else if (hostArray.length == 2) {
-          final String ip = hostArray[0];
-          final String port = hostArray[1];
-          setURIFields(pubkey, ip, port);
-          return;
-        }
-      }
-    }
-    toggleError(getString(R.string.openchannel_error_address));
-    disableForm();
-  }
-
   private void setURIFields(final String pubkey, final String ip, final String port) {
     mPubkeyTextView.setText(pubkey);
     mIPTextView.setText(ip);
@@ -188,6 +167,7 @@ public class OpenChannelActivity extends EclairActivity {
     mCapacityValue.setEnabled(false);
     mOpenButton.setAlpha(0.3f);
   }
+
   private void enableForm() {
     mOpenButton.setEnabled(true);
     mCapacityValue.setEnabled(true);
@@ -224,6 +204,7 @@ public class OpenChannelActivity extends EclairActivity {
             enableForm();
           }
         }
+
         @Override
         public void onPinCancel(PinDialog dialog) {
           enableForm();
@@ -236,36 +217,40 @@ public class OpenChannelActivity extends EclairActivity {
   }
 
   private void doOpenChannel() {
-
-    final String pubkeyString = mPubkeyTextView.getText().toString();
-    final String ipString = mIPTextView.getText().toString();
-    final String portString = mPortTextView.getText().toString();
     final Satoshi fundingSat = package$.MODULE$.millisatoshi2satoshi(CoinUtils.parseStringToMsat(mCapacityValue.getText().toString(), preferredBitcoinUnit));
-
     AsyncExecutor.create().execute(
       new AsyncExecutor.RunnableEx() {
         @Override
         public void run() throws Exception {
-
-          final BinaryData pubkeyBinary = BinaryData.apply(pubkeyString);
-          final Crypto.Point pubkeyPoint = new Crypto.Point(Crypto.curve().getCurve().decodePoint(package$.MODULE$.binaryData2array(pubkeyBinary)));
-          final Crypto.PublicKey pubkey = new Crypto.PublicKey(pubkeyPoint, true);
-
-          final InetSocketAddress address = new InetSocketAddress(ipString, Integer.parseInt(portString));
+          final InetSocketAddress address = remoteNodeURI.address();
           OnComplete<Object> onComplete = new OnComplete<Object>() {
             @Override
             public void onComplete(Throwable throwable, Object o) throws Throwable {
               if (throwable != null) {
                 EventBus.getDefault().post(new LNNewChannelFailureEvent(throwable.getMessage()));
               } else {
-                EventBus.getDefault().post(new LNNewChannelOpenedEvent(pubkeyString));
+                EventBus.getDefault().post(new LNNewChannelOpenedEvent(remoteNodeURI.nodeId().toString()));
               }
             }
           };
-          app.openChannel(30, onComplete, pubkey, address,
-            new Peer.OpenChannel(pubkey, fundingSat, new MilliSatoshi(0), scala.Option.apply(null)));
+          app.openChannel(30, onComplete, remoteNodeURI.nodeId(), address,
+            new Peer.OpenChannel(remoteNodeURI.nodeId(), fundingSat, new MilliSatoshi(0), scala.Option.apply(null)));
         }
       });
     goToHome();
+  }
+
+  @Override
+  public void processNodeURIFinish(final NodeURI uri, final String errorMessage) {
+    this.remoteNodeURI = uri;
+    if (this.remoteNodeURI == null || this.remoteNodeURI.address() == null || this.remoteNodeURI.nodeId() == null) {
+      final String message = getString(R.string.openchannel_error_address, errorMessage != null ? errorMessage : getString(R.string.openchannel_address_expected_format));
+      mLoadingText.setText(message);
+    } else {
+      mLoadingText.setVisibility(View.GONE);
+      setURIFields(uri.nodeId().toString(), "fixme", "fixme");
+      mForm.setVisibility(View.VISIBLE);
+      mCapacityValue.requestFocus();
+    }
   }
 }
