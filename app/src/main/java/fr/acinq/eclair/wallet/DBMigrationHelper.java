@@ -25,5 +25,12 @@ public class DBMigrationHelper extends DaoMaster.OpenHelper {
       db.execSQL("ALTER TABLE " + PaymentDao.TABLENAME +
         " ADD COLUMN " + PaymentDao.Properties.Direction.columnName + " TEXT");
     }
+    if (oldVersion < 4) {
+      // adds the preimage and recipient column to payment (one alter at a time)
+      db.execSQL("ALTER TABLE " + PaymentDao.TABLENAME +
+        " ADD COLUMN " + PaymentDao.Properties.Preimage.columnName + " TEXT");
+      db.execSQL("ALTER TABLE " + PaymentDao.TABLENAME +
+        " ADD COLUMN " + PaymentDao.Properties.Recipient.columnName + " TEXT");
+    }
   }
 }

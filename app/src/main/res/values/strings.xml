@@ -192,6 +192,8 @@
   <string name="paymentdetails_amount_paid_desc">Amount paid</string>
   <string name="paymentdetails_fees_label">Fees</string>
   <string name="paymentdetails_fees_desc">Routing fees</string>
+  <string name="paymentdetails_recipient_label">Paid to</string>
+  <string name="paymentdetails_recipient_desc">Id of the node receiving the payment.</string>
   <string name="paymentdetails_status_label">Status</string>
   <string name="paymentdetails_status_desc">PAID/PENDING/FAILED.</string>
   <string name="paymentdetails_desc_label">Description</string>
@@ -200,6 +202,8 @@
   <string name="paymentdetails_amount_requested_desc">Amount requested</string>
   <string name="paymentdetails_paymenthash_label">Payment hash</string>
   <string name="paymentdetails_paymenthash_desc">Payment hash</string>
+  <string name="paymentdetails_preimage_label">Payment preimage</string>
+  <string name="paymentdetails_preimage_desc">Proof of the payment success</string>
   <string name="paymentdetails_paymentrequest_label">Payment request</string>
   <string name="paymentdetails_paymentrequest_desc">Serialized LN payment request</string>
   <string name="paymentdetails_created_label">Creation date</string>

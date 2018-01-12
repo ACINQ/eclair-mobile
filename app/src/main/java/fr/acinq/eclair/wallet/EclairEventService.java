@@ -198,6 +198,7 @@ public class EclairEventService extends UntypedActor {
       if (paymentInDB == null) {
         Log.d(TAG, "Received an unknown PaymentSent event. Ignoring");
       } else {
+        paymentInDB.setPreimage("don\'t know it yet..."); // TODO add preimage to payment event
         paymentInDB.setAmountPaidMsat(paymentEvent.amount().amount() + paymentEvent.feesPaid().amount());
         paymentInDB.setFeesPaidMsat(paymentEvent.feesPaid().amount());
         paymentInDB.setUpdated(new Date());

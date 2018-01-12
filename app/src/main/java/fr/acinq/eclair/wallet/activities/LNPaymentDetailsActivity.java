@@ -51,6 +51,9 @@ public class LNPaymentDetailsActivity extends EclairActivity {
       DataRow statusRow = findViewById(R.id.paymentdetails_status);
       statusRow.setValue(p.getStatus().name());
 
+      DataRow recipientRow = findViewById(R.id.paymentdetails_recipient);
+      recipientRow.setValue(p.getRecipient());
+
       DataRow descRow = findViewById(R.id.paymentdetails_desc);
       descRow.setValue(p.getDescription());
 
@@ -59,6 +62,9 @@ public class LNPaymentDetailsActivity extends EclairActivity {
 
       DataRow paymentHashRow = findViewById(R.id.paymentdetails_paymenthash);
       paymentHashRow.setValue(p.getReference());
+
+      DataRow preimageRow = findViewById(R.id.paymentdetails_preimage);
+      preimageRow.setValue(p.getPreimage());
 
       DataRow paymentRequestRow = findViewById(R.id.paymentdetails_paymentrequest);
       paymentRequestRow.setValue(p.getPaymentRequest());

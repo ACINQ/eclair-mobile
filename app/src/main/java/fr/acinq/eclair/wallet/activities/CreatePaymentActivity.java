@@ -485,6 +485,7 @@ public class CreatePaymentActivity extends EclairActivity
             p.setDirection(PaymentDirection.SENT);
             p.setReference(pr.paymentHash().toString());
             p.setAmountRequestedMsat(CoinUtils.getLongAmountFromInvoice(pr));
+            p.setRecipient(pr.nodeId().toString());
             p.setPaymentRequest(prAsString);
             p.setStatus(PaymentStatus.PENDING);
             p.setDescription(pr.description().isLeft()

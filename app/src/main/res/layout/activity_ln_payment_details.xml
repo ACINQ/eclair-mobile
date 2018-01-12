@@ -50,6 +50,16 @@
       <include layout="@layout/include_separator" />
 
       <fr.acinq.eclair.wallet.customviews.DataRow
+        android:id="@+id/paymentdetails_recipient"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:desc="@string/paymentdetails_recipient_desc"
+        app:label="@string/paymentdetails_recipient_label"
+        app:value="@string/unknown" />
+
+      <include layout="@layout/include_separator" />
+
+      <fr.acinq.eclair.wallet.customviews.DataRow
         android:id="@+id/paymentdetails_desc"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -78,6 +88,16 @@
         android:layout_height="wrap_content"
         app:desc="@string/paymentdetails_paymenthash_desc"
         app:label="@string/paymentdetails_paymenthash_label"
+        app:value="@string/unknown" />
+
+      <include layout="@layout/include_separator" />
+
+      <fr.acinq.eclair.wallet.customviews.DataRow
+        android:id="@+id/paymentdetails_preimage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:desc="@string/paymentdetails_preimage_desc"
+        app:label="@string/paymentdetails_preimage_label"
         app:value="@string/unknown" />
 
       <include layout="@layout/include_separator" />

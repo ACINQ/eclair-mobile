@@ -35,6 +35,15 @@ public class Payment {
    */
   @NotNull
   private String reference;
+
+  /**
+   * Recipient of the payment, node id for LN or address for onchain
+   */
+  private String recipient;
+  /**
+   * LN payment preimage, prooving that the payment was made
+   */
+  private String preimage;
   /**
    * Serialized LN Payment request
    */
@@ -85,14 +94,17 @@ public class Payment {
     this.type = type;
   }
 
-  @Generated(hash = 1671773130)
-public Payment(Long id, @NotNull PaymentType type, @NotNull PaymentDirection direction, @NotNull String reference, String paymentRequest,
-        String description, int confidenceBlocks, int confidenceType, String txPayload, PaymentStatus status, @NotNull Date created,
-        Date updated, String lastErrorCause, long amountRequestedMsat, long amountPaidMsat, long feesPaidMsat) {
+  @Generated(hash = 442708531)
+public Payment(Long id, @NotNull PaymentType type, @NotNull PaymentDirection direction, @NotNull String reference, String recipient,
+        String preimage, String paymentRequest, String description, int confidenceBlocks, int confidenceType, String txPayload,
+        PaymentStatus status, @NotNull Date created, Date updated, String lastErrorCause, long amountRequestedMsat, long amountPaidMsat,
+        long feesPaidMsat) {
     this.id = id;
     this.type = type;
     this.direction = direction;
     this.reference = reference;
+    this.recipient = recipient;
+    this.preimage = preimage;
     this.paymentRequest = paymentRequest;
     this.description = description;
     this.confidenceBlocks = confidenceBlocks;
@@ -227,11 +239,28 @@ public Long getId() {
       this.feesPaidMsat = feesPaidMsat;
   }
 
-public void setStatus(PaymentStatus status) {
+  public void setStatus(PaymentStatus status) {
     this.status = status;
 }
 
-public PaymentStatus getStatus() {
+  public String getPreimage() {
+    return preimage;
+  }
+
+  public void setPreimage(String preimage) {
+    this.preimage = preimage;
+  }
+
+  public String getRecipient() {
+    return recipient;
+  }
+
+  public void setRecipient(String recipient) {
+    this.recipient = recipient;
+  }
+
+
+  public PaymentStatus getStatus() {
     return this.status;
 }
 
