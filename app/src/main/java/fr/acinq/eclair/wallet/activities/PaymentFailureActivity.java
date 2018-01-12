@@ -2,13 +2,9 @@ package fr.acinq.eclair.wallet.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.support.design.widget.AppBarLayout;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.animation.AnticipateOvershootInterpolator;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -33,9 +29,7 @@ public class PaymentFailureActivity extends EclairActivity {
   private Button mShowDetailed;
   private ImageButton mClose;
   private RecyclerView mErrorsView;
-  private AppBarLayout appBarLayout;
 
-  private LightningErrorListAdapter mLightningErrorsAdapter;
 
   @Override
   protected void onCreate(final Bundle savedInstanceState) {
@@ -51,7 +45,11 @@ public class PaymentFailureActivity extends EclairActivity {
     } else {
       final List<LightningPaymentError> errors = intent.getParcelableArrayListExtra(EXTRA_PAYMENT_ERRORS);
       mMessageView.setText(getString(R.string.paymentfailure_error_size, errors.size()));
-      appBarLayout = findViewById(R.id.paymentfailure_appbar);
+
+      mErrorsView = findViewById(R.id.paymentfailure_errors);
+      mErrorsView.setHasFixedSize(true);
+      mErrorsView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+      mErrorsView.setAdapter(new LightningErrorListAdapter(errors));
 
       mShowDetailed = findViewById(R.id.paymentfailure_show_details);
       mShowDetailed.setVisibility(View.VISIBLE);
@@ -59,11 +57,6 @@ public class PaymentFailureActivity extends EclairActivity {
         @Override
         public void onClick(View view) {
           mShowDetailed.setVisibility(View.GONE);
-          mLightningErrorsAdapter = new LightningErrorListAdapter(errors);
-          mErrorsView = findViewById(R.id.paymentfailure_errors);
-          mErrorsView.setHasFixedSize(true);
-          mErrorsView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
-          mErrorsView.setAdapter(mLightningErrorsAdapter);
           mErrorsView.setVisibility(View.VISIBLE);
         }
       });

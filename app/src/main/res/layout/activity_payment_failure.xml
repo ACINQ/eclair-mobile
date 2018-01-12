@@ -24,7 +24,7 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:orientation="vertical"
-        app:layout_scrollFlags="scroll|exitUntilCollapsed|enterAlways">
+        app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
         <ImageView
           android:id="@+id/paymentfailure_sad"
@@ -87,7 +87,7 @@
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:background="@color/red_faded_darker_x2"
-      android:layout_marginTop="8dp"
+      android:layout_marginBottom="16dp"
       android:visibility="invisible"
       app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
@@ -111,8 +111,6 @@
     android:src="@drawable/ic_close_white"
     android:textAlignment="center"
     android:textColor="@color/white"
-    android:textSize="12sp"
-    android:visibility="visible" />
+    android:textSize="12sp" />
 
 </RelativeLayout>
-
