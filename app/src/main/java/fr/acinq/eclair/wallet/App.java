@@ -18,7 +18,6 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.File;
-import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -65,6 +64,7 @@ import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.Promise;
 import scala.concurrent.duration.Duration;
+import scala.concurrent.duration.FiniteDuration;
 
 public class App extends Application {
 
@@ -229,36 +229,28 @@ public class App extends Application {
    * Asks the eclair node to asynchronously open a channel with a node. Completes with a
    * {@link akka.pattern.AskTimeoutException} after the timeout has expired.
    *
-   * @param timeout    in milliseconds
+   * @param timeout    Connection future timeout
    * @param onComplete Callback executed once the future completes (with success or failure)
-   * @param publicKey  public key of the node
-   * @param address    ip:port of the node
-   * @param open    channel to create, contains the capacity of the channel, in satoshis
+   * @param nodeURI    Uri of the node to connect to
+   * @param open       channel to create, contains the capacity of the channel, in satoshis
    */
-  public void openChannel(final int timeout, final OnComplete<Object> onComplete,
-                          final Crypto.PublicKey publicKey, final InetSocketAddress address, final Peer.OpenChannel open) {
-    if (publicKey != null && address != null && open != null) {
-
-      OnComplete<Object> onConnectComplete = new OnComplete<Object>() {
+  public void openChannel(final FiniteDuration timeout, final OnComplete<Object> onComplete,
+                          final NodeURI nodeURI, final Peer.OpenChannel open) {
+    if (nodeURI.nodeId() != null && nodeURI.address() != null && open != null) {
+      final OnComplete<Object> onConnectComplete = new OnComplete<Object>() {
         @Override
         public void onComplete(Throwable throwable, Object result) throws Throwable {
           if (throwable != null) {
             EventBus.getDefault().post(new LNNewChannelFailureEvent(throwable.getMessage()));
           } else if ("connected".equals(result.toString()) || "already connected".equals(result.toString())) {
-            Future<Object> openFuture = Patterns.ask(
-              eclairKit.switchboard(), open, new Timeout(Duration.create(timeout, "seconds")));
+            final Future<Object> openFuture = Patterns.ask(eclairKit.switchboard(), open, new Timeout(timeout));
             openFuture.onComplete(onComplete, system.dispatcher());
           } else {
             EventBus.getDefault().post(new LNNewChannelFailureEvent(result.toString()));
           }
         }
       };
-
-      Future<Object> connectFuture = Patterns.ask(
-        eclairKit.switchboard(),
-        new Peer.Connect(new NodeURI(publicKey, address)),
-        new Timeout(Duration.create(timeout, "seconds")));
-
+      final Future<Object> connectFuture = Patterns.ask(eclairKit.switchboard(), new Peer.Connect(nodeURI), new Timeout(timeout));
       connectFuture.onComplete(onConnectComplete, system.dispatcher());
     }
   }

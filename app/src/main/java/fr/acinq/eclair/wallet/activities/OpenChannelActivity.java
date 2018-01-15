@@ -14,8 +14,6 @@ import android.widget.TextView;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.util.AsyncExecutor;
 
-import java.net.InetSocketAddress;
-
 import akka.dispatch.OnComplete;
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.Satoshi;
@@ -32,6 +30,7 @@ import fr.acinq.eclair.wallet.tasks.NodeURIReaderTask;
 import fr.acinq.eclair.wallet.utils.CoinUtils;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.Validators;
+import scala.concurrent.duration.Duration;
 
 public class OpenChannelActivity extends EclairActivity implements NodeURIReaderTask.AsyncNodeURIReaderTaskResponse {
 
@@ -204,7 +203,6 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
             enableForm();
           }
         }
-
         @Override
         public void onPinCancel(PinDialog dialog) {
           enableForm();
@@ -222,7 +220,6 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
       new AsyncExecutor.RunnableEx() {
         @Override
         public void run() throws Exception {
-          final InetSocketAddress address = remoteNodeURI.address();
           OnComplete<Object> onComplete = new OnComplete<Object>() {
             @Override
             public void onComplete(Throwable throwable, Object o) throws Throwable {
@@ -233,7 +230,7 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
               }
             }
           };
-          app.openChannel(30, onComplete, remoteNodeURI.nodeId(), address,
+          app.openChannel(Duration.create(30, "seconds"), onComplete, remoteNodeURI,
             new Peer.OpenChannel(remoteNodeURI.nodeId(), fundingSat, new MilliSatoshi(0), scala.Option.apply(null)));
         }
       });
@@ -248,7 +245,7 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
       mLoadingText.setText(message);
     } else {
       mLoadingText.setVisibility(View.GONE);
-      setURIFields(uri.nodeId().toString(), "fixme", "fixme");
+      setURIFields(uri.nodeId().toString(), uri.address().getHost(), String.valueOf(uri.address().getPort()));
       mForm.setVisibility(View.VISIBLE);
       mCapacityValue.requestFocus();
     }
