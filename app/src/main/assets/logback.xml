@@ -4,7 +4,7 @@
       <pattern>%logger{12}</pattern>
     </tagEncoder>
     <encoder>
-      <pattern>%d %-5level %logger{36} %X{akkaSource} %X{channelId} - %msg%ex{24}%n</pattern>
+      <pattern>%-5level %X{channelId} - %msg%ex{24}%n</pattern>
     </encoder>
   </appender>
 
