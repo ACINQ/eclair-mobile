@@ -20,7 +20,9 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.util.AsyncExecutor;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 import akka.dispatch.OnComplete;
 import fr.acinq.bitcoin.BinaryData;
@@ -57,6 +59,7 @@ public class CreatePaymentActivity extends EclairActivity
 
   public static final String EXTRA_INVOICE = BuildConfig.APPLICATION_ID + "EXTRA_INVOICE";
   private static final String TAG = "CreatePayment";
+  private final static List<String> LIGHTNING_PREFIXES = Arrays.asList("lightning:", "lightning://");
 
   private boolean isProcessingPayment = false;
   private PaymentRequest mLNInvoice = null;
@@ -301,10 +304,16 @@ public class CreatePaymentActivity extends EclairActivity
 
     // --- read invoice from intent
     final Intent intent = getIntent();
-    mInvoice = intent.getStringExtra(EXTRA_INVOICE);
+    mInvoice = intent.getStringExtra(EXTRA_INVOICE).trim();
     Log.d(TAG, "Initializing payment with invoice=" + mInvoice);
     if (mInvoice != null) {
-      new LNInvoiceReaderTask(this, mInvoice.trim()).execute();
+      for (String prefix : LIGHTNING_PREFIXES) {
+        if (mInvoice.startsWith(prefix)) {
+          mInvoice = mInvoice.substring(prefix.length());
+          break;
+        }
+      }
+      new LNInvoiceReaderTask(this, mInvoice).execute();
     } else {
       couldNotReadInvoice(R.string.payment_invalid_address);
     }

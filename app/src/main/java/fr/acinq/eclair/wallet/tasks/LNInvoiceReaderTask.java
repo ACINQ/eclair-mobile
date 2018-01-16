@@ -3,9 +3,6 @@ package fr.acinq.eclair.wallet.tasks;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import java.util.Arrays;
-import java.util.List;
-
 import fr.acinq.eclair.payment.PaymentRequest;
 
 public class LNInvoiceReaderTask extends AsyncTask<String, Integer, PaymentRequest> {
@@ -13,7 +10,6 @@ public class LNInvoiceReaderTask extends AsyncTask<String, Integer, PaymentReque
   private static final String TAG = "LNInvoiceReaderTask";
   private final String invoiceAsString;
   private final AsyncInvoiceReaderTaskResponse delegate;
-  private final static List<String> LIGHTNING_PREFIXES = Arrays.asList("lightning:", "lightning://");
 
   public LNInvoiceReaderTask(AsyncInvoiceReaderTaskResponse delegate, String invoiceAsString) {
     this.delegate = delegate;
@@ -24,11 +20,7 @@ public class LNInvoiceReaderTask extends AsyncTask<String, Integer, PaymentReque
   protected PaymentRequest doInBackground(String... params) {
     PaymentRequest extract = null;
     try {
-      for (String prefix : LIGHTNING_PREFIXES) {
-        if (extract == null && invoiceAsString.startsWith(prefix)) {
-          extract = PaymentRequest.read(invoiceAsString.substring(prefix.length()));
-        }
-      }
+
       if (extract == null) {
         extract = PaymentRequest.read(invoiceAsString);
       }
