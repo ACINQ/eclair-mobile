@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -84,6 +85,7 @@ public class HomeActivity extends EclairActivity {
   List<Integer> recoveryPositions = Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23);
 
   private ViewPager mViewPager;
+  private TabLayout mTabs;
   private PaymentsListFragment mPaymentsListFragment;
   private ChannelsListFragment mChannelsListFragment;
   private ReceivePaymentFragment mReceivePaymentFragment;
@@ -132,6 +134,7 @@ public class HomeActivity extends EclairActivity {
 
     // --- tabs view page
     mViewPager = findViewById(R.id.home_viewpager);
+    mTabs = findViewById(R.id.home_tabs);
 
     // --- top view
     mConnectionStatus = findViewById(R.id.home_connection_status);
@@ -213,7 +216,10 @@ public class HomeActivity extends EclairActivity {
     mChannelsListFragment = new ChannelsListFragment();
     fragments.add(mChannelsListFragment);
     HomePagerAdapter mPagerAdapter = new HomePagerAdapter(getSupportFragmentManager(), fragments);
+
     mViewPager.setAdapter(mPagerAdapter);
+    mTabs.setupWithViewPager(mViewPager);
+
     if (savedInstanceState != null && savedInstanceState.containsKey("currentPage")) {
       mViewPager.setCurrentItem(savedInstanceState.getInt("currentPage"));
     } else {
@@ -686,6 +692,7 @@ public class HomeActivity extends EclairActivity {
 
   private class HomePagerAdapter extends FragmentStatePagerAdapter {
     private final List<Fragment> mFragmentList;
+    private final String[] titles = new String[] { getString(R.string.receive_title),getString(R.string.payments_title), getString(R.string.localchannels_title) };
 
     public HomePagerAdapter(FragmentManager fm, List<Fragment> fragments) {
       super(fm);
@@ -700,6 +707,11 @@ public class HomeActivity extends EclairActivity {
     @Override
     public int getCount() {
       return mFragmentList.size();
+    }
+
+    @Override
+    public CharSequence getPageTitle(int position) {
+      return titles[position];
     }
   }
 

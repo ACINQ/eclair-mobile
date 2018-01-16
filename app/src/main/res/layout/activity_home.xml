@@ -30,158 +30,162 @@
     android:layout_height="match_parent"
     android:layout="@layout/include_home_intro" />
 
-  <android.support.design.widget.CoordinatorLayout
+  <LinearLayout
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
 
-    <android.support.design.widget.AppBarLayout
-      android:id="@+id/home_appbar"
+    <LinearLayout
+      android:id="@+id/home_balance"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      app:elevation="0dp"
-      android:background="@color/colorPrimary">
+      android:background="@color/colorPrimary"
+      android:clickable="true"
+      android:focusable="true"
+      android:orientation="vertical">
 
+      <!-- top toolbar -->
       <LinearLayout
-        android:id="@+id/home_balance"
+        android:id="@+id/home_topbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?android:attr/selectableItemBackground"
-        android:clickable="true"
-        android:focusable="true"
-        android:orientation="vertical">
+        android:baselineAligned="false"
+        android:orientation="horizontal">
 
         <LinearLayout
-          android:id="@+id/home_topbar"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:orientation="horizontal"
-          android:baselineAligned="false">
+          android:layout_width="0dp"
+          android:layout_height="match_parent"
+          android:layout_weight="1"
+          android:gravity="start|center"
+          android:orientation="horizontal">
+
+          <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:background="@drawable/rounded_corner_green"
+            android:paddingBottom="3dp"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:paddingTop="3dp"
+            android:text="@string/chain_test"
+            android:textColor="@color/white"
+            android:textSize="10sp"
+            android:textStyle="bold" />
 
           <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
+            android:id="@+id/home_connection_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
             android:gravity="start|center"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            tools:ignore="UseCompoundDrawables">
+
+            <ImageView
+              android:layout_width="14dp"
+              android:layout_height="14dp"
+              android:contentDescription="@string/chain_disconnected"
+              android:src="@drawable/ic_warning_tri" />
 
             <TextView
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
-              android:layout_marginStart="16dp"
-              android:background="@drawable/rounded_corner_green"
-              android:paddingBottom="3dp"
-              android:paddingLeft="5dp"
-              android:paddingRight="5dp"
-              android:paddingTop="3dp"
-              android:text="@string/chain_test"
+              android:layout_marginStart="2dp"
+              android:alpha="0.6"
+              android:drawablePadding="4dp"
+              android:text="@string/chain_disconnected"
+              android:textAllCaps="true"
               android:textColor="@color/white"
-              android:textSize="10sp"
-              android:textStyle="bold" />
-
-            <LinearLayout
-              android:id="@+id/home_connection_status"
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:layout_marginStart="8dp"
-              android:orientation="horizontal"
-              android:gravity="start|center"
-              tools:ignore="UseCompoundDrawables">
-
-              <ImageView
-                android:layout_width="14dp"
-                android:layout_height="14dp"
-                android:src="@drawable/ic_warning_tri"
-                android:contentDescription="@string/chain_disconnected" />
-
-              <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/chain_disconnected"
-                android:alpha="0.6"
-                android:layout_marginStart="2dp"
-                android:textColor="@color/white"
-                android:drawablePadding="4dp"
-                android:textAllCaps="true"
-                android:textSize="8sp" />
-            </LinearLayout>
-
+              android:textSize="8sp" />
           </LinearLayout>
-
-            <android.support.v7.widget.Toolbar
-              android:id="@+id/toolbar"
-              android:layout_width="0dp"
-              android:layout_height="match_parent"
-              android:layout_weight="0.5"
-              android:layout_marginStart="16dp"
-              android:background="@android:color/transparent" />
 
         </LinearLayout>
 
-        <RelativeLayout
-          android:layout_width="match_parent"
+        <android.support.v7.widget.Toolbar
+          android:id="@+id/toolbar"
+          android:layout_width="0dp"
           android:layout_height="match_parent"
-          android:paddingBottom="16dp"
-          android:paddingLeft="24dp"
-          android:paddingRight="24dp"
-          android:paddingTop="8dp">
+          android:layout_marginStart="16dp"
+          android:layout_weight="0.5"
+          android:background="@android:color/transparent" />
 
-          <fr.acinq.eclair.wallet.customviews.CoinAmountView
-            android:id="@+id/home_balance_total"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            app:alignment="center"
-            app:amount_color="@color/white"
-            app:amount_size="42sp"
-            app:unit="mBTC"
-            app:unit_color="@color/white"
-            app:unit_size="12sp" />
-
-          <fr.acinq.eclair.wallet.customviews.CoinAmountView
-            android:id="@+id/home_balance_onchain_value"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/home_balance_total"
-            android:layout_marginTop="4dp"
-            android:alpha="0.8"
-            app:alignment="center"
-            app:amount_bold="true"
-            app:amount_color="@color/white"
-            app:amount_size="11sp"
-            app:image_size="12dp"
-            app:image_src="@drawable/icon_btc_shape_white"
-            app:unit="mBTC"
-            app:unit_color="@color/white"
-            app:unit_size="10sp" />
-
-          <fr.acinq.eclair.wallet.customviews.CoinAmountView
-            android:id="@+id/home_balance_ln_value"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/home_balance_onchain_value"
-            android:alpha="0.8"
-            app:alignment="center"
-            app:amount_bold="true"
-            app:amount_color="@color/white"
-            app:amount_size="11sp"
-            app:image_size="12dp"
-            app:image_src="@drawable/icon_bolt_shape_white"
-            app:unit="mBTC"
-            app:unit_color="@color/white"
-            app:unit_size="10sp" />
-
-        </RelativeLayout>
       </LinearLayout>
-    </android.support.design.widget.AppBarLayout>
+
+      <!-- balance bar -->
+      <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingBottom="16dp"
+        android:paddingLeft="24dp"
+        android:paddingRight="24dp"
+        android:paddingTop="8dp">
+
+        <fr.acinq.eclair.wallet.customviews.CoinAmountView
+          android:id="@+id/home_balance_total"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_alignParentTop="true"
+          app:alignment="center"
+          app:amount_color="@color/white"
+          app:amount_size="42sp"
+          app:unit="mBTC"
+          app:unit_color="@color/white"
+          app:unit_size="12sp" />
+
+        <fr.acinq.eclair.wallet.customviews.CoinAmountView
+          android:id="@+id/home_balance_onchain_value"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_below="@+id/home_balance_total"
+          android:layout_marginTop="4dp"
+          android:alpha="0.8"
+          app:alignment="center"
+          app:amount_bold="true"
+          app:amount_color="@color/white"
+          app:amount_size="11sp"
+          app:image_size="12dp"
+          app:image_src="@drawable/icon_btc_shape_white"
+          app:unit="mBTC"
+          app:unit_color="@color/white"
+          app:unit_size="10sp" />
+
+        <fr.acinq.eclair.wallet.customviews.CoinAmountView
+          android:id="@+id/home_balance_ln_value"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_below="@+id/home_balance_onchain_value"
+          android:alpha="0.8"
+          app:alignment="center"
+          app:amount_bold="true"
+          app:amount_color="@color/white"
+          app:amount_size="11sp"
+          app:image_size="12dp"
+          app:image_src="@drawable/icon_bolt_shape_white"
+          app:unit="mBTC"
+          app:unit_color="@color/white"
+          app:unit_size="10sp" />
+
+      </RelativeLayout>
+    </LinearLayout>
+
+    <!-- tabs + fragments -->
+    <android.support.design.widget.TabLayout
+      android:id="@+id/home_tabs"
+      style="@style/CustomTabStyle"
+      android:layout_width="match_parent"
+      android:layout_height="38dp"
+      android:background="@color/colorGrey_00"
+      app:tabMode="scrollable" />
 
     <android.support.v4.view.ViewPager
       android:id="@+id/home_viewpager"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
       app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+  </LinearLayout>
 
-  </android.support.design.widget.CoordinatorLayout>
-
+  <!-- toggleable floating buttons -->
   <RelativeLayout
     android:id="@+id/home_send_buttons"
     android:layout_width="wrap_content"
@@ -248,6 +252,7 @@
       android:layout_marginStart="@dimen/fab_margin"
       android:layout_marginTop="8dp"
       android:clickable="true"
+      android:focusable="true"
       android:src="@mipmap/ic_send_disabled"
       app:backgroundTint="@color/colorGrey_0"
       app:fabSize="normal" />

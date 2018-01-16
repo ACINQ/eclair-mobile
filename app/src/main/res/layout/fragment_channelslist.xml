@@ -5,19 +5,10 @@
   android:layout_width="match_parent"
   android:layout_height="match_parent">
 
-  <fr.acinq.eclair.wallet.customviews.TitleBar
-    android:id="@+id/localchannels_title"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_alignParentTop="true"
-    android:layout_centerHorizontal="true"
-    android:text="@string/localchannels_title" />
-
   <TextView
     android:id="@+id/localchannels_empty"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_below="@+id/localchannels_title"
     android:layout_centerHorizontal="true"
     android:padding="16dp"
     android:text="@string/localchannels_empty"
@@ -29,13 +20,14 @@
     android:id="@+id/localchannels_swiperefresh"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_below="@+id/localchannels_title"
     app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
     <android.support.v7.widget.RecyclerView
       android:id="@+id/localchannels_list"
       android:layout_width="match_parent"
-      android:layout_height="match_parent" />
+      android:layout_height="match_parent"
+      android:clipToPadding="false"
+      android:paddingBottom="76dp" />
 
   </android.support.v4.widget.SwipeRefreshLayout>
 
