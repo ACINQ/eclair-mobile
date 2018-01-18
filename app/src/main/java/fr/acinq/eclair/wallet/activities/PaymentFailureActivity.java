@@ -20,54 +20,67 @@ import fr.acinq.eclair.wallet.models.LightningPaymentError;
 
 public class PaymentFailureActivity extends EclairActivity {
 
+  public static final String EXTRA_PAYMENT_HASH = BuildConfig.APPLICATION_ID + "EXTRA_PAYMENT_HASH";
+  public static final String EXTRA_PAYMENT_DESC = BuildConfig.APPLICATION_ID + "EXTRA_PAYMENT_DESC";
   public static final String EXTRA_PAYMENT_SIMPLE_ONLY = BuildConfig.APPLICATION_ID + "EXTRA_SIMPLE_ONLY";
   public static final String EXTRA_PAYMENT_SIMPLE_MESSAGE = BuildConfig.APPLICATION_ID + "EXTRA_SIMPLE_MESSAGE";
   public static final String EXTRA_PAYMENT_ERRORS = BuildConfig.APPLICATION_ID + "EXTRA_PAYMENT_ERRORS";
   private static final String TAG = "PaymentFailureActivity";
 
+  private View mPaymentDescView;
+  private TextView mPaymentDescValue;
   private TextView mMessageView;
+  private View mDetails;
   private Button mShowDetailed;
   private ImageButton mClose;
   private RecyclerView mErrorsView;
-
 
   @Override
   protected void onCreate(final Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_payment_failure);
+    mMessageView = findViewById(R.id.paymentfailure_simple);
+    mDetails = findViewById(R.id.payment_failure_details);
+    mPaymentDescView = findViewById(R.id.paymentfailure_paymentdesc);
+    mPaymentDescValue = findViewById(R.id.paymentfailure_paymentdesc_value);
+    mShowDetailed = findViewById(R.id.paymentfailure_show_details);
+    mErrorsView = findViewById(R.id.paymentfailure_errors);
 
     final Intent intent = getIntent();
-    final boolean displaySimpleMessageOnly = intent.getBooleanExtra(EXTRA_PAYMENT_SIMPLE_ONLY, true);
+    final String paymentDescription = intent.getStringExtra(EXTRA_PAYMENT_DESC);
     final String simpleMessage = intent.getStringExtra(EXTRA_PAYMENT_SIMPLE_MESSAGE);
-    mMessageView = findViewById(R.id.paymentfailure_simple);
+    final boolean displaySimpleMessageOnly = intent.getBooleanExtra(EXTRA_PAYMENT_SIMPLE_ONLY, true);
+
+    mPaymentDescValue.setText(paymentDescription);
     if (displaySimpleMessageOnly) {
       mMessageView.setText(simpleMessage);
+      mShowDetailed.setVisibility(View.GONE);
+      mPaymentDescView.setVisibility(View.VISIBLE);
     } else {
       final List<LightningPaymentError> errors = intent.getParcelableArrayListExtra(EXTRA_PAYMENT_ERRORS);
       mMessageView.setText(getString(R.string.paymentfailure_error_size, errors.size()));
 
-      mErrorsView = findViewById(R.id.paymentfailure_errors);
       mErrorsView.setHasFixedSize(true);
       mErrorsView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
       mErrorsView.setAdapter(new LightningErrorListAdapter(errors));
 
-      mShowDetailed = findViewById(R.id.paymentfailure_show_details);
-      mShowDetailed.setVisibility(View.VISIBLE);
       mShowDetailed.setOnClickListener(new View.OnClickListener() {
         @Override
         public void onClick(View view) {
           mShowDetailed.setVisibility(View.GONE);
+          mPaymentDescView.setVisibility(View.VISIBLE);
           mErrorsView.setVisibility(View.VISIBLE);
         }
       });
-      mClose = findViewById(R.id.paymentfailure_close);
-      mClose.setOnClickListener(new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-          finish();
-        }
-      });
     }
+
+    mClose = findViewById(R.id.paymentfailure_close);
+    mClose.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View view) {
+        finish();
+      }
+    });
 
     // animation
     final ImageView mSadImage = findViewById(R.id.paymentfailure_sad);

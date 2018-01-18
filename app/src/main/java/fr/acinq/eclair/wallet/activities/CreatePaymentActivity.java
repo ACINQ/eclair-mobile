@@ -485,28 +485,28 @@ public class CreatePaymentActivity extends EclairActivity
         @Override
         public void run() throws Exception {
           // 0 - Check if payment already exists
-          Payment paymentForH = app.getDBHelper().getPayment(pr.paymentHash().toString(), PaymentType.BTC_LN);
+          final String paymentHash = pr.paymentHash().toString();
+          final String paymentDescription = pr.description().isLeft() ? pr.description().left().get() : pr.description().right().get().toString();
+          final Payment paymentForH = app.getDBHelper().getPayment(paymentHash, PaymentType.BTC_LN);
 
           // 1 - save payment attempt in DB
           final Payment p = paymentForH == null ? new Payment() : paymentForH;
           if (paymentForH == null) {
             p.setType(PaymentType.BTC_LN);
             p.setDirection(PaymentDirection.SENT);
-            p.setReference(pr.paymentHash().toString());
+            p.setReference(paymentHash);
             p.setAmountRequestedMsat(CoinUtils.getLongAmountFromInvoice(pr));
             p.setRecipient(pr.nodeId().toString());
             p.setPaymentRequest(prAsString);
             p.setStatus(PaymentStatus.PENDING);
-            p.setDescription(pr.description().isLeft()
-              ? pr.description().left().get()
-              : pr.description().right().get().toString());
+            p.setDescription(paymentDescription);
             p.setUpdated(new Date());
             app.getDBHelper().insertOrUpdatePayment(p);
           } else if (PaymentStatus.PAID.equals(paymentForH.getStatus())) {
-            EventBus.getDefault().post(new LNPaymentFailedEvent(true, "This invoice has already been paid.", null));
+            EventBus.getDefault().post(new LNPaymentFailedEvent(paymentHash, paymentDescription, true, "This invoice has already been paid.", null));
             return;
           } else if (PaymentStatus.PENDING.equals(paymentForH.getStatus())) {
-            EventBus.getDefault().post(new LNPaymentFailedEvent(true, "This invoice is already known and the payment is pending.", null));
+            EventBus.getDefault().post(new LNPaymentFailedEvent(paymentHash, paymentDescription, true, "This invoice is already known and the payment is pending.", null));
             return;
           } else if (PaymentStatus.FAILED.equals(paymentForH.getStatus())) {
             p.setStatus(PaymentStatus.PENDING);
@@ -518,7 +518,7 @@ public class CreatePaymentActivity extends EclairActivity
           OnComplete<Object> onComplete = new OnComplete<Object>() {
             @Override
             public void onComplete(Throwable t, Object o) {
-              final Payment paymentInDB = app.getDBHelper().getPayment(pr.paymentHash().toString(), PaymentType.BTC_LN);
+              final Payment paymentInDB = app.getDBHelper().getPayment(paymentHash, PaymentType.BTC_LN);
               if (paymentInDB != null) {
                 if (t != null && t instanceof akka.pattern.AskTimeoutException) {
                   // payment is taking too long, let's do nothing and keep waiting
@@ -547,7 +547,7 @@ public class CreatePaymentActivity extends EclairActivity
                   app.getDBHelper().insertOrUpdatePayment(paymentInDB);
 
                   // dispatch failure event to display the error message
-                  EventBus.getDefault().post(new LNPaymentFailedEvent(false, null, errorList));
+                  EventBus.getDefault().post(new LNPaymentFailedEvent(paymentHash, paymentDescription, false, null, errorList));
                 }
               }
             }

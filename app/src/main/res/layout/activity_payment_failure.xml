@@ -39,17 +39,19 @@
       <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:paddingEnd="64dp"
+        android:paddingStart="64dp">
 
         <TextView
           android:id="@+id/paymentfailure_title"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
+          android:layout_marginTop="16dp"
           android:text="@string/paymentfailure_title"
           android:textAlignment="center"
-          android:layout_marginTop="16dp"
           android:textAllCaps="true"
-          android:textColor="@color/white"
+          android:textColor="@color/almostWhite"
           android:textSize="18sp"
           android:textStyle="bold" />
 
@@ -58,36 +60,66 @@
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:layout_marginTop="4dp"
-          android:layout_marginBottom="16dp"
           android:text="@string/unknown"
           android:textAlignment="center"
-          android:alpha="0.7"
-          android:textColor="@color/white" />
+          android:textColor="@color/red_faded_light_x2" />
       </LinearLayout>
 
-      <Button
-        android:id="@+id/paymentfailure_show_details"
-        style="?android:attr/borderlessButtonStyle"
+      <LinearLayout
+        android:id="@+id/payment_failure_details"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="24dp"
         android:background="@color/red_faded_darker_x1"
-        android:minHeight="0dp"
-        android:padding="24dp"
-        app:elevation="0dp"
-        android:text="@string/paymentfailure_show_details"
-        android:textColor="@color/red_faded_light"
-        android:textSize="14sp"
-        android:visibility="gone" />
+        android:orientation="vertical">
 
+        <LinearLayout
+          android:id="@+id/paymentfailure_paymentdesc"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:gravity="center"
+          android:orientation="horizontal"
+          android:padding="16dp"
+          android:visibility="gone">
+
+          <TextView
+            android:id="@+id/paymentfailure_paymentdesc_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="4dp"
+            android:text="@string/payment_description"
+            android:textColor="@color/red_faded_light" />
+
+          <TextView
+            android:id="@+id/paymentfailure_paymentdesc_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="middle"
+            android:maxLines="3"
+            android:text="@string/unknown"
+            android:textColor="@color/red_faded_light_x2" />
+        </LinearLayout>
+
+        <Button
+          android:id="@+id/paymentfailure_show_details"
+          style="?android:attr/borderlessButtonStyle"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:background="?attr/selectableItemBackground"
+          android:minHeight="0dp"
+          android:padding="24dp"
+          android:text="@string/paymentfailure_show_details"
+          android:textColor="@color/red_faded_light"
+          android:textSize="14sp" />
+      </LinearLayout>
     </android.support.design.widget.AppBarLayout>
 
     <android.support.v7.widget.RecyclerView
       android:id="@+id/paymentfailure_errors"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:background="@color/red_faded_darker_x2"
       android:layout_marginBottom="16dp"
+      android:background="@color/red_faded_darker_x2"
       android:visibility="invisible"
       app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
