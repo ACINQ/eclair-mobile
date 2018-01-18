@@ -31,7 +31,7 @@
       android:layout_centerVertical="true"
       android:layout_marginStart="4dp"
       android:layout_alignParentEnd="true"
-      android:textColor="@color/colorGrey_1"
+      android:textColor="@color/grey_1"
       android:textSize="8sp" />
   </RelativeLayout>
 
@@ -80,7 +80,7 @@
     android:layout_width="match_parent"
     android:layout_height="1dp"
     android:layout_alignParentBottom="true"
-    android:background="@color/colorGrey_0" />
+    android:background="@color/grey_0" />
 
 </RelativeLayout>
 

@@ -1,42 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <color name="colorPrimary">#62798c</color>
-  <color name="colorPrimaryDark">#0190cf</color>
-  <color name="colorPrimaryDark_1">#087eb2</color>
-  <color name="colorPrimaryDark_2">#0f729e</color>
-  <color name="primary_light_00">#e5f7fd</color>
-  <color name="primary_light_0">#c8eefc</color>
-  <color name="primary_light_0_text">#9bb6c0</color>
-  <color name="primary_light_1">#85d8f7</color>
-  <color name="primary_light_2">#4bc2ef</color>
-  <color name="colorPrimaryFaded">#01adf7</color>
-  <color name="colorAccent">#ba3259</color>
-  <color name="colorGrey_000">#f6f6f6</color>
-  <color name="colorGrey_00">#f2f2f2</color>
-  <color name="colorGrey_0">#ecedef</color>
-  <color name="colorGrey_0p">#dedede</color>
-  <color name="colorGrey_11">#c3c3c3</color>
-  <color name="colorGrey_1">#bbbbbb</color>
-  <color name="colorGrey_2">#888888</color>
-  <color name="colorGrey_3">#555555</color>
-  <color name="colorGrey_4">#333333</color>
-  <color name="bluegreen">#00d0c9</color>
+  <color name="primary">#62798c</color>
+  <color name="primary_light_x5">#e5f7fd</color>
+  <color name="primary_light_x4_desat">#9bb6c0</color>
+  <color name="primary_light_x4">#c8eefc</color>
+  <color name="primary_light_x3">#85d8f7</color>
+  <color name="primary_light_x2">#4bc2ef</color>
+  <color name="primary_light_x1">#01adf7</color>
+  <color name="primary_dark_x1">#0190cf</color>
+  <color name="primary_dark_x2">#087eb2</color>
+  <color name="primary_dark_x3">#0f729e</color>
+  <color name="accent">#ba3259</color>
+  <!-- very light greys for backgrounds -->
+  <color name="grey_0">#ecedef</color>
+  <color name="grey_0_light_x2">#f6f6f6</color>
+  <color name="grey_0_light_x1">#f2f2f2</color>
+  <color name="grey_0_dark_x1">#dedede</color>
+  <!-- light greys for text that should be almost invisible to the user -->
+  <color name="grey_1">#bbbbbb</color>
+  <color name="grey_1_light_x1">#c3c3c3</color>
+  <!-- light grey, ok for non important text -->
+  <color name="grey_2">#888888</color>
+  <!-- standard grey -->
+  <color name="grey_3">#555555</color>
+  <!-- almost black, good for regular text -->
+  <color name="grey_4">#333333</color>
   <color name="green">#00c28c</color>
-  <color name="green_light_0">#bff5f8</color>
   <color name="yellow">#ffe88a</color>
-  <color name="yellowLight">#feedc5</color>
+  <color name="yellow_light_x1">#feedc5</color>
   <color name="orange">#ffb81c</color>
+  <!-- very flashy red -->
   <color name="red">#cd1e56</color>
-  <color name="redFaded">#ca4747</color>
-  <color name="red_faded_darker_x1">#be4141</color>
-  <color name="red_faded_darker_x2">#b13a3a</color>
-  <color name="red_faded_light">#ff6c6c</color>
+  <!-- red that does not burn your retina -->
+  <color name="red_faded">#ca4747</color>
   <color name="red_faded_light_x2">#ffa4a4</color>
-  <color name="redFadedLight">#d77272</color>
-  <color name="lightred">#ffe0e2</color>
+  <color name="red_faded_light_x1">#ff6c6c</color>
+  <color name="red_faded_dark_x1">#be4141</color>
+  <color name="red_faded_dark_x2">#b13a3a</color>
   <color name="white">#ffffff</color>
-  <color name="almostWhite">#fbfbfb</color>
+  <color name="almost_white">#fbfbfb</color>
   <color name="black">#000000</color>
   <color name="intro">#ffe785</color>
-  <color name="bluegrey_light">#d0ecfd</color>
 </resources>

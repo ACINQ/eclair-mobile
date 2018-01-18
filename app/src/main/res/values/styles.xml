@@ -2,15 +2,15 @@
 
   <!-- Base application theme. -->
   <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-    <item name="android:textColor">@color/colorGrey_4</item>
-    <item name="colorPrimary">@color/colorPrimary</item>
-    <item name="colorPrimaryDark">@color/colorPrimary</item>
-    <item name="colorAccent">@color/colorPrimary</item>
+    <item name="android:textColor">@color/grey_4</item>
+    <item name="colorPrimary">@color/primary</item>
+    <item name="colorPrimaryDark">@color/primary</item>
+    <item name="colorAccent">@color/primary</item>
     <item name="android:textColorSecondary">@color/white</item>
 
     <!-- forced white bg for consistency with older android versions -->
-    <item name="android:windowBackground">@color/almostWhite</item>
-    <item name="android:colorBackground">@color/almostWhite</item>
+    <item name="android:windowBackground">@color/almost_white</item>
+    <item name="android:colorBackground">@color/almost_white</item>
 
     <item name="windowActionBar">false</item>
     <item name="windowNoTitle">true</item>
@@ -21,11 +21,11 @@
     <item name="windowActionBar">true</item>
     <item name="windowNoTitle">false</item>
     <item name="actionBarTheme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
-    <item name="android:textColorSecondary">@color/colorGrey_1</item>
+    <item name="android:textColorSecondary">@color/grey_1</item>
   </style>
 
   <style name="CustomDialog" parent="@style/Theme.AppCompat.Light.Dialog">
-    <item name="android:textColor">@color/colorGrey_4</item>
+    <item name="android:textColor">@color/grey_4</item>
     <item name="android:windowMinWidthMajor">85%</item>
     <item name="android:windowMinWidthMinor">85%</item>
     <item name="windowActionBar">false</item>
@@ -43,7 +43,7 @@
   </style>
 
   <style name="scanTheme" parent="zxing_CaptureTheme">
-    <item name="android:textColor">@color/colorGrey_4</item>
+    <item name="android:textColor">@color/grey_4</item>
   </style>
 
   <style name="CustomTabStyle" parent="Widget.Design.TabLayout">
@@ -51,12 +51,12 @@
     <item name="tabPaddingEnd">12dp</item>
     <item name="tabBackground">?attr/selectableItemBackground</item>
     <item name="tabTextAppearance">@style/CustomTabText</item>
-    <item name="tabSelectedTextColor">@color/colorPrimary</item>
+    <item name="tabSelectedTextColor">@color/primary</item>
   </style>
 
   <style name="CustomTabText" parent="TextAppearance.AppCompat.Button">
     <item name="android:textSize">10sp</item>
-    <item name="android:textColor">@color/colorGrey_1</item>
+    <item name="android:textColor">@color/grey_1</item>
   </style>
 
 </resources>

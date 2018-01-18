@@ -53,7 +53,7 @@ public class ChannelsListFragment extends Fragment implements SwipeRefreshLayout
                            Bundle savedInstanceState) {
     mView = inflater.inflate(R.layout.fragment_channelslist, container, false);
     mRefreshLayout = mView.findViewById(R.id.localchannels_swiperefresh);
-    mRefreshLayout.setColorSchemeResources(R.color.colorPrimary, R.color.green, R.color.colorAccent);
+    mRefreshLayout.setColorSchemeResources(R.color.primary, R.color.green, R.color.accent);
     mRefreshLayout.setOnRefreshListener(this);
     mEmptyLabel = mView.findViewById(R.id.localchannels_empty);
 

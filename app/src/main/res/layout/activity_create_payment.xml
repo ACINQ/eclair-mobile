@@ -14,7 +14,7 @@
     android:padding="16dp"
     android:text="@string/payment_loading_pleasewait"
     android:textAlignment="center"
-    android:textColor="@color/colorGrey_3"
+    android:textColor="@color/grey_3"
     android:visibility="visible" />
 
   <ScrollView
@@ -33,7 +33,7 @@
       <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/colorGrey_0"
+        android:background="@color/grey_0"
         android:clickable="true"
         android:focusable="true"
         android:gravity="center"
@@ -67,7 +67,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/payment_type_onchain"
-            android:textColor="@color/colorGrey_2"
+            android:textColor="@color/grey_2"
             android:textSize="10sp" />
         </LinearLayout>
 
@@ -95,7 +95,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/payment_type_lightning"
-            android:textColor="@color/colorGrey_2"
+            android:textColor="@color/grey_2"
             android:textSize="10sp" />
         </LinearLayout>
 
@@ -121,8 +121,8 @@
             android:maxLines="1"
             android:minWidth="36dp"
             android:textAlignment="viewEnd"
-            android:textColor="@color/colorGrey_4"
-            android:textColorHint="@color/colorGrey_0p"
+            android:textColor="@color/grey_4"
+            android:textColorHint="@color/grey_0_dark_x1"
             android:textCursorDrawable="@drawable/cursor_grey"
             android:textSize="40sp" />
 
@@ -135,7 +135,7 @@
             android:layout_toStartOf="@+id/payment_amount_editable_unit"
             android:fontFamily="sans-serif-light"
             android:text="@string/payment_amount_to_send"
-            android:textColor="@color/colorGrey_1" />
+            android:textColor="@color/grey_1" />
 
           <TextView
             android:id="@+id/payment_amount_editable_unit"
@@ -155,7 +155,7 @@
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:maxLines="1"
-          android:textColor="@color/colorGrey_1"
+          android:textColor="@color/grey_1"
           android:textSize="12sp" />
 
       </LinearLayout>
@@ -165,7 +165,7 @@
         android:id="@+id/payment_recipient"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/colorGrey_000"
+        android:background="@color/grey_0_light_x2"
         android:orientation="horizontal"
         android:paddingBottom="12dp"
         android:paddingLeft="12dp"
@@ -179,7 +179,7 @@
           android:text="@string/payment_destination_address"
           android:textAlignment="textEnd"
           android:textAllCaps="true"
-          android:textColor="@color/colorGrey_1"
+          android:textColor="@color/grey_1"
           android:textSize="12sp" />
 
         <TextView
@@ -210,7 +210,7 @@
           android:text="@string/payment_description"
           android:textAlignment="textEnd"
           android:textAllCaps="true"
-          android:textColor="@color/colorGrey_1"
+          android:textColor="@color/grey_1"
           android:textSize="12sp" />
 
         <TextView
@@ -243,7 +243,7 @@
           android:text="@string/payment_fees"
           android:textAlignment="textEnd"
           android:textAllCaps="true"
-          android:textColor="@color/colorGrey_1"
+          android:textColor="@color/grey_1"
           android:textSize="12sp" />
 
         <LinearLayout
@@ -263,14 +263,14 @@
             android:maxLines="1"
             android:minWidth="6dp"
             android:paddingRight="4dp"
-            android:textColorHint="@color/colorGrey_1"
+            android:textColorHint="@color/grey_1"
             android:textSize="12sp" />
 
           <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/btc_fee_unit"
-            android:textColor="@color/colorGrey_2"
+            android:textColor="@color/grey_2"
             android:textSize="12sp" />
 
         </LinearLayout>
@@ -304,7 +304,7 @@
         android:drawableStart="@drawable/ic_warning"
         android:gravity="start|center"
         android:paddingBottom="12dp"
-        android:textColor="@color/colorGrey_3"
+        android:textColor="@color/grey_3"
         android:textSize="10sp"
         android:visibility="gone" />
 
@@ -328,7 +328,7 @@
           android:gravity="start|center"
           android:text="@string/payment_error"
           android:textAlignment="center"
-          android:textColor="@color/redFaded"
+          android:textColor="@color/red_faded"
           android:textSize="12sp" />
 
       </LinearLayout>
@@ -351,7 +351,7 @@
           android:onClick="cancelPayment"
           android:padding="16dp"
           android:text="@string/btn_cancel"
-          android:textColor="@color/colorGrey_0p" />
+          android:textColor="@color/grey_0_dark_x1" />
 
         <Button
           android:id="@+id/payment_btn_send"

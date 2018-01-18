@@ -15,7 +15,7 @@
     android:padding="16dp"
     android:text="@string/openchannel_loading_pleasewait"
     android:textAlignment="center"
-    android:textColor="@color/colorGrey_3"
+    android:textColor="@color/grey_3"
     android:visibility="visible" />
 
   <ScrollView
@@ -32,7 +32,7 @@
       <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/primary_light_0"
+        android:background="@color/primary_light_x4"
         android:clickable="true"
         android:focusable="true"
         android:gravity="center|top"
@@ -87,7 +87,7 @@
             android:maxLines="1"
             android:minWidth="48dp"
             android:textAlignment="viewEnd"
-            android:textColor="@color/colorGrey_4"
+            android:textColor="@color/grey_4"
             android:textCursorDrawable="@drawable/cursor_grey"
             android:textSize="40sp" />
 
@@ -100,7 +100,7 @@
             android:layout_toStartOf="@+id/openchannel_capacity_unit"
             android:fontFamily="sans-serif-light"
             android:text="@string/openchannel_capacity_hint"
-            android:textColor="@color/primary_light_0_text" />
+            android:textColor="@color/primary_light_x4_desat" />
 
           <TextView
             android:id="@+id/openchannel_capacity_unit"
@@ -120,7 +120,7 @@
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:maxLines="1"
-          android:textColor="@color/colorGrey_1"
+          android:textColor="@color/grey_1"
           android:textSize="12sp" />
 
       </LinearLayout>
@@ -141,7 +141,7 @@
           android:layout_marginEnd="8dp"
           android:text="@string/openchannel_pubkey"
           android:textAlignment="textEnd"
-          android:textColor="@color/primary_light_0_text"
+          android:textColor="@color/primary_light_x4_desat"
           android:textSize="12sp" />
 
         <TextView
@@ -170,7 +170,7 @@
           android:layout_marginEnd="8dp"
           android:text="@string/openchannel_ip"
           android:textAlignment="textEnd"
-          android:textColor="@color/primary_light_0_text"
+          android:textColor="@color/primary_light_x4_desat"
           android:textSize="12sp" />
 
         <TextView
@@ -197,7 +197,7 @@
           android:layout_marginEnd="8dp"
           android:text="@string/openchannel_port"
           android:textAlignment="textEnd"
-          android:textColor="@color/primary_light_0_text"
+          android:textColor="@color/primary_light_x4_desat"
           android:textSize="12sp" />
 
         <TextView
@@ -234,7 +234,7 @@
           android:layout_height="wrap_content"
           android:text="@string/openchannel_capacity_invalid"
           android:textAlignment="viewStart"
-          android:textColor="@color/redFaded"
+          android:textColor="@color/red_faded"
           android:textSize="12sp" />
 
       </LinearLayout>
@@ -252,7 +252,7 @@
           android:background="?android:attr/selectableItemBackground"
           android:onClick="cancelOpenChannel"
           android:text="@string/btn_cancel"
-          android:textColor="@color/colorGrey_0p" />
+          android:textColor="@color/grey_0_dark_x1" />
 
         <Button
           android:id="@+id/openchannel_do_open"

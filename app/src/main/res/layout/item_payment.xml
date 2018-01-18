@@ -40,7 +40,7 @@
       android:layout_below="@+id/paymentitem_description"
       android:layout_marginEnd="4dp"
       android:text="@string/unknown"
-      android:textColor="@color/colorPrimary"
+      android:textColor="@color/primary"
       android:textSize="10sp" />
 
     <TextView
@@ -50,7 +50,7 @@
       android:layout_below="@+id/paymentitem_description"
       android:layout_toEndOf="@+id/paymentitem_status"
       android:text="@string/unknown"
-      android:textColor="@color/colorGrey_1"
+      android:textColor="@color/grey_1"
       android:textSize="10sp" />
 
   </RelativeLayout>
@@ -82,7 +82,7 @@
       android:layout_height="wrap_content"
       android:layout_alignBaseline="@+id/paymentitem_amount_value"
       android:layout_alignParentEnd="true"
-      android:textColor="@color/colorGrey_2"
+      android:textColor="@color/grey_2"
       android:textSize="8sp" />
 
     <TextView
@@ -94,7 +94,7 @@
       android:layout_toStartOf="@+id/paymentitem_fees_value"
       android:maxLines="1"
       android:text="@string/paymentitem_fee_prefix"
-      android:textColor="@color/colorGrey_1"
+      android:textColor="@color/grey_1"
       android:textSize="10sp"
       android:visibility="gone" />
 
@@ -107,7 +107,7 @@
       android:layout_toStartOf="@+id/paymentitem_amount_unit"
       android:maxLines="1"
       android:text="0"
-      android:textColor="@color/colorGrey_2"
+      android:textColor="@color/grey_2"
       android:textSize="10sp"
       android:visibility="gone" />
 
@@ -117,7 +117,7 @@
       android:layout_height="wrap_content"
       android:layout_alignBaseline="@+id/paymentitem_fees_value"
       android:layout_alignStart="@+id/paymentitem_amount_unit"
-      android:textColor="@color/colorGrey_1"
+      android:textColor="@color/grey_1"
       android:textSize="8sp"
       android:visibility="gone" />
 
@@ -127,6 +127,6 @@
     android:layout_width="match_parent"
     android:layout_height="1dp"
     android:layout_alignParentBottom="true"
-    android:background="@color/colorGrey_0" />
+    android:background="@color/grey_0" />
 
 </RelativeLayout>

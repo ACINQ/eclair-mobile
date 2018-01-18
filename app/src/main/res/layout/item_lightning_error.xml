@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="match_parent"
   android:layout_height="wrap_content"
-  android:background="@color/red_faded_darker_x2"
+  android:background="@color/red_faded_dark_x2"
   android:paddingTop="16dp">
 
   <TextView
@@ -13,7 +13,7 @@
     android:minWidth="64dp"
     android:text="@string/paymentfailure_error_counter"
     android:textAlignment="viewEnd"
-    android:textColor="@color/red_faded_light"
+    android:textColor="@color/red_faded_light_x1"
     android:textStyle="bold" />
 
   <TextView
@@ -25,7 +25,7 @@
     android:layout_marginStart="4dp"
     android:layout_toEndOf="@+id/lightning_error_counter"
     android:text="@string/unknown"
-    android:textColor="@color/almostWhite"
+    android:textColor="@color/almost_white"
     android:textIsSelectable="true"
     android:textStyle="bold" />
 
@@ -37,7 +37,7 @@
     android:layout_below="@+id/lightning_error_type"
     android:text="@string/paymentfailure_error_cause_label"
     android:textAlignment="viewEnd"
-    android:textColor="@color/red_faded_light"
+    android:textColor="@color/red_faded_light_x1"
     android:textSize="12sp" />
 
   <TextView
@@ -61,7 +61,7 @@
     android:layout_below="@+id/lightning_error_cause"
     android:text="@string/paymentfailure_error_origin_label"
     android:textAlignment="viewEnd"
-    android:textColor="@color/red_faded_light"
+    android:textColor="@color/red_faded_light_x1"
     android:textSize="12sp"
     android:visibility="gone" />
 
@@ -87,7 +87,7 @@
     android:layout_below="@+id/lightning_error_origin"
     android:text="@string/paymentfailure_error_origin_channel_label"
     android:textAlignment="viewEnd"
-    android:textColor="@color/red_faded_light"
+    android:textColor="@color/red_faded_light_x1"
     android:textSize="12sp"
     android:visibility="gone" />
 

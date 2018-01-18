@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -12,7 +11,6 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.text.NumberFormat;
 
-import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.eclair.Globals;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.customviews.DataRow;
@@ -46,7 +44,7 @@ public class NetworkInfosActivity extends EclairActivity implements SwipeRefresh
     mFeeRate = findViewById(R.id.networkinfos_feerate);
 
     mRefreshLayout = findViewById(R.id.networkinfos_swiperefresh);
-    mRefreshLayout.setColorSchemeResources(R.color.colorPrimary, R.color.green, R.color.colorAccent);
+    mRefreshLayout.setColorSchemeResources(R.color.primary, R.color.green, R.color.accent);
     mRefreshLayout.setOnRefreshListener(this);
   }
 

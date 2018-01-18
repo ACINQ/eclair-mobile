@@ -98,7 +98,7 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
       mFees.setVisibility(View.GONE);
       mFeesUnit.setVisibility(View.GONE);
     } else {
-      mAmountValue.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.redFaded));
+      mAmountValue.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.red_faded));
       mFeesPrefix.setVisibility(View.VISIBLE);
       mFees.setVisibility(View.VISIBLE);
       mFeesUnit.setVisibility(View.VISIBLE);
@@ -108,7 +108,7 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
       mDescription.setText(payment.getDescription());
       mStatus.setText(payment.getStatus().name());
       if (PaymentStatus.FAILED.equals(payment.getStatus())) {
-        mStatus.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.redFaded));
+        mStatus.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.red_faded));
       } else if (PaymentStatus.PAID.equals(payment.getStatus())) {
         mStatus.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.green));
       } else {
@@ -124,13 +124,13 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
         mStatus.setText(confidenceBlocks + " " + itemView.getResources().getString(R.string.paymentitem_confidence_suffix));
         // color: green above 2
         if (payment.getConfidenceBlocks() < 2) {
-          mStatus.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.colorGrey_2));
+          mStatus.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.grey_2));
         } else {
           mStatus.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.green));
         }
       } else {
         mStatus.setText("In conflict");
-        mStatus.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.redFaded));
+        mStatus.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.red_faded));
       }
       mPaymentIcon.setImageResource(R.mipmap.ic_bitcoin_circle);
       mDescription.setText(payment.getReference());

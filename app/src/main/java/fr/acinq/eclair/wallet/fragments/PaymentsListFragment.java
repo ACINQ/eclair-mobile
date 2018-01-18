@@ -1,6 +1,5 @@
 package fr.acinq.eclair.wallet.fragments;
 
-import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -19,7 +18,6 @@ import java.util.List;
 
 import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.R;
-import fr.acinq.eclair.wallet.activities.HomeActivity;
 import fr.acinq.eclair.wallet.adapters.PaymentListItemAdapter;
 import fr.acinq.eclair.wallet.models.Payment;
 import fr.acinq.eclair.wallet.models.PaymentDao;
@@ -69,7 +67,7 @@ public class PaymentsListFragment extends Fragment implements SwipeRefreshLayout
                            Bundle savedInstanceState) {
     mView = inflater.inflate(R.layout.fragment_paymentslist, container, false);
     mRefreshLayout = mView.findViewById(R.id.payments_swiperefresh);
-    mRefreshLayout.setColorSchemeResources(R.color.colorPrimary, R.color.green, R.color.colorAccent);
+    mRefreshLayout.setColorSchemeResources(R.color.primary, R.color.green, R.color.accent);
     mRefreshLayout.setOnRefreshListener(this);
     mEmptyLabel = mView.findViewById(R.id.payments_empty);
 

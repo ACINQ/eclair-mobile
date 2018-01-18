@@ -1,7 +1,6 @@
 package fr.acinq.eclair.wallet.customviews;
 
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.AppCompatTextView;
 import android.util.AttributeSet;
@@ -27,8 +26,8 @@ public class TitleBar extends AppCompatTextView {
   }
 
   private void init(AttributeSet attrs, int defStyle) {
-    setTextColor(ContextCompat.getColor(getContext(), R.color.colorGrey_2));
-    setBackgroundColor(ContextCompat.getColor(getContext(), R.color.colorGrey_00));
+    setTextColor(ContextCompat.getColor(getContext(), R.color.grey_2));
+    setBackgroundColor(ContextCompat.getColor(getContext(), R.color.grey_0_light_x1));
     int smPadding = (int) getResources().getDimension(R.dimen.title_bar_padding_sm);
     int mdPadding = (int) getResources().getDimension(R.dimen.title_bar_padding_md);
     setPadding(smPadding, mdPadding, smPadding, smPadding);

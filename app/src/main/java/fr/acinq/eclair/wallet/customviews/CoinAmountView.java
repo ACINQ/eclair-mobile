@@ -93,7 +93,7 @@ public class CoinAmountView extends RelativeLayout {
       }
 
       final int amountSize = arr.getDimensionPixelSize(R.styleable.CoinAmountView_amount_size, 0);
-      final int amountColor = arr.getColor(R.styleable.CoinAmountView_amount_color, ContextCompat.getColor(getContext(), R.color.colorGrey_2));
+      final int amountColor = arr.getColor(R.styleable.CoinAmountView_amount_color, ContextCompat.getColor(getContext(), R.color.grey_2));
       final boolean isAmountBold = arr.getBoolean(R.styleable.CoinAmountView_amount_bold, false);
       if (isAmountBold) {
         amountTextView.setTypeface(null, Typeface.BOLD);
@@ -102,7 +102,7 @@ public class CoinAmountView extends RelativeLayout {
       amountTextView.setTextColor(amountColor);
 
       final int unitSize = arr.getDimensionPixelSize(R.styleable.CoinAmountView_unit_size, 0);
-      final int unitColor = arr.getColor(R.styleable.CoinAmountView_unit_color, ContextCompat.getColor(getContext(), R.color.colorGrey_2));
+      final int unitColor = arr.getColor(R.styleable.CoinAmountView_unit_color, ContextCompat.getColor(getContext(), R.color.grey_2));
       final boolean isUnitBold = arr.getBoolean(R.styleable.CoinAmountView_unit_bold, false);
       if (isUnitBold) {
         unitTextView.setTypeface(null, Typeface.BOLD);

@@ -38,7 +38,7 @@
     android:layout_width="match_parent"
     android:layout_height="0dp"
     android:layout_weight="0.3"
-    android:background="@color/almostWhite"
+    android:background="@color/almost_white"
     android:padding="24dp">
 
     <LinearLayout
@@ -73,7 +73,7 @@
       android:ellipsize="middle"
       android:maxLines="3"
       android:padding="8dp"
-      android:textColor="@color/colorGrey_2"
+      android:textColor="@color/grey_2"
       android:textSize="12sp"
       android:visibility="gone" />
 
@@ -83,9 +83,9 @@
     android:layout_width="match_parent"
     android:layout_height="0dp"
     android:layout_weight="0.1"
-    android:background="@color/colorGrey_0"
+    android:background="@color/grey_0"
     android:onClick="scanCancel"
     android:text="@string/btn_cancel"
-    android:textColor="@color/colorGrey_2" />
+    android:textColor="@color/grey_2" />
 
 </LinearLayout>

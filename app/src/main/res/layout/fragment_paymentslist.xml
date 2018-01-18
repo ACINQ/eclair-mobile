@@ -13,7 +13,7 @@
     android:padding="16dp"
     android:text="@string/payments_empty"
     android:textAlignment="center"
-    android:textColor="@color/colorGrey_1"
+    android:textColor="@color/grey_1"
     android:textSize="12sp" />
 
   <android.support.v4.widget.SwipeRefreshLayout

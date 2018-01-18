@@ -39,7 +39,7 @@ public class FabText extends RelativeLayout {
       String service = Context.LAYOUT_INFLATER_SERVICE;
       LayoutInflater li = (LayoutInflater) getContext().getSystemService(service);
       layout = li.inflate(R.layout.custom_fab_text, this, true);
-      int bgColor = arr.getColor(R.styleable.FabText_bgcolor, ContextCompat.getColor(getContext(), R.color.colorPrimary));
+      int bgColor = arr.getColor(R.styleable.FabText_bgcolor, ContextCompat.getColor(getContext(), R.color.primary));
       String label = arr.getString(R.styleable.FabText_label);
 
       labelTextView = layout.findViewById(R.id.fabtext_label);

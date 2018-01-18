@@ -2,7 +2,7 @@
   android:id="@+id/home_disclaimer"
   android:layout_width="match_parent"
   android:layout_height="match_parent"
-  android:background="@color/colorPrimary"
+  android:background="@color/primary"
   android:clickable="true"
   android:elevation="10dp">
 
@@ -48,7 +48,7 @@
           android:background="@android:color/transparent"
           android:onClick="home_closeApp"
           android:text="@string/home_disclaimer_button_quit"
-          android:textColor="@color/redFaded" />
+          android:textColor="@color/red_faded" />
 
       </LinearLayout>
 

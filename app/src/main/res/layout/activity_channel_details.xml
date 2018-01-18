@@ -98,7 +98,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:background="@color/redFaded"
+        android:background="@color/red_faded"
         android:clickable="true"
         android:gravity="center"
         android:orientation="horizontal"

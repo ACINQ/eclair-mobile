@@ -13,7 +13,7 @@
     <RelativeLayout
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:background="@color/yellowLight">
+      android:background="@color/yellow_light_x1">
 
       <TextView
         android:id="@+id/pin_title"
@@ -28,7 +28,7 @@
         android:paddingTop="3dp"
         android:text="@string/pindialog_title_default"
         android:textAlignment="center"
-        android:textColor="@color/colorGrey_3"
+        android:textColor="@color/grey_3"
         android:textSize="12sp" />
 
       <TextView
@@ -44,7 +44,7 @@
         android:gravity="center"
         android:letterSpacing="0.2"
         android:text="@string/pindialog_pwd_placeholder"
-        android:textColor="@color/colorGrey_3"
+        android:textColor="@color/grey_3"
         android:textSize="18sp" />
 
       <TextView
@@ -58,7 +58,7 @@
         android:letterSpacing="0.2"
         android:lines="1"
         android:maxLines="1"
-        android:textColor="@color/colorGrey_3"
+        android:textColor="@color/grey_3"
         android:textSize="18sp" />
 
     </RelativeLayout>
@@ -78,7 +78,7 @@
         android:gravity="center"
         android:minWidth="52dp"
         android:text="1"
-        android:textColor="@color/colorGrey_3"
+        android:textColor="@color/grey_3"
         android:textSize="20sp" />
 
       <Button
@@ -90,7 +90,7 @@
         android:gravity="center"
         android:minWidth="52dp"
         android:text="2"
-        android:textColor="@color/colorGrey_3"
+        android:textColor="@color/grey_3"
         android:textSize="20sp" />
 
       <Button
@@ -102,7 +102,7 @@
         android:gravity="center"
         android:minWidth="52dp"
         android:text="3"
-        android:textColor="@color/colorGrey_3"
+        android:textColor="@color/grey_3"
         android:textSize="20sp" />
 
       <Button
@@ -114,7 +114,7 @@
         android:gravity="center"
         android:minWidth="52dp"
         android:text="4"
-        android:textColor="@color/colorGrey_3"
+        android:textColor="@color/grey_3"
         android:textSize="20sp" />
 
       <Button
@@ -126,7 +126,7 @@
         android:gravity="center"
         android:minWidth="52dp"
         android:text="5"
-        android:textColor="@color/colorGrey_3"
+        android:textColor="@color/grey_3"
         android:textSize="20sp" />
 
       <Button
@@ -138,7 +138,7 @@
         android:gravity="center"
         android:minWidth="52dp"
         android:text="6"
-        android:textColor="@color/colorGrey_3"
+        android:textColor="@color/grey_3"
         android:textSize="20sp" />
 
       <Button
@@ -150,7 +150,7 @@
         android:gravity="center"
         android:minWidth="52dp"
         android:text="7"
-        android:textColor="@color/colorGrey_3"
+        android:textColor="@color/grey_3"
         android:textSize="20sp" />
 
       <Button
@@ -162,7 +162,7 @@
         android:gravity="center"
         android:minWidth="52dp"
         android:text="8"
-        android:textColor="@color/colorGrey_3"
+        android:textColor="@color/grey_3"
         android:textSize="20sp" />
 
       <Button
@@ -174,7 +174,7 @@
         android:gravity="center"
         android:minWidth="52dp"
         android:text="9"
-        android:textColor="@color/colorGrey_3"
+        android:textColor="@color/grey_3"
         android:textSize="20sp" />
 
       <ImageButton
@@ -187,7 +187,7 @@
         android:minHeight="48dp"
         android:minWidth="52dp"
         android:src="@drawable/ic_delete"
-        android:textColor="@color/redFaded"
+        android:textColor="@color/red_faded"
         android:textSize="14sp" />
 
       <Button
@@ -199,7 +199,7 @@
         android:gravity="center"
         android:minWidth="52dp"
         android:text="0"
-        android:textColor="@color/colorGrey_3"
+        android:textColor="@color/grey_3"
         android:textSize="20sp" />
 
       <ImageButton
