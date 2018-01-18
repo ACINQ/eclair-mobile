@@ -164,20 +164,8 @@ public class HomeActivity extends EclairActivity {
     setUpPaymentButtonStateListener();
     setUpExchangeRate();
 
-    // check intent
-    final Uri paymentRequest = getIntent().getData();
-    if (paymentRequest != null) {
-      switch (paymentRequest.getScheme()) {
-        case "bitcoin":
-        case "lightning":
-          Intent paymentIntent = new Intent(this, CreatePaymentActivity.class);
-          paymentIntent.putExtra(CreatePaymentActivity.EXTRA_INVOICE, paymentRequest.toString());
-          startActivity(paymentIntent);
-          break;
-        default:
-          Log.d(TAG, "Unhandled payment scheme=" + paymentRequest);
-      }
-    }
+    // app may be started with a payment request intent
+    readURIIntent(getIntent());
 
     Log.d(TAG, "Home.onCreate done");
   }
@@ -337,6 +325,31 @@ public class HomeActivity extends EclairActivity {
     // ask for LN balance
     EclairEventService.postLNBalanceEvent();
     Log.d(TAG, "Home.onResume done");
+  }
+
+  @Override
+  protected void onNewIntent(final Intent intent) {
+    super.onNewIntent(intent);
+    readURIIntent(intent);
+  }
+
+  private void readURIIntent(final Intent intent) {
+    final Uri paymentRequest = intent.getData();
+    Log.i(TAG, "intent contains pr=" + paymentRequest);
+    if (paymentRequest != null) {
+      Log.i(TAG, "payment request to open is=" + paymentRequest.toString());
+      switch (paymentRequest.getScheme()) {
+        case "bitcoin":
+        case "lightning":
+          final Intent paymentIntent = new Intent(this, CreatePaymentActivity.class);
+          paymentIntent.putExtra(CreatePaymentActivity.EXTRA_INVOICE, paymentRequest.toString());
+          startActivity(paymentIntent);
+          getIntent().setData(null); // prevent loop
+          break;
+        default:
+          Log.d(TAG, "Unhandled payment scheme=" + paymentRequest);
+      }
+    }
   }
 
   @Override
