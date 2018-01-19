@@ -2,6 +2,7 @@ package fr.acinq.eclair.wallet.activities;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -25,6 +26,17 @@ public class EclairActivity extends AppCompatActivity {
   protected void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     app = ((App) getApplication());
+  }
+
+  protected boolean checkInit() {
+    if (app == null || app.appKit == null || app.getDBHelper() == null) {
+      Intent startup = new Intent(this, StartupActivity.class);
+      startup.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+      startup.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+      startActivity(startup);
+      return false;
+    }
+    return true;
   }
 
   protected boolean isPinRequired () {

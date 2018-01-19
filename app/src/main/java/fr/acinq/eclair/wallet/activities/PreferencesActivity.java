@@ -161,9 +161,11 @@ public class PreferencesActivity extends EclairActivity {
   @Override
   protected void onResume() {
     super.onResume();
-    refreshPinDisplays(getSharedPreferences(Constants.SETTINGS_SECURITY_FILE, MODE_PRIVATE));
-    getApplicationContext().getSharedPreferences(Constants.SETTINGS_SECURITY_FILE, MODE_PRIVATE)
-      .registerOnSharedPreferenceChangeListener(securityPrefsListener);
+    if (checkInit()) {
+      refreshPinDisplays(getSharedPreferences(Constants.SETTINGS_SECURITY_FILE, MODE_PRIVATE));
+      getApplicationContext().getSharedPreferences(Constants.SETTINGS_SECURITY_FILE, MODE_PRIVATE)
+        .registerOnSharedPreferenceChangeListener(securityPrefsListener);
+    }
   }
 
   @Override

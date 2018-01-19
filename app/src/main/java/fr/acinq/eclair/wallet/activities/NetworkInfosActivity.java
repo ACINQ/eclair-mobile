@@ -81,11 +81,13 @@ public class NetworkInfosActivity extends EclairActivity implements SwipeRefresh
   @Override
   public void onResume() {
     super.onResume();
-    if (!EventBus.getDefault().isRegistered(this)) {
-      EventBus.getDefault().register(this);
+    if (checkInit()) {
+      if (!EventBus.getDefault().isRegistered(this)) {
+        EventBus.getDefault().register(this);
+      }
+      mNodePublicKeyRow.setValue(app.nodePublicKey());
+      refreshData();
     }
-    mNodePublicKeyRow.setValue(app.nodePublicKey());
-    refreshData();
   }
 
   @Override

@@ -28,12 +28,10 @@ import fr.acinq.eclair.wallet.models.PaymentType;
  */
 public class PaymentSupervisor extends UntypedActor {
   public final static String TAG = "PaymentSupervisor";
-  private App app;
-  private ActorRef wallet;
+  private DBHelper dbHelper;
 
-  public PaymentSupervisor(App app, ActorRef wallet) {
-    this.app = app;
-    this.wallet = wallet;
+  public PaymentSupervisor(DBHelper dbHelper) {
+    this.dbHelper = dbHelper;
     context().system().eventStream().subscribe(self(), ElectrumClient.ElectrumEvent.class);
     context().system().eventStream().subscribe(self(), ElectrumWallet.WalletEvent.class);
   }
@@ -55,7 +53,7 @@ public class PaymentSupervisor extends UntypedActor {
       final Satoshi amount = (walletTransactionReceive.received().$greater$eq(walletTransactionReceive.sent()))
         ? walletTransactionReceive.received().$minus(walletTransactionReceive.sent())
         : walletTransactionReceive.sent().$minus(walletTransactionReceive.received());
-      final Payment paymentInDB = app.getDBHelper().getPayment(tx.txid().toString(), PaymentType.BTC_ONCHAIN, direction);
+      final Payment paymentInDB = dbHelper.getPayment(tx.txid().toString(), PaymentType.BTC_ONCHAIN, direction);
       final Satoshi fee = walletTransactionReceive.feeOpt().isDefined() ? walletTransactionReceive.feeOpt().get() : new Satoshi(0);
       ByteArrayOutputStream bos = new ByteArrayOutputStream();
       Transaction.write(tx, bos, Protocol.PROTOCOL_VERSION());
@@ -80,7 +78,7 @@ public class PaymentSupervisor extends UntypedActor {
         // timestamp is updated only if the transaction is not already known
         paymentReceived.setUpdated(new Date());
       }
-      app.getDBHelper().insertOrUpdatePayment(paymentReceived);
+      dbHelper.insertOrUpdatePayment(paymentReceived);
 
       // dispatch news and ask for on-chain balance update
       EventBus.getDefault().post(new BitcoinPaymentEvent(paymentReceived));
@@ -89,18 +87,18 @@ public class PaymentSupervisor extends UntypedActor {
       final ElectrumWallet.TransactionConfidenceChanged walletTransactionConfidenceChanged = (ElectrumWallet.TransactionConfidenceChanged) message;
       final int depth = (int) walletTransactionConfidenceChanged.depth();
       if (depth < 10) { // ignore tx with confidence > 10 for perfs reasons
-        final Payment p = app.getDBHelper().getPayment(walletTransactionConfidenceChanged.txid().toString(), PaymentType.BTC_ONCHAIN);
+        final Payment p = dbHelper.getPayment(walletTransactionConfidenceChanged.txid().toString(), PaymentType.BTC_ONCHAIN);
         if (p != null) {
           p.setConfidenceBlocks(depth);
-          app.getDBHelper().updatePayment(p);
+          dbHelper.updatePayment(p);
           EventBus.getDefault().post(new BitcoinPaymentEvent(null));
         }
       }
     } else if (message instanceof ElectrumWallet.WalletReady) {
       Log.d(TAG, "Received WalletReady message: {}" + message);
       ElectrumWallet.WalletReady ready = (ElectrumWallet.WalletReady) message;
-      app.onChainBalance.set(ready.confirmedBalance().$plus(ready.unconfirmedBalance()));
-      EventBus.getDefault().post(new WalletBalanceUpdateEvent());
+      Satoshi balance = ready.confirmedBalance().$plus(ready.unconfirmedBalance());
+      EventBus.getDefault().post(new WalletBalanceUpdateEvent(balance));
     } else if (message instanceof ElectrumWallet.NewWalletReceiveAddress) {
       Log.d(TAG, "Received NewWalletReceiveAddress message: {}" + message);
       ElectrumWallet.NewWalletReceiveAddress address = (ElectrumWallet.NewWalletReceiveAddress) message;

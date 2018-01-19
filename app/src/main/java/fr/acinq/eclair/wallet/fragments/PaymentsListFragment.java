@@ -88,7 +88,7 @@ public class PaymentsListFragment extends Fragment implements SwipeRefreshLayout
    */
   private List<Payment> getPayments() {
 
-    if (getActivity() == null || getActivity().getApplication() == null) return new ArrayList<>();
+    if (getActivity() == null || getActivity().getApplication() == null || ((App) getActivity().getApplication()).getDBHelper() == null) return new ArrayList<>();
 
     final List<Payment> list = ((App) getActivity().getApplication()).getDBHelper().getDaoSession().getPaymentDao()
       .queryBuilder().orderDesc(PaymentDao.Properties.Updated).limit(100).list();

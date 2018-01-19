@@ -115,7 +115,6 @@ public class HomeActivity extends EclairActivity {
   @Override
   protected void onCreate(final Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    setTheme(R.style.AppTheme);
     setContentView(R.layout.activity_home);
 
     Toolbar toolbar = findViewById(R.id.toolbar);
@@ -160,7 +159,6 @@ public class HomeActivity extends EclairActivity {
     // setup content
     setUpTabs(savedInstanceState);
     setUpBalanceInteraction(prefs);
-    setUpPaymentButtonStateListener();
     setUpExchangeRate();
 
     // app may be started with a payment request intent
@@ -250,24 +248,6 @@ public class HomeActivity extends EclairActivity {
     });
   }
 
-  private void setUpPaymentButtonStateListener() {
-    app.fAtCurrentBlockHeight().onComplete(new OnComplete<Object>() {
-      @Override
-      public void onComplete(Throwable throwable, Object o) throws Throwable {
-        runOnUiThread(new Runnable() {
-          @Override
-          public void run() {
-            if (!app.fAtCurrentBlockHeight().isCompleted()) {
-              disableSendButton();
-            } else {
-              enableSendButton();
-            }
-          }
-        });
-      }
-    }, ExecutionContext.Implicits$.MODULE$.global());
-  }
-
   private void setUpExchangeRate() {
     final RequestQueue queue = Volley.newRequestQueue(this);
     mExchangeRateRequest = new JsonObjectRequest(Request.Method.GET, "https://api.coindesk.com/v1/bpi/currentprice.json", null,
@@ -306,24 +286,21 @@ public class HomeActivity extends EclairActivity {
 
   @Override
   public void onResume() {
-    if (!EventBus.getDefault().isRegistered(this)) {
-      EventBus.getDefault().register(this);
-    }
     super.onResume();
-    if (!app.fAtCurrentBlockHeight().isCompleted()) {
-      disableSendButton();
-    } else {
-      enableSendButton();
+    if (checkInit()) {
+      if (!EventBus.getDefault().isRegistered(this)) {
+        EventBus.getDefault().register(this);
+      }
+      // starts refreshing the exchange rate
+      mExchangeRateHandler.post(mExchangeRateRunnable);
+      // refresh balance after possible prefs change
+      mTotalBalanceView.refreshUnits();
+      mOnchainBalanceView.refreshUnits();
+      mLNBalanceView.refreshUnits();
+      // ask for LN balance
+      EclairEventService.postLNBalanceEvent();
+      Log.d(TAG, "Home.onResume done");
     }
-    // starts refreshing the exchange rate
-    mExchangeRateHandler.post(mExchangeRateRunnable);
-    // refresh balance after possible prefs change
-    mTotalBalanceView.refreshUnits();
-    mOnchainBalanceView.refreshUnits();
-    mLNBalanceView.refreshUnits();
-    // ask for LN balance
-    EclairEventService.postLNBalanceEvent();
-    Log.d(TAG, "Home.onResume done");
   }
 
   @Override

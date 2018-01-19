@@ -105,6 +105,12 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
     new NodeURIReaderTask(this, remoteNodeURIAsString).execute();
   }
 
+  @Override
+  protected void onResume() {
+    super.onResume();
+    checkInit();
+  }
+
   public void focusAmount(final View view) {
     mCapacityValue.requestFocus();
   }

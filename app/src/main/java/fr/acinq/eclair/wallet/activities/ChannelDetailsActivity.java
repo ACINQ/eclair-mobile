@@ -129,6 +129,12 @@ public class ChannelDetailsActivity extends EclairActivity {
     }
   }
 
+  @Override
+  protected void onResume() {
+    super.onResume();
+    checkInit();
+  }
+
   private void goToHome() {
     Intent homeIntent = new Intent(this, HomeActivity.class);
     startActivity(homeIntent);

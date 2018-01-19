@@ -319,6 +319,12 @@ public class CreatePaymentActivity extends EclairActivity
     }
   }
 
+  @Override
+  protected void onResume() {
+    super.onResume();
+    checkInit();
+  }
+
   public void focusAmount(final View view) {
     mAmountEditableValue.requestFocus();
   }
@@ -573,23 +579,7 @@ public class CreatePaymentActivity extends EclairActivity
    */
   private void sendBitcoinPayment(final Satoshi amountSat, final Long feesPerKw, final BitcoinURI bitcoinURI) {
     Log.d(TAG, "Sending Bitcoin payment for invoice " + mBitcoinInvoice.toString() + " with amount = " + amountSat);
-    try {
-      Future fBitcoinPayment = app.getWallet().sendPayment(amountSat, bitcoinURI.getAddress(), feesPerKw);
-      fBitcoinPayment.onComplete(new OnComplete<String>() {
-        @Override
-        public void onComplete(final Throwable t, final String txId) {
-          if (t == null) {
-            Log.i(TAG, "Successfully sent tx " + txId);
-          } else {
-            Log.e(TAG, "Bitcoin tx has failed ", t);
-            EventBus.getDefault().post(new BitcoinPaymentFailedEvent());
-          }
-        }
-      }, app.system.dispatcher());
-    } catch (Throwable t) {
-      Log.e(TAG, "Could not send Bitcoin tx ", t);
-      EventBus.getDefault().post(new BitcoinPaymentFailedEvent());
-    }
+    app.sendBitcoinPayment(amountSat, bitcoinURI.getAddress(), feesPerKw);
   }
 
   /**

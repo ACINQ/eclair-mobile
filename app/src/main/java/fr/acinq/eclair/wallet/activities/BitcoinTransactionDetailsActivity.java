@@ -116,4 +116,10 @@ public class BitcoinTransactionDetailsActivity extends EclairActivity {
       finish();
     }
   }
+
+  @Override
+  protected void onResume() {
+    super.onResume();
+    checkInit();
+  }
 }
