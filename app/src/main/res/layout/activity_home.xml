@@ -186,78 +186,56 @@
   </LinearLayout>
 
   <!-- toggleable floating buttons -->
-  <RelativeLayout
+  <LinearLayout
     android:id="@+id/home_send_buttons"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_alignParentBottom="true"
-    android:layout_alignParentEnd="true">
+    android:layout_alignParentEnd="true"
+    android:gravity="end"
+    android:orientation="vertical">
 
     <LinearLayout
-      android:id="@+id/home_send_buttons_enabled"
-      android:layout_width="match_parent"
+      android:id="@+id/home_send_buttons_toggle"
+      android:layout_width="190dp"
       android:layout_height="wrap_content"
-      android:layout_alignParentEnd="true"
-      android:gravity="end"
-      android:orientation="vertical">
+      android:orientation="vertical"
+      android:visibility="gone">
 
-      <LinearLayout
-        android:id="@+id/home_send_buttons_toggle"
-        android:layout_width="190dp"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:visibility="gone">
-
-        <fr.acinq.eclair.wallet.customviews.FabText
-          android:id="@+id/home_send_paste"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:onClick="home_sendPaste"
-          app:icon="@mipmap/ic_paste"
-          app:label="Paste a payment request" />
-
-        <fr.acinq.eclair.wallet.customviews.FabText
-          android:id="@+id/home_send_scan"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:onClick="home_sendScan"
-          app:icon="@mipmap/ic_scan"
-          app:label="Scan a payment request" />
-
-      </LinearLayout>
-
-      <android.support.design.widget.FloatingActionButton
-        android:id="@+id/home_send_button"
+      <fr.acinq.eclair.wallet.customviews.FabText
+        android:id="@+id/home_send_paste"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/fab_margin"
-        android:layout_marginEnd="@dimen/fab_margin"
-        android:layout_marginStart="@dimen/fab_margin"
-        android:layout_marginTop="8dp"
-        android:onClick="home_toggleSendButtons"
-        android:src="@mipmap/ic_send"
-        android:visibility="gone"
-        app:backgroundTint="@color/primary"
-        app:fabSize="normal" />
+        android:onClick="home_sendPaste"
+        app:icon="@mipmap/ic_paste"
+        app:label="Paste a payment request" />
+
+      <fr.acinq.eclair.wallet.customviews.FabText
+        android:id="@+id/home_send_scan"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="home_sendScan"
+        app:icon="@mipmap/ic_scan"
+        app:label="Scan a payment request" />
 
     </LinearLayout>
 
     <android.support.design.widget.FloatingActionButton
-      android:id="@+id/home_send_button_disabled"
+      android:id="@+id/home_send_button"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:layout_alignParentEnd="true"
       android:layout_marginBottom="@dimen/fab_margin"
       android:layout_marginEnd="@dimen/fab_margin"
       android:layout_marginStart="@dimen/fab_margin"
       android:layout_marginTop="8dp"
-      android:clickable="true"
-      android:focusable="true"
-      android:src="@mipmap/ic_send_disabled"
-      app:backgroundTint="@color/grey_0"
+      android:onClick="home_toggleSendButtons"
+      android:src="@mipmap/ic_send"
+      android:visibility="visible"
+      app:backgroundTint="@color/primary"
       app:fabSize="normal" />
 
-  </RelativeLayout>
+  </LinearLayout>
+
 
   <LinearLayout
     android:id="@+id/home_openchannel_buttons"

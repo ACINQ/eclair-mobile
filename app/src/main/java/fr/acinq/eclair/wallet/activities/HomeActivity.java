@@ -51,7 +51,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-import akka.dispatch.OnComplete;
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.wallet.App;
@@ -75,7 +74,6 @@ import fr.acinq.eclair.wallet.fragments.ReceivePaymentFragment;
 import fr.acinq.eclair.wallet.utils.CoinUtils;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
-import scala.concurrent.ExecutionContext;
 
 public class HomeActivity extends EclairActivity {
 
@@ -91,7 +89,6 @@ public class HomeActivity extends EclairActivity {
   private ViewGroup mSendButtonsView;
   private ViewGroup mSendButtonsToggleView;
   private FloatingActionButton mSendButton;
-  private FloatingActionButton mDisabledSendButton;
   private ViewGroup mOpenChannelsButtonsView;
   private ViewGroup mOpenChannelButtonsToggleView;
   private FloatingActionButton mOpenChannelButton;
@@ -145,7 +142,6 @@ public class HomeActivity extends EclairActivity {
     mSendButtonsView = findViewById(R.id.home_send_buttons);
     mSendButtonsToggleView = findViewById(R.id.home_send_buttons_toggle);
     mSendButton = findViewById(R.id.home_send_button);
-    mDisabledSendButton = findViewById(R.id.home_send_button_disabled);
 
     // --- open channel button
     mOpenChannelsButtonsView = findViewById(R.id.home_openchannel_buttons);
@@ -554,13 +550,21 @@ public class HomeActivity extends EclairActivity {
   }
 
   private void enableSendButton() {
-    mDisabledSendButton.setVisibility(View.GONE);
-    mSendButton.setVisibility(View.VISIBLE);
+    home_closeSendButtons();
+    home_closeOpenChannelButtons();
+    mSendButton.setEnabled(true);
+    mOpenChannelButton.setEnabled(true);
+    mSendButton.setAlpha(1f);
+    mOpenChannelButton.setAlpha(1f);
   }
 
   private void disableSendButton() {
-    mDisabledSendButton.setVisibility(View.VISIBLE);
-    mSendButton.setVisibility(View.GONE);
+    home_closeSendButtons();
+    home_closeOpenChannelButtons();
+    mSendButton.setEnabled(false);
+    mOpenChannelButton.setEnabled(false);
+    mSendButton.setAlpha(0.4f);
+    mOpenChannelButton.setAlpha(0.4f);
   }
 
   public void home_closeSendButtons() {
@@ -678,7 +682,12 @@ public class HomeActivity extends EclairActivity {
 
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
   public void handleConnectionEvent(ElectrumConnectionEvent event) {
-     mConnectionStatus.setVisibility(event.connected ? View.GONE : View.VISIBLE);
+    if (event.connected) {
+      enableSendButton();
+    } else {
+      disableSendButton();
+    }
+    mConnectionStatus.setVisibility(event.connected ? View.GONE : View.VISIBLE);
   }
 
   private class HomePagerAdapter extends FragmentStatePagerAdapter {
