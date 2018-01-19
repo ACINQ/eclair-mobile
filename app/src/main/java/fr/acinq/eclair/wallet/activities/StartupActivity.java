@@ -3,6 +3,7 @@ package fr.acinq.eclair.wallet.activities;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
@@ -65,7 +66,9 @@ public class StartupActivity extends EclairActivity {
   }
 
   private void goToHome() {
-    startActivity(new Intent(getBaseContext(), HomeActivity.class));
+    Intent homeIntent = new Intent(getBaseContext(), HomeActivity.class);
+    homeIntent.putExtra(HomeActivity.EXTRA_PAYMENT_URI, getIntent().getData());
+    startActivity(homeIntent);
   }
 
   private class StartupTask extends AsyncTask<Context, String, App.AppKit> {

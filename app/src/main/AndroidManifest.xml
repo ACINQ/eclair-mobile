@@ -48,15 +48,7 @@
       android:name=".activities.HomeActivity"
       android:label="@string/app_name"
       android:launchMode="singleTask"
-      android:screenOrientation="portrait">
-      <!-- bitcoin uri scheme -->
-      <intent-filter android:label="@string/app_name">
-        <action android:name="android.intent.action.VIEW" />
-        <category android:name="android.intent.category.DEFAULT" />
-        <data android:scheme="bitcoin" />
-        <data android:scheme="lightning" />
-      </intent-filter>
-    </activity>
+      android:screenOrientation="portrait" />
     <activity
       android:name=".activities.CreatePaymentActivity"
       android:label=""
