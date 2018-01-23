@@ -72,16 +72,6 @@
 
         <include layout="@layout/include_separator" />
 
-        <fr.acinq.eclair.wallet.customviews.DataRow
-          android:id="@+id/networkinfos_networknodes_count"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          app:desc="@string/networkinfos_networknodes_desc"
-          app:label="@string/networkinfos_networknodes_label"
-          app:value="@string/unknown" />
-
-        <include layout="@layout/include_separator" />
-
       </LinearLayout>
 
     </ScrollView>

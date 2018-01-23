@@ -15,14 +15,12 @@ import fr.acinq.eclair.Globals;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.customviews.DataRow;
 import fr.acinq.eclair.wallet.events.NetworkChannelsCountEvent;
-import fr.acinq.eclair.wallet.events.NetworkNodesCountEvent;
 
 public class NetworkInfosActivity extends EclairActivity implements SwipeRefreshLayout.OnRefreshListener {
 
   private static final String TAG = "NetworkInfosActivity";
   private DataRow mNodePublicKeyRow;
   private DataRow mNetworkChannelCount;
-  private DataRow mNetworkNodesCount;
   private DataRow mBlockCount;
   private DataRow mFeeRate;
   private SwipeRefreshLayout mRefreshLayout;
@@ -38,7 +36,6 @@ public class NetworkInfosActivity extends EclairActivity implements SwipeRefresh
     ab.setDisplayHomeAsUpEnabled(true);
 
     mNodePublicKeyRow = findViewById(R.id.networkinfos_nodeid);
-    mNetworkNodesCount = findViewById(R.id.networkinfos_networknodes_count);
     mNetworkChannelCount = findViewById(R.id.networkinfos_networkchannels_count);
     mBlockCount = findViewById(R.id.networkinfos_blockcount);
     mFeeRate = findViewById(R.id.networkinfos_feerate);
@@ -56,19 +53,10 @@ public class NetworkInfosActivity extends EclairActivity implements SwipeRefresh
   private void refreshData() {
     mBlockCount.setValue(String.valueOf(Globals.blockCount().get()));
     mFeeRate.setValue(NumberFormat.getInstance().format(Globals.feeratesPerKw().get().block_1()) + " sat/kw");
-    app.getNetworkNodesCount();
     app.getNetworkChannelsCount();
     mRefreshLayout.setRefreshing(false);
   }
 
-  @Subscribe(threadMode = ThreadMode.MAIN)
-  public void handleNetworkNodesCountEvent(NetworkNodesCountEvent event) {
-    if (event.count == -1) {
-      mNetworkNodesCount.setValue(getResources().getString(R.string.unknown));
-    } else {
-      mNetworkNodesCount.setValue(Integer.toString(event.count));
-    }
-  }
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void handleNetworkChannelsCountEvent(NetworkChannelsCountEvent event) {
     if (event.count == -1) {
