@@ -20,10 +20,7 @@ public class LNInvoiceReaderTask extends AsyncTask<String, Integer, PaymentReque
   protected PaymentRequest doInBackground(String... params) {
     PaymentRequest extract = null;
     try {
-
-      if (extract == null) {
-        extract = PaymentRequest.read(invoiceAsString);
-      }
+      extract = PaymentRequest.read(invoiceAsString);
     } catch (Throwable t) {
       Log.d(TAG, "Could not read Lightning invoice " + invoiceAsString + " with cause: " + t.getMessage());
     }
