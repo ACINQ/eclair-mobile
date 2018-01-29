@@ -1,27 +1,21 @@
 package fr.acinq.eclair.wallet.activities;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.AsyncTask;
-import android.preference.PreferenceManager;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.typesafe.config.ConfigFactory;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.io.File;
-import java.util.concurrent.atomic.AtomicReference;
 
 import akka.actor.ActorRef;
-import akka.actor.ActorSystem;
 import akka.actor.Props;
-import fr.acinq.bitcoin.MilliSatoshi;
-import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.DBCompatChecker;
 import fr.acinq.eclair.Kit;
 import fr.acinq.eclair.Setup;
@@ -31,7 +25,6 @@ import fr.acinq.eclair.channel.ChannelEvent;
 import fr.acinq.eclair.payment.PaymentEvent;
 import fr.acinq.eclair.router.NetworkEvent;
 import fr.acinq.eclair.wallet.App;
-import fr.acinq.eclair.wallet.DBHelper;
 import fr.acinq.eclair.wallet.EclairEventService;
 import fr.acinq.eclair.wallet.PaymentSupervisor;
 import fr.acinq.eclair.wallet.R;
@@ -50,19 +43,38 @@ public class StartupActivity extends EclairActivity {
     setContentView(R.layout.activity_startup);
     statusTextView = findViewById(R.id.startup_status);
     if (app.appKit == null) {
-      new StartupTask().execute(getApplicationContext());
+      new StartupTask().execute(app);
     } else {
       goToHome();
     }
   }
 
-  public void processStartupFinish(App.AppKit output) {
-    if (output != null) {
-      app.appKit = output;
+  @Override
+  protected void onResume() {
+    super.onResume();
+    if (!EventBus.getDefault().isRegistered(this)) {
+      EventBus.getDefault().register(this);
+    }
+  }
+
+  @Override
+  protected void onDestroy() {
+    EventBus.getDefault().unregister(this);
+    super.onDestroy();
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN)
+  public void processStartupFinish(StartupCompleteEvent event) {
+    if (app.appKit != null) {
       goToHome();
     } else {
       statusTextView.append("\n\nFailed to start eclair...");
     }
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN)
+  public void processStartupProgress(StartupProgressEvent event) {
+    statusTextView.setText(event.message);
   }
 
   private void goToHome() {
@@ -71,42 +83,44 @@ public class StartupActivity extends EclairActivity {
     startActivity(homeIntent);
   }
 
-  private class StartupTask extends AsyncTask<Context, String, App.AppKit> {
+  /**
+   * Starts the eclair node in an asynchronous task.
+   * When the task is finished, executes `processStartupFinish` in StartupActivity.
+   */
+  private static class StartupTask extends AsyncTask<App, String, String> {
     private static final String TAG = "StartupTask";
 
     @Override
     protected void onProgressUpdate(String... status) {
       super.onProgressUpdate(status);
-      statusTextView.setText(status[0]);
+      EventBus.getDefault().post(new StartupProgressEvent(status[0]));
     }
 
     @Override
-    protected App.AppKit doInBackground(Context... params) {
+    protected String doInBackground(App... params) {
       try {
+        App app = params[0];
         publishProgress("setting up DB");
         app.checkupInit();
         publishProgress("initializing system");
-        final File datadir = new File(params[0].getFilesDir(), App.DATADIR_NAME);
+        final File datadir = new File(app.getFilesDir(), App.DATADIR_NAME);
         Log.d(TAG, "Accessing Eclair Setup with datadir " + datadir.getAbsolutePath());
 
         Class.forName("org.sqlite.JDBC");
         publishProgress("setting up eclair");
         Setup setup = new Setup(datadir, Option.apply((EclairWallet) null), ConfigFactory.empty(), app.system);
 
-        publishProgress("starting gui actor");
         // gui and electrum supervisor actors
         ActorRef guiUpdater = app.system.actorOf(Props.create(EclairEventService.class, app.getDBHelper()));
         setup.system().eventStream().subscribe(guiUpdater, ChannelEvent.class);
         setup.system().eventStream().subscribe(guiUpdater, PaymentEvent.class);
         setup.system().eventStream().subscribe(guiUpdater, NetworkEvent.class);
-        publishProgress("starting onchain supervisor");
         app.system.actorOf(Props.create(PaymentSupervisor.class, app.getDBHelper()), "payments");
 
         publishProgress("starting core");
         // starting eclair
         Future<Kit> fKit = setup.bootstrap();
         Kit kit = Await.result(fKit, Duration.create(20, "seconds"));
-        publishProgress("core successfully started");
         ElectrumEclairWallet electrumWallet = (ElectrumEclairWallet) kit.wallet();
         publishProgress("checking compatibility");
         boolean isDBCompatible = true;
@@ -116,8 +130,8 @@ public class StartupActivity extends EclairActivity {
           isDBCompatible = false;
         }
         publishProgress("done");
-        return new App.AppKit(electrumWallet, kit, isDBCompatible);
-
+        app.appKit = new App.AppKit(electrumWallet, kit, isDBCompatible);
+        return "done";
       } catch (Exception e) {
         Log.e(TAG, "Failed to start eclair", e);
         return null;
@@ -125,8 +139,19 @@ public class StartupActivity extends EclairActivity {
     }
 
     @Override
-    protected void onPostExecute(final App.AppKit result) {
-      processStartupFinish(result);
+    protected void onPostExecute(String message) {
+      EventBus.getDefault().post(new StartupCompleteEvent());
+    }
+  }
+
+  public static class StartupCompleteEvent {
+  }
+
+  public static class StartupProgressEvent {
+    final String message;
+
+    public StartupProgressEvent(String message) {
+      this.message = message;
     }
   }
 }

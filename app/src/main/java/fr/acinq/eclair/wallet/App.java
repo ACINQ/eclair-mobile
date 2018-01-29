@@ -140,7 +140,7 @@ public class App extends Application {
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
-  public void handleNewWalletAddreess(final ElectrumWallet.NewWalletReceiveAddress addressEvent) {
+  public void handleNewWalletAddress(final ElectrumWallet.NewWalletReceiveAddress addressEvent) {
     walletAddress = addressEvent.address();
   }
 
@@ -173,12 +173,13 @@ public class App extends Application {
   }
 
   /**
+   * Execute an onchain transaction with electrum.
    *
-   * @param amountSat
-   * @param address
-   * @param feesPerKw
+   * @param amountSat amount to send in satoshis
+   * @param address   recipient of the tx
+   * @param feesPerKw fees for the tx
    */
-  public void sendBitcoinPayment(final Satoshi amountSat, String address, final long feesPerKw) {
+  public void sendBitcoinPayment(final Satoshi amountSat, final String address, final long feesPerKw) {
     try {
       Future fBitcoinPayment = appKit.electrumWallet.sendPayment(amountSat, address, feesPerKw);
       fBitcoinPayment.onComplete(new OnComplete<String>() {
