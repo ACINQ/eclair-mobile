@@ -37,7 +37,6 @@ import fr.acinq.eclair.payment.PaymentSucceeded;
 import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.EclairEventService;
 import fr.acinq.eclair.wallet.R;
-import fr.acinq.eclair.wallet.events.BitcoinPaymentFailedEvent;
 import fr.acinq.eclair.wallet.events.LNPaymentFailedEvent;
 import fr.acinq.eclair.wallet.fragments.PinDialog;
 import fr.acinq.eclair.wallet.models.LightningPaymentError;
@@ -51,7 +50,6 @@ import fr.acinq.eclair.wallet.utils.BitcoinURI;
 import fr.acinq.eclair.wallet.utils.CoinUtils;
 import fr.acinq.eclair.wallet.utils.Constants;
 import scala.collection.Seq;
-import scala.concurrent.Future;
 import scala.util.Either;
 
 public class CreatePaymentActivity extends EclairActivity
@@ -515,9 +513,7 @@ public class CreatePaymentActivity extends EclairActivity
             EventBus.getDefault().post(new LNPaymentFailedEvent(paymentHash, paymentDescription, true, "This invoice is already known and the payment is pending.", null));
             return;
           } else if (PaymentStatus.FAILED.equals(paymentForH.getStatus())) {
-            p.setStatus(PaymentStatus.PENDING);
-            p.setUpdated(new Date());
-            app.getDBHelper().insertOrUpdatePayment(p);
+            app.getDBHelper().updatePaymentPending(p);
           }
 
           // 2 - setup future callback
@@ -545,12 +541,7 @@ public class CreatePaymentActivity extends EclairActivity
                   }
 
                   // update payment in base
-                  p.setUpdated(new Date());
-                  if (!PaymentStatus.PAID.equals(paymentInDB.getStatus())) {
-                    // if the payment has not already been paid, lets update the status...
-                    paymentInDB.setStatus(PaymentStatus.FAILED);
-                  }
-                  app.getDBHelper().insertOrUpdatePayment(paymentInDB);
+                  app.getDBHelper().updatePaymentFailed(paymentInDB);
 
                   // dispatch failure event to display the error message
                   EventBus.getDefault().post(new LNPaymentFailedEvent(paymentHash, paymentDescription, false, null, errorList));

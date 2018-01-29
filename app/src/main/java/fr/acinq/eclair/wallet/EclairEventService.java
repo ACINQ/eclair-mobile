@@ -4,7 +4,6 @@ import android.util.Log;
 
 import org.greenrobot.eventbus.EventBus;
 
-import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -32,7 +31,6 @@ import fr.acinq.eclair.wallet.events.LNBalanceUpdateEvent;
 import fr.acinq.eclair.wallet.events.LNPaymentEvent;
 import fr.acinq.eclair.wallet.events.NotificationEvent;
 import fr.acinq.eclair.wallet.models.Payment;
-import fr.acinq.eclair.wallet.models.PaymentStatus;
 import fr.acinq.eclair.wallet.models.PaymentType;
 import fr.acinq.eclair.wallet.utils.CoinUtils;
 import scala.collection.Iterator;
@@ -198,12 +196,8 @@ public class EclairEventService extends UntypedActor {
       if (paymentInDB == null) {
         Log.d(TAG, "Received an unknown PaymentSent event. Ignoring");
       } else {
-        paymentInDB.setPreimage("don\'t know it yet..."); // TODO add preimage to payment event
-        paymentInDB.setAmountPaidMsat(paymentEvent.amount().amount() + paymentEvent.feesPaid().amount());
-        paymentInDB.setFeesPaidMsat(paymentEvent.feesPaid().amount());
-        paymentInDB.setUpdated(new Date());
-        paymentInDB.setStatus(PaymentStatus.PAID);
-        dbHelper.insertOrUpdatePayment(paymentInDB);
+        dbHelper.updatePaymentPaid(paymentInDB, paymentEvent.amount().amount() + paymentEvent.feesPaid().amount(),
+          paymentEvent.feesPaid().amount(), "todo");
         EventBus.getDefault().post(new LNPaymentEvent(paymentInDB));
       }
     }
