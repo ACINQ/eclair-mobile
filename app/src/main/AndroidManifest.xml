@@ -26,8 +26,8 @@
     <!-- activities -->
     <activity
       android:name=".activities.StartupActivity"
-      android:launchMode="singleTask"
       android:label="@string/app_name"
+      android:launchMode="singleTask"
       android:noHistory="true"
       android:screenOrientation="portrait"
       android:theme="@style/SplashTheme">
@@ -35,7 +35,6 @@
         <action android:name="android.intent.action.MAIN" />
         <category android:name="android.intent.category.LAUNCHER" />
       </intent-filter>
-
       <!-- bitcoin uri scheme -->
       <intent-filter android:label="@string/app_name">
         <action android:name="android.intent.action.VIEW" />
@@ -44,6 +43,18 @@
         <data android:scheme="lightning" />
       </intent-filter>
     </activity>
+    <activity
+      android:name=".activities.CreateWalletRecoveryActivity"
+      android:noHistory="true"
+      android:parentActivityName=".activities.StartupActivity"
+      android:screenOrientation="portrait"
+      android:theme="@style/PrimaryBgTheme" />
+    <activity
+      android:name=".activities.ImportWalletActivity"
+      android:noHistory="true"
+      android:parentActivityName=".activities.StartupActivity"
+      android:screenOrientation="portrait"
+      android:theme="@style/PrimaryBgTheme" />
     <activity
       android:name=".activities.HomeActivity"
       android:label="@string/app_name"

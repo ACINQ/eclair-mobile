@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools">
+
+  <RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:theme="@style/PrimaryBgTheme"
+    tools:context=".activities.CreateWalletRecoveryActivity">
+
+    <ScrollView
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_centerInParent="true">
+
+      <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="32dp"
+        android:orientation="vertical">
+
+        <!-- display generated recovery -->
+        <LinearLayout
+          android:id="@+id/display_step"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:orientation="vertical"
+          android:visibility="visible">
+
+          <TextView
+            android:id="@+id/check_failed"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/rounded_corner_red"
+            android:padding="8dp"
+            android:text="@string/createrecovery_check_failed"
+            android:visibility="gone" />
+
+          <TextView
+            android:id="@+id/instructions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:text="@string/createrecovery_instructions" />
+
+          <TextView
+            android:id="@+id/entropy_display"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="32dp"
+            android:textIsSelectable="true"
+            android:textStyle="bold" />
+
+          <android.support.constraint.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+              style="?android:attr/selectableItemBackground"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_gravity="start"
+              android:background="@android:color/transparent"
+              android:minHeight="0dp"
+              android:onClick="cancel"
+              android:padding="12dp"
+              android:text="@string/btn_cancel" />
+
+            <Button
+              android:id="@+id/goto_check"
+              style="?android:attr/selectableItemBackground"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_gravity="end"
+              android:layout_marginEnd="0dp"
+              android:background="@color/primary_light_x1"
+              android:minHeight="0dp"
+              android:onClick="initCheckRecovery"
+              android:padding="12dp"
+              android:text="@string/createrecovery_goto_check"
+              app:layout_constraintEnd_toEndOf="parent" />
+          </android.support.constraint.ConstraintLayout>
+
+        </LinearLayout>
+
+        <!-- check that the generated recovery has been saved by the user -->
+        <LinearLayout
+          android:id="@+id/check_step"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:orientation="vertical"
+          android:padding="16dp"
+          android:visibility="gone">
+
+          <TextView
+            android:id="@+id/check_question"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:text="@string/createrecovery_check_question" />
+
+          <android.support.design.widget.TextInputLayout
+            android:id="@+id/check_input_layout"
+            android:layout_width="match_parent"
+            android:textColorHint="@color/primary_light_x4_desat"
+            android:hint="@string/createrecovery_check_input_hint"
+            android:layout_height="wrap_content">
+
+            <EditText
+              android:id="@+id/check_input"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_marginBottom="16dp"
+              android:backgroundTint="@color/primary_light_x4_desat"
+              android:digits="abcdefghijklmnopqrstuvwxyz "
+              android:inputType="text|textNoSuggestions"
+              android:textColor="@color/white"
+              android:maxLines="2"/>
+          </android.support.design.widget.TextInputLayout>
+
+          <Button
+            style="?android:attr/selectableItemBackground"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="@color/primary_light_x1"
+            android:minHeight="0dp"
+            android:onClick="checkRecovery"
+            android:padding="12dp"
+            android:text="@string/createrecovery_check_button" />
+
+        </LinearLayout>
+
+        <!-- generated recovery is safe and can be used -->
+        <LinearLayout
+          android:id="@+id/success_step"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:orientation="vertical"
+          android:padding="16dp"
+          android:visibility="gone">
+
+          <TextView
+            android:id="@+id/write_error"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/rounded_corner_red"
+            android:text="@string/importwallet_instructions"
+            android:visibility="gone" />
+
+          <Button
+            android:id="@+id/success_finish"
+            style="?android:attr/selectableItemBackground"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="@color/primary_light_x1"
+            android:minHeight="0dp"
+            android:onClick="finishCheckRecovery"
+            android:padding="12dp"
+            android:text="@string/createrecovery_success_finish" />
+
+        </LinearLayout>
+      </LinearLayout>
+    </ScrollView>
+
+    <Button
+      android:id="@+id/backup_skip"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_alignParentBottom="true"
+      android:layout_gravity="center"
+      android:background="@color/primary_light_x1"
+      android:elevation="4dp"
+      android:onClick="finishCheckRecovery"
+      android:paddingBottom="8dp"
+      android:paddingLeft="16dp"
+      android:paddingRight="16dp"
+      android:paddingTop="8dp"
+      android:text="@string/createrecovery_check_skip"
+      android:visibility="visible" />
+  </RelativeLayout>
+</layout>

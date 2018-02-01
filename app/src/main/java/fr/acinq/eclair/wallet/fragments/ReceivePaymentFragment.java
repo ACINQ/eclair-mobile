@@ -56,9 +56,8 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
   }
 
   private void displayAddress() {
-
-        mAddressTextView.setText(getAddress());
-        new QRCodeTask(this, getAddress(), 700, 700).execute();
+    mAddressTextView.setText(getAddress());
+    new QRCodeTask(this, getAddress(), 700, 700).execute();
   }
 
   private String getAddress() {

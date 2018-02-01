@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+  <RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/primary"
+    android:elevation="10dp">
+
+    <ScrollView
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_centerInParent="true"
+      android:layout_margin="16dp"
+      android:background="@drawable/rounded_corner_white">
+
+      <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+          android:id="@+id/disclaimer_text"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:textColor="@color/grey_4"
+          android:layout_margin="16dp" />
+
+        <LinearLayout
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:gravity="end"
+          android:orientation="horizontal">
+
+          <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:background="?android:attr/selectableItemBackground"
+            android:onClick="closeApp"
+            android:padding="16dp"
+            android:text="@string/disclaimer_button_quit"
+            android:textColor="@color/red_faded" />
+
+          <Button
+            android:id="@+id/disclaimer_finish"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?android:attr/selectableItemBackground"
+            android:padding="16dp"
+            android:text="@string/disclaimer_1_button_ok"
+            android:textColor="@color/green" />
+
+        </LinearLayout>
+      </LinearLayout>
+    </ScrollView>
+  </RelativeLayout>
+</layout>

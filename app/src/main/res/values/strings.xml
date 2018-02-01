@@ -28,7 +28,6 @@
   <string name="receive_title">Your bitcoin address</string>
 
   <string name="home_status_disconnected">Disconnected</string>
-  <string name="home_status_connected"></string>
 
   <!-- //////////////// Home Intro //////////////////// -->
 
@@ -45,34 +44,37 @@
 
   <!-- //////////////// Disclaimer /////////////////// -->
 
-  <string name="home_disclaimer_1"><![CDATA[
+  <string name="disclaimer_1"><![CDATA[
     <h1>WARNING</h1>
     <p>Eclair Wallet is experimental and runs on the <b>%1$s</b> Bitcoin blockchain.</p>
     <p>This software and the Lightning Network are under heavy development. Make sure you
     run the latest version because there may be backward incompatible changes.</p>
     ]]>
   </string>
-  <string name="home_disclaimer_1_button_ok">I UNDERSTAND</string>
-  <string name="home_disclaimer_button_quit">QUIT</string>
+  <string name="disclaimer_1_button_ok">I UNDERSTAND</string>
+  <string name="disclaimer_button_quit">QUIT</string>
 
-  <!-- //////////////// Backup /////////////////// -->
+  <!-- //////////////// Create Recovery /////////////////// -->
 
-  <string name="home_backup_text"><![CDATA[
-    <p>If you lose access to your phone, you will need this phrase to recover your wallet.
-    Please backup this phrase in a secure location (not on this phone).</p>
-    <p><b>%1$s</b></p>
-  ]]>
-  </string>
-  <string name="home_backup_button">Ok, got it</string>
-  <string name="home_backup_button_skip">Skip (only on TESTNET)</string>
-  <string name="home_backup_check"><![CDATA[
-    <p>What are the #%1$d, #%2$d and #%3$d words of your recovery phrase?</p>
-  ]]>
-  </string>
-  <string name="home_backup_check_hint">Type in the words here</string>
-  <string name="home_backup_do_check_button">Check</string>
-  <string name="home_backup_finish_button">You\'re good to go!</string>
-  <string name="home_backup_failed">Wrong words.\nPlease check your recovery phrase.</string>
+  <string name="createrecovery_instructions">If you lose access to your phone, you will need this phrase to recover your wallet. Please backup this phrase in a secure location (not on this phone).</string>
+  <string name="createrecovery_generation_failed">Could not generate the recovery phrase…</string>
+  <string name="createrecovery_goto_check">Ok, got it</string>
+  <string name="createrecovery_check_skip">Skip (only on TESTNET)</string>
+  <string name="createrecovery_check_question">What are the #%1$d, #%2$d and #%3$d words of your recovery phrase?</string>
+  <string name="createrecovery_check_input_hint">Type the words here</string>
+  <string name="createrecovery_check_button">Check</string>
+  <string name="createrecovery_success_finish">You\'re good to go!</string>
+  <string name="createrecovery_check_failed">Wrong words.\nPlease check your recovery phrase.</string>
+  <string name="createrecovery_passphrase_hint">Enter a password for the wallet</string>
+  <string name="createrecovery_passphrase_failed">This passphrase is not valid (not empty, max 20 chars, no special characters).</string>
+
+  <!-- //////////////// Import Wallet /////////////////// -->
+
+  <string name="importwallet_disclaimer">Eclair and Lightning is still new tech. Do not import a wallet with a significant amount of funds.</string>
+  <string name="importwallet_instructions">Enter the recovery phrase of your wallet.\nPassphrase are not supported yet.</string>
+  <string name="importwallet_error">This phrase is not valid: %1$s</string>
+  <string name="importwallet_input_hint">Type the recovery phrase here</string>
+  <string name="importwallet_check_button">Save</string>
 
   <!-- //////////////// Open Channel /////////////////// -->
 
@@ -167,7 +169,7 @@
   <string name="payment_amount_to_send">Amount in </string>
   <string name="payment_toast_sentbtc">Payment sent</string>
   <string name="payment_toast_balance">Insufficient balance</string>
-  <string name="payment_toast_failure">Could not send transaction</string>
+  <string name="payment_toast_failure">Could not send transaction: %1$s</string>
 
   <string name="payment_error">This payment is not valid.</string>
   <string name="payment_error_fees_onchain">The fees value is not valid.</string>
@@ -289,7 +291,7 @@
   <!-- //////////////// General //////////////////// -->
 
   <string name="btc_fee_unit">sat/byte</string>
-  <string name="chain_test">TESTNET</string>
+  <string name="chain_name">TESTNET</string>
   <string name="chain_disconnected">Electrum disconnected</string>
 
   <!-- //////////////// Preferences //////////////////// -->

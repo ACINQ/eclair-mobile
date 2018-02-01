@@ -7,6 +7,12 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.google.common.io.FileWriteMode;
+import com.google.common.io.Files;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
 
@@ -14,6 +20,7 @@ public class WalletUtils {
   public final static List<String> LN_NODES = Arrays.asList(
     "03933884aaf1d6b108397e5efe5c86bcf2d8ca8d2f700eda99db9214fc2712b134@endurance.acinq.co:9735"
   );
+  private static final String TAG = "WalletUtils";
 
   public final static View.OnClickListener getOpenTxListener(final String txId) {
     return new View.OnClickListener() {
@@ -30,5 +37,41 @@ public class WalletUtils {
         }
       }
     };
+  }
+
+  /**
+   * Reads a list of words from the mnemonics file. This is a placeholder implementation, waiting for proper implementation in eclair core.
+   * @param datadir
+   * @return
+   * @throws IOException
+   */
+  public static List<String> readMnemonicsFile(final File datadir) throws IOException{
+    try {
+      return Files.readLines(new File(datadir, "mnemonics.dat"), Charset.defaultCharset());
+    } catch (IOException e) {
+      Log.e(TAG, "Could not read mnemonics file");
+      throw e;
+    }
+  }
+
+  /**
+   * Writes a list of words into the mnemonics file. This is a placeholder implementation, waiting for proper implementation in eclair core.
+   * @param datadir
+   * @param words
+   * @throws IOException
+   */
+  public static void writeMnemonicsFile(final File datadir, final List<String> words) throws IOException {
+    try {
+      if (!datadir.exists()) {
+        datadir.mkdir();
+      }
+      Files.asCharSink(new File(datadir, "mnemonics.dat"), Charset.defaultCharset(), FileWriteMode.APPEND).writeLines(words);
+    } catch (SecurityException e) {
+      Log.e(TAG, "Could not create datadir", e);
+      throw e;
+    } catch (IOException e) {
+      Log.e(TAG, "Could not write mnemonics file", e);
+      throw e;
+    }
   }
 }

@@ -10,13 +10,10 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
-import com.google.common.base.Joiner;
-
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 import akka.actor.ActorSystem;
@@ -57,7 +54,6 @@ import scala.concurrent.duration.FiniteDuration;
 public class App extends Application {
 
   public final static String TAG = "App";
-  public final static String DATADIR_NAME = "eclair-wallet-data";
   private final static ExchangeRate exchangeRate = new ExchangeRate();
   public final ActorSystem system = ActorSystem.apply("system");
   public AtomicReference<Satoshi> onChainBalance = new AtomicReference<>(new Satoshi(0));
@@ -189,13 +185,13 @@ public class App extends Application {
             Log.i(TAG, "Successfully sent tx " + txId);
           } else {
             Log.e(TAG, "Bitcoin tx has failed ", t);
-            EventBus.getDefault().post(new BitcoinPaymentFailedEvent());
+            EventBus.getDefault().post(new BitcoinPaymentFailedEvent(t.getLocalizedMessage()));
           }
         }
       }, this.system.dispatcher());
     } catch (Throwable t) {
       Log.e(TAG, "Could not send Bitcoin tx ", t);
-      EventBus.getDefault().post(new BitcoinPaymentFailedEvent());
+      EventBus.getDefault().post(new BitcoinPaymentFailedEvent(t.getLocalizedMessage()));
     }
   }
 
@@ -275,31 +271,6 @@ public class App extends Application {
    */
   public String nodePublicKey() {
     return appKit.eclairKit.nodeParams().privateKey().publicKey().toBin().toString();
-  }
-
-  /**
-   * Returns the wallet's recovery phrase. Throws an exception if the wallet does not answer after 2000ms.
-   *
-   * @return
-   * @throws Exception
-   */
-  public String getRecoveryPhrase() throws Exception {
-    final List<String> mnemonics = scala.collection.JavaConverters.seqAsJavaListConverter(
-      Await.result(appKit.electrumWallet.getMnemonics(), Duration.create(2000, "milliseconds")).toList()).asJava();
-    return Joiner.on(" ").join(mnemonics);
-  }
-
-  /**
-   * Checks if the word belongs to the recovery phrase and is at the right position.
-   *
-   * @param position position of the word in the recovery phrase
-   * @param word     word in the recovery phrase
-   * @return false if the check fails
-   */
-  public boolean checkWordRecoveryPhrase(int position, String word) throws Exception {
-    final List<String> mnemonics = scala.collection.JavaConverters.seqAsJavaListConverter(
-      Await.result(appKit.electrumWallet.getMnemonics(), Duration.create(2000, "milliseconds")).toList()).asJava();
-    return mnemonics.get(position).equals(word);
   }
 
   public long estimateSlowFees() {

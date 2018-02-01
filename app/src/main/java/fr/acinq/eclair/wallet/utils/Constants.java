@@ -1,16 +1,15 @@
 package fr.acinq.eclair.wallet.utils;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import fr.acinq.eclair.wallet.BuildConfig;
 
 public interface Constants {
 
+  /* ----------- FILES NAMES ------------ */
+  String ECLAIR_DATADIR = "eclair-wallet-data";
+
   /* ----------- SETTINGS ------------ */
 
   String SETTING_SHOW_DISCLAIMER = "showDisclaimer";
-  String SETTING_SHOW_RECOVERY = "showRecovery";
   String SETTING_SHOW_INTRO = "showIntro";
 
   // currencies

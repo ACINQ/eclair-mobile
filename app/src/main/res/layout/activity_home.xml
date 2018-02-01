@@ -7,28 +7,16 @@
   tools:context=".activities.HomeActivity">
 
   <ViewStub
-    android:id="@+id/home_stub_breaking"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout="@layout/include_home_breaking" />
-
-  <ViewStub
-    android:id="@+id/home_stub_disclaimer"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout="@layout/include_home_disclaimer" />
-
-  <ViewStub
-    android:id="@+id/home_stub_backup"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout="@layout/include_home_backup" />
-
-  <ViewStub
     android:id="@+id/home_stub_intro"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout="@layout/include_home_intro" />
+    android:layout="@layout/stub_tour_guide" />
+
+  <ViewStub
+    android:id="@+id/home_stub_breaking"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout="@layout/stub_breaking_changes" />
 
   <LinearLayout
     android:layout_width="match_parent"
@@ -68,7 +56,7 @@
             android:paddingLeft="5dp"
             android:paddingRight="5dp"
             android:paddingTop="3dp"
-            android:text="@string/chain_test"
+            android:text="@string/chain_name"
             android:textColor="@color/white"
             android:textSize="10sp"
             android:textStyle="bold" />

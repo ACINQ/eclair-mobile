@@ -18,7 +18,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
-import android.text.Html;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -26,9 +25,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -46,8 +42,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -80,7 +74,6 @@ public class HomeActivity extends EclairActivity {
   public static final String EXTRA_PAGE = BuildConfig.APPLICATION_ID + "EXTRA_PAGE";
   public static final String EXTRA_PAYMENT_URI = BuildConfig.APPLICATION_ID + "EXTRA_PAYMENT_URI";
   private static final String TAG = "Home Activity";
-  List<Integer> recoveryPositions = Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23);
 
   private ViewPager mViewPager;
   private TabLayout mTabs;
@@ -98,11 +91,7 @@ public class HomeActivity extends EclairActivity {
   private CoinAmountView mOnchainBalanceView;
   private CoinAmountView mLNBalanceView;
   private ViewStub mStubBreakingChanges;
-  private ViewStub mStubDisclaimer;
-  private View mStubDisclaimerInflated;
   private ViewStub mStubIntro;
-  private ViewStub mStubBackup;
-  private View mStubBackupInflated;
   private View mConnectionStatus;
   private int introStep = 0;
 
@@ -124,9 +113,7 @@ public class HomeActivity extends EclairActivity {
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 
     // --- stubs
-    mStubDisclaimer = findViewById(R.id.home_stub_disclaimer);
     mStubIntro = findViewById(R.id.home_stub_intro);
-    mStubBackup = findViewById(R.id.home_stub_backup);
 
     // --- tabs view page
     mViewPager = findViewById(R.id.home_viewpager);
@@ -154,9 +141,12 @@ public class HomeActivity extends EclairActivity {
       return;
     }
 
-    // --- check app state
-    checkBreakingChanges();
-    checkFirstTimeStart(prefs);
+    // --- check initial app state
+    if (app.hasBreakingChanges()) {
+      displayBreakingChanges();
+    } else if (prefs.getBoolean(Constants.SETTING_SHOW_INTRO, true)) {
+      displayIntro(prefs);
+    }
 
     // setup content
     setUpTabs(savedInstanceState);
@@ -169,13 +159,9 @@ public class HomeActivity extends EclairActivity {
     Log.d(TAG, "Home.onCreate done");
   }
 
-  private void checkBreakingChanges() {
-    if (app.hasBreakingChanges()) {
-      mStubBreakingChanges = findViewById(R.id.home_stub_breaking);
-      mStubBreakingChanges.inflate();
-      ((TextView) findViewById(R.id.home_breaking_changes_text)).setText(Html.fromHtml(
-        getString(R.string.breaking_changes_text)));
-    }
+  private void displayBreakingChanges() {
+    mStubBreakingChanges = findViewById(R.id.home_stub_breaking);
+    mStubBreakingChanges.inflate();
   }
 
   private void setUpTabs(final Bundle savedInstanceState) {
@@ -213,26 +199,6 @@ public class HomeActivity extends EclairActivity {
       Intent intent = getIntent();
       mViewPager.setCurrentItem(intent.getIntExtra(EXTRA_PAGE, 1));
     }
-  }
-
-  private void checkFirstTimeStart(final SharedPreferences prefs) {
-    (new Thread(new Runnable() {
-      @Override
-      public void run() {
-
-        final boolean showDisclaimer = false;
-        final boolean showRecovery = prefs.getBoolean(Constants.SETTING_SHOW_RECOVERY, true);
-        final boolean showIntro = prefs.getBoolean(Constants.SETTING_SHOW_INTRO, true);
-        if (showDisclaimer || showRecovery || showIntro) {
-          runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-              home_startDisclaimer(showDisclaimer, showRecovery, showIntro, prefs);
-            }
-          });
-        }
-      }
-    })).start();
   }
 
   private void setUpBalanceInteraction(final SharedPreferences prefs) {
@@ -388,109 +354,7 @@ public class HomeActivity extends EclairActivity {
     }
   }
 
-  private void home_startDisclaimer(final boolean showDisclaimer, final boolean showRecovery, final boolean showIntro, final SharedPreferences prefs) {
-    if (showDisclaimer) {
-      mStubDisclaimerInflated = mStubDisclaimer.inflate();
-      findViewById(R.id.home_disclaimer_finish).setOnClickListener(new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-          mStubDisclaimer.setVisibility(View.GONE);
-          SharedPreferences.Editor e = prefs.edit();
-          e.putBoolean(Constants.SETTING_SHOW_DISCLAIMER, false);
-          e.apply();
-          home_startBackup(showRecovery, showIntro, prefs);
-        }
-      });
-      ((TextView) findViewById(R.id.home_disclaimer_1_text)).setText(Html.fromHtml(
-        getString(R.string.home_disclaimer_1, "TESTNET")));
-    } else {
-      home_startBackup(showRecovery, showIntro, prefs);
-    }
-  }
-
-  private void home_startBackup(final boolean showRecovery, final boolean showIntro, final SharedPreferences prefs) {
-    if (showRecovery) {
-      mStubBackupInflated = mStubBackup.inflate();
-      findViewById(R.id.home_backup_finish_button).setOnClickListener(new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-          mStubBackup.setVisibility(View.GONE);
-          SharedPreferences.Editor e = prefs.edit();
-          e.putBoolean(Constants.SETTING_SHOW_RECOVERY, false);
-          e.apply();
-          home_startIntro(showIntro, prefs);
-        }
-      });
-
-      // Allow the user to skip the recovery phase for TESTNET only.
-      if (!app.isProduction()) {
-        findViewById(R.id.home_backup_skip).setVisibility(View.VISIBLE);
-        findViewById(R.id.home_backup_skip).setOnClickListener(new View.OnClickListener() {
-          @Override
-          public void onClick(View v) {
-            mStubBackup.setVisibility(View.GONE);
-            SharedPreferences.Editor e = prefs.edit();
-            e.putBoolean(Constants.SETTING_SHOW_RECOVERY, false);
-            e.apply();
-            home_startIntro(showIntro, prefs);
-          }
-        });
-      }
-      try {
-        ((TextView) findViewById(R.id.home_backup_text)).setText(Html.fromHtml(
-          getString(R.string.home_backup_text, app.getRecoveryPhrase())));
-      } catch (Exception e) {
-        Log.e(TAG, "Could not generate recovery phrase", e);
-        ((TextView) findViewById(R.id.home_backup_text)).setText("Could not generate recovery phrase...");
-      }
-    } else {
-      home_startIntro(showIntro, prefs);
-    }
-  }
-
-  public void home_initCheckRecoveryPhrase(View view) {
-    if (mStubBackupInflated.getVisibility() == View.VISIBLE) {
-      Collections.shuffle(recoveryPositions);
-      ((TextView) findViewById(R.id.home_backup_check)).setText(Html.fromHtml(
-        getString(R.string.home_backup_check, recoveryPositions.get(0) + 1,
-          recoveryPositions.get(1) + 1, recoveryPositions.get(2) + 1)));
-      findViewById(R.id.home_backup_1).setVisibility(View.GONE);
-      findViewById(R.id.home_backup_failed).setVisibility(View.GONE);
-      findViewById(R.id.home_backup_2).setVisibility(View.VISIBLE);
-    }
-  }
-
-  public void home_doCheckRecoveryPhrase(View view) {
-    view.clearFocus();
-    final InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
-    if (imm != null) {
-      imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-    }
-    final EditText edit = findViewById(R.id.home_backup_input);
-    if (edit.getText() != null) {
-      final String[] words = edit.getText().toString().split(" ");
-      try {
-        if (words.length == 3
-          && app.checkWordRecoveryPhrase(recoveryPositions.get(0), words[0])
-          && app.checkWordRecoveryPhrase(recoveryPositions.get(1), words[1])
-          && app.checkWordRecoveryPhrase(recoveryPositions.get(2), words[2])) {
-          findViewById(R.id.home_backup_2).setVisibility(View.GONE);
-          findViewById(R.id.home_backup_skip).setVisibility(View.GONE);
-          findViewById(R.id.home_backup_success).setVisibility(View.VISIBLE);
-          return;
-        }
-      } catch (Exception e) {
-        Log.e(TAG, "Could not check the recovery phrase", e);
-      }
-    }
-    edit.setText("");
-    findViewById(R.id.home_backup_2).setVisibility(View.GONE);
-    findViewById(R.id.home_backup_1).setVisibility(View.VISIBLE);
-    findViewById(R.id.home_backup_failed).setVisibility(View.VISIBLE);
-  }
-
-  private void home_startIntro(final boolean showIntro, final SharedPreferences prefs) {
-    if (!showIntro) return;
+  private void displayIntro(final SharedPreferences prefs) {
     final View inflatedIntro = mStubIntro.inflate();
     final View introWelcome = findViewById(R.id.home_intro_welcome);
     final View introReceive = findViewById(R.id.home_intro_receive);
@@ -523,11 +387,6 @@ public class HomeActivity extends EclairActivity {
         }
       }
     });
-  }
-
-  public void home_closeApp(View view) {
-    finishAndRemoveTask();
-    finishAffinity();
   }
 
   private String readFromClipboard() {
@@ -656,7 +515,7 @@ public class HomeActivity extends EclairActivity {
 
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void handleBitcoinPaymentFailedEvent(BitcoinPaymentFailedEvent event) {
-    Toast.makeText(getApplicationContext(), R.string.payment_toast_failure, Toast.LENGTH_LONG).show();
+    Toast.makeText(getApplicationContext(), getString(R.string.payment_toast_failure, event.getMessage()), Toast.LENGTH_LONG).show();
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)

@@ -1,9 +1,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-  android:id="@+id/home_breaking_changes"
   android:layout_width="match_parent"
   android:layout_height="match_parent"
   android:background="@color/primary"
-  android:clickable="true"
   android:elevation="20dp">
 
   <ScrollView
@@ -15,10 +13,11 @@
     android:elevation="4dp"
     android:padding="32dp">
 
-      <TextView
-        android:id="@+id/home_breaking_changes_text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+    <TextView
+      android:id="@+id/home_breaking_changes_text"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:text="@string/breaking_changes_text" />
 
   </ScrollView>
 </RelativeLayout>
