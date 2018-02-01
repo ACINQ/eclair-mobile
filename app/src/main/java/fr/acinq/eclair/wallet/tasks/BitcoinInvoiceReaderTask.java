@@ -22,7 +22,7 @@ public class BitcoinInvoiceReaderTask extends AsyncTask<String, Integer, Bitcoin
   protected BitcoinURI doInBackground(String... params) {
     BitcoinURI extract = null;
     try {
-      if (invoiceAsString.startsWith("bitcoin:")) {
+      if (invoiceAsString.toLowerCase().startsWith("bitcoin:")) {
         extract = new BitcoinURI(invoiceAsString);
       } else {
         // to handle raw address

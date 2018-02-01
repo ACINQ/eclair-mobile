@@ -302,11 +302,11 @@ public class CreatePaymentActivity extends EclairActivity
 
     // --- read invoice from intent
     final Intent intent = getIntent();
-    mInvoice = intent.getStringExtra(EXTRA_INVOICE).trim().toLowerCase();
+    mInvoice = intent.getStringExtra(EXTRA_INVOICE).trim();
     Log.d(TAG, "Initializing payment with invoice=" + mInvoice);
     if (mInvoice != null) {
       for (String prefix : LIGHTNING_PREFIXES) {
-        if (mInvoice.startsWith(prefix)) {
+        if (mInvoice.toLowerCase().startsWith(prefix)) {
           mInvoice = mInvoice.substring(prefix.length());
           break;
         }
