@@ -5,7 +5,7 @@ android {
   compileSdkVersion 27
   buildToolsVersion "26.0.2"
   defaultConfig {
-    applicationId "fr.acinq.eclair.wallet"
+    applicationId "fr.acinq.eclair.wallet.dev"
     minSdkVersion 21
     targetSdkVersion 26
     versionCode 13
