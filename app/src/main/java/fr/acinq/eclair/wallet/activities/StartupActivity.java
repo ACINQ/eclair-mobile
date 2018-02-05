@@ -23,6 +23,8 @@ import java.util.List;
 
 import akka.actor.ActorRef;
 import akka.actor.Props;
+import fr.acinq.bitcoin.BinaryData;
+import fr.acinq.bitcoin.MnemonicCode;
 import fr.acinq.eclair.DBCompatChecker;
 import fr.acinq.eclair.Kit;
 import fr.acinq.eclair.Setup;
@@ -40,6 +42,7 @@ import fr.acinq.eclair.wallet.databinding.StubUsageDisclaimerBinding;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 import scala.Option;
+import scala.collection.JavaConverters;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
@@ -165,7 +168,7 @@ public class StartupActivity extends EclairActivity {
             showError("Can not start eclair with empty seed");
           } else {
             // using a empty passphrase
-            new StartupTask(words, "").execute(app);
+            new StartupTask(MnemonicCode.toSeed(JavaConverters.collectionAsScalaIterableConverter(words).asScala().toSeq(), "")).execute(app);
           }
         } catch (IOException e) {
           showError("Seed is unreadable. Aborting.");
@@ -194,12 +197,10 @@ public class StartupActivity extends EclairActivity {
   private static class StartupTask extends AsyncTask<App, String, String> {
     private static final String TAG = "StartupTask";
 
-    private final List<String> mnemonics;
-    private final String passphrase;
+    private final BinaryData seed;
 
-    private StartupTask(List<String> mnemonics, String passphrase) {
-      this.mnemonics = mnemonics;
-      this.passphrase = passphrase;
+    private StartupTask(BinaryData seed) {
+      this.seed = seed;
     }
 
     @Override
@@ -220,7 +221,7 @@ public class StartupActivity extends EclairActivity {
 
         Class.forName("org.sqlite.JDBC");
         publishProgress("setting up eclair");
-        Setup setup = new Setup(datadir, Option.apply(mnemonics), Option.apply(passphrase), Option.apply((EclairWallet) null), ConfigFactory.empty(), app.system);
+        Setup setup = new Setup(datadir, Option.apply((EclairWallet) null), ConfigFactory.empty(), app.system, Option.apply(seed));
 
         // gui and electrum supervisor actors
         ActorRef guiUpdater = app.system.actorOf(Props.create(EclairEventService.class, app.getDBHelper()));

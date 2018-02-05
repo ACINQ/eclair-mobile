@@ -23,7 +23,6 @@
     <item name="colorAccent">@color/primary_light_x4_desat</item>
     <item name="android:windowBackground">@color/primary</item>
     <item name="android:colorBackground">@color/primary</item>
-    <item name="android:background">@color/primary</item>
     <item name="android:lineSpacingMultiplier">1.15</item>
   </style>
 

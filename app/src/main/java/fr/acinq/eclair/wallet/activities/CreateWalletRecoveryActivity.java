@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.text.Html;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -17,17 +16,19 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import fr.acinq.bitcoin.MnemonicCode;
 import fr.acinq.eclair.blockchain.electrum.ElectrumWallet;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.databinding.ActivityCreateWalletRecoveryBinding;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
+import scala.collection.JavaConverters;
 
 public class CreateWalletRecoveryActivity extends AppCompatActivity {
 
   private static final String TAG = "CreateRecovery";
   List<Integer> recoveryPositions = Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23);
-  private byte[] entropy;
+  private List<String> mnemonics = null;
 
   private ActivityCreateWalletRecoveryBinding mBinding;
 
@@ -39,7 +40,7 @@ public class CreateWalletRecoveryActivity extends AppCompatActivity {
 
   @Override
   protected void onStop() {
-    entropy = null;
+    mnemonics = null;
     super.onStop();
   }
 
@@ -72,10 +73,11 @@ public class CreateWalletRecoveryActivity extends AppCompatActivity {
     super.onStart();
     reset();
     try {
-      entropy = ElectrumWallet.generateEntropy();
-      List<String> words = scala.collection.JavaConverters.seqAsJavaListConverter(ElectrumWallet.mnemonicsFromByteArray(entropy).toList()).asJava();
-      mBinding.entropyDisplay.setText(Joiner.on(" ").join(words));
+      mnemonics = JavaConverters.seqAsJavaListConverter(MnemonicCode.toMnemonics(fr.acinq.eclair.package$.MODULE$.randomBytes(
+        ElectrumWallet.SEED_BYTES_LENGTH()).data(), MnemonicCode.englishWordlist())).asJava();
+      mBinding.entropyDisplay.setText(Joiner.on(" ").join(mnemonics));
     } catch (Exception e) {
+      mnemonics = null;
       Log.e(TAG, "Could not generate recovery phrase", e);
       mBinding.entropyDisplay.setText(getString(R.string.createrecovery_generation_failed));
       mBinding.gotoCheck.setVisibility(View.GONE);
@@ -104,10 +106,9 @@ public class CreateWalletRecoveryActivity extends AppCompatActivity {
    * @param position position of the word in the recovery phrase
    * @param word     word in the recovery phrase
    * @return false if the check fails
-   * @params words   list of words to check against
    */
-  private boolean checkWordRecoveryPhrase(List<String> words, int position, String word) throws Exception {
-    return words.get(position).equals(word);
+  private boolean checkWordRecoveryPhrase(int position, String word) throws Exception {
+    return mnemonics.get(position).equals(word);
   }
 
   /**
@@ -123,16 +124,16 @@ public class CreateWalletRecoveryActivity extends AppCompatActivity {
       imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
     try {
-      List<String> generatedWords = scala.collection.JavaConverters.seqAsJavaListConverter(ElectrumWallet.mnemonicsFromByteArray(entropy).toList()).asJava();
       final String[] userWords = mBinding.checkInput.getText().toString().split(" ");
       if (userWords.length == 3
-        && checkWordRecoveryPhrase(generatedWords, recoveryPositions.get(0), userWords[0])
-        && checkWordRecoveryPhrase(generatedWords, recoveryPositions.get(1), userWords[1])
-        && checkWordRecoveryPhrase(generatedWords, recoveryPositions.get(2), userWords[2])) {
+        && checkWordRecoveryPhrase(recoveryPositions.get(0), userWords[0])
+        && checkWordRecoveryPhrase(recoveryPositions.get(1), userWords[1])
+        && checkWordRecoveryPhrase(recoveryPositions.get(2), userWords[2])) {
         goStepSuccess();
         return;
       }
     } catch (Exception e) {
+      mnemonics = null;
       Log.e(TAG, "Could not check the recovery phrase", e);
     }
     // check fails
@@ -146,10 +147,13 @@ public class CreateWalletRecoveryActivity extends AppCompatActivity {
    * @param view
    */
   public void finishCheckRecovery(View view) {
+    if (mnemonics == null) {
+      showWriteError("Recovery phrase is not valid.");
+      return;
+    }
     final File datadir = new File(getFilesDir(), Constants.ECLAIR_DATADIR);
-    List<String> generatedWords = scala.collection.JavaConverters.seqAsJavaListConverter(ElectrumWallet.mnemonicsFromByteArray(entropy).toList()).asJava();
     try {
-      WalletUtils.writeMnemonicsFile(datadir, generatedWords);
+      WalletUtils.writeMnemonicsFile(datadir, mnemonics);
       startActivity(new Intent(getBaseContext(), StartupActivity.class));
     } catch (IOException e) {
       showWriteError("Could not write mnemonics to disk");
