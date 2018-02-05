@@ -7,7 +7,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.Editable;
-import android.text.Html;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
@@ -101,14 +100,22 @@ public class CreatePaymentActivity extends EclairActivity
       // try reading invoice as a bitcoin uri
       new BitcoinInvoiceReaderTask(this, mInvoice).execute();
     } else {
-      // check if the user has any channels
+      // check lightning channels status
       if (EclairEventService.getChannelsMap().size() == 0) {
-        handlePaymentError(R.string.payment_error_amount_ln_no_channels, true);
+        canNotHandlePayment(R.string.payment_error_amount_ln_no_channels);
+        return;
+      } else if (!EclairEventService.hasActiveChannels()) {
+        canNotHandlePayment(R.string.payment_error_amount_ln_no_active_channels);
+        return;
       }
       mLNInvoice = output;
       isAmountReadonly = mLNInvoice.amount().isDefined();
       if (isAmountReadonly) {
         final MilliSatoshi amountMsat = CoinUtils.getAmountFromInvoice(mLNInvoice);
+        if (!EclairEventService.hasActiveChannelsWithBalance(amountMsat.amount())) {
+          canNotHandlePayment(R.string.payment_error_amount_ln_insufficient_funds);
+          return;
+        }
         mAmountEditableHint.setVisibility(View.GONE);
         mAmountEditableValue.setText(CoinUtils.formatAmountInUnit(amountMsat, preferredBitcoinUnit));
         mAmountFiatView.setText(CoinUtils.convertMsatToFiatWithUnit(amountMsat.amount(), preferredFiatCurrency));
@@ -131,9 +138,9 @@ public class CreatePaymentActivity extends EclairActivity
   @Override
   public void processBitcoinInvoiceFinish(final BitcoinURI output) {
     if (output == null || output.getAddress() == null) {
-      couldNotReadInvoice(R.string.payment_invalid_address);
+      canNotHandlePayment(R.string.payment_invalid_address);
     } else if (!app.checkAddressParameters(output.getAddress())) {
-      couldNotReadInvoice(R.string.payment_invalid_address);
+      canNotHandlePayment(R.string.payment_invalid_address);
     } else {
       mBitcoinInvoice = output;
       isAmountReadonly = mBitcoinInvoice.getAmount() != null;
@@ -152,7 +159,7 @@ public class CreatePaymentActivity extends EclairActivity
     }
   }
 
-  private void couldNotReadInvoice(final int causeMessageId) {
+  private void canNotHandlePayment(final int causeMessageId) {
     mLoadingTextView.setTextIsSelectable(true);
     mLoadingTextView.setText(causeMessageId);
   }
@@ -228,7 +235,7 @@ public class CreatePaymentActivity extends EclairActivity
 
           if (mBitcoinInvoice != null) {
             if (package$.MODULE$.millisatoshi2satoshi(amountMsat).$greater(app.onChainBalance.get())) {
-              handlePaymentError(R.string.payment_error_amount_onchain_insufficient_funds, false);
+              handlePaymentError(R.string.payment_error_amount_onchain_insufficient_funds);
             } else {
               mPaymentErrorView.setVisibility(View.GONE);
             }
@@ -313,7 +320,7 @@ public class CreatePaymentActivity extends EclairActivity
       }
       new LNInvoiceReaderTask(this, mInvoice).execute();
     } else {
-      couldNotReadInvoice(R.string.payment_invalid_address);
+      canNotHandlePayment(R.string.payment_invalid_address);
     }
   }
 
@@ -372,45 +379,35 @@ public class CreatePaymentActivity extends EclairActivity
         final long amountMsat = isAmountReadonly
           ? CoinUtils.getLongAmountFromInvoice(mLNInvoice)
           : CoinUtils.parseStringToMsat(mAmountEditableValue.getText().toString(), preferredBitcoinUnit).amount();
-        if (EclairEventService.hasActiveChannelsWithBalance(amountMsat)) {
-          if (isPinRequired()) {
-            pinDialog = new PinDialog(CreatePaymentActivity.this, R.style.CustomAlertDialog, new PinDialog.PinDialogCallback() {
-              @Override
-              public void onPinConfirm(final PinDialog dialog, final String pinValue) {
-                if (isPinCorrect(pinValue, dialog)) {
-                  sendLNPayment(amountMsat, mLNInvoice, mInvoice);
-                  finish();
-                } else {
-                  handlePaymentError(R.string.payment_error_incorrect_pin, false);
-                }
+        if (isPinRequired()) {
+          pinDialog = new PinDialog(CreatePaymentActivity.this, R.style.CustomAlertDialog, new PinDialog.PinDialogCallback() {
+            @Override
+            public void onPinConfirm(final PinDialog dialog, final String pinValue) {
+              if (isPinCorrect(pinValue, dialog)) {
+                sendLNPayment(amountMsat, mLNInvoice, mInvoice);
+                finish();
+              } else {
+                handlePaymentError(R.string.payment_error_incorrect_pin);
               }
+            }
 
-              @Override
-              public void onPinCancel(PinDialog dialog) {
-                isProcessingPayment = false;
-                toggleForm();
-              }
-            });
-            pinDialog.show();
-          } else {
-            sendLNPayment(amountMsat, mLNInvoice, mInvoice);
-            finish();
-          }
+            @Override
+            public void onPinCancel(PinDialog dialog) {
+              isProcessingPayment = false;
+              toggleForm();
+            }
+          });
+          pinDialog.show();
         } else {
-          if (EclairEventService.hasActiveChannels()) {
-            // Refine the error message to guide the user: he does not have enough balance on any of the channels
-            handlePaymentError(R.string.payment_error_amount_ln_insufficient_funds, true);
-          } else {
-            // The user simply does not have any active channels
-            handlePaymentError(R.string.payment_error_amount_ln_no_active_channels, true);
-          }
+          sendLNPayment(amountMsat, mLNInvoice, mInvoice);
+          finish();
         }
       } else if (mBitcoinInvoice != null) {
         final Satoshi amountSat = isAmountReadonly
           ? mBitcoinInvoice.getAmount()
           : package$.MODULE$.millisatoshi2satoshi(CoinUtils.parseStringToMsat(mAmountEditableValue.getText().toString(), preferredBitcoinUnit));
         if (amountSat.$greater(app.onChainBalance.get())) {
-          handlePaymentError(R.string.payment_error_amount_onchain_insufficient_funds, false);
+          handlePaymentError(R.string.payment_error_amount_onchain_insufficient_funds);
           return;
         }
         try {
@@ -422,7 +419,7 @@ public class CreatePaymentActivity extends EclairActivity
                   sendBitcoinPayment(amountSat, feesPerKw, mBitcoinInvoice);
                   finish();
                 } else {
-                  handlePaymentError(R.string.payment_error_incorrect_pin, false);
+                  handlePaymentError(R.string.payment_error_incorrect_pin);
                 }
               }
 
@@ -438,14 +435,14 @@ public class CreatePaymentActivity extends EclairActivity
             finish();
           }
         } catch (NumberFormatException e) {
-          handlePaymentError(R.string.payment_error_fees_onchain, false);
+          handlePaymentError(R.string.payment_error_fees_onchain);
         }
       }
     } catch (NumberFormatException e) {
-      handlePaymentError(R.string.payment_error_amount, false);
+      handlePaymentError(R.string.payment_error_amount);
     } catch (Exception e) {
       Log.e(TAG, "Could not send payment", e);
-      handlePaymentError(R.string.payment_error, false);
+      handlePaymentError(R.string.payment_error);
     }
   }
 
@@ -453,16 +450,11 @@ public class CreatePaymentActivity extends EclairActivity
    * Displays an error message when a payment has failed.
    *
    * @param messageId resource id of the the message
-   * @param isHtml
    */
-  private void handlePaymentError(final int messageId, final boolean isHtml) {
+  private void handlePaymentError(final int messageId) {
     isProcessingPayment = false;
     toggleForm();
-    if (isHtml) {
-      mPaymentErrorTextView.setText(Html.fromHtml(getString(messageId)));
-    } else {
-      mPaymentErrorTextView.setText(messageId);
-    }
+    mPaymentErrorTextView.setText(getString(messageId));
     mPaymentErrorView.setVisibility(View.VISIBLE);
   }
 
@@ -482,7 +474,7 @@ public class CreatePaymentActivity extends EclairActivity
    * @param pr         Lightning payment request
    * @param prAsString payment request as a string (used for display)
    */
-  private final void sendLNPayment(final long amountMsat, final PaymentRequest pr, final String prAsString) {
+  private void sendLNPayment(final long amountMsat, final PaymentRequest pr, final String prAsString) {
     Log.d(TAG, "Sending LN payment for invoice " + prAsString);
     AsyncExecutor.create().execute(
       new AsyncExecutor.RunnableEx() {
