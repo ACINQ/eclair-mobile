@@ -11,10 +11,17 @@ import fr.acinq.eclair.payment.LocalFailure;
 import fr.acinq.eclair.payment.PaymentFailure;
 import fr.acinq.eclair.payment.RemoteFailure;
 import fr.acinq.eclair.router.Hop;
+import fr.acinq.eclair.router.RouteNotFound$;
 
 /**
- * Contains a detailed error in a Lightning payment.
- * This object implements Parcelable so that it can be passed between activities.
+ * Wraps information about a failed lightning payment returned by eclair-core. Implements Parcelable
+ * so that it can be passed between activities with intents.
+ * <ul>
+ * <li>The <b>type</b> field tells if this error is a remote or a local failure.
+ * <li>The <b>cause</b> field contains a message detailing the reason of this failure.
+ * <li>The <b>origin</b> field should be the id of the node from which this error comes from. May be null (for local failure).
+ * <li>The <b>originChannelId</b> is the id of the channel which rejected the payment. May be null.
+ * <li>The <b>hops</b> field is set only for the remote failures and describes the route used by the failed payment.
  */
 public class LightningPaymentError implements Parcelable {
 
@@ -65,7 +72,7 @@ public class LightningPaymentError implements Parcelable {
     if (failure instanceof RemoteFailure) {
       final RemoteFailure rf = (RemoteFailure) failure;
       final String type = rf.getClass().getSimpleName();
-      final String cause = rf.e().failureMessage() == null ? "Unknown cause" : rf.e().failureMessage().getClass().getSimpleName();
+      final String cause = rf.e().failureMessage().toString();
       final String origin = rf.e().originNode().toString();
       String originChannelId = null;
       final List<String> hopsNodesPK = new ArrayList<>();
@@ -86,9 +93,18 @@ public class LightningPaymentError implements Parcelable {
     } else if (failure instanceof LocalFailure) {
       final LocalFailure lf = (LocalFailure) failure;
       final String type = lf.getClass().getSimpleName();
-      final String cause = lf.t().getClass().getSimpleName();
-      final String origin = lf.t() instanceof ChannelException ? ((ChannelException) lf.t()).channelId().toString() : null;
-      return new LightningPaymentError(type, cause, origin, null, null);
+      String cause;
+      String originChannelId = null;
+      Throwable t = lf.t();
+      if (t instanceof RouteNotFound$) {
+        cause = "The wallet could not find a path to the payee.";
+      } else if (t instanceof ChannelException){
+        cause = t.getMessage();
+        originChannelId = ((ChannelException) t).channelId().toString();
+      } else {
+        cause = t.getClass().getSimpleName();
+      }
+      return new LightningPaymentError(type, cause, null, originChannelId, null);
     } else {
       return new LightningPaymentError("Unknown Error", "Unknown Cause", null, null, null);
     }

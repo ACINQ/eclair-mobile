@@ -73,7 +73,6 @@
     android:layout_marginEnd="4dp"
     android:layout_marginStart="4dp"
     android:layout_toEndOf="@+id/lightning_error_origin_label"
-    android:text="@string/paymentfailure_error_origin"
     android:textColor="@color/red_faded_light_x2"
     android:textIsSelectable="true"
     android:textSize="12sp"

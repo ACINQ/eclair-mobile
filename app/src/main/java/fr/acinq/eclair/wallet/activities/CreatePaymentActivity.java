@@ -471,7 +471,7 @@ public class CreatePaymentActivity extends EclairActivity
    * Executes a Lightning payment in an asynchronous task.
    *
    * @param amountMsat amount of the payment in milli satoshis
-   * @param pr         Lightning payment request
+   * @param pr         lightning payment request
    * @param prAsString payment request as a string (used for display)
    */
   private void sendLNPayment(final long amountMsat, final PaymentRequest pr, final String prAsString) {

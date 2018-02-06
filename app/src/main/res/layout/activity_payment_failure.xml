@@ -143,6 +143,7 @@
     android:src="@drawable/ic_close_white"
     android:textAlignment="center"
     android:textColor="@color/white"
-    android:textSize="12sp" />
+    android:textSize="12sp"
+    android:contentDescription="@string/btn_close" />
 
 </RelativeLayout>

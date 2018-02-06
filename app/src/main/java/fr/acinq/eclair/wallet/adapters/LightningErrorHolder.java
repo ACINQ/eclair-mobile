@@ -6,10 +6,11 @@ import android.text.Html;
 import android.view.View;
 import android.widget.TextView;
 
+import fr.acinq.eclair.payment.LocalFailure$;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.models.LightningPaymentError;
 
-public class LightningErrorHolder extends RecyclerView.ViewHolder {
+class LightningErrorHolder extends RecyclerView.ViewHolder {
 
   private static final String TAG = "LightningErrorHolder";
 
@@ -24,7 +25,7 @@ public class LightningErrorHolder extends RecyclerView.ViewHolder {
 
   private final static String bullet = "&#9679;&nbsp;&nbsp;";
 
-  public LightningErrorHolder(final View itemView) {
+  LightningErrorHolder(final View itemView) {
     super(itemView);
     mErrorCounter = itemView.findViewById(R.id.lightning_error_counter);
     mErrorType = itemView.findViewById(R.id.lightning_error_type);
@@ -37,7 +38,7 @@ public class LightningErrorHolder extends RecyclerView.ViewHolder {
   }
 
   @SuppressLint("SetTextI18n")
-  public void bindErrorItem(final LightningPaymentError error, final int counter, final int total) {
+  void bindErrorItem(final LightningPaymentError error, final int counter, final int total) {
     mErrorCounter.setText(itemView.getResources().getString(R.string.paymentfailure_error_counter, (counter + 1), total));
     mErrorType.setText(error.getType());
     if (error.getCause() != null) {
@@ -46,7 +47,11 @@ public class LightningErrorHolder extends RecyclerView.ViewHolder {
     if (error.getOrigin() != null) {
       mErrorOriginLabel.setVisibility(View.VISIBLE);
       mErrorOrigin.setVisibility(View.VISIBLE);
-      mErrorOrigin.setText(itemView.getResources().getString(R.string.paymentfailure_error_origin, error.getOrigin()));
+      mErrorOrigin.setText(error.getOrigin());
+    } else if (error.getType().equals(LocalFailure$.class.getSimpleName())) {
+      mErrorOriginLabel.setVisibility(View.VISIBLE);
+      mErrorOrigin.setVisibility(View.VISIBLE);
+      mErrorOrigin.setText("Your node");
     }
     if (error.getOriginChannelId() != null) {
       mErrorOriginChannelIdLabel.setVisibility(View.VISIBLE);
