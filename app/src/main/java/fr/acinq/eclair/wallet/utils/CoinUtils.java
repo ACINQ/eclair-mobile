@@ -24,13 +24,10 @@ import static fr.acinq.eclair.wallet.utils.Constants.SATOSHI_CODE;
 
 public class CoinUtils {
 
-  public final static String BTC_PATTERN = "###,##0.000#####";
-  public final static String MILLI_BTC_PATTERN = "###,##0.00###";
+  private final static String COIN_PATTERN = "###,###,###,##0.###########";
+  private final static DecimalFormat COIN_FORMAT = new DecimalFormat(COIN_PATTERN);
   private static final String TAG = "CoinUtils";
-  private static DecimalFormat btcFormat;
-  private static DecimalFormat milliBtcFormat;
   private static NumberFormat fiatFormat;
-  private static NumberFormat satoshiFormat = NumberFormat.getInstance();
 
   private CoinUtils() {
   }
@@ -50,6 +47,7 @@ public class CoinUtils {
 
   /**
    * Gets the user's preferred fiat currency. Defaults is USD
+   *
    * @param prefs
    * @return
    */
@@ -60,7 +58,7 @@ public class CoinUtils {
   /**
    * Converts bitcoin amount to the fiat in parameter. Defaults to USD if the fiat code is unknown
    *
-   * @param amountMsat amount in milli satoshis
+   * @param amountMsat   amount in milli satoshis
    * @param fiatCurrency Fiat currency code, EUR/USD, defaults to USD
    * @return localized formatted string of the converted amount
    */
@@ -117,80 +115,64 @@ public class CoinUtils {
       final MilliSatoshi amountMsat = (MilliSatoshi) amount;
       switch (unit) {
         case MILLI_SATOSHI_CODE:
-          return satoshiFormat.format(amountMsat.amount());
+          return COIN_FORMAT.format(amountMsat.amount());
         case SATOSHI_CODE:
-          return satoshiFormat.format(package$.MODULE$.millisatoshi2satoshi(amountMsat).amount());
+          return COIN_FORMAT.format(package$.MODULE$.millisatoshi2satoshi(amountMsat).amount());
         case BITS_CODE:
-          return getFiatFormat().format(package$.MODULE$.millisatoshi2millibtc(amountMsat).amount().$times(scala.math.BigDecimal.exact(1000L)));
+          return COIN_FORMAT.format(package$.MODULE$.millisatoshi2millibtc(amountMsat).amount().$times(scala.math.BigDecimal.exact(1000L)));
         case MILLI_BTC_CODE:
-          return getMilliBTCFormat().format(package$.MODULE$.millisatoshi2millibtc(amountMsat).amount());
+          return COIN_FORMAT.format(package$.MODULE$.millisatoshi2millibtc(amountMsat).amount());
         case BTC_CODE:
-          return getBTCFormat().format(package$.MODULE$.millisatoshi2btc(amountMsat).amount());
+          return COIN_FORMAT.format(package$.MODULE$.millisatoshi2btc(amountMsat).amount());
       }
     } else if (amount instanceof Satoshi) {
       final Satoshi amountSat = (Satoshi) amount;
       switch (unit) {
         case MILLI_SATOSHI_CODE:
-          return satoshiFormat.format(package$.MODULE$.satoshi2millisatoshi(amountSat).amount());
+          return COIN_FORMAT.format(package$.MODULE$.satoshi2millisatoshi(amountSat).amount());
         case SATOSHI_CODE:
-          return satoshiFormat.format(amountSat.amount());
+          return COIN_FORMAT.format(amountSat.amount());
         case BITS_CODE:
-          return getFiatFormat().format(package$.MODULE$.satoshi2millibtc(amountSat).amount().$times(scala.math.BigDecimal.exact(1000L)));
+          return COIN_FORMAT.format(package$.MODULE$.satoshi2millibtc(amountSat).amount().$times(scala.math.BigDecimal.exact(1000L)));
         case MILLI_BTC_CODE:
-          return getMilliBTCFormat().format(package$.MODULE$.satoshi2millibtc(amountSat).amount());
+          return COIN_FORMAT.format(package$.MODULE$.satoshi2millibtc(amountSat).amount());
         case BTC_CODE:
-          return getBTCFormat().format(package$.MODULE$.satoshi2btc(amountSat).amount());
+          return COIN_FORMAT.format(package$.MODULE$.satoshi2btc(amountSat).amount());
       }
     } else if (amount instanceof MilliBtc) {
       final MilliBtc amountMbtc = (MilliBtc) amount;
       switch (unit) {
         case MILLI_SATOSHI_CODE:
-          return satoshiFormat.format(package$.MODULE$.millibtc2millisatoshi(amountMbtc).amount());
+          return COIN_FORMAT.format(package$.MODULE$.millibtc2millisatoshi(amountMbtc).amount());
         case SATOSHI_CODE:
-          return satoshiFormat.format(package$.MODULE$.millibtc2satoshi(amountMbtc).amount());
+          return COIN_FORMAT.format(package$.MODULE$.millibtc2satoshi(amountMbtc).amount());
         case BITS_CODE:
-          return getFiatFormat().format(amountMbtc.amount().$times(scala.math.BigDecimal.exact(1000L)));
+          return COIN_FORMAT.format(amountMbtc.amount().$times(scala.math.BigDecimal.exact(1000L)));
         case MILLI_BTC_CODE:
-          return getMilliBTCFormat().format(amountMbtc.amount());
+          return COIN_FORMAT.format(amountMbtc.amount());
         case BTC_CODE:
-          return getBTCFormat().format(package$.MODULE$.millibtc2btc(amountMbtc).amount());
+          return COIN_FORMAT.format(package$.MODULE$.millibtc2btc(amountMbtc).amount());
       }
     }
     if (amount instanceof Btc) {
       final Btc amountBtc = (Btc) amount;
       switch (unit) {
         case MILLI_SATOSHI_CODE:
-          return satoshiFormat.format(package$.MODULE$.btc2millisatoshi(amountBtc).amount());
+          return COIN_FORMAT.format(package$.MODULE$.btc2millisatoshi(amountBtc).amount());
         case SATOSHI_CODE:
-          return satoshiFormat.format(package$.MODULE$.btc2satoshi(amountBtc).amount());
+          return COIN_FORMAT.format(package$.MODULE$.btc2satoshi(amountBtc).amount());
         case BITS_CODE:
-          return getFiatFormat().format(package$.MODULE$.btc2millibtc(amountBtc).amount().$times(scala.math.BigDecimal.exact(1000L)));
+          return COIN_FORMAT.format(package$.MODULE$.btc2millibtc(amountBtc).amount().$times(scala.math.BigDecimal.exact(1000L)));
         case MILLI_BTC_CODE:
-          return getMilliBTCFormat().format(package$.MODULE$.btc2millibtc(amountBtc).amount());
+          return COIN_FORMAT.format(package$.MODULE$.btc2millibtc(amountBtc).amount());
         case BTC_CODE:
-          return getBTCFormat().format(amountBtc.amount());
+          return COIN_FORMAT.format(amountBtc.amount());
       }
     } else {
       Log.w(TAG, "Unknown type of amount: " + amount);
     }
     Log.w(TAG, "Amount was not formatted! preferred unit is: " + unit);
-    return satoshiFormat.format(amount.toString());
-  }
-
-  public static DecimalFormat getBTCFormat() {
-    if (btcFormat == null) {
-      btcFormat = (DecimalFormat) NumberFormat.getInstance();
-      btcFormat.applyPattern(BTC_PATTERN);
-    }
-    return btcFormat;
-  }
-
-  public static DecimalFormat getMilliBTCFormat() {
-    if (milliBtcFormat == null) {
-      milliBtcFormat = (DecimalFormat) NumberFormat.getInstance();
-      milliBtcFormat.applyPattern(MILLI_BTC_PATTERN);
-    }
-    return milliBtcFormat;
+    return COIN_FORMAT.format(amount.toString());
   }
 
   /**
@@ -252,9 +234,9 @@ public class CoinUtils {
    * Reads a numeric String, parses the amount and converts the amount from the specified unit to {@link MilliSatoshi}.
    *
    * @param amountInUnit Numeric string representing a bitcoin amount in the unit in parameter
-   * @param unit unit code of the amount, must be the code corresponding to {@link MilliSatoshi}, {@link Satoshi}, {@link MilliBtc} or {@link Btc}
+   * @param unit         unit code of the amount, must be the code corresponding to {@link MilliSatoshi}, {@link Satoshi}, {@link MilliBtc} or {@link Btc}
    * @return the amount in MilliSatoshi
-   * @throws NumberFormatException if the amount is not a numeric String
+   * @throws NumberFormatException    if the amount is not a numeric String
    * @throws IllegalArgumentException if the unit is not known
    */
   public static MilliSatoshi parseStringToMsat(final String amountInUnit, final String unit) throws NumberFormatException, IllegalArgumentException {
@@ -289,19 +271,19 @@ public class CoinUtils {
   }
 
   public static String formatAmountMilliSatoshi(MilliSatoshi amount) {
-    return CoinUtils.satoshiFormat.format(amount.amount());
+    return COIN_FORMAT.format(amount.amount());
   }
 
   public static String formatAmountSatoshi(MilliSatoshi amount) {
-    return CoinUtils.satoshiFormat.format(package$.MODULE$.millisatoshi2satoshi(amount).amount());
+    return COIN_FORMAT.format(package$.MODULE$.millisatoshi2satoshi(amount).amount());
   }
 
   public static String formatAmountMilliBtc(MilliSatoshi amount) {
-    return CoinUtils.getMilliBTCFormat().format(package$.MODULE$.millisatoshi2millibtc(amount).amount());
+    return COIN_FORMAT.format(package$.MODULE$.millisatoshi2millibtc(amount).amount());
   }
 
   public static String formatAmountBtc(MilliSatoshi amount) {
-    return CoinUtils.getBTCFormat().format(package$.MODULE$.millisatoshi2btc(amount).amount());
+    return COIN_FORMAT.format(package$.MODULE$.millisatoshi2btc(amount).amount());
   }
 
   public static Satoshi parseBitcoinToSatoshi(String input) {
