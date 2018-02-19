@@ -10,7 +10,7 @@
 
   <logger name="com.ning.http.client.providers.netty" level="INFO" />
   <logger name="fr.acinq.eclair.io" level="INFO" />
-  <logger name="fr.acinq.eclair.router.Router" level="DEBUG" />
+  <logger name="fr.acinq.eclair.router.Router" level="INFO" />
   <logger name="fr.acinq.eclair.crypto" level="WARN" />
 
   <root level="DEBUG">
