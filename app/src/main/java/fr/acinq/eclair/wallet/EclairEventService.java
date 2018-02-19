@@ -12,7 +12,9 @@ import akka.actor.Terminated;
 import akka.actor.UntypedActor;
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.eclair.channel.CLOSED;
+import fr.acinq.eclair.channel.CLOSED$;
 import fr.acinq.eclair.channel.CLOSING;
+import fr.acinq.eclair.channel.CLOSING$;
 import fr.acinq.eclair.channel.ChannelCreated;
 import fr.acinq.eclair.channel.ChannelIdAssigned;
 import fr.acinq.eclair.channel.ChannelRestored;
@@ -22,8 +24,11 @@ import fr.acinq.eclair.channel.DATA_CLOSING;
 import fr.acinq.eclair.channel.HasCommitments;
 import fr.acinq.eclair.channel.NORMAL;
 import fr.acinq.eclair.channel.OFFLINE;
+import fr.acinq.eclair.channel.OFFLINE$;
 import fr.acinq.eclair.channel.WAIT_FOR_INIT_INTERNAL;
+import fr.acinq.eclair.channel.WAIT_FOR_INIT_INTERNAL$;
 import fr.acinq.eclair.payment.PaymentSent;
+import fr.acinq.eclair.router.NORMAL$;
 import fr.acinq.eclair.transactions.DirectedHtlc;
 import fr.acinq.eclair.transactions.OUT$;
 import fr.acinq.eclair.wallet.events.ChannelUpdateEvent;
@@ -64,13 +69,13 @@ public class EclairEventService extends UntypedActor {
     long closingTotal = 0;
     long ignoredBalanceMsat = 0;
     for (ChannelDetails d : channelDetailsMap.values()) {
-      if (NORMAL.toString().equals(d.state)) {
+      if (NORMAL$.MODULE$.toString().equals(d.state)) {
         availableTotal += d.balanceMsat.amount();
-      } else if (CLOSED.toString().equals(d.state)) {
+      } else if (CLOSED$.MODULE$.toString().equals(d.state)) {
         // closed channel balance is ignored
-      } else if (CLOSING.toString().equals(d.state)) {
+      } else if (CLOSING$.MODULE$.toString().equals(d.state)) {
         closingTotal += d.balanceMsat.amount();
-      } else if (OFFLINE.toString().equals(d.state)) {
+      } else if (OFFLINE$.MODULE$.toString().equals(d.state)) {
         offlineTotal += d.balanceMsat.amount();
       } else if (d.state == null || d.state.startsWith("ERR_")) {
         ignoredBalanceMsat += d.balanceMsat.amount();
@@ -168,7 +173,7 @@ public class EclairEventService extends UntypedActor {
         // Otherwise the notification would show up each time the wallet is started and the channel is
         // still closing, even though the user has already been alerted the last time he used the app.
         // Same thing for CLOSING -> CLOSED
-        if (cd.state != null && !CLOSED.toString().equals(cs.currentState().toString()) && !WAIT_FOR_INIT_INTERNAL.toString().equals(cd.state)) {
+        if (cd.state != null && !CLOSED$.MODULE$.toString().equals(cs.currentState().toString()) && !WAIT_FOR_INIT_INTERNAL$.MODULE$.toString().equals(cd.state)) {
           Log.d(TAG, "########## CLOSING => from " + cd.state + " to " + cs.currentState().toString());
           String notifTitle = "Closing channel with " + cd.remoteNodeId.substring(0, 7) + "...";
           final String notifMessage = "Your final balance: " + CoinUtils.formatAmountMilliBtc(new MilliSatoshi(d.commitments().localCommit().spec().toLocalMsat())) + " mBTC";
@@ -217,7 +222,7 @@ public class EclairEventService extends UntypedActor {
 
   public static boolean hasActiveChannels () {
     for (ChannelDetails d : channelDetailsMap.values()) {
-      if (NORMAL.toString().equals(d.state)) {
+      if (NORMAL$.MODULE$.toString().equals(d.state)) {
         return true;
       }
     }
@@ -233,7 +238,7 @@ public class EclairEventService extends UntypedActor {
    */
   public static boolean hasActiveChannelsWithBalance (long requiredBalanceMsat) {
     for (ChannelDetails d : channelDetailsMap.values()) {
-      if (NORMAL.toString().equals(d.state) && d.balanceMsat.amount() > requiredBalanceMsat + 5000000) {
+      if (NORMAL$.MODULE$.toString().equals(d.state) && d.balanceMsat.amount() > requiredBalanceMsat + 5000000) {
         return true;
       }
     }
