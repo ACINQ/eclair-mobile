@@ -61,33 +61,6 @@
             android:textSize="10sp"
             android:textStyle="bold" />
 
-          <LinearLayout
-            android:id="@+id/home_connection_status"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:gravity="start|center"
-            android:orientation="horizontal"
-            tools:ignore="UseCompoundDrawables">
-
-            <ImageView
-              android:layout_width="14dp"
-              android:layout_height="14dp"
-              android:contentDescription="@string/chain_disconnected"
-              android:src="@drawable/ic_warning_tri" />
-
-            <TextView
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:layout_marginStart="2dp"
-              android:alpha="0.6"
-              android:drawablePadding="4dp"
-              android:text="@string/chain_disconnected"
-              android:textAllCaps="true"
-              android:textColor="@color/white"
-              android:textSize="8sp" />
-          </LinearLayout>
-
         </LinearLayout>
 
         <android.support.v7.widget.Toolbar
@@ -185,7 +158,7 @@
 
     <LinearLayout
       android:id="@+id/home_send_buttons_toggle"
-      android:layout_width="190dp"
+      android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:orientation="vertical"
       android:visibility="gone">
@@ -224,7 +197,6 @@
 
   </LinearLayout>
 
-
   <LinearLayout
     android:id="@+id/home_openchannel_buttons"
     android:layout_width="wrap_content"
@@ -237,7 +209,7 @@
 
     <LinearLayout
       android:id="@+id/home_openchannel_buttons_toggle"
-      android:layout_width="190dp"
+      android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:orientation="vertical"
       android:visibility="gone">
@@ -283,6 +255,58 @@
       android:src="@mipmap/ic_plus"
       app:backgroundTint="@color/green"
       app:fabSize="normal" />
+
+  </LinearLayout>
+
+  <LinearLayout
+    android:id="@+id/home_connection_status"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_alignParentBottom="true"
+    android:layout_centerHorizontal="true"
+    android:layout_marginBottom="16dp"
+    android:alpha="0.95"
+    android:background="@drawable/rounded_corner_dark"
+    android:elevation="10dp"
+    android:orientation="vertical"
+    android:padding="10dp"
+    android:visibility="gone">
+
+    <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:gravity="center"
+      android:orientation="horizontal">
+
+      <ImageView
+        android:layout_width="14dp"
+        android:layout_height="14dp"
+        android:layout_marginEnd="4dp"
+        android:src="@drawable/ic_warning_tri" />
+
+      <TextView
+        android:id="@+id/home_connection_status_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="2dp"
+        android:drawablePadding="4dp"
+        android:maxWidth="180dp"
+        android:textAlignment="center"
+        android:textAllCaps="true"
+        android:textColor="@color/grey_1"
+        android:textSize="10sp"
+        android:textStyle="bold" />
+    </LinearLayout>
+
+    <TextView
+      android:id="@+id/home_connection_status_desc"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="4dp"
+      android:maxWidth="180dp"
+      android:textAlignment="center"
+      android:textColor="@color/grey_2"
+      android:textSize="10sp" />
   </LinearLayout>
 
 </RelativeLayout>

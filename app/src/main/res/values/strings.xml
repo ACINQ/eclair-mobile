@@ -285,6 +285,9 @@
   <string name="btc_fee_unit">sat/byte</string>
   <string name="chain_name">TESTNET</string>
   <string name="chain_disconnected">Electrum disconnected</string>
+  <string name="chain_disconnected_desc">Connection was lost. Sending funds is disabled.</string>
+  <string name="chain_late">Electrum desynchronized</string>
+  <string name="chain_late_desc">Attention, your wallet\'s block height looks stale. Sending lightning payments may trigger the unilateral closing of your channels!</string>
 
   <!-- //////////////// Preferences //////////////////// -->
 
@@ -314,7 +317,7 @@
 
   <!-- //////////////// Scanner messages //////////////////// -->
 
-  <string name="scan_title_invoice">Please scan a Bitcoin address or a Lightning payment request QR code.</string>
+  <string name="scan_title_invoice">Please scan a QR code containing a Bitcoin address or a Lightning payment request.</string>
   <string name="scan_title_ln_uri">Please scan the address of a Lightning Network node.</string>
 
 </resources>

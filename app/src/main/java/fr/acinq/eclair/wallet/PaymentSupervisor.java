@@ -8,7 +8,6 @@ import org.spongycastle.util.encoders.Hex;
 import java.io.ByteArrayOutputStream;
 import java.util.Date;
 
-import akka.actor.ActorRef;
 import akka.actor.UntypedActor;
 import fr.acinq.bitcoin.Protocol;
 import fr.acinq.bitcoin.Satoshi;
@@ -18,7 +17,7 @@ import fr.acinq.eclair.blockchain.electrum.ElectrumClient;
 import fr.acinq.eclair.blockchain.electrum.ElectrumWallet;
 import fr.acinq.eclair.wallet.events.BitcoinPaymentEvent;
 import fr.acinq.eclair.wallet.events.ElectrumConnectionEvent;
-import fr.acinq.eclair.wallet.events.WalletBalanceUpdateEvent;
+import fr.acinq.eclair.wallet.events.WalletStateUpdateEvent;
 import fr.acinq.eclair.wallet.models.Payment;
 import fr.acinq.eclair.wallet.models.PaymentDirection;
 import fr.acinq.eclair.wallet.models.PaymentType;
@@ -28,6 +27,7 @@ import fr.acinq.eclair.wallet.models.PaymentType;
  */
 public class PaymentSupervisor extends UntypedActor {
   public final static String TAG = "PaymentSupervisor";
+  private final static long MAX_DIFF_TIMESTAMP_SEC = 6 * 60 * 60L; // 6 hours
   private DBHelper dbHelper;
 
   public PaymentSupervisor(DBHelper dbHelper) {
@@ -43,6 +43,7 @@ public class PaymentSupervisor extends UntypedActor {
    * @throws Exception
    */
   public void onReceive(final Object message) throws Exception {
+
     if (message instanceof ElectrumWallet.TransactionReceived) {
       Log.d(TAG, "Received TransactionReceived message: " + message);
       ElectrumWallet.TransactionReceived walletTransactionReceive = (ElectrumWallet.TransactionReceived) message;
@@ -82,6 +83,7 @@ public class PaymentSupervisor extends UntypedActor {
 
       // dispatch news and ask for on-chain balance update
       EventBus.getDefault().post(new BitcoinPaymentEvent(paymentReceived));
+
     } else if (message instanceof ElectrumWallet.TransactionConfidenceChanged) {
       Log.d(TAG, "Received TransactionConfidenceChanged message: " + message);
       final ElectrumWallet.TransactionConfidenceChanged walletTransactionConfidenceChanged = (ElectrumWallet.TransactionConfidenceChanged) message;
@@ -94,18 +96,24 @@ public class PaymentSupervisor extends UntypedActor {
           EventBus.getDefault().post(new BitcoinPaymentEvent(null));
         }
       }
+
     } else if (message instanceof ElectrumWallet.WalletReady) {
-      Log.d(TAG, "Received WalletReady message: {}" + message);
-      ElectrumWallet.WalletReady ready = (ElectrumWallet.WalletReady) message;
-      Satoshi balance = ready.confirmedBalance().$plus(ready.unconfirmedBalance());
-      EventBus.getDefault().post(new WalletBalanceUpdateEvent(balance));
+      final ElectrumWallet.WalletReady ready = (ElectrumWallet.WalletReady) message;
+      Long diffTimestamp = Math.abs(System.currentTimeMillis() / 1000L - ready.timestamp());
+      Log.d(TAG, "Received WalletReady message with height=" + ready.height() + " and timestamp diff=" + diffTimestamp);
+      final Satoshi balance = ready.confirmedBalance().$plus(ready.unconfirmedBalance());
+      final boolean isSync = diffTimestamp < MAX_DIFF_TIMESTAMP_SEC;
+      EventBus.getDefault().post(new WalletStateUpdateEvent(balance, isSync));
+
     } else if (message instanceof ElectrumWallet.NewWalletReceiveAddress) {
       Log.d(TAG, "Received NewWalletReceiveAddress message: {}" + message);
       ElectrumWallet.NewWalletReceiveAddress address = (ElectrumWallet.NewWalletReceiveAddress) message;
       EventBus.getDefault().postSticky(address);
+
     } else if (message instanceof ElectrumClient.ElectrumDisconnected$) {
       Log.d(TAG, "Received DISCONNECTED");
       EventBus.getDefault().post(new ElectrumConnectionEvent(false));
+
     } else if (message instanceof ElectrumClient.ElectrumConnected$) {
       Log.d(TAG, "Received CONNECTED");
       EventBus.getDefault().postSticky(new ElectrumConnectionEvent(true));

@@ -25,6 +25,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -61,7 +62,7 @@ import fr.acinq.eclair.wallet.events.LNNewChannelFailureEvent;
 import fr.acinq.eclair.wallet.events.LNNewChannelOpenedEvent;
 import fr.acinq.eclair.wallet.events.LNPaymentEvent;
 import fr.acinq.eclair.wallet.events.LNPaymentFailedEvent;
-import fr.acinq.eclair.wallet.events.WalletBalanceUpdateEvent;
+import fr.acinq.eclair.wallet.events.WalletStateUpdateEvent;
 import fr.acinq.eclair.wallet.fragments.ChannelsListFragment;
 import fr.acinq.eclair.wallet.fragments.PaymentsListFragment;
 import fr.acinq.eclair.wallet.fragments.ReceivePaymentFragment;
@@ -74,6 +75,7 @@ public class HomeActivity extends EclairActivity {
   public static final String EXTRA_PAGE = BuildConfig.APPLICATION_ID + "EXTRA_PAGE";
   public static final String EXTRA_PAYMENT_URI = BuildConfig.APPLICATION_ID + "EXTRA_PAYMENT_URI";
   private static final String TAG = "Home Activity";
+  private boolean canSendPayments = false;
 
   private ViewPager mViewPager;
   private TabLayout mTabs;
@@ -93,6 +95,8 @@ public class HomeActivity extends EclairActivity {
   private ViewStub mStubBreakingChanges;
   private ViewStub mStubIntro;
   private View mConnectionStatus;
+  private TextView mConnectionStatusTitle;
+  private TextView mConnectionStatusDesc;
   private int introStep = 0;
 
   private Handler mExchangeRateHandler;
@@ -121,6 +125,8 @@ public class HomeActivity extends EclairActivity {
 
     // --- top view
     mConnectionStatus = findViewById(R.id.home_connection_status);
+    mConnectionStatusTitle = findViewById(R.id.home_connection_status_title);
+    mConnectionStatusDesc = findViewById(R.id.home_connection_status_desc);
     mBalanceView = findViewById(R.id.home_balance);
     mTotalBalanceView = findViewById(R.id.home_balance_total);
     mOnchainBalanceView = findViewById(R.id.home_balance_onchain_value);
@@ -280,7 +286,7 @@ public class HomeActivity extends EclairActivity {
   private void readURIIntent(final Intent intent) {
     final Uri paymentRequest = intent.getParcelableExtra(EXTRA_PAYMENT_URI);
     Log.i(TAG, "intent contains pr=" + paymentRequest);
-    if (paymentRequest != null) {
+    if (paymentRequest != null && canSendPayments) {
       Log.i(TAG, "payment request to open is=" + paymentRequest.toString());
       switch (paymentRequest.getScheme()) {
         case "bitcoin":
@@ -398,15 +404,19 @@ public class HomeActivity extends EclairActivity {
   }
 
   public void home_sendPaste(View view) {
-    Intent intent = new Intent(this, CreatePaymentActivity.class);
-    intent.putExtra(CreatePaymentActivity.EXTRA_INVOICE, readFromClipboard());
-    startActivity(intent);
+    if (canSendPayments) {
+      Intent intent = new Intent(this, CreatePaymentActivity.class);
+      intent.putExtra(CreatePaymentActivity.EXTRA_INVOICE, readFromClipboard());
+      startActivity(intent);
+    }
   }
 
   public void home_sendScan(View view) {
-    Intent intent = new Intent(this, ScanActivity.class);
-    intent.putExtra(ScanActivity.EXTRA_SCAN_TYPE, ScanActivity.TYPE_INVOICE);
-    startActivity(intent);
+    if (canSendPayments) {
+      Intent intent = new Intent(this, ScanActivity.class);
+      intent.putExtra(ScanActivity.EXTRA_SCAN_TYPE, ScanActivity.TYPE_INVOICE);
+      startActivity(intent);
+    }
   }
 
   public void home_toggleSendButtons(View view) {
@@ -416,7 +426,8 @@ public class HomeActivity extends EclairActivity {
     mSendButtonsToggleView.setVisibility(isVisible ? View.GONE : View.VISIBLE);
   }
 
-  private void enableSendButton() {
+  private void enableSendPayments() {
+    canSendPayments = true;
     home_closeSendButtons();
     home_closeOpenChannelButtons();
     mSendButton.setEnabled(true);
@@ -425,7 +436,8 @@ public class HomeActivity extends EclairActivity {
     mOpenChannelButton.setAlpha(1f);
   }
 
-  private void disableSendButton() {
+  private void disableSendPayments() {
+    canSendPayments = false;
     home_closeSendButtons();
     home_closeOpenChannelButtons();
     mSendButton.setEnabled(false);
@@ -483,7 +495,14 @@ public class HomeActivity extends EclairActivity {
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
-  public void handleWalletBalanceEvent(WalletBalanceUpdateEvent event) {
+  public void handleWalletBalanceEvent(WalletStateUpdateEvent event) {
+    if (event.isSync) {
+      mConnectionStatus.setVisibility(View.GONE);
+    } else {
+      mConnectionStatusTitle.setText(getString(R.string.chain_late));
+      mConnectionStatusDesc.setText(getString(R.string.chain_late_desc));
+      mConnectionStatus.setVisibility(View.VISIBLE);
+    }
     updateBalance();
   }
 
@@ -550,11 +569,14 @@ public class HomeActivity extends EclairActivity {
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
   public void handleConnectionEvent(ElectrumConnectionEvent event) {
     if (event.connected) {
-      enableSendButton();
+      enableSendPayments();
+      mConnectionStatus.setVisibility(View.GONE);
     } else {
-      disableSendButton();
+      disableSendPayments();
+      mConnectionStatusTitle.setText(getString(R.string.chain_disconnected));
+      mConnectionStatusDesc.setText(getString(R.string.chain_disconnected_desc));
+      mConnectionStatus.setVisibility(View.VISIBLE);
     }
-    mConnectionStatus.setVisibility(event.connected ? View.GONE : View.VISIBLE);
   }
 
   private class HomePagerAdapter extends FragmentStatePagerAdapter {

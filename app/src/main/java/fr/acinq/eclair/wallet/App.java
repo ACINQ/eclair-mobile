@@ -40,7 +40,7 @@ import fr.acinq.eclair.wallet.events.BitcoinPaymentFailedEvent;
 import fr.acinq.eclair.wallet.events.LNNewChannelFailureEvent;
 import fr.acinq.eclair.wallet.events.NetworkChannelsCountEvent;
 import fr.acinq.eclair.wallet.events.NotificationEvent;
-import fr.acinq.eclair.wallet.events.WalletBalanceUpdateEvent;
+import fr.acinq.eclair.wallet.events.WalletStateUpdateEvent;
 import fr.acinq.eclair.wallet.utils.Constants;
 import scala.Symbol;
 import scala.collection.Iterable;
@@ -141,7 +141,7 @@ public class App extends Application {
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
-  public void handleWalletBalanceEvent(WalletBalanceUpdateEvent event) {
+  public void handleWalletBalanceEvent(WalletStateUpdateEvent event) {
     this.onChainBalance.set(event.balance);
   }
 
