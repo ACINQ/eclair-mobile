@@ -106,7 +106,7 @@ public class PaymentSupervisor extends UntypedActor {
       EventBus.getDefault().post(new WalletStateUpdateEvent(balance, isSync));
 
     } else if (message instanceof ElectrumWallet.NewWalletReceiveAddress) {
-      Log.d(TAG, "Received NewWalletReceiveAddress message: {}" + message);
+      Log.d(TAG, "Received NewWalletReceiveAddress message=" + message);
       ElectrumWallet.NewWalletReceiveAddress address = (ElectrumWallet.NewWalletReceiveAddress) message;
       EventBus.getDefault().postSticky(address);
 

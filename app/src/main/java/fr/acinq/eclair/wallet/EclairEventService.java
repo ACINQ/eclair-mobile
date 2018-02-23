@@ -11,9 +11,7 @@ import akka.actor.ActorRef;
 import akka.actor.Terminated;
 import akka.actor.UntypedActor;
 import fr.acinq.bitcoin.MilliSatoshi;
-import fr.acinq.eclair.channel.CLOSED;
 import fr.acinq.eclair.channel.CLOSED$;
-import fr.acinq.eclair.channel.CLOSING;
 import fr.acinq.eclair.channel.CLOSING$;
 import fr.acinq.eclair.channel.ChannelCreated;
 import fr.acinq.eclair.channel.ChannelIdAssigned;
@@ -22,10 +20,7 @@ import fr.acinq.eclair.channel.ChannelSignatureReceived;
 import fr.acinq.eclair.channel.ChannelStateChanged;
 import fr.acinq.eclair.channel.DATA_CLOSING;
 import fr.acinq.eclair.channel.HasCommitments;
-import fr.acinq.eclair.channel.NORMAL;
-import fr.acinq.eclair.channel.OFFLINE;
 import fr.acinq.eclair.channel.OFFLINE$;
-import fr.acinq.eclair.channel.WAIT_FOR_INIT_INTERNAL;
 import fr.acinq.eclair.channel.WAIT_FOR_INIT_INTERNAL$;
 import fr.acinq.eclair.payment.PaymentSent;
 import fr.acinq.eclair.router.NORMAL$;
@@ -100,7 +95,6 @@ public class EclairEventService extends UntypedActor {
 
   @Override
   public void onReceive(final Object message) {
-    Log.d(TAG, "######## Event: " + message);
     if (message instanceof ChannelCreated) {
       ChannelCreated cc = (ChannelCreated) message;
       ChannelDetails cd = getChannelDetails(cc.channel());
