@@ -285,16 +285,14 @@ public class HomeActivity extends EclairActivity {
 
   private void readURIIntent(final Intent intent) {
     final Uri paymentRequest = intent.getParcelableExtra(EXTRA_PAYMENT_URI);
-    Log.i(TAG, "intent contains pr=" + paymentRequest);
-    if (paymentRequest != null && canSendPayments) {
-      Log.i(TAG, "payment request to open is=" + paymentRequest.toString());
+    if (paymentRequest != null) {
       switch (paymentRequest.getScheme()) {
         case "bitcoin":
         case "lightning":
+          Log.d(TAG, "received intent with payment_request=" + paymentRequest.toString());
           final Intent paymentIntent = new Intent(this, CreatePaymentActivity.class);
           paymentIntent.putExtra(CreatePaymentActivity.EXTRA_INVOICE, paymentRequest.toString());
           startActivity(paymentIntent);
-          getIntent().setData(null); // prevent loop
           break;
         default:
           Log.d(TAG, "Unhandled payment scheme=" + paymentRequest);
