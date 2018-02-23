@@ -2,11 +2,14 @@ package fr.acinq.eclair.wallet.adapters;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.google.common.base.Strings;
 
 import java.text.DateFormat;
 import java.text.NumberFormat;
@@ -105,7 +108,13 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
     }
 
     if (PaymentType.BTC_LN.equals(payment.getType())) {
-      mDescription.setText(payment.getDescription());
+      if (Strings.isNullOrEmpty(payment.getDescription())) {
+        mDescription.setText(itemView.getResources().getString(R.string.unknown_desc));
+        mDescription.setTypeface(Typeface.DEFAULT, Typeface.ITALIC);
+        mDescription.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.grey_1));
+      } else {
+        mDescription.setText(payment.getDescription());
+      }
       mStatus.setText(payment.getStatus().name());
       if (PaymentStatus.FAILED.equals(payment.getStatus())) {
         mStatus.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.red_faded));

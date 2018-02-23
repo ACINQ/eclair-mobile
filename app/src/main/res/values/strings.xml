@@ -95,6 +95,7 @@
   <!-- //////////////// Commons /////////////////// -->
 
   <string name="unknown">N/A</string>
+  <string name="unknown_desc">No description available</string>
   <string name="btn_ok">OK</string>
   <string name="btn_cancel">Cancel</string>
   <string name="btn_close">Close</string>
