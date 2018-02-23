@@ -357,6 +357,13 @@ public class CreatePaymentActivity extends EclairActivity
   }
 
   public void cancelPayment(View view) {
+    closeAndGoHome();
+  }
+
+  private void closeAndGoHome() {
+    Intent intent = new Intent(getBaseContext(), HomeActivity.class);
+    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+    startActivity(intent);
     finish();
   }
 
@@ -385,7 +392,7 @@ public class CreatePaymentActivity extends EclairActivity
             public void onPinConfirm(final PinDialog dialog, final String pinValue) {
               if (isPinCorrect(pinValue, dialog)) {
                 sendLNPayment(amountMsat, mLNInvoice, mInvoice);
-                finish();
+                closeAndGoHome();
               } else {
                 handlePaymentError(R.string.payment_error_incorrect_pin);
               }
@@ -400,7 +407,7 @@ public class CreatePaymentActivity extends EclairActivity
           pinDialog.show();
         } else {
           sendLNPayment(amountMsat, mLNInvoice, mInvoice);
-          finish();
+          closeAndGoHome();
         }
       } else if (mBitcoinInvoice != null) {
         final Satoshi amountSat = isAmountReadonly
@@ -417,7 +424,7 @@ public class CreatePaymentActivity extends EclairActivity
               public void onPinConfirm(final PinDialog dialog, final String pinValue) {
                 if (isPinCorrect(pinValue, dialog)) {
                   sendBitcoinPayment(amountSat, feesPerKw, mBitcoinInvoice);
-                  finish();
+                  closeAndGoHome();
                 } else {
                   handlePaymentError(R.string.payment_error_incorrect_pin);
                 }
@@ -432,7 +439,7 @@ public class CreatePaymentActivity extends EclairActivity
             pinDialog.show();
           } else {
             sendBitcoinPayment(amountSat, feesPerKw, mBitcoinInvoice);
-            finish();
+            closeAndGoHome();
           }
         } catch (NumberFormatException e) {
           handlePaymentError(R.string.payment_error_fees_onchain);

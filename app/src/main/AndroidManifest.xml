@@ -63,7 +63,7 @@
     <activity
       android:name=".activities.CreatePaymentActivity"
       android:label=""
-      android:noHistory="true"
+      android:launchMode="singleTop"
       android:parentActivityName=".activities.HomeActivity"
       android:screenOrientation="portrait"
       android:stateNotNeeded="true"
@@ -78,7 +78,7 @@
     <activity
       android:name=".activities.OpenChannelActivity"
       android:label=""
-      android:noHistory="true"
+      android:launchMode="singleTop"
       android:parentActivityName=".activities.HomeActivity"
       android:screenOrientation="portrait"
       android:stateNotNeeded="true"

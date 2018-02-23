@@ -1,5 +1,6 @@
 package fr.acinq.eclair.wallet.activities;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -184,6 +185,9 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
   }
 
   private void goToHome() {
+    Intent intent = new Intent(getBaseContext(), HomeActivity.class);
+    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+    startActivity(intent);
     finish();
   }
 
@@ -209,6 +213,7 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
             enableForm();
           }
         }
+
         @Override
         public void onPinCancel(PinDialog dialog) {
           enableForm();
