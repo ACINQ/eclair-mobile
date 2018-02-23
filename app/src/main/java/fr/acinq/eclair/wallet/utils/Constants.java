@@ -17,6 +17,7 @@ public interface Constants {
   String FIAT_EURO = "eur";
   String FIAT_USD = "usd";
   String SETTING_BTC_UNIT = "btc_unit";
+  String SETTING_BTC_PATTERN = "btc_pattern";
   String SETTING_DISPLAY_IN_FIAT = "display_in_fiat";
   String SETTING_LAST_KNOWN_RATE_BTC_EUR = "last_known_rate_btc_eur";
   String SETTING_LAST_KNOWN_RATE_BTC_USD = "last_known_rate_btc_usd";
@@ -38,11 +39,6 @@ public interface Constants {
 
   /* ----------- COINS ------------ */
 
-  String MILLI_SATOSHI_CODE = "msat";
   String SATOSHI_CODE = "sat";
-  String BITS_CODE = "bits";
-  String MILLI_BTC_CODE = "mbtc";
   String BTC_CODE = "btc";
-
-
 }

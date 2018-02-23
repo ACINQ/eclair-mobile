@@ -19,6 +19,7 @@ import akka.dispatch.OnComplete;
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.bitcoin.package$;
+import fr.acinq.eclair.CoinUnit;
 import fr.acinq.eclair.channel.Channel;
 import fr.acinq.eclair.io.NodeURI;
 import fr.acinq.eclair.io.Peer;
@@ -28,9 +29,10 @@ import fr.acinq.eclair.wallet.events.LNNewChannelFailureEvent;
 import fr.acinq.eclair.wallet.events.LNNewChannelOpenedEvent;
 import fr.acinq.eclair.wallet.fragments.PinDialog;
 import fr.acinq.eclair.wallet.tasks.NodeURIReaderTask;
-import fr.acinq.eclair.wallet.utils.CoinUtils;
+import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.Validators;
+import fr.acinq.eclair.wallet.utils.WalletUtils;
 import scala.concurrent.duration.Duration;
 
 public class OpenChannelActivity extends EclairActivity implements NodeURIReaderTask.AsyncNodeURIReaderTaskResponse {
@@ -54,7 +56,7 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
   private String remoteNodeURIAsString = "";
   private NodeURI remoteNodeURI = null;
   private String preferredFiatCurrency = Constants.FIAT_USD;
-  private String preferredBitcoinUnit = Constants.MILLI_BTC_CODE;
+  private CoinUnit preferredBitcoinUnit = CoinUtils.getUnitFromString("btc");
   private PinDialog pinDialog;
 
   @Override
@@ -63,8 +65,8 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
     setContentView(R.layout.activity_open_channel);
 
     final SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-    preferredFiatCurrency = CoinUtils.getPreferredFiat(sharedPrefs);
-    preferredBitcoinUnit = CoinUtils.getBtcPreferredUnit(sharedPrefs);
+    preferredFiatCurrency = WalletUtils.getPreferredFiat(sharedPrefs);
+    preferredBitcoinUnit = WalletUtils.getPreferredCoinUnit(sharedPrefs);
 
     mForm = findViewById(R.id.openchannel_form);
     mLoadingText = findViewById(R.id.openchannel_loading);
@@ -99,7 +101,7 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
       }
     });
     mCapacityUnit = findViewById(R.id.openchannel_capacity_unit);
-    mCapacityUnit.setText(CoinUtils.getBitcoinUnitShortLabel(preferredBitcoinUnit));
+    mCapacityUnit.setText(preferredBitcoinUnit.shortLabel());
     mCapacityFiat = findViewById(R.id.openchannel_capacity_fiat);
 
     remoteNodeURIAsString = getIntent().getStringExtra(EXTRA_NEW_HOST_URI).trim();
@@ -141,11 +143,11 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
    * @return true if amount is valid, false otherwise
    */
   private boolean checkAmount(final String amount) throws IllegalArgumentException, NullPointerException {
-    final MilliSatoshi amountMsat = CoinUtils.parseStringToMsat(amount, preferredBitcoinUnit);
-    mCapacityFiat.setText(CoinUtils.convertMsatToFiatWithUnit(amountMsat.amount(), preferredFiatCurrency));
+    final MilliSatoshi amountMsat = CoinUtils.convertStringAmountToMsat(amount, preferredBitcoinUnit.code());
+    mCapacityFiat.setText(WalletUtils.convertMsatToFiatWithUnit(amountMsat.amount(), preferredFiatCurrency));
     if (amountMsat.amount() < minFunding.amount() || amountMsat.amount() >= maxFunding.amount()) {
-      toggleError(getString(R.string.openchannel_capacity_invalid, CoinUtils.formatAmountInUnit(minFunding, preferredBitcoinUnit),
-        CoinUtils.formatAmountInUnitWithUnit(maxFunding, preferredBitcoinUnit)));
+      toggleError(getString(R.string.openchannel_capacity_invalid, CoinUtils.formatAmountInUnit(minFunding, preferredBitcoinUnit, false),
+        CoinUtils.formatAmountInUnit(maxFunding, preferredBitcoinUnit, true)));
       return false;
     } else if (package$.MODULE$.millisatoshi2satoshi(amountMsat).amount() + Validators.MIN_LEFTOVER_ONCHAIN_BALANCE_SAT > app.onChainBalance.get().amount()) {
       toggleError(getString(R.string.openchannel_capacity_notenoughfunds));
@@ -226,7 +228,7 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
   }
 
   private void doOpenChannel() {
-    final Satoshi fundingSat = package$.MODULE$.millisatoshi2satoshi(CoinUtils.parseStringToMsat(mCapacityValue.getText().toString(), preferredBitcoinUnit));
+    final Satoshi fundingSat = CoinUtils.convertStringAmountToSat(mCapacityValue.getText().toString(), preferredBitcoinUnit.code());
     AsyncExecutor.create().execute(
       new AsyncExecutor.RunnableEx() {
         @Override

@@ -28,6 +28,7 @@ import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.bitcoin.package$;
+import fr.acinq.eclair.CoinUnit;
 import fr.acinq.eclair.payment.PaymentFailed;
 import fr.acinq.eclair.payment.PaymentFailure;
 import fr.acinq.eclair.payment.PaymentLifecycle;
@@ -46,8 +47,9 @@ import fr.acinq.eclair.wallet.models.PaymentType;
 import fr.acinq.eclair.wallet.tasks.BitcoinInvoiceReaderTask;
 import fr.acinq.eclair.wallet.tasks.LNInvoiceReaderTask;
 import fr.acinq.eclair.wallet.utils.BitcoinURI;
-import fr.acinq.eclair.wallet.utils.CoinUtils;
+import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.wallet.utils.Constants;
+import fr.acinq.eclair.wallet.utils.WalletUtils;
 import scala.collection.Seq;
 import scala.util.Either;
 
@@ -87,7 +89,7 @@ public class CreatePaymentActivity extends EclairActivity
   private Button mSendButton;
   private Button mCancelButton;
 
-  private String preferredBitcoinUnit = Constants.MILLI_BTC_CODE;
+  private CoinUnit preferredBitcoinUnit = CoinUtils.getUnitFromString("btc");
   private String preferredFiatCurrency = Constants.FIAT_USD;
   private boolean maxFeeLightning = true;
   private int maxFeeLightningValue = 1;
@@ -111,14 +113,14 @@ public class CreatePaymentActivity extends EclairActivity
       mLNInvoice = output;
       isAmountReadonly = mLNInvoice.amount().isDefined();
       if (isAmountReadonly) {
-        final MilliSatoshi amountMsat = CoinUtils.getAmountFromInvoice(mLNInvoice);
+        final MilliSatoshi amountMsat = WalletUtils.getAmountFromInvoice(mLNInvoice);
         if (!EclairEventService.hasActiveChannelsWithBalance(amountMsat.amount())) {
           canNotHandlePayment(R.string.payment_error_amount_ln_insufficient_funds);
           return;
         }
         mAmountEditableHint.setVisibility(View.GONE);
-        mAmountEditableValue.setText(CoinUtils.formatAmountInUnit(amountMsat, preferredBitcoinUnit));
-        mAmountFiatView.setText(CoinUtils.convertMsatToFiatWithUnit(amountMsat.amount(), preferredFiatCurrency));
+        mAmountEditableValue.setText(CoinUtils.formatAmountInUnit(amountMsat, preferredBitcoinUnit, false));
+        mAmountFiatView.setText(WalletUtils.convertMsatToFiatWithUnit(amountMsat.amount(), preferredFiatCurrency));
         disableAmountInteractions();
       } else {
         mAmountEditableValue.addTextChangedListener(amountTextWatcher);
@@ -147,8 +149,8 @@ public class CreatePaymentActivity extends EclairActivity
       if (isAmountReadonly) {
         final MilliSatoshi amountMsat = package$.MODULE$.satoshi2millisatoshi(mBitcoinInvoice.getAmount());
         mAmountEditableHint.setVisibility(View.GONE);
-        mAmountEditableValue.setText(CoinUtils.formatAmountInUnit(amountMsat, preferredBitcoinUnit));
-        mAmountFiatView.setText(CoinUtils.convertMsatToFiatWithUnit(amountMsat.amount(), preferredFiatCurrency));
+        mAmountEditableValue.setText(CoinUtils.formatAmountInUnit(amountMsat, preferredBitcoinUnit, false));
+        mAmountFiatView.setText(WalletUtils.convertMsatToFiatWithUnit(amountMsat.amount(), preferredFiatCurrency));
         disableAmountInteractions();
       } else {
         mAmountEditableValue.addTextChangedListener(amountTextWatcher);
@@ -199,8 +201,8 @@ public class CreatePaymentActivity extends EclairActivity
     setContentView(R.layout.activity_create_payment);
 
     final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-    preferredBitcoinUnit = CoinUtils.getBtcPreferredUnit(sharedPref);
-    preferredFiatCurrency = CoinUtils.getPreferredFiat(sharedPref);
+    preferredBitcoinUnit = WalletUtils.getPreferredCoinUnit(sharedPref);
+    preferredFiatCurrency = WalletUtils.getPreferredFiat(sharedPref);
     maxFeeLightning = sharedPref.getBoolean(Constants.SETTING_LIGHTNING_MAX_FEE, true);
     maxFeeLightningValue = sharedPref.getInt(Constants.SETTING_LIGHTNING_MAX_FEE_VALUE, 1);
 
@@ -216,7 +218,7 @@ public class CreatePaymentActivity extends EclairActivity
     // --- amounts
     mAmountEditableHint = findViewById(R.id.payment_amount_editable_hint);
     mAmountEditableUnit = findViewById(R.id.payment_amount_editable_unit);
-    mAmountEditableUnit.setText(CoinUtils.getBitcoinUnitShortLabel(preferredBitcoinUnit));
+    mAmountEditableUnit.setText(preferredBitcoinUnit.shortLabel());
     mAmountEditableValue = findViewById(R.id.payment_amount_editable_value);
     mAmountFiatView = findViewById(R.id.payment_amount_fiat);
     amountTextWatcher = new TextWatcher() {
@@ -230,8 +232,8 @@ public class CreatePaymentActivity extends EclairActivity
         mAmountEditableHint.setVisibility(s == null || s.length() == 0 ? View.VISIBLE : View.GONE);
         // display amount in fiat
         try {
-          final MilliSatoshi amountMsat = CoinUtils.parseStringToMsat(s.toString(), preferredBitcoinUnit);
-          mAmountFiatView.setText(CoinUtils.convertMsatToFiatWithUnit(amountMsat.amount(), preferredFiatCurrency));
+          final MilliSatoshi amountMsat = CoinUtils.convertStringAmountToMsat(s.toString(), preferredBitcoinUnit.code());
+          mAmountFiatView.setText(WalletUtils.convertMsatToFiatWithUnit(amountMsat.amount(), preferredFiatCurrency));
 
           if (mBitcoinInvoice != null) {
             if (package$.MODULE$.millisatoshi2satoshi(amountMsat).$greater(app.onChainBalance.get())) {
@@ -384,8 +386,8 @@ public class CreatePaymentActivity extends EclairActivity
     try {
       if (mLNInvoice != null) {
         final long amountMsat = isAmountReadonly
-          ? CoinUtils.getLongAmountFromInvoice(mLNInvoice)
-          : CoinUtils.parseStringToMsat(mAmountEditableValue.getText().toString(), preferredBitcoinUnit).amount();
+          ? WalletUtils.getLongAmountFromInvoice(mLNInvoice)
+          : CoinUtils.convertStringAmountToMsat(mAmountEditableValue.getText().toString(), preferredBitcoinUnit.code()).amount();
         if (isPinRequired()) {
           pinDialog = new PinDialog(CreatePaymentActivity.this, R.style.CustomAlertDialog, new PinDialog.PinDialogCallback() {
             @Override
@@ -412,7 +414,7 @@ public class CreatePaymentActivity extends EclairActivity
       } else if (mBitcoinInvoice != null) {
         final Satoshi amountSat = isAmountReadonly
           ? mBitcoinInvoice.getAmount()
-          : package$.MODULE$.millisatoshi2satoshi(CoinUtils.parseStringToMsat(mAmountEditableValue.getText().toString(), preferredBitcoinUnit));
+          : CoinUtils.convertStringAmountToSat(mAmountEditableValue.getText().toString(), preferredBitcoinUnit.code());
         if (amountSat.$greater(app.onChainBalance.get())) {
           handlePaymentError(R.string.payment_error_amount_onchain_insufficient_funds);
           return;
@@ -498,7 +500,7 @@ public class CreatePaymentActivity extends EclairActivity
             p.setType(PaymentType.BTC_LN);
             p.setDirection(PaymentDirection.SENT);
             p.setReference(paymentHash);
-            p.setAmountRequestedMsat(CoinUtils.getLongAmountFromInvoice(pr));
+            p.setAmountRequestedMsat(WalletUtils.getLongAmountFromInvoice(pr));
             p.setRecipient(pr.nodeId().toString());
             p.setPaymentRequest(prAsString);
             p.setStatus(PaymentStatus.PENDING);

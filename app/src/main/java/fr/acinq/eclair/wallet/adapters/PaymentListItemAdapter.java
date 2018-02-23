@@ -7,6 +7,8 @@ import android.view.ViewGroup;
 
 import java.util.List;
 
+import fr.acinq.eclair.CoinUnit;
+import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.models.Payment;
 import fr.acinq.eclair.wallet.utils.Constants;
@@ -16,7 +18,7 @@ public class PaymentListItemAdapter extends RecyclerView.Adapter<PaymentItemHold
   private static final String TAG = "PaymentAdapter";
   private List<Payment> payments;
   private String fiatCode = Constants.FIAT_USD;
-  private String prefUnit = Constants.MILLI_BTC_CODE;
+  private CoinUnit prefUnit = CoinUtils.getUnitFromString("btc");
   private boolean displayAmountAsFiat = false; // by default always show amounts in bitcoin
 
   public PaymentListItemAdapter(List<Payment> payments) {
@@ -40,11 +42,11 @@ public class PaymentListItemAdapter extends RecyclerView.Adapter<PaymentItemHold
     return this.payments == null ? 0 : this.payments.size();
   }
 
-  public void update(final String fiatCode, final String prefUnit, final boolean displayAmountAsFiat) {
+  public void update(final String fiatCode, final CoinUnit prefUnit, final boolean displayAmountAsFiat) {
     update(this.payments, fiatCode, prefUnit, displayAmountAsFiat);
   }
 
-  public void update(final List<Payment> payments, final String fiatCode, final String prefUnit, final boolean displayAmountAsFiat) {
+  public void update(final List<Payment> payments, final String fiatCode, final CoinUnit prefUnit, final boolean displayAmountAsFiat) {
     this.fiatCode = fiatCode;
     this.prefUnit = prefUnit;
     this.displayAmountAsFiat = displayAmountAsFiat;

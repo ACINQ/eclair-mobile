@@ -32,7 +32,7 @@ import fr.acinq.eclair.wallet.events.LNPaymentEvent;
 import fr.acinq.eclair.wallet.events.NotificationEvent;
 import fr.acinq.eclair.wallet.models.Payment;
 import fr.acinq.eclair.wallet.models.PaymentType;
-import fr.acinq.eclair.wallet.utils.CoinUtils;
+import fr.acinq.eclair.CoinUtils;
 import scala.collection.Iterator;
 
 /**
@@ -170,7 +170,8 @@ public class EclairEventService extends UntypedActor {
         if (cd.state != null && !CLOSED$.MODULE$.toString().equals(cs.currentState().toString()) && !WAIT_FOR_INIT_INTERNAL$.MODULE$.toString().equals(cd.state)) {
           Log.d(TAG, "########## CLOSING => from " + cd.state + " to " + cs.currentState().toString());
           String notifTitle = "Closing channel with " + cd.remoteNodeId.substring(0, 7) + "...";
-          final String notifMessage = "Your final balance: " + CoinUtils.formatAmountMilliBtc(new MilliSatoshi(d.commitments().localCommit().spec().toLocalMsat())) + " mBTC";
+          MilliSatoshi balanceLeft = new MilliSatoshi(d.commitments().localCommit().spec().toLocalMsat());
+          final String notifMessage = "Your final balance: " + CoinUtils.formatAmountInUnit(balanceLeft, CoinUtils.getUnitFromString("btc"), true);
           final String notifBigMessage = notifMessage +
             "\n" + (cd.isLocalClosing
               ? "You unilaterally closed this channel. You will receive your funds in " + d.commitments().localParams().toSelfDelay() + " blocks."

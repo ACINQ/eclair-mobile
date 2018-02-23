@@ -308,6 +308,7 @@
   <string name="prefs_fiat_currency">Fiat currency</string>
   <string name="prefs_fiat_currency_dialog">Display in fiat currency</string>
   <string name="prefs_btc_unit">Bitcoin unit</string>
+  <string name="prefs_btc_decimals">Number of decimals in amounts</string>
   <string name="prefs_pin_title">Ask for PIN before payment</string>
   <string name="prefs_pin_default_info">Pin is a 6 digits number</string>
   <string name="prefs_pin_lastupdate">Last update:</string>

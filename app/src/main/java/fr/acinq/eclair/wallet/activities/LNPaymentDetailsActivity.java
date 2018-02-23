@@ -10,11 +10,13 @@ import android.support.v7.widget.Toolbar;
 import java.text.DateFormat;
 
 import fr.acinq.bitcoin.MilliSatoshi;
+import fr.acinq.eclair.CoinUnit;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.adapters.PaymentItemHolder;
 import fr.acinq.eclair.wallet.customviews.DataRow;
 import fr.acinq.eclair.wallet.models.Payment;
-import fr.acinq.eclair.wallet.utils.CoinUtils;
+import fr.acinq.eclair.CoinUtils;
+import fr.acinq.eclair.wallet.utils.WalletUtils;
 
 public class LNPaymentDetailsActivity extends EclairActivity {
 
@@ -40,13 +42,13 @@ public class LNPaymentDetailsActivity extends EclairActivity {
       final Payment p = app.getDBHelper().getPayment(paymentId);
 
       final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-      final String prefUnit = CoinUtils.getBtcPreferredUnit(prefs);
+      final CoinUnit prefUnit = WalletUtils.getPreferredCoinUnit(prefs);
 
       final DataRow amountPaidRow = findViewById(R.id.paymentdetails_amount_paid);
-      amountPaidRow.setValue(CoinUtils.formatAmountInUnitWithUnit(new MilliSatoshi(p.getAmountPaidMsat()), prefUnit));
+      amountPaidRow.setValue(CoinUtils.formatAmountInUnit(new MilliSatoshi(p.getAmountPaidMsat()), prefUnit, true));
 
       DataRow feesRow = findViewById(R.id.paymentdetails_fees);
-      feesRow.setValue(CoinUtils.formatAmountInUnitWithUnit(new MilliSatoshi(p.getFeesPaidMsat()), prefUnit));
+      feesRow.setValue(CoinUtils.formatAmountInUnit(new MilliSatoshi(p.getFeesPaidMsat()), prefUnit, true));
 
       DataRow statusRow = findViewById(R.id.paymentdetails_status);
       statusRow.setValue(p.getStatus().name());
@@ -58,7 +60,7 @@ public class LNPaymentDetailsActivity extends EclairActivity {
       descRow.setValue(p.getDescription());
 
       DataRow amountRequestedRow = findViewById(R.id.paymentdetails_amount_requested);
-      amountRequestedRow.setValue(CoinUtils.formatAmountInUnitWithUnit(new MilliSatoshi(p.getAmountRequestedMsat()), prefUnit));
+      amountRequestedRow.setValue(CoinUtils.formatAmountInUnit(new MilliSatoshi(p.getAmountRequestedMsat()), prefUnit, true));
 
       DataRow paymentHashRow = findViewById(R.id.paymentdetails_paymenthash);
       paymentHashRow.setValue(p.getReference());

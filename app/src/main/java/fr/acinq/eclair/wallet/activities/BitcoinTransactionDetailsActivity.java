@@ -13,15 +13,14 @@ import android.view.View;
 import android.widget.Toast;
 
 import java.text.DateFormat;
-import java.text.NumberFormat;
 
 import fr.acinq.bitcoin.MilliSatoshi;
-import fr.acinq.bitcoin.package$;
+import fr.acinq.eclair.CoinUnit;
+import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.adapters.PaymentItemHolder;
 import fr.acinq.eclair.wallet.customviews.DataRow;
 import fr.acinq.eclair.wallet.models.Payment;
-import fr.acinq.eclair.wallet.utils.CoinUtils;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 
 public class BitcoinTransactionDetailsActivity extends EclairActivity {
@@ -67,7 +66,7 @@ public class BitcoinTransactionDetailsActivity extends EclairActivity {
 
     try {
       final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-      final String prefUnit = CoinUtils.getBtcPreferredUnit(prefs);
+      final CoinUnit prefUnit = WalletUtils.getPreferredCoinUnit(prefs);
 
       final Payment p = app.getDBHelper().getPayment(paymentId);
 
@@ -92,8 +91,8 @@ public class BitcoinTransactionDetailsActivity extends EclairActivity {
       });
       mRebroadcastDialog = builder.create();
 
-      mAmountPaidRow.setValue(CoinUtils.formatAmountInUnitWithUnit(new MilliSatoshi(p.getAmountPaidMsat()), prefUnit));
-      mFeesRow.setValue(CoinUtils.formatAmountInUnitWithUnit(new MilliSatoshi(p.getFeesPaidMsat()), prefUnit));
+      mAmountPaidRow.setValue(CoinUtils.formatAmountInUnit(new MilliSatoshi(p.getAmountPaidMsat()), prefUnit, true));
+      mFeesRow.setValue(CoinUtils.formatAmountInUnit(new MilliSatoshi(p.getFeesPaidMsat()), prefUnit, true));
       mPaymentHashRow.setValue(p.getReference());
       mUpdateDateRow.setValue(DateFormat.getDateTimeInstance().format(p.getUpdated()));
       mOpenInExplorer.setOnClickListener(WalletUtils.getOpenTxListener(p.getReference()));

@@ -7,15 +7,17 @@ import android.view.ViewGroup;
 
 import java.util.List;
 
+import fr.acinq.eclair.CoinUnit;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.models.ChannelItem;
+import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.wallet.utils.Constants;
 
 public class LocalChannelItemAdapter extends RecyclerView.Adapter<LocalChannelItemHolder> {
 
   private List<ChannelItem> channels;
   private String fiatCode = Constants.FIAT_USD;
-  private String prefUnit = Constants.MILLI_BTC_CODE;
+  private CoinUnit prefUnit = CoinUtils.getUnitFromString(Constants.BTC_CODE);
   private boolean displayAmountAsFiat = false; // by default always show amounts in bitcoin
 
   public LocalChannelItemAdapter(List<ChannelItem> channels) {
@@ -39,7 +41,7 @@ public class LocalChannelItemAdapter extends RecyclerView.Adapter<LocalChannelIt
     return this.channels == null ? 0 : this.channels.size();
   }
 
-  public void update(List<ChannelItem> channels, final String fiatCode, final String prefUnit, final boolean displayAmountAsFiat) {
+  public void update(List<ChannelItem> channels, final String fiatCode, final CoinUnit prefUnit, final boolean displayAmountAsFiat) {
     this.fiatCode = fiatCode;
     this.prefUnit = prefUnit;
     this.displayAmountAsFiat = displayAmountAsFiat;

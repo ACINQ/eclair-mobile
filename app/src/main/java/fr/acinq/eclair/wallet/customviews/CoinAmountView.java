@@ -16,8 +16,10 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import fr.acinq.bitcoin.MilliSatoshi;
+import fr.acinq.eclair.CoinUnit;
 import fr.acinq.eclair.wallet.R;
-import fr.acinq.eclair.wallet.utils.CoinUtils;
+import fr.acinq.eclair.CoinUtils;
+import fr.acinq.eclair.wallet.utils.WalletUtils;
 
 public class CoinAmountView extends RelativeLayout {
   private static final String TAG = "CoinAmtView";
@@ -26,7 +28,7 @@ public class CoinAmountView extends RelativeLayout {
   private TextView unitTextView;
   private ImageView imageView;
   private MilliSatoshi amountMsat = new MilliSatoshi(0);
-  private String prefBtcUnit;
+  private CoinUnit prefBtcUnit;
   private String prefFiatCurrency;
 
   public CoinAmountView(final Context context) {
@@ -48,15 +50,15 @@ public class CoinAmountView extends RelativeLayout {
   }
 
   public void refreshUnits() {
-    this.prefBtcUnit = CoinUtils.getBtcPreferredUnit(prefs);
-    this.prefFiatCurrency = CoinUtils.getPreferredFiat(prefs);
-    final boolean displayAmountAsFiat = CoinUtils.shouldDisplayInFiat(prefs);
+    this.prefBtcUnit = WalletUtils.getPreferredCoinUnit(prefs);
+    this.prefFiatCurrency = WalletUtils.getPreferredFiat(prefs);
+    final boolean displayAmountAsFiat = WalletUtils.shouldDisplayInFiat(prefs);
     if (displayAmountAsFiat) {
-      amountTextView.setText(CoinUtils.convertMsatToFiat(amountMsat.amount(), prefFiatCurrency));
+      amountTextView.setText(WalletUtils.convertMsatToFiat(amountMsat.amount(), prefFiatCurrency));
       unitTextView.setText(prefFiatCurrency.toUpperCase());
     } else {
-      amountTextView.setText(CoinUtils.formatAmountInUnit(amountMsat, prefBtcUnit));
-      unitTextView.setText(CoinUtils.getBitcoinUnitShortLabel(prefBtcUnit));
+      amountTextView.setText(CoinUtils.formatAmountInUnit(amountMsat, prefBtcUnit, false));
+      unitTextView.setText(prefBtcUnit.shortLabel());
     }
     refreshView();
   }

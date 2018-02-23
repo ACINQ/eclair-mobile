@@ -20,6 +20,16 @@
     <item>mbtc</item>
     <item>btc</item>
   </string-array>
+  <string-array name="btc_pattern_labels">
+    <item>Max. 2 decimals</item>
+    <item>Max. 5 decimals</item>
+    <item>Exact precision</item>
+  </string-array>
+  <string-array name="btc_pattern_values">
+    <item>###,###,###,##0.00</item>
+    <item>###,###,###,##0.00000</item>
+    <item>###,###,###,##0.###########</item>
+  </string-array>
   <string-array name="onchain_explorer_uri_labels">
     <item>Blockcypher API (Testnet)</item>
     <item>Blockcypher Web (Testnet)</item>

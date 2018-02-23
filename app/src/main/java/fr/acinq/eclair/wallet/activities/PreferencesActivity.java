@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Switch;
@@ -13,6 +14,7 @@ import android.widget.Toast;
 import java.text.DateFormat;
 import java.util.Date;
 
+import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.fragments.PinDialog;
 import fr.acinq.eclair.wallet.fragments.PreferencesFragment;
@@ -25,6 +27,7 @@ public class PreferencesActivity extends EclairActivity {
   private Switch mPinSwitch;
   private TextView mPinInfo;
   private SharedPreferences.OnSharedPreferenceChangeListener securityPrefsListener;
+  private SharedPreferences.OnSharedPreferenceChangeListener defaultPrefsListener;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +65,16 @@ public class PreferencesActivity extends EclairActivity {
       @Override
       public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
         refreshPinDisplays(sharedPreferences);
+      }
+    };
+
+    defaultPrefsListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+      @SuppressLint("SetTextI18n")
+      @Override
+      public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
+        if (Constants.SETTING_BTC_PATTERN.equals(key)) {
+          CoinUtils.setCoinPattern(prefs.getString(Constants.SETTING_BTC_PATTERN, getResources().getStringArray(R.array.btc_pattern_values)[0]));
+        }
       }
     };
   }
@@ -163,15 +176,15 @@ public class PreferencesActivity extends EclairActivity {
     super.onResume();
     if (checkInit()) {
       refreshPinDisplays(getSharedPreferences(Constants.SETTINGS_SECURITY_FILE, MODE_PRIVATE));
-      getApplicationContext().getSharedPreferences(Constants.SETTINGS_SECURITY_FILE, MODE_PRIVATE)
-        .registerOnSharedPreferenceChangeListener(securityPrefsListener);
+      getSharedPreferences(Constants.SETTINGS_SECURITY_FILE, MODE_PRIVATE).registerOnSharedPreferenceChangeListener(securityPrefsListener);
+      PreferenceManager.getDefaultSharedPreferences(getBaseContext()).registerOnSharedPreferenceChangeListener(defaultPrefsListener);
     }
   }
 
   @Override
   protected void onPause() {
     super.onPause();
-    getSharedPreferences(Constants.SETTINGS_SECURITY_FILE, MODE_PRIVATE)
-      .unregisterOnSharedPreferenceChangeListener(securityPrefsListener);
+    getSharedPreferences(Constants.SETTINGS_SECURITY_FILE, MODE_PRIVATE).unregisterOnSharedPreferenceChangeListener(securityPrefsListener);
+    PreferenceManager.getDefaultSharedPreferences(getBaseContext()).unregisterOnSharedPreferenceChangeListener(defaultPrefsListener);
   }
 }

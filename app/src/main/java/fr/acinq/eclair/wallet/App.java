@@ -28,6 +28,7 @@ import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.bitcoin.Transaction;
 import fr.acinq.bitcoin.package$;
+import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.Globals;
 import fr.acinq.eclair.Kit;
 import fr.acinq.eclair.blockchain.electrum.ElectrumEclairWallet;
@@ -313,6 +314,7 @@ public class App extends Application {
     this.onChainBalance.set(package$.MODULE$.millisatoshi2satoshi(new MilliSatoshi(dbHelper.getOnchainBalanceMsat())));
 
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+    CoinUtils.setCoinPattern(prefs.getString(Constants.SETTING_BTC_PATTERN, getResources().getStringArray(R.array.btc_pattern_values)[0]));
     updateExchangeRate(prefs.getFloat(Constants.SETTING_LAST_KNOWN_RATE_BTC_EUR, 0.0f),
       prefs.getFloat(Constants.SETTING_LAST_KNOWN_RATE_BTC_USD, 0.0f));
   }

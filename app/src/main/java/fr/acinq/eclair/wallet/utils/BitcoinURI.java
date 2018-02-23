@@ -14,6 +14,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import fr.acinq.bitcoin.Satoshi;
+import fr.acinq.eclair.CoinUtils;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -65,15 +66,10 @@ public class BitcoinURI {
   public static final String FIELD_PAYMENT_REQUEST_URL = "r";
 
   /**
-   * URI for Bitcoin network. Use {@link org.bitcoinj.params.AbstractBitcoinNetParams#BITCOIN_SCHEME} if you specifically
-   * need Bitcoin, or use {@link org.bitcoinj.core.NetworkParameters#getUriScheme} to get the scheme
-   * from network parameters.
+   * URI for Bitcoin network.
    */
   @Deprecated
   public static final String BITCOIN_SCHEME = "bitcoin";
-  private static final String ENCODED_SPACE_CHARACTER = "%20";
-  private static final String AMPERSAND_SEPARATOR = "&";
-  private static final String QUESTION_MARK_SEPARATOR = "?";
 
   /**
    * Contains all the parameters in the order in which they were processed
@@ -166,7 +162,7 @@ public class BitcoinURI {
       // Parse the amount.
       if (FIELD_AMOUNT.equals(nameToken)) {
         // Decode the amount (contains an optional decimal component to 8dp).
-        Satoshi amount = CoinUtils.parseBitcoinToSatoshi(valueToken);
+        Satoshi amount = CoinUtils.convertStringAmountToSat(valueToken, Constants.BTC_CODE);
         if (amount.toLong() < 0)
           throw new ArithmeticException("Negative coins specified");
         putWithValidation(FIELD_AMOUNT, amount);

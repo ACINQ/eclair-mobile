@@ -15,15 +15,19 @@ import java.util.Map;
 
 import akka.actor.ActorRef;
 import fr.acinq.bitcoin.BinaryData;
+import fr.acinq.eclair.CoinUnit;
 import fr.acinq.eclair.channel.CLOSED;
+import fr.acinq.eclair.channel.CLOSED$;
 import fr.acinq.eclair.channel.CLOSING;
+import fr.acinq.eclair.channel.CLOSING$;
 import fr.acinq.eclair.channel.CMD_CLOSE;
 import fr.acinq.eclair.channel.NORMAL;
+import fr.acinq.eclair.router.NORMAL$;
 import fr.acinq.eclair.wallet.EclairEventService;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.adapters.LocalChannelItemHolder;
 import fr.acinq.eclair.wallet.customviews.DataRow;
-import fr.acinq.eclair.wallet.utils.CoinUtils;
+import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 
 public class ChannelDetailsActivity extends EclairActivity {
@@ -54,16 +58,16 @@ public class ChannelDetailsActivity extends EclairActivity {
       if (channel.getValue() != null && channel.getKey() != null && channel.getValue() != null) {
 
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        final String prefUnit = CoinUtils.getBtcPreferredUnit(prefs);
+        final CoinUnit prefUnit = WalletUtils.getPreferredCoinUnit(prefs);
 
         DataRow idRow = findViewById(R.id.channeldetails_id);
         idRow.setValue(channel.getValue().channelId);
 
         DataRow balanceRow = findViewById(R.id.channeldetails_balance);
-        balanceRow.setValue(CoinUtils.formatAmountInUnitWithUnit(channel.getValue().balanceMsat, prefUnit));
+        balanceRow.setValue(CoinUtils.formatAmountInUnit(channel.getValue().balanceMsat, prefUnit, true));
 
         DataRow capacityRow = findViewById(R.id.channeldetails_capacity);
-        capacityRow.setValue(CoinUtils.formatAmountInUnitWithUnit(channel.getValue().capacityMsat, prefUnit));
+        capacityRow.setValue(CoinUtils.formatAmountInUnit(channel.getValue().capacityMsat, prefUnit, true));
 
         DataRow nodeIdRow = findViewById(R.id.channeldetails_nodeid);
         nodeIdRow.setValue(channel.getValue().remoteNodeId);
@@ -71,7 +75,7 @@ public class ChannelDetailsActivity extends EclairActivity {
         DataRow stateRow = findViewById(R.id.channeldetails_state);
         stateRow.setValue(channel.getValue().state);
 
-        if (CLOSING.toString().equals(channel.getValue().state)) {
+        if (CLOSING$.MODULE$.toString().equals(channel.getValue().state)) {
           DataRow closingTypeRow = findViewById(R.id.channeldetails_state_closing_type);
           if (channel.getValue().isCooperativeClosing) {
             closingTypeRow.setValue(getString(R.string.channeldetails_closingtype_mutual));
@@ -93,7 +97,7 @@ public class ChannelDetailsActivity extends EclairActivity {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         final String message = getResources().getString(R.string.close_channel_message)
-          + (!NORMAL.toString().equals(channel.getValue().state)
+          + (!NORMAL$.MODULE$.toString().equals(channel.getValue().state)
           ? "\n\nWith a " + channel.getValue().state + " state, the closing will be uncooperative!"
           : "");
         builder.setMessage(message);
@@ -112,7 +116,7 @@ public class ChannelDetailsActivity extends EclairActivity {
         mCloseDialog = builder.create();
 
         View closeButton = findViewById(R.id.channeldetails_close);
-        if (!CLOSING.toString().equals(channel.getValue().state) && !CLOSED.toString().equals(channel.getValue().state)) {
+        if (!CLOSING$.MODULE$.toString().equals(channel.getValue().state) && !CLOSED$.MODULE$.toString().equals(channel.getValue().state)) {
           closeButton.setVisibility(View.VISIBLE);
           closeButton.setOnClickListener(new View.OnClickListener() {
             @Override

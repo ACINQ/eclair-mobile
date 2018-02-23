@@ -66,7 +66,6 @@ import fr.acinq.eclair.wallet.events.WalletStateUpdateEvent;
 import fr.acinq.eclair.wallet.fragments.ChannelsListFragment;
 import fr.acinq.eclair.wallet.fragments.PaymentsListFragment;
 import fr.acinq.eclair.wallet.fragments.ReceivePaymentFragment;
-import fr.acinq.eclair.wallet.utils.CoinUtils;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 
@@ -211,7 +210,7 @@ public class HomeActivity extends EclairActivity {
     mBalanceView.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View view) {
-        boolean displayBalanceAsFiat = CoinUtils.shouldDisplayInFiat(prefs);
+        boolean displayBalanceAsFiat = WalletUtils.shouldDisplayInFiat(prefs);
         prefs.edit().putBoolean(Constants.SETTING_DISPLAY_IN_FIAT, !displayBalanceAsFiat).commit();
         mOnchainBalanceView.refreshUnits();
         mTotalBalanceView.refreshUnits();

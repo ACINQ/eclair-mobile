@@ -16,12 +16,13 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
+import fr.acinq.eclair.CoinUnit;
 import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.adapters.PaymentListItemAdapter;
 import fr.acinq.eclair.wallet.models.Payment;
 import fr.acinq.eclair.wallet.models.PaymentDao;
-import fr.acinq.eclair.wallet.utils.CoinUtils;
+import fr.acinq.eclair.wallet.utils.WalletUtils;
 
 public class PaymentsListFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
@@ -105,18 +106,18 @@ public class PaymentsListFragment extends Fragment implements SwipeRefreshLayout
 
   public void refreshList() {
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
-    final String prefUnit = CoinUtils.getBtcPreferredUnit(prefs);
-    final String fiatCode = CoinUtils.getPreferredFiat(prefs);
-    final boolean displayBalanceAsFiat = CoinUtils.shouldDisplayInFiat(prefs);
+    final CoinUnit prefUnit = WalletUtils.getPreferredCoinUnit(prefs);
+    final String fiatCode = WalletUtils.getPreferredFiat(prefs);
+    final boolean displayBalanceAsFiat = WalletUtils.shouldDisplayInFiat(prefs);
     mPaymentAdapter.update(fiatCode, prefUnit, displayBalanceAsFiat);
   }
 
   public void updateList() {
     if (getContext() != null) {
       final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
-      final String prefUnit = CoinUtils.getBtcPreferredUnit(prefs);
-      final String fiatCode = CoinUtils.getPreferredFiat(prefs);
-      final boolean displayBalanceAsFiat = CoinUtils.shouldDisplayInFiat(prefs);
+      final CoinUnit prefUnit = WalletUtils.getPreferredCoinUnit(prefs);
+      final String fiatCode = WalletUtils.getPreferredFiat(prefs);
+      final boolean displayBalanceAsFiat = WalletUtils.shouldDisplayInFiat(prefs);
       mPaymentAdapter.update(getPayments(), fiatCode, prefUnit, displayBalanceAsFiat);
     }
   }

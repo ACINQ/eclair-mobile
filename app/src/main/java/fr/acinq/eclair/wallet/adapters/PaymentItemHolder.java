@@ -16,6 +16,8 @@ import java.text.NumberFormat;
 
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.package$;
+import fr.acinq.eclair.CoinUnit;
+import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.activities.BitcoinTransactionDetailsActivity;
@@ -24,8 +26,8 @@ import fr.acinq.eclair.wallet.models.Payment;
 import fr.acinq.eclair.wallet.models.PaymentDirection;
 import fr.acinq.eclair.wallet.models.PaymentStatus;
 import fr.acinq.eclair.wallet.models.PaymentType;
-import fr.acinq.eclair.wallet.utils.CoinUtils;
 import fr.acinq.eclair.wallet.utils.Constants;
+import fr.acinq.eclair.wallet.utils.WalletUtils;
 
 public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
@@ -69,7 +71,7 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
   }
 
   @SuppressLint("SetTextI18n")
-  public void bindPaymentItem(final Payment payment, final String fiatCode, final String prefUnit, final boolean displayAmountAsFiat) {
+  public void bindPaymentItem(final Payment payment, final String fiatCode, final CoinUnit prefUnit, final boolean displayAmountAsFiat) {
     this.mPayment = payment;
 
     if (payment.getUpdated() != null) {
@@ -83,13 +85,13 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
 
     // setting amount & unit with optional conversion to fiat
     if (displayAmountAsFiat) {
-      mAmountValue.setText(amountPrefix + CoinUtils.convertMsatToFiat(amountMsat, fiatCode));
-      mFees.setText(CoinUtils.convertMsatToFiat(payment.getFeesPaidMsat(), fiatCode));
+      mAmountValue.setText(amountPrefix + WalletUtils.convertMsatToFiat(amountMsat, fiatCode));
+      mFees.setText(WalletUtils.convertMsatToFiat(payment.getFeesPaidMsat(), fiatCode));
       mFeesUnit.setText(fiatCode.toUpperCase());
       mAmountUnit.setText(fiatCode.toUpperCase());
     } else {
-      mAmountValue.setText(amountPrefix + CoinUtils.formatAmountInUnit(new MilliSatoshi(amountMsat), prefUnit));
-      mAmountUnit.setText(CoinUtils.getBitcoinUnitShortLabel(prefUnit));
+      mAmountValue.setText(amountPrefix + CoinUtils.formatAmountInUnit(new MilliSatoshi(amountMsat), prefUnit, false));
+      mAmountUnit.setText(prefUnit.shortLabel());
       mFees.setText(NumberFormat.getInstance().format(package$.MODULE$.millisatoshi2satoshi(new MilliSatoshi(payment.getFeesPaidMsat())).amount()));
       mFeesUnit.setText(Constants.SATOSHI_CODE);
     }

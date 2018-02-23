@@ -16,11 +16,12 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
+import fr.acinq.eclair.CoinUnit;
 import fr.acinq.eclair.wallet.EclairEventService;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.adapters.LocalChannelItemAdapter;
 import fr.acinq.eclair.wallet.models.ChannelItem;
-import fr.acinq.eclair.wallet.utils.CoinUtils;
+import fr.acinq.eclair.wallet.utils.WalletUtils;
 
 public class ChannelsListFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
@@ -91,9 +92,9 @@ public class ChannelsListFragment extends Fragment implements SwipeRefreshLayout
   public void updateList() {
     if (mChannelAdapter != null && getContext() != null) {
       final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
-      final String prefUnit = CoinUtils.getBtcPreferredUnit(prefs);
-      final String fiatCode = CoinUtils.getPreferredFiat(prefs);
-      final boolean displayBalanceAsFiat = CoinUtils.shouldDisplayInFiat(prefs);
+      final CoinUnit prefUnit = WalletUtils.getPreferredCoinUnit(prefs);
+      final String fiatCode = WalletUtils.getPreferredFiat(prefs);
+      final boolean displayBalanceAsFiat = WalletUtils.shouldDisplayInFiat(prefs);
       mChannelAdapter.update(getChannels(), fiatCode, prefUnit, displayBalanceAsFiat);
     }
   }
