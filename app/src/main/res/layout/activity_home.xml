@@ -77,10 +77,10 @@
       <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingBottom="16dp"
+        android:paddingBottom="20dp"
         android:paddingLeft="24dp"
         android:paddingRight="24dp"
-        android:paddingTop="8dp">
+        android:paddingTop="0dp">
 
         <fr.acinq.eclair.wallet.customviews.CoinAmountView
           android:id="@+id/home_balance_total"
@@ -89,7 +89,7 @@
           android:layout_alignParentTop="true"
           app:alignment="center"
           app:amount_color="@color/white"
-          app:amount_size="42sp"
+          app:amount_size="38sp"
           app:unit="mBTC"
           app:unit_color="@color/white"
           app:unit_size="12sp" />

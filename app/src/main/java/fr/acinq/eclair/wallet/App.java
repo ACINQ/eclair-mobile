@@ -314,7 +314,7 @@ public class App extends Application {
     this.onChainBalance.set(package$.MODULE$.millisatoshi2satoshi(new MilliSatoshi(dbHelper.getOnchainBalanceMsat())));
 
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-    CoinUtils.setCoinPattern(prefs.getString(Constants.SETTING_BTC_PATTERN, getResources().getStringArray(R.array.btc_pattern_values)[0]));
+    CoinUtils.setCoinPattern(prefs.getString(Constants.SETTING_BTC_PATTERN, getResources().getStringArray(R.array.btc_pattern_values)[2]));
     updateExchangeRate(prefs.getFloat(Constants.SETTING_LAST_KNOWN_RATE_BTC_EUR, 0.0f),
       prefs.getFloat(Constants.SETTING_LAST_KNOWN_RATE_BTC_USD, 0.0f));
   }

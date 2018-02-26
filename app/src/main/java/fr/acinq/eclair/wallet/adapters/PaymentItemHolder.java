@@ -108,7 +108,8 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
       mFees.setVisibility(View.VISIBLE);
       mFeesUnit.setVisibility(View.VISIBLE);
     }
-
+    mDescription.setTypeface(Typeface.DEFAULT);
+    mDescription.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.grey_4));
     if (PaymentType.BTC_LN.equals(payment.getType())) {
       if (Strings.isNullOrEmpty(payment.getDescription())) {
         mDescription.setText(itemView.getResources().getString(R.string.unknown_desc));

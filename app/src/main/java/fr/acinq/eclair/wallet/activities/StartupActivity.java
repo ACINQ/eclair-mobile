@@ -213,9 +213,8 @@ public class StartupActivity extends EclairActivity {
     protected String doInBackground(App... params) {
       try {
         App app = params[0];
-        publishProgress("setting up DB");
-        app.checkupInit();
         publishProgress("initializing system");
+        app.checkupInit();
         final File datadir = new File(app.getFilesDir(), Constants.ECLAIR_DATADIR);
         Log.d(TAG, "Accessing Eclair Setup with datadir " + datadir.getAbsolutePath());
 
