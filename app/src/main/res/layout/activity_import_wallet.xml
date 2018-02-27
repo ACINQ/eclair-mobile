@@ -3,102 +3,97 @@
   xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools">
 
-  <RelativeLayout
+  <ScrollView
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/primary"
     android:theme="@style/PrimaryBgTheme"
     tools:context=".activities.ImportWalletActivity">
 
-    <ScrollView
+    <LinearLayout
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:layout_centerInParent="true">
+      android:layout_margin="32dp"
+      android:layout_gravity="center"
+      android:orientation="vertical"
+      android:padding="16dp">
 
-      <LinearLayout
+      <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="32dp"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/rounded_corner_yellow"
+        android:padding="8dp"
+        android:text="@string/importwallet_disclaimer"
+        android:textColor="@color/grey_3"
+        android:textSize="12sp" />
 
-        <TextView
+      <TextView
+        android:id="@+id/import_error"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/rounded_corner_red"
+        android:padding="8dp"
+        android:textSize="12sp"
+        android:visibility="gone" />
+
+      <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:text="@string/importwallet_instructions" />
+
+      <android.support.design.widget.TextInputLayout
+        android:id="@+id/mnemonics_input_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="32dp"
+        android:hint="@string/importwallet_input_hint"
+        android:textColorHint="@color/primary_light_x4_desat">
+
+        <EditText
+          android:id="@+id/mnemonics_input"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:layout_marginBottom="16dp"
-          android:background="@drawable/rounded_corner_yellow"
-          android:padding="8dp"
-          android:text="@string/importwallet_disclaimer"
-          android:textColor="@color/grey_3"
+          android:backgroundTint="@color/primary_light_x4_desat"
+          android:digits="abcdefghijklmnopqrstuvwxyz "
+          android:inputType="text|textNoSuggestions"
+          android:textColor="@color/white"
           android:textSize="12sp" />
 
-        <TextView
-          android:id="@+id/import_error"
-          android:layout_width="match_parent"
+      </android.support.design.widget.TextInputLayout>
+
+      <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+          style="?android:attr/selectableItemBackground"
+          android:layout_width="wrap_content"
           android:layout_height="wrap_content"
-          android:layout_marginBottom="16dp"
-          android:background="@drawable/rounded_corner_red"
-          android:padding="8dp"
-          android:textSize="12sp"
-          android:visibility="gone" />
+          android:layout_gravity="start"
+          android:background="@android:color/transparent"
+          android:minHeight="0dp"
+          android:onClick="cancel"
+          android:padding="12dp"
+          android:text="@string/btn_cancel" />
 
-        <TextView
-          android:layout_width="match_parent"
+        <Button
+          style="?android:attr/selectableItemBackground"
+          android:layout_width="wrap_content"
           android:layout_height="wrap_content"
-          android:layout_marginBottom="16dp"
-          android:text="@string/importwallet_instructions" />
+          android:layout_gravity="center"
+          android:layout_marginEnd="0dp"
+          android:background="@color/primary_light_x1"
+          android:minHeight="0dp"
+          android:onClick="importMnemonics"
+          android:padding="12dp"
+          android:text="@string/importwallet_check_button"
+          app:layout_constraintEnd_toEndOf="parent" />
+      </android.support.constraint.ConstraintLayout>
 
-        <android.support.design.widget.TextInputLayout
-          android:id="@+id/mnemonics_input_layout"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:hint="@string/importwallet_input_hint"
-          android:layout_marginBottom="32dp"
-          android:textColorHint="@color/primary_light_x4_desat">
-
-          <EditText
-            android:id="@+id/mnemonics_input"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:backgroundTint="@color/primary_light_x4_desat"
-            android:digits="abcdefghijklmnopqrstuvwxyz "
-            android:inputType="text|textNoSuggestions"
-            android:textColor="@color/white"
-            android:textSize="12sp" />
-
-        </android.support.design.widget.TextInputLayout>
-
-        <android.support.constraint.ConstraintLayout
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:orientation="horizontal">
-
-          <Button
-            style="?android:attr/selectableItemBackground"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="start"
-            android:background="@android:color/transparent"
-            android:minHeight="0dp"
-            android:onClick="cancel"
-            android:padding="12dp"
-            android:text="@string/btn_cancel" />
-
-          <Button
-            style="?android:attr/selectableItemBackground"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginEnd="0dp"
-            android:background="@color/primary_light_x1"
-            android:minHeight="0dp"
-            android:onClick="importMnemonics"
-            android:padding="12dp"
-            android:text="@string/importwallet_check_button"
-            app:layout_constraintEnd_toEndOf="parent" />
-        </android.support.constraint.ConstraintLayout>
-
-      </LinearLayout>
-    </ScrollView>
-  </RelativeLayout>
+    </LinearLayout>
+  </ScrollView>
 </layout>
