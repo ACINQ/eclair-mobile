@@ -11,6 +11,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
 import java.text.DateFormat;
 import java.util.Date;
 
@@ -34,9 +35,10 @@ public class PreferencesActivity extends EclairActivity {
     super.onCreate(savedInstanceState);
 
     setContentView(R.layout.activity_preferences);
-    getFragmentManager().beginTransaction()
-      .replace(R.id.preference_fragment_placeholder, new PreferencesFragment())
-      .commit();
+
+//    getFragmentManager().beginTransaction()
+//      .replace(R.id.preference_fragment_placeholder, new PreferencesFragment())
+//      .commit();
 
     mPinSwitchWrapper = findViewById(R.id.preference_pin_switch_wrapper);
     mPinSwitch = findViewById(R.id.preference_pin_switch);
@@ -186,5 +188,13 @@ public class PreferencesActivity extends EclairActivity {
     super.onPause();
     getSharedPreferences(Constants.SETTINGS_SECURITY_FILE, MODE_PRIVATE).unregisterOnSharedPreferenceChangeListener(securityPrefsListener);
     PreferenceManager.getDefaultSharedPreferences(getBaseContext()).unregisterOnSharedPreferenceChangeListener(defaultPrefsListener);
+  }
+
+  public void deleteNetworkDB(View view) {
+    final File datadir = new File(getFilesDir(), Constants.ECLAIR_DATADIR);
+    final File networkDB = new File(datadir, "network.sqlite");
+    if (networkDB.delete()) {
+      Toast.makeText(getApplicationContext(), "Successfully deleted network DB", Toast.LENGTH_SHORT).show();
+    }
   }
 }

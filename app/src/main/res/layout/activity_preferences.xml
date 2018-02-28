@@ -1,33 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-  android:layout_width="match_parent"
-  android:layout_height="match_parent"
-  android:orientation="vertical">
 
-  <LinearLayout
-    android:id="@+id/preference_fragment_placeholder"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical" />
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent">
 
   <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
+    <fragment
+      android:name="fr.acinq.eclair.wallet.fragments.PreferencesFragment"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:tag="fr.acinq.eclair.wallet.fragments.PreferencesFragment" />
+
     <TextView
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:padding="16dp"
-      android:text="Security Settings"
-      android:textColor="@color/primary"
-      android:textStyle="bold" />
+      android:padding="@dimen/app_padding"
+      android:text="@string/prefs_security_title"
+      android:textAppearance="@android:style/TextAppearance.Material.Body2"
+      android:textColor="?android:attr/colorAccent" />
 
     <RelativeLayout
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:paddingEnd="16dp"
-      android:paddingStart="16dp">
+      android:paddingEnd="@dimen/app_padding"
+      android:paddingStart="@dimen/app_padding">
 
       <TextView
         android:layout_width="wrap_content"
@@ -35,7 +35,7 @@
         android:layout_alignBaseline="@+id/preference_pin_switch_wrapper"
         android:layout_alignParentStart="true"
         android:text="@string/prefs_pin_title"
-        android:textSize="16sp" />
+        android:textSize="14sp" />
 
       <!-- Wraps the PIN switch to prevent manual input by intercepting click events -->
       <!-- The switch value can only be set programmatically -->
@@ -51,8 +51,8 @@
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:layout_alignParentEnd="true"
-          android:focusable="false"
-          android:clickable="false" />
+          android:clickable="false"
+          android:focusable="false" />
       </RelativeLayout>
 
       <TextView
@@ -60,10 +60,50 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
-        android:textSize="12sp"
         android:layout_below="@+id/preference_pin_switch_wrapper"
-        android:textColor="@color/grey_1" />
+        android:textColor="@color/grey_1"
+        android:textSize="12sp" />
 
     </RelativeLayout>
+
+    <TextView
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:padding="@dimen/app_padding"
+      android:text="@string/prefs_advanced_title"
+      android:textAppearance="@android:style/TextAppearance.Material.Body2"
+      android:textColor="?android:attr/colorAccent" />
+
+    <RelativeLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginBottom="@dimen/app_padding"
+      android:paddingEnd="@dimen/app_padding"
+      android:paddingStart="@dimen/app_padding">
+
+      <TextView
+        android:id="@+id/prefs_networkdb_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_marginEnd="@dimen/app_padding"
+        android:layout_toStartOf="@+id/prefs_networkdb_button"
+        android:text="@string/prefs_advanced_networkdb"
+        android:textSize="14sp" />
+
+      <Button
+        android:id="@+id/prefs_networkdb_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:background="@color/red_faded"
+        android:elevation="0dp"
+        android:minHeight="0dp"
+        android:onClick="deleteNetworkDB"
+        android:padding="8dp"
+        android:text="@string/prefs_advanced_networkdb_button"
+        android:textColor="@color/white"
+        android:textSize="12sp" />
+    </RelativeLayout>
   </LinearLayout>
-</LinearLayout>
+</ScrollView>

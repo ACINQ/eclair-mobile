@@ -14,6 +14,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.io.File;
 import java.util.concurrent.atomic.AtomicReference;
 
 import akka.actor.ActorSystem;
@@ -305,7 +306,6 @@ public class App extends Application {
   }
 
   public void checkupInit() {
-
     if (this.dbHelper == null) {
       this.dbHelper = new DBHelper(getApplicationContext());
     }

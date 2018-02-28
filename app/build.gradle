@@ -3,11 +3,11 @@ apply plugin: 'org.greenrobot.greendao'
 
 android {
   compileSdkVersion 27
-  buildToolsVersion "26.0.2"
+  buildToolsVersion "27.0.2"
   defaultConfig {
     applicationId "fr.acinq.eclair.wallet.dev"
     minSdkVersion 21
-    targetSdkVersion 26
+    targetSdkVersion 27
     versionCode 13
     versionName "0.2.3"
     testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -51,8 +51,9 @@ dependencies {
   androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
     exclude group: 'com.android.support', module: 'support-annotations'
   })
-  compile 'com.android.support:design:27.0.0'
-  compile 'com.android.support:appcompat-v7:27.0.0'
+  compile 'com.android.support:design:27.0.2'
+  compile 'com.android.support:preference-v7:27.0.2'
+  compile 'com.android.support:preference-v14:27.0.2'
   compile 'com.android.support.constraint:constraint-layout:1.0.2'
   compile 'com.google.code.findbugs:jsr305:3.0.1'
   // logging

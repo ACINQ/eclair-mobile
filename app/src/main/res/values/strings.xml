@@ -316,6 +316,11 @@
   <string name="prefs_lightning_max_fee_desc">Fail payments if the fees exceeds 1% of the amount. This prevents overpaying opportunistic nodes in the middle of the route.</string>
   <string name="prefs_onchain_explorer">Preferred onchain explorer</string>
   <string name="prefs_onchain_explorer_dialog">Explore onchain tx with</string>
+  <string name="prefs_security_title">Security Settings</string>
+  <string name="prefs_advanced_title">Advanced Usage</string>
+  <string name="prefs_advanced_warning">Do not proceed unless you know what you\'re doing.</string>
+  <string name="prefs_advanced_networkdb">Do not delete unless you know what you\'re doing.</string>
+  <string name="prefs_advanced_networkdb_button">Delete Network DB</string>
 
   <!-- //////////////// Scanner messages //////////////////// -->
 
