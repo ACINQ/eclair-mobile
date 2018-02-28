@@ -242,7 +242,7 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
           }
         };
         app.openChannel(Duration.create(30, "seconds"), onComplete, remoteNodeURI,
-          new Peer.OpenChannel(remoteNodeURI.nodeId(), fundingSat, new MilliSatoshi(0), scala.Option.apply(null)));
+          new Peer.OpenChannel(remoteNodeURI.nodeId(), fundingSat, new MilliSatoshi(0), scala.Option.apply(null), scala.Option.apply(null)));
       });
     goToHome();
   }
