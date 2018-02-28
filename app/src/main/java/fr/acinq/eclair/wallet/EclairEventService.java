@@ -4,6 +4,8 @@ import android.util.Log;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -11,29 +13,39 @@ import akka.actor.ActorRef;
 import akka.actor.Terminated;
 import akka.actor.UntypedActor;
 import fr.acinq.bitcoin.MilliSatoshi;
+import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.channel.CLOSED$;
 import fr.acinq.eclair.channel.CLOSING$;
 import fr.acinq.eclair.channel.ChannelCreated;
 import fr.acinq.eclair.channel.ChannelIdAssigned;
 import fr.acinq.eclair.channel.ChannelRestored;
 import fr.acinq.eclair.channel.ChannelSignatureReceived;
+import fr.acinq.eclair.channel.ChannelSignatureSent;
 import fr.acinq.eclair.channel.ChannelStateChanged;
 import fr.acinq.eclair.channel.DATA_CLOSING;
 import fr.acinq.eclair.channel.HasCommitments;
+import fr.acinq.eclair.channel.LocalCommit;
 import fr.acinq.eclair.channel.OFFLINE$;
+import fr.acinq.eclair.channel.RemoteCommit;
 import fr.acinq.eclair.channel.WAIT_FOR_INIT_INTERNAL$;
-import fr.acinq.eclair.payment.PaymentSent;
+import fr.acinq.eclair.payment.PaymentFailed;
+import fr.acinq.eclair.payment.PaymentFailure;
+import fr.acinq.eclair.payment.PaymentSucceeded;
 import fr.acinq.eclair.router.NORMAL$;
 import fr.acinq.eclair.transactions.DirectedHtlc;
 import fr.acinq.eclair.transactions.OUT$;
 import fr.acinq.eclair.wallet.events.ChannelUpdateEvent;
 import fr.acinq.eclair.wallet.events.LNBalanceUpdateEvent;
 import fr.acinq.eclair.wallet.events.LNPaymentEvent;
+import fr.acinq.eclair.wallet.events.LNPaymentFailedEvent;
 import fr.acinq.eclair.wallet.events.NotificationEvent;
+import fr.acinq.eclair.wallet.models.LightningPaymentError;
 import fr.acinq.eclair.wallet.models.Payment;
+import fr.acinq.eclair.wallet.models.PaymentDirection;
+import fr.acinq.eclair.wallet.models.PaymentStatus;
 import fr.acinq.eclair.wallet.models.PaymentType;
-import fr.acinq.eclair.CoinUtils;
 import scala.collection.Iterator;
+import scala.collection.Seq;
 
 /**
  * This actor handles the messages sent by the Eclair node.
@@ -81,14 +93,6 @@ public class EclairEventService extends UntypedActor {
     EventBus.getDefault().postSticky(new LNBalanceUpdateEvent(availableTotal, pendingTotal, offlineTotal, closingTotal, ignoredBalanceMsat));
   }
 
-  public static MilliSatoshi getBalanceMsatOf(String channelId) {
-    return channelDetailsMap.get(channelId).balanceMsat;
-  }
-
-  public static MilliSatoshi getCapacityMsatOf(String channelId) {
-    return channelDetailsMap.get(channelId).capacityMsat;
-  }
-
   private static ChannelDetails getChannelDetails(ActorRef ref) {
     return channelDetailsMap.containsKey(ref) ? channelDetailsMap.get(ref) : new ChannelDetails();
   }
@@ -123,20 +127,53 @@ public class EclairEventService extends UntypedActor {
       cd.channelId = cia.channelId().toString();
       EventBus.getDefault().post(new ChannelUpdateEvent());
     }
-    // ---- balance update
+    // ---- we sent a channel sig => update corresponding payment to PENDING in app's DB
+    else if (message instanceof ChannelSignatureSent) {
+      ChannelSignatureSent sigSent = (ChannelSignatureSent) message;
+      RemoteCommit commit = sigSent.Commitments().remoteCommit();
+      Iterator<DirectedHtlc> htlcsIterator = commit.spec().htlcs().iterator();
+      while (htlcsIterator.hasNext()) {
+        DirectedHtlc h = htlcsIterator.next();
+        String htlcPaymentHash = h.add().paymentHash().toString();
+        Payment p = dbHelper.getPayment(htlcPaymentHash, PaymentType.BTC_LN);
+        Log.i(TAG, "ChannelSignatureSent with hash=" + htlcPaymentHash);
+        if (p != null) {
+          // regular case: we know this payment hash
+          if (p.getStatus() == PaymentStatus.INIT) {
+            dbHelper.updatePaymentPending(p);
+          }
+        } else {
+          // rare case: an htlc is sent without the app knowing its payment hash
+          // this can happen if the app could not save the payment into its own payments DB
+          // we don't know much about this htlc, except that it was sent and will affects the channel's balance
+          p = new Payment();
+          p.setType(PaymentType.BTC_LN);
+          p.setDirection(PaymentDirection.SENT);
+          p.setReference(htlcPaymentHash);
+          p.setAmountPaidMsat(h.add().amountMsat());
+          p.setRecipient("unknown recipient");
+          p.setPaymentRequest("unknown invoice");
+          p.setStatus(PaymentStatus.PENDING);
+          p.setUpdated(new Date());
+          dbHelper.insertOrUpdatePayment(p);
+        }
+      }
+    }
+    // ---- balance update, only for the channels we know
     else if (message instanceof ChannelSignatureReceived && channelDetailsMap.containsKey(((ChannelSignatureReceived) message).channel())) {
       ChannelSignatureReceived csr = (ChannelSignatureReceived) message;
       ChannelDetails cd = channelDetailsMap.get(csr.channel());
+      LocalCommit localCommit = csr.Commitments().localCommit();
       long outHtlcsAmount = 0L;
-      Iterator<DirectedHtlc> htlcsIterator = csr.Commitments().localCommit().spec().htlcs().iterator();
+      Iterator<DirectedHtlc> htlcsIterator = localCommit.spec().htlcs().iterator();
       while (htlcsIterator.hasNext()) {
         DirectedHtlc h = htlcsIterator.next();
         if (h.direction() instanceof OUT$) {
           outHtlcsAmount += h.add().amountMsat();
         }
       }
-      cd.balanceMsat = new MilliSatoshi(csr.Commitments().localCommit().spec().toLocalMsat() + outHtlcsAmount);
-      cd.capacityMsat = new MilliSatoshi(csr.Commitments().localCommit().spec().totalFunds());
+      cd.balanceMsat = new MilliSatoshi(localCommit.spec().toLocalMsat() + outHtlcsAmount);
+      cd.capacityMsat = new MilliSatoshi(localCommit.spec().totalFunds());
       EventBus.getDefault().post(new ChannelUpdateEvent());
       postLNBalanceEvent();
     }
@@ -152,7 +189,6 @@ public class EclairEventService extends UntypedActor {
       ChannelDetails cd = getChannelDetails(cs.channel());
 
       if (cs.currentData() instanceof DATA_CLOSING) {
-
         DATA_CLOSING d = (DATA_CLOSING) cs.currentData();
         // cooperative closing if publish is only mutual
         cd.isCooperativeClosing = !d.mutualClosePublished().isEmpty() && d.localCommitPublished().isEmpty()
@@ -168,7 +204,6 @@ public class EclairEventService extends UntypedActor {
         // still closing, even though the user has already been alerted the last time he used the app.
         // Same thing for CLOSING -> CLOSED
         if (cd.state != null && !CLOSED$.MODULE$.toString().equals(cs.currentState().toString()) && !WAIT_FOR_INIT_INTERNAL$.MODULE$.toString().equals(cd.state)) {
-          Log.d(TAG, "########## CLOSING => from " + cd.state + " to " + cs.currentState().toString());
           String notifTitle = "Closing channel with " + cd.remoteNodeId.substring(0, 7) + "...";
           MilliSatoshi balanceLeft = new MilliSatoshi(d.commitments().localCommit().spec().toLocalMsat());
           final String notifMessage = "Your final balance: " + CoinUtils.formatAmountInUnit(balanceLeft, CoinUtils.getUnitFromString("btc"), true);
@@ -190,15 +225,32 @@ public class EclairEventService extends UntypedActor {
       postLNBalanceEvent();
     }
     // ---- events that update payments status
-    else if (message instanceof PaymentSent) {
-      PaymentSent paymentEvent = (PaymentSent) message;
-      Payment paymentInDB = dbHelper.getPayment(paymentEvent.paymentHash().toString(), PaymentType.BTC_LN);
-      if (paymentInDB == null) {
-        Log.d(TAG, "Received an unknown PaymentSent event. Ignoring");
+    else if (message instanceof PaymentFailed) {
+      PaymentFailed event = (PaymentFailed) message;
+      final Payment paymentInDB = dbHelper.getPayment(event.paymentHash().toString(), PaymentType.BTC_LN);
+      if (paymentInDB != null) {
+        dbHelper.updatePaymentFailed(paymentInDB);
+        // extract failure cause to generate a pretty error message
+        final ArrayList<LightningPaymentError> errorList = new ArrayList<>();
+        final Seq<PaymentFailure> failures = event.failures();
+        if (failures.size() > 0) {
+          for (int i = 0; i < failures.size(); i++) {
+            errorList.add(LightningPaymentError.generateDetailedErrorCause(failures.apply(i)));
+          }
+        }
+        EventBus.getDefault().post(new LNPaymentFailedEvent(paymentInDB.getReference(), paymentInDB.getDescription(), false, null, errorList));
       } else {
-        dbHelper.updatePaymentPaid(paymentInDB, paymentEvent.amount().amount() + paymentEvent.feesPaid().amount(),
-          paymentEvent.feesPaid().amount(), paymentEvent.paymentPreimage().toString());
+        Log.d(TAG, "received and ignored an unknown PaymentFailed event with hash=" + event.paymentHash().toString());
+      }
+    }
+    else if (message instanceof PaymentSucceeded) {
+      PaymentSucceeded event = (PaymentSucceeded) message;
+      Payment paymentInDB = dbHelper.getPayment(event.paymentHash().toString(), PaymentType.BTC_LN);
+      if (paymentInDB != null) {
+        dbHelper.updatePaymentPaid(paymentInDB, event.amountMsat(), event.amountMsat() - paymentInDB.getAmountRequestedMsat(), event.paymentPreimage().toString());
         EventBus.getDefault().post(new LNPaymentEvent(paymentInDB));
+      } else {
+        Log.d(TAG, "received and ignored an unknown PaymentSucceeded event with hash=" + event.paymentHash().toString());
       }
     }
   }

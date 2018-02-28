@@ -107,7 +107,8 @@ public class DBHelper {
     insertOrUpdatePayment(p);
   }
 
-  public void updatePaymentFailed(final Payment p) {
+  void updatePaymentFailed(final Payment p) {
+    Log.i(TAG, "update payment to failed with status=" + p.getStatus());
     if (p.getStatus() != PaymentStatus.PAID) {
       p.setStatus(PaymentStatus.FAILED);
       p.setUpdated(new Date());
@@ -116,6 +117,7 @@ public class DBHelper {
   }
 
   public void updatePaymentPending(final Payment p) {
+    Log.i(TAG, "update payment to pending with status=" + p.getStatus());
     if (p.getStatus() != PaymentStatus.PAID) {
       p.setStatus(PaymentStatus.PENDING);
       p.setUpdated(new Date());

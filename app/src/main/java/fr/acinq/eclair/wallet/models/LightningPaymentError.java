@@ -72,7 +72,7 @@ public class LightningPaymentError implements Parcelable {
     if (failure instanceof RemoteFailure) {
       final RemoteFailure rf = (RemoteFailure) failure;
       final String type = rf.getClass().getSimpleName();
-      final String cause = rf.e().failureMessage().toString();
+      final String cause = rf.e().failureMessage().message();
       final String origin = rf.e().originNode().toString();
       String originChannelId = null;
       final List<String> hopsNodesPK = new ArrayList<>();

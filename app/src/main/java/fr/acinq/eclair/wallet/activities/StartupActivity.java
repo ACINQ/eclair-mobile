@@ -9,7 +9,6 @@ import android.preference.PreferenceManager;
 import android.text.Html;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewStub;
 
 import com.typesafe.config.ConfigFactory;
 
@@ -28,10 +27,9 @@ import fr.acinq.bitcoin.MnemonicCode;
 import fr.acinq.eclair.DBCompatChecker;
 import fr.acinq.eclair.Kit;
 import fr.acinq.eclair.Setup;
-import fr.acinq.eclair.blockchain.EclairWallet;
 import fr.acinq.eclair.blockchain.electrum.ElectrumEclairWallet;
 import fr.acinq.eclair.channel.ChannelEvent;
-import fr.acinq.eclair.payment.PaymentEvent;
+import fr.acinq.eclair.payment.PaymentResult;
 import fr.acinq.eclair.router.NetworkEvent;
 import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.EclairEventService;
@@ -216,7 +214,7 @@ public class StartupActivity extends EclairActivity {
         // gui and electrum supervisor actors
         ActorRef guiUpdater = app.system.actorOf(Props.create(EclairEventService.class, app.getDBHelper()));
         setup.system().eventStream().subscribe(guiUpdater, ChannelEvent.class);
-        setup.system().eventStream().subscribe(guiUpdater, PaymentEvent.class);
+        setup.system().eventStream().subscribe(guiUpdater, PaymentResult.class);
         setup.system().eventStream().subscribe(guiUpdater, NetworkEvent.class);
         app.system.actorOf(Props.create(PaymentSupervisor.class, app.getDBHelper()), "payments");
 

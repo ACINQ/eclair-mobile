@@ -14,11 +14,11 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import java.io.File;
 import java.util.concurrent.atomic.AtomicReference;
 
 import akka.actor.ActorSystem;
 import akka.dispatch.OnComplete;
+import akka.dispatch.OnFailure;
 import akka.pattern.Patterns;
 import akka.util.Timeout;
 import fr.acinq.bitcoin.Base58;
@@ -152,22 +152,21 @@ public class App extends Application {
   }
 
   /**
-   * Asks the eclair node to asynchronously execute a Lightning payment. Completes with a
-   * {@link akka.pattern.AskTimeoutException} after the timeout has expired.
+   * Asks the eclair node to asynchronously execute a Lightning payment. Future failure is silent.
    *
    * @param timeout     Timeout in milliseconds
-   * @param onComplete  Callback executed once the future completes (with success or failure)
    * @param amountMsat  Amount of the payment in millisatoshis
    * @param paymentHash Hash of the payment preimage
    * @param publicKey   Public key of the recipient node
    */
-  public void sendLNPayment(final int timeout, final OnComplete<Object> onComplete, final long amountMsat,
+  public void sendLNPayment(final int timeout, final long amountMsat,
                             final BinaryData paymentHash, final Crypto.PublicKey publicKey, final Long minFinalCltvExpiry) {
-    Future<Object> paymentFuture = Patterns.ask(
-      appKit.eclairKit.paymentInitiator(),
+    Patterns.ask(appKit.eclairKit.paymentInitiator(),
       new SendPayment(amountMsat, paymentHash, publicKey, (Seq<scala.collection.Seq<PaymentRequest.ExtraHop>>) Seq$.MODULE$.empty(), minFinalCltvExpiry, 20),
-      new Timeout(Duration.create(timeout, "seconds")));
-    paymentFuture.onComplete(onComplete, system.dispatcher());
+      new Timeout(Duration.create(1, "seconds"))).onFailure(new OnFailure() {
+      @Override
+      public void onFailure(Throwable failure) throws Throwable {}
+    }, system.dispatcher());
   }
 
   /**

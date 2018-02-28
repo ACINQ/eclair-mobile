@@ -22,6 +22,7 @@ import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.adapters.PaymentListItemAdapter;
 import fr.acinq.eclair.wallet.models.Payment;
 import fr.acinq.eclair.wallet.models.PaymentDao;
+import fr.acinq.eclair.wallet.models.PaymentStatus;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 
 public class PaymentsListFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
@@ -92,7 +93,7 @@ public class PaymentsListFragment extends Fragment implements SwipeRefreshLayout
     if (getActivity() == null || getActivity().getApplication() == null || ((App) getActivity().getApplication()).getDBHelper() == null) return new ArrayList<>();
 
     final List<Payment> list = ((App) getActivity().getApplication()).getDBHelper().getDaoSession().getPaymentDao()
-      .queryBuilder().orderDesc(PaymentDao.Properties.Updated).limit(100).list();
+      .queryBuilder().where(PaymentDao.Properties.Status.notEq(PaymentStatus.INIT)).orderDesc(PaymentDao.Properties.Updated).limit(100).list();
 
     if (mEmptyLabel != null) {
       if (list.isEmpty()) {
