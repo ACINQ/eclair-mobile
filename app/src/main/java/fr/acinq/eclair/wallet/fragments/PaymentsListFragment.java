@@ -43,7 +43,7 @@ public class PaymentsListFragment extends Fragment implements SwipeRefreshLayout
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setHasOptionsMenu(false);
-    mPaymentAdapter = new PaymentListItemAdapter(new ArrayList<Payment>());
+    mPaymentAdapter = new PaymentListItemAdapter(new ArrayList<>());
   }
 
   @Override

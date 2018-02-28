@@ -72,23 +72,17 @@ public class BitcoinTransactionDetailsActivity extends EclairActivity {
 
       final AlertDialog.Builder builder = new AlertDialog.Builder(this);
       builder.setMessage(getResources().getString(R.string.transactiondetails_rebroadcast_dialog));
-      builder.setPositiveButton(R.string.btn_ok, new DialogInterface.OnClickListener() {
-        public void onClick(DialogInterface dialog, int id) {
-          try {
-            app.broadcastTx(p.getTxPayload());
-            Toast.makeText(getApplicationContext(), "Sent Broadcast", Toast.LENGTH_LONG).show();
-          } catch (Exception e) {
-            Log.e(TAG, "Could not broadcast tx:" + p.getReference(), e);
-            Toast.makeText(getApplicationContext(), "Broadcast has failed", Toast.LENGTH_LONG).show();
-          }
-          mRebroadcastDialog.dismiss();
+      builder.setPositiveButton(R.string.btn_ok, (dialog, id) -> {
+        try {
+          app.broadcastTx(p.getTxPayload());
+          Toast.makeText(getApplicationContext(), "Sent Broadcast", Toast.LENGTH_LONG).show();
+        } catch (Exception e) {
+          Log.e(TAG, "Could not broadcast tx:" + p.getReference(), e);
+          Toast.makeText(getApplicationContext(), "Broadcast has failed", Toast.LENGTH_LONG).show();
         }
+        mRebroadcastDialog.dismiss();
       });
-      builder.setNegativeButton(R.string.btn_cancel, new DialogInterface.OnClickListener() {
-        public void onClick(DialogInterface dialog, int id) {
-          mRebroadcastDialog.dismiss();
-        }
-      });
+      builder.setNegativeButton(R.string.btn_cancel, (dialog, id) -> mRebroadcastDialog.dismiss());
       mRebroadcastDialog = builder.create();
 
       mAmountPaidRow.setValue(CoinUtils.formatAmountInUnit(new MilliSatoshi(p.getAmountPaidMsat()), prefUnit, true));
@@ -103,12 +97,7 @@ public class BitcoinTransactionDetailsActivity extends EclairActivity {
 
       if (p.getConfidenceBlocks() == 0) {
         mRebroadcastTxView.setVisibility(View.VISIBLE);
-        mRebroadcastTxView.setOnClickListener(new View.OnClickListener() {
-          @Override
-          public void onClick(View v) {
-            mRebroadcastDialog.show();
-          }
-        });
+        mRebroadcastTxView.setOnClickListener(v -> mRebroadcastDialog.show());
       }
     } catch (Exception e) {
       Toast.makeText(this, "Transaction not found", Toast.LENGTH_SHORT).show();

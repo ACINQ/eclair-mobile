@@ -45,19 +45,17 @@ public class ScanActivity extends Activity {
         mScannedValue.setText(scan);
 
         final Handler dismissHandler = new Handler();
-        dismissHandler.postDelayed(new Runnable() {
-          public void run() {
-            if (isInvoice) {
-              Intent intent = new Intent(getBaseContext(), CreatePaymentActivity.class);
-              intent.putExtra(CreatePaymentActivity.EXTRA_INVOICE, scan);
-              startActivity(intent);
-            } else {
-              Intent intent = new Intent(getBaseContext(), OpenChannelActivity.class);
-              intent.putExtra(OpenChannelActivity.EXTRA_NEW_HOST_URI, scan);
-              startActivity(intent);
-            }
-            finish();
+        dismissHandler.postDelayed(() -> {
+          if (isInvoice) {
+            Intent intent = new Intent(getBaseContext(), CreatePaymentActivity.class);
+            intent.putExtra(CreatePaymentActivity.EXTRA_INVOICE, scan);
+            startActivity(intent);
+          } else {
+            Intent intent = new Intent(getBaseContext(), OpenChannelActivity.class);
+            intent.putExtra(OpenChannelActivity.EXTRA_NEW_HOST_URI, scan);
+            startActivity(intent);
           }
+          finish();
         }, 500);
 
         return;

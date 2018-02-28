@@ -64,23 +64,15 @@ public class PaymentFailureActivity extends EclairActivity {
       mErrorsView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
       mErrorsView.setAdapter(new LightningErrorListAdapter(errors));
 
-      mShowDetailed.setOnClickListener(new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-          mShowDetailed.setVisibility(View.GONE);
-          mPaymentDescView.setVisibility(View.VISIBLE);
-          mErrorsView.setVisibility(View.VISIBLE);
-        }
+      mShowDetailed.setOnClickListener(view -> {
+        mShowDetailed.setVisibility(View.GONE);
+        mPaymentDescView.setVisibility(View.VISIBLE);
+        mErrorsView.setVisibility(View.VISIBLE);
       });
     }
 
     mClose = findViewById(R.id.paymentfailure_close);
-    mClose.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View view) {
-        finish();
-      }
-    });
+    mClose.setOnClickListener(view -> finish());
 
     // animation
     final ImageView mSadImage = findViewById(R.id.paymentfailure_sad);

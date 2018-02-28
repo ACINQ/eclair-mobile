@@ -40,7 +40,7 @@ public class ChannelsListFragment extends Fragment implements SwipeRefreshLayout
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setHasOptionsMenu(false);
-    mChannelAdapter = new LocalChannelItemAdapter(new ArrayList<ChannelItem>());
+    mChannelAdapter = new LocalChannelItemAdapter(new ArrayList<>());
   }
 
   @Override

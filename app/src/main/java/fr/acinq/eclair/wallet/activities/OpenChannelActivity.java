@@ -230,22 +230,19 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
   private void doOpenChannel() {
     final Satoshi fundingSat = CoinUtils.convertStringAmountToSat(mCapacityValue.getText().toString(), preferredBitcoinUnit.code());
     AsyncExecutor.create().execute(
-      new AsyncExecutor.RunnableEx() {
-        @Override
-        public void run() throws Exception {
-          OnComplete<Object> onComplete = new OnComplete<Object>() {
-            @Override
-            public void onComplete(Throwable throwable, Object o) throws Throwable {
-              if (throwable != null) {
-                EventBus.getDefault().post(new LNNewChannelFailureEvent(throwable.getMessage()));
-              } else {
-                EventBus.getDefault().post(new LNNewChannelOpenedEvent(remoteNodeURI.nodeId().toString()));
-              }
+      () -> {
+        OnComplete<Object> onComplete = new OnComplete<Object>() {
+          @Override
+          public void onComplete(Throwable throwable, Object o) throws Throwable {
+            if (throwable != null) {
+              EventBus.getDefault().post(new LNNewChannelFailureEvent(throwable.getMessage()));
+            } else {
+              EventBus.getDefault().post(new LNNewChannelOpenedEvent(remoteNodeURI.nodeId().toString()));
             }
-          };
-          app.openChannel(Duration.create(30, "seconds"), onComplete, remoteNodeURI,
-            new Peer.OpenChannel(remoteNodeURI.nodeId(), fundingSat, new MilliSatoshi(0), scala.Option.apply(null)));
-        }
+          }
+        };
+        app.openChannel(Duration.create(30, "seconds"), onComplete, remoteNodeURI,
+          new Peer.OpenChannel(remoteNodeURI.nodeId(), fundingSat, new MilliSatoshi(0), scala.Option.apply(null)));
       });
     goToHome();
   }

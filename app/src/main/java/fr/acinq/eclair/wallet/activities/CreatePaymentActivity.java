@@ -486,78 +486,75 @@ public class CreatePaymentActivity extends EclairActivity
   private void sendLNPayment(final long amountMsat, final PaymentRequest pr, final String prAsString) {
     Log.d(TAG, "Sending LN payment for invoice " + prAsString);
     AsyncExecutor.create().execute(
-      new AsyncExecutor.RunnableEx() {
-        @Override
-        public void run() throws Exception {
-          // 0 - Check if payment already exists
-          final String paymentHash = pr.paymentHash().toString();
-          final String paymentDescription = pr.description().isLeft() ? pr.description().left().get() : pr.description().right().get().toString();
-          final Payment paymentForH = app.getDBHelper().getPayment(paymentHash, PaymentType.BTC_LN);
+      () -> {
+        // 0 - Check if payment already exists
+        final String paymentHash = pr.paymentHash().toString();
+        final String paymentDescription = pr.description().isLeft() ? pr.description().left().get() : pr.description().right().get().toString();
+        final Payment paymentForH = app.getDBHelper().getPayment(paymentHash, PaymentType.BTC_LN);
 
-          // 1 - save payment attempt in DB
-          final Payment p = paymentForH == null ? new Payment() : paymentForH;
-          if (paymentForH == null) {
-            p.setType(PaymentType.BTC_LN);
-            p.setDirection(PaymentDirection.SENT);
-            p.setReference(paymentHash);
-            p.setAmountRequestedMsat(WalletUtils.getLongAmountFromInvoice(pr));
-            p.setRecipient(pr.nodeId().toString());
-            p.setPaymentRequest(prAsString);
-            p.setStatus(PaymentStatus.PENDING);
-            p.setDescription(paymentDescription);
-            p.setUpdated(new Date());
-            app.getDBHelper().insertOrUpdatePayment(p);
-          } else if (PaymentStatus.PAID.equals(paymentForH.getStatus())) {
-            EventBus.getDefault().post(new LNPaymentFailedEvent(paymentHash, paymentDescription, true, "This invoice has already been paid.", null));
-            return;
-          } else if (PaymentStatus.PENDING.equals(paymentForH.getStatus())) {
-            EventBus.getDefault().post(new LNPaymentFailedEvent(paymentHash, paymentDescription, true, "This invoice is already known and the payment is pending.", null));
-            return;
-          } else if (PaymentStatus.FAILED.equals(paymentForH.getStatus())) {
-            app.getDBHelper().updatePaymentPending(p);
-          }
+        // 1 - save payment attempt in DB
+        final Payment p = paymentForH == null ? new Payment() : paymentForH;
+        if (paymentForH == null) {
+          p.setType(PaymentType.BTC_LN);
+          p.setDirection(PaymentDirection.SENT);
+          p.setReference(paymentHash);
+          p.setAmountRequestedMsat(WalletUtils.getLongAmountFromInvoice(pr));
+          p.setRecipient(pr.nodeId().toString());
+          p.setPaymentRequest(prAsString);
+          p.setStatus(PaymentStatus.PENDING);
+          p.setDescription(paymentDescription);
+          p.setUpdated(new Date());
+          app.getDBHelper().insertOrUpdatePayment(p);
+        } else if (PaymentStatus.PAID.equals(paymentForH.getStatus())) {
+          EventBus.getDefault().post(new LNPaymentFailedEvent(paymentHash, paymentDescription, true, "This invoice has already been paid.", null));
+          return;
+        } else if (PaymentStatus.PENDING.equals(paymentForH.getStatus())) {
+          EventBus.getDefault().post(new LNPaymentFailedEvent(paymentHash, paymentDescription, true, "This invoice is already known and the payment is pending.", null));
+          return;
+        } else if (PaymentStatus.FAILED.equals(paymentForH.getStatus())) {
+          app.getDBHelper().updatePaymentPending(p);
+        }
 
-          // 2 - setup future callback
-          OnComplete<Object> onComplete = new OnComplete<Object>() {
-            @Override
-            public void onComplete(Throwable t, Object o) {
-              final Payment paymentInDB = app.getDBHelper().getPayment(paymentHash, PaymentType.BTC_LN);
-              if (paymentInDB != null) {
-                if (t != null && t instanceof akka.pattern.AskTimeoutException) {
-                  // payment is taking too long, let's do nothing and keep waiting
-                } else if (o instanceof PaymentSucceeded && t == null) {
-                  // do nothing, will be handled by PaymentSent event in EclairEventService...
-                } else {
-                  final ArrayList<LightningPaymentError> errorList = new ArrayList<>();
-                  // extract failure cause to generate a pretty error message
-                  if (o instanceof PaymentFailed) {
-                    final Seq<PaymentFailure> failures = ((PaymentFailed) o).failures();
-                    if (failures.size() > 0) {
-                      for (int i = 0; i < failures.size(); i++) {
-                        errorList.add(LightningPaymentError.generateDetailedErrorCause(failures.apply(i)));
-                      }
+        // 2 - setup future callback
+        OnComplete<Object> onComplete = new OnComplete<Object>() {
+          @Override
+          public void onComplete(Throwable t, Object o) {
+            final Payment paymentInDB = app.getDBHelper().getPayment(paymentHash, PaymentType.BTC_LN);
+            if (paymentInDB != null) {
+              if (t != null && t instanceof akka.pattern.AskTimeoutException) {
+                // payment is taking too long, let's do nothing and keep waiting
+              } else if (o instanceof PaymentSucceeded && t == null) {
+                // do nothing, will be handled by PaymentSent event in EclairEventService...
+              } else {
+                final ArrayList<LightningPaymentError> errorList = new ArrayList<>();
+                // extract failure cause to generate a pretty error message
+                if (o instanceof PaymentFailed) {
+                  final Seq<PaymentFailure> failures = ((PaymentFailed) o).failures();
+                  if (failures.size() > 0) {
+                    for (int i = 0; i < failures.size(); i++) {
+                      errorList.add(LightningPaymentError.generateDetailedErrorCause(failures.apply(i)));
                     }
-                  } else if (t != null) {
-                    Log.d(TAG, "Error when sending payment", t);
                   }
-
-                  // update payment in base
-                  app.getDBHelper().updatePaymentFailed(paymentInDB);
-
-                  // dispatch failure event to display the error message
-                  EventBus.getDefault().post(new LNPaymentFailedEvent(paymentHash, paymentDescription, false, null, errorList));
+                } else if (t != null) {
+                  Log.d(TAG, "Error when sending payment", t);
                 }
+
+                // update payment in base
+                app.getDBHelper().updatePaymentFailed(paymentInDB);
+
+                // dispatch failure event to display the error message
+                EventBus.getDefault().post(new LNPaymentFailedEvent(paymentHash, paymentDescription, false, null, errorList));
               }
             }
-          };
-
-          Long minFinalCltvExpiry = PaymentLifecycle.defaultMinFinalCltvExpiry();
-          if (pr.minFinalCltvExpiry().isDefined() && pr.minFinalCltvExpiry().get() instanceof Long) {
-            minFinalCltvExpiry = (Long) pr.minFinalCltvExpiry().get();
           }
-          // 3 - execute payment future
-          app.sendLNPayment(45, onComplete, amountMsat, pr.paymentHash(), pr.nodeId(), minFinalCltvExpiry);
+        };
+
+        Long minFinalCltvExpiry = PaymentLifecycle.defaultMinFinalCltvExpiry();
+        if (pr.minFinalCltvExpiry().isDefined() && pr.minFinalCltvExpiry().get() instanceof Long) {
+          minFinalCltvExpiry = (Long) pr.minFinalCltvExpiry().get();
         }
+        // 3 - execute payment future
+        app.sendLNPayment(45, onComplete, amountMsat, pr.paymentHash(), pr.nodeId(), minFinalCltvExpiry);
       }
     );
   }

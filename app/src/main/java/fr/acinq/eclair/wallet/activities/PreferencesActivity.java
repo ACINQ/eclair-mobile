@@ -36,47 +36,30 @@ public class PreferencesActivity extends EclairActivity {
 
     setContentView(R.layout.activity_preferences);
 
-//    getFragmentManager().beginTransaction()
-//      .replace(R.id.preference_fragment_placeholder, new PreferencesFragment())
-//      .commit();
-
     mPinSwitchWrapper = findViewById(R.id.preference_pin_switch_wrapper);
     mPinSwitch = findViewById(R.id.preference_pin_switch);
     // when the switch is clicked, start the according action (remove pin, create pin)
-    mPinSwitchWrapper.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(final View view) {
-        final boolean isPinDefined = isPinRequired();
-        if (isPinDefined && mPinSwitch.isChecked()) {
-          // The user wants to disable the PIN
-          removePinValue();
-        } else if (!isPinDefined && !mPinSwitch.isChecked()) {
-          setNewPinValue();
-        } else {
-          Log.w(TAG, "Pin switch check state is not up to date with the actual pin value!");
-          Log.w(TAG, "Switch is" + mPinSwitch.isChecked() + " / pin defined " + isPinDefined);
-          // force refresh the state of the PIN displays with the actual values from the preferences
-          refreshPinDisplays(getSharedPreferences(Constants.SETTINGS_SECURITY_FILE, MODE_PRIVATE));
-        }
+    mPinSwitchWrapper.setOnClickListener(view -> {
+      final boolean isPinDefined = isPinRequired();
+      if (isPinDefined && mPinSwitch.isChecked()) {
+        // The user wants to disable the PIN
+        removePinValue();
+      } else if (!isPinDefined && !mPinSwitch.isChecked()) {
+        setNewPinValue();
+      } else {
+        Log.w(TAG, "Pin switch check state is not up to date with the actual pin value!");
+        Log.w(TAG, "Switch is" + mPinSwitch.isChecked() + " / pin defined " + isPinDefined);
+        // force refresh the state of the PIN displays with the actual values from the preferences
+        refreshPinDisplays(getSharedPreferences(Constants.SETTINGS_SECURITY_FILE, MODE_PRIVATE));
       }
     });
     mPinInfo = findViewById(R.id.preference_pin_info);
 
-    securityPrefsListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
-      @SuppressLint("SetTextI18n")
-      @Override
-      public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
-        refreshPinDisplays(sharedPreferences);
-      }
-    };
+    securityPrefsListener = (sharedPreferences, s) -> refreshPinDisplays(sharedPreferences);
 
-    defaultPrefsListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
-      @SuppressLint("SetTextI18n")
-      @Override
-      public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
-        if (Constants.SETTING_BTC_PATTERN.equals(key)) {
-          CoinUtils.setCoinPattern(prefs.getString(Constants.SETTING_BTC_PATTERN, getResources().getStringArray(R.array.btc_pattern_values)[0]));
-        }
+    defaultPrefsListener = (prefs, key) -> {
+      if (Constants.SETTING_BTC_PATTERN.equals(key)) {
+        CoinUtils.setCoinPattern(prefs.getString(Constants.SETTING_BTC_PATTERN, getResources().getStringArray(R.array.btc_pattern_values)[0]));
       }
     };
   }

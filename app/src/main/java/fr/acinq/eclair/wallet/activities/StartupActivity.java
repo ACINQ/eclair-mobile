@@ -57,13 +57,7 @@ public class StartupActivity extends EclairActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     mBinding = DataBindingUtil.setContentView(this, R.layout.activity_startup);
-
-    mBinding.stubDisclaimer.setOnInflateListener(new ViewStub.OnInflateListener() {
-      @Override
-      public void onInflate(ViewStub stub, View inflated) {
-        mDisclaimerBinding = DataBindingUtil.bind(inflated);
-      }
-    });
+    mBinding.stubDisclaimer.setOnInflateListener((stub, inflated) -> mDisclaimerBinding = DataBindingUtil.bind(inflated));
   }
 
   @Override
@@ -116,13 +110,10 @@ public class StartupActivity extends EclairActivity {
   private void startCheckup(final File datadir, final SharedPreferences prefs) {
     if (prefs.getBoolean(Constants.SETTING_SHOW_DISCLAIMER, true)) {
       mBinding.stubDisclaimer.getViewStub().inflate();
-      mDisclaimerBinding.disclaimerFinish.setOnClickListener(new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-          mDisclaimerBinding.getRoot().setVisibility(View.GONE);
-          prefs.edit().putBoolean(Constants.SETTING_SHOW_DISCLAIMER, false).apply();
-          startNodeChecker(datadir, prefs);
-        }
+      mDisclaimerBinding.disclaimerFinish.setOnClickListener(v -> {
+        mDisclaimerBinding.getRoot().setVisibility(View.GONE);
+        prefs.edit().putBoolean(Constants.SETTING_SHOW_DISCLAIMER, false).apply();
+        startNodeChecker(datadir, prefs);
       });
       mDisclaimerBinding.disclaimerText.setText(Html.fromHtml(getString(R.string.disclaimer_1, getString(R.string.chain_name))));
     } else {
@@ -220,7 +211,7 @@ public class StartupActivity extends EclairActivity {
 
         Class.forName("org.sqlite.JDBC");
         publishProgress("setting up eclair");
-        Setup setup = new Setup(datadir, Option.apply((EclairWallet) null), ConfigFactory.empty(), app.system, Option.apply(seed));
+        Setup setup = new Setup(datadir, Option.apply(null), ConfigFactory.empty(), app.system, Option.apply(seed));
 
         // gui and electrum supervisor actors
         ActorRef guiUpdater = app.system.actorOf(Props.create(EclairEventService.class, app.getDBHelper()));

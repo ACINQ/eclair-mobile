@@ -166,46 +166,36 @@ public class HomeActivity extends EclairActivity {
   }
 
   private void setUpBalanceInteraction(final SharedPreferences prefs) {
-    mBinding.balance.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View view) {
-        boolean displayBalanceAsFiat = WalletUtils.shouldDisplayInFiat(prefs);
-        prefs.edit().putBoolean(Constants.SETTING_DISPLAY_IN_FIAT, !displayBalanceAsFiat).commit();
-        mBinding.balanceOnchain.refreshUnits();
-        mBinding.balanceLightning.refreshUnits();
-        mBinding.balanceTotal.refreshUnits();
-        mPaymentsListFragment.refreshList();
-        mChannelsListFragment.updateList();
-      }
+    mBinding.balance.setOnClickListener(view -> {
+      boolean displayBalanceAsFiat = WalletUtils.shouldDisplayInFiat(prefs);
+      prefs.edit().putBoolean(Constants.SETTING_DISPLAY_IN_FIAT, !displayBalanceAsFiat).commit();
+      mBinding.balanceOnchain.refreshUnits();
+      mBinding.balanceLightning.refreshUnits();
+      mBinding.balanceTotal.refreshUnits();
+      mPaymentsListFragment.refreshList();
+      mChannelsListFragment.updateList();
     });
   }
 
   private void setUpExchangeRate() {
     final RequestQueue queue = Volley.newRequestQueue(this);
     mExchangeRateRequest = new JsonObjectRequest(Request.Method.GET, "https://api.coindesk.com/v1/bpi/currentprice.json", null,
-      new Response.Listener<JSONObject>() {
-        @SuppressLint("SetTextI18n")
-        @Override
-        public void onResponse(JSONObject response) {
-          try {
-            JSONObject bpi = response.getJSONObject("bpi");
-            float btc_eur = (float) bpi.getJSONObject("EUR").getDouble("rate_float");
-            float btc_usd = (float) bpi.getJSONObject("USD").getDouble("rate_float");
-            App.updateExchangeRate(btc_eur, btc_usd);
-            // also save in prefs
-            final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-            prefs.edit().putFloat(Constants.SETTING_LAST_KNOWN_RATE_BTC_EUR, btc_eur)
-              .putFloat(Constants.SETTING_LAST_KNOWN_RATE_BTC_USD, btc_usd).apply();
-          } catch (JSONException e) {
-            Log.e("ExchangeRate", "Could not read coindesk response", e);
-          }
+      response -> {
+        try {
+          JSONObject bpi = response.getJSONObject("bpi");
+          float btc_eur = (float) bpi.getJSONObject("EUR").getDouble("rate_float");
+          float btc_usd = (float) bpi.getJSONObject("USD").getDouble("rate_float");
+          App.updateExchangeRate(btc_eur, btc_usd);
+          // also save in prefs
+          final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+          prefs.edit().putFloat(Constants.SETTING_LAST_KNOWN_RATE_BTC_EUR, btc_eur)
+            .putFloat(Constants.SETTING_LAST_KNOWN_RATE_BTC_USD, btc_usd).apply();
+        } catch (JSONException e) {
+          Log.e("ExchangeRate", "Could not read coindesk response", e);
         }
-      }, new Response.ErrorListener() {
-      @Override
-      public void onErrorResponse(VolleyError error) {
+      }, (error) -> {
         Log.d("ExchangeRate", "Error when querying coindesk api with cause " + error.getMessage());
-      }
-    });
+      });
     mExchangeRateHandler = new Handler();
     mExchangeRateRunnable = new Runnable() {
       @Override
@@ -324,28 +314,25 @@ public class HomeActivity extends EclairActivity {
     final View introOpenChannelPatience = findViewById(R.id.home_intro_openchannel_patience);
     final View introSendPayment = findViewById(R.id.home_intro_sendpayment);
     introWelcome.setVisibility(View.VISIBLE);
-    inflatedIntro.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View v) {
-        introStep++;
-        if (introStep > 4) {
-          mStubIntro.setVisibility(View.GONE);
-          SharedPreferences.Editor e = prefs.edit();
-          e.putBoolean(Constants.SETTING_SHOW_INTRO, false);
-          e.apply();
+    inflatedIntro.setOnClickListener(v -> {
+      introStep++;
+      if (introStep > 4) {
+        mStubIntro.setVisibility(View.GONE);
+        SharedPreferences.Editor e = prefs.edit();
+        e.putBoolean(Constants.SETTING_SHOW_INTRO, false);
+        e.apply();
+      } else {
+        introWelcome.setVisibility(View.GONE);
+        introReceive.setVisibility(introStep == 1 ? View.VISIBLE : View.GONE);
+        introOpenChannel.setVisibility(introStep == 2 ? View.VISIBLE : View.GONE);
+        introOpenChannelPatience.setVisibility(introStep == 3 ? View.VISIBLE : View.GONE);
+        introSendPayment.setVisibility(introStep == 4 ? View.VISIBLE : View.GONE);
+        if (introStep == 1) {
+          mBinding.viewpager.setCurrentItem(0);
+        } else if (introStep == 2 || introStep == 3) {
+          mBinding.viewpager.setCurrentItem(2);
         } else {
-          introWelcome.setVisibility(View.GONE);
-          introReceive.setVisibility(introStep == 1 ? View.VISIBLE : View.GONE);
-          introOpenChannel.setVisibility(introStep == 2 ? View.VISIBLE : View.GONE);
-          introOpenChannelPatience.setVisibility(introStep == 3 ? View.VISIBLE : View.GONE);
-          introSendPayment.setVisibility(introStep == 4 ? View.VISIBLE : View.GONE);
-          if (introStep == 1) {
-            mBinding.viewpager.setCurrentItem(0);
-          } else if (introStep == 2 || introStep == 3) {
-            mBinding.viewpager.setCurrentItem(2);
-          } else {
-            mBinding.viewpager.setCurrentItem(1);
-          }
+          mBinding.viewpager.setCurrentItem(1);
         }
       }
     });

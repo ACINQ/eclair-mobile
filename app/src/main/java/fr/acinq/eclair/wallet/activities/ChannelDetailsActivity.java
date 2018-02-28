@@ -101,29 +101,18 @@ public class ChannelDetailsActivity extends EclairActivity {
           ? "\n\nWith a " + channel.getValue().state + " state, the closing will be uncooperative!"
           : "");
         builder.setMessage(message);
-        builder.setPositiveButton(R.string.btn_ok, new DialogInterface.OnClickListener() {
-          public void onClick(DialogInterface dialog, int id) {
-            scala.Option<BinaryData> none = scala.Option.apply(null);
-            channel.getKey().tell(CMD_CLOSE.apply(none), channel.getKey());
-            finish();
-          }
+        builder.setPositiveButton(R.string.btn_ok, (dialog, id) -> {
+          scala.Option<BinaryData> none = scala.Option.apply(null);
+          channel.getKey().tell(CMD_CLOSE.apply(none), channel.getKey());
+          finish();
         });
-        builder.setNegativeButton(R.string.btn_cancel, new DialogInterface.OnClickListener() {
-          public void onClick(DialogInterface dialog, int id) {
-            mCloseDialog.dismiss();
-          }
-        });
+        builder.setNegativeButton(R.string.btn_cancel, (dialog, id) -> mCloseDialog.dismiss());
         mCloseDialog = builder.create();
 
         View closeButton = findViewById(R.id.channeldetails_close);
         if (!CLOSING$.MODULE$.toString().equals(channel.getValue().state) && !CLOSED$.MODULE$.toString().equals(channel.getValue().state)) {
           closeButton.setVisibility(View.VISIBLE);
-          closeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-              mCloseDialog.show();
-            }
-          });
+          closeButton.setOnClickListener(v -> mCloseDialog.show());
         }
       }
 

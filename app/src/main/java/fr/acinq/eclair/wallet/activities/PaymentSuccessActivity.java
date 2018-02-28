@@ -36,11 +36,7 @@ public class PaymentSuccessActivity extends EclairActivity {
     tada();
 
     dismissHandler = new Handler();
-    dismissHandler.postDelayed(new Runnable() {
-      public void run() {
-        finish();
-      }
-    }, 3500);
+    dismissHandler.postDelayed(() -> finish(), 3500);
   }
 
   private void tada() {
