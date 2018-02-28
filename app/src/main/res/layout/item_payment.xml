@@ -49,6 +49,7 @@
       android:layout_height="wrap_content"
       android:layout_below="@+id/paymentitem_description"
       android:layout_toEndOf="@+id/paymentitem_status"
+      android:maxLines="1"
       android:text="@string/unknown"
       android:textColor="@color/grey_1"
       android:textSize="10sp" />
@@ -59,11 +60,11 @@
     android:id="@+id/paymentitem_amount"
     android:layout_width="128dp"
     android:layout_height="match_parent"
-    android:minWidth="40dp"
     android:layout_alignParentEnd="true"
     android:layout_centerVertical="true"
     android:layout_marginEnd="8dp"
-    android:gravity="end|center_vertical">
+    android:gravity="end|center_vertical"
+    android:minWidth="40dp">
 
     <TextView
       android:id="@+id/paymentitem_amount_value"
@@ -78,10 +79,11 @@
 
     <TextView
       android:id="@+id/paymentitem_amount_unit"
-      android:layout_width="24dp"
+      android:layout_width="26dp"
       android:layout_height="wrap_content"
       android:layout_alignBaseline="@+id/paymentitem_amount_value"
       android:layout_alignParentEnd="true"
+      android:maxLines="1"
       android:textColor="@color/grey_2"
       android:textSize="8sp" />
 
@@ -117,6 +119,7 @@
       android:layout_height="wrap_content"
       android:layout_alignBaseline="@+id/paymentitem_fees_value"
       android:layout_alignStart="@+id/paymentitem_amount_unit"
+      android:maxLines="1"
       android:textColor="@color/grey_1"
       android:textSize="8sp"
       android:visibility="gone" />

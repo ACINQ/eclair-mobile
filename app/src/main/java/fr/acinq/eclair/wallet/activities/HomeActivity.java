@@ -5,6 +5,7 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -53,6 +54,8 @@ import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.EclairEventService;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.customviews.CoinAmountView;
+import fr.acinq.eclair.wallet.databinding.ActivityHomeBinding;
+import fr.acinq.eclair.wallet.databinding.ActivityImportWalletBinding;
 import fr.acinq.eclair.wallet.events.BitcoinPaymentEvent;
 import fr.acinq.eclair.wallet.events.BitcoinPaymentFailedEvent;
 import fr.acinq.eclair.wallet.events.ChannelUpdateEvent;
@@ -74,30 +77,17 @@ public class HomeActivity extends EclairActivity {
   public static final String EXTRA_PAGE = BuildConfig.APPLICATION_ID + "EXTRA_PAGE";
   public static final String EXTRA_PAYMENT_URI = BuildConfig.APPLICATION_ID + "EXTRA_PAYMENT_URI";
   private static final String TAG = "Home Activity";
-  private boolean canSendPayments = false;
 
-  private ViewPager mViewPager;
-  private TabLayout mTabs;
-  private PaymentsListFragment mPaymentsListFragment;
-  private ChannelsListFragment mChannelsListFragment;
-  private ReceivePaymentFragment mReceivePaymentFragment;
-  private ViewGroup mSendButtonsView;
-  private ViewGroup mSendButtonsToggleView;
-  private FloatingActionButton mSendButton;
-  private ViewGroup mOpenChannelsButtonsView;
-  private ViewGroup mOpenChannelButtonsToggleView;
-  private FloatingActionButton mOpenChannelButton;
-  private View mBalanceView;
-  private CoinAmountView mTotalBalanceView;
-  private CoinAmountView mOnchainBalanceView;
-  private CoinAmountView mLNBalanceView;
+  private ActivityHomeBinding mBinding;
+
   private ViewStub mStubBreakingChanges;
   private ViewStub mStubIntro;
-  private View mConnectionStatus;
-  private TextView mConnectionStatusTitle;
-  private TextView mConnectionStatusDesc;
   private int introStep = 0;
+  private boolean canSendPayments = false;
 
+  private ReceivePaymentFragment mReceivePaymentFragment;
+  private PaymentsListFragment mPaymentsListFragment;
+  private ChannelsListFragment mChannelsListFragment;
   private Handler mExchangeRateHandler;
   private Runnable mExchangeRateRunnable;
   private JsonObjectRequest mExchangeRateRequest;
@@ -106,62 +96,31 @@ public class HomeActivity extends EclairActivity {
   protected void onCreate(final Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_home);
+    mBinding = DataBindingUtil.setContentView(this, R.layout.activity_home);
 
-    Toolbar toolbar = findViewById(R.id.toolbar);
-    setSupportActionBar(toolbar);
+    setSupportActionBar(mBinding.toolbar);
     ActionBar ab = getSupportActionBar();
     ab.setDisplayHomeAsUpEnabled(false);
     ab.setDisplayShowTitleEnabled(false);
-
-    final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-
-    // --- stubs
-    mStubIntro = findViewById(R.id.home_stub_intro);
-
-    // --- tabs view page
-    mViewPager = findViewById(R.id.home_viewpager);
-    mTabs = findViewById(R.id.home_tabs);
-
-    // --- top view
-    mConnectionStatus = findViewById(R.id.home_connection_status);
-    mConnectionStatusTitle = findViewById(R.id.home_connection_status_title);
-    mConnectionStatusDesc = findViewById(R.id.home_connection_status_desc);
-    mBalanceView = findViewById(R.id.home_balance);
-    mTotalBalanceView = findViewById(R.id.home_balance_total);
-    mOnchainBalanceView = findViewById(R.id.home_balance_onchain_value);
-    mLNBalanceView = findViewById(R.id.home_balance_ln_value);
-
-    // --- send payment button
-    mSendButtonsView = findViewById(R.id.home_send_buttons);
-    mSendButtonsToggleView = findViewById(R.id.home_send_buttons_toggle);
-    mSendButton = findViewById(R.id.home_send_button);
-
-    // --- open channel button
-    mOpenChannelsButtonsView = findViewById(R.id.home_openchannel_buttons);
-    mOpenChannelButtonsToggleView = findViewById(R.id.home_openchannel_buttons_toggle);
-    mOpenChannelButton = findViewById(R.id.home_openchannel_button);
 
     if (!checkInit()) {
       finish();
       return;
     }
-
+    final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
     // --- check initial app state
     if (app.hasBreakingChanges()) {
       displayBreakingChanges();
     } else if (prefs.getBoolean(Constants.SETTING_SHOW_INTRO, true)) {
+      mStubIntro = findViewById(R.id.home_stub_intro);
       displayIntro(prefs);
     }
-
     // setup content
     setUpTabs(savedInstanceState);
     setUpBalanceInteraction(prefs);
     setUpExchangeRate();
-
     // app may be started with a payment request intent
     readURIIntent(getIntent());
-
-    Log.d(TAG, "Home.onCreate done");
   }
 
   private void displayBreakingChanges() {
@@ -170,15 +129,15 @@ public class HomeActivity extends EclairActivity {
   }
 
   private void setUpTabs(final Bundle savedInstanceState) {
-    mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+    mBinding.viewpager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
       @Override
       public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
       }
 
       @Override
       public void onPageSelected(int position) {
-        mOpenChannelsButtonsView.setVisibility(position == 2 ? View.VISIBLE : View.GONE);
-        mSendButtonsView.setVisibility(position == 1 ? View.VISIBLE : View.GONE);
+        mBinding.openchannelButtons.setVisibility(position == 2 ? View.VISIBLE : View.GONE);
+        mBinding.sendpaymentButtons.setVisibility(position == 1 ? View.VISIBLE : View.GONE);
       }
 
       @Override
@@ -187,34 +146,34 @@ public class HomeActivity extends EclairActivity {
     });
 
     final List<Fragment> fragments = new ArrayList<>();
-    mReceivePaymentFragment = new ReceivePaymentFragment();
-    fragments.add(mReceivePaymentFragment);
+     mReceivePaymentFragment = new ReceivePaymentFragment();
+    fragments.add(new ReceivePaymentFragment());
     mPaymentsListFragment = new PaymentsListFragment();
     fragments.add(mPaymentsListFragment);
     mChannelsListFragment = new ChannelsListFragment();
     fragments.add(mChannelsListFragment);
     HomePagerAdapter mPagerAdapter = new HomePagerAdapter(getSupportFragmentManager(), fragments);
 
-    mViewPager.setAdapter(mPagerAdapter);
-    mTabs.setupWithViewPager(mViewPager);
+    mBinding.viewpager.setAdapter(mPagerAdapter);
+    mBinding.tabs.setupWithViewPager(mBinding.viewpager);
 
     if (savedInstanceState != null && savedInstanceState.containsKey("currentPage")) {
-      mViewPager.setCurrentItem(savedInstanceState.getInt("currentPage"));
+      mBinding.viewpager.setCurrentItem(savedInstanceState.getInt("currentPage"));
     } else {
       Intent intent = getIntent();
-      mViewPager.setCurrentItem(intent.getIntExtra(EXTRA_PAGE, 1));
+      mBinding.viewpager.setCurrentItem(intent.getIntExtra(EXTRA_PAGE, 1));
     }
   }
 
   private void setUpBalanceInteraction(final SharedPreferences prefs) {
-    mBalanceView.setOnClickListener(new View.OnClickListener() {
+    mBinding.balance.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View view) {
         boolean displayBalanceAsFiat = WalletUtils.shouldDisplayInFiat(prefs);
         prefs.edit().putBoolean(Constants.SETTING_DISPLAY_IN_FIAT, !displayBalanceAsFiat).commit();
-        mOnchainBalanceView.refreshUnits();
-        mTotalBalanceView.refreshUnits();
-        mLNBalanceView.refreshUnits();
+        mBinding.balanceOnchain.refreshUnits();
+        mBinding.balanceLightning.refreshUnits();
+        mBinding.balanceTotal.refreshUnits();
         mPaymentsListFragment.refreshList();
         mChannelsListFragment.updateList();
       }
@@ -267,9 +226,9 @@ public class HomeActivity extends EclairActivity {
       // starts refreshing the exchange rate
       mExchangeRateHandler.post(mExchangeRateRunnable);
       // refresh balance after possible prefs change
-      mTotalBalanceView.refreshUnits();
-      mOnchainBalanceView.refreshUnits();
-      mLNBalanceView.refreshUnits();
+      mBinding.balanceTotal.refreshUnits();
+      mBinding.balanceOnchain.refreshUnits();
+      mBinding.balanceLightning.refreshUnits();
       // ask for LN balance
       EclairEventService.postLNBalanceEvent();
       Log.d(TAG, "Home.onResume done");
@@ -322,13 +281,13 @@ public class HomeActivity extends EclairActivity {
 
   @Override
   protected void onSaveInstanceState(Bundle bundle) {
-    bundle.putInt("currentPage", mViewPager.getCurrentItem());
+    bundle.putInt("currentPage", mBinding.viewpager.getCurrentItem());
     super.onSaveInstanceState(bundle);
   }
 
   @Override
   protected void onRestoreInstanceState(Bundle savedInstanceState) {
-    mViewPager.setCurrentItem(savedInstanceState.getInt("currentPage"));
+    mBinding.viewpager.setCurrentItem(savedInstanceState.getInt("currentPage"));
   }
 
   @Override
@@ -381,11 +340,11 @@ public class HomeActivity extends EclairActivity {
           introOpenChannelPatience.setVisibility(introStep == 3 ? View.VISIBLE : View.GONE);
           introSendPayment.setVisibility(introStep == 4 ? View.VISIBLE : View.GONE);
           if (introStep == 1) {
-            mViewPager.setCurrentItem(0);
+            mBinding.viewpager.setCurrentItem(0);
           } else if (introStep == 2 || introStep == 3) {
-            mViewPager.setCurrentItem(2);
+            mBinding.viewpager.setCurrentItem(2);
           } else {
-            mViewPager.setCurrentItem(1);
+            mBinding.viewpager.setCurrentItem(1);
           }
         }
       }
@@ -394,7 +353,7 @@ public class HomeActivity extends EclairActivity {
 
   private String readFromClipboard() {
     ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-    if (clipboard.hasPrimaryClip() && clipboard.getPrimaryClip().getItemAt(0) != null && clipboard.getPrimaryClip().getItemAt(0).getText() != null) {
+    if (clipboard != null && clipboard.hasPrimaryClip() && clipboard.getPrimaryClip().getItemAt(0) != null && clipboard.getPrimaryClip().getItemAt(0).getText() != null) {
       return clipboard.getPrimaryClip().getItemAt(0).getText().toString();
     }
     return "";
@@ -417,49 +376,49 @@ public class HomeActivity extends EclairActivity {
   }
 
   public void home_toggleSendButtons(View view) {
-    boolean isVisible = mSendButtonsToggleView.getVisibility() == View.VISIBLE;
-    mSendButton.animate().rotation(isVisible ? 0 : -90).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(150).start();
-    mSendButton.setBackgroundTintList(ContextCompat.getColorStateList(this, isVisible ? R.color.primary : R.color.grey_4));
-    mSendButtonsToggleView.setVisibility(isVisible ? View.GONE : View.VISIBLE);
+    boolean isVisible = mBinding.sendpaymentActionsList.getVisibility() == View.VISIBLE;
+    mBinding.sendpaymentToggler.animate().rotation(isVisible ? 0 : -90).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(150).start();
+    mBinding.sendpaymentToggler.setBackgroundTintList(ContextCompat.getColorStateList(this, isVisible ? R.color.primary : R.color.grey_4));
+    mBinding.sendpaymentActionsList.setVisibility(isVisible ? View.GONE : View.VISIBLE);
   }
 
   private void enableSendPayments() {
     canSendPayments = true;
     home_closeSendButtons();
     home_closeOpenChannelButtons();
-    mSendButton.setEnabled(true);
-    mOpenChannelButton.setEnabled(true);
-    mSendButton.setAlpha(1f);
-    mOpenChannelButton.setAlpha(1f);
+    mBinding.sendpaymentToggler.setEnabled(true);
+    mBinding.homeOpenchannelToggler.setEnabled(true);
+    mBinding.sendpaymentToggler.setAlpha(1f);
+    mBinding.homeOpenchannelToggler.setAlpha(1f);
   }
 
   private void disableSendPayments() {
     canSendPayments = false;
     home_closeSendButtons();
     home_closeOpenChannelButtons();
-    mSendButton.setEnabled(false);
-    mOpenChannelButton.setEnabled(false);
-    mSendButton.setAlpha(0.4f);
-    mOpenChannelButton.setAlpha(0.4f);
+    mBinding.sendpaymentToggler.setEnabled(false);
+    mBinding.homeOpenchannelToggler.setEnabled(false);
+    mBinding.sendpaymentToggler.setAlpha(0.4f);
+    mBinding.homeOpenchannelToggler.setAlpha(0.4f);
   }
 
   public void home_closeSendButtons() {
-    mSendButton.animate().rotation(0).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(150).start();
-    mSendButton.setBackgroundTintList(ContextCompat.getColorStateList(this, R.color.primary));
-    mSendButtonsToggleView.setVisibility(View.GONE);
+    mBinding.sendpaymentToggler.animate().rotation(0).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(150).start();
+    mBinding.sendpaymentToggler.setBackgroundTintList(ContextCompat.getColorStateList(this, R.color.primary));
+    mBinding.sendpaymentActionsList.setVisibility(View.GONE);
   }
 
   public void home_toggleOpenChannelButtons(View view) {
-    boolean isVisible = mOpenChannelButtonsToggleView.getVisibility() == View.VISIBLE;
-    mOpenChannelButton.animate().rotation(isVisible ? 0 : 135).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(150).start();
-    mOpenChannelButton.setBackgroundTintList(ContextCompat.getColorStateList(this, isVisible ? R.color.green : R.color.grey_4));
-    mOpenChannelButtonsToggleView.setVisibility(isVisible ? View.GONE : View.VISIBLE);
+    boolean isVisible = mBinding.openchannelActionsList.getVisibility() == View.VISIBLE;
+    mBinding.homeOpenchannelToggler.animate().rotation(isVisible ? 0 : 135).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(150).start();
+    mBinding.homeOpenchannelToggler.setBackgroundTintList(ContextCompat.getColorStateList(this, isVisible ? R.color.green : R.color.grey_4));
+    mBinding.openchannelActionsList.setVisibility(isVisible ? View.GONE : View.VISIBLE);
   }
 
   public void home_closeOpenChannelButtons() {
-    mOpenChannelButton.animate().rotation(0).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(150).start();
-    mOpenChannelButton.setBackgroundTintList(ContextCompat.getColorStateList(this, R.color.green));
-    mOpenChannelButtonsToggleView.setVisibility(View.GONE);
+    mBinding.homeOpenchannelToggler.animate().rotation(0).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(150).start();
+    mBinding.homeOpenchannelToggler.setBackgroundTintList(ContextCompat.getColorStateList(this, R.color.green));
+    mBinding.openchannelActionsList.setVisibility(View.GONE);
   }
 
   public void home_doPasteURI(View view) {
@@ -494,11 +453,11 @@ public class HomeActivity extends EclairActivity {
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void handleWalletBalanceEvent(WalletStateUpdateEvent event) {
     if (event.isSync) {
-      mConnectionStatus.setVisibility(View.GONE);
+      mBinding.homeConnectionStatus.setVisibility(View.GONE);
     } else {
-      mConnectionStatusTitle.setText(getString(R.string.chain_late));
-      mConnectionStatusDesc.setText(getString(R.string.chain_late_desc));
-      mConnectionStatus.setVisibility(View.VISIBLE);
+      mBinding.homeConnectionStatusTitle.setText(getString(R.string.chain_late));
+      mBinding.homeConnectionStatusDesc.setText(getString(R.string.chain_late_desc));
+      mBinding.homeConnectionStatus.setVisibility(View.VISIBLE);
     }
     updateBalance();
   }
@@ -558,21 +517,21 @@ public class HomeActivity extends EclairActivity {
     final LNBalanceUpdateEvent lnBalanceEvent = EventBus.getDefault().getStickyEvent(LNBalanceUpdateEvent.class);
     final MilliSatoshi lnBalance = lnBalanceEvent == null ? new MilliSatoshi(0) : lnBalanceEvent.total();
     final MilliSatoshi walletBalance = app == null ? new MilliSatoshi(0) : package$.MODULE$.satoshi2millisatoshi(app.onChainBalance.get());
-    mTotalBalanceView.setAmountMsat(new MilliSatoshi(lnBalance.amount() + walletBalance.amount()));
-    mOnchainBalanceView.setAmountMsat(walletBalance);
-    mLNBalanceView.setAmountMsat(lnBalance);
+    mBinding.balanceTotal.setAmountMsat(new MilliSatoshi(lnBalance.amount() + walletBalance.amount()));
+    mBinding.balanceOnchain.setAmountMsat(walletBalance);
+    mBinding.balanceLightning.setAmountMsat(lnBalance);
   }
 
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
   public void handleConnectionEvent(ElectrumConnectionEvent event) {
     if (event.connected) {
       enableSendPayments();
-      mConnectionStatus.setVisibility(View.GONE);
+      mBinding.homeConnectionStatus.setVisibility(View.GONE);
     } else {
       disableSendPayments();
-      mConnectionStatusTitle.setText(getString(R.string.chain_disconnected));
-      mConnectionStatusDesc.setText(getString(R.string.chain_disconnected_desc));
-      mConnectionStatus.setVisibility(View.VISIBLE);
+      mBinding.homeConnectionStatusTitle.setText(getString(R.string.chain_disconnected));
+      mBinding.homeConnectionStatusDesc.setText(getString(R.string.chain_disconnected_desc));
+      mBinding.homeConnectionStatus.setVisibility(View.VISIBLE);
     }
   }
 
