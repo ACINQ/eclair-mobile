@@ -131,7 +131,6 @@ public class SendPaymentActivity extends EclairActivity
         disableAmountInteractions();
       }
       setFeesDefault();
-
       mBinding.recipientValue.setText(output.getAddress());
       invoiceReadSuccessfully(false);
     }
@@ -280,7 +279,6 @@ public class SendPaymentActivity extends EclairActivity
     mBinding.amountEditableValue.requestFocus();
   }
 
-  @SuppressLint("SetTextI18n")
   public void pickFees(final View view) {
     try {
       final Long feesSatPerByte = Long.parseLong(mBinding.feesValue.getText().toString());
@@ -297,7 +295,6 @@ public class SendPaymentActivity extends EclairActivity
     }
   }
 
-  @SuppressLint("SetTextI18n")
   private void setFeesDefault() {
     mBinding.feesValue.setText(String.valueOf(app.estimateFastFees()));
   }

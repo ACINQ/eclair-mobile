@@ -85,12 +85,14 @@
   <string name="openchannel_capacity_invalid">Channel capacity must be between %1$s and %2$s</string>
   <string name="openchannel_capacity_notenoughfunds">Not enough funds</string>
   <string name="openchannel_error_capacity_nan">Capacity amount is not valid</string>
+  <string name="openchannel_error_fees_nan">Funding transaction\'s fees are not valid</string>
   <string name="openchannel_address_expected_format">Expected format is nodeId@host:port</string>
   <string name="openchannel_error_address">This is not a valid address for a Lightning node.\n\n%1$s</string>
   <string name="openchannel_do_open">Open</string>
   <string name="openchannel_pubkey">Node id</string>
   <string name="openchannel_ip">Node ip</string>
   <string name="openchannel_port">Port</string>
+  <string name="openchannel_fees">Funding tx fees</string>
 
   <!-- //////////////// Commons /////////////////// -->
 
@@ -164,8 +166,8 @@
   <string name="payment_description">Desc.</string>
   <string name="payment_destination_address">To</string>
   <string name="payment_fees">Fees</string>
-  <string name="payment_fees_verylow">The fees are very low and your transaction could take a very long time to confirm.</string>
-  <string name="payment_fees_veryhigh">The fees seem very high. Please make sure that this amount is correct.</string>
+  <string name="payment_fees_verylow">Fees are very low and your transaction could take a very long time to confirm.</string>
+  <string name="payment_fees_veryhigh">Fees seem very high. Please make sure that this amount is correct.</string>
   <string name="payment_loading_pleasewait">Reading the invoice, please wait…</string>
   <string name="payment_amount_to_send">Amount in </string>
   <string name="payment_toast_sentbtc">Payment sent</string>

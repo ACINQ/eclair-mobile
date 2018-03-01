@@ -79,7 +79,44 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
       public void afterTextChanged(Editable s) {
       }
     });
+    mBinding.feesValue.addTextChangedListener(new TextWatcher() {
+      @Override
+      public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after) {
+      }
+
+      @Override
+      public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
+        try {
+          final Long feesSatPerByte = Long.parseLong(s.toString());
+          if (feesSatPerByte == app.estimateSlowFees()) {
+            mBinding.feesRating.setText(R.string.payment_fees_slow);
+          } else if (feesSatPerByte == app.estimateMediumFees()) {
+            mBinding.feesRating.setText(R.string.payment_fees_medium);
+          } else if (feesSatPerByte == app.estimateFastFees()) {
+            mBinding.feesRating.setText(R.string.payment_fees_fast);
+          } else {
+            mBinding.feesRating.setText(R.string.payment_fees_custom);
+          }
+          if (feesSatPerByte <= app.estimateSlowFees() / 2) {
+            mBinding.feesWarning.setText(R.string.payment_fees_verylow);
+            mBinding.feesWarning.setVisibility(View.VISIBLE);
+          } else if (feesSatPerByte >= app.estimateFastFees() * 2) {
+            mBinding.feesWarning.setText(R.string.payment_fees_veryhigh);
+            mBinding.feesWarning.setVisibility(View.VISIBLE);
+          } else {
+            mBinding.feesWarning.setVisibility(View.GONE);
+          }
+        } catch (NumberFormatException e) {
+          Log.e(TAG, "Could not read fees", e);
+        }
+      }
+
+      @Override
+      public void afterTextChanged(Editable s) {
+      }
+    });
     mBinding.capacityUnit.setText(preferredBitcoinUnit.shortLabel());
+    mBinding.feesValue.setText(String.valueOf(app.estimateFastFees()));
     remoteNodeURIAsString = getIntent().getStringExtra(EXTRA_NEW_HOST_URI).trim();
     new NodeURIReaderTask(this, remoteNodeURIAsString).execute();
   }
@@ -101,6 +138,22 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
       pinDialog.dismiss();
     }
     super.onPause();
+  }
+
+  public void pickFees(final View view) {
+    try {
+      final Long feesSatPerByte = Long.parseLong(mBinding.feesValue.getText().toString());
+      if (feesSatPerByte <= app.estimateSlowFees()) {
+        mBinding.feesValue.setText(String.valueOf(app.estimateMediumFees()));
+      } else if (feesSatPerByte <= app.estimateMediumFees()) {
+        mBinding.feesValue.setText(String.valueOf(app.estimateFastFees()));
+      } else {
+        mBinding.feesValue.setText(String.valueOf(app.estimateSlowFees()));
+      }
+    } catch (NumberFormatException e) {
+      Log.e(TAG, "Could not read fees with cause=" + e.getMessage());
+      mBinding.feesValue.setText(String.valueOf(app.estimateSlowFees()));
+    }
   }
 
   /**
@@ -179,6 +232,15 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
       toggleError(getString(R.string.openchannel_error_capacity_nan));
       return;
     }
+
+    try {
+      Long.parseLong(mBinding.feesValue.getText().toString());
+    } catch (Exception e) {
+      Log.e(TAG, "Could not read fees with cause=" + e.getMessage());
+      toggleError(getString(R.string.openchannel_error_fees_nan));
+      return;
+    }
+
     disableForm();
     if (isPinRequired()) {
       pinDialog = new PinDialog(OpenChannelActivity.this, R.style.CustomAlertDialog, new PinDialog.PinDialogCallback() {
@@ -205,22 +267,27 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
 
   private void doOpenChannel() {
     final Satoshi fundingSat = CoinUtils.convertStringAmountToSat(mBinding.capacityValue.getText().toString(), preferredBitcoinUnit.code());
-    AsyncExecutor.create().execute(
-      () -> {
-        OnComplete<Object> onComplete = new OnComplete<Object>() {
-          @Override
-          public void onComplete(Throwable throwable, Object o) throws Throwable {
-            if (throwable != null) {
-              EventBus.getDefault().post(new LNNewChannelFailureEvent(throwable.getMessage()));
-            } else {
-              EventBus.getDefault().post(new LNNewChannelOpenedEvent(remoteNodeURI.nodeId().toString()));
+    final Long feesPerKw = fr.acinq.eclair.package$.MODULE$.feerateByte2Kw(Long.parseLong(mBinding.feesValue.getText().toString()));
+    try {
+      Peer.OpenChannel o = new Peer.OpenChannel(remoteNodeURI.nodeId(), fundingSat, new MilliSatoshi(0), scala.Option.apply(feesPerKw), scala.Option.apply(null));
+      AsyncExecutor.create().execute(
+        () -> {
+          OnComplete<Object> onComplete = new OnComplete<Object>() {
+            @Override
+            public void onComplete(Throwable throwable, Object o) throws Throwable {
+              if (throwable != null) {
+                EventBus.getDefault().post(new LNNewChannelFailureEvent(throwable.getMessage()));
+              } else {
+                EventBus.getDefault().post(new LNNewChannelOpenedEvent(remoteNodeURI.nodeId().toString()));
+              }
             }
-          }
-        };
-        app.openChannel(Duration.create(30, "seconds"), onComplete, remoteNodeURI,
-          new Peer.OpenChannel(remoteNodeURI.nodeId(), fundingSat, new MilliSatoshi(0), scala.Option.apply(null), scala.Option.apply(null)));
-      });
-    goToHome();
+          };
+          app.openChannel(Duration.create(30, "seconds"), onComplete, remoteNodeURI, o);
+        });
+      goToHome();
+    } catch (Throwable t) {
+      toggleError(t.getLocalizedMessage());
+    }
   }
 
   @Override

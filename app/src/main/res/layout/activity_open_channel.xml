@@ -40,7 +40,7 @@
           android:gravity="center|top"
           android:onClick="focusAmount"
           android:orientation="vertical"
-          android:paddingBottom="24dp"
+          android:paddingBottom="16dp"
           android:paddingLeft="24dp"
           android:paddingRight="24dp">
 
@@ -48,13 +48,13 @@
             android:id="@+id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
+            android:layout_marginBottom="16dp"
             android:background="@drawable/rounded_corner_blue_bottom"
             android:gravity="center"
             android:orientation="horizontal"
             android:paddingBottom="3dp"
-            android:paddingLeft="4dp"
-            android:paddingRight="6dp"
+            android:paddingStart="4dp"
+            android:paddingEnd="6dp"
             android:paddingTop="3dp">
 
             <ImageView
@@ -91,7 +91,7 @@
               android:textAlignment="viewEnd"
               android:textColor="@color/grey_4"
               android:textCursorDrawable="@drawable/cursor_grey"
-              android:textSize="40sp" />
+              android:textSize="34sp" />
 
             <TextView
               android:id="@+id/capacity_hint"
@@ -211,12 +211,96 @@
             android:textSize="12sp" />
         </LinearLayout>
 
+        <!-- funding tx fees -->
+        <LinearLayout
+          android:id="@+id/fees"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:gravity="start|center"
+          android:orientation="horizontal"
+          android:layout_marginTop="4dp"
+          android:paddingLeft="12dp"
+          android:paddingRight="12dp">
+
+          <TextView
+            android:layout_width="64dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:text="@string/openchannel_fees"
+            android:textAlignment="textEnd"
+            android:textColor="@color/primary_light_x4_desat"
+            android:textSize="12sp" />
+
+          <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="horizontal">
+
+            <EditText
+              android:id="@+id/fees_value"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:backgroundTint="@android:color/transparent"
+              android:hint="..."
+              android:digits="0123456789"
+              android:inputType="number"
+              android:maxLength="6"
+              android:maxLines="1"
+              android:minWidth="6dp"
+              android:paddingRight="4dp"
+              android:textColorHint="@color/grey_1"
+              android:textSize="12sp" />
+
+            <TextView
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:text="@string/btc_fee_unit"
+              android:textColor="@color/grey_2"
+              android:textSize="12sp" />
+
+          </LinearLayout>
+
+          <Button
+            android:id="@+id/fees_rating"
+            style="?android:attr/borderlessButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/rounded_corner_green"
+            android:minHeight="0dp"
+            android:minWidth="64dp"
+            android:onClick="pickFees"
+            android:paddingBottom="4dp"
+            android:paddingLeft="6dp"
+            android:paddingRight="6dp"
+            android:paddingTop="4dp"
+            android:text="@string/payment_fees_fast"
+            android:textColor="@color/white"
+            android:textSize="12sp" />
+
+        </LinearLayout>
+
+        <TextView
+          android:id="@+id/fees_warning"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginTop="12dp"
+          android:layout_marginLeft="32dp"
+          android:layout_marginRight="32dp"
+          android:drawablePadding="6dp"
+          android:drawableStart="@drawable/ic_warning"
+          android:gravity="start|center"
+          android:paddingBottom="12dp"
+          android:textColor="@color/grey_3"
+          android:textSize="12sp"
+          android:visibility="gone" />
+
         <!-- ERRORS -->
         <LinearLayout
           android:id="@+id/error"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:layout_marginTop="20dp"
+          android:layout_marginTop="18dp"
           android:gravity="center"
           android:paddingEnd="40dp"
           android:paddingStart="48dp"
@@ -244,7 +328,7 @@
         <LinearLayout
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:layout_marginTop="20dp"
+          android:layout_marginTop="18dp"
           android:orientation="horizontal">
 
           <Button
