@@ -54,9 +54,9 @@ import fr.acinq.eclair.wallet.events.ElectrumConnectionEvent;
 import fr.acinq.eclair.wallet.events.LNBalanceUpdateEvent;
 import fr.acinq.eclair.wallet.events.LNNewChannelFailureEvent;
 import fr.acinq.eclair.wallet.events.LNNewChannelOpenedEvent;
-import fr.acinq.eclair.wallet.events.PaymentEvent;
-import fr.acinq.eclair.wallet.events.LNPaymentSuccessEvent;
 import fr.acinq.eclair.wallet.events.LNPaymentFailedEvent;
+import fr.acinq.eclair.wallet.events.LNPaymentSuccessEvent;
+import fr.acinq.eclair.wallet.events.PaymentEvent;
 import fr.acinq.eclair.wallet.events.WalletStateUpdateEvent;
 import fr.acinq.eclair.wallet.fragments.ChannelsListFragment;
 import fr.acinq.eclair.wallet.fragments.PaymentsListFragment;
@@ -77,7 +77,6 @@ public class HomeActivity extends EclairActivity {
   private int introStep = 0;
   private boolean canSendPayments = false;
 
-  private ReceivePaymentFragment mReceivePaymentFragment;
   private PaymentsListFragment mPaymentsListFragment;
   private ChannelsListFragment mChannelsListFragment;
   private Handler mExchangeRateHandler;
@@ -138,7 +137,6 @@ public class HomeActivity extends EclairActivity {
     });
 
     final List<Fragment> fragments = new ArrayList<>();
-     mReceivePaymentFragment = new ReceivePaymentFragment();
     fragments.add(new ReceivePaymentFragment());
     mPaymentsListFragment = new PaymentsListFragment();
     fragments.add(mPaymentsListFragment);
