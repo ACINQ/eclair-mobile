@@ -499,6 +499,7 @@ public class SendPaymentActivity extends EclairActivity
             newPayment.setDirection(PaymentDirection.SENT);
             newPayment.setReference(paymentHash);
             newPayment.setAmountRequestedMsat(WalletUtils.getLongAmountFromInvoice(pr));
+            newPayment.setAmountSentMsat(amountMsat);
             newPayment.setRecipient(pr.nodeId().toString());
             newPayment.setPaymentRequest(prAsString.toLowerCase());
             newPayment.setStatus(PaymentStatus.INIT);

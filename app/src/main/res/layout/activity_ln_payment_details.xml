@@ -83,6 +83,16 @@
       <include layout="@layout/include_separator" />
 
       <fr.acinq.eclair.wallet.customviews.DataRow
+        android:id="@+id/paymentdetails_amount_sent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:desc="@string/paymentdetails_amount_sent_desc"
+        app:label="@string/paymentdetails_amount_sent_label"
+        app:value="@string/unknown" />
+
+      <include layout="@layout/include_separator" />
+
+      <fr.acinq.eclair.wallet.customviews.DataRow
         android:id="@+id/paymentdetails_paymenthash"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

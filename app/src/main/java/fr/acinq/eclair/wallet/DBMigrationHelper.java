@@ -32,5 +32,10 @@ public class DBMigrationHelper extends DaoMaster.OpenHelper {
       db.execSQL("ALTER TABLE " + PaymentDao.TABLENAME +
         " ADD COLUMN " + PaymentDao.Properties.Recipient.columnName + " TEXT");
     }
+    if (oldVersion < 5) {
+      // adds the amount sent column (because it can be different from amount requested)
+      db.execSQL("ALTER TABLE " + PaymentDao.TABLENAME +
+        " ADD COLUMN " + PaymentDao.Properties.AmountSentMsat.columnName + " INTEGER");
+    }
   }
 }

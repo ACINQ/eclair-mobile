@@ -251,7 +251,7 @@ public class EclairEventService extends UntypedActor {
       PaymentSucceeded event = (PaymentSucceeded) message;
       Payment paymentInDB = dbHelper.getPayment(event.paymentHash().toString(), PaymentType.BTC_LN);
       if (paymentInDB != null) {
-        dbHelper.updatePaymentPaid(paymentInDB, event.amountMsat(), event.amountMsat() - paymentInDB.getAmountRequestedMsat(), event.paymentPreimage().toString());
+        dbHelper.updatePaymentPaid(paymentInDB, event.amountMsat(), event.amountMsat() - paymentInDB.getAmountSentMsat(), event.paymentPreimage().toString());
         EventBus.getDefault().post(new LNPaymentSuccessEvent(paymentInDB));
         EventBus.getDefault().post(new PaymentEvent());
       } else {

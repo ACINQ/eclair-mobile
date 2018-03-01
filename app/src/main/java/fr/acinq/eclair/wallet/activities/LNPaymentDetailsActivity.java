@@ -62,6 +62,9 @@ public class LNPaymentDetailsActivity extends EclairActivity {
       DataRow amountRequestedRow = findViewById(R.id.paymentdetails_amount_requested);
       amountRequestedRow.setValue(CoinUtils.formatAmountInUnit(new MilliSatoshi(p.getAmountRequestedMsat()), prefUnit, true));
 
+      DataRow amountSentRow = findViewById(R.id.paymentdetails_amount_sent);
+      amountSentRow.setValue(CoinUtils.formatAmountInUnit(new MilliSatoshi(p.getAmountSentMsat()), prefUnit, true));
+
       DataRow paymentHashRow = findViewById(R.id.paymentdetails_paymenthash);
       paymentHashRow.setValue(p.getReference());
 

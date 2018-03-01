@@ -47,7 +47,7 @@ android {
 
 greendao {
   // increment when changing DB structure
-  schemaVersion 4
+  schemaVersion 5
 }
 
 dependencies {
