@@ -160,9 +160,9 @@ public class App extends Application {
    * @param publicKey   Public key of the recipient node
    */
   public void sendLNPayment(final int timeout, final long amountMsat,
-                            final BinaryData paymentHash, final Crypto.PublicKey publicKey, final Long minFinalCltvExpiry) {
+                            final BinaryData paymentHash, final Crypto.PublicKey publicKey, final Long finalCltvExpiry) {
     Patterns.ask(appKit.eclairKit.paymentInitiator(),
-      new SendPayment(amountMsat, paymentHash, publicKey, (Seq<scala.collection.Seq<PaymentRequest.ExtraHop>>) Seq$.MODULE$.empty(), minFinalCltvExpiry, 20),
+      new SendPayment(amountMsat, paymentHash, publicKey, (Seq<scala.collection.Seq<PaymentRequest.ExtraHop>>) Seq$.MODULE$.empty(), finalCltvExpiry, 20),
       new Timeout(Duration.create(1, "seconds"))).onFailure(new OnFailure() {
       @Override
       public void onFailure(Throwable failure) throws Throwable {}

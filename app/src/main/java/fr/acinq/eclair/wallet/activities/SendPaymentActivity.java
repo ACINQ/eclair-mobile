@@ -162,6 +162,8 @@ public class SendPaymentActivity extends EclairActivity
   }
 
   private void canNotHandlePayment(final int causeMessageId) {
+    mFormView.setVisibility(View.GONE);
+    mLoadingTextView.setVisibility(View.VISIBLE);
     mLoadingTextView.setTextIsSelectable(true);
     mLoadingTextView.setText(causeMessageId);
   }
@@ -394,7 +396,6 @@ public class SendPaymentActivity extends EclairActivity
             public void onPinConfirm(final PinDialog dialog, final String pinValue) {
               if (isPinCorrect(pinValue, dialog)) {
                 sendLNPayment(amountMsat, mLNInvoice, mInvoice);
-                closeAndGoHome();
               } else {
                 handlePaymentError(R.string.payment_error_incorrect_pin);
               }
@@ -485,39 +486,42 @@ public class SendPaymentActivity extends EclairActivity
    */
   private void sendLNPayment(final long amountMsat, final PaymentRequest pr, final String prAsString) {
     Log.d(TAG, "Sending LN payment for invoice " + prAsString);
-    AsyncExecutor.create().execute(
-      () -> {
-        // 0 - Check if payment already exists
-        final String paymentHash = pr.paymentHash().toString();
-        final String paymentDescription = pr.description().isLeft() ? pr.description().left().get() : pr.description().right().get().toString();
-        Payment p = app.getDBHelper().getPayment(paymentHash, PaymentType.BTC_LN);
+    final String paymentHash = pr.paymentHash().toString();
+    final Payment p = app.getDBHelper().getPayment(paymentHash, PaymentType.BTC_LN);
+    if (p != null && p.getStatus() == PaymentStatus.PAID) {
+      canNotHandlePayment(R.string.payment_error_paid);
+    } else if (p != null && p.getStatus() == PaymentStatus.PENDING) {
+      canNotHandlePayment(R.string.payment_error_pending);
+    } else {
+      AsyncExecutor.create().execute(
+        () -> {
+          // payment attempt is processed if it does not already exist or is not failed/init
+          if (p == null) {
+            final String paymentDescription = pr.description().isLeft() ? pr.description().left().get() : pr.description().right().get().toString();
+            final Payment newPayment = new Payment();
+            newPayment.setType(PaymentType.BTC_LN);
+            newPayment.setDirection(PaymentDirection.SENT);
+            newPayment.setReference(paymentHash);
+            newPayment.setAmountRequestedMsat(WalletUtils.getLongAmountFromInvoice(pr));
+            newPayment.setRecipient(pr.nodeId().toString());
+            newPayment.setPaymentRequest(prAsString.toLowerCase());
+            newPayment.setStatus(PaymentStatus.INIT);
+            newPayment.setDescription(paymentDescription);
+            newPayment.setUpdated(new Date());
+            app.getDBHelper().insertOrUpdatePayment(newPayment);
+          }
 
-        // payment attempt is processed if it does not already exist or is not failed/init
-        if (p == null) {
-          p = new Payment();
-          p.setType(PaymentType.BTC_LN);
-          p.setDirection(PaymentDirection.SENT);
-          p.setReference(paymentHash);
-          p.setAmountRequestedMsat(WalletUtils.getLongAmountFromInvoice(pr));
-          p.setRecipient(pr.nodeId().toString());
-          p.setPaymentRequest(prAsString.toLowerCase());
-          p.setStatus(PaymentStatus.INIT);
-          p.setDescription(paymentDescription);
-          p.setUpdated(new Date());
-          app.getDBHelper().insertOrUpdatePayment(p);
-        } else if (p.getStatus() == PaymentStatus.PENDING || p.getStatus() != PaymentStatus.PAID) {
-          Log.d(TAG, "payment " + paymentHash+ " aborted");
-          return;
+          Long finalCltvExpiry = PaymentLifecycle.defaultMinFinalCltvExpiry();
+          if (pr.minFinalCltvExpiry().isDefined() && pr.minFinalCltvExpiry().get() instanceof Long) {
+            finalCltvExpiry = (Long) pr.minFinalCltvExpiry().get();
+          }
+          // execute payment future, with cltv expiry + 1 to prevent the case where a block is mined just
+          // when the payment is made, which would fail the payment.
+          app.sendLNPayment(45, amountMsat, pr.paymentHash(), pr.nodeId(), finalCltvExpiry + 1);
         }
-
-        Long minFinalCltvExpiry = PaymentLifecycle.defaultMinFinalCltvExpiry();
-        if (pr.minFinalCltvExpiry().isDefined() && pr.minFinalCltvExpiry().get() instanceof Long) {
-          minFinalCltvExpiry = (Long) pr.minFinalCltvExpiry().get();
-        }
-        // execute payment future
-        app.sendLNPayment(45, amountMsat, pr.paymentHash(), pr.nodeId(), minFinalCltvExpiry);
-      }
-    );
+      );
+      closeAndGoHome();
+    }
   }
 
   /**
