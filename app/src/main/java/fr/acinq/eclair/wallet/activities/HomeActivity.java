@@ -1,6 +1,7 @@
 package fr.acinq.eclair.wallet.activities;
 
 import android.annotation.SuppressLint;
+import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
@@ -420,7 +421,14 @@ public class HomeActivity extends EclairActivity {
   }
 
   public void home_doCopyReceptionAddress(View view) {
-    mReceivePaymentFragment.copyReceptionAddress();
+    try {
+      ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+      clipboard.setPrimaryClip(ClipData.newPlainText("Bitcoin address", app.getWalletAddress()));
+      Toast.makeText(this.getApplicationContext(), "Copied address to clipboard", Toast.LENGTH_SHORT).show();
+    } catch (Exception e) {
+      Log.e(TAG, "failed to copy address", e);
+      Toast.makeText(this.getApplicationContext(), "Could not copy address", Toast.LENGTH_SHORT).show();
+    }
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)

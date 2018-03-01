@@ -1,8 +1,5 @@
 package fr.acinq.eclair.wallet.fragments;
 
-import android.content.ClipData;
-import android.content.ClipboardManager;
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -12,7 +9,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -80,11 +76,5 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
     if (output != null) {
       mQRImageView.setImageBitmap(output);
     }
-  }
-
-  public void copyReceptionAddress() {
-    ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
-    clipboard.setPrimaryClip(ClipData.newPlainText("Bitcoin address", getAddress()));
-    Toast.makeText(this.getContext(), "Copied address to clipboard", Toast.LENGTH_SHORT).show();
   }
 }
