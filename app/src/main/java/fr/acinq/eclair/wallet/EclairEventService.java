@@ -36,9 +36,10 @@ import fr.acinq.eclair.transactions.DirectedHtlc;
 import fr.acinq.eclair.transactions.OUT$;
 import fr.acinq.eclair.wallet.events.ChannelUpdateEvent;
 import fr.acinq.eclair.wallet.events.LNBalanceUpdateEvent;
-import fr.acinq.eclair.wallet.events.LNPaymentEvent;
+import fr.acinq.eclair.wallet.events.LNPaymentSuccessEvent;
 import fr.acinq.eclair.wallet.events.LNPaymentFailedEvent;
 import fr.acinq.eclair.wallet.events.NotificationEvent;
+import fr.acinq.eclair.wallet.events.PaymentEvent;
 import fr.acinq.eclair.wallet.models.LightningPaymentError;
 import fr.acinq.eclair.wallet.models.Payment;
 import fr.acinq.eclair.wallet.models.PaymentDirection;
@@ -141,6 +142,7 @@ public class EclairEventService extends UntypedActor {
           // regular case: we know this payment hash
           if (p.getStatus() == PaymentStatus.INIT) {
             dbHelper.updatePaymentPending(p);
+            EventBus.getDefault().post(new PaymentEvent());
           }
         } else {
           // rare case: an htlc is sent without the app knowing its payment hash
@@ -156,6 +158,7 @@ public class EclairEventService extends UntypedActor {
           p.setStatus(PaymentStatus.PENDING);
           p.setUpdated(new Date());
           dbHelper.insertOrUpdatePayment(p);
+          EventBus.getDefault().post(new PaymentEvent());
         }
       }
     }
@@ -239,6 +242,7 @@ public class EclairEventService extends UntypedActor {
           }
         }
         EventBus.getDefault().post(new LNPaymentFailedEvent(paymentInDB.getReference(), paymentInDB.getDescription(), false, null, errorList));
+        EventBus.getDefault().post(new PaymentEvent());
       } else {
         Log.d(TAG, "received and ignored an unknown PaymentFailed event with hash=" + event.paymentHash().toString());
       }
@@ -248,7 +252,8 @@ public class EclairEventService extends UntypedActor {
       Payment paymentInDB = dbHelper.getPayment(event.paymentHash().toString(), PaymentType.BTC_LN);
       if (paymentInDB != null) {
         dbHelper.updatePaymentPaid(paymentInDB, event.amountMsat(), event.amountMsat() - paymentInDB.getAmountRequestedMsat(), event.paymentPreimage().toString());
-        EventBus.getDefault().post(new LNPaymentEvent(paymentInDB));
+        EventBus.getDefault().post(new LNPaymentSuccessEvent(paymentInDB));
+        EventBus.getDefault().post(new PaymentEvent());
       } else {
         Log.d(TAG, "received and ignored an unknown PaymentSucceeded event with hash=" + event.paymentHash().toString());
       }

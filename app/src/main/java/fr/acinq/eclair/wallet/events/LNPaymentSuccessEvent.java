@@ -2,10 +2,10 @@ package fr.acinq.eclair.wallet.events;
 
 import fr.acinq.eclair.wallet.models.Payment;
 
-public class LNPaymentEvent {
+public class LNPaymentSuccessEvent {
   public final Payment payment;
 
-  public LNPaymentEvent(Payment payment) {
+  public LNPaymentSuccessEvent(Payment payment) {
     this.payment = payment;
   }
 }

@@ -47,14 +47,14 @@ import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.EclairEventService;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.databinding.ActivityHomeBinding;
-import fr.acinq.eclair.wallet.events.BitcoinPaymentEvent;
 import fr.acinq.eclair.wallet.events.BitcoinPaymentFailedEvent;
 import fr.acinq.eclair.wallet.events.ChannelUpdateEvent;
 import fr.acinq.eclair.wallet.events.ElectrumConnectionEvent;
 import fr.acinq.eclair.wallet.events.LNBalanceUpdateEvent;
 import fr.acinq.eclair.wallet.events.LNNewChannelFailureEvent;
 import fr.acinq.eclair.wallet.events.LNNewChannelOpenedEvent;
-import fr.acinq.eclair.wallet.events.LNPaymentEvent;
+import fr.acinq.eclair.wallet.events.PaymentEvent;
+import fr.acinq.eclair.wallet.events.LNPaymentSuccessEvent;
 import fr.acinq.eclair.wallet.events.LNPaymentFailedEvent;
 import fr.acinq.eclair.wallet.events.WalletStateUpdateEvent;
 import fr.acinq.eclair.wallet.fragments.ChannelsListFragment;
@@ -449,21 +449,19 @@ public class HomeActivity extends EclairActivity {
     intent.putExtra(PaymentFailureActivity.EXTRA_PAYMENT_SIMPLE_MESSAGE, event.simpleMessage);
     intent.putParcelableArrayListExtra(PaymentFailureActivity.EXTRA_PAYMENT_ERRORS, event.errors);
     startActivity(intent);
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN)
+  public void handlePaymentEvent(PaymentEvent event) {
     mPaymentsListFragment.updateList();
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
-  public void handleLNPaymentEvent(LNPaymentEvent event) {
+  public void handleLNPaymentSuccessEvent(LNPaymentSuccessEvent event) {
     Intent intent = new Intent(this, PaymentSuccessActivity.class);
     intent.putExtra(PaymentSuccessActivity.EXTRA_PAYMENTSUCCESS_DESC, event.payment.getDescription());
     intent.putExtra(PaymentSuccessActivity.EXTRA_PAYMENTSUCCESS_AMOUNT, event.payment.getAmountPaidMsat());
     startActivity(intent);
-    mPaymentsListFragment.updateList();
-  }
-
-  @Subscribe(threadMode = ThreadMode.MAIN)
-  public void handleBitcoinPaymentEvent(BitcoinPaymentEvent event) {
-    mPaymentsListFragment.updateList();
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)

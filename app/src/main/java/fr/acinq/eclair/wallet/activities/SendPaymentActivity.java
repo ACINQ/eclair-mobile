@@ -492,11 +492,8 @@ public class SendPaymentActivity extends EclairActivity
         final String paymentDescription = pr.description().isLeft() ? pr.description().left().get() : pr.description().right().get().toString();
         Payment p = app.getDBHelper().getPayment(paymentHash, PaymentType.BTC_LN);
 
-        // payment attempt is processed if it does not already exist or is not failed
-        if (p != null && p.getStatus() != PaymentStatus.FAILED) {
-          Log.d(TAG, "payment " + paymentHash+ " aborted");
-          return;
-        } else if (p == null) {
+        // payment attempt is processed if it does not already exist or is not failed/init
+        if (p == null) {
           p = new Payment();
           p.setType(PaymentType.BTC_LN);
           p.setDirection(PaymentDirection.SENT);
@@ -508,6 +505,9 @@ public class SendPaymentActivity extends EclairActivity
           p.setDescription(paymentDescription);
           p.setUpdated(new Date());
           app.getDBHelper().insertOrUpdatePayment(p);
+        } else if (p.getStatus() == PaymentStatus.PENDING || p.getStatus() != PaymentStatus.PAID) {
+          Log.d(TAG, "payment " + paymentHash+ " aborted");
+          return;
         }
 
         Long minFinalCltvExpiry = PaymentLifecycle.defaultMinFinalCltvExpiry();

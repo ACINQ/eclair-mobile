@@ -15,7 +15,7 @@ import fr.acinq.bitcoin.Transaction;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.blockchain.electrum.ElectrumClient;
 import fr.acinq.eclair.blockchain.electrum.ElectrumWallet;
-import fr.acinq.eclair.wallet.events.BitcoinPaymentEvent;
+import fr.acinq.eclair.wallet.events.PaymentEvent;
 import fr.acinq.eclair.wallet.events.ElectrumConnectionEvent;
 import fr.acinq.eclair.wallet.events.WalletStateUpdateEvent;
 import fr.acinq.eclair.wallet.models.Payment;
@@ -82,7 +82,7 @@ public class PaymentSupervisor extends UntypedActor {
       dbHelper.insertOrUpdatePayment(paymentReceived);
 
       // dispatch news and ask for on-chain balance update
-      EventBus.getDefault().post(new BitcoinPaymentEvent(paymentReceived));
+      EventBus.getDefault().post(new PaymentEvent());
 
     } else if (message instanceof ElectrumWallet.TransactionConfidenceChanged) {
       Log.d(TAG, "Received TransactionConfidenceChanged message: " + message);
@@ -93,7 +93,7 @@ public class PaymentSupervisor extends UntypedActor {
         if (p != null) {
           p.setConfidenceBlocks(depth);
           dbHelper.updatePayment(p);
-          EventBus.getDefault().post(new BitcoinPaymentEvent(null));
+          EventBus.getDefault().post(new PaymentEvent());
         }
       }
 
