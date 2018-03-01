@@ -13,6 +13,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import org.greenrobot.greendao.query.QueryBuilder;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +25,7 @@ import fr.acinq.eclair.wallet.adapters.PaymentListItemAdapter;
 import fr.acinq.eclair.wallet.models.Payment;
 import fr.acinq.eclair.wallet.models.PaymentDao;
 import fr.acinq.eclair.wallet.models.PaymentStatus;
+import fr.acinq.eclair.wallet.models.PaymentType;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 
 public class PaymentsListFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
@@ -91,9 +94,12 @@ public class PaymentsListFragment extends Fragment implements SwipeRefreshLayout
   private List<Payment> getPayments() {
 
     if (getActivity() == null || getActivity().getApplication() == null || ((App) getActivity().getApplication()).getDBHelper() == null) return new ArrayList<>();
-
-    final List<Payment> list = ((App) getActivity().getApplication()).getDBHelper().getDaoSession().getPaymentDao()
-      .queryBuilder().where(PaymentDao.Properties.Status.notEq(PaymentStatus.INIT)).orderDesc(PaymentDao.Properties.Updated).limit(100).list();
+    final QueryBuilder<Payment> qb = ((App) getActivity().getApplication()).getDBHelper().getDaoSession().getPaymentDao().queryBuilder();
+    qb.whereOr(
+      PaymentDao.Properties.Type.eq(PaymentType.BTC_ONCHAIN),
+      qb.and(PaymentDao.Properties.Type.eq(PaymentType.BTC_LN), PaymentDao.Properties.Status.notEq(PaymentStatus.INIT)));
+    qb.orderDesc(PaymentDao.Properties.Updated).limit(100);
+    final List<Payment> list = qb.list();
 
     if (mEmptyLabel != null) {
       if (list.isEmpty()) {
