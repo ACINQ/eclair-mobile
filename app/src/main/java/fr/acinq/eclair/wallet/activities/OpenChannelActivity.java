@@ -2,15 +2,13 @@ package fr.acinq.eclair.wallet.activities;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.util.AsyncExecutor;
@@ -20,16 +18,17 @@ import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.CoinUnit;
+import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.channel.Channel;
 import fr.acinq.eclair.io.NodeURI;
 import fr.acinq.eclair.io.Peer;
 import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.R;
+import fr.acinq.eclair.wallet.databinding.ActivityOpenChannelBinding;
 import fr.acinq.eclair.wallet.events.LNNewChannelFailureEvent;
 import fr.acinq.eclair.wallet.events.LNNewChannelOpenedEvent;
 import fr.acinq.eclair.wallet.fragments.PinDialog;
 import fr.acinq.eclair.wallet.tasks.NodeURIReaderTask;
-import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.Validators;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
@@ -41,18 +40,9 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
   private static final String TAG = "OpenChannelActivity";
   final MilliSatoshi minFunding = new MilliSatoshi(100000000); // 1 mBTC
   final MilliSatoshi maxFunding = package$.MODULE$.satoshi2millisatoshi(new Satoshi(Channel.MAX_FUNDING_SATOSHIS()));
-  private View mForm;
-  private TextView mLoadingText;
-  private TextView mCapacityHint;
-  private EditText mCapacityValue;
-  private TextView mCapacityUnit;
-  private TextView mCapacityFiat;
-  private TextView mPubkeyTextView;
-  private TextView mIPTextView;
-  private TextView mPortTextView;
-  private Button mOpenButton;
-  private View mErrorView;
-  private TextView mErrorValue;
+
+  private ActivityOpenChannelBinding mBinding;
+
   private String remoteNodeURIAsString = "";
   private NodeURI remoteNodeURI = null;
   private String preferredFiatCurrency = Constants.FIAT_USD;
@@ -63,24 +53,13 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_open_channel);
+    mBinding = DataBindingUtil.setContentView(this, R.layout.activity_open_channel);
 
     final SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
     preferredFiatCurrency = WalletUtils.getPreferredFiat(sharedPrefs);
     preferredBitcoinUnit = WalletUtils.getPreferredCoinUnit(sharedPrefs);
 
-    mForm = findViewById(R.id.openchannel_form);
-    mLoadingText = findViewById(R.id.openchannel_loading);
-
-    mOpenButton = findViewById(R.id.openchannel_do_open);
-    mIPTextView = findViewById(R.id.openchannel_ip);
-    mPortTextView = findViewById(R.id.openchannel_port);
-    mPubkeyTextView = findViewById(R.id.openchannel_pubkey);
-    mErrorView = findViewById(R.id.openchannel_error);
-    mErrorValue = findViewById(R.id.openchannel_error_value);
-
-    mCapacityHint = findViewById(R.id.openchannel_capacity_hint);
-    mCapacityValue = findViewById(R.id.openchannel_capacity_value);
-    mCapacityValue.addTextChangedListener(new TextWatcher() {
+    mBinding.capacityValue.addTextChangedListener(new TextWatcher() {
       @Override
       public void beforeTextChanged(CharSequence s, int start, int count, int after) {
       }
@@ -88,7 +67,7 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
       @Override
       public void onTextChanged(CharSequence s, int start, int before, int count) {
         // toggle hint depending on amount input
-        mCapacityHint.setVisibility(s == null || s.length() == 0 ? View.VISIBLE : View.GONE);
+        mBinding.capacityHint.setVisibility(s == null || s.length() == 0 ? View.VISIBLE : View.GONE);
         try {
           checkAmount(s.toString());
         } catch (Exception e) {
@@ -100,10 +79,7 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
       public void afterTextChanged(Editable s) {
       }
     });
-    mCapacityUnit = findViewById(R.id.openchannel_capacity_unit);
-    mCapacityUnit.setText(preferredBitcoinUnit.shortLabel());
-    mCapacityFiat = findViewById(R.id.openchannel_capacity_fiat);
-
+    mBinding.capacityUnit.setText(preferredBitcoinUnit.shortLabel());
     remoteNodeURIAsString = getIntent().getStringExtra(EXTRA_NEW_HOST_URI).trim();
     new NodeURIReaderTask(this, remoteNodeURIAsString).execute();
   }
@@ -115,7 +91,7 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
   }
 
   public void focusAmount(final View view) {
-    mCapacityValue.requestFocus();
+    mBinding.capacityValue.requestFocus();
   }
 
   @Override
@@ -144,7 +120,7 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
    */
   private boolean checkAmount(final String amount) throws IllegalArgumentException, NullPointerException {
     final MilliSatoshi amountMsat = CoinUtils.convertStringAmountToMsat(amount, preferredBitcoinUnit.code());
-    mCapacityFiat.setText(WalletUtils.convertMsatToFiatWithUnit(amountMsat.amount(), preferredFiatCurrency));
+    mBinding.capacityFiat.setText(WalletUtils.convertMsatToFiatWithUnit(amountMsat.amount(), preferredFiatCurrency));
     if (amountMsat.amount() < minFunding.amount() || amountMsat.amount() >= maxFunding.amount()) {
       toggleError(getString(R.string.openchannel_capacity_invalid, CoinUtils.formatAmountInUnit(minFunding, preferredBitcoinUnit, false),
         CoinUtils.formatAmountInUnit(maxFunding, preferredBitcoinUnit, true)));
@@ -153,33 +129,33 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
       toggleError(getString(R.string.openchannel_capacity_notenoughfunds));
       return false;
     } else {
-      mErrorView.setVisibility(View.GONE);
+      mBinding.error.setVisibility(View.GONE);
       return true;
     }
   }
 
   private void toggleError(final String errorLabel) {
-    mErrorValue.setText(errorLabel);
-    mErrorView.setVisibility(View.VISIBLE);
+    mBinding.errorValue.setText(errorLabel);
+    mBinding.error.setVisibility(View.VISIBLE);
   }
 
   private void setURIFields(final String pubkey, final String ip, final String port) {
-    mPubkeyTextView.setText(pubkey);
-    mIPTextView.setText(ip);
-    mPortTextView.setText(port);
-    mOpenButton.setVisibility(View.VISIBLE);
+    mBinding.pubkeyValue.setText(pubkey);
+    mBinding.ipValue.setText(ip);
+    mBinding.portValue.setText(port);
+    mBinding.openButton.setVisibility(View.VISIBLE);
   }
 
   private void disableForm() {
-    mOpenButton.setEnabled(false);
-    mCapacityValue.setEnabled(false);
-    mOpenButton.setAlpha(0.3f);
+    mBinding.openButton.setEnabled(false);
+    mBinding.capacityValue.setEnabled(false);
+    mBinding.openButton.setAlpha(0.3f);
   }
 
   private void enableForm() {
-    mOpenButton.setEnabled(true);
-    mCapacityValue.setEnabled(true);
-    mOpenButton.setAlpha(1f);
+    mBinding.openButton.setEnabled(true);
+    mBinding.capacityValue.setEnabled(true);
+    mBinding.openButton.setAlpha(1f);
   }
 
   public void cancelOpenChannel(View view) {
@@ -195,7 +171,7 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
 
   public void confirmOpenChannel(View view) {
     try {
-      if (!checkAmount(mCapacityValue.getText().toString())) {
+      if (!checkAmount(mBinding.capacityValue.getText().toString())) {
         return;
       }
     } catch (Exception e) {
@@ -228,7 +204,7 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
   }
 
   private void doOpenChannel() {
-    final Satoshi fundingSat = CoinUtils.convertStringAmountToSat(mCapacityValue.getText().toString(), preferredBitcoinUnit.code());
+    final Satoshi fundingSat = CoinUtils.convertStringAmountToSat(mBinding.capacityValue.getText().toString(), preferredBitcoinUnit.code());
     AsyncExecutor.create().execute(
       () -> {
         OnComplete<Object> onComplete = new OnComplete<Object>() {
@@ -252,12 +228,12 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
     this.remoteNodeURI = uri;
     if (this.remoteNodeURI == null || this.remoteNodeURI.address() == null || this.remoteNodeURI.nodeId() == null) {
       final String message = getString(R.string.openchannel_error_address, errorMessage != null ? errorMessage : getString(R.string.openchannel_address_expected_format));
-      mLoadingText.setText(message);
+      mBinding.loading.setText(message);
     } else {
-      mLoadingText.setVisibility(View.GONE);
+      mBinding.loading.setVisibility(View.GONE);
       setURIFields(uri.nodeId().toString(), uri.address().getHost(), String.valueOf(uri.address().getPort()));
-      mForm.setVisibility(View.VISIBLE);
-      mCapacityValue.requestFocus();
+      mBinding.form.setVisibility(View.VISIBLE);
+      mBinding.capacityValue.requestFocus();
     }
   }
 }

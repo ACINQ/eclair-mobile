@@ -1,274 +1,277 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:tools="http://schemas.android.com/tools"
-  android:layout_width="match_parent"
-  android:layout_height="match_parent">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:tools="http://schemas.android.com/tools">
 
-  <!-- loading message displayed when the invoice is being parsed -->
-  <TextView
-    android:id="@+id/openchannel_loading"
+  <RelativeLayout
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_centerInParent="true"
-    android:layout_margin="16dp"
-    android:elevation="4dp"
-    android:padding="16dp"
-    android:text="@string/openchannel_loading_pleasewait"
-    android:textAlignment="center"
-    android:textColor="@color/grey_3"
-    android:visibility="visible" />
+    android:layout_height="match_parent">
 
-  <ScrollView
-    android:id="@+id/openchannel_form"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:visibility="gone">
-
-    <LinearLayout
+    <!-- loading message displayed when the invoice is being parsed -->
+    <TextView
+      android:id="@+id/loading"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:orientation="vertical">
+      android:layout_centerInParent="true"
+      android:layout_margin="16dp"
+      android:elevation="4dp"
+      android:padding="16dp"
+      android:text="@string/openchannel_loading_pleasewait"
+      android:textAlignment="center"
+      android:textColor="@color/grey_3"
+      android:visibility="visible" />
+
+    <ScrollView
+      android:id="@+id/form"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:visibility="gone">
 
       <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/primary_light_x4"
-        android:clickable="true"
-        android:focusable="true"
-        android:gravity="center|top"
-        android:onClick="focusAmount"
-        android:orientation="vertical"
-        android:paddingBottom="24dp"
-        android:paddingLeft="24dp"
-        android:paddingRight="24dp">
+        android:orientation="vertical">
 
         <LinearLayout
-          android:id="@+id/openchannel_title"
-          android:layout_width="wrap_content"
+          android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:layout_marginBottom="20dp"
-          android:background="@drawable/rounded_corner_blue_bottom"
-          android:gravity="center"
-          android:orientation="horizontal"
-          android:paddingBottom="3dp"
-          android:paddingLeft="4dp"
-          android:paddingRight="6dp"
-          android:paddingTop="3dp">
+          android:background="@color/primary_light_x4"
+          android:clickable="true"
+          android:focusable="true"
+          android:gravity="center|top"
+          android:onClick="focusAmount"
+          android:orientation="vertical"
+          android:paddingBottom="24dp"
+          android:paddingLeft="24dp"
+          android:paddingRight="24dp">
 
-          <ImageView
-            android:layout_width="14dp"
-            android:layout_height="14dp"
-            android:layout_marginEnd="4dp"
-            android:src="@drawable/icon_bolt_shape_white" />
-
-          <TextView
+          <LinearLayout
+            android:id="@+id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/openchannel_title"
-            android:textColor="@color/white"
-            android:textSize="10sp" />
+            android:layout_marginBottom="20dp"
+            android:background="@drawable/rounded_corner_blue_bottom"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingBottom="3dp"
+            android:paddingLeft="4dp"
+            android:paddingRight="6dp"
+            android:paddingTop="3dp">
+
+            <ImageView
+              android:layout_width="14dp"
+              android:layout_height="14dp"
+              android:layout_marginEnd="4dp"
+              android:src="@drawable/icon_bolt_shape_white" />
+
+            <TextView
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:text="@string/openchannel_title"
+              android:textColor="@color/white"
+              android:textSize="10sp" />
+          </LinearLayout>
+
+          <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:gravity="center">
+
+            <EditText
+              android:id="@+id/capacity_value"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_toStartOf="@+id/capacity_unit"
+              android:background="@android:color/transparent"
+              android:fontFamily="sans-serif-light"
+              android:inputType="numberDecimal"
+              android:maxLength="8"
+              android:maxLines="1"
+              android:minWidth="48dp"
+              android:textAlignment="viewEnd"
+              android:textColor="@color/grey_4"
+              android:textCursorDrawable="@drawable/cursor_grey"
+              android:textSize="40sp" />
+
+            <TextView
+              android:id="@+id/capacity_hint"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_alignBaseline="@+id/capacity_unit"
+              android:layout_marginEnd="8dp"
+              android:layout_toStartOf="@+id/capacity_unit"
+              android:fontFamily="sans-serif-light"
+              android:text="@string/openchannel_capacity_hint"
+              android:textColor="@color/primary_light_x4_desat" />
+
+            <TextView
+              android:id="@+id/capacity_unit"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_alignBaseline="@+id/capacity_value"
+              android:layout_alignParentEnd="true"
+              android:fontFamily="sans-serif-light"
+              android:maxLines="1"
+              android:paddingEnd="0dp"
+              android:paddingStart="6dp" />
+
+          </RelativeLayout>
+
+          <TextView
+            android:id="@+id/capacity_fiat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:textColor="@color/grey_1"
+            android:textSize="12sp" />
+
         </LinearLayout>
 
-        <RelativeLayout
-          android:layout_width="wrap_content"
+        <!-- PUBKEY -->
+        <LinearLayout
+          android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:layout_marginBottom="4dp"
-          android:gravity="center">
-
-          <EditText
-            android:id="@+id/openchannel_capacity_value"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toStartOf="@+id/openchannel_capacity_unit"
-            android:background="@android:color/transparent"
-            android:fontFamily="sans-serif-light"
-            android:inputType="numberDecimal"
-            android:maxLength="8"
-            android:maxLines="1"
-            android:minWidth="48dp"
-            android:textAlignment="viewEnd"
-            android:textColor="@color/grey_4"
-            android:textCursorDrawable="@drawable/cursor_grey"
-            android:textSize="40sp" />
+          android:orientation="horizontal"
+          android:paddingLeft="12dp"
+          android:paddingRight="12dp"
+          android:paddingTop="8dp">
 
           <TextView
-            android:id="@+id/openchannel_capacity_hint"
-            android:layout_width="wrap_content"
+            android:id="@+id/pubkey_label"
+            android:layout_width="64dp"
             android:layout_height="wrap_content"
-            android:layout_alignBaseline="@+id/openchannel_capacity_unit"
             android:layout_marginEnd="8dp"
-            android:layout_toStartOf="@+id/openchannel_capacity_unit"
-            android:fontFamily="sans-serif-light"
-            android:text="@string/openchannel_capacity_hint"
-            android:textColor="@color/primary_light_x4_desat" />
+            android:text="@string/openchannel_pubkey"
+            android:textAlignment="textEnd"
+            android:textColor="@color/primary_light_x4_desat"
+            android:textSize="12sp" />
 
           <TextView
-            android:id="@+id/openchannel_capacity_unit"
+            android:id="@+id/pubkey_value"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignBaseline="@+id/openchannel_capacity_value"
-            android:layout_alignParentEnd="true"
-            android:fontFamily="sans-serif-light"
-            android:maxLines="1"
-            android:paddingEnd="0dp"
-            android:paddingStart="6dp" />
+            android:text="@string/unknown"
+            android:textIsSelectable="true"
+            android:textSize="12sp" />
 
-        </RelativeLayout>
+        </LinearLayout>
 
-        <TextView
-          android:id="@+id/openchannel_capacity_fiat"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:maxLines="1"
-          android:textColor="@color/grey_1"
-          android:textSize="12sp" />
-
-      </LinearLayout>
-
-      <!-- PUBKEY -->
-      <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingLeft="12dp"
-        android:paddingRight="12dp"
-        android:paddingTop="8dp">
-
-        <TextView
-          android:id="@+id/openchannel_pubkey_label"
-          android:layout_width="64dp"
-          android:layout_height="wrap_content"
-          android:layout_marginEnd="8dp"
-          android:text="@string/openchannel_pubkey"
-          android:textAlignment="textEnd"
-          android:textColor="@color/primary_light_x4_desat"
-          android:textSize="12sp" />
-
-        <TextView
-          android:id="@+id/openchannel_pubkey"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:text="@string/unknown"
-          android:textIsSelectable="true"
-          android:textSize="12sp" />
-
-      </LinearLayout>
-
-      <!-- IP -->
-      <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingLeft="12dp"
-        android:paddingRight="12dp"
-        android:paddingTop="8dp">
-
-        <TextView
-          android:id="@+id/openchannel_ip_label"
-          android:layout_width="64dp"
-          android:layout_height="wrap_content"
-          android:layout_marginEnd="8dp"
-          android:text="@string/openchannel_ip"
-          android:textAlignment="textEnd"
-          android:textColor="@color/primary_light_x4_desat"
-          android:textSize="12sp" />
-
-        <TextView
-          android:id="@+id/openchannel_ip"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:text="@string/unknown"
-          android:textIsSelectable="true"
-          android:textSize="12sp" />
-      </LinearLayout>
-
-      <!-- PORT -->
-      <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingLeft="12dp"
-        android:paddingRight="12dp"
-        android:paddingTop="8dp">
-
-        <TextView
-          android:layout_width="64dp"
-          android:layout_height="wrap_content"
-          android:layout_marginEnd="8dp"
-          android:text="@string/openchannel_port"
-          android:textAlignment="textEnd"
-          android:textColor="@color/primary_light_x4_desat"
-          android:textSize="12sp" />
-
-        <TextView
-          android:id="@+id/openchannel_port"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:text="@string/unknown"
-          android:textIsSelectable="true"
-          android:textSize="12sp" />
-      </LinearLayout>
-
-      <!-- ERRORS -->
-      <LinearLayout
-        android:id="@+id/openchannel_error"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:gravity="center"
-        android:paddingEnd="40dp"
-        android:paddingStart="48dp"
-        android:visibility="gone"
-        tools:ignore="UseCompoundDrawables">
-
-        <ImageView
-          android:layout_width="20dp"
-          android:layout_height="20dp"
-          android:layout_marginEnd="8dp"
-          android:contentDescription="@string/error_icon"
-          android:src="@drawable/ic_error" />
-
-        <TextView
-          android:id="@+id/openchannel_error_value"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:text="@string/openchannel_capacity_invalid"
-          android:textAlignment="viewStart"
-          android:textColor="@color/red_faded"
-          android:textSize="12sp" />
-
-      </LinearLayout>
-
-      <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:orientation="horizontal">
-
-        <Button
+        <!-- IP -->
+        <LinearLayout
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:layout_weight="1"
-          android:background="?android:attr/selectableItemBackground"
-          android:onClick="cancelOpenChannel"
-          android:text="@string/btn_cancel"
-          android:textColor="@color/grey_0_dark_x1" />
+          android:orientation="horizontal"
+          android:paddingLeft="12dp"
+          android:paddingRight="12dp"
+          android:paddingTop="8dp">
 
-        <Button
-          android:id="@+id/openchannel_do_open"
+          <TextView
+            android:id="@+id/ip_label"
+            android:layout_width="64dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:text="@string/openchannel_ip"
+            android:textAlignment="textEnd"
+            android:textColor="@color/primary_light_x4_desat"
+            android:textSize="12sp" />
+
+          <TextView
+            android:id="@+id/ip_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/unknown"
+            android:textIsSelectable="true"
+            android:textSize="12sp" />
+        </LinearLayout>
+
+        <!-- PORT -->
+        <LinearLayout
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:layout_weight="1"
-          android:background="?android:attr/selectableItemBackground"
-          android:drawablePadding="6dp"
-          android:drawableStart="@drawable/ic_check"
-          android:gravity="start|center"
-          android:onClick="confirmOpenChannel"
-          android:paddingEnd="16dp"
-          android:paddingStart="30dp"
-          android:text="@string/openchannel_do_open"
-          android:textColor="@color/green" />
+          android:orientation="horizontal"
+          android:paddingLeft="12dp"
+          android:paddingRight="12dp"
+          android:paddingTop="8dp">
+
+          <TextView
+            android:layout_width="64dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:text="@string/openchannel_port"
+            android:textAlignment="textEnd"
+            android:textColor="@color/primary_light_x4_desat"
+            android:textSize="12sp" />
+
+          <TextView
+            android:id="@+id/port_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/unknown"
+            android:textIsSelectable="true"
+            android:textSize="12sp" />
+        </LinearLayout>
+
+        <!-- ERRORS -->
+        <LinearLayout
+          android:id="@+id/error"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_marginTop="20dp"
+          android:gravity="center"
+          android:paddingEnd="40dp"
+          android:paddingStart="48dp"
+          android:visibility="gone"
+          tools:ignore="UseCompoundDrawables">
+
+          <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginEnd="8dp"
+            android:contentDescription="@string/error_icon"
+            android:src="@drawable/ic_error" />
+
+          <TextView
+            android:id="@+id/error_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/openchannel_capacity_invalid"
+            android:textAlignment="viewStart"
+            android:textColor="@color/red_faded"
+            android:textSize="12sp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_marginTop="20dp"
+          android:orientation="horizontal">
+
+          <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="?android:attr/selectableItemBackground"
+            android:onClick="cancelOpenChannel"
+            android:text="@string/btn_cancel"
+            android:textColor="@color/grey_0_dark_x1" />
+
+          <Button
+            android:id="@+id/open_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="?android:attr/selectableItemBackground"
+            android:drawablePadding="6dp"
+            android:drawableStart="@drawable/ic_check"
+            android:gravity="start|center"
+            android:onClick="confirmOpenChannel"
+            android:paddingEnd="16dp"
+            android:paddingStart="30dp"
+            android:text="@string/openchannel_do_open"
+            android:textColor="@color/green" />
+        </LinearLayout>
       </LinearLayout>
-    </LinearLayout>
-  </ScrollView>
-</RelativeLayout>
+    </ScrollView>
+  </RelativeLayout>
+</layout>
