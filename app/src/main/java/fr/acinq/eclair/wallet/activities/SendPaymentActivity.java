@@ -44,11 +44,11 @@ import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 import scala.util.Either;
 
-public class CreatePaymentActivity extends EclairActivity
+public class SendPaymentActivity extends EclairActivity
   implements LNInvoiceReaderTask.AsyncInvoiceReaderTaskResponse, BitcoinInvoiceReaderTask.AsyncInvoiceReaderTaskResponse {
 
   public static final String EXTRA_INVOICE = BuildConfig.APPLICATION_ID + "EXTRA_INVOICE";
-  private static final String TAG = "CreatePayment";
+  private static final String TAG = "SendPayment";
   private final static List<String> LIGHTNING_PREFIXES = Arrays.asList("lightning:", "lightning://");
 
   private boolean isProcessingPayment = false;
@@ -198,7 +198,7 @@ public class CreatePaymentActivity extends EclairActivity
   @Override
   protected void onCreate(final Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    setContentView(R.layout.activity_create_payment);
+    setContentView(R.layout.activity_send_payment);
 
     final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
     preferredBitcoinUnit = WalletUtils.getPreferredCoinUnit(sharedPref);
@@ -389,7 +389,7 @@ public class CreatePaymentActivity extends EclairActivity
           ? WalletUtils.getLongAmountFromInvoice(mLNInvoice)
           : CoinUtils.convertStringAmountToMsat(mAmountEditableValue.getText().toString(), preferredBitcoinUnit.code()).amount();
         if (isPinRequired()) {
-          pinDialog = new PinDialog(CreatePaymentActivity.this, R.style.CustomAlertDialog, new PinDialog.PinDialogCallback() {
+          pinDialog = new PinDialog(SendPaymentActivity.this, R.style.CustomAlertDialog, new PinDialog.PinDialogCallback() {
             @Override
             public void onPinConfirm(final PinDialog dialog, final String pinValue) {
               if (isPinCorrect(pinValue, dialog)) {
@@ -422,7 +422,7 @@ public class CreatePaymentActivity extends EclairActivity
         try {
           final Long feesPerKw = fr.acinq.eclair.package$.MODULE$.feerateByte2Kw(Long.parseLong(mFeesValue.getText().toString()));
           if (isPinRequired()) {
-            pinDialog = new PinDialog(CreatePaymentActivity.this, R.style.CustomAlertDialog, new PinDialog.PinDialogCallback() {
+            pinDialog = new PinDialog(SendPaymentActivity.this, R.style.CustomAlertDialog, new PinDialog.PinDialogCallback() {
               public void onPinConfirm(final PinDialog dialog, final String pinValue) {
                 if (isPinCorrect(pinValue, dialog)) {
                   sendBitcoinPayment(amountSat, feesPerKw, mBitcoinInvoice);

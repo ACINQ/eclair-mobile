@@ -229,8 +229,8 @@ public class HomeActivity extends EclairActivity {
         case "bitcoin":
         case "lightning":
           Log.d(TAG, "received intent with payment_request=" + paymentRequest.toString());
-          final Intent paymentIntent = new Intent(this, CreatePaymentActivity.class);
-          paymentIntent.putExtra(CreatePaymentActivity.EXTRA_INVOICE, paymentRequest.toString());
+          final Intent paymentIntent = new Intent(this, SendPaymentActivity.class);
+          paymentIntent.putExtra(SendPaymentActivity.EXTRA_INVOICE, paymentRequest.toString());
           startActivity(paymentIntent);
           break;
         default:
@@ -339,8 +339,8 @@ public class HomeActivity extends EclairActivity {
 
   public void home_sendPaste(View view) {
     if (canSendPayments) {
-      Intent intent = new Intent(this, CreatePaymentActivity.class);
-      intent.putExtra(CreatePaymentActivity.EXTRA_INVOICE, readFromClipboard());
+      Intent intent = new Intent(this, SendPaymentActivity.class);
+      intent.putExtra(SendPaymentActivity.EXTRA_INVOICE, readFromClipboard());
       startActivity(intent);
     }
   }

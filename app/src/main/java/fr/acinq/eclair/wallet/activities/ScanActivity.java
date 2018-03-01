@@ -47,8 +47,8 @@ public class ScanActivity extends Activity {
         final Handler dismissHandler = new Handler();
         dismissHandler.postDelayed(() -> {
           if (isInvoice) {
-            Intent intent = new Intent(getBaseContext(), CreatePaymentActivity.class);
-            intent.putExtra(CreatePaymentActivity.EXTRA_INVOICE, scan);
+            Intent intent = new Intent(getBaseContext(), SendPaymentActivity.class);
+            intent.putExtra(SendPaymentActivity.EXTRA_INVOICE, scan);
             startActivity(intent);
           } else {
             Intent intent = new Intent(getBaseContext(), OpenChannelActivity.class);

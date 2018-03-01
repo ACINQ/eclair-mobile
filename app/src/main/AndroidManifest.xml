@@ -61,7 +61,7 @@
       android:launchMode="singleTask"
       android:screenOrientation="portrait" />
     <activity
-      android:name=".activities.CreatePaymentActivity"
+      android:name=".activities.SendPaymentActivity"
       android:label=""
       android:launchMode="singleTop"
       android:parentActivityName=".activities.HomeActivity"
