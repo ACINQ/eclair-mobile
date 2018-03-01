@@ -112,18 +112,18 @@ public class SendPaymentActivity extends EclairActivity
       }
       mLNInvoice = output;
       isAmountReadonly = mLNInvoice.amount().isDefined();
+      mAmountEditableValue.addTextChangedListener(amountTextWatcher);
       if (isAmountReadonly) {
         final MilliSatoshi amountMsat = WalletUtils.getAmountFromInvoice(mLNInvoice);
         if (!EclairEventService.hasActiveChannelsWithBalance(amountMsat.amount())) {
           canNotHandlePayment(R.string.payment_error_amount_ln_insufficient_funds);
           return;
         }
-        mAmountEditableHint.setVisibility(View.GONE);
-        mAmountEditableValue.setText(CoinUtils.formatAmountInUnit(amountMsat, preferredBitcoinUnit, false));
+        mAmountEditableValue.setText(CoinUtils.rawAmountInUnit(amountMsat, preferredBitcoinUnit).bigDecimal().toPlainString());
         mAmountFiatView.setText(WalletUtils.convertMsatToFiatWithUnit(amountMsat.amount(), preferredFiatCurrency));
-        disableAmountInteractions();
-      } else {
-        mAmountEditableValue.addTextChangedListener(amountTextWatcher);
+        // the amount can be overridden by the user to reduce information leakage, lightning allows payments to be overpaid
+        // see https://github.com/lightningnetwork/lightning-rfc/blob/master/04-onion-routing.md#requirements-2
+        // as such, the amount field stays editable.
       }
       mRecipientValue.setText(output.nodeId().toBin().toString());
       Either<String, BinaryData> desc = output.description();
@@ -244,7 +244,6 @@ public class SendPaymentActivity extends EclairActivity
               mPaymentErrorView.setVisibility(View.GONE);
             }
           }
-
         } catch (Exception e) {
           Log.e(TAG, "Could not read amount with cause=" + e.getMessage());
           mAmountFiatView.setText("0 " + preferredFiatCurrency.toUpperCase());
@@ -387,9 +386,7 @@ public class SendPaymentActivity extends EclairActivity
     // Get amount and executes payment. Depending on the settings, the user must first enter the correct PIN code
     try {
       if (mLNInvoice != null) {
-        final long amountMsat = isAmountReadonly
-          ? WalletUtils.getLongAmountFromInvoice(mLNInvoice)
-          : CoinUtils.convertStringAmountToMsat(mAmountEditableValue.getText().toString(), preferredBitcoinUnit.code()).amount();
+        final long amountMsat = CoinUtils.convertStringAmountToMsat(mAmountEditableValue.getText().toString(), preferredBitcoinUnit.code()).amount();
         if (isPinRequired()) {
           pinDialog = new PinDialog(SendPaymentActivity.this, R.style.CustomAlertDialog, new PinDialog.PinDialogCallback() {
             @Override
@@ -485,7 +482,6 @@ public class SendPaymentActivity extends EclairActivity
    * @param prAsString payment request as a string (used for display)
    */
   private void sendLNPayment(final long amountMsat, final PaymentRequest pr, final String prAsString) {
-    Log.d(TAG, "Sending LN payment for invoice " + prAsString);
     final String paymentHash = pr.paymentHash().toString();
     final Payment p = app.getDBHelper().getPayment(paymentHash, PaymentType.BTC_LN);
     if (p != null && p.getStatus() == PaymentStatus.PAID) {
@@ -517,7 +513,8 @@ public class SendPaymentActivity extends EclairActivity
           }
           // execute payment future, with cltv expiry + 1 to prevent the case where a block is mined just
           // when the payment is made, which would fail the payment.
-          app.sendLNPayment(45, amountMsat, pr.paymentHash(), pr.nodeId(), finalCltvExpiry + 1);
+          Log.i(TAG, "sending " + amountMsat + " msat for invoice " + prAsString);
+          app.sendLNPayment(amountMsat, pr.paymentHash(), pr.nodeId(), finalCltvExpiry + 1);
         }
       );
       closeAndGoHome();
@@ -532,7 +529,7 @@ public class SendPaymentActivity extends EclairActivity
    * @param bitcoinURI contains the bitcoin address
    */
   private void sendBitcoinPayment(final Satoshi amountSat, final Long feesPerKw, final BitcoinURI bitcoinURI) {
-    Log.d(TAG, "Sending Bitcoin payment for invoice " + mBitcoinInvoice.toString() + " with amount = " + amountSat);
+    Log.i(TAG, "sending " + amountSat + " sat invoice " + mBitcoinInvoice.toString());
     app.sendBitcoinPayment(amountSat, bitcoinURI.getAddress(), feesPerKw);
   }
 

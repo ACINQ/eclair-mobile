@@ -154,13 +154,12 @@ public class App extends Application {
   /**
    * Asks the eclair node to asynchronously execute a Lightning payment. Future failure is silent.
    *
-   * @param timeout     Timeout in milliseconds
-   * @param amountMsat  Amount of the payment in millisatoshis
-   * @param paymentHash Hash of the payment preimage
-   * @param publicKey   Public key of the recipient node
+   * @param amountMsat      Amount of the payment in millisatoshis
+   * @param paymentHash     Hash of the payment preimage
+   * @param publicKey       Public key of the recipient node
+   * @param finalCltvExpiry Expiry of the payment, in blocks
    */
-  public void sendLNPayment(final int timeout, final long amountMsat,
-                            final BinaryData paymentHash, final Crypto.PublicKey publicKey, final Long finalCltvExpiry) {
+  public void sendLNPayment(final long amountMsat, final BinaryData paymentHash, final Crypto.PublicKey publicKey, final Long finalCltvExpiry) {
     Patterns.ask(appKit.eclairKit.paymentInitiator(),
       new SendPayment(amountMsat, paymentHash, publicKey, (Seq<scala.collection.Seq<PaymentRequest.ExtraHop>>) Seq$.MODULE$.empty(), finalCltvExpiry, 20),
       new Timeout(Duration.create(1, "seconds"))).onFailure(new OnFailure() {
