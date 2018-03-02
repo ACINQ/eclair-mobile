@@ -25,7 +25,7 @@ import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.CoinUnit;
 import fr.acinq.eclair.CoinUtils;
-import fr.acinq.eclair.payment.PaymentLifecycle;
+import fr.acinq.eclair.channel.Channel;
 import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.EclairEventService;
@@ -193,6 +193,7 @@ public class SendPaymentActivity extends EclairActivity
       @Override
       public void beforeTextChanged(CharSequence s, int start, int count, int after) {
       }
+
       @SuppressLint("SetTextI18n")
       @Override
       public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -213,6 +214,7 @@ public class SendPaymentActivity extends EclairActivity
           mBinding.amountFiat.setText("0 " + preferredFiatCurrency.toUpperCase());
         }
       }
+
       @Override
       public void afterTextChanged(final Editable s) {
       }
@@ -451,7 +453,7 @@ public class SendPaymentActivity extends EclairActivity
             app.getDBHelper().insertOrUpdatePayment(newPayment);
           }
 
-          Long finalCltvExpiry = PaymentLifecycle.defaultMinFinalCltvExpiry();
+          Long finalCltvExpiry = Channel.MIN_CLTV_EXPIRY();
           if (pr.minFinalCltvExpiry().isDefined() && pr.minFinalCltvExpiry().get() instanceof Long) {
             finalCltvExpiry = (Long) pr.minFinalCltvExpiry().get();
           }
