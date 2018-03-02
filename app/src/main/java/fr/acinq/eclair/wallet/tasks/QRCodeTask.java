@@ -53,7 +53,7 @@ public class QRCodeTask extends AsyncTask<String, Integer, Bitmap> {
       }
       return Bitmap.createScaledBitmap(Bitmap.createBitmap(pixels, qrWidth, qrHeight, Bitmap.Config.ARGB_8888), width, height, false);
     } catch (WriterException e) {
-      Log.e(TAG, "Failed to generate QR code for source " + source, e);
+      Log.w(TAG, "Failed to generate QR code for source " + source + " with cause=" + e.getMessage());
       return null;
     }
   }

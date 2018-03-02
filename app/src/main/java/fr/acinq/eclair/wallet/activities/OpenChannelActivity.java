@@ -107,7 +107,7 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
             mBinding.feesWarning.setVisibility(View.GONE);
           }
         } catch (NumberFormatException e) {
-          Log.e(TAG, "Could not read fees", e);
+          Log.w(TAG, "Could not read fees with cause=" + e.getMessage());
         }
       }
 
@@ -151,7 +151,7 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
         mBinding.feesValue.setText(String.valueOf(app.estimateSlowFees()));
       }
     } catch (NumberFormatException e) {
-      Log.e(TAG, "Could not read fees with cause=" + e.getMessage());
+      Log.w(TAG, "Could not read fees with cause=" + e.getMessage());
       mBinding.feesValue.setText(String.valueOf(app.estimateSlowFees()));
     }
   }
@@ -236,7 +236,7 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
     try {
       Long.parseLong(mBinding.feesValue.getText().toString());
     } catch (Exception e) {
-      Log.e(TAG, "Could not read fees with cause=" + e.getMessage());
+      Log.w(TAG, "Could not read fees with cause=" + e.getMessage());
       toggleError(getString(R.string.openchannel_error_fees_nan));
       return;
     }

@@ -40,7 +40,7 @@ public class WalletUtils {
         Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri + txId));
         v.getContext().startActivity(browserIntent);
       } catch (Throwable t) {
-        Log.e(WalletUtils.class.getSimpleName(), "Could not open explorer with uri=" + uri + txId);
+        Log.w(WalletUtils.class.getSimpleName(), "Could not open explorer with uri=" + uri + txId);
         Toast.makeText(v.getContext(), "Could not open explorer", Toast.LENGTH_SHORT).show();
       }
     };

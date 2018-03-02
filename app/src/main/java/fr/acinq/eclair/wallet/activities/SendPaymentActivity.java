@@ -205,7 +205,7 @@ public class SendPaymentActivity extends EclairActivity
             }
           }
         } catch (Exception e) {
-          Log.e(TAG, "Could not read amount with cause=" + e.getMessage());
+          Log.w(TAG, "Could not read amount with cause=" + e.getMessage());
           mBinding.amountFiat.setText("0 " + preferredFiatCurrency.toUpperCase());
         }
       }
@@ -243,7 +243,7 @@ public class SendPaymentActivity extends EclairActivity
             mBinding.feesWarning.setVisibility(View.GONE);
           }
         } catch (NumberFormatException e) {
-          Log.e(TAG, "Could not read fees", e);
+          Log.w(TAG, "Could not read fees with cause=" + e.getMessage());
         }
       }
 
@@ -290,7 +290,7 @@ public class SendPaymentActivity extends EclairActivity
         mBinding.feesValue.setText(String.valueOf(app.estimateSlowFees()));
       }
     } catch (NumberFormatException e) {
-      Log.e(TAG, "Could not read fees", e);
+      Log.w(TAG, "Could not read fees with cause=" + e.getMessage());
       mBinding.feesValue.setText(String.valueOf(app.estimateSlowFees()));
     }
   }
@@ -388,7 +388,7 @@ public class SendPaymentActivity extends EclairActivity
     } catch (NumberFormatException e) {
       handlePaymentError(R.string.payment_error_amount);
     } catch (Exception e) {
-      Log.e(TAG, "Could not send payment", e);
+      Log.w(TAG, "Could not send payment with cause=" + e.getMessage());
       handlePaymentError(R.string.payment_error);
     }
   }

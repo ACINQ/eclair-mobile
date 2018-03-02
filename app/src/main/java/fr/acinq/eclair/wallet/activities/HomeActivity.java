@@ -181,7 +181,7 @@ public class HomeActivity extends EclairActivity {
           prefs.edit().putFloat(Constants.SETTING_LAST_KNOWN_RATE_BTC_EUR, btc_eur)
             .putFloat(Constants.SETTING_LAST_KNOWN_RATE_BTC_USD, btc_usd).apply();
         } catch (JSONException e) {
-          Log.e("ExchangeRate", "Could not read coindesk response", e);
+          Log.i("ExchangeRate", "Could not read coindesk response with cause=" + e.getMessage());
         }
       }, (error) -> {
         Log.d("ExchangeRate", "Error when querying coindesk api with cause " + error.getMessage());
@@ -424,7 +424,7 @@ public class HomeActivity extends EclairActivity {
       clipboard.setPrimaryClip(ClipData.newPlainText("Bitcoin address", app.getWalletAddress()));
       Toast.makeText(this.getApplicationContext(), "Copied address to clipboard", Toast.LENGTH_SHORT).show();
     } catch (Exception e) {
-      Log.e(TAG, "failed to copy address", e);
+      Log.w(TAG, "failed to copy address with cause=" + e.getMessage());
       Toast.makeText(this.getApplicationContext(), "Could not copy address", Toast.LENGTH_SHORT).show();
     }
   }
@@ -491,7 +491,7 @@ public class HomeActivity extends EclairActivity {
 
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void handleThrowableEvent(ThrowableFailureEvent event) {
-    Log.e(TAG, "Event failed", event.getThrowable());
+    Log.w(TAG, "event failed with cause=" + event.getThrowable().getMessage());
   }
 
   @SuppressLint("SetTextI18n")

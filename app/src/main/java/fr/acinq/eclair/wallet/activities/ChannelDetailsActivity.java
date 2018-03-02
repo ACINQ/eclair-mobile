@@ -115,9 +115,8 @@ public class ChannelDetailsActivity extends EclairActivity {
           closeButton.setOnClickListener(v -> mCloseDialog.show());
         }
       }
-
     } catch (Exception e) {
-      Log.e(TAG, "Internal error", e);
+      Log.w(TAG, "could not read channel details with cause=" + e.getMessage());
       goToHome();
     }
   }

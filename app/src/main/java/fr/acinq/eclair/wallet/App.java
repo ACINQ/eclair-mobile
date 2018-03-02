@@ -184,13 +184,13 @@ public class App extends Application {
           if (t == null) {
             Log.i(TAG, "Successfully sent tx " + txId);
           } else {
-            Log.e(TAG, "Bitcoin tx has failed ", t);
+            Log.w(TAG, "could not send bitcoin tx " + txId + "  with cause=" + t.getMessage());
             EventBus.getDefault().post(new BitcoinPaymentFailedEvent(t.getLocalizedMessage()));
           }
         }
       }, this.system.dispatcher());
     } catch (Throwable t) {
-      Log.e(TAG, "Could not send Bitcoin tx ", t);
+      Log.w(TAG, "could not send bitcoin tx with cause=" + t.getMessage());
       EventBus.getDefault().post(new BitcoinPaymentFailedEvent(t.getLocalizedMessage()));
     }
   }
@@ -238,7 +238,7 @@ public class App extends Application {
       boolean isMainNet = byte1.equals(Base58.Prefix$.MODULE$.PubkeyAddress()) || byte1.equals(Base58.Prefix$.MODULE$.ScriptAddress());
       return isTestNet;
     } catch (Throwable t) {
-      Log.e(TAG, "Could not check address parameter for address=" + address, t);
+      Log.w(TAG, "Could not check address parameter for address=" + address + " with cause=" + t.getMessage());
     }
     return false;
   }
@@ -257,10 +257,10 @@ public class App extends Application {
     Future<Object> future = appKit.electrumWallet.commit(tx);
     try {
       Boolean success = (Boolean) Await.result(future, Duration.create(500, "milliseconds"));
-      if (success) Log.i(TAG, "Successful broadcast of " + tx.txid());
-      else Log.e(TAG, "cannot broadcast " + tx.txid());
+      if (success) Log.i(TAG, "successful broadcast of " + tx.txid());
+      else Log.w(TAG, "cannot broadcast " + tx.txid());
     } catch (Exception e) {
-      Log.e(TAG, "Failed broadcast of " + tx.txid(), e);
+      Log.w(TAG, "failed broadcast of " + tx.txid(), e);
     }
   }
 

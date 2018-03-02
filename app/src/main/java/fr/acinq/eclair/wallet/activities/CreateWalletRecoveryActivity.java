@@ -78,7 +78,7 @@ public class CreateWalletRecoveryActivity extends AppCompatActivity {
       mBinding.entropyDisplay.setText(Joiner.on(" ").join(mnemonics));
     } catch (Exception e) {
       mnemonics = null;
-      Log.e(TAG, "Could not generate recovery phrase", e);
+      Log.e(TAG, "could not generate recovery phrase", e);
       mBinding.entropyDisplay.setText(getString(R.string.createrecovery_generation_failed));
       mBinding.gotoCheck.setVisibility(View.GONE);
     }
@@ -134,7 +134,7 @@ public class CreateWalletRecoveryActivity extends AppCompatActivity {
       }
     } catch (Exception e) {
       mnemonics = null;
-      Log.e(TAG, "Could not check the recovery phrase", e);
+      Log.e(TAG, "could not check the recovery phrase", e);
     }
     // check fails
     mBinding.checkFailed.setVisibility(View.VISIBLE);
