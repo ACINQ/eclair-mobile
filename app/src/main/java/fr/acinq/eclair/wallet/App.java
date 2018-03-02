@@ -278,11 +278,11 @@ public class App extends Application {
   }
 
   public long estimateMediumFees() {
-    return Globals.feeratesPerByte().get().blocks_12();
+    return Math.max(Globals.feeratesPerByte().get().blocks_12(), estimateSlowFees());
   }
 
   public long estimateFastFees() {
-    return Globals.feeratesPerByte().get().blocks_2();
+    return Math.max(Globals.feeratesPerByte().get().blocks_2(), estimateMediumFees());
   }
 
   /**

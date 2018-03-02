@@ -1,6 +1,7 @@
 package fr.acinq.eclair.wallet.utils;
 
 import fr.acinq.eclair.wallet.BuildConfig;
+import fr.acinq.eclair.wallet.models.FeeRating;
 
 public interface Constants {
 
@@ -41,4 +42,11 @@ public interface Constants {
 
   String SATOSHI_CODE = "sat";
   String BTC_CODE = "btc";
+
+  /* ----------- FEE RATING ------------ */
+  FeeRating FEE_RATING_SLOW = new FeeRating(0, "Slow (12h)");
+  FeeRating FEE_RATING_MEDIUM = new FeeRating(1, "Medium (2h)");
+  FeeRating FEE_RATING_FAST = new FeeRating(2, "Fast (20min)");
+  FeeRating FEE_RATING_CUSTOM = new FeeRating(3, "Custom");
+
 }

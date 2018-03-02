@@ -28,6 +28,7 @@ import fr.acinq.eclair.wallet.databinding.ActivityOpenChannelBinding;
 import fr.acinq.eclair.wallet.events.LNNewChannelFailureEvent;
 import fr.acinq.eclair.wallet.events.LNNewChannelOpenedEvent;
 import fr.acinq.eclair.wallet.fragments.PinDialog;
+import fr.acinq.eclair.wallet.models.FeeRating;
 import fr.acinq.eclair.wallet.tasks.NodeURIReaderTask;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.Validators;
@@ -46,7 +47,9 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
   private String remoteNodeURIAsString = "";
   private NodeURI remoteNodeURI = null;
   private String preferredFiatCurrency = Constants.FIAT_USD;
-  private CoinUnit preferredBitcoinUnit = CoinUtils.getUnitFromString("btc");
+  private CoinUnit preferredBitcoinUnit = CoinUtils.getUnitFromString(Constants.BTC_CODE);
+  // state of the fees, used with data binding
+  private FeeRating feeRatingState = Constants.FEE_RATING_FAST;
   private PinDialog pinDialog;
 
   @Override
@@ -116,7 +119,7 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
       }
     });
     mBinding.capacityUnit.setText(preferredBitcoinUnit.shortLabel());
-    mBinding.feesValue.setText(String.valueOf(app.estimateFastFees()));
+    setFeesToDefault();
     remoteNodeURIAsString = getIntent().getStringExtra(EXTRA_NEW_HOST_URI).trim();
     new NodeURIReaderTask(this, remoteNodeURIAsString).execute();
   }
@@ -141,19 +144,27 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
   }
 
   public void pickFees(final View view) {
-    try {
-      final Long feesSatPerByte = Long.parseLong(mBinding.feesValue.getText().toString());
-      if (feesSatPerByte <= app.estimateSlowFees()) {
-        mBinding.feesValue.setText(String.valueOf(app.estimateMediumFees()));
-      } else if (feesSatPerByte <= app.estimateMediumFees()) {
-        mBinding.feesValue.setText(String.valueOf(app.estimateFastFees()));
-      } else {
-        mBinding.feesValue.setText(String.valueOf(app.estimateSlowFees()));
-      }
-    } catch (NumberFormatException e) {
-      Log.w(TAG, "Could not read fees with cause=" + e.getMessage());
+    if (feeRatingState.rating == Constants.FEE_RATING_SLOW.rating) {
+      feeRatingState = Constants.FEE_RATING_MEDIUM;
+      mBinding.feesValue.setText(String.valueOf(app.estimateMediumFees()));
+      mBinding.setFeeRatingState(feeRatingState);
+    } else if (feeRatingState.rating == Constants.FEE_RATING_MEDIUM.rating) {
+      feeRatingState = Constants.FEE_RATING_FAST;
+      mBinding.feesValue.setText(String.valueOf(app.estimateFastFees()));
+      mBinding.setFeeRatingState(feeRatingState);
+    } else if (feeRatingState.rating == Constants.FEE_RATING_FAST.rating) {
+      feeRatingState = Constants.FEE_RATING_SLOW;
       mBinding.feesValue.setText(String.valueOf(app.estimateSlowFees()));
+      mBinding.setFeeRatingState(feeRatingState);
+    } else {
+      setFeesToDefault();
     }
+  }
+
+  private void setFeesToDefault() {
+    feeRatingState = Constants.FEE_RATING_FAST;
+    mBinding.feesValue.setText(String.valueOf(app.estimateFastFees()));
+    mBinding.setFeeRatingState(feeRatingState);
   }
 
   /**

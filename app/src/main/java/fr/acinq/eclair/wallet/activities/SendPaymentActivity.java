@@ -32,6 +32,7 @@ import fr.acinq.eclair.wallet.EclairEventService;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.databinding.ActivitySendPaymentBinding;
 import fr.acinq.eclair.wallet.fragments.PinDialog;
+import fr.acinq.eclair.wallet.models.FeeRating;
 import fr.acinq.eclair.wallet.models.Payment;
 import fr.acinq.eclair.wallet.models.PaymentDirection;
 import fr.acinq.eclair.wallet.models.PaymentStatus;
@@ -60,6 +61,8 @@ public class SendPaymentActivity extends EclairActivity
 
   private CoinUnit preferredBitcoinUnit = CoinUtils.getUnitFromString("btc");
   private String preferredFiatCurrency = Constants.FIAT_USD;
+  // state of the fees, used with data binding
+  private FeeRating feeRatingState = Constants.FEE_RATING_FAST;
   private boolean maxFeeLightning = true;
   private int maxFeeLightningValue = 1;
   private PinDialog pinDialog;
@@ -80,7 +83,7 @@ public class SendPaymentActivity extends EclairActivity
         return;
       } else {
         final Payment paymentInDB = app.getDBHelper().getPayment(output.paymentHash().toString(), PaymentType.BTC_LN);
-        if (paymentInDB != null && (paymentInDB.getStatus() == PaymentStatus.PENDING || paymentInDB.getStatus() == PaymentStatus.INIT)) {
+        if (paymentInDB != null && paymentInDB.getStatus() == PaymentStatus.PENDING) {
           canNotHandlePayment(R.string.payment_error_pending);
           return;
         } else if (paymentInDB != null && paymentInDB.getStatus() == PaymentStatus.PAID) {
@@ -130,7 +133,7 @@ public class SendPaymentActivity extends EclairActivity
         mBinding.amountFiat.setText(WalletUtils.convertMsatToFiatWithUnit(amountMsat.amount(), preferredFiatCurrency));
         disableAmountInteractions();
       }
-      setFeesDefault();
+      setFeesToDefault();
       mBinding.recipientValue.setText(output.getAddress());
       invoiceReadSuccessfully(false);
     }
@@ -177,6 +180,7 @@ public class SendPaymentActivity extends EclairActivity
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_send_payment);
     mBinding = DataBindingUtil.setContentView(this, R.layout.activity_send_payment);
+    mBinding.setFeeRatingState(feeRatingState);
 
     final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
     preferredBitcoinUnit = WalletUtils.getPreferredCoinUnit(sharedPref);
@@ -224,14 +228,9 @@ public class SendPaymentActivity extends EclairActivity
       public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
         try {
           final Long feesSatPerByte = Long.parseLong(s.toString());
-          if (feesSatPerByte == app.estimateSlowFees()) {
-            mBinding.feesRating.setText(R.string.payment_fees_slow);
-          } else if (feesSatPerByte == app.estimateMediumFees()) {
-            mBinding.feesRating.setText(R.string.payment_fees_medium);
-          } else if (feesSatPerByte == app.estimateFastFees()) {
-            mBinding.feesRating.setText(R.string.payment_fees_fast);
-          } else {
-            mBinding.feesRating.setText(R.string.payment_fees_custom);
+          if (feesSatPerByte != app.estimateSlowFees() && feesSatPerByte != app.estimateMediumFees() && feesSatPerByte != app.estimateFastFees()) {
+            feeRatingState = Constants.FEE_RATING_CUSTOM;
+            mBinding.setFeeRatingState(feeRatingState);
           }
           if (feesSatPerByte <= app.estimateSlowFees() / 2) {
             mBinding.feesWarning.setText(R.string.payment_fees_verylow);
@@ -280,23 +279,27 @@ public class SendPaymentActivity extends EclairActivity
   }
 
   public void pickFees(final View view) {
-    try {
-      final Long feesSatPerByte = Long.parseLong(mBinding.feesValue.getText().toString());
-      if (feesSatPerByte <= app.estimateSlowFees()) {
-        mBinding.feesValue.setText(String.valueOf(app.estimateMediumFees()));
-      } else if (feesSatPerByte <= app.estimateMediumFees()) {
-        mBinding.feesValue.setText(String.valueOf(app.estimateFastFees()));
-      } else {
-        mBinding.feesValue.setText(String.valueOf(app.estimateSlowFees()));
-      }
-    } catch (NumberFormatException e) {
-      Log.w(TAG, "Could not read fees with cause=" + e.getMessage());
+    if (feeRatingState.rating == Constants.FEE_RATING_SLOW.rating) {
+      feeRatingState = Constants.FEE_RATING_MEDIUM;
+      mBinding.feesValue.setText(String.valueOf(app.estimateMediumFees()));
+      mBinding.setFeeRatingState(feeRatingState);
+    } else if (feeRatingState.rating == Constants.FEE_RATING_MEDIUM.rating) {
+      feeRatingState = Constants.FEE_RATING_FAST;
+      mBinding.feesValue.setText(String.valueOf(app.estimateFastFees()));
+      mBinding.setFeeRatingState(feeRatingState);
+    } else if (feeRatingState.rating == Constants.FEE_RATING_FAST.rating) {
+      feeRatingState = Constants.FEE_RATING_SLOW;
       mBinding.feesValue.setText(String.valueOf(app.estimateSlowFees()));
+      mBinding.setFeeRatingState(feeRatingState);
+    } else {
+      setFeesToDefault();
     }
   }
 
-  private void setFeesDefault() {
+  private void setFeesToDefault() {
+    feeRatingState = Constants.FEE_RATING_FAST;
     mBinding.feesValue.setText(String.valueOf(app.estimateFastFees()));
+    mBinding.setFeeRatingState(feeRatingState);
   }
 
   public void cancelPayment(View view) {
