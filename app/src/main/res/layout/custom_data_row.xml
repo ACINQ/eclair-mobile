@@ -2,42 +2,38 @@
   android:layout_width="match_parent"
   android:layout_height="match_parent"
   android:background="?android:attr/selectableItemBackground"
-  android:orientation="horizontal">
+  android:orientation="horizontal"
+  android:paddingBottom="8dp"
+  android:paddingEnd="@dimen/app_padding"
+  android:paddingStart="@dimen/app_padding"
+  android:paddingTop="8dp">
 
-  <RelativeLayout
-    android:layout_width="0.0dp"
+  <LinearLayout
+    android:layout_width="0dp"
     android:layout_height="wrap_content"
     android:layout_weight="0.5"
-    android:padding="8dp">
+    android:orientation="vertical">
 
-    <LinearLayout
-      android:layout_width="wrap_content"
+    <TextView
+      android:id="@+id/view_label"
+      android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:orientation="vertical">
+      android:maxLines="1"
+      android:textStyle="bold" />
 
-      <TextView
-        android:id="@+id/view_label"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:maxLines="1"
-        android:textStyle="bold" />
-
-      <TextView
-        android:id="@+id/view_desc"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textColor="@color/grey_1"
-        android:textSize="12sp" />
-
-    </LinearLayout>
-
-  </RelativeLayout>
+    <TextView
+      android:id="@+id/view_desc"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:textColor="@color/grey_1"
+      android:textSize="12sp" />
+  </LinearLayout>
 
   <RelativeLayout
     android:layout_width="0.0dp"
     android:layout_height="wrap_content"
-    android:layout_weight="0.5"
-    android:padding="8dp">
+    android:layout_marginStart="@dimen/app_padding"
+    android:layout_weight="0.5">
 
     <TextView
       android:id="@+id/view_value"
@@ -48,5 +44,4 @@
       android:textSize="10sp" />
 
   </RelativeLayout>
-
 </LinearLayout>

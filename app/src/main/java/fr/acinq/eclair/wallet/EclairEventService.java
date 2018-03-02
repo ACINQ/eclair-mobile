@@ -137,7 +137,6 @@ public class EclairEventService extends UntypedActor {
         DirectedHtlc h = htlcsIterator.next();
         String htlcPaymentHash = h.add().paymentHash().toString();
         Payment p = dbHelper.getPayment(htlcPaymentHash, PaymentType.BTC_LN);
-        Log.i(TAG, "ChannelSignatureSent with hash=" + htlcPaymentHash);
         if (p != null) {
           // regular case: we know this payment hash
           if (p.getStatus() == PaymentStatus.INIT) {
@@ -175,6 +174,9 @@ public class EclairEventService extends UntypedActor {
           outHtlcsAmount += h.add().amountMsat();
         }
       }
+      cd.channelReserveSat = csr.Commitments().localParams().channelReserveSatoshis();
+      cd.minimumHtlcAmountMsat = csr.Commitments().localParams().htlcMinimumMsat();
+      cd.htlcsInFlightCount = htlcsIterator.size();
       cd.balanceMsat = new MilliSatoshi(localCommit.spec().toLocalMsat() + outHtlcsAmount);
       cd.capacityMsat = new MilliSatoshi(localCommit.spec().totalFunds());
       EventBus.getDefault().post(new ChannelUpdateEvent());
@@ -270,6 +272,9 @@ public class EclairEventService extends UntypedActor {
     public Boolean isLocalClosing;
     public String remoteNodeId;
     public String transactionId;
+    public Long channelReserveSat = 0L;
+    public Long minimumHtlcAmountMsat = 0L;
+    public int htlcsInFlightCount = 0;
   }
 
   public static boolean hasActiveChannels () {

@@ -1,10 +1,11 @@
 package fr.acinq.eclair.wallet.activities;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
@@ -15,19 +16,19 @@ import java.util.Map;
 
 import akka.actor.ActorRef;
 import fr.acinq.bitcoin.BinaryData;
+import fr.acinq.bitcoin.MilliSatoshi;
+import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.eclair.CoinUnit;
-import fr.acinq.eclair.channel.CLOSED;
+import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.channel.CLOSED$;
-import fr.acinq.eclair.channel.CLOSING;
 import fr.acinq.eclair.channel.CLOSING$;
 import fr.acinq.eclair.channel.CMD_CLOSE;
-import fr.acinq.eclair.channel.NORMAL;
+import fr.acinq.eclair.channel.OFFLINE$;
 import fr.acinq.eclair.router.NORMAL$;
 import fr.acinq.eclair.wallet.EclairEventService;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.adapters.LocalChannelItemHolder;
-import fr.acinq.eclair.wallet.customviews.DataRow;
-import fr.acinq.eclair.CoinUtils;
+import fr.acinq.eclair.wallet.databinding.ActivityChannelDetailsBinding;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 
 public class ChannelDetailsActivity extends EclairActivity {
@@ -35,11 +36,13 @@ public class ChannelDetailsActivity extends EclairActivity {
   private static final String TAG = "ChannelDetailsActivity";
 
   private AlertDialog mCloseDialog;
+  private ActivityChannelDetailsBinding mBinding;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_channel_details);
+    mBinding = DataBindingUtil.setContentView(this, R.layout.activity_channel_details);
 
     Toolbar toolbar = findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
@@ -59,41 +62,45 @@ public class ChannelDetailsActivity extends EclairActivity {
 
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         final CoinUnit prefUnit = WalletUtils.getPreferredCoinUnit(prefs);
+        final String state = channel.getValue().state;
 
-        DataRow idRow = findViewById(R.id.channeldetails_id);
-        idRow.setValue(channel.getValue().channelId);
+        mBinding.balance.setAmountMsat(channel.getValue().balanceMsat);
+        mBinding.state.setText(state);
 
-        DataRow balanceRow = findViewById(R.id.channeldetails_balance);
-        balanceRow.setValue(CoinUtils.formatAmountInUnit(channel.getValue().balanceMsat, prefUnit, true));
-
-        DataRow capacityRow = findViewById(R.id.channeldetails_capacity);
-        capacityRow.setValue(CoinUtils.formatAmountInUnit(channel.getValue().capacityMsat, prefUnit, true));
-
-        DataRow nodeIdRow = findViewById(R.id.channeldetails_nodeid);
-        nodeIdRow.setValue(channel.getValue().remoteNodeId);
-
-        DataRow stateRow = findViewById(R.id.channeldetails_state);
-        stateRow.setValue(channel.getValue().state);
-
-        if (CLOSING$.MODULE$.toString().equals(channel.getValue().state)) {
-          DataRow closingTypeRow = findViewById(R.id.channeldetails_state_closing_type);
-          if (channel.getValue().isCooperativeClosing) {
-            closingTypeRow.setValue(getString(R.string.channeldetails_closingtype_mutual));
-          } else if (channel.getValue().isLocalClosing) {
-            closingTypeRow.setValue(getString(R.string.channeldetails_closingtype_local));
-          } else if (channel.getValue().isRemoteClosing) {
-            closingTypeRow.setValue(getString(R.string.channeldetails_closingtype_remote));
-          } else {
-            closingTypeRow.setValue(getString(R.string.channeldetails_closingtype_other));
-          }
-          findViewById(R.id.channeldetails_state_closing_type_separator).setVisibility(View.VISIBLE);
-          closingTypeRow.setVisibility(View.VISIBLE);
+        if (NORMAL$.MODULE$.toString().equals(state)) {
+          mBinding.state.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.green));
+        } else if (OFFLINE$.MODULE$.toString().equals(state) || state.startsWith("ERR_")) {
+          mBinding.state.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.red_faded));
+        } else {
+          mBinding.state.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.orange));
         }
 
-        DataRow transactionIdRow = findViewById(R.id.channeldetails_transactionid);
-        transactionIdRow.setValue(channel.getValue().transactionId);
-        View openInExplorer = findViewById(R.id.open_in_explorer);
-        openInExplorer.setOnClickListener(WalletUtils.getOpenTxListener(channel.getValue().transactionId));
+        if (CLOSING$.MODULE$.toString().equals(state)) {
+          mBinding.closingTypeView.setVisibility(View.VISIBLE);
+          if (channel.getValue().isCooperativeClosing) {
+            mBinding.closingType.setText(getString(R.string.channeldetails_closingtype_mutual));
+          } else if (channel.getValue().isLocalClosing) {
+            mBinding.closingType.setText(getString(R.string.channeldetails_closingtype_local));
+          } else if (channel.getValue().isRemoteClosing) {
+            mBinding.closingType.setText(getString(R.string.channeldetails_closingtype_remote));
+          } else {
+            mBinding.closingType.setText(getString(R.string.channeldetails_closingtype_other));
+          }
+        }
+
+        if (!CLOSING$.MODULE$.toString().equals(channel.getValue().state) && !CLOSED$.MODULE$.toString().equals(channel.getValue().state)) {
+          mBinding.close.setVisibility(View.VISIBLE);
+          mBinding.close.setOnClickListener(v -> mCloseDialog.show());
+        }
+
+        mBinding.nodeid.setValue(channel.getValue().remoteNodeId);
+        mBinding.capacity.setValue(CoinUtils.formatAmountInUnit(channel.getValue().capacityMsat, prefUnit, true));
+        mBinding.channelId.setValue(channel.getValue().channelId);
+        mBinding.reserve.setValue(CoinUtils.formatAmountInUnit(new Satoshi(channel.getValue().channelReserveSat), prefUnit, true));
+        mBinding.countHtlcsInflight.setValue(String.valueOf(channel.getValue().htlcsInFlightCount));
+        mBinding.minimumHtlcAmount.setValue(CoinUtils.formatAmountInUnit(new MilliSatoshi(channel.getValue().minimumHtlcAmountMsat), prefUnit, true));
+        mBinding.transactionId.setValue(channel.getValue().transactionId);
+        mBinding.explorerButton.setOnClickListener(WalletUtils.getOpenTxListener(channel.getValue().transactionId));
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         final String message = getResources().getString(R.string.close_channel_message)
@@ -108,12 +115,6 @@ public class ChannelDetailsActivity extends EclairActivity {
         });
         builder.setNegativeButton(R.string.btn_cancel, (dialog, id) -> mCloseDialog.dismiss());
         mCloseDialog = builder.create();
-
-        View closeButton = findViewById(R.id.channeldetails_close);
-        if (!CLOSING$.MODULE$.toString().equals(channel.getValue().state) && !CLOSED$.MODULE$.toString().equals(channel.getValue().state)) {
-          closeButton.setVisibility(View.VISIBLE);
-          closeButton.setOnClickListener(v -> mCloseDialog.show());
-        }
       }
     } catch (Exception e) {
       Log.w(TAG, "could not read channel details with cause=" + e.getMessage());

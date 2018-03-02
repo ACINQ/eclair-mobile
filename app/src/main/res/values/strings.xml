@@ -137,10 +137,16 @@
 
   <string name="channeldetails_id_label">Id</string>
   <string name="channeldetails_id_desc">Channel unique identifier</string>
+  <string name="channeldetails_reserve_label">Reserve</string>
+  <string name="channeldetails_reserve_desc">Minimum balance that this channel can reach</string>
+  <string name="channeldetails_htlcs_count_label">Inflight htlcs</string>
+  <string name="channeldetails_htlcs_count_desc">Counts the pending HTLCs in this channel</string>
+  <string name="channeldetails_min_htlc_amount_label">Min. payment amount</string>
+  <string name="channeldetails_min_htlc_amount_desc">Minimum amount accepted by this channel</string>
   <string name="channeldetails_nodeid_label">Remote node id</string>
-  <string name="channeldetails_nodeid_desc">Public key of the remote node</string>
-  <string name="channeldetails_state_label">Status</string>
-  <string name="channeldetails_state_desc">Status of the channel</string>
+  <string name="channeldetails_nodeid_desc">Public key of the remote peer</string>
+  <string name="channeldetails_state_label">State</string>
+  <string name="channeldetails_state_desc">State of the channel</string>
   <string name="channeldetails_state_closing_type_label">Closing type</string>
   <string name="channeldetails_state_closing_type_desc">MUTUAL/LOCAL/REMOTE/OTHER</string>
   <string name="channeldetails_capacity_label">Capacity</string>
