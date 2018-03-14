@@ -84,7 +84,7 @@ public class LightningPaymentError implements Parcelable {
             hopsNodesPK.add(h.nodeId().toString());
           }
           if (origin.equals(h.nodeId().toString())) {
-            originChannelId = Long.toHexString(h.lastUpdate().shortChannelId());
+            originChannelId = h.lastUpdate().shortChannelId().toString();
           }
           hopsNodesPK.add(h.nextNodeId().toString());
         }
