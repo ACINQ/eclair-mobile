@@ -286,7 +286,9 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
           OnComplete<Object> onComplete = new OnComplete<Object>() {
             @Override
             public void onComplete(Throwable throwable, Object o) throws Throwable {
-              if (throwable != null) {
+              if (throwable != null && throwable instanceof akka.pattern.AskTimeoutException) {
+                // future timed out, do not display message
+              } else if (throwable != null) {
                 EventBus.getDefault().post(new LNNewChannelFailureEvent(throwable.getMessage()));
               } else {
                 EventBus.getDefault().post(new LNNewChannelOpenedEvent(remoteNodeURI.nodeId().toString()));
