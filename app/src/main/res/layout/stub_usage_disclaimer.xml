@@ -1,57 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto">
+
   <RelativeLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/primary"
     android:elevation="10dp">
 
-    <ScrollView
+    <android.support.constraint.ConstraintLayout
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:layout_centerInParent="true"
-      android:layout_margin="16dp"
-      android:background="@drawable/rounded_corner_white">
+      android:layout_margin="32dp"
+      android:background="@drawable/red_stripes_background"
+      android:padding="2dp">
 
-      <LinearLayout
+      <ScrollView
+        android:id="@+id/scrollview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:background="@color/white"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toTopOf="@id/buttons_layout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <TextView
           android:id="@+id/disclaimer_text"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:textColor="@color/grey_4"
-          android:layout_margin="16dp" />
+          android:padding="32dp"
+          android:textColor="@color/grey_4" />
+      </ScrollView>
 
-        <LinearLayout
-          android:layout_width="match_parent"
+      <LinearLayout
+        android:id="@+id/buttons_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:gravity="end"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="parent">
+
+        <Button
+          android:layout_width="wrap_content"
           android:layout_height="wrap_content"
-          android:gravity="end"
-          android:orientation="horizontal">
+          android:layout_marginEnd="16dp"
+          android:background="?android:attr/selectableItemBackground"
+          android:onClick="closeApp"
+          android:padding="16dp"
+          android:text="@string/disclaimer_button_quit"
+          android:textColor="@color/red_faded" />
 
-          <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:background="?android:attr/selectableItemBackground"
-            android:onClick="closeApp"
-            android:padding="16dp"
-            android:text="@string/disclaimer_button_quit"
-            android:textColor="@color/red_faded" />
+        <Button
+          android:id="@+id/disclaimer_finish"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:background="?android:attr/selectableItemBackground"
+          android:padding="16dp"
+          android:text="@string/disclaimer_1_button_ok"
+          android:textColor="@color/green" />
 
-          <Button
-            android:id="@+id/disclaimer_finish"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="?android:attr/selectableItemBackground"
-            android:padding="16dp"
-            android:text="@string/disclaimer_1_button_ok"
-            android:textColor="@color/green" />
-
-        </LinearLayout>
       </LinearLayout>
-    </ScrollView>
+    </android.support.constraint.ConstraintLayout>
   </RelativeLayout>
 </layout>

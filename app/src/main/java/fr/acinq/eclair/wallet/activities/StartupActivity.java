@@ -106,7 +106,7 @@ public class StartupActivity extends EclairActivity {
   }
 
   private void startCheckup(final File datadir, final SharedPreferences prefs) {
-    if (prefs.getBoolean(Constants.SETTING_SHOW_DISCLAIMER, true)) {
+    if (prefs.getBoolean(Constants.SETTING_SHOW_DISCLAIMER, true) && !mBinding.stubDisclaimer.isInflated()) {
       mBinding.stubDisclaimer.getViewStub().inflate();
       mDisclaimerBinding.disclaimerFinish.setOnClickListener(v -> {
         mDisclaimerBinding.getRoot().setVisibility(View.GONE);
