@@ -55,9 +55,9 @@ dependencies {
   androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
     exclude group: 'com.android.support', module: 'support-annotations'
   })
-  compile 'com.android.support:design:27.0.2'
-  compile 'com.android.support:preference-v7:27.0.2'
-  compile 'com.android.support:preference-v14:27.0.2'
+  compile 'com.android.support:design:27.1.0'
+  compile 'com.android.support:preference-v7:27.1.0'
+  compile 'com.android.support:preference-v14:27.1.0'
   compile 'com.android.support.constraint:constraint-layout:1.0.2'
   compile 'com.google.code.findbugs:jsr305:3.0.1'
   // logging
