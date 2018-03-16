@@ -11,7 +11,6 @@ import android.view.inputmethod.InputMethodManager;
 import com.google.common.base.Joiner;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -153,10 +152,10 @@ public class CreateWalletRecoveryActivity extends AppCompatActivity {
     }
     final File datadir = new File(getFilesDir(), Constants.ECLAIR_DATADIR);
     try {
-      WalletUtils.writeMnemonicsFile(datadir, mnemonics);
+      WalletUtils.writeSeedFile(datadir, mnemonics);
       startActivity(new Intent(getBaseContext(), StartupActivity.class));
-    } catch (IOException e) {
-      showWriteError("Could not write mnemonics to disk");
+    } catch (Exception e) {
+      showWriteError("Could not write seed to disk");
     }
   }
 }

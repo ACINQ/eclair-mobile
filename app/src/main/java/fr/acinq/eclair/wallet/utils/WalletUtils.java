@@ -18,11 +18,14 @@ import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.List;
 
+import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.bitcoin.MilliSatoshi;
+import fr.acinq.bitcoin.MnemonicCode;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.*;
 import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.wallet.App;
+import scala.collection.JavaConverters;
 
 
 public class WalletUtils {
@@ -47,37 +50,41 @@ public class WalletUtils {
   }
 
   /**
-   * Reads a list of words from the mnemonics file. This is a placeholder implementation, waiting for proper implementation in eclair core.
+   * Reads the seed from the seed file.
    * @param datadir
    * @return
-   * @throws IOException
+   * @throws Exception
    */
-  public static List<String> readMnemonicsFile(final File datadir) throws IOException{
+  public static BinaryData readSeedFile(final File datadir) throws IOException{
     try {
-      return Files.readLines(new File(datadir, "mnemonics.dat"), Charset.defaultCharset());
-    } catch (IOException e) {
+      return BinaryData.apply(new String(Files.toByteArray(new File(datadir, "seed.dat")), Charset.defaultCharset()));
+    } catch (Exception e) {
       Log.e(TAG, "Could not read mnemonics file");
       throw e;
     }
   }
 
   /**
-   * Writes a list of words into the mnemonics file. This is a placeholder implementation, waiting for proper implementation in eclair core.
+   * Writes a list of words into a seed file.
    * @param datadir
    * @param words
-   * @throws IOException
+   * @throws Exception
    */
-  public static void writeMnemonicsFile(final File datadir, final List<String> words) throws IOException {
+  public static void writeSeedFile(final File datadir, final List<String> words) throws IOException {
     try {
       if (!datadir.exists()) {
         datadir.mkdir();
       }
-      Files.asCharSink(new File(datadir, "mnemonics.dat"), Charset.defaultCharset(), FileWriteMode.APPEND).writeLines(words);
+      final BinaryData seed = MnemonicCode.toSeed(JavaConverters.collectionAsScalaIterableConverter(words).asScala().toSeq(), "");
+      Files.write(seed.toString().getBytes(), new File(datadir, "seed.dat"));
     } catch (SecurityException e) {
       Log.e(TAG, "Could not create datadir", e);
       throw e;
     } catch (IOException e) {
-      Log.e(TAG, "Could not write mnemonics file", e);
+      Log.e(TAG, "Could not write seed file", e);
+      throw e;
+    } catch (Exception e) {
+      Log.e(TAG, "Could not create seed", e);
       throw e;
     }
   }

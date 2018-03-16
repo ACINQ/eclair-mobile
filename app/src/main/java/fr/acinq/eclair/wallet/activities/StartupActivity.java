@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.Html;
@@ -22,7 +21,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import akka.actor.ActorRef;
 import akka.actor.Props;
@@ -178,15 +176,9 @@ public class StartupActivity extends EclairActivity {
         showError("Datadir is not a directory.");
       } else {
         try {
-          final List<String> words = WalletUtils.readMnemonicsFile(datadir);
-          if (words == null || words.size() == 0) {
-            Log.e(TAG, "seed mnemonics is empty, can not start");
-            showError("Can not start eclair with empty seed");
-          } else {
-            // using a empty passphrase
-            new StartupTask(MnemonicCode.toSeed(JavaConverters.collectionAsScalaIterableConverter(words).asScala().toSeq(), "")).execute(app);
-          }
-        } catch (IOException e) {
+          final BinaryData seed = WalletUtils.readSeedFile(datadir);
+          new StartupTask(seed).execute(app);
+        } catch (Exception e) {
           showError("Seed is unreadable. Aborting.");
         }
       }

@@ -9,7 +9,6 @@ import android.view.View;
 import com.google.common.base.Strings;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -55,10 +54,10 @@ public class ImportWalletActivity extends AppCompatActivity {
       } else {
         final File datadir = new File(getFilesDir(), Constants.ECLAIR_DATADIR);
         try {
-          WalletUtils.writeMnemonicsFile(datadir, mnemonics);
+          WalletUtils.writeSeedFile(datadir, mnemonics);
           startActivity(new Intent(getBaseContext(), StartupActivity.class));
-        } catch (IOException e) {
-          showError("Could not write mnemonics to disk");
+        } catch (Exception e) {
+          showError("Could not write seed to disk");
         }
       }
     }
