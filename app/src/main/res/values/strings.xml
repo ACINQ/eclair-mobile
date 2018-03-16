@@ -257,7 +257,7 @@
   <string name="about_general_title">About Eclair Wallet</string>
   <string name="about_general_text"><![CDATA[
     <p>An advanced Lightning/Bitcoin mobile wallet by ACINQ. It relies on Electrum servers for access to the Bitcoin network.</p>
-    <p>Fees are retrieved from https://www.bitgo.com/api/v1/tx/fee. USD/EUR rates are retrieved from Coindesk API. Note that this conversion to USD/EUR may not be accurate.</b></p>
+    <p>Fees are retrieved from the BitGo API. USD/EUR rates are retrieved from Coindesk API. Note that this conversion to USD/EUR may not be accurate.</b></p>
     <p>This software is compliant with the BOLT specifications (Lightning Network standard).</p>
     <p><b>Installed version: %1$s</b></p>
     ]]>
