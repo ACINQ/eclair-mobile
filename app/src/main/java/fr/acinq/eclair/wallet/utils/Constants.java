@@ -12,6 +12,7 @@ public interface Constants {
 
   String SETTING_SHOW_DISCLAIMER = "showDisclaimer";
   String SETTING_SHOW_INTRO = "showIntro";
+  String SETTING_LAST_USED_VERSION = "last_used_version";
 
   // currencies
   String SETTING_SELECTED_FIAT_CURRENCY = "fiat_currency";

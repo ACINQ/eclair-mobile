@@ -36,13 +36,14 @@
       android:id="@+id/startup_error"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:layout_above="@id/startup_log"
       android:layout_centerHorizontal="true"
-      android:layout_margin="16dp"
+      android:layout_centerInParent="true"
+      android:layout_margin="@dimen/wide_space"
+      android:background="@drawable/rounded_corner_white"
+      android:padding="@dimen/wide_space"
       android:textAlignment="center"
-      android:textColor="@color/primary_light_x4_desat"
-      android:textSize="12sp" />
+      android:textColor="@color/grey_4"
+      android:visibility="gone" />
 
   </RelativeLayout>
 </layout>
-

@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.Html;
@@ -18,7 +19,10 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import akka.actor.ActorRef;
 import akka.actor.Props;
@@ -32,6 +36,7 @@ import fr.acinq.eclair.channel.ChannelEvent;
 import fr.acinq.eclair.payment.PaymentResult;
 import fr.acinq.eclair.router.NetworkEvent;
 import fr.acinq.eclair.wallet.App;
+import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.EclairEventService;
 import fr.acinq.eclair.wallet.PaymentSupervisor;
 import fr.acinq.eclair.wallet.R;
@@ -50,6 +55,7 @@ public class StartupActivity extends EclairActivity {
   private static final String TAG = "StartupActivity";
   private ActivityStartupBinding mBinding;
   private StubUsageDisclaimerBinding mDisclaimerBinding;
+  private static final HashSet<Integer> BREAKING_VERSIONS = new HashSet<>(Arrays.asList(14));
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -78,6 +84,8 @@ public class StartupActivity extends EclairActivity {
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void processStartupFinish(StartupCompleteEvent event) {
     if (app.appKit != null) {
+      PreferenceManager.getDefaultSharedPreferences(getBaseContext()).edit()
+        .putInt(Constants.SETTING_LAST_USED_VERSION, BuildConfig.VERSION_CODE).apply();
       goToHome();
     } else {
       showError("Failed to start eclair...");
@@ -87,6 +95,11 @@ public class StartupActivity extends EclairActivity {
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void processStartupProgress(StartupProgressEvent event) {
     mBinding.startupLog.setText(event.message);
+  }
+
+  private void showBreaking() {
+    mBinding.startupError.setVisibility(View.VISIBLE);
+    mBinding.startupError.setText(Html.fromHtml(getString(R.string.start_breaking)));
   }
 
   private void showError(final String message) {
@@ -111,15 +124,31 @@ public class StartupActivity extends EclairActivity {
       mDisclaimerBinding.disclaimerFinish.setOnClickListener(v -> {
         mDisclaimerBinding.getRoot().setVisibility(View.GONE);
         prefs.edit().putBoolean(Constants.SETTING_SHOW_DISCLAIMER, false).apply();
-        startNodeChecker(datadir, prefs);
+        checkAppVersion(datadir, prefs);
       });
       mDisclaimerBinding.disclaimerText.setText(Html.fromHtml(getString(R.string.disclaimer_1, getString(R.string.chain_name))));
     } else {
-      startNodeChecker(datadir, prefs);
+      checkAppVersion(datadir, prefs);
     }
   }
 
-  private void startNodeChecker(final File datadir, final SharedPreferences prefs) {
+  private void checkAppVersion(final File datadir, final SharedPreferences prefs) {
+    final int lastUsedVersion = prefs.getInt(Constants.SETTING_LAST_USED_VERSION, 0);
+    final boolean eclairStartedOnce = (datadir.exists() && datadir.isDirectory() && new File(datadir, "eclair.sqlite").exists());
+    final boolean isFreshInstall = lastUsedVersion == 0 && !eclairStartedOnce;
+    Log.d(TAG, "last used version = " + lastUsedVersion);
+    Log.d(TAG, "has eclair started once ? " + eclairStartedOnce);
+    Log.d(TAG, "fresh install ? " + isFreshInstall);
+    if (lastUsedVersion < BuildConfig.VERSION_CODE && !isFreshInstall) {
+      if (BREAKING_VERSIONS.contains(BuildConfig.VERSION_CODE)) {
+        showBreaking();
+        return;
+      }
+    }
+    checkWalletInit(datadir);
+  }
+
+  private void checkWalletInit(final File datadir) {
     if (!datadir.exists()) {
       if (!mBinding.stubPickInitWallet.isInflated()) {
         mBinding.stubPickInitWallet.getViewStub().inflate();
@@ -141,8 +170,6 @@ public class StartupActivity extends EclairActivity {
     }
 
     if (app.appKit == null) {
-      // core is not started, so starts it
-      // first check datadir state
       if (datadir.exists() && !datadir.canRead()) {
         Log.e(TAG, "datadir is not readable. Aborting startup");
         showError("Datadir is not readable.");
