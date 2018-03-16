@@ -128,7 +128,6 @@
 
   <string name="open_in_explorer">Open transaction in explorer</string>
   <string name="close_button">Close Channel</string>
-  <string name="close_channel_message">Are you sure you want to close this channel?</string>
 
   <!-- //////////////// Bitcoin Transaction Details //////////////////// -->
 
@@ -151,7 +150,7 @@
   <string name="channeldetails_id_desc">Channel unique identifier</string>
   <string name="channeldetails_reserve_label">Reserve</string>
   <string name="channeldetails_reserve_desc">Minimum balance that this channel can reach</string>
-  <string name="channeldetails_htlcs_count_label">Inflight htlcs</string>
+  <string name="channeldetails_htlcs_count_label">Inflight HTLCs</string>
   <string name="channeldetails_htlcs_count_desc">Counts the pending HTLCs in this channel</string>
   <string name="channeldetails_min_htlc_amount_label">Min. payment amount</string>
   <string name="channeldetails_min_htlc_amount_desc">Minimum amount accepted by this channel</string>
@@ -350,5 +349,14 @@
 
   <string name="scan_title_invoice">Please scan a QR code containing a Bitcoin address or a Lightning payment request.</string>
   <string name="scan_title_ln_uri">Please scan the address of a Lightning Network node.</string>
+
+  <!-- //////////////// Close Channel Dialog /////////////////// -->
+
+  <string name="dialog_close_channel_question">Are you sure you want to close this channel?</string>
+  <string name="dialog_close_channel_info">In this state, close can be %1$s.</string>
+  <string name="dialog_close_channel_force_warning">Careful: force-close is more expensive than a regular close and will incur a delay before you get your funds back.\n\nUse force-close only if the channel is stuck or if your peer is not responding.</string>
+  <string name="dialog_close_channel_ok_mutual">Close channel</string>
+  <string name="dialog_close_channel_ok_force">Force-close</string>
+  <string name="dialog_close_channel_cancel">Cancel</string>
 
 </resources>
