@@ -3,6 +3,7 @@ package fr.acinq.eclair.wallet.fragments;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.text.Html;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -39,7 +40,7 @@ public class CloseChannelDialog extends Dialog {
     mForceCloseButton = findViewById(R.id.close_channel_force_close);
 
     final String optionsMessage = mutualAllowed && forceAllowed ? "mutual and force" : mutualAllowed ? "mutual only" : "force only";
-    mInfoText.setText(context.getString(R.string.dialog_close_channel_info, optionsMessage));
+    mInfoText.setText(Html.fromHtml(context.getString(R.string.dialog_close_channel_info, optionsMessage)));
 
     mMutualCloseButton.setVisibility(mutualAllowed ? View.VISIBLE : View.GONE);
     mForceWarningText.setVisibility(forceAllowed ? View.VISIBLE : View.GONE);
