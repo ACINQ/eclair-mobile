@@ -21,8 +21,8 @@
     <item>btc</item>
   </string-array>
   <string-array name="btc_pattern_labels">
-    <item>Max. 2 decimals</item>
-    <item>Max. 5 decimals</item>
+    <item>2 decimals</item>
+    <item>5 decimals</item>
     <item>Exact precision</item>
   </string-array>
   <string-array name="btc_pattern_values">
