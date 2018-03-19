@@ -33,11 +33,11 @@
 
   <string name="home_intro_welcome">Welcome!</string>
   <string name="home_intro_welcome_sub">Tap anywhere to continue this short tour.</string>
-  <string name="home_intro_receive">Swipe Left</string>
+  <string name="home_intro_receive">Swipe left</string>
   <string name="home_intro_receive_sub">To display your address and\nreceive funds.</string>
-  <string name="home_intro_openchannel">Swipe Right</string>
+  <string name="home_intro_openchannel">Swipe right</string>
   <string name="home_intro_openchannel_sub">To open a Lightning Network channel.</string>
-  <string name="home_intro_openchannel_patience">Please Be Patient.</string>
+  <string name="home_intro_openchannel_patience">Please be patient.</string>
   <string name="home_intro_openchannel_patience_sub">Opening a channel takes 2 confirmations.</string>
   <string name="home_intro_sendpayment">Click here to send a payment</string>
   <string name="home_intro_sendpayment_sub">Make sure to have 1 channel\nin NORMAL state</string>
@@ -62,8 +62,9 @@
     ]]>
   </string>
   <string name="start_breaking"><![CDATA[
-    <h3>Breaking version.</h3>
-    This new version requires a clean data directory. Please reinstall the app, or reset the app\'s data.
+    <h3>Breaking changes</h3>
+    This new version requires a clean data directory. Please reset the app\'s data.
+    (from now on next versions should be backward compatible)
   ]]></string>
 
   <!-- //////////////// Create Recovery /////////////////// -->
@@ -141,7 +142,6 @@
   <string name="transactiondetails_date_label">Timestamp</string>
   <string name="transactiondetails_confs_label">Confirmations</string>
   <string name="transactiondetails_confs_type_label">Confidence type</string>
-  <string name="transactiondetails_confs_type_desc">State of the transaction in general terms</string>
   <string name="transactiondetails_rebroadcast">Rebroadcast Transaction</string>
   <string name="transactiondetails_rebroadcast_dialog">Rebroadcast this transaction?</string>
 
@@ -152,9 +152,9 @@
   <string name="channeldetails_reserve_label">Reserve</string>
   <string name="channeldetails_reserve_desc">Minimum balance that this channel can reach</string>
   <string name="channeldetails_htlcs_count_label">Inflight HTLCs</string>
-  <string name="channeldetails_htlcs_count_desc">Counts the pending HTLCs in this channel</string>
+  <string name="channeldetails_htlcs_count_desc">Current number of HTLCs in the commitment tx</string>
   <string name="channeldetails_min_htlc_amount_label">Min. payment amount</string>
-  <string name="channeldetails_min_htlc_amount_desc">Minimum amount accepted by this channel</string>
+  <string name="channeldetails_min_htlc_amount_desc">Minimum amount that can be sent through this channel</string>
   <string name="channeldetails_nodeid_label">Remote node id</string>
   <string name="channeldetails_nodeid_desc">Public key of the remote peer</string>
   <string name="channeldetails_state_label">State</string>
