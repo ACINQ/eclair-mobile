@@ -118,7 +118,8 @@ public class ChannelDetailsActivity extends EclairActivity {
           }
         }
 
-        mCloseChannelDialog = new CloseChannelDialog(ChannelDetailsActivity.this, dialog -> goToHome(), R.style.CustomAlertDialog, channel.getKey(), state, STATE_MUTUAL_CLOSE.contains(state), STATE_FORCE_CLOSE.contains(state));
+        mCloseChannelDialog = new CloseChannelDialog(ChannelDetailsActivity.this, dialog -> goToHome(), R.style.CustomAlertDialog, channel.getKey(),
+          STATE_MUTUAL_CLOSE.contains(state), STATE_FORCE_CLOSE.contains(state));
         mBinding.closeButton.setOnClickListener(v -> mCloseChannelDialog.show());
         mBinding.closeButton.setVisibility(STATE_MUTUAL_CLOSE.contains(state) || STATE_FORCE_CLOSE.contains(state) ? View.VISIBLE : View.GONE);
 

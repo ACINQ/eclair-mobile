@@ -7,7 +7,7 @@
   <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:gravity="top|center"
+    android:gravity="top|start"
     android:orientation="vertical">
 
     <TextView
@@ -17,6 +17,16 @@
       android:layout_margin="@dimen/app_padding"
       android:text="@string/dialog_close_channel_info"/>
 
+    <CheckBox
+      android:id="@+id/close_channel_force_checkbox"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:buttonTint="@color/primary"
+      android:visibility="gone"
+      android:layout_marginStart="@dimen/app_padding"
+      android:layout_marginEnd="@dimen/app_padding"
+      android:layout_marginBottom="@dimen/app_padding"
+      android:text="@string/dialog_close_channel_force_checkbox_opt" />
 
     <TextView
       android:id="@+id/close_channel_force_warning"
@@ -28,6 +38,7 @@
       android:drawableStart="@drawable/ic_warning_tri"
       android:textColor="@color/grey_3"
       android:textSize="12sp"
+      android:visibility="gone"
       android:padding="@dimen/app_padding"
       android:text="@string/dialog_close_channel_force_warning"/>
 
@@ -58,24 +69,13 @@
         android:textColor="@color/grey_1" />
 
       <Button
-        android:id="@+id/close_channel_mutual_close"
+        android:id="@+id/close_channel_close"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="?android:attr/selectableItemBackground"
         android:padding="@dimen/app_padding"
-        android:text="@string/dialog_close_channel_ok_mutual"
+        android:text="@string/dialog_close_channel_close"
         android:textColor="@color/grey_4" />
-
-      <Button
-        android:id="@+id/close_channel_force_close"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="?android:attr/selectableItemBackground"
-        android:padding="@dimen/app_padding"
-        android:text="@string/dialog_close_channel_ok_force"
-        android:textColor="@color/red_faded" />
-
     </LinearLayout>
-
   </LinearLayout>
 </ScrollView>
