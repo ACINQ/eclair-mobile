@@ -2,8 +2,10 @@ package fr.acinq.eclair.wallet.activities;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 
@@ -14,18 +16,22 @@ import fr.acinq.eclair.CoinUnit;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.adapters.PaymentItemHolder;
 import fr.acinq.eclair.wallet.customviews.DataRow;
+import fr.acinq.eclair.wallet.databinding.ActivityLnPaymentDetailsBinding;
 import fr.acinq.eclair.wallet.models.Payment;
 import fr.acinq.eclair.CoinUtils;
+import fr.acinq.eclair.wallet.models.PaymentStatus;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 
 public class LNPaymentDetailsActivity extends EclairActivity {
 
-  private static final String TAG = "LNPaymentDetailsActivity";
+  private ActivityLnPaymentDetailsBinding mBinding;
+  private static final String TAG = "LNPaymentDetails";
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_ln_payment_details);
+    mBinding = DataBindingUtil.setContentView(this, R.layout.activity_ln_payment_details);
 
     Toolbar toolbar = findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
@@ -44,45 +50,27 @@ public class LNPaymentDetailsActivity extends EclairActivity {
       final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
       final CoinUnit prefUnit = WalletUtils.getPreferredCoinUnit(prefs);
 
-      final DataRow amountPaidRow = findViewById(R.id.paymentdetails_amount_paid);
-      amountPaidRow.setValue(CoinUtils.formatAmountInUnit(new MilliSatoshi(p.getAmountPaidMsat()), prefUnit, true));
-
-      DataRow feesRow = findViewById(R.id.paymentdetails_fees);
-      feesRow.setValue(CoinUtils.formatAmountInUnit(new MilliSatoshi(p.getFeesPaidMsat()), prefUnit, true));
-
-      DataRow statusRow = findViewById(R.id.paymentdetails_status);
-      statusRow.setValue(p.getStatus().name());
-
-      DataRow recipientRow = findViewById(R.id.paymentdetails_recipient);
-      recipientRow.setValue(p.getRecipient());
-
-      DataRow descRow = findViewById(R.id.paymentdetails_desc);
-      descRow.setValue(p.getDescription());
-
-      DataRow amountRequestedRow = findViewById(R.id.paymentdetails_amount_requested);
-      amountRequestedRow.setValue(CoinUtils.formatAmountInUnit(new MilliSatoshi(p.getAmountRequestedMsat()), prefUnit, true));
-
-      DataRow amountSentRow = findViewById(R.id.paymentdetails_amount_sent);
-      amountSentRow.setValue(CoinUtils.formatAmountInUnit(new MilliSatoshi(p.getAmountSentMsat()), prefUnit, true));
-
-      DataRow paymentHashRow = findViewById(R.id.paymentdetails_paymenthash);
-      paymentHashRow.setValue(p.getReference());
-
-      DataRow preimageRow = findViewById(R.id.paymentdetails_preimage);
-      preimageRow.setValue(p.getPreimage());
-
-      DataRow paymentRequestRow = findViewById(R.id.paymentdetails_paymentrequest);
-      paymentRequestRow.setValue(p.getPaymentRequest());
-
-      DataRow creationDateRow = findViewById(R.id.paymentdetails_created);
-      creationDateRow.setValue(DateFormat.getDateTimeInstance().format(p.getCreated()));
-
-      DataRow updateDateRow = findViewById(R.id.paymentdetails_updated);
-      updateDateRow.setValue(DateFormat.getDateTimeInstance().format(p.getUpdated()));
-
+      mBinding.amountPaid.setAmountMsat(new MilliSatoshi(p.getAmountPaidMsat()));
+      mBinding.fees.setText(CoinUtils.formatAmountInUnit(new MilliSatoshi(p.getFeesPaidMsat()), prefUnit, true));
+      mBinding.status.setText(p.getStatus().name());
+      if (PaymentStatus.PAID == p.getStatus()) {
+        mBinding.status.setTextColor(ContextCompat.getColor(this, R.color.green));
+      } else if (PaymentStatus.FAILED == p.getStatus()) {
+        mBinding.status.setTextColor(ContextCompat.getColor(this, R.color.red_faded));
+      } else {
+        mBinding.status.setTextColor(ContextCompat.getColor(this, R.color.orange));
+      }
+      mBinding.recipient.setValue(p.getRecipient());
+      mBinding.desc.setValue(p.getDescription());
+      mBinding.amountRequested.setValue(CoinUtils.formatAmountInUnit(new MilliSatoshi(p.getAmountRequestedMsat()), prefUnit, true));
+      mBinding.amountSent.setValue(CoinUtils.formatAmountInUnit(new MilliSatoshi(p.getAmountSentMsat()), prefUnit, true));
+      mBinding.paymenthash.setValue(p.getReference());
+      mBinding.preimage.setValue(p.getPreimage());
+      mBinding.paymentrequest.setValue(p.getPaymentRequest());
+      mBinding.created.setValue(DateFormat.getDateTimeInstance().format(p.getCreated()));
+      mBinding.updated.setValue(DateFormat.getDateTimeInstance().format(p.getUpdated()));
     } catch (Exception e) {
       finish();
     }
   }
-
 }
