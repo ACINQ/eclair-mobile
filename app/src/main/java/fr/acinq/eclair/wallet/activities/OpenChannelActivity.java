@@ -75,6 +75,7 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
           checkAmount(s.toString());
         } catch (Exception e) {
           Log.d(TAG, "Could not convert amount to number with cause " + e.getMessage());
+          mBinding.capacityFiat.setText("");
         }
       }
 
@@ -245,7 +246,10 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
     }
 
     try {
-      Long.parseLong(mBinding.feesValue.getText().toString());
+      if (Long.parseLong(mBinding.feesValue.getText().toString()) <= 0) {
+        toggleError(getString(R.string.openchannel_error_fees_gt_0));
+        return;
+      }
     } catch (Exception e) {
       Log.w(TAG, "Could not read fees with cause=" + e.getMessage());
       toggleError(getString(R.string.openchannel_error_fees_nan));

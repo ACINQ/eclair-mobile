@@ -98,6 +98,7 @@
   <string name="openchannel_capacity_notenoughfunds">Not enough funds</string>
   <string name="openchannel_error_capacity_nan">Capacity amount is not valid</string>
   <string name="openchannel_error_fees_nan">Funding transaction\'s fees are not valid</string>
+  <string name="openchannel_error_fees_gt_0">Funding transaction\'s fee must be greater than 0</string>
   <string name="openchannel_address_expected_format">Expected format is nodeId@host:port</string>
   <string name="openchannel_error_address">This is not a valid address for a Lightning node.\n\n%1$s</string>
   <string name="openchannel_do_open">Open</string>
