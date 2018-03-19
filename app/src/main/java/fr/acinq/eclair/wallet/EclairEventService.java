@@ -30,6 +30,7 @@ import fr.acinq.eclair.channel.RemoteCommit;
 import fr.acinq.eclair.channel.WAIT_FOR_INIT_INTERNAL$;
 import fr.acinq.eclair.payment.PaymentFailed;
 import fr.acinq.eclair.payment.PaymentFailure;
+import fr.acinq.eclair.payment.PaymentLifecycle;
 import fr.acinq.eclair.payment.PaymentSucceeded;
 import fr.acinq.eclair.router.NORMAL$;
 import fr.acinq.eclair.transactions.DirectedHtlc;
@@ -237,7 +238,7 @@ public class EclairEventService extends UntypedActor {
         dbHelper.updatePaymentFailed(paymentInDB);
         // extract failure cause to generate a pretty error message
         final ArrayList<LightningPaymentError> errorList = new ArrayList<>();
-        final Seq<PaymentFailure> failures = event.failures();
+        final Seq<PaymentFailure> failures = PaymentLifecycle.transformForUser(event.failures());
         if (failures.size() > 0) {
           for (int i = 0; i < failures.size(); i++) {
             errorList.add(LightningPaymentError.generateDetailedErrorCause(failures.apply(i)));
