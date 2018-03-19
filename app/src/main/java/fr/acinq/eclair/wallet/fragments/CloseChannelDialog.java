@@ -22,7 +22,6 @@ public class CloseChannelDialog extends Dialog {
 
   private static final String TAG = "CloseChannelDialog";
 
-  private TextView mInfoText;
   private CheckBox mForceCheckbox;
   private TextView mForceWarningText;
   private Button mCancelButton;
@@ -35,14 +34,10 @@ public class CloseChannelDialog extends Dialog {
     mCallback = callback;
 
     setContentView(R.layout.dialog_close_channel);
-    mInfoText = findViewById(R.id.close_channel_info);
     mForceWarningText = findViewById(R.id.close_channel_force_warning);
     mForceCheckbox = findViewById(R.id.close_channel_force_checkbox);
     mCancelButton = findViewById(R.id.close_channel_cancel);
     mCloseButton = findViewById(R.id.close_channel_close);
-
-    final String optionsMessage = mutualAllowed && forceAllowed ? "mutual and force" : mutualAllowed ? "mutual only" : "force only";
-    mInfoText.setText(Html.fromHtml(context.getString(R.string.dialog_close_channel_info, optionsMessage)));
 
     // if only force close is allowed, checkbox is true and hidden and warning is always shown
     if (!mutualAllowed && forceAllowed) {

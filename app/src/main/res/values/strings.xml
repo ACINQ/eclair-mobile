@@ -354,7 +354,6 @@
   <!-- //////////////// Close Channel Dialog /////////////////// -->
 
   <string name="dialog_close_channel_question">Are you sure you want to close this channel?</string>
-  <string name="dialog_close_channel_info"><![CDATA[In this state, close can be <b>%1$s</b>.]]></string>
   <string name="dialog_close_channel_force_warning">Careful: force-close is more expensive than a regular close and will incur a delay before you get your funds back.\n\nUse force-close only if the channel is stuck or if your peer is not responding.</string>
   <string name="dialog_close_channel_force_checkbox_opt">I want to force-close this channel.</string>
   <string name="dialog_close_channel_close">Close channel</string>

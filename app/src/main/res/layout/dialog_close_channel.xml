@@ -1,81 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
   android:layout_width="match_parent"
-  android:layout_height="wrap_content"
-  android:scrollbars="vertical">
+  android:layout_height="wrap_content">
 
-  <LinearLayout
+  <ScrollView
+    android:id="@+id/content_scrollview"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:gravity="top|start"
-    android:orientation="vertical">
-
-    <TextView
-      android:id="@+id/close_channel_info"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:layout_margin="@dimen/app_padding"
-      android:text="@string/dialog_close_channel_info"/>
-
-    <CheckBox
-      android:id="@+id/close_channel_force_checkbox"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:buttonTint="@color/primary"
-      android:visibility="gone"
-      android:layout_marginStart="@dimen/app_padding"
-      android:layout_marginEnd="@dimen/app_padding"
-      android:layout_marginBottom="@dimen/app_padding"
-      android:text="@string/dialog_close_channel_force_checkbox_opt" />
-
-    <TextView
-      android:id="@+id/close_channel_force_warning"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:layout_marginBottom="@dimen/app_padding"
-      android:background="@color/grey_0_light_x1"
-      android:drawablePadding="8dp"
-      android:drawableStart="@drawable/ic_warning_tri"
-      android:textColor="@color/grey_3"
-      android:textSize="12sp"
-      android:visibility="gone"
-      android:padding="@dimen/app_padding"
-      android:text="@string/dialog_close_channel_force_warning"/>
-
-    <TextView
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:layout_marginStart="@dimen/app_padding"
-      android:layout_marginEnd="@dimen/app_padding"
-      android:layout_marginBottom="@dimen/app_padding"
-      android:text="@string/dialog_close_channel_question"/>
+    android:scrollbars="vertical"
+    app:layout_constraintTop_toTopOf="parent"
+    app:layout_constraintBottom_toTopOf="@+id/buttons_layout">
 
     <LinearLayout
-      android:id="@+id/buttons_layout"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:gravity="center|end"
-      android:orientation="horizontal">
+      android:gravity="top|start"
+      android:orientation="vertical">
 
-      <Button
-        android:id="@+id/close_channel_cancel"
+      <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/app_padding"
+        android:text="@string/dialog_close_channel_question" />
+
+      <CheckBox
+        android:id="@+id/close_channel_force_checkbox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:background="?android:attr/selectableItemBackground"
-        android:onClick="closeApp"
-        android:padding="@dimen/app_padding"
-        android:text="@string/dialog_close_channel_cancel"
-        android:textColor="@color/grey_1" />
+        android:layout_marginBottom="@dimen/app_padding"
+        android:layout_marginEnd="@dimen/app_padding"
+        android:layout_marginStart="@dimen/app_padding"
+        android:buttonTint="@color/primary"
+        android:text="@string/dialog_close_channel_force_checkbox_opt"
+        android:visibility="gone" />
 
-      <Button
-        android:id="@+id/close_channel_close"
-        android:layout_width="wrap_content"
+      <TextView
+        android:id="@+id/close_channel_force_warning"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?android:attr/selectableItemBackground"
+        android:background="@color/grey_0_light_x1"
+        android:drawablePadding="8dp"
+        android:drawableStart="@drawable/ic_warning_tri"
+        android:layout_marginBottom="48dp"
         android:padding="@dimen/app_padding"
-        android:text="@string/dialog_close_channel_close"
-        android:textColor="@color/grey_4" />
+        android:text="@string/dialog_close_channel_force_warning"
+        android:textColor="@color/grey_3"
+        android:textSize="12sp"
+        android:visibility="gone" />
     </LinearLayout>
+  </ScrollView>
+
+  <LinearLayout
+    android:id="@+id/buttons_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center|end"
+    android:orientation="horizontal"
+    app:layout_constraintBottom_toBottomOf="parent">
+
+    <Button
+      android:id="@+id/close_channel_cancel"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginEnd="16dp"
+      android:background="?android:attr/selectableItemBackground"
+      android:onClick="closeApp"
+      android:padding="@dimen/app_padding"
+      android:text="@string/dialog_close_channel_cancel"
+      android:textColor="@color/grey_1" />
+
+    <Button
+      android:id="@+id/close_channel_close"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:background="?android:attr/selectableItemBackground"
+      android:padding="@dimen/app_padding"
+      android:text="@string/dialog_close_channel_close"
+      android:textColor="@color/grey_4" />
   </LinearLayout>
-</ScrollView>
+</android.support.constraint.ConstraintLayout>
