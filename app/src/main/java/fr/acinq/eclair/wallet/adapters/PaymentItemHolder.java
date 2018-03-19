@@ -74,10 +74,6 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
   public void bindPaymentItem(final Payment payment, final String fiatCode, final CoinUnit prefUnit, final boolean displayAmountAsFiat) {
     this.mPayment = payment;
 
-    if (payment.getUpdated() != null) {
-      mDate.setText(DateFormat.getDateTimeInstance().format(payment.getUpdated()));
-    }
-
     // amount should be the amount paid, fallback to requested (useful for LN)
     final long amountMsat = payment.getAmountPaidMsat() == 0 ? payment.getAmountRequestedMsat() : payment.getAmountPaidMsat();
     // Adding a "-" prefix to the amount if this is an outgoing payment
@@ -110,7 +106,11 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
     }
     mDescription.setTypeface(Typeface.DEFAULT);
     mDescription.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.grey_4));
+
     if (PaymentType.BTC_LN.equals(payment.getType())) {
+      if (payment.getUpdated() != null) {
+        mDate.setText(DateFormat.getDateTimeInstance().format(payment.getUpdated()));
+      }
       if (Strings.isNullOrEmpty(payment.getDescription())) {
         mDescription.setText(itemView.getResources().getString(R.string.unknown_desc));
         mDescription.setTypeface(Typeface.DEFAULT, Typeface.ITALIC);
@@ -128,6 +128,9 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
       }
       mPaymentIcon.setImageResource(R.mipmap.ic_bolt_circle);
     } else {
+      if (payment.getCreated() != null) {
+        mDate.setText(DateFormat.getDateTimeInstance().format(payment.getCreated()));
+      }
       // convention: negative number of confirmations means conflicted
       if (payment.getConfidenceBlocks() >= 0) {
         // text

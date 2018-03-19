@@ -150,7 +150,7 @@
   <string name="channeldetails_id_label">Id</string>
   <string name="channeldetails_id_desc">Channel unique identifier</string>
   <string name="channeldetails_reserve_label">Reserve</string>
-  <string name="channeldetails_reserve_desc">Minimum balance that this channel can reach</string>
+  <string name="channeldetails_reserve_desc">Minimum balance that this channel must maintain</string>
   <string name="channeldetails_htlcs_count_label">Inflight HTLCs</string>
   <string name="channeldetails_htlcs_count_desc">Current number of HTLCs in the commitment tx</string>
   <string name="channeldetails_min_htlc_amount_label">Min. payment amount</string>
