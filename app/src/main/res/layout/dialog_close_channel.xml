@@ -42,7 +42,7 @@
         android:background="@color/grey_0_light_x1"
         android:drawablePadding="8dp"
         android:drawableStart="@drawable/ic_warning_tri"
-        android:layout_marginBottom="48dp"
+        android:layout_marginBottom="40dp"
         android:padding="@dimen/app_padding"
         android:text="@string/dialog_close_channel_force_warning"
         android:textColor="@color/grey_3"

@@ -3,6 +3,7 @@ package fr.acinq.eclair.wallet.fragments;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.support.v4.content.ContextCompat;
 import android.text.Html;
 import android.view.View;
 import android.widget.Button;
@@ -42,13 +43,24 @@ public class CloseChannelDialog extends Dialog {
     // if only force close is allowed, checkbox is true and hidden and warning is always shown
     if (!mutualAllowed && forceAllowed) {
       mForceCheckbox.setChecked(true);
+      mForceCheckbox.setEnabled(false);
+      mForceCheckbox.setVisibility(View.VISIBLE);
       mForceWarningText.setVisibility(View.VISIBLE);
+      mCloseButton.setText(context.getString(R.string.dialog_close_channel_forceclose));
+      mCloseButton.setTextColor(ContextCompat.getColor(context, R.color.red_faded));
     } else {
       mForceCheckbox.setVisibility(forceAllowed ? View.VISIBLE : View.GONE);
       mForceCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
         @Override
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
           mForceWarningText.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+          if (isChecked) {
+            mCloseButton.setText(context.getString(R.string.dialog_close_channel_forceclose));
+            mCloseButton.setTextColor(ContextCompat.getColor(context, R.color.red_faded));
+          } else {
+            mCloseButton.setText(context.getString(R.string.dialog_close_channel_close));
+            mCloseButton.setTextColor(ContextCompat.getColor(context, R.color.grey_4));
+          }
         }
       });
     }
