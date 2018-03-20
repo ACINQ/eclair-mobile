@@ -234,7 +234,6 @@ public class StartupActivity extends EclairActivity {
         ActorRef guiUpdater = app.system.actorOf(Props.create(EclairEventService.class, app.getDBHelper()));
         setup.system().eventStream().subscribe(guiUpdater, ChannelEvent.class);
         setup.system().eventStream().subscribe(guiUpdater, PaymentResult.class);
-        setup.system().eventStream().subscribe(guiUpdater, NetworkEvent.class);
         app.system.actorOf(Props.create(PaymentSupervisor.class, app.getDBHelper()), "payments");
 
         publishProgress("starting core");

@@ -12,6 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import akka.actor.ActorRef;
 import akka.actor.Terminated;
 import akka.actor.UntypedActor;
+import fr.acinq.bitcoin.Crypto;
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.channel.CLOSED$;
@@ -28,6 +29,7 @@ import fr.acinq.eclair.channel.LocalCommit;
 import fr.acinq.eclair.channel.OFFLINE$;
 import fr.acinq.eclair.channel.RemoteCommit;
 import fr.acinq.eclair.channel.WAIT_FOR_INIT_INTERNAL$;
+import fr.acinq.eclair.channel.WaitingForRevocation;
 import fr.acinq.eclair.payment.PaymentFailed;
 import fr.acinq.eclair.payment.PaymentFailure;
 import fr.acinq.eclair.payment.PaymentLifecycle;
@@ -48,6 +50,7 @@ import fr.acinq.eclair.wallet.models.PaymentStatus;
 import fr.acinq.eclair.wallet.models.PaymentType;
 import scala.collection.Iterator;
 import scala.collection.Seq;
+import scala.util.Either;
 
 /**
  * This actor handles the messages sent by the Eclair node.
@@ -132,34 +135,39 @@ public class EclairEventService extends UntypedActor {
     // ---- we sent a channel sig => update corresponding payment to PENDING in app's DB
     else if (message instanceof ChannelSignatureSent) {
       ChannelSignatureSent sigSent = (ChannelSignatureSent) message;
-      RemoteCommit commit = sigSent.Commitments().remoteCommit();
-      Iterator<DirectedHtlc> htlcsIterator = commit.spec().htlcs().iterator();
-      while (htlcsIterator.hasNext()) {
-        DirectedHtlc h = htlcsIterator.next();
-        String htlcPaymentHash = h.add().paymentHash().toString();
-        Payment p = dbHelper.getPayment(htlcPaymentHash, PaymentType.BTC_LN);
-        if (p != null) {
-          // regular case: we know this payment hash
-          if (p.getStatus() == PaymentStatus.INIT) {
-            dbHelper.updatePaymentPending(p);
+      Either<WaitingForRevocation, Crypto.Point> nextCommitInfo = sigSent.Commitments().remoteNextCommitInfo();
+      if (nextCommitInfo.isLeft()) {
+        RemoteCommit commit = nextCommitInfo.left().get().nextRemoteCommit();
+        Iterator<DirectedHtlc> htlcsIterator = commit.spec().htlcs().iterator();
+        while (htlcsIterator.hasNext()) {
+          DirectedHtlc h = htlcsIterator.next();
+          String htlcPaymentHash = h.add().paymentHash().toString();
+          Payment p = dbHelper.getPayment(htlcPaymentHash, PaymentType.BTC_LN);
+          if (p != null) {
+            // regular case: we know this payment hash
+            if (p.getStatus() == PaymentStatus.INIT) {
+              dbHelper.updatePaymentPending(p);
+              EventBus.getDefault().post(new PaymentEvent());
+            }
+          } else {
+            // rare case: an htlc is sent without the app knowing its payment hash
+            // this can happen if the app could not save the payment into its own payments DB
+            // we don't know much about this htlc, except that it was sent and will affects the channel's balance
+            p = new Payment();
+            p.setType(PaymentType.BTC_LN);
+            p.setDirection(PaymentDirection.SENT);
+            p.setReference(htlcPaymentHash);
+            p.setAmountPaidMsat(h.add().amountMsat());
+            p.setRecipient("unknown recipient");
+            p.setPaymentRequest("unknown invoice");
+            p.setStatus(PaymentStatus.PENDING);
+            p.setUpdated(new Date());
+            dbHelper.insertOrUpdatePayment(p);
             EventBus.getDefault().post(new PaymentEvent());
           }
-        } else {
-          // rare case: an htlc is sent without the app knowing its payment hash
-          // this can happen if the app could not save the payment into its own payments DB
-          // we don't know much about this htlc, except that it was sent and will affects the channel's balance
-          p = new Payment();
-          p.setType(PaymentType.BTC_LN);
-          p.setDirection(PaymentDirection.SENT);
-          p.setReference(htlcPaymentHash);
-          p.setAmountPaidMsat(h.add().amountMsat());
-          p.setRecipient("unknown recipient");
-          p.setPaymentRequest("unknown invoice");
-          p.setStatus(PaymentStatus.PENDING);
-          p.setUpdated(new Date());
-          dbHelper.insertOrUpdatePayment(p);
-          EventBus.getDefault().post(new PaymentEvent());
         }
+      } else {
+        // do nothing
       }
     }
     // ---- balance update, only for the channels we know
