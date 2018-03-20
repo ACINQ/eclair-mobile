@@ -64,7 +64,9 @@
   <string name="start_breaking"><![CDATA[
     <h3>Breaking changes</h3>
     This new version requires a clean data directory. Please reset the app\'s data.
-    (from now on next versions should be backward compatible)
+    <br />
+    <br />
+    From now on next versions should be backward compatible.
   ]]></string>
 
   <!-- //////////////// Create Recovery /////////////////// -->
@@ -83,7 +85,7 @@
 
   <!-- //////////////// Import Wallet /////////////////// -->
 
-  <string name="importwallet_disclaimer">Eclair and Lightning is still new tech. Do not import a wallet with a significant amount of funds.</string>
+  <string name="importwallet_disclaimer">Eclair and Lightning is still new tech. Do not import a wallet with a significant amount of money.</string>
   <string name="importwallet_instructions">Enter the recovery phrase of your wallet.\nPassphrase are not supported yet.</string>
   <string name="importwallet_error">This phrase is not valid: %1$s</string>
   <string name="importwallet_input_hint">Type the recovery phrase here</string>
