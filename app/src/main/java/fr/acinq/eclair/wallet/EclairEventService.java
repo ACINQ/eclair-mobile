@@ -1,5 +1,6 @@
 package fr.acinq.eclair.wallet;
 
+import android.os.Build;
 import android.util.Log;
 
 import org.greenrobot.eventbus.EventBus;
@@ -217,7 +218,7 @@ public class EclairEventService extends UntypedActor {
         // Otherwise the notification would show up each time the wallet is started and the channel is
         // still closing, even though the user has already been alerted the last time he used the app.
         // Same thing for CLOSING -> CLOSED
-        if (cd.state != null && !CLOSED$.MODULE$.toString().equals(cs.currentState().toString()) && !WAIT_FOR_INIT_INTERNAL$.MODULE$.toString().equals(cd.state)) {
+        if (Build.VERSION.SDK_INT < 26 && cd.state != null && !CLOSED$.MODULE$.toString().equals(cs.currentState().toString()) && !WAIT_FOR_INIT_INTERNAL$.MODULE$.toString().equals(cd.state)) {
           String notifTitle = "Closing channel with " + cd.remoteNodeId.substring(0, 7) + "...";
           MilliSatoshi balanceLeft = new MilliSatoshi(d.commitments().localCommit().spec().toLocalMsat());
           final String notifMessage = "Your final balance: " + CoinUtils.formatAmountInUnit(balanceLeft, CoinUtils.getUnitFromString("btc"), true);

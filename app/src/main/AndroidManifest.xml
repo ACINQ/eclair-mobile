@@ -65,7 +65,6 @@
       android:label=""
       android:launchMode="singleTop"
       android:parentActivityName=".activities.HomeActivity"
-      android:screenOrientation="portrait"
       android:stateNotNeeded="true"
       android:theme="@style/CustomDialog" />
     <activity
@@ -80,7 +79,6 @@
       android:label=""
       android:launchMode="singleTop"
       android:parentActivityName=".activities.HomeActivity"
-      android:screenOrientation="portrait"
       android:stateNotNeeded="true"
       android:theme="@style/CustomDialog"
       android:windowSoftInputMode="stateVisible" />
