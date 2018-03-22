@@ -453,14 +453,10 @@ public class SendPaymentActivity extends EclairActivity
             app.getDBHelper().insertOrUpdatePayment(newPayment);
           }
 
-          Long finalCltvExpiry = Channel.MIN_CLTV_EXPIRY();
-          if (pr.minFinalCltvExpiry().isDefined() && pr.minFinalCltvExpiry().get() instanceof Long) {
-            finalCltvExpiry = (Long) pr.minFinalCltvExpiry().get();
-          }
           // execute payment future, with cltv expiry + 1 to prevent the case where a block is mined just
           // when the payment is made, which would fail the payment.
           Log.i(TAG, "sending " + amountMsat + " msat for invoice " + prAsString);
-          app.sendLNPayment(amountMsat, pr.paymentHash(), pr.nodeId(), finalCltvExpiry + 1);
+          app.sendLNPayment(pr, amountMsat);
         }
       );
       closeAndGoHome();

@@ -34,6 +34,7 @@ import fr.acinq.eclair.Globals;
 import fr.acinq.eclair.Kit;
 import fr.acinq.eclair.blockchain.electrum.ElectrumEclairWallet;
 import fr.acinq.eclair.blockchain.electrum.ElectrumWallet;
+import fr.acinq.eclair.channel.Channel;
 import fr.acinq.eclair.io.NodeURI;
 import fr.acinq.eclair.io.Peer;
 import fr.acinq.eclair.payment.PaymentRequest;
@@ -154,14 +155,16 @@ public class App extends Application {
   /**
    * Asks the eclair node to asynchronously execute a Lightning payment. Future failure is silent.
    *
-   * @param amountMsat      Amount of the payment in millisatoshis
-   * @param paymentHash     Hash of the payment preimage
-   * @param publicKey       Public key of the recipient node
-   * @param finalCltvExpiry Expiry of the payment, in blocks
+   * @param paymentRequest  Lightning payment request
+   * @param amountMsat      Amount of the payment in millisatoshis. Overrides the amount provided by the payment request!
    */
-  public void sendLNPayment(final long amountMsat, final BinaryData paymentHash, final Crypto.PublicKey publicKey, final Long finalCltvExpiry) {
+  public void sendLNPayment(final PaymentRequest paymentRequest, final long amountMsat) {
+    Long finalCltvExpiry = Channel.MIN_CLTV_EXPIRY();
+    if (paymentRequest.minFinalCltvExpiry().isDefined() && paymentRequest.minFinalCltvExpiry().get() instanceof Long) {
+      finalCltvExpiry = (Long) paymentRequest.minFinalCltvExpiry().get();
+    }
     Patterns.ask(appKit.eclairKit.paymentInitiator(),
-      new SendPayment(amountMsat, paymentHash, publicKey, (Seq<scala.collection.Seq<PaymentRequest.ExtraHop>>) Seq$.MODULE$.empty(), finalCltvExpiry, 20),
+      new SendPayment(amountMsat, paymentRequest.paymentHash(), paymentRequest.nodeId(), paymentRequest.routingInfo(), finalCltvExpiry + 1, 10),
       new Timeout(Duration.create(1, "seconds"))).onFailure(new OnFailure() {
       @Override
       public void onFailure(Throwable failure) throws Throwable {}
