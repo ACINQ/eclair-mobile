@@ -59,6 +59,7 @@ public class App extends Application {
   private final static ExchangeRate exchangeRate = new ExchangeRate();
   public final ActorSystem system = ActorSystem.apply("system");
   public AtomicReference<Satoshi> onChainBalance = new AtomicReference<>(new Satoshi(0));
+  public AtomicReference<String> pin = new AtomicReference<>(null);
   public AppKit appKit;
   private DBHelper dbHelper;
   private String walletAddress = "N/A";

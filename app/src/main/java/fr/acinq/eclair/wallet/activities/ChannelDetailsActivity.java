@@ -118,7 +118,7 @@ public class ChannelDetailsActivity extends EclairActivity {
           }
         }
 
-        mCloseChannelDialog = new CloseChannelDialog(ChannelDetailsActivity.this, dialog -> goToHome(), R.style.CustomAlertDialog, channel.getKey(),
+        mCloseChannelDialog = new CloseChannelDialog(ChannelDetailsActivity.this, dialog -> finish(), R.style.CustomAlertDialog, channel.getKey(),
           STATE_MUTUAL_CLOSE.contains(state), STATE_FORCE_CLOSE.contains(state));
         mBinding.closeButton.setOnClickListener(v -> mCloseChannelDialog.show());
         mBinding.closeButton.setVisibility(STATE_MUTUAL_CLOSE.contains(state) || STATE_FORCE_CLOSE.contains(state) ? View.VISIBLE : View.GONE);
@@ -134,13 +134,8 @@ public class ChannelDetailsActivity extends EclairActivity {
       }
     } catch (Exception e) {
       Log.w(TAG, "could not read channel details with cause=" + e.getMessage());
-      goToHome();
+      finish();
     }
-  }
-
-  private void goToHome() {
-    Intent homeIntent = new Intent(this, HomeActivity.class);
-    startActivity(homeIntent);
   }
 
   private Map.Entry<ActorRef, EclairEventService.ChannelDetails> getChannel(String channelId) {

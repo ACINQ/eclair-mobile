@@ -10,35 +10,33 @@
     android:gravity="top|center"
     android:orientation="vertical">
 
+    <TextView
+      android:id="@+id/pin_title"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:background="@color/yellow_light_x2"
+      android:paddingTop="@dimen/app_padding"
+      android:paddingBottom="6dp"
+      android:paddingStart="8dp"
+      android:paddingEnd="8dp"
+      android:text="@string/pindialog_title_default"
+      android:textAlignment="center"
+      android:textColor="@color/grey_4"
+      android:textStyle="bold"
+      android:textSize="14sp" />
+
     <RelativeLayout
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:background="@color/yellow_light_x1">
-
-      <TextView
-        android:id="@+id/pin_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:background="@drawable/rounded_corner_yellow_bottom"
-        android:paddingBottom="3dp"
-        android:paddingEnd="6dp"
-        android:paddingStart="6dp"
-        android:paddingTop="3dp"
-        android:text="@string/pindialog_title_default"
-        android:textAlignment="center"
-        android:textColor="@color/grey_3"
-        android:textSize="12sp" />
+      android:background="@color/yellow_light_x2">
 
       <TextView
         android:id="@+id/pin_display_placeholder"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/pin_title"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="24dp"
-        android:layout_marginTop="28dp"
+        android:layout_marginTop="16dp"
         android:alpha="0.15"
         android:background="@android:color/transparent"
         android:gravity="center"

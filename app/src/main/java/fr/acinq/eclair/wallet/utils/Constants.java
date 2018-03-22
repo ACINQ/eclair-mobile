@@ -31,12 +31,10 @@ public interface Constants {
   String SETTING_LIGHTNING_MAX_FEE = "lightning_max_fee";
   String SETTING_LIGHTNING_MAX_FEE_VALUE = "lightning_max_fee_value";
 
-  /* ----------- SETTINGS - PIN CODES ------------ */
+  /* ----------- SETTINGS - PIN CODE ------------ */
 
   String SETTINGS_SECURITY_FILE = BuildConfig.APPLICATION_ID + ".security_settings";
-  String SETTING_PIN_VALUE = "PIN_VALUE";
-  String SETTING_PIN_LAST_UPDATE = "PIN_LAST_UPDATE";
-  String PIN_UNDEFINED_VALUE = "";
+  String SETTING_ASK_PIN_FOR_SENSITIVE_ACTIONS = "ask_pin_for_sensitive_action";
   int PIN_LENGTH = 6;
 
   /* ----------- COINS ------------ */
