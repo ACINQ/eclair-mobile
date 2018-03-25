@@ -32,16 +32,10 @@ public class WalletUtils {
     "03933884aaf1d6b108397e5efe5c86bcf2d8ca8d2f700eda99db9214fc2712b134@endurance.acinq.co:9735"
   );
   private static final String TAG = "WalletUtils";
-  private static final int VERSION_LENGTH = 1;
-  private static final int SALT_LENGTH_V1 = 128;
-  private static final int IV_LENGTH_V1 = 16;
-  private static final int MAC_LENGTH_V1 = 32;
-  private final static byte SEED_FILE_VERSION_1 = 1;
+  private static NumberFormat fiatFormat;
   public final static String UNENCRYPTED_SEED_NAME = "seed.dat";
   public final static String SEED_NAME = "enc_seed.dat";
   private final static String SEED_NAME_TEMP = "enc_seed_temp.dat";
-  private static byte currentSeedFileVersion = SEED_FILE_VERSION_1;
-  private static NumberFormat fiatFormat;
 
   public static View.OnClickListener getOpenTxListener(final String txId) {
     return v -> {
@@ -65,46 +59,13 @@ public class WalletUtils {
     if (!seedFile.exists() || !seedFile.canRead() || !seedFile.isFile()) {
       throw new RuntimeException("seed file does not exist or can not be read");
     }
-
     final byte[] fileContent = Files.toByteArray(seedFile);
-    final byte version = fileContent[0];
-    if (version == SEED_FILE_VERSION_1) {
-      final byte[] salt = readSalt_v1(fileContent);
-      final AesCbcWithIntegrity.SecretKeys sk = AesCbcWithIntegrity.generateKeyFromPassword(password, salt);
-      final AesCbcWithIntegrity.CipherTextIvMac civ = new AesCbcWithIntegrity.CipherTextIvMac(readCipher_v1(fileContent), readIV_v1(fileContent), readMAC_v1(fileContent));
-      return AesCbcWithIntegrity.decrypt(civ, sk);
-    } else {
-      throw new RuntimeException("unhandled encrypted seed file version");
-    }
+    final EncryptedSeed encryptedSeed = EncryptedSeed.read(fileContent);
+    return encryptedSeed.decrypt(password);
   }
 
   public static byte[] readSeedFile(final File datadir, final String password) throws IOException, IllegalAccessException, GeneralSecurityException {
     return readSeedFile(datadir, SEED_NAME, password);
-  }
-
-  private static byte[] readSalt_v1(byte[] content) {
-    final byte[] salt = new byte[SALT_LENGTH_V1];
-    System.arraycopy(content, VERSION_LENGTH, salt, 0, SALT_LENGTH_V1);
-    return salt;
-  }
-
-  private static byte[] readIV_v1(byte[] content) {
-    final byte[] iv = new byte[IV_LENGTH_V1];
-    System.arraycopy(content, VERSION_LENGTH + SALT_LENGTH_V1, iv, 0, IV_LENGTH_V1);
-    return iv;
-  }
-
-  private static byte[] readMAC_v1(byte[] content) {
-    final byte[] mac = new byte[MAC_LENGTH_V1];
-    System.arraycopy(content, VERSION_LENGTH + SALT_LENGTH_V1 + IV_LENGTH_V1, mac, 0, MAC_LENGTH_V1);
-    return mac;
-  }
-
-  private static byte[] readCipher_v1(byte[] content) {
-    final int cipherLength = content.length - VERSION_LENGTH - SALT_LENGTH_V1 - IV_LENGTH_V1 - MAC_LENGTH_V1;
-    final byte[] cipher = new byte[cipherLength];
-    System.arraycopy(content, VERSION_LENGTH + SALT_LENGTH_V1 + IV_LENGTH_V1 + MAC_LENGTH_V1, cipher, 0, cipherLength);
-    return cipher;
   }
 
   public static void writeSeedFile(final File datadir, final byte[] seed, final String password) throws IOException {
@@ -112,30 +73,17 @@ public class WalletUtils {
       if (!datadir.exists()) {
         datadir.mkdir();
       }
-      final byte[] salt = AesCbcWithIntegrity.generateSalt();
-      final AesCbcWithIntegrity.SecretKeys sk = AesCbcWithIntegrity.generateKeyFromPassword(password, salt);
-      final AesCbcWithIntegrity.CipherTextIvMac civ = AesCbcWithIntegrity.encrypt(seed, sk);
-      if (currentSeedFileVersion == SEED_FILE_VERSION_1) {
-        if (salt.length != SALT_LENGTH_V1 || civ.getIv().length != IV_LENGTH_V1 || civ.getMac().length != MAC_LENGTH_V1) {
-          throw new Exception();
-        }
-      }
-      final ByteArrayOutputStream fileContent = new ByteArrayOutputStream();
-      fileContent.write(currentSeedFileVersion);
-      fileContent.write(salt);
-      fileContent.write(civ.getIv());
-      fileContent.write(civ.getMac());
-      fileContent.write(civ.getCipherText());
+      // encrypt and write in temp file
       final File temp = new File(datadir, SEED_NAME_TEMP);
-      Files.write(fileContent.toByteArray(), temp);
-
+      final EncryptedSeed encryptedSeed = EncryptedSeed.encrypt(seed, password, EncryptedSeed.SEED_FILE_VERSION_1);
+      Files.write(encryptedSeed.write(), temp);
+      // decrypt temp file and check validity; if correct, move temp file to final file
       final byte[] checkSeed = readSeedFile(datadir, SEED_NAME_TEMP, password);
       if (!AesCbcWithIntegrity.constantTimeEq(checkSeed, seed)) {
         throw new GeneralSecurityException();
       } else {
         Files.move(temp, new File(datadir, SEED_NAME));
       }
-
     } catch (SecurityException e) {
       throw new RuntimeException("could not create datadir");
     } catch (IOException e) {
