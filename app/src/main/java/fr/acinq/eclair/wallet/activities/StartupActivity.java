@@ -213,7 +213,8 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
         Log.e(TAG, "datadir is not a directory. Aborting startup");
         showError("Datadir is not a directory.");
       } else {
-        if (app.pin.get() == null) {
+        final String currentPassword = app.pin.get();
+        if (currentPassword == null) {
           pinDialog = new PinDialog(StartupActivity.this, R.style.CustomAlertDialog, new PinDialog.PinDialogCallback() {
             @Override
             public void onPinConfirm(final PinDialog dialog, final String pinValue) {
@@ -227,7 +228,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
           pinDialog.setCancelable(false);
           pinDialog.show();
         } else {
-          new StartupTask(app.pin.get()).execute(app);
+          new StartupTask(currentPassword).execute(app);
         }
       }
     } else {
