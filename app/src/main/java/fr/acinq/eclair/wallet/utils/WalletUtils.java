@@ -8,32 +8,34 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import com.google.common.io.FileWriteMode;
 import com.google.common.io.Files;
+import com.tozny.crypto.android.AesCbcWithIntegrity;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
+import java.security.GeneralSecurityException;
+import java.security.MessageDigest;
 import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.List;
 
-import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.bitcoin.MilliSatoshi;
-import fr.acinq.bitcoin.MnemonicCode;
 import fr.acinq.bitcoin.package$;
-import fr.acinq.eclair.*;
+import fr.acinq.eclair.CoinUnit;
 import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.wallet.App;
-import scala.collection.JavaConverters;
 
 
 public class WalletUtils {
-  private static final String TAG = "WalletUtils";
   public final static List<String> LN_NODES = Arrays.asList(
     "03933884aaf1d6b108397e5efe5c86bcf2d8ca8d2f700eda99db9214fc2712b134@endurance.acinq.co:9735"
   );
+  private static final String TAG = "WalletUtils";
   private static NumberFormat fiatFormat;
+  public final static String UNENCRYPTED_SEED_NAME = "seed.dat";
+  public final static String SEED_NAME = "enc_seed.dat";
+  private final static String SEED_NAME_TEMP = "enc_seed_temp.dat";
 
   public static View.OnClickListener getOpenTxListener(final String txId) {
     return v -> {
@@ -49,43 +51,45 @@ public class WalletUtils {
     };
   }
 
-  /**
-   * Reads the seed from the seed file.
-   * @param datadir
-   * @return
-   * @throws Exception
-   */
-  public static BinaryData readSeedFile(final File datadir) throws IOException{
-    try {
-      return BinaryData.apply(new String(Files.toByteArray(new File(datadir, "seed.dat")), Charset.defaultCharset()));
-    } catch (Exception e) {
-      Log.e(TAG, "Could not read mnemonics file");
-      throw e;
+  private static byte[] readSeedFile(final File datadir, final String seedFileName, final String password) throws IOException, IllegalAccessException, GeneralSecurityException {
+    if (!datadir.exists()) {
+      throw new RuntimeException("datadir does not exist");
     }
+    final File seedFile = new File(datadir, seedFileName);
+    if (!seedFile.exists() || !seedFile.canRead() || !seedFile.isFile()) {
+      throw new RuntimeException("seed file does not exist or can not be read");
+    }
+    final byte[] fileContent = Files.toByteArray(seedFile);
+    final EncryptedSeed encryptedSeed = EncryptedSeed.read(fileContent);
+    return encryptedSeed.decrypt(password);
   }
 
-  /**
-   * Writes a list of words into a seed file.
-   * @param datadir
-   * @param words
-   * @throws Exception
-   */
-  public static void writeSeedFile(final File datadir, final List<String> words) throws IOException {
+  public static byte[] readSeedFile(final File datadir, final String password) throws IOException, IllegalAccessException, GeneralSecurityException {
+    return readSeedFile(datadir, SEED_NAME, password);
+  }
+
+  public static void writeSeedFile(final File datadir, final byte[] seed, final String password) throws IOException {
     try {
       if (!datadir.exists()) {
         datadir.mkdir();
       }
-      final BinaryData seed = MnemonicCode.toSeed(JavaConverters.collectionAsScalaIterableConverter(words).asScala().toSeq(), "");
-      Files.write(seed.toString().getBytes(), new File(datadir, "seed.dat"));
+      // encrypt and write in temp file
+      final File temp = new File(datadir, SEED_NAME_TEMP);
+      final EncryptedSeed encryptedSeed = EncryptedSeed.encrypt(seed, password, EncryptedSeed.SEED_FILE_VERSION_1);
+      Files.write(encryptedSeed.write(), temp);
+      // decrypt temp file and check validity; if correct, move temp file to final file
+      final byte[] checkSeed = readSeedFile(datadir, SEED_NAME_TEMP, password);
+      if (!AesCbcWithIntegrity.constantTimeEq(checkSeed, seed)) {
+        throw new GeneralSecurityException();
+      } else {
+        Files.move(temp, new File(datadir, SEED_NAME));
+      }
     } catch (SecurityException e) {
-      Log.e(TAG, "Could not create datadir", e);
-      throw e;
+      throw new RuntimeException("could not create datadir");
     } catch (IOException e) {
-      Log.e(TAG, "Could not write seed file", e);
-      throw e;
+      throw new RuntimeException("could not write seed file");
     } catch (Exception e) {
-      Log.e(TAG, "Could not create seed", e);
-      throw e;
+      throw new RuntimeException("could not create seed");
     }
   }
 
@@ -103,7 +107,7 @@ public class WalletUtils {
   }
 
   /**
-   * Gets the user's preferred fiat currency. Defaults is USD
+   * Gets the user's preferred fiat currency. Default is USD
    *
    * @param prefs
    * @return
@@ -146,4 +150,5 @@ public class WalletUtils {
   public static MilliSatoshi getAmountFromInvoice(PaymentRequest paymentRequest) {
     return paymentRequest.amount().isEmpty() ? new MilliSatoshi(0) : paymentRequest.amount().get();
   }
+
 }

@@ -3,10 +3,10 @@ package fr.acinq.eclair.wallet.activities;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Toast;
 
 import com.google.common.base.Joiner;
 
@@ -19,11 +19,12 @@ import fr.acinq.bitcoin.MnemonicCode;
 import fr.acinq.eclair.blockchain.electrum.ElectrumWallet;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.databinding.ActivityCreateWalletRecoveryBinding;
+import fr.acinq.eclair.wallet.fragments.PinDialog;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 import scala.collection.JavaConverters;
 
-public class CreateWalletRecoveryActivity extends AppCompatActivity {
+public class CreateWalletRecoveryActivity extends EclairActivity implements EclairActivity.EncryptSeedCallback {
 
   private static final String TAG = "CreateRecovery";
   List<Integer> recoveryPositions = Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23);
@@ -35,12 +36,16 @@ public class CreateWalletRecoveryActivity extends AppCompatActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     mBinding = DataBindingUtil.setContentView(this, R.layout.activity_create_wallet_recovery);
-  }
-
-  @Override
-  protected void onStop() {
-    mnemonics = null;
-    super.onStop();
+    try {
+      mnemonics = JavaConverters.seqAsJavaListConverter(MnemonicCode.toMnemonics(fr.acinq.eclair.package$.MODULE$.randomBytes(
+        ElectrumWallet.SEED_BYTES_LENGTH()).data(), MnemonicCode.englishWordlist())).asJava();
+      mBinding.entropyDisplay.setText(Joiner.on(" ").join(mnemonics));
+    } catch (Exception e) {
+      mnemonics = null;
+      Log.e(TAG, "could not generate recovery phrase", e);
+      mBinding.entropyDisplay.setText(getString(R.string.createrecovery_generation_failed));
+      mBinding.gotoCheck.setVisibility(View.GONE);
+    }
   }
 
   private void reset() {
@@ -71,20 +76,10 @@ public class CreateWalletRecoveryActivity extends AppCompatActivity {
   protected void onStart() {
     super.onStart();
     reset();
-    try {
-      mnemonics = JavaConverters.seqAsJavaListConverter(MnemonicCode.toMnemonics(fr.acinq.eclair.package$.MODULE$.randomBytes(
-        ElectrumWallet.SEED_BYTES_LENGTH()).data(), MnemonicCode.englishWordlist())).asJava();
-      mBinding.entropyDisplay.setText(Joiner.on(" ").join(mnemonics));
-    } catch (Exception e) {
-      mnemonics = null;
-      Log.e(TAG, "could not generate recovery phrase", e);
-      mBinding.entropyDisplay.setText(getString(R.string.createrecovery_generation_failed));
-      mBinding.gotoCheck.setVisibility(View.GONE);
-    }
   }
 
   public void cancel(View view) {
-    startActivity(new Intent(getBaseContext(), StartupActivity.class));
+    goToStartup();
   }
 
   /**
@@ -147,15 +142,29 @@ public class CreateWalletRecoveryActivity extends AppCompatActivity {
    */
   public void finishCheckRecovery(View view) {
     if (mnemonics == null) {
-      showWriteError("Recovery phrase is not valid.");
-      return;
+      Toast.makeText(this, R.string.createrecovery_general_failure, Toast.LENGTH_SHORT).show();
+      goToStartup();
+       return;
     }
     final File datadir = new File(getFilesDir(), Constants.ECLAIR_DATADIR);
-    try {
-      WalletUtils.writeSeedFile(datadir, mnemonics);
-      startActivity(new Intent(getBaseContext(), StartupActivity.class));
-    } catch (Exception e) {
-      showWriteError("Could not write seed to disk");
-    }
+    final byte[] seed = MnemonicCode.toSeed(JavaConverters.collectionAsScalaIterableConverter(mnemonics).asScala().toSeq(), "").toString().getBytes();
+    encryptWallet(this, false, datadir, seed);
+  }
+
+  private void goToStartup() {
+    Intent startup = new Intent(this, StartupActivity.class);
+    startup.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+    startup.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+    startActivity(startup);
+  }
+
+  @Override
+  public void onEncryptSeedFailure(String message) {
+    showWriteError(message);
+  }
+
+  @Override
+  public void onEncryptSeedSuccess() {
+    goToStartup();
   }
 }

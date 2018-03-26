@@ -5,11 +5,13 @@ import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.text.Html;
 import android.util.Log;
 import android.view.View;
 
+import com.google.common.io.Files;
 import com.typesafe.config.ConfigFactory;
 
 import org.greenrobot.eventbus.EventBus;
@@ -17,6 +19,8 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.File;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.Arrays;
 import java.util.HashSet;
 
@@ -36,6 +40,7 @@ import fr.acinq.eclair.wallet.PaymentSupervisor;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.databinding.ActivityStartupBinding;
 import fr.acinq.eclair.wallet.databinding.StubUsageDisclaimerBinding;
+import fr.acinq.eclair.wallet.fragments.PinDialog;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 import scala.Option;
@@ -43,11 +48,12 @@ import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
 
-public class StartupActivity extends EclairActivity {
+public class StartupActivity extends EclairActivity implements EclairActivity.EncryptSeedCallback {
 
   private static final String TAG = "StartupActivity";
   private ActivityStartupBinding mBinding;
   private StubUsageDisclaimerBinding mDisclaimerBinding;
+  private PinDialog pinDialog;
   private static final HashSet<Integer> BREAKING_VERSIONS = new HashSet<>(Arrays.asList(14));
 
   @Override
@@ -76,12 +82,27 @@ public class StartupActivity extends EclairActivity {
 
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void processStartupFinish(StartupCompleteEvent event) {
-    if (app.appKit != null) {
-      PreferenceManager.getDefaultSharedPreferences(getBaseContext()).edit()
-        .putInt(Constants.SETTING_LAST_USED_VERSION, BuildConfig.VERSION_CODE).apply();
-      goToHome();
-    } else {
-      showError("Failed to start eclair...");
+    switch(event.status) {
+      case StartupTask.SUCCESS:
+        if (app.appKit != null) {
+          PreferenceManager.getDefaultSharedPreferences(getBaseContext()).edit()
+            .putInt(Constants.SETTING_LAST_USED_VERSION, BuildConfig.VERSION_CODE).apply();
+          goToHome();
+        } else {
+          showError("The wallet could not start.");
+        }
+        break;
+      case StartupTask.WRONG_PWD:
+        app.pin.set(null);
+        showError("Wrong pin code.");
+        new Handler().postDelayed(() -> startNode(new File(app.getFilesDir(), Constants.ECLAIR_DATADIR)), 1400);
+        break;
+      case StartupTask.UNREADABLE:
+        showError("Seed is not readable; eclair wallet can not start.");
+        break;
+      default:
+        showError("The wallet could not start.");
+        break;
     }
   }
 
@@ -102,6 +123,7 @@ public class StartupActivity extends EclairActivity {
 
   private void goToHome() {
     Intent homeIntent = new Intent(getBaseContext(), HomeActivity.class);
+    homeIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
     homeIntent.putExtra(HomeActivity.EXTRA_PAYMENT_URI, getIntent().getData());
     startActivity(homeIntent);
   }
@@ -147,7 +169,28 @@ public class StartupActivity extends EclairActivity {
         mBinding.stubPickInitWallet.getViewStub().inflate();
       }
     } else {
-      startNode(datadir);
+      final File unencryptedSeedFile = new File(datadir, WalletUtils.UNENCRYPTED_SEED_NAME);
+      final File encryptedSeedFile = new File(datadir, WalletUtils.SEED_NAME);
+      if (unencryptedSeedFile.exists() && !encryptedSeedFile.exists()) {
+        Log.i(TAG, "non encrypted seed file found in datadir, encryption is required");
+        try {
+          final byte[] unencryptedSeed = Files.toByteArray(unencryptedSeedFile);
+          showError("Your seed is not encrypted. Please enter a password.");
+          new Handler().postDelayed(() -> encryptWallet(this, false, datadir, unencryptedSeed), 2500);
+        } catch (IOException e) {
+          Log.e(TAG, "Could not encrypt unencrypted seed", e);
+        }
+      } else if (unencryptedSeedFile.exists() && encryptedSeedFile.exists()) {
+        // encrypted seed is the reference
+        unencryptedSeedFile.delete();
+        startNode(datadir);
+      } else if (encryptedSeedFile.exists()) {
+        startNode(datadir);
+      } else {
+        if (!mBinding.stubPickInitWallet.isInflated()) {
+          mBinding.stubPickInitWallet.getViewStub().inflate();
+        }
+      }
     }
   }
 
@@ -155,6 +198,8 @@ public class StartupActivity extends EclairActivity {
    * Starts up the eclair node if needed
    */
   private void startNode(final File datadir) {
+    mBinding.startupError.setVisibility(View.GONE);
+
     if (mBinding.stubDisclaimer.isInflated()) {
       mBinding.stubDisclaimer.getRoot().setVisibility(View.GONE);
     }
@@ -170,17 +215,36 @@ public class StartupActivity extends EclairActivity {
         Log.e(TAG, "datadir is not a directory. Aborting startup");
         showError("Datadir is not a directory.");
       } else {
-        try {
-          final BinaryData seed = WalletUtils.readSeedFile(datadir);
-          new StartupTask(seed).execute(app);
-        } catch (Exception e) {
-          showError("Seed is unreadable. Aborting.");
+        final String currentPassword = app.pin.get();
+        if (currentPassword == null) {
+          pinDialog = new PinDialog(StartupActivity.this, R.style.CustomAlertDialog, new PinDialog.PinDialogCallback() {
+            @Override
+            public void onPinConfirm(final PinDialog dialog, final String pinValue) {
+              new StartupTask(pinValue).execute(app);
+              dialog.dismiss();
+            }
+            @Override
+            public void onPinCancel(PinDialog dialog) {}
+          }, "Enter password to unlock");
+          pinDialog.setCanceledOnTouchOutside(false);
+          pinDialog.setCancelable(false);
+          pinDialog.show();
+        } else {
+          new StartupTask(currentPassword).execute(app);
         }
       }
     } else {
       // core is started, go to home and use it
       goToHome();
     }
+  }
+
+  @Override
+  protected void onPause() {
+    if (pinDialog != null) {
+      pinDialog.dismiss();
+    }
+    super.onPause();
   }
 
   public void pickImportExistingWallet(View view) {
@@ -193,17 +257,32 @@ public class StartupActivity extends EclairActivity {
     startActivity(intent);
   }
 
+  @Override
+  public void onEncryptSeedFailure(String message) {
+    showError(message);
+    new Handler().postDelayed(() -> checkWalletInit(new File(app.getFilesDir(), Constants.ECLAIR_DATADIR)), 1400);
+  }
+
+  @Override
+  public void onEncryptSeedSuccess() {
+    checkWalletInit(new File(app.getFilesDir(), Constants.ECLAIR_DATADIR));
+  }
+
   /**
    * Starts the eclair node in an asynchronous task.
    * When the task is finished, executes `processStartupFinish` in StartupActivity.
    */
-  private static class StartupTask extends AsyncTask<App, String, String> {
+  private static class StartupTask extends AsyncTask<App, String, Integer> {
     private static final String TAG = "StartupTask";
 
-    private final BinaryData seed;
+    private final static int SUCCESS = 0;
+    private final static int WRONG_PWD = 1;
+    private final static int UNREADABLE = 2;
+    private final static int GENERIC_ERROR = 3;
+    private final String password;
 
-    private StartupTask(BinaryData seed) {
-      this.seed = seed;
+    private StartupTask(String password) {
+      this.password = password;
     }
 
     @Override
@@ -213,13 +292,18 @@ public class StartupActivity extends EclairActivity {
     }
 
     @Override
-    protected String doInBackground(App... params) {
+    protected Integer doInBackground(App... params) {
+
       try {
         App app = params[0];
-        publishProgress("initializing system");
-        app.checkupInit();
         final File datadir = new File(app.getFilesDir(), Constants.ECLAIR_DATADIR);
         Log.d(TAG, "Accessing Eclair Setup with datadir " + datadir.getAbsolutePath());
+
+        publishProgress("reading seed");
+        final BinaryData seed = BinaryData.apply(new String(WalletUtils.readSeedFile(datadir, password)));
+
+        publishProgress("initializing system");
+        app.checkupInit();
 
         Class.forName("org.sqlite.JDBC");
         publishProgress("setting up eclair");
@@ -244,26 +328,35 @@ public class StartupActivity extends EclairActivity {
         }
         publishProgress("done");
         app.appKit = new App.AppKit(electrumWallet, kit, isDBCompatible);
-        return "done";
+        return SUCCESS;
+      } catch (GeneralSecurityException e) {
+        return WRONG_PWD;
+      } catch (IOException e) {
+        return UNREADABLE;
       } catch (Exception e) {
         Log.e(TAG, "Failed to start eclair", e);
-        return null;
+        return GENERIC_ERROR;
       }
     }
 
     @Override
-    protected void onPostExecute(String message) {
-      EventBus.getDefault().post(new StartupCompleteEvent());
+    protected void onPostExecute(Integer status) {
+      EventBus.getDefault().post(new StartupCompleteEvent(status));
     }
   }
 
   public static class StartupCompleteEvent {
+    public final int status;
+
+    StartupCompleteEvent(int status) {
+      this.status = status;
+    }
   }
 
   public static class StartupProgressEvent {
     final String message;
 
-    public StartupProgressEvent(String message) {
+    StartupProgressEvent(String message) {
       this.message = message;
     }
   }

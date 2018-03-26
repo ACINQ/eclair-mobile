@@ -78,10 +78,13 @@
   <string name="createrecovery_check_question">What are the #%1$d, #%2$d and #%3$d words of your recovery phrase?</string>
   <string name="createrecovery_check_input_hint">Type the words here</string>
   <string name="createrecovery_check_button">Check</string>
-  <string name="createrecovery_success_finish">You\'re good to go!</string>
+  <string name="createrecovery_error_write_seed">Could not save the wallet</string>
+  <string name="createrecovery_success_prompt_encrypt">You now must set a password to encrypt you wallet.</string>
+  <string name="createrecovery_success_finish">Encrypt wallet</string>
   <string name="createrecovery_check_failed">Wrong words.\nPlease check your recovery phrase.</string>
   <string name="createrecovery_passphrase_hint">Enter a password for the wallet</string>
   <string name="createrecovery_passphrase_failed">This passphrase is not valid (not empty, max 20 chars, no special characters).</string>
+  <string name="createrecovery_general_failure">Could not create wallet</string>
 
   <!-- //////////////// Import Wallet /////////////////// -->
 
@@ -89,7 +92,7 @@
   <string name="importwallet_instructions">Enter the recovery phrase of your wallet.\nPassphrase are not supported yet.</string>
   <string name="importwallet_error">This phrase is not valid: %1$s</string>
   <string name="importwallet_input_hint">Type the recovery phrase here</string>
-  <string name="importwallet_check_button">Save</string>
+  <string name="importwallet_check_button">Encrypt and save</string>
 
   <!-- //////////////// Open Channel /////////////////// -->
 
@@ -316,16 +319,14 @@
   <string name="chain_late">Electrum desynchronized</string>
   <string name="chain_late_desc">Attention, your wallet\'s block height looks stale. Sending lightning payments may trigger the unilateral closing of your channels!</string>
 
-  <!-- //////////////// Preferences //////////////////// -->
+  <!-- //////////////// Pin dialogs //////////////////// -->
 
   <string name="pindialog_title_default">Please enter your PIN</string>
   <string name="pindialog_title_createnew">Define a 6 digits PIN code</string>
   <string name="pindialog_title_confirmnew">Confirm PIN code</string>
   <string name="pindialog_pwd_placeholder">●●●●●●</string>
-  <string name="pindialog_error_length">Failed: the PIN must be a 6 digits number.</string>
-  <string name="pindialog_error_notanumber">Failed: the PIN must be a number.</string>
-  <string name="pindialog_error_donotmatch">Failed: PINs do not match.</string>
-  <string name="pindialog_error_alreadyset">Failed: the PIN has already been set.</string>
+  <string name="pindialog_error">Password must be a 6 digits number.</string>
+  <string name="pindialog_error_donotmatch">Passwords do not match.</string>
 
   <!-- //////////////// Preferences //////////////////// -->
 
@@ -335,9 +336,11 @@
   <string name="prefs_fiat_currency_dialog">Display in fiat currency</string>
   <string name="prefs_btc_unit">Bitcoin unit</string>
   <string name="prefs_btc_decimals">Number of decimals in amounts</string>
+  <string name="prefs_change_password">Change the app password</string>
+  <string name="prefs_change_password_desc">Seed will be re-encrypted with a new password</string>
+  <string name="prefs_change_password_button">Change password</string>
   <string name="prefs_pin_title">Ask for PIN before payment</string>
-  <string name="prefs_pin_default_info">Pin is a 6 digits number</string>
-  <string name="prefs_pin_lastupdate">Last update:</string>
+  <string name="prefs_pin_default_info">This is the PIN encrypting your wallet</string>
   <string name="prefs_lightning_max_fee">Cap Lightning fees</string>
   <string name="prefs_lightning_max_fee_desc">Abort lightning payments if the fees would exceed 3% of the amount to pay. This prevents overpaying opportunistic nodes in the middle of the route.\n\nDoes not affect on-chain payments.</string>
   <string name="prefs_onchain_explorer">Preferred onchain explorer</string>
@@ -361,5 +364,14 @@
   <string name="dialog_close_channel_close">Close channel</string>
   <string name="dialog_close_channel_forceclose">Force-close</string>
   <string name="dialog_close_channel_cancel">Cancel</string>
+
+  <!-- //////////////// wallet //////////////////// -->
+
+  <string name="seed_encrypt_prompt">Enter a password to \nencrypt the seed</string>
+  <string name="seed_encrypt_prompt_confirm">Confirm password</string>
+  <string name="seed_encrypt_general_failure">Could not write seed</string>
+  <string name="seed_read_general_failure">Could not read seed</string>
+  <string name="wallet_init_create_new">Create new wallet</string>
+  <string name="wallet_init_import_existing">Import existing wallet</string>
 
 </resources>
