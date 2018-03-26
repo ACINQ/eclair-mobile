@@ -169,20 +169,22 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
         mBinding.stubPickInitWallet.getViewStub().inflate();
       }
     } else {
-      final File unencryptedSeed = new File(datadir, WalletUtils.UNENCRYPTED_SEED_NAME);
-      final File encryptedSeed = new File(datadir, WalletUtils.SEED_NAME);
-      if (unencryptedSeed.exists() && !encryptedSeed.exists()) {
+      final File unencryptedSeedFile = new File(datadir, WalletUtils.UNENCRYPTED_SEED_NAME);
+      final File encryptedSeedFile = new File(datadir, WalletUtils.SEED_NAME);
+      if (unencryptedSeedFile.exists() && !encryptedSeedFile.exists()) {
         Log.i(TAG, "non encrypted seed file found in datadir, encryption is required");
         try {
-          encryptWallet(this, false, datadir, Files.toByteArray(unencryptedSeed));
+          final byte[] unencryptedSeed = Files.toByteArray(unencryptedSeedFile);
+          showError("Your seed is not encrypted. Please enter a password.");
+          new Handler().postDelayed(() -> encryptWallet(this, false, datadir, unencryptedSeed), 2500);
         } catch (IOException e) {
           Log.e(TAG, "Could not encrypt unencrypted seed", e);
         }
-      } else if (unencryptedSeed.exists() && encryptedSeed.exists()) {
+      } else if (unencryptedSeedFile.exists() && encryptedSeedFile.exists()) {
         // encrypted seed is the reference
-        unencryptedSeed.delete();
+        unencryptedSeedFile.delete();
         startNode(datadir);
-      } else if (encryptedSeed.exists()) {
+      } else if (encryptedSeedFile.exists()) {
         startNode(datadir);
       } else {
         if (!mBinding.stubPickInitWallet.isInflated()) {
@@ -258,6 +260,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
   @Override
   public void onEncryptSeedFailure(String message) {
     showError(message);
+    new Handler().postDelayed(() -> checkWalletInit(new File(app.getFilesDir(), Constants.ECLAIR_DATADIR)), 1400);
   }
 
   @Override
