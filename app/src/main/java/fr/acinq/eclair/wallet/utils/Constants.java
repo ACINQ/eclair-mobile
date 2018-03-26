@@ -28,8 +28,7 @@ public interface Constants {
   String SETTING_ONCHAIN_EXPLORER = "onchain_explorer";
 
   // lightning
-  String SETTING_LIGHTNING_MAX_FEE = "lightning_max_fee";
-  String SETTING_LIGHTNING_MAX_FEE_VALUE = "lightning_max_fee_value";
+  String SETTING_CAP_LIGHTNING_FEES = "cap_lightning_fees";
 
   /* ----------- SETTINGS - PIN CODES ------------ */
 

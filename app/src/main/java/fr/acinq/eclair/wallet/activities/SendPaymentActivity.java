@@ -12,7 +12,6 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.CompoundButton;
 
 import org.greenrobot.eventbus.util.AsyncExecutor;
 
@@ -63,8 +62,7 @@ public class SendPaymentActivity extends EclairActivity
   private String preferredFiatCurrency = Constants.FIAT_USD;
   // state of the fees, used with data binding
   private FeeRating feeRatingState = Constants.FEE_RATING_FAST;
-  private boolean maxFeeLightning = true;
-  private int maxFeeLightningValue = 1;
+  private boolean capLightningFees = true;
   private PinDialog pinDialog;
 
   @SuppressLint("SetTextI18n")
@@ -93,6 +91,12 @@ public class SendPaymentActivity extends EclairActivity
       }
       mLNInvoice = output;
       isAmountReadonly = mLNInvoice.amount().isDefined();
+
+      if (!capLightningFees) {
+        mBinding.feesWarning.setText(R.string.payment_fees_not_capped);
+        mBinding.feesWarning.setVisibility(View.VISIBLE);
+      }
+
       if (isAmountReadonly) {
         final MilliSatoshi amountMsat = WalletUtils.getAmountFromInvoice(mLNInvoice);
         if (!EclairEventService.hasActiveChannelsWithBalance(amountMsat.amount())) {
@@ -186,8 +190,7 @@ public class SendPaymentActivity extends EclairActivity
     final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
     preferredBitcoinUnit = WalletUtils.getPreferredCoinUnit(sharedPref);
     preferredFiatCurrency = WalletUtils.getPreferredFiat(sharedPref);
-    maxFeeLightning = sharedPref.getBoolean(Constants.SETTING_LIGHTNING_MAX_FEE, true);
-    maxFeeLightningValue = sharedPref.getInt(Constants.SETTING_LIGHTNING_MAX_FEE_VALUE, 1);
+    capLightningFees = sharedPref.getBoolean(Constants.SETTING_CAP_LIGHTNING_FEES, true);
     mBinding.amountEditableUnit.setText(preferredBitcoinUnit.shortLabel());
 
     mBinding.amountEditableValue.addTextChangedListener(new TextWatcher() {
@@ -474,7 +477,7 @@ public class SendPaymentActivity extends EclairActivity
           // execute payment future, with cltv expiry + 1 to prevent the case where a block is mined just
           // when the payment is made, which would fail the payment.
           Log.i(TAG, "sending " + amountMsat + " msat for invoice " + prAsString);
-          app.sendLNPayment(pr, amountMsat);
+          app.sendLNPayment(pr, amountMsat, capLightningFees);
         }
       );
       closeAndGoHome();

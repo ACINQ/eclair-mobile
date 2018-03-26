@@ -156,13 +156,14 @@ public class App extends Application {
    * @param paymentRequest Lightning payment request
    * @param amountMsat     Amount of the payment in millisatoshis. Overrides the amount provided by the payment request!
    */
-  public void sendLNPayment(final PaymentRequest paymentRequest, final long amountMsat) {
+  public void sendLNPayment(final PaymentRequest paymentRequest, final long amountMsat, final boolean capMaxFee) {
     Long finalCltvExpiry = Channel.MIN_CLTV_EXPIRY();
     if (paymentRequest.minFinalCltvExpiry().isDefined() && paymentRequest.minFinalCltvExpiry().get() instanceof Long) {
       finalCltvExpiry = (Long) paymentRequest.minFinalCltvExpiry().get();
     }
+    Double maxFeePct = capMaxFee ? 0.03 : Double.MAX_VALUE;
     Patterns.ask(appKit.eclairKit.paymentInitiator(),
-      new PaymentLifecycle.SendPayment(amountMsat, paymentRequest.paymentHash(), paymentRequest.nodeId(), paymentRequest.routingInfo(), finalCltvExpiry + 1, 10, 0.03),
+      new PaymentLifecycle.SendPayment(amountMsat, paymentRequest.paymentHash(), paymentRequest.nodeId(), paymentRequest.routingInfo(), finalCltvExpiry + 1, 10, maxFeePct),
       new Timeout(Duration.create(1, "seconds"))).onFailure(new OnFailure() {
       @Override
       public void onFailure(Throwable failure) throws Throwable {

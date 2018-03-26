@@ -187,6 +187,7 @@
   <string name="payment_description">Desc.</string>
   <string name="payment_destination_address">To</string>
   <string name="payment_fees">Fees</string>
+  <string name="payment_fees_not_capped">Uncapped routing fee ; check the application\'s preferences.</string>
   <string name="payment_fees_verylow">Fees are very low and your transaction could take a very long time to confirm.</string>
   <string name="payment_fees_veryhigh">Fees seem very high. Please make sure that this amount is correct.</string>
   <string name="payment_loading_pleasewait">Reading the invoice, please wait…</string>
@@ -336,8 +337,8 @@
   <string name="prefs_pin_title">Ask for PIN before payment</string>
   <string name="prefs_pin_default_info">Pin is a 6 digits number</string>
   <string name="prefs_pin_lastupdate">Last update:</string>
-  <string name="prefs_lightning_max_fee">Cap Lightning fees (disabled)</string>
-  <string name="prefs_lightning_max_fee_desc">Fail payments if the fees exceeds 1% of the amount. This prevents overpaying opportunistic nodes in the middle of the route.</string>
+  <string name="prefs_lightning_max_fee">Cap Lightning fees</string>
+  <string name="prefs_lightning_max_fee_desc">Abort lightning payments if the fees would exceed 3% of the amount to pay. This prevents overpaying opportunistic nodes in the middle of the route.\n\nDoes not affect on-chain payments.</string>
   <string name="prefs_onchain_explorer">Preferred onchain explorer</string>
   <string name="prefs_onchain_explorer_dialog">Explore onchain tx with</string>
   <string name="prefs_security_title">Security Settings</string>
