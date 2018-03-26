@@ -107,6 +107,7 @@ public class HomeActivity extends EclairActivity {
       displayIntro(prefs);
     }
     // setup content
+    disableSendPayments();
     setUpTabs(savedInstanceState);
     setUpBalanceInteraction(prefs);
     setUpExchangeRate();
