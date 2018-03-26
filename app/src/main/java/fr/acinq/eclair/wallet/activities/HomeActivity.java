@@ -287,6 +287,10 @@ public class HomeActivity extends EclairActivity {
         Intent aboutIntent = new Intent(this, AboutActivity.class);
         startActivity(aboutIntent);
         return true;
+      case R.id.menu_home_faq:
+        Intent faqIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/ACINQ/eclair/wiki/FAQ"));
+        startActivity(faqIntent);
+        return true;
       case R.id.menu_home_preferences:
         Intent prefsIntent = new Intent(this, PreferencesActivity.class);
         startActivity(prefsIntent);
