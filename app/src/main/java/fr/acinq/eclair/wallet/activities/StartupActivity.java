@@ -17,22 +17,18 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 
 import akka.actor.ActorRef;
 import akka.actor.Props;
 import fr.acinq.bitcoin.BinaryData;
-import fr.acinq.bitcoin.MnemonicCode;
 import fr.acinq.eclair.DBCompatChecker;
 import fr.acinq.eclair.Kit;
 import fr.acinq.eclair.Setup;
 import fr.acinq.eclair.blockchain.electrum.ElectrumEclairWallet;
 import fr.acinq.eclair.channel.ChannelEvent;
-import fr.acinq.eclair.payment.PaymentResult;
-import fr.acinq.eclair.router.NetworkEvent;
+import fr.acinq.eclair.payment.PaymentLifecycle;
 import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.EclairEventService;
@@ -43,7 +39,6 @@ import fr.acinq.eclair.wallet.databinding.StubUsageDisclaimerBinding;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 import scala.Option;
-import scala.collection.JavaConverters;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
@@ -233,7 +228,7 @@ public class StartupActivity extends EclairActivity {
         // gui and electrum supervisor actors
         ActorRef guiUpdater = app.system.actorOf(Props.create(EclairEventService.class, app.getDBHelper()));
         setup.system().eventStream().subscribe(guiUpdater, ChannelEvent.class);
-        setup.system().eventStream().subscribe(guiUpdater, PaymentResult.class);
+        setup.system().eventStream().subscribe(guiUpdater, PaymentLifecycle.PaymentResult.class);
         app.system.actorOf(Props.create(PaymentSupervisor.class, app.getDBHelper()), "payments");
 
         publishProgress("starting core");

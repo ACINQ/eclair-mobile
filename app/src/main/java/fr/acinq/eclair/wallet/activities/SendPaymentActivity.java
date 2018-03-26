@@ -25,7 +25,6 @@ import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.CoinUnit;
 import fr.acinq.eclair.CoinUtils;
-import fr.acinq.eclair.channel.Channel;
 import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.EclairEventService;

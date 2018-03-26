@@ -104,6 +104,7 @@ public class PaymentSupervisor extends UntypedActor {
       final Satoshi balance = ready.confirmedBalance().$plus(ready.unconfirmedBalance());
       final boolean isSync = diffTimestamp < MAX_DIFF_TIMESTAMP_SEC;
       EventBus.getDefault().post(new WalletStateUpdateEvent(balance, isSync));
+      EventBus.getDefault().postSticky(new ElectrumConnectionEvent(true));
 
     } else if (message instanceof ElectrumWallet.NewWalletReceiveAddress) {
       Log.d(TAG, "Received NewWalletReceiveAddress message=" + message);
@@ -114,9 +115,6 @@ public class PaymentSupervisor extends UntypedActor {
       Log.d(TAG, "Received DISCONNECTED");
       EventBus.getDefault().post(new ElectrumConnectionEvent(false));
 
-    } else if (message instanceof ElectrumClient.ElectrumConnected$) {
-      Log.d(TAG, "Received CONNECTED");
-      EventBus.getDefault().postSticky(new ElectrumConnectionEvent(true));
     } else unhandled(message);
   }
 }

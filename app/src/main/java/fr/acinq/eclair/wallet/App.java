@@ -23,8 +23,6 @@ import akka.pattern.Patterns;
 import akka.util.Timeout;
 import fr.acinq.bitcoin.Base58;
 import fr.acinq.bitcoin.Base58Check;
-import fr.acinq.bitcoin.BinaryData;
-import fr.acinq.bitcoin.Crypto;
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.bitcoin.Transaction;
@@ -37,8 +35,8 @@ import fr.acinq.eclair.blockchain.electrum.ElectrumWallet;
 import fr.acinq.eclair.channel.Channel;
 import fr.acinq.eclair.io.NodeURI;
 import fr.acinq.eclair.io.Peer;
+import fr.acinq.eclair.payment.PaymentLifecycle;
 import fr.acinq.eclair.payment.PaymentRequest;
-import fr.acinq.eclair.payment.SendPayment;
 import fr.acinq.eclair.wallet.events.BitcoinPaymentFailedEvent;
 import fr.acinq.eclair.wallet.events.LNNewChannelFailureEvent;
 import fr.acinq.eclair.wallet.events.NetworkChannelsCountEvent;
@@ -47,8 +45,6 @@ import fr.acinq.eclair.wallet.events.WalletStateUpdateEvent;
 import fr.acinq.eclair.wallet.utils.Constants;
 import scala.Symbol;
 import scala.collection.Iterable;
-import scala.collection.Seq$;
-import scala.collection.immutable.Seq;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
@@ -164,7 +160,7 @@ public class App extends Application {
       finalCltvExpiry = (Long) paymentRequest.minFinalCltvExpiry().get();
     }
     Patterns.ask(appKit.eclairKit.paymentInitiator(),
-      new SendPayment(amountMsat, paymentRequest.paymentHash(), paymentRequest.nodeId(), paymentRequest.routingInfo(), finalCltvExpiry + 1, 10),
+      new PaymentLifecycle.SendPayment(amountMsat, paymentRequest.paymentHash(), paymentRequest.nodeId(), paymentRequest.routingInfo(), finalCltvExpiry + 1, 10, 0.03),
       new Timeout(Duration.create(1, "seconds"))).onFailure(new OnFailure() {
       @Override
       public void onFailure(Throwable failure) throws Throwable {}

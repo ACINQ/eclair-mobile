@@ -31,17 +31,14 @@ import fr.acinq.eclair.channel.OFFLINE$;
 import fr.acinq.eclair.channel.RemoteCommit;
 import fr.acinq.eclair.channel.WAIT_FOR_INIT_INTERNAL$;
 import fr.acinq.eclair.channel.WaitingForRevocation;
-import fr.acinq.eclair.payment.PaymentFailed;
-import fr.acinq.eclair.payment.PaymentFailure;
 import fr.acinq.eclair.payment.PaymentLifecycle;
-import fr.acinq.eclair.payment.PaymentSucceeded;
 import fr.acinq.eclair.router.NORMAL$;
 import fr.acinq.eclair.transactions.DirectedHtlc;
 import fr.acinq.eclair.transactions.OUT$;
 import fr.acinq.eclair.wallet.events.ChannelUpdateEvent;
 import fr.acinq.eclair.wallet.events.LNBalanceUpdateEvent;
-import fr.acinq.eclair.wallet.events.LNPaymentSuccessEvent;
 import fr.acinq.eclair.wallet.events.LNPaymentFailedEvent;
+import fr.acinq.eclair.wallet.events.LNPaymentSuccessEvent;
 import fr.acinq.eclair.wallet.events.NotificationEvent;
 import fr.acinq.eclair.wallet.events.PaymentEvent;
 import fr.acinq.eclair.wallet.models.LightningPaymentError;
@@ -240,14 +237,14 @@ public class EclairEventService extends UntypedActor {
       postLNBalanceEvent();
     }
     // ---- events that update payments status
-    else if (message instanceof PaymentFailed) {
-      PaymentFailed event = (PaymentFailed) message;
+    else if (message instanceof PaymentLifecycle.PaymentFailed) {
+      PaymentLifecycle.PaymentFailed event = (PaymentLifecycle.PaymentFailed) message;
       final Payment paymentInDB = dbHelper.getPayment(event.paymentHash().toString(), PaymentType.BTC_LN);
       if (paymentInDB != null) {
         dbHelper.updatePaymentFailed(paymentInDB);
         // extract failure cause to generate a pretty error message
         final ArrayList<LightningPaymentError> errorList = new ArrayList<>();
-        final Seq<PaymentFailure> failures = PaymentLifecycle.transformForUser(event.failures());
+        final Seq<PaymentLifecycle.PaymentFailure> failures = PaymentLifecycle.transformForUser(event.failures());
         if (failures.size() > 0) {
           for (int i = 0; i < failures.size(); i++) {
             errorList.add(LightningPaymentError.generateDetailedErrorCause(failures.apply(i)));
@@ -259,8 +256,8 @@ public class EclairEventService extends UntypedActor {
         Log.d(TAG, "received and ignored an unknown PaymentFailed event with hash=" + event.paymentHash().toString());
       }
     }
-    else if (message instanceof PaymentSucceeded) {
-      PaymentSucceeded event = (PaymentSucceeded) message;
+    else if (message instanceof PaymentLifecycle.PaymentSucceeded) {
+      PaymentLifecycle.PaymentSucceeded event = (PaymentLifecycle.PaymentSucceeded) message;
       Payment paymentInDB = dbHelper.getPayment(event.paymentHash().toString(), PaymentType.BTC_LN);
       if (paymentInDB != null) {
         dbHelper.updatePaymentPaid(paymentInDB, event.amountMsat(), event.amountMsat() - paymentInDB.getAmountSentMsat(), event.paymentPreimage().toString());
