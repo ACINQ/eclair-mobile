@@ -44,6 +44,7 @@ import fr.acinq.eclair.wallet.events.NotificationEvent;
 import fr.acinq.eclair.wallet.events.WalletStateUpdateEvent;
 import fr.acinq.eclair.wallet.utils.Constants;
 import scala.Symbol;
+import scala.Tuple2;
 import scala.collection.Iterable;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
@@ -56,6 +57,7 @@ public class App extends Application {
   private final static ExchangeRate exchangeRate = new ExchangeRate();
   public final ActorSystem system = ActorSystem.apply("system");
   public AtomicReference<Satoshi> onChainBalance = new AtomicReference<>(new Satoshi(0));
+  public AtomicReference<String> pin = new AtomicReference<>(null);
   public AppKit appKit;
   private DBHelper dbHelper;
   private String walletAddress = "N/A";
@@ -151,8 +153,8 @@ public class App extends Application {
   /**
    * Asks the eclair node to asynchronously execute a Lightning payment. Future failure is silent.
    *
-   * @param paymentRequest  Lightning payment request
-   * @param amountMsat      Amount of the payment in millisatoshis. Overrides the amount provided by the payment request!
+   * @param paymentRequest Lightning payment request
+   * @param amountMsat     Amount of the payment in millisatoshis. Overrides the amount provided by the payment request!
    */
   public void sendLNPayment(final PaymentRequest paymentRequest, final long amountMsat) {
     Long finalCltvExpiry = Channel.MIN_CLTV_EXPIRY();
@@ -163,12 +165,13 @@ public class App extends Application {
       new PaymentLifecycle.SendPayment(amountMsat, paymentRequest.paymentHash(), paymentRequest.nodeId(), paymentRequest.routingInfo(), finalCltvExpiry + 1, 10, 0.03),
       new Timeout(Duration.create(1, "seconds"))).onFailure(new OnFailure() {
       @Override
-      public void onFailure(Throwable failure) throws Throwable {}
+      public void onFailure(Throwable failure) throws Throwable {
+      }
     }, system.dispatcher());
   }
 
   /**
-   * Execute an onchain transaction with electrum.
+   * Executes an onchain transaction with electrum.
    *
    * @param amountSat amount to send in satoshis
    * @param address   recipient of the tx
@@ -190,6 +193,48 @@ public class App extends Application {
       }, this.system.dispatcher());
     } catch (Throwable t) {
       Log.w(TAG, "could not send bitcoin tx with cause=" + t.getMessage());
+      EventBus.getDefault().post(new BitcoinPaymentFailedEvent(t.getLocalizedMessage()));
+    }
+  }
+
+  /**
+   * Empties the onchain wallet by sending all the available onchain balance to the given address,
+   * using the given fees which will be substracted from the available balance.
+   *
+   * @param address   recipient of the tx
+   * @param feesPerKw fees for the tx
+   */
+  public void sendAllOnchain(final String address, final long feesPerKw) {
+    try {
+      final Future fCreateSendAll = appKit.electrumWallet.sendAll(address, feesPerKw);
+      fCreateSendAll.onComplete(new OnComplete<Tuple2<Transaction, Satoshi>>() {
+        @Override
+        public void onComplete(final Throwable t, final Tuple2<Transaction, Satoshi> res) {
+          if (t == null) {
+            if (res != null) {
+              Log.i(TAG, "onComplete: commiting spend all tx");
+              final Future fSendAll = appKit.electrumWallet.commit(res._1());
+              fSendAll.onComplete(new OnComplete<Boolean>() {
+                @Override
+                public void onComplete(Throwable failure, Boolean success) throws Throwable {
+                  if (!success) {
+                    Log.w(TAG, "could not send empty wallet tx");
+                    EventBus.getDefault().post(new BitcoinPaymentFailedEvent("broadcast failed"));
+                  }
+                }
+              }, system.dispatcher());
+            } else {
+              Log.w(TAG, "could not create send all tx");
+              EventBus.getDefault().post(new BitcoinPaymentFailedEvent("tx creation failed"));
+            }
+          } else {
+            Log.w(TAG, "could not send all balance with cause=" + t.getMessage());
+            EventBus.getDefault().post(new BitcoinPaymentFailedEvent(t.getLocalizedMessage()));
+          }
+        }
+      }, this.system.dispatcher());
+    } catch (Throwable t) {
+      Log.w(TAG, "could not send send all balance with cause=" + t.getMessage());
       EventBus.getDefault().post(new BitcoinPaymentFailedEvent(t.getLocalizedMessage()));
     }
   }

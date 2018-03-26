@@ -12,6 +12,7 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.CompoundButton;
 
 import org.greenrobot.eventbus.util.AsyncExecutor;
 
@@ -125,6 +126,7 @@ public class SendPaymentActivity extends EclairActivity
     } else {
       mBitcoinInvoice = output;
       isAmountReadonly = mBitcoinInvoice.getAmount() != null;
+      mBinding.emptyOnchainWallet.setVisibility(View.VISIBLE);
       if (isAmountReadonly) {
         final MilliSatoshi amountMsat = package$.MODULE$.satoshi2millisatoshi(mBitcoinInvoice.getAmount());
         mBinding.amountEditableHint.setVisibility(View.GONE);
@@ -252,6 +254,18 @@ public class SendPaymentActivity extends EclairActivity
       }
     });
 
+    mBinding.emptyOnchainWallet.setOnCheckedChangeListener((buttonView, isChecked) -> {
+      if (mBitcoinInvoice != null) {
+        if (isChecked) {
+          mBinding.amountEditableValue.setEnabled(false);
+          mBinding.amountEditableValue.setText(CoinUtils.rawAmountInUnit(
+            app.onChainBalance.get(), preferredBitcoinUnit).bigDecimal().toPlainString());
+        } else {
+          mBinding.amountEditableValue.setEnabled(true);
+        }
+      }
+    });
+
     // --- read invoice from intent
     final Intent intent = getIntent();
     mInvoice = intent.getStringExtra(EXTRA_INVOICE).trim();
@@ -363,11 +377,12 @@ public class SendPaymentActivity extends EclairActivity
         }
         try {
           final Long feesPerKw = fr.acinq.eclair.package$.MODULE$.feerateByte2Kw(Long.parseLong(mBinding.feesValue.getText().toString()));
+          final boolean emptyWallet = mBinding.emptyOnchainWallet.isChecked();
           if (isPinRequired()) {
             pinDialog = new PinDialog(SendPaymentActivity.this, R.style.CustomAlertDialog, new PinDialog.PinDialogCallback() {
               public void onPinConfirm(final PinDialog dialog, final String pinValue) {
                 if (isPinCorrect(pinValue, dialog)) {
-                  sendBitcoinPayment(amountSat, feesPerKw, mBitcoinInvoice);
+                  sendBitcoinPayment(amountSat, feesPerKw, mBitcoinInvoice, emptyWallet);
                   closeAndGoHome();
                 } else {
                   handlePaymentError(R.string.payment_error_incorrect_pin);
@@ -382,7 +397,7 @@ public class SendPaymentActivity extends EclairActivity
             });
             pinDialog.show();
           } else {
-            sendBitcoinPayment(amountSat, feesPerKw, mBitcoinInvoice);
+            sendBitcoinPayment(amountSat, feesPerKw, mBitcoinInvoice, emptyWallet);
             closeAndGoHome();
           }
         } catch (NumberFormatException e) {
@@ -450,6 +465,10 @@ public class SendPaymentActivity extends EclairActivity
             newPayment.setDescription(paymentDescription);
             newPayment.setUpdated(new Date());
             app.getDBHelper().insertOrUpdatePayment(newPayment);
+          } else {
+            p.setAmountSentMsat(amountMsat);
+            p.setUpdated(new Date());
+            app.getDBHelper().insertOrUpdatePayment(p);
           }
 
           // execute payment future, with cltv expiry + 1 to prevent the case where a block is mined just
@@ -469,9 +488,14 @@ public class SendPaymentActivity extends EclairActivity
    * @param feesPerKw  fees to the network in satoshis per kb
    * @param bitcoinURI contains the bitcoin address
    */
-  private void sendBitcoinPayment(final Satoshi amountSat, final Long feesPerKw, final BitcoinURI bitcoinURI) {
+  private void sendBitcoinPayment(final Satoshi amountSat, final Long feesPerKw, final BitcoinURI bitcoinURI, final boolean emptyWallet) {
     Log.i(TAG, "sending " + amountSat + " sat invoice " + mBitcoinInvoice.toString());
-    app.sendBitcoinPayment(amountSat, bitcoinURI.getAddress(), feesPerKw);
+    if (emptyWallet) {
+      Log.i(TAG, "sendBitcoinPayment: emptying wallet with special method....");
+      app.sendAllOnchain(bitcoinURI.getAddress(), feesPerKw);
+    } else {
+      app.sendBitcoinPayment(amountSat, bitcoinURI.getAddress(), feesPerKw);
+    }
   }
 
   /**

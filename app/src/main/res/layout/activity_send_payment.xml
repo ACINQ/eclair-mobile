@@ -48,9 +48,7 @@
           android:gravity="center"
           android:onClick="focusAmount"
           android:orientation="vertical"
-          android:paddingBottom="20dp"
-          android:paddingLeft="16dp"
-          android:paddingRight="16dp">
+          android:paddingBottom="10dp">
 
           <!-- payment type: onchain -->
           <LinearLayout
@@ -156,7 +154,6 @@
               android:maxLines="1"
               android:paddingEnd="0dp"
               android:paddingStart="6dp" />
-
           </RelativeLayout>
 
           <TextView
@@ -164,8 +161,22 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:maxLines="1"
+            android:layout_marginBottom="6dp"
+            android:fontFamily="sans-serif-light"
             android:textColor="@color/grey_1"
             android:textSize="12sp" />
+
+          <CheckBox
+            android:id="@+id/empty_onchain_wallet"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:buttonTint="@color/primary_light_x1"
+            android:visibility="gone"
+            android:gravity="center"
+            android:textSize="12sp"
+            android:textColor="@color/grey_2"
+            android:text="@string/payment_empty_wallet"/>
 
         </LinearLayout>
 
