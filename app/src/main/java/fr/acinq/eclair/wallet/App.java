@@ -23,8 +23,6 @@ import akka.pattern.Patterns;
 import akka.util.Timeout;
 import fr.acinq.bitcoin.Base58;
 import fr.acinq.bitcoin.Base58Check;
-import fr.acinq.bitcoin.BinaryData;
-import fr.acinq.bitcoin.Crypto;
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.bitcoin.Transaction;
@@ -34,10 +32,11 @@ import fr.acinq.eclair.Globals;
 import fr.acinq.eclair.Kit;
 import fr.acinq.eclair.blockchain.electrum.ElectrumEclairWallet;
 import fr.acinq.eclair.blockchain.electrum.ElectrumWallet;
+import fr.acinq.eclair.channel.Channel;
 import fr.acinq.eclair.io.NodeURI;
 import fr.acinq.eclair.io.Peer;
+import fr.acinq.eclair.payment.PaymentLifecycle;
 import fr.acinq.eclair.payment.PaymentRequest;
-import fr.acinq.eclair.payment.SendPayment;
 import fr.acinq.eclair.wallet.events.BitcoinPaymentFailedEvent;
 import fr.acinq.eclair.wallet.events.LNNewChannelFailureEvent;
 import fr.acinq.eclair.wallet.events.NetworkChannelsCountEvent;
@@ -45,9 +44,8 @@ import fr.acinq.eclair.wallet.events.NotificationEvent;
 import fr.acinq.eclair.wallet.events.WalletStateUpdateEvent;
 import fr.acinq.eclair.wallet.utils.Constants;
 import scala.Symbol;
+import scala.Tuple2;
 import scala.collection.Iterable;
-import scala.collection.Seq$;
-import scala.collection.immutable.Seq;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
@@ -155,22 +153,26 @@ public class App extends Application {
   /**
    * Asks the eclair node to asynchronously execute a Lightning payment. Future failure is silent.
    *
-   * @param amountMsat      Amount of the payment in millisatoshis
-   * @param paymentHash     Hash of the payment preimage
-   * @param publicKey       Public key of the recipient node
-   * @param finalCltvExpiry Expiry of the payment, in blocks
+   * @param paymentRequest Lightning payment request
+   * @param amountMsat     Amount of the payment in millisatoshis. Overrides the amount provided by the payment request!
    */
-  public void sendLNPayment(final long amountMsat, final BinaryData paymentHash, final Crypto.PublicKey publicKey, final Long finalCltvExpiry) {
+  public void sendLNPayment(final PaymentRequest paymentRequest, final long amountMsat, final boolean capMaxFee) {
+    Long finalCltvExpiry = Channel.MIN_CLTV_EXPIRY();
+    if (paymentRequest.minFinalCltvExpiry().isDefined() && paymentRequest.minFinalCltvExpiry().get() instanceof Long) {
+      finalCltvExpiry = (Long) paymentRequest.minFinalCltvExpiry().get();
+    }
+    Double maxFeePct = capMaxFee ? 0.03 : Double.MAX_VALUE;
     Patterns.ask(appKit.eclairKit.paymentInitiator(),
-      new SendPayment(amountMsat, paymentHash, publicKey, (Seq<scala.collection.Seq<PaymentRequest.ExtraHop>>) Seq$.MODULE$.empty(), finalCltvExpiry, 20),
+      new PaymentLifecycle.SendPayment(amountMsat, paymentRequest.paymentHash(), paymentRequest.nodeId(), paymentRequest.routingInfo(), finalCltvExpiry + 1, 10, maxFeePct),
       new Timeout(Duration.create(1, "seconds"))).onFailure(new OnFailure() {
       @Override
-      public void onFailure(Throwable failure) throws Throwable {}
+      public void onFailure(Throwable failure) throws Throwable {
+      }
     }, system.dispatcher());
   }
 
   /**
-   * Execute an onchain transaction with electrum.
+   * Executes an onchain transaction with electrum.
    *
    * @param amountSat amount to send in satoshis
    * @param address   recipient of the tx
@@ -192,6 +194,48 @@ public class App extends Application {
       }, this.system.dispatcher());
     } catch (Throwable t) {
       Log.w(TAG, "could not send bitcoin tx with cause=" + t.getMessage());
+      EventBus.getDefault().post(new BitcoinPaymentFailedEvent(t.getLocalizedMessage()));
+    }
+  }
+
+  /**
+   * Empties the onchain wallet by sending all the available onchain balance to the given address,
+   * using the given fees which will be substracted from the available balance.
+   *
+   * @param address   recipient of the tx
+   * @param feesPerKw fees for the tx
+   */
+  public void sendAllOnchain(final String address, final long feesPerKw) {
+    try {
+      final Future fCreateSendAll = appKit.electrumWallet.sendAll(address, feesPerKw);
+      fCreateSendAll.onComplete(new OnComplete<Tuple2<Transaction, Satoshi>>() {
+        @Override
+        public void onComplete(final Throwable t, final Tuple2<Transaction, Satoshi> res) {
+          if (t == null) {
+            if (res != null) {
+              Log.i(TAG, "onComplete: commiting spend all tx");
+              final Future fSendAll = appKit.electrumWallet.commit(res._1());
+              fSendAll.onComplete(new OnComplete<Boolean>() {
+                @Override
+                public void onComplete(Throwable failure, Boolean success) throws Throwable {
+                  if (!success) {
+                    Log.w(TAG, "could not send empty wallet tx");
+                    EventBus.getDefault().post(new BitcoinPaymentFailedEvent("broadcast failed"));
+                  }
+                }
+              }, system.dispatcher());
+            } else {
+              Log.w(TAG, "could not create send all tx");
+              EventBus.getDefault().post(new BitcoinPaymentFailedEvent("tx creation failed"));
+            }
+          } else {
+            Log.w(TAG, "could not send all balance with cause=" + t.getMessage());
+            EventBus.getDefault().post(new BitcoinPaymentFailedEvent(t.getLocalizedMessage()));
+          }
+        }
+      }, this.system.dispatcher());
+    } catch (Throwable t) {
+      Log.w(TAG, "could not send send all balance with cause=" + t.getMessage());
       EventBus.getDefault().post(new BitcoinPaymentFailedEvent(t.getLocalizedMessage()));
     }
   }

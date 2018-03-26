@@ -25,7 +25,6 @@ import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.CoinUnit;
 import fr.acinq.eclair.CoinUtils;
-import fr.acinq.eclair.channel.Channel;
 import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.EclairEventService;
@@ -63,8 +62,7 @@ public class SendPaymentActivity extends EclairActivity
   private String preferredFiatCurrency = Constants.FIAT_USD;
   // state of the fees, used with data binding
   private FeeRating feeRatingState = Constants.FEE_RATING_FAST;
-  private boolean maxFeeLightning = true;
-  private int maxFeeLightningValue = 1;
+  private boolean capLightningFees = true;
   private PinDialog pinDialog;
 
   @SuppressLint("SetTextI18n")
@@ -93,6 +91,12 @@ public class SendPaymentActivity extends EclairActivity
       }
       mLNInvoice = output;
       isAmountReadonly = mLNInvoice.amount().isDefined();
+
+      if (!capLightningFees) {
+        mBinding.feesWarning.setText(R.string.payment_fees_not_capped);
+        mBinding.feesWarning.setVisibility(View.VISIBLE);
+      }
+
       if (isAmountReadonly) {
         final MilliSatoshi amountMsat = WalletUtils.getAmountFromInvoice(mLNInvoice);
         if (!EclairEventService.hasActiveChannelsWithBalance(amountMsat.amount())) {
@@ -126,6 +130,7 @@ public class SendPaymentActivity extends EclairActivity
     } else {
       mBitcoinInvoice = output;
       isAmountReadonly = mBitcoinInvoice.getAmount() != null;
+      mBinding.emptyOnchainWallet.setVisibility(View.VISIBLE);
       if (isAmountReadonly) {
         final MilliSatoshi amountMsat = package$.MODULE$.satoshi2millisatoshi(mBitcoinInvoice.getAmount());
         mBinding.amountEditableHint.setVisibility(View.GONE);
@@ -185,8 +190,7 @@ public class SendPaymentActivity extends EclairActivity
     final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
     preferredBitcoinUnit = WalletUtils.getPreferredCoinUnit(sharedPref);
     preferredFiatCurrency = WalletUtils.getPreferredFiat(sharedPref);
-    maxFeeLightning = sharedPref.getBoolean(Constants.SETTING_LIGHTNING_MAX_FEE, true);
-    maxFeeLightningValue = sharedPref.getInt(Constants.SETTING_LIGHTNING_MAX_FEE_VALUE, 1);
+    capLightningFees = sharedPref.getBoolean(Constants.SETTING_CAP_LIGHTNING_FEES, true);
     mBinding.amountEditableUnit.setText(preferredBitcoinUnit.shortLabel());
 
     mBinding.amountEditableValue.addTextChangedListener(new TextWatcher() {
@@ -250,6 +254,18 @@ public class SendPaymentActivity extends EclairActivity
 
       @Override
       public void afterTextChanged(Editable s) {
+      }
+    });
+
+    mBinding.emptyOnchainWallet.setOnCheckedChangeListener((buttonView, isChecked) -> {
+      if (mBitcoinInvoice != null) {
+        if (isChecked) {
+          mBinding.amountEditableValue.setEnabled(false);
+          mBinding.amountEditableValue.setText(CoinUtils.rawAmountInUnit(
+            app.onChainBalance.get(), preferredBitcoinUnit).bigDecimal().toPlainString());
+        } else {
+          mBinding.amountEditableValue.setEnabled(true);
+        }
       }
     });
 
@@ -364,11 +380,12 @@ public class SendPaymentActivity extends EclairActivity
         }
         try {
           final Long feesPerKw = fr.acinq.eclair.package$.MODULE$.feerateByte2Kw(Long.parseLong(mBinding.feesValue.getText().toString()));
+          final boolean emptyWallet = mBinding.emptyOnchainWallet.isChecked();
           if (isPinRequired()) {
             pinDialog = new PinDialog(SendPaymentActivity.this, R.style.CustomAlertDialog, new PinDialog.PinDialogCallback() {
               public void onPinConfirm(final PinDialog dialog, final String pinValue) {
                 if (isPinCorrect(pinValue, dialog)) {
-                  sendBitcoinPayment(amountSat, feesPerKw, mBitcoinInvoice);
+                  sendBitcoinPayment(amountSat, feesPerKw, mBitcoinInvoice, emptyWallet);
                   closeAndGoHome();
                 } else {
                   handlePaymentError(R.string.payment_error_incorrect_pin);
@@ -383,7 +400,7 @@ public class SendPaymentActivity extends EclairActivity
             });
             pinDialog.show();
           } else {
-            sendBitcoinPayment(amountSat, feesPerKw, mBitcoinInvoice);
+            sendBitcoinPayment(amountSat, feesPerKw, mBitcoinInvoice, emptyWallet);
             closeAndGoHome();
           }
         } catch (NumberFormatException e) {
@@ -451,16 +468,16 @@ public class SendPaymentActivity extends EclairActivity
             newPayment.setDescription(paymentDescription);
             newPayment.setUpdated(new Date());
             app.getDBHelper().insertOrUpdatePayment(newPayment);
+          } else {
+            p.setAmountSentMsat(amountMsat);
+            p.setUpdated(new Date());
+            app.getDBHelper().insertOrUpdatePayment(p);
           }
 
-          Long finalCltvExpiry = Channel.MIN_CLTV_EXPIRY();
-          if (pr.minFinalCltvExpiry().isDefined() && pr.minFinalCltvExpiry().get() instanceof Long) {
-            finalCltvExpiry = (Long) pr.minFinalCltvExpiry().get();
-          }
           // execute payment future, with cltv expiry + 1 to prevent the case where a block is mined just
           // when the payment is made, which would fail the payment.
           Log.i(TAG, "sending " + amountMsat + " msat for invoice " + prAsString);
-          app.sendLNPayment(amountMsat, pr.paymentHash(), pr.nodeId(), finalCltvExpiry + 1);
+          app.sendLNPayment(pr, amountMsat, capLightningFees);
         }
       );
       closeAndGoHome();
@@ -474,9 +491,14 @@ public class SendPaymentActivity extends EclairActivity
    * @param feesPerKw  fees to the network in satoshis per kb
    * @param bitcoinURI contains the bitcoin address
    */
-  private void sendBitcoinPayment(final Satoshi amountSat, final Long feesPerKw, final BitcoinURI bitcoinURI) {
+  private void sendBitcoinPayment(final Satoshi amountSat, final Long feesPerKw, final BitcoinURI bitcoinURI, final boolean emptyWallet) {
     Log.i(TAG, "sending " + amountSat + " sat invoice " + mBitcoinInvoice.toString());
-    app.sendBitcoinPayment(amountSat, bitcoinURI.getAddress(), feesPerKw);
+    if (emptyWallet) {
+      Log.i(TAG, "sendBitcoinPayment: emptying wallet with special method....");
+      app.sendAllOnchain(bitcoinURI.getAddress(), feesPerKw);
+    } else {
+      app.sendBitcoinPayment(amountSat, bitcoinURI.getAddress(), feesPerKw);
+    }
   }
 
   /**
