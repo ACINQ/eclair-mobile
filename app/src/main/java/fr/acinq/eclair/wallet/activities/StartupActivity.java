@@ -138,8 +138,9 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
   }
 
   private void goToHome() {
+    finish();
     Intent homeIntent = new Intent(getBaseContext(), HomeActivity.class);
-    homeIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+    homeIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
     homeIntent.putExtra(HomeActivity.EXTRA_PAYMENT_URI, getIntent().getData());
     startActivity(homeIntent);
   }

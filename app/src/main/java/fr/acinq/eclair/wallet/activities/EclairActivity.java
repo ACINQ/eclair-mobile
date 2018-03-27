@@ -46,7 +46,7 @@ public abstract class EclairActivity extends AppCompatActivity {
   protected boolean checkInit() {
     if (app == null || app.appKit == null || app.getDBHelper() == null || app.pin.get() == null) {
       Intent startup = new Intent(this, StartupActivity.class);
-      startup.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+      startup.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
       startup.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
       startActivity(startup);
       return false;
