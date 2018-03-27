@@ -317,6 +317,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
 
         publishProgress("reading seed");
         final BinaryData seed = BinaryData.apply(new String(WalletUtils.readSeedFile(datadir, password)));
+        app.pin.set(password);
 
         publishProgress("initializing system");
         app.checkupInit();

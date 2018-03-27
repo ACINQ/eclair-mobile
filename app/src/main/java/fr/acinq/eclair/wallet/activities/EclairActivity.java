@@ -33,7 +33,7 @@ import fr.acinq.eclair.wallet.fragments.PinDialog;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 
-public class EclairActivity extends AppCompatActivity {
+public abstract class EclairActivity extends AppCompatActivity {
 
   protected App app;
 
@@ -44,7 +44,7 @@ public class EclairActivity extends AppCompatActivity {
   }
 
   protected boolean checkInit() {
-    if (app == null || app.appKit == null || app.getDBHelper() == null) {
+    if (app == null || app.appKit == null || app.getDBHelper() == null || app.pin.get() == null) {
       Intent startup = new Intent(this, StartupActivity.class);
       startup.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
       startup.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -61,13 +61,17 @@ public class EclairActivity extends AppCompatActivity {
 
   @SuppressLint("ApplySharedPref")
   protected boolean isPinCorrect (final String pin, @NotNull final PinDialog dialog) {
-    final boolean isCorrect = MessageDigest.isEqual(pin.getBytes(), app.pin.get().getBytes());
-    if (isCorrect) {
-      dialog.animateSuccess();
+    if (checkInit()) {
+      final boolean isCorrect = MessageDigest.isEqual(pin.getBytes(), app.pin.get().getBytes());
+      if (isCorrect) {
+        dialog.animateSuccess();
+      } else {
+        dialog.animateFailure();
+      }
+      return isCorrect;
     } else {
-      dialog.animateFailure();
+      return false;
     }
-    return isCorrect;
   }
 
   protected void encryptWallet(final EncryptSeedCallback callback, final boolean cancelable, final File datadir, final byte[] seed) {
