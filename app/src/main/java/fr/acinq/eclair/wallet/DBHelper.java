@@ -1,3 +1,19 @@
+/*
+ * Copyright 2018 ACINQ SAS
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package fr.acinq.eclair.wallet;
 
 import android.content.Context;
@@ -8,11 +24,14 @@ import org.greenrobot.greendao.DaoException;
 import org.greenrobot.greendao.database.Database;
 import org.greenrobot.greendao.query.QueryBuilder;
 
+import java.util.Date;
+
 import fr.acinq.eclair.wallet.models.DaoMaster;
 import fr.acinq.eclair.wallet.models.DaoSession;
 import fr.acinq.eclair.wallet.models.Payment;
 import fr.acinq.eclair.wallet.models.PaymentDao;
 import fr.acinq.eclair.wallet.models.PaymentDirection;
+import fr.acinq.eclair.wallet.models.PaymentStatus;
 import fr.acinq.eclair.wallet.models.PaymentType;
 
 public class DBHelper {
@@ -93,6 +112,33 @@ public class DBHelper {
       sentMsat = cursorSent.getLong(0);
     }
     return Math.max(receivedMsat - sentMsat, 0);
+  }
+
+  void updatePaymentPaid(final Payment p, final long amountPaidMsat, final long feesMsat, final String preimage) {
+    p.setPreimage(preimage);
+    p.setAmountPaidMsat(amountPaidMsat);
+    p.setFeesPaidMsat(feesMsat);
+    p.setStatus(PaymentStatus.PAID);
+    p.setUpdated(new Date());
+    insertOrUpdatePayment(p);
+  }
+
+  void updatePaymentFailed(final Payment p) {
+    Log.i(TAG, "update payment to failed with status=" + p.getStatus());
+    if (p.getStatus() != PaymentStatus.PAID) {
+      p.setStatus(PaymentStatus.FAILED);
+      p.setUpdated(new Date());
+      insertOrUpdatePayment(p);
+    }
+  }
+
+  public void updatePaymentPending(final Payment p) {
+    Log.i(TAG, "update payment to pending with status=" + p.getStatus());
+    if (p.getStatus() != PaymentStatus.PAID) {
+      p.setStatus(PaymentStatus.PENDING);
+      p.setUpdated(new Date());
+      insertOrUpdatePayment(p);
+    }
   }
 
   public void insertOrUpdatePayment(Payment p) {

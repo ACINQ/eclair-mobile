@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright 2018 ACINQ SAS
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  android:layout_width="match_parent"
+  android:layout_height="wrap_content">
+
+  <ScrollView
+    android:id="@+id/content_scrollview"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:scrollbars="vertical"
+    app:layout_constraintTop_toTopOf="parent"
+    app:layout_constraintBottom_toTopOf="@+id/buttons_layout">
+
+    <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:gravity="top|start"
+      android:orientation="vertical">
+
+      <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/app_padding"
+        android:text="@string/dialog_close_channel_question" />
+
+      <CheckBox
+        android:id="@+id/close_channel_force_checkbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/app_padding"
+        android:layout_marginEnd="@dimen/app_padding"
+        android:layout_marginStart="@dimen/app_padding"
+        android:buttonTint="@color/primary"
+        android:text="@string/dialog_close_channel_force_checkbox_opt"
+        android:visibility="gone" />
+
+      <TextView
+        android:id="@+id/close_channel_force_warning"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/grey_0_light_x1"
+        android:drawablePadding="8dp"
+        android:drawableStart="@drawable/ic_warning_tri"
+        android:layout_marginBottom="40dp"
+        android:padding="@dimen/app_padding"
+        android:text="@string/dialog_close_channel_force_warning"
+        android:textColor="@color/grey_3"
+        android:textSize="12sp"
+        android:visibility="gone" />
+    </LinearLayout>
+  </ScrollView>
+
+  <LinearLayout
+    android:id="@+id/buttons_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center|end"
+    android:orientation="horizontal"
+    app:layout_constraintBottom_toBottomOf="parent">
+
+    <Button
+      android:id="@+id/close_channel_cancel"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginEnd="16dp"
+      android:background="?android:attr/selectableItemBackground"
+      android:onClick="closeApp"
+      android:padding="@dimen/app_padding"
+      android:text="@string/dialog_close_channel_cancel"
+      android:textColor="@color/grey_1" />
+
+    <Button
+      android:id="@+id/close_channel_close"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:background="?android:attr/selectableItemBackground"
+      android:padding="@dimen/app_padding"
+      android:text="@string/dialog_close_channel_close"
+      android:textColor="@color/grey_4" />
+  </LinearLayout>
+</android.support.constraint.ConstraintLayout>

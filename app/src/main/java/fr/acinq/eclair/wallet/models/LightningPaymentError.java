@@ -1,3 +1,19 @@
+/*
+ * Copyright 2018 ACINQ SAS
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package fr.acinq.eclair.wallet.models;
 
 import android.os.Parcel;
@@ -7,14 +23,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 import fr.acinq.eclair.channel.ChannelException;
-import fr.acinq.eclair.payment.Hop;
-import fr.acinq.eclair.payment.LocalFailure;
-import fr.acinq.eclair.payment.PaymentFailure;
-import fr.acinq.eclair.payment.RemoteFailure;
+import fr.acinq.eclair.payment.PaymentLifecycle;
+import fr.acinq.eclair.router.Hop;
+import fr.acinq.eclair.router.RouteNotFound$;
+import scala.collection.JavaConverters;
 
 /**
- * Contains a detailed error in a Lightning payment.
- * This object implements Parcelable so that it can be passed between activities.
+ * Wraps information about a failed lightning payment returned by eclair-core. Implements Parcelable
+ * so that it can be passed between activities with intents.
+ * <ul>
+ * <li>The <b>type</b> field tells if this error is a remote or a local failure.
+ * <li>The <b>cause</b> field contains a message detailing the reason of this failure.
+ * <li>The <b>origin</b> field should be the id of the node from which this error comes from. May be null (for local failure).
+ * <li>The <b>originChannelId</b> is the id of the channel which rejected the payment. May be null.
+ * <li>The <b>hops</b> field is set only for the remote failures and describes the route used by the failed payment.
  */
 public class LightningPaymentError implements Parcelable {
 
@@ -33,12 +55,14 @@ public class LightningPaymentError implements Parcelable {
   private String type;
   private String cause;
   private String origin;
+  private String originChannelId;
   private List<String> hops;
 
-  public LightningPaymentError(String type, String cause, String origin, List<String> hops) {
+  public LightningPaymentError(String type, String cause, String origin, String originChannelId, List<String> hops) {
     this.type = type;
     this.cause = cause;
     this.origin = origin;
+    this.originChannelId = originChannelId;
     this.hops = hops == null ? new ArrayList<String>() : hops;
   }
 
@@ -46,44 +70,60 @@ public class LightningPaymentError implements Parcelable {
     type = in.readString();
     cause = in.readString();
     origin = in.readString();
+    originChannelId = in.readString();
     List<String> h = new ArrayList<>();
     in.readList(h, List.class.getClassLoader());
   }
 
   /**
-   * Parses a {@link PaymentFailure} sent by eclair core and generates a {@link LightningPaymentError}.
+   * Parses a {@link PaymentLifecycle.PaymentFailure} sent by eclair core and generates a {@link LightningPaymentError}.
    * According to the failure type, the resulting error may contain a list of the nodes in the failed route.
    * The type of the error is always set, as well as the cause, be it unknown.
    *
    * @param failure failure in the payment route
    * @return
    */
-  public static LightningPaymentError generateDetailedErrorCause(final PaymentFailure failure) {
-    if (failure instanceof RemoteFailure) {
-      final RemoteFailure rf = (RemoteFailure) failure;
+  public static LightningPaymentError generateDetailedErrorCause(final PaymentLifecycle.PaymentFailure failure) {
+    if (failure instanceof PaymentLifecycle.RemoteFailure) {
+      final PaymentLifecycle.RemoteFailure rf = (PaymentLifecycle.RemoteFailure) failure;
       final String type = rf.getClass().getSimpleName();
-      final String cause = rf.e().failureMessage() == null ? "Unknown cause" : rf.e().failureMessage().getClass().getSimpleName();
+      final String cause = rf.e().failureMessage().message();
       final String origin = rf.e().originNode().toString();
+      String originChannelId = null;
       final List<String> hopsNodesPK = new ArrayList<>();
       if (rf.route().size() > 0) {
-        final scala.collection.immutable.List<Hop> hops = rf.route().toList();
+        final List<Hop> hops = JavaConverters.seqAsJavaListConverter(rf.route()).asJava();
         for (int hi = 0; hi < hops.size(); hi++) {
-          Hop h = hops.apply(hi);
+          Hop h = hops.get(hi);
           if (hi == 0) {
             hopsNodesPK.add(h.nodeId().toString());
+          }
+          if (origin.equals(h.nodeId().toString())) {
+            originChannelId = h.lastUpdate().shortChannelId().toString();
           }
           hopsNodesPK.add(h.nextNodeId().toString());
         }
       }
-      return new LightningPaymentError(type, cause, origin, hopsNodesPK);
-    } else if (failure instanceof LocalFailure) {
-      final LocalFailure lf = (LocalFailure) failure;
+      return new LightningPaymentError(type, cause, origin, originChannelId, hopsNodesPK);
+    } else if (failure instanceof PaymentLifecycle.LocalFailure) {
+      final PaymentLifecycle.LocalFailure lf = (PaymentLifecycle.LocalFailure) failure;
       final String type = lf.getClass().getSimpleName();
-      final String cause = lf.t().getClass().getSimpleName();
-      final String origin = "";//lf.t() instanceof ChannelException ? ((ChannelException) lf.t()).getChannelId().toString() : null;
-      return new LightningPaymentError(type, cause, origin, null);
+      String cause;
+      String originChannelId = null;
+      Throwable t = lf.t();
+      if (t instanceof RouteNotFound$) {
+        cause = "The wallet could not find a path to the payee.";
+      } else if (t instanceof PaymentLifecycle.RouteTooExpensive) {
+        cause = "Routing fees exceed 3% and are deemed too expensive. This check can be disabled in the application\'s preferences.";
+      } else if (t instanceof ChannelException){
+        cause = t.getMessage();
+        originChannelId = ((ChannelException) t).channelId().toString();
+      } else {
+        cause = t.getClass().getSimpleName();
+      }
+      return new LightningPaymentError(type, cause, null, originChannelId, null);
     } else {
-      return new LightningPaymentError("Unknown Error", "Unknow Cause", null, null);
+      return new LightningPaymentError("Unknown Error", "Unknown Cause", null, null, null);
     }
   }
 
@@ -97,6 +137,10 @@ public class LightningPaymentError implements Parcelable {
 
   public String getOrigin() {
     return origin;
+  }
+
+  public String getOriginChannelId() {
+    return originChannelId;
   }
 
   public List<String> getHops() {
@@ -113,6 +157,7 @@ public class LightningPaymentError implements Parcelable {
     parcel.writeString(type);
     parcel.writeString(cause);
     parcel.writeString(origin);
+    parcel.writeString(originChannelId);
     parcel.writeList(hops);
   }
 }

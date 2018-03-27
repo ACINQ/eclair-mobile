@@ -1,3 +1,19 @@
+<!--
+  ~ Copyright 2018 ACINQ SAS
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
   <PreferenceCategory android:title="@string/prefs_cat_display">
@@ -12,21 +28,38 @@
       android:title="@string/prefs_fiat_currency" />
 
     <ListPreference
-      android:defaultValue="mbtc"
+      android:defaultValue="btc"
       android:dialogTitle="@string/prefs_btc_unit"
       android:entries="@array/btc_unit_labels"
       android:entryValues="@array/btc_unit_values"
       android:key="btc_unit"
       android:summary="%s"
       android:title="@string/prefs_btc_unit" />
+
+    <ListPreference
+      android:defaultValue="###,###,###,##0.###########"
+      android:dialogTitle="@string/prefs_btc_decimals"
+      android:entries="@array/btc_pattern_labels"
+      android:entryValues="@array/btc_pattern_values"
+      android:key="btc_pattern"
+      android:summary="%s"
+      android:title="@string/prefs_btc_decimals" />
+
+    <ListPreference
+      android:defaultValue="https://api.blockcypher.com/v1/btc/test3/txs/"
+      android:dialogTitle="@string/prefs_onchain_explorer_dialog"
+      android:entries="@array/onchain_explorer_uri_labels"
+      android:entryValues="@array/onchain_explorer_uri_values"
+      android:key="onchain_explorer"
+      android:summary="%s"
+      android:title="@string/prefs_onchain_explorer" />
   </PreferenceCategory>
 
   <PreferenceCategory android:title="@string/prefs_cat_lightning">
 
     <SwitchPreference
-      android:defaultValue="false"
-      android:enabled="false"
-      android:key="lightning_max_fee"
+      android:defaultValue="true"
+      android:key="cap_lightning_fees"
       android:summary="@string/prefs_lightning_max_fee_desc"
       android:title="@string/prefs_lightning_max_fee" />
 

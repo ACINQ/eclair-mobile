@@ -1,3 +1,19 @@
+/*
+ * Copyright 2018 ACINQ SAS
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package fr.acinq.eclair.wallet.activities;
 
 import android.content.DialogInterface;
@@ -13,15 +29,14 @@ import android.view.View;
 import android.widget.Toast;
 
 import java.text.DateFormat;
-import java.text.NumberFormat;
 
 import fr.acinq.bitcoin.MilliSatoshi;
-import fr.acinq.bitcoin.package$;
+import fr.acinq.eclair.CoinUnit;
+import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.adapters.PaymentItemHolder;
 import fr.acinq.eclair.wallet.customviews.DataRow;
 import fr.acinq.eclair.wallet.models.Payment;
-import fr.acinq.eclair.wallet.utils.CoinUtils;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 
 public class BitcoinTransactionDetailsActivity extends EclairActivity {
@@ -67,33 +82,27 @@ public class BitcoinTransactionDetailsActivity extends EclairActivity {
 
     try {
       final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-      final String prefUnit = CoinUtils.getBtcPreferredUnit(prefs);
+      final CoinUnit prefUnit = WalletUtils.getPreferredCoinUnit(prefs);
 
       final Payment p = app.getDBHelper().getPayment(paymentId);
 
       final AlertDialog.Builder builder = new AlertDialog.Builder(this);
       builder.setMessage(getResources().getString(R.string.transactiondetails_rebroadcast_dialog));
-      builder.setPositiveButton(R.string.btn_ok, new DialogInterface.OnClickListener() {
-        public void onClick(DialogInterface dialog, int id) {
-          try {
-            app.broadcastTx(p.getTxPayload());
-            Toast.makeText(getApplicationContext(), "Sent Broadcast", Toast.LENGTH_LONG).show();
-          } catch (Exception e) {
-            Log.e(TAG, "Could not broadcast tx:" + p.getReference(), e);
-            Toast.makeText(getApplicationContext(), "Broadcast has failed", Toast.LENGTH_LONG).show();
-          }
-          mRebroadcastDialog.dismiss();
+      builder.setPositiveButton(R.string.btn_ok, (dialog, id) -> {
+        try {
+          app.broadcastTx(p.getTxPayload());
+          Toast.makeText(getApplicationContext(), "Sent Broadcast", Toast.LENGTH_LONG).show();
+        } catch (Exception e) {
+          Log.w(TAG, "Could not broadcast tx:" + p.getReference() + "  with cause=" + e.getMessage());
+          Toast.makeText(getApplicationContext(), "Broadcast has failed", Toast.LENGTH_LONG).show();
         }
+        mRebroadcastDialog.dismiss();
       });
-      builder.setNegativeButton(R.string.btn_cancel, new DialogInterface.OnClickListener() {
-        public void onClick(DialogInterface dialog, int id) {
-          mRebroadcastDialog.dismiss();
-        }
-      });
+      builder.setNegativeButton(R.string.btn_cancel, (dialog, id) -> mRebroadcastDialog.dismiss());
       mRebroadcastDialog = builder.create();
 
-      mAmountPaidRow.setValue(CoinUtils.formatAmountInUnitWithUnit(new MilliSatoshi(p.getAmountPaidMsat()), prefUnit));
-      mFeesRow.setValue(CoinUtils.formatAmountInUnitWithUnit(new MilliSatoshi(p.getFeesPaidMsat()), prefUnit));
+      mAmountPaidRow.setValue(CoinUtils.formatAmountInUnit(new MilliSatoshi(p.getAmountPaidMsat()), prefUnit, true));
+      mFeesRow.setValue(CoinUtils.formatAmountInUnit(new MilliSatoshi(p.getFeesPaidMsat()), prefUnit, true));
       mPaymentHashRow.setValue(p.getReference());
       mUpdateDateRow.setValue(DateFormat.getDateTimeInstance().format(p.getUpdated()));
       mOpenInExplorer.setOnClickListener(WalletUtils.getOpenTxListener(p.getReference()));
@@ -104,16 +113,17 @@ public class BitcoinTransactionDetailsActivity extends EclairActivity {
 
       if (p.getConfidenceBlocks() == 0) {
         mRebroadcastTxView.setVisibility(View.VISIBLE);
-        mRebroadcastTxView.setOnClickListener(new View.OnClickListener() {
-          @Override
-          public void onClick(View v) {
-            mRebroadcastDialog.show();
-          }
-        });
+        mRebroadcastTxView.setOnClickListener(v -> mRebroadcastDialog.show());
       }
     } catch (Exception e) {
       Toast.makeText(this, "Transaction not found", Toast.LENGTH_SHORT).show();
       finish();
     }
+  }
+
+  @Override
+  protected void onResume() {
+    super.onResume();
+    checkInit();
   }
 }

@@ -1,19 +1,30 @@
+/*
+ * Copyright 2018 ACINQ SAS
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package fr.acinq.eclair.wallet.fragments;
 
-import android.content.ClipData;
-import android.content.ClipboardManager;
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -22,8 +33,6 @@ import org.greenrobot.eventbus.ThreadMode;
 import fr.acinq.eclair.blockchain.electrum.ElectrumWallet;
 import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.R;
-import fr.acinq.eclair.wallet.events.ChannelUpdateEvent;
-import fr.acinq.eclair.wallet.events.WalletBalanceUpdateEvent;
 import fr.acinq.eclair.wallet.tasks.QRCodeTask;
 
 public class ReceivePaymentFragment extends Fragment implements QRCodeTask.AsyncQRCodeResponse {
@@ -59,9 +68,8 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
   }
 
   private void displayAddress() {
-
-        mAddressTextView.setText(getAddress());
-        new QRCodeTask(this, getAddress(), 700, 700).execute();
+    mAddressTextView.setText(getAddress());
+    new QRCodeTask(this, getAddress(), 700, 700).execute();
   }
 
   private String getAddress() {
@@ -84,11 +92,5 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
     if (output != null) {
       mQRImageView.setImageBitmap(output);
     }
-  }
-
-  public void copyReceptionAddress() {
-    ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
-    clipboard.setPrimaryClip(ClipData.newPlainText("Bitcoin address", getAddress()));
-    Toast.makeText(this.getContext(), "Copied address to clipboard", Toast.LENGTH_SHORT).show();
   }
 }

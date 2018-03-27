@@ -1,3 +1,19 @@
+/*
+ * Copyright 2018 ACINQ SAS
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package fr.acinq.eclair.wallet.tasks;
 
 import android.os.AsyncTask;
@@ -22,14 +38,14 @@ public class BitcoinInvoiceReaderTask extends AsyncTask<String, Integer, Bitcoin
   protected BitcoinURI doInBackground(String... params) {
     BitcoinURI extract = null;
     try {
-      if (invoiceAsString.startsWith("bitcoin:")) {
+      if (invoiceAsString.toLowerCase().startsWith("bitcoin:")) {
         extract = new BitcoinURI(invoiceAsString);
       } else {
         // to handle raw address
         extract = new BitcoinURI("bitcoin:" + invoiceAsString);
       }
-    } catch (BitcoinURIParseException e) {
-      Log.d(TAG, "Could not read Bitcoin invoice " + invoiceAsString + " with cause: " + e.getMessage());
+    } catch (Throwable t) {
+      Log.d(TAG, "Could not read Bitcoin invoice " + invoiceAsString + " with cause: " + t.getMessage());
     }
     return extract;
   }

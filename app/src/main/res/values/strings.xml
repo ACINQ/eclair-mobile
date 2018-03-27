@@ -1,6 +1,22 @@
+<!--
+  ~ Copyright 2018 ACINQ SAS
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
 <resources>
   <string name="lang">eng</string>
-  <string name="app_name">Eclair Wallet Mainnet</string>
+  <string name="app_name">Eclair DEV</string>
 
   <!-- //////////////// Activities name //////////////////// -->
 
@@ -15,7 +31,6 @@
   <string name="home_onchain_balance">WALLET:</string>
   <string name="home_offchain_balance">LIGHTNING:</string>
   <string name="home_balance_available">Offchain Spendable</string>
-  <string name="home_toast_openchannel_invalid">Invalid URI</string>
   <string name="home_toast_openchannel_success">Opening channel with </string>
   <string name="home_toast_openchannel_failed">Failed to open channel: </string>
   <string name="home_toast_noconnection">Not yet connected to the network</string>
@@ -29,70 +44,95 @@
   <string name="receive_title">Your bitcoin address</string>
 
   <string name="home_status_disconnected">Disconnected</string>
-  <string name="home_status_connected"></string>
 
   <!-- //////////////// Home Intro //////////////////// -->
 
   <string name="home_intro_welcome">Welcome!</string>
   <string name="home_intro_welcome_sub">Tap anywhere to continue this short tour.</string>
-  <string name="home_intro_receive">Swipe Left</string>
+  <string name="home_intro_receive">Swipe left</string>
   <string name="home_intro_receive_sub">To display your address and\nreceive funds.</string>
-  <string name="home_intro_openchannel">Swipe Right</string>
+  <string name="home_intro_openchannel">Swipe right</string>
   <string name="home_intro_openchannel_sub">To open a Lightning Network channel.</string>
-  <string name="home_intro_openchannel_patience">Please Be Patient.</string>
+  <string name="home_intro_openchannel_patience">Please be patient.</string>
   <string name="home_intro_openchannel_patience_sub">Opening a channel takes 2 confirmations.</string>
   <string name="home_intro_sendpayment">Click here to send a payment</string>
   <string name="home_intro_sendpayment_sub">Make sure to have 1 channel\nin NORMAL state</string>
 
   <!-- //////////////// Disclaimer /////////////////// -->
 
-  <string name="home_disclaimer_1"><![CDATA[
+  <string name="disclaimer_1"><![CDATA[
     <h1>WARNING</h1>
     <p>Eclair Wallet is experimental and runs on the <b>%1$s</b> Bitcoin blockchain.</p>
     <p>This software and the Lightning Network are under heavy development. Make sure you
     run the latest version because there may be backward incompatible changes.</p>
     ]]>
   </string>
-  <string name="home_disclaimer_1_button_ok">I UNDERSTAND</string>
-  <string name="home_disclaimer_button_quit">QUIT</string>
+  <string name="disclaimer_1_button_ok">I UNDERSTAND</string>
+  <string name="disclaimer_button_quit">QUIT</string>
 
-  <!-- //////////////// Backup /////////////////// -->
+  <!-- //////////////// Startup /////////////////// -->
 
-  <string name="home_backup_text"><![CDATA[
-    <p>If you lose access to your phone, you will need this phrase to recover your wallet.
-    Please backup this phrase in a secure location (not on this phone).</p>
-    <p><b>%1$s</b></p>
-  ]]>
+  <string name="start_error"><![CDATA[
+    <h3>Could not start wallet.</h3>
+    %1$s
+    ]]>
   </string>
-  <string name="home_backup_button">Ok, got it</string>
-  <string name="home_backup_button_skip">Skip (only on TESTNET)</string>
-  <string name="home_backup_check"><![CDATA[
-    <p>What are the #%1$d, #%2$d and #%3$d words of your recovery phrase?</p>
-  ]]>
-  </string>
-  <string name="home_backup_check_hint">Type in the words here</string>
-  <string name="home_backup_do_check_button">Check</string>
-  <string name="home_backup_finish_button">You\'re good to go!</string>
-  <string name="home_backup_failed">Wrong words.\nPlease check your recovery phrase.</string>
+  <string name="start_breaking"><![CDATA[
+    <h3>Breaking changes</h3>
+    This new version requires a clean data directory. Please reset the app\'s data.
+    <br />
+    <br />
+    From now on next versions should be backward compatible.
+  ]]></string>
+
+  <!-- //////////////// Create Recovery /////////////////// -->
+
+  <string name="createrecovery_instructions">If you lose access to your phone, you will need this phrase to recover your wallet. Please backup this phrase in a secure location (not on this phone).</string>
+  <string name="createrecovery_generation_failed">Could not generate the recovery phrase…</string>
+  <string name="createrecovery_goto_check">Ok, got it</string>
+  <string name="createrecovery_check_skip">Skip (only on TESTNET)</string>
+  <string name="createrecovery_check_question">What are the #%1$d, #%2$d and #%3$d words of your recovery phrase?</string>
+  <string name="createrecovery_check_input_hint">Type the words here</string>
+  <string name="createrecovery_check_button">Check</string>
+  <string name="createrecovery_error_write_seed">Could not save the wallet</string>
+  <string name="createrecovery_success_prompt_encrypt">You now must set a password to encrypt you wallet.</string>
+  <string name="createrecovery_success_finish">Encrypt wallet</string>
+  <string name="createrecovery_check_failed">Wrong words.\nPlease check your recovery phrase.</string>
+  <string name="createrecovery_passphrase_hint">Enter a password for the wallet</string>
+  <string name="createrecovery_passphrase_failed">This passphrase is not valid (not empty, max 20 chars, no special characters).</string>
+  <string name="createrecovery_general_failure">Could not create wallet</string>
+
+  <!-- //////////////// Import Wallet /////////////////// -->
+
+  <string name="importwallet_disclaimer">Eclair and Lightning is still new tech. Do not import a wallet with a significant amount of money.</string>
+  <string name="importwallet_instructions">Enter the recovery phrase of your wallet.\nPassphrase are not supported yet.</string>
+  <string name="importwallet_error">This phrase is not valid: %1$s</string>
+  <string name="importwallet_input_hint">Type the recovery phrase here</string>
+  <string name="importwallet_check_button">Encrypt and save</string>
 
   <!-- //////////////// Open Channel /////////////////// -->
 
+  <string name="openchannel_loading_pleasewait">Reading the node address, please wait…</string>
   <string name="openchannel_title">Open a new Lightning Channel</string>
   <string name="openchannel_capacity">CAPACITY</string>
   <string name="openchannel_capacity_hint">Channel capacity in</string>
-  <string name="openchannel_capacity_invalid">Channel capacity must be between 1 and 167 mBTC</string>
+  <string name="openchannel_capacity_invalid">Channel capacity must be between %1$s and %2$s</string>
   <string name="openchannel_capacity_notenoughfunds">Not enough funds</string>
-  <string name="openchannel_error_capacity_nan">Capacity must be a number</string>
-  <string name="openchannel_error_address">This is not a valid address.\nFormat is [pubkey]@[ip]:[port]</string>
+  <string name="openchannel_error_capacity_nan">Capacity amount is not valid</string>
+  <string name="openchannel_error_fees_nan">Funding transaction\'s fees are not valid</string>
+  <string name="openchannel_error_fees_gt_0">Funding transaction\'s fee must be greater than 0</string>
+  <string name="openchannel_address_expected_format">Expected format is nodeId@host:port</string>
+  <string name="openchannel_error_address">This is not a valid address for a Lightning node.\n\n%1$s</string>
   <string name="openchannel_do_open">Open</string>
-  <string name="openchannel_pubkey">Node\'s Public key</string>
-  <string name="openchannel_ip">Node\'s IP</string>
+  <string name="openchannel_pubkey">Node id</string>
+  <string name="openchannel_ip">Node ip</string>
   <string name="openchannel_port">Port</string>
-  <string name="openchannel_invalid">Invalid address</string>
+  <string name="openchannel_fees">Funding tx fees</string>
 
   <!-- //////////////// Commons /////////////////// -->
 
   <string name="unknown">N/A</string>
+  <string name="unknown_desc">No description available</string>
   <string name="btn_ok">OK</string>
   <string name="btn_cancel">Cancel</string>
   <string name="btn_close">Close</string>
@@ -107,11 +147,11 @@
   <string name="menu_home">Home</string>
   <string name="menu_networkinfos">Network Overview</string>
   <string name="menu_about">About</string>
+  <string name="menu_faq">FAQ</string>
   <string name="menu_preferences">Preferences</string>
 
   <string name="open_in_explorer">Open transaction in explorer</string>
   <string name="close_button">Close Channel</string>
-  <string name="close_channel_message">Are you sure you want to close this channel?</string>
 
   <!-- //////////////// Bitcoin Transaction Details //////////////////// -->
 
@@ -124,7 +164,6 @@
   <string name="transactiondetails_date_label">Timestamp</string>
   <string name="transactiondetails_confs_label">Confirmations</string>
   <string name="transactiondetails_confs_type_label">Confidence type</string>
-  <string name="transactiondetails_confs_type_desc">State of the transaction in general terms</string>
   <string name="transactiondetails_rebroadcast">Rebroadcast Transaction</string>
   <string name="transactiondetails_rebroadcast_dialog">Rebroadcast this transaction?</string>
 
@@ -132,10 +171,16 @@
 
   <string name="channeldetails_id_label">Id</string>
   <string name="channeldetails_id_desc">Channel unique identifier</string>
+  <string name="channeldetails_reserve_label">Reserve</string>
+  <string name="channeldetails_reserve_desc">Minimum balance that this channel must maintain</string>
+  <string name="channeldetails_htlcs_count_label">Inflight HTLCs</string>
+  <string name="channeldetails_htlcs_count_desc">Current number of HTLCs in the commitment tx</string>
+  <string name="channeldetails_min_htlc_amount_label">Min. payment amount</string>
+  <string name="channeldetails_min_htlc_amount_desc">Minimum amount that can be sent through this channel</string>
   <string name="channeldetails_nodeid_label">Remote node id</string>
-  <string name="channeldetails_nodeid_desc">Public key of the remote node</string>
-  <string name="channeldetails_state_label">Status</string>
-  <string name="channeldetails_state_desc">Status of the channel</string>
+  <string name="channeldetails_nodeid_desc">Public key of the remote peer</string>
+  <string name="channeldetails_state_label">State</string>
+  <string name="channeldetails_state_desc">State of the channel</string>
   <string name="channeldetails_state_closing_type_label">Closing type</string>
   <string name="channeldetails_state_closing_type_desc">MUTUAL/LOCAL/REMOTE/OTHER</string>
   <string name="channeldetails_capacity_label">Capacity</string>
@@ -151,10 +196,10 @@
 
   <!-- //////////////// Send Payment //////////////////// -->
 
-  <string name="payment_failure_read_invoice">Could not read invoice!</string>
-  <string name="payment_invalid_address">Not a valid Bitcoin Mainnet address</string>
+  <string name="payment_invalid_address">This is not a valid payment address.\n\nPlease use a Bitcoin address or a Lightning payment request to initiate a payment.</string>
   <string name="payment_type_onchain">On-Chain Payment</string>
   <string name="payment_type_lightning">Lightning Payment</string>
+  <string name="payment_empty_wallet">Empty wallet</string>
   <string name="payment_fees_custom">Custom</string>
   <string name="payment_fees_slow">Slow (12h)</string>
   <string name="payment_fees_medium">Medium (2h)</string>
@@ -162,44 +207,44 @@
   <string name="payment_description">Desc.</string>
   <string name="payment_destination_address">To</string>
   <string name="payment_fees">Fees</string>
-  <string name="payment_fees_verylow">The fees are very low and your transaction could take a very long time to confirm.</string>
-  <string name="payment_fees_veryhigh">The fees seem very high. Please make sure that this amount is correct.</string>
+  <string name="payment_fees_not_capped">Uncapped routing fee ; check the application\'s preferences.</string>
+  <string name="payment_fees_verylow">Fees are very low and your transaction could take a very long time to confirm.</string>
+  <string name="payment_fees_veryhigh">Fees seem very high. Please make sure that this amount is correct.</string>
   <string name="payment_loading_pleasewait">Reading the invoice, please wait…</string>
   <string name="payment_amount_to_send">Amount in </string>
   <string name="payment_toast_sentbtc">Payment sent</string>
   <string name="payment_toast_balance">Insufficient balance</string>
-  <string name="payment_toast_failure">Could not send transaction</string>
+  <string name="payment_toast_failure">Could not send transaction: %1$s</string>
 
   <string name="payment_error">This payment is not valid.</string>
   <string name="payment_error_fees_onchain">The fees value is not valid.</string>
-  <string name="payment_error_amount">This amount is not valid.</string>
-  <string name="payment_error_amount_ln_no_channels"><![CDATA[
-    You first need to open a Lightning channel to execute this payment.
-  ]]></string>
-  <string name="payment_error_amount_ln_no_active_channels"><![CDATA[
-    <p><b>Your LN channels are not ready to send payments.</b></p>
-    <small>Please wait for a few blocks.</small>
-  ]]></string>
-  <string name="payment_error_amount_ln_insufficient_funds"><![CDATA[
-    <p><b>Not enough funds in your LN channels</b></p>
-  ]]></string>
+  <string name="payment_error_amount_onchain_insufficient_funds">The amount exceeds your balance.</string>
+  <string name="payment_error_amount">The amount is not valid.</string>
+  <string name="payment_error_amount_ln_no_channels">You first need to open a Lightning channel to execute this payment.\n\nDo this by swiping to the right from the home view, and click on the green "+" button.</string>
+  <string name="payment_error_amount_ln_no_active_channels">None of your Lightning channels is ready to send payments.</string>
+  <string name="payment_error_amount_ln_insufficient_funds">None of your Lightning channels has enough balance to send this payment.</string>
+  <string name="payment_error_pending">This payment is already processing.</string>
+  <string name="payment_error_paid">This payment has already been paid.</string>
   <string name="payment_error_incorrect_pin">PIN is incorrect.</string>
 
   <!-- //////////////// LN payment details //////////////////// -->
 
   <string name="paymentdetails_technicals_title">TECHNICAL INFORMATION</string>
-  <string name="paymentdetails_amount_paid_label">Amount</string>
-  <string name="paymentdetails_amount_paid_desc">Amount paid</string>
-  <string name="paymentdetails_fees_label">Fees</string>
-  <string name="paymentdetails_fees_desc">Routing fees</string>
+  <string name="paymentdetails_amount_paid_label">Amount paid (incl. fees)</string>
+  <string name="paymentdetails_fees_label">Routing fees</string>
+  <string name="paymentdetails_recipient_label">Paid to</string>
+  <string name="paymentdetails_recipient_desc">Id of the node receiving the payment.</string>
   <string name="paymentdetails_status_label">Status</string>
-  <string name="paymentdetails_status_desc">PAID/PENDING/FAILED.</string>
   <string name="paymentdetails_desc_label">Description</string>
   <string name="paymentdetails_desc_desc">Description of the payment</string>
   <string name="paymentdetails_amount_requested_label">Amount requested</string>
-  <string name="paymentdetails_amount_requested_desc">Amount requested</string>
+  <string name="paymentdetails_amount_requested_desc">Requested by the payee</string>
+  <string name="paymentdetails_amount_sent_label">Amount sent</string>
+  <string name="paymentdetails_amount_sent_desc">Amount that you really sent (without fees)</string>
   <string name="paymentdetails_paymenthash_label">Payment hash</string>
-  <string name="paymentdetails_paymenthash_desc">Payment hash</string>
+  <string name="paymentdetails_paymenthash_desc"></string>
+  <string name="paymentdetails_preimage_label">Payment preimage</string>
+  <string name="paymentdetails_preimage_desc">Proof of the payment success</string>
   <string name="paymentdetails_paymentrequest_label">Payment request</string>
   <string name="paymentdetails_paymentrequest_desc">Serialized LN payment request</string>
   <string name="paymentdetails_created_label">Creation date</string>
@@ -211,13 +256,13 @@
 
   <string name="paymentsuccess_title">Payment sent!</string>
   <string name="paymentfailure_title">Payment failed!</string>
-  <string name="paymentfailure_toggle_details">Click here for details.</string>
+  <string name="paymentfailure_show_details">Click here for details</string>
   <string name="paymentfailure_error_size">%1$d attempt(s) made.</string>
   <string name="paymentfailure_error_counter">#%1$d of %2$d:</string>
   <string name="paymentfailure_error_cause_label">Cause:</string>
   <string name="paymentfailure_error_cause">%1$s</string>
   <string name="paymentfailure_error_origin_label">Origin:</string>
-  <string name="paymentfailure_error_origin">%1$s</string>
+  <string name="paymentfailure_error_origin_channel_label">Channel:</string>
 
   <!-- //////////////// Breaking changes //////////////////// -->
 
@@ -234,7 +279,7 @@
   <string name="about_general_title">About Eclair Wallet</string>
   <string name="about_general_text"><![CDATA[
     <p>An advanced Lightning/Bitcoin mobile wallet by ACINQ. It relies on Electrum servers for access to the Bitcoin network.</p>
-    <p>Fees are retrieved from https://bitcoinfees.earn.com. USD/EUR rates are retrieved from Coindesk API.</p>
+    <p>Fees are retrieved from the BitGo API. USD/EUR rates are retrieved from the Coindesk API. Note that this conversion to USD/EUR may not be accurate.</b></p>
     <p>This software is compliant with the BOLT specifications (Lightning Network standard).</p>
     <p><b>Installed version: %1$s</b></p>
     ]]>
@@ -243,6 +288,8 @@
   <string name="about_limitations_text"><![CDATA[
     <p>This wallet is experimental, bugs and crashes should be expected.</p>
     <p>Main limitations:
+    <br/>
+    - Works only on Bitcoin Testnet
     <br/>
     - Lightning channels are outbound only: you can pay with LN, but not receive/forward payments.
     </p>
@@ -279,29 +326,23 @@
   <string name="paymentitem_confidence_suffix">conf</string>
   <string name="paymentitem_fee_prefix">fee:</string>
 
-  <!-- //////////////// Monetary Units //////////////////// -->
+  <!-- //////////////// General //////////////////// -->
 
-  <string name="btc_sat_short">sat</string>
-  <string name="btc_sat_long">satoshi</string>
-  <string name="btc_milli_short">mBTC</string>
-  <string name="btc_milli_long">milli-bitcoin</string>
   <string name="btc_fee_unit">sat/byte</string>
-  <string name="fiat_eur">EUR</string>
-  <string name="fiat_usd">USD</string>
+  <string name="chain_name">TESTNET</string>
+  <string name="chain_disconnected">Electrum disconnected</string>
+  <string name="chain_disconnected_desc">Connection was lost. Sending funds is disabled.</string>
+  <string name="chain_late">Electrum desynchronized</string>
+  <string name="chain_late_desc">Attention, your wallet\'s block height looks stale. Sending lightning payments may trigger the unilateral closing of your channels!</string>
 
-  <string name="chain_test">TESTNET</string>
-  <string name="chain_mainnet">MAINNET</string>
-
-  <!-- //////////////// Preferences //////////////////// -->
+  <!-- //////////////// Pin dialogs //////////////////// -->
 
   <string name="pindialog_title_default">Please enter your PIN</string>
   <string name="pindialog_title_createnew">Define a 6 digits PIN code</string>
   <string name="pindialog_title_confirmnew">Confirm PIN code</string>
   <string name="pindialog_pwd_placeholder">●●●●●●</string>
-  <string name="pindialog_error_length">Failed: the PIN must be a 6 digits number.</string>
-  <string name="pindialog_error_notanumber">Failed: the PIN must be a number.</string>
-  <string name="pindialog_error_donotmatch">Failed: PINs do not match.</string>
-  <string name="pindialog_error_alreadyset">Failed: the PIN has already been set.</string>
+  <string name="pindialog_error">Password must be a 6 digits number.</string>
+  <string name="pindialog_error_donotmatch">Passwords do not match.</string>
 
   <!-- //////////////// Preferences //////////////////// -->
 
@@ -310,10 +351,43 @@
   <string name="prefs_fiat_currency">Fiat currency</string>
   <string name="prefs_fiat_currency_dialog">Display in fiat currency</string>
   <string name="prefs_btc_unit">Bitcoin unit</string>
+  <string name="prefs_btc_decimals">Number of decimals in amounts</string>
+  <string name="prefs_change_password">Change the app password</string>
+  <string name="prefs_change_password_desc">Seed will be re-encrypted with a new password</string>
+  <string name="prefs_change_password_button">Change password</string>
   <string name="prefs_pin_title">Ask for PIN before payment</string>
-  <string name="prefs_pin_default_info">Pin is a 6 digits number</string>
-  <string name="prefs_pin_lastupdate">Last update:</string>
-  <string name="prefs_lightning_max_fee">Cap Lightning fees (disabled)</string>
-  <string name="prefs_lightning_max_fee_desc">Fail payments if the fees exceeds 1% of the amount. This prevents overpaying opportunistic nodes in the middle of the route.</string>
+  <string name="prefs_pin_default_info">This is the PIN encrypting your wallet</string>
+  <string name="prefs_lightning_max_fee">Cap Lightning fees</string>
+  <string name="prefs_lightning_max_fee_desc">Abort lightning payments if the fees would exceed 3% of the amount to pay. This prevents overpaying opportunistic nodes in the middle of the route.\n\nDoes not affect on-chain payments.</string>
+  <string name="prefs_onchain_explorer">Preferred onchain explorer</string>
+  <string name="prefs_onchain_explorer_dialog">Explore onchain tx with</string>
+  <string name="prefs_security_title">Security Settings</string>
+  <string name="prefs_advanced_title">Advanced Usage</string>
+  <string name="prefs_advanced_warning">Do not proceed unless you know what you\'re doing.</string>
+  <string name="prefs_advanced_networkdb">Do not delete unless you know what you\'re doing.</string>
+  <string name="prefs_advanced_networkdb_button">Delete Network DB</string>
+
+  <!-- //////////////// Scanner messages //////////////////// -->
+
+  <string name="scan_title_invoice">Please scan a QR code containing a Bitcoin address or a Lightning payment request.</string>
+  <string name="scan_title_ln_uri">Please scan the address of a Lightning Network node.</string>
+
+  <!-- //////////////// Close Channel Dialog /////////////////// -->
+
+  <string name="dialog_close_channel_question">Are you sure you want to close this channel?</string>
+  <string name="dialog_close_channel_force_warning">Careful: force-close is more expensive than a regular close and will incur a delay before you get your funds back.\n\nUse force-close only if the channel is stuck or if your peer is not responding.</string>
+  <string name="dialog_close_channel_force_checkbox_opt">I want to force-close this channel.</string>
+  <string name="dialog_close_channel_close">Close channel</string>
+  <string name="dialog_close_channel_forceclose">Force-close</string>
+  <string name="dialog_close_channel_cancel">Cancel</string>
+
+  <!-- //////////////// wallet //////////////////// -->
+
+  <string name="seed_encrypt_prompt">Enter a password to \nencrypt the seed</string>
+  <string name="seed_encrypt_prompt_confirm">Confirm password</string>
+  <string name="seed_encrypt_general_failure">Could not write seed</string>
+  <string name="seed_read_general_failure">Could not read seed</string>
+  <string name="wallet_init_create_new">Create new wallet</string>
+  <string name="wallet_init_import_existing">Import existing wallet</string>
 
 </resources>

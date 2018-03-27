@@ -1,3 +1,19 @@
+/*
+ * Copyright 2018 ACINQ SAS
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package fr.acinq.eclair.wallet.adapters;
 
 import android.support.v7.widget.RecyclerView;
@@ -7,15 +23,17 @@ import android.view.ViewGroup;
 
 import java.util.List;
 
+import fr.acinq.eclair.CoinUnit;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.models.ChannelItem;
+import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.wallet.utils.Constants;
 
 public class LocalChannelItemAdapter extends RecyclerView.Adapter<LocalChannelItemHolder> {
 
   private List<ChannelItem> channels;
   private String fiatCode = Constants.FIAT_USD;
-  private String prefUnit = Constants.MILLI_BTC_CODE;
+  private CoinUnit prefUnit = CoinUtils.getUnitFromString(Constants.BTC_CODE);
   private boolean displayAmountAsFiat = false; // by default always show amounts in bitcoin
 
   public LocalChannelItemAdapter(List<ChannelItem> channels) {
@@ -39,7 +57,7 @@ public class LocalChannelItemAdapter extends RecyclerView.Adapter<LocalChannelIt
     return this.channels == null ? 0 : this.channels.size();
   }
 
-  public void update(List<ChannelItem> channels, final String fiatCode, final String prefUnit, final boolean displayAmountAsFiat) {
+  public void update(List<ChannelItem> channels, final String fiatCode, final CoinUnit prefUnit, final boolean displayAmountAsFiat) {
     this.fiatCode = fiatCode;
     this.prefUnit = prefUnit;
     this.displayAmountAsFiat = displayAmountAsFiat;

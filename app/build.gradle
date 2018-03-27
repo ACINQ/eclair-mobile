@@ -3,13 +3,13 @@ apply plugin: 'org.greenrobot.greendao'
 
 android {
   compileSdkVersion 27
-  buildToolsVersion "26.0.2"
+  buildToolsVersion "27.0.2"
   defaultConfig {
-    applicationId "fr.acinq.eclair.wallet_livenet"
+    applicationId "fr.acinq.eclair.wallet.dev"
     minSdkVersion 21
-    targetSdkVersion 26
-    versionCode 10
-    versionName "0.2.0"
+    targetSdkVersion 27
+    versionCode 16
+    versionName "0.2.6-DEV"
     testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     multiDexEnabled true
   }
@@ -26,6 +26,9 @@ android {
   configurations.all {
     resolutionStrategy.force 'com.google.code.findbugs:jsr305:3.0.1'
   }
+  dataBinding {
+    enabled = true
+  }
   packagingOptions {
     exclude 'META-INF/LICENSE*'
     exclude 'META-INF/NOTICE.txt'
@@ -36,11 +39,15 @@ android {
       path 'CMakeLists.txt'
     }
   }
+  compileOptions {
+    targetCompatibility 1.8
+    sourceCompatibility 1.8
+  }
 }
 
 greendao {
   // increment when changing DB structure
-  schemaVersion 3
+  schemaVersion 5
 }
 
 dependencies {
@@ -48,8 +55,9 @@ dependencies {
   androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
     exclude group: 'com.android.support', module: 'support-annotations'
   })
-  compile 'com.android.support:design:27.0.0'
-  compile 'com.android.support:appcompat-v7:27.0.0'
+  compile 'com.android.support:design:27.1.0'
+  compile 'com.android.support:preference-v7:27.1.0'
+  compile 'com.android.support:preference-v14:27.1.0'
   compile 'com.android.support.constraint:constraint-layout:1.0.2'
   compile 'com.google.code.findbugs:jsr305:3.0.1'
   // logging
@@ -60,11 +68,11 @@ dependencies {
     exclude group: 'com.google.android', module: 'android'
   }
   // eclair core
-  compile 'fr.acinq.eclair:eclair-core_2.11:0.2-android-mainnet-SNAPSHOT'
+  compile 'fr.acinq.eclair:eclair-core_2.11:0.2-android-SNAPSHOT'
   // database orm
   compile 'org.greenrobot:greendao:3.2.2'
   // required for greendao encryption, disabled for now
-   compile 'net.zetetic:android-database-sqlcipher:3.5.6'
+  compile 'net.zetetic:android-database-sqlcipher:3.5.6'
   // qr codes
   compile 'com.journeyapps:zxing-android-embedded:3.5.0'
   // events

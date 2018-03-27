@@ -1,3 +1,19 @@
+/*
+ * Copyright 2018 ACINQ SAS
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package fr.acinq.eclair.wallet.customviews;
 
 import android.content.Context;
@@ -16,8 +32,10 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import fr.acinq.bitcoin.MilliSatoshi;
+import fr.acinq.eclair.CoinUnit;
 import fr.acinq.eclair.wallet.R;
-import fr.acinq.eclair.wallet.utils.CoinUtils;
+import fr.acinq.eclair.CoinUtils;
+import fr.acinq.eclair.wallet.utils.WalletUtils;
 
 public class CoinAmountView extends RelativeLayout {
   private static final String TAG = "CoinAmtView";
@@ -26,7 +44,7 @@ public class CoinAmountView extends RelativeLayout {
   private TextView unitTextView;
   private ImageView imageView;
   private MilliSatoshi amountMsat = new MilliSatoshi(0);
-  private String prefBtcUnit;
+  private CoinUnit prefBtcUnit;
   private String prefFiatCurrency;
 
   public CoinAmountView(final Context context) {
@@ -48,15 +66,15 @@ public class CoinAmountView extends RelativeLayout {
   }
 
   public void refreshUnits() {
-    this.prefBtcUnit = CoinUtils.getBtcPreferredUnit(prefs);
-    this.prefFiatCurrency = CoinUtils.getPreferredFiat(prefs);
-    final boolean displayAmountAsFiat = CoinUtils.shouldDisplayInFiat(prefs);
+    this.prefBtcUnit = WalletUtils.getPreferredCoinUnit(prefs);
+    this.prefFiatCurrency = WalletUtils.getPreferredFiat(prefs);
+    final boolean displayAmountAsFiat = WalletUtils.shouldDisplayInFiat(prefs);
     if (displayAmountAsFiat) {
-      amountTextView.setText(CoinUtils.convertMsatToFiat(amountMsat.amount(), prefFiatCurrency));
+      amountTextView.setText(WalletUtils.convertMsatToFiat(amountMsat.amount(), prefFiatCurrency));
       unitTextView.setText(prefFiatCurrency.toUpperCase());
     } else {
-      amountTextView.setText(CoinUtils.formatAmountInUnit(amountMsat, prefBtcUnit));
-      unitTextView.setText(CoinUtils.getBitcoinUnitShortLabel(prefBtcUnit));
+      amountTextView.setText(CoinUtils.formatAmountInUnit(amountMsat, prefBtcUnit, false));
+      unitTextView.setText(prefBtcUnit.shortLabel());
     }
     refreshView();
   }
@@ -93,7 +111,7 @@ public class CoinAmountView extends RelativeLayout {
       }
 
       final int amountSize = arr.getDimensionPixelSize(R.styleable.CoinAmountView_amount_size, 0);
-      final int amountColor = arr.getColor(R.styleable.CoinAmountView_amount_color, ContextCompat.getColor(getContext(), R.color.colorGrey_2));
+      final int amountColor = arr.getColor(R.styleable.CoinAmountView_amount_color, ContextCompat.getColor(getContext(), R.color.grey_2));
       final boolean isAmountBold = arr.getBoolean(R.styleable.CoinAmountView_amount_bold, false);
       if (isAmountBold) {
         amountTextView.setTypeface(null, Typeface.BOLD);
@@ -102,7 +120,7 @@ public class CoinAmountView extends RelativeLayout {
       amountTextView.setTextColor(amountColor);
 
       final int unitSize = arr.getDimensionPixelSize(R.styleable.CoinAmountView_unit_size, 0);
-      final int unitColor = arr.getColor(R.styleable.CoinAmountView_unit_color, ContextCompat.getColor(getContext(), R.color.colorGrey_2));
+      final int unitColor = arr.getColor(R.styleable.CoinAmountView_unit_color, ContextCompat.getColor(getContext(), R.color.grey_2));
       final boolean isUnitBold = arr.getBoolean(R.styleable.CoinAmountView_unit_bold, false);
       if (isUnitBold) {
         unitTextView.setTypeface(null, Typeface.BOLD);

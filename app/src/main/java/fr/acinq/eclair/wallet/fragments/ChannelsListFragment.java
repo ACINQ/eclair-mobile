@@ -1,3 +1,19 @@
+/*
+ * Copyright 2018 ACINQ SAS
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package fr.acinq.eclair.wallet.fragments;
 
 import android.content.SharedPreferences;
@@ -16,11 +32,12 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
+import fr.acinq.eclair.CoinUnit;
 import fr.acinq.eclair.wallet.EclairEventService;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.adapters.LocalChannelItemAdapter;
 import fr.acinq.eclair.wallet.models.ChannelItem;
-import fr.acinq.eclair.wallet.utils.CoinUtils;
+import fr.acinq.eclair.wallet.utils.WalletUtils;
 
 public class ChannelsListFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
@@ -39,7 +56,7 @@ public class ChannelsListFragment extends Fragment implements SwipeRefreshLayout
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setHasOptionsMenu(false);
-    mChannelAdapter = new LocalChannelItemAdapter(new ArrayList<ChannelItem>());
+    mChannelAdapter = new LocalChannelItemAdapter(new ArrayList<>());
   }
 
   @Override
@@ -53,7 +70,7 @@ public class ChannelsListFragment extends Fragment implements SwipeRefreshLayout
                            Bundle savedInstanceState) {
     mView = inflater.inflate(R.layout.fragment_channelslist, container, false);
     mRefreshLayout = mView.findViewById(R.id.localchannels_swiperefresh);
-    mRefreshLayout.setColorSchemeResources(R.color.colorPrimary, R.color.green, R.color.colorAccent);
+    mRefreshLayout.setColorSchemeResources(R.color.primary, R.color.green, R.color.accent);
     mRefreshLayout.setOnRefreshListener(this);
     mEmptyLabel = mView.findViewById(R.id.localchannels_empty);
 
@@ -91,9 +108,9 @@ public class ChannelsListFragment extends Fragment implements SwipeRefreshLayout
   public void updateList() {
     if (mChannelAdapter != null && getContext() != null) {
       final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
-      final String prefUnit = CoinUtils.getBtcPreferredUnit(prefs);
-      final String fiatCode = CoinUtils.getPreferredFiat(prefs);
-      final boolean displayBalanceAsFiat = CoinUtils.shouldDisplayInFiat(prefs);
+      final CoinUnit prefUnit = WalletUtils.getPreferredCoinUnit(prefs);
+      final String fiatCode = WalletUtils.getPreferredFiat(prefs);
+      final boolean displayBalanceAsFiat = WalletUtils.shouldDisplayInFiat(prefs);
       mChannelAdapter.update(getChannels(), fiatCode, prefUnit, displayBalanceAsFiat);
     }
   }

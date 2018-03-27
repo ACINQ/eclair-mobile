@@ -1,6 +1,21 @@
+/*
+ * Copyright 2018 ACINQ SAS
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package fr.acinq.eclair.wallet.fragments;
 
-import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -14,16 +29,20 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import org.greenrobot.greendao.query.QueryBuilder;
+
 import java.util.ArrayList;
 import java.util.List;
 
+import fr.acinq.eclair.CoinUnit;
 import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.R;
-import fr.acinq.eclair.wallet.activities.HomeActivity;
 import fr.acinq.eclair.wallet.adapters.PaymentListItemAdapter;
 import fr.acinq.eclair.wallet.models.Payment;
 import fr.acinq.eclair.wallet.models.PaymentDao;
-import fr.acinq.eclair.wallet.utils.CoinUtils;
+import fr.acinq.eclair.wallet.models.PaymentStatus;
+import fr.acinq.eclair.wallet.models.PaymentType;
+import fr.acinq.eclair.wallet.utils.WalletUtils;
 
 public class PaymentsListFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
@@ -44,7 +63,7 @@ public class PaymentsListFragment extends Fragment implements SwipeRefreshLayout
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setHasOptionsMenu(false);
-    mPaymentAdapter = new PaymentListItemAdapter(new ArrayList<Payment>());
+    mPaymentAdapter = new PaymentListItemAdapter(new ArrayList<>());
   }
 
   @Override
@@ -69,7 +88,7 @@ public class PaymentsListFragment extends Fragment implements SwipeRefreshLayout
                            Bundle savedInstanceState) {
     mView = inflater.inflate(R.layout.fragment_paymentslist, container, false);
     mRefreshLayout = mView.findViewById(R.id.payments_swiperefresh);
-    mRefreshLayout.setColorSchemeResources(R.color.colorPrimary, R.color.green, R.color.colorAccent);
+    mRefreshLayout.setColorSchemeResources(R.color.primary, R.color.green, R.color.accent);
     mRefreshLayout.setOnRefreshListener(this);
     mEmptyLabel = mView.findViewById(R.id.payments_empty);
 
@@ -90,10 +109,13 @@ public class PaymentsListFragment extends Fragment implements SwipeRefreshLayout
    */
   private List<Payment> getPayments() {
 
-    if (getActivity() == null || getActivity().getApplication() == null) return new ArrayList<>();
-
-    final List<Payment> list = ((App) getActivity().getApplication()).getDBHelper().getDaoSession().getPaymentDao()
-      .queryBuilder().orderDesc(PaymentDao.Properties.Updated).limit(100).list();
+    if (getActivity() == null || getActivity().getApplication() == null || ((App) getActivity().getApplication()).getDBHelper() == null) return new ArrayList<>();
+    final QueryBuilder<Payment> qb = ((App) getActivity().getApplication()).getDBHelper().getDaoSession().getPaymentDao().queryBuilder();
+    qb.whereOr(
+      PaymentDao.Properties.Type.eq(PaymentType.BTC_ONCHAIN),
+      qb.and(PaymentDao.Properties.Type.eq(PaymentType.BTC_LN), PaymentDao.Properties.Status.notEq(PaymentStatus.INIT)));
+    qb.orderDesc(PaymentDao.Properties.Updated).limit(100);
+    final List<Payment> list = qb.list();
 
     if (mEmptyLabel != null) {
       if (list.isEmpty()) {
@@ -107,18 +129,18 @@ public class PaymentsListFragment extends Fragment implements SwipeRefreshLayout
 
   public void refreshList() {
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
-    final String prefUnit = CoinUtils.getBtcPreferredUnit(prefs);
-    final String fiatCode = CoinUtils.getPreferredFiat(prefs);
-    final boolean displayBalanceAsFiat = CoinUtils.shouldDisplayInFiat(prefs);
+    final CoinUnit prefUnit = WalletUtils.getPreferredCoinUnit(prefs);
+    final String fiatCode = WalletUtils.getPreferredFiat(prefs);
+    final boolean displayBalanceAsFiat = WalletUtils.shouldDisplayInFiat(prefs);
     mPaymentAdapter.update(fiatCode, prefUnit, displayBalanceAsFiat);
   }
 
   public void updateList() {
     if (getContext() != null) {
       final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
-      final String prefUnit = CoinUtils.getBtcPreferredUnit(prefs);
-      final String fiatCode = CoinUtils.getPreferredFiat(prefs);
-      final boolean displayBalanceAsFiat = CoinUtils.shouldDisplayInFiat(prefs);
+      final CoinUnit prefUnit = WalletUtils.getPreferredCoinUnit(prefs);
+      final String fiatCode = WalletUtils.getPreferredFiat(prefs);
+      final boolean displayBalanceAsFiat = WalletUtils.shouldDisplayInFiat(prefs);
       mPaymentAdapter.update(getPayments(), fiatCode, prefUnit, displayBalanceAsFiat);
     }
   }

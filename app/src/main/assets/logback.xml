@@ -4,16 +4,16 @@
       <pattern>%logger{12}</pattern>
     </tagEncoder>
     <encoder>
-      <pattern>%d %-5level %logger{36} %X{akkaSource} %X{channelId} - %msg%ex{24}%n</pattern>
+      <pattern>%-5level %X{channelId} - %msg%ex{24}%n</pattern>
     </encoder>
   </appender>
 
-  <logger name="com.ning.http.client.providers.netty" level="WARN" />
-  <logger name="fr.acinq.eclair.crypto" level="INFO" />
-  <logger name="fr.acinq.eclair.blockchain.electrum" level="DEBUG" />
-  <logger name="fr.acinq.eclair.router.Router" level="DEBUG" />
+  <logger name="com.ning.http.client.providers.netty" level="INFO" />
+  <logger name="fr.acinq.eclair.io" level="INFO" />
+  <logger name="fr.acinq.eclair.router.Router" level="INFO" />
+  <logger name="fr.acinq.eclair.crypto" level="WARN" />
 
-  <root level="DEBUG">
+  <root level="INFO">
     <appender-ref ref="logcat" />
   </root>
 </configuration>

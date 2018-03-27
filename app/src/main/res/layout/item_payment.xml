@@ -1,4 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright 2018 ACINQ SAS
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="match_parent"
   android:layout_height="@dimen/item_height"
@@ -40,7 +56,7 @@
       android:layout_below="@+id/paymentitem_description"
       android:layout_marginEnd="4dp"
       android:text="@string/unknown"
-      android:textColor="@color/colorPrimary"
+      android:textColor="@color/primary"
       android:textSize="10sp" />
 
     <TextView
@@ -49,8 +65,9 @@
       android:layout_height="wrap_content"
       android:layout_below="@+id/paymentitem_description"
       android:layout_toEndOf="@+id/paymentitem_status"
+      android:maxLines="1"
       android:text="@string/unknown"
-      android:textColor="@color/colorGrey_1"
+      android:textColor="@color/grey_1"
       android:textSize="10sp" />
 
   </RelativeLayout>
@@ -59,11 +76,11 @@
     android:id="@+id/paymentitem_amount"
     android:layout_width="128dp"
     android:layout_height="match_parent"
-    android:minWidth="40dp"
     android:layout_alignParentEnd="true"
     android:layout_centerVertical="true"
     android:layout_marginEnd="8dp"
-    android:gravity="end|center_vertical">
+    android:gravity="end|center_vertical"
+    android:minWidth="40dp">
 
     <TextView
       android:id="@+id/paymentitem_amount_value"
@@ -78,11 +95,12 @@
 
     <TextView
       android:id="@+id/paymentitem_amount_unit"
-      android:layout_width="24dp"
+      android:layout_width="26dp"
       android:layout_height="wrap_content"
       android:layout_alignBaseline="@+id/paymentitem_amount_value"
       android:layout_alignParentEnd="true"
-      android:textColor="@color/colorGrey_2"
+      android:maxLines="1"
+      android:textColor="@color/grey_2"
       android:textSize="8sp" />
 
     <TextView
@@ -94,7 +112,7 @@
       android:layout_toStartOf="@+id/paymentitem_fees_value"
       android:maxLines="1"
       android:text="@string/paymentitem_fee_prefix"
-      android:textColor="@color/colorGrey_1"
+      android:textColor="@color/grey_1"
       android:textSize="10sp"
       android:visibility="gone" />
 
@@ -107,7 +125,7 @@
       android:layout_toStartOf="@+id/paymentitem_amount_unit"
       android:maxLines="1"
       android:text="0"
-      android:textColor="@color/colorGrey_2"
+      android:textColor="@color/grey_2"
       android:textSize="10sp"
       android:visibility="gone" />
 
@@ -117,7 +135,8 @@
       android:layout_height="wrap_content"
       android:layout_alignBaseline="@+id/paymentitem_fees_value"
       android:layout_alignStart="@+id/paymentitem_amount_unit"
-      android:textColor="@color/colorGrey_1"
+      android:maxLines="1"
+      android:textColor="@color/grey_1"
       android:textSize="8sp"
       android:visibility="gone" />
 
@@ -127,6 +146,6 @@
     android:layout_width="match_parent"
     android:layout_height="1dp"
     android:layout_alignParentBottom="true"
-    android:background="@color/colorGrey_0" />
+    android:background="@color/grey_0" />
 
 </RelativeLayout>

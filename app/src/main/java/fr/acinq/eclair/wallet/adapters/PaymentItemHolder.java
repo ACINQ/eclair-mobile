@@ -1,18 +1,39 @@
+/*
+ * Copyright 2018 ACINQ SAS
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package fr.acinq.eclair.wallet.adapters;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.common.base.Strings;
+
 import java.text.DateFormat;
 import java.text.NumberFormat;
 
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.package$;
+import fr.acinq.eclair.CoinUnit;
+import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.activities.BitcoinTransactionDetailsActivity;
@@ -21,8 +42,8 @@ import fr.acinq.eclair.wallet.models.Payment;
 import fr.acinq.eclair.wallet.models.PaymentDirection;
 import fr.acinq.eclair.wallet.models.PaymentStatus;
 import fr.acinq.eclair.wallet.models.PaymentType;
-import fr.acinq.eclair.wallet.utils.CoinUtils;
 import fr.acinq.eclair.wallet.utils.Constants;
+import fr.acinq.eclair.wallet.utils.WalletUtils;
 
 public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
@@ -66,12 +87,8 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
   }
 
   @SuppressLint("SetTextI18n")
-  public void bindPaymentItem(final Payment payment, final String fiatCode, final String prefUnit, final boolean displayAmountAsFiat) {
+  public void bindPaymentItem(final Payment payment, final String fiatCode, final CoinUnit prefUnit, final boolean displayAmountAsFiat) {
     this.mPayment = payment;
-
-    if (payment.getUpdated() != null) {
-      mDate.setText(DateFormat.getDateTimeInstance().format(payment.getUpdated()));
-    }
 
     // amount should be the amount paid, fallback to requested (useful for LN)
     final long amountMsat = payment.getAmountPaidMsat() == 0 ? payment.getAmountRequestedMsat() : payment.getAmountPaidMsat();
@@ -80,13 +97,13 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
 
     // setting amount & unit with optional conversion to fiat
     if (displayAmountAsFiat) {
-      mAmountValue.setText(amountPrefix + CoinUtils.convertMsatToFiat(amountMsat, fiatCode));
-      mFees.setText(CoinUtils.convertMsatToFiat(payment.getFeesPaidMsat(), fiatCode));
+      mAmountValue.setText(amountPrefix + WalletUtils.convertMsatToFiat(amountMsat, fiatCode));
+      mFees.setText(WalletUtils.convertMsatToFiat(payment.getFeesPaidMsat(), fiatCode));
       mFeesUnit.setText(fiatCode.toUpperCase());
       mAmountUnit.setText(fiatCode.toUpperCase());
     } else {
-      mAmountValue.setText(amountPrefix + CoinUtils.formatAmountInUnit(new MilliSatoshi(amountMsat), prefUnit));
-      mAmountUnit.setText(CoinUtils.getBitcoinUnitShortLabel(prefUnit));
+      mAmountValue.setText(amountPrefix + CoinUtils.formatAmountInUnit(new MilliSatoshi(amountMsat), prefUnit, false));
+      mAmountUnit.setText(prefUnit.shortLabel());
       mFees.setText(NumberFormat.getInstance().format(package$.MODULE$.millisatoshi2satoshi(new MilliSatoshi(payment.getFeesPaidMsat())).amount()));
       mFeesUnit.setText(Constants.SATOSHI_CODE);
     }
@@ -98,17 +115,28 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
       mFees.setVisibility(View.GONE);
       mFeesUnit.setVisibility(View.GONE);
     } else {
-      mAmountValue.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.redFaded));
+      mAmountValue.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.red_faded));
       mFeesPrefix.setVisibility(View.VISIBLE);
       mFees.setVisibility(View.VISIBLE);
       mFeesUnit.setVisibility(View.VISIBLE);
     }
+    mDescription.setTypeface(Typeface.DEFAULT);
+    mDescription.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.grey_4));
 
     if (PaymentType.BTC_LN.equals(payment.getType())) {
-      mDescription.setText(payment.getDescription());
+      if (payment.getUpdated() != null) {
+        mDate.setText(DateFormat.getDateTimeInstance().format(payment.getUpdated()));
+      }
+      if (Strings.isNullOrEmpty(payment.getDescription())) {
+        mDescription.setText(itemView.getResources().getString(R.string.unknown_desc));
+        mDescription.setTypeface(Typeface.DEFAULT, Typeface.ITALIC);
+        mDescription.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.grey_1));
+      } else {
+        mDescription.setText(payment.getDescription());
+      }
       mStatus.setText(payment.getStatus().name());
       if (PaymentStatus.FAILED.equals(payment.getStatus())) {
-        mStatus.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.redFaded));
+        mStatus.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.red_faded));
       } else if (PaymentStatus.PAID.equals(payment.getStatus())) {
         mStatus.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.green));
       } else {
@@ -116,6 +144,9 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
       }
       mPaymentIcon.setImageResource(R.mipmap.ic_bolt_circle);
     } else {
+      if (payment.getCreated() != null) {
+        mDate.setText(DateFormat.getDateTimeInstance().format(payment.getCreated()));
+      }
       // convention: negative number of confirmations means conflicted
       if (payment.getConfidenceBlocks() >= 0) {
         // text
@@ -124,13 +155,13 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
         mStatus.setText(confidenceBlocks + " " + itemView.getResources().getString(R.string.paymentitem_confidence_suffix));
         // color: green above 2
         if (payment.getConfidenceBlocks() < 2) {
-          mStatus.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.colorGrey_2));
+          mStatus.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.grey_2));
         } else {
           mStatus.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.green));
         }
       } else {
         mStatus.setText("In conflict");
-        mStatus.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.redFaded));
+        mStatus.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.red_faded));
       }
       mPaymentIcon.setImageResource(R.mipmap.ic_bitcoin_circle);
       mDescription.setText(payment.getReference());

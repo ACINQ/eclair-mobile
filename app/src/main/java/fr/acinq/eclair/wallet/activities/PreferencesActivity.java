@@ -1,135 +1,97 @@
+/*
+ * Copyright 2018 ACINQ SAS
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package fr.acinq.eclair.wallet.activities;
 
 import android.annotation.SuppressLint;
-import android.app.Dialog;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Switch;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
+import java.security.GeneralSecurityException;
 import java.text.DateFormat;
 import java.util.Date;
 
+import fr.acinq.bitcoin.BinaryData;
+import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.fragments.PinDialog;
-import fr.acinq.eclair.wallet.fragments.PreferencesFragment;
 import fr.acinq.eclair.wallet.utils.Constants;
+import fr.acinq.eclair.wallet.utils.WalletUtils;
 
-public class PreferencesActivity extends EclairActivity {
+public class PreferencesActivity extends EclairActivity implements EclairActivity.EncryptSeedCallback {
 
   private static final String TAG = "PrefsActivity";
   private View mPinSwitchWrapper;
   private Switch mPinSwitch;
-  private TextView mPinInfo;
   private SharedPreferences.OnSharedPreferenceChangeListener securityPrefsListener;
+  private SharedPreferences.OnSharedPreferenceChangeListener defaultPrefsListener;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-
     setContentView(R.layout.activity_preferences);
-    getFragmentManager().beginTransaction()
-      .replace(R.id.preference_fragment_placeholder, new PreferencesFragment())
-      .commit();
 
     mPinSwitchWrapper = findViewById(R.id.preference_pin_switch_wrapper);
     mPinSwitch = findViewById(R.id.preference_pin_switch);
     // when the switch is clicked, start the according action (remove pin, create pin)
-    mPinSwitchWrapper.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(final View view) {
-        final boolean isPinDefined = isPinRequired();
-        if (isPinDefined && mPinSwitch.isChecked()) {
-          // The user wants to disable the PIN
-          removePinValue();
-        } else if (!isPinDefined && !mPinSwitch.isChecked()) {
-          setNewPinValue();
-        } else {
-          Log.w(TAG, "Pin switch check state is not up to date with the actual pin value!");
-          Log.w(TAG, "Switch is" + mPinSwitch.isChecked() + " / pin defined " + isPinDefined);
-          // force refresh the state of the PIN displays with the actual values from the preferences
-          refreshPinDisplays(getSharedPreferences(Constants.SETTINGS_SECURITY_FILE, MODE_PRIVATE));
-        }
+    mPinSwitchWrapper.setOnClickListener(view -> {
+      final boolean isPinDefined = isPinRequired();
+      if (isPinDefined && mPinSwitch.isChecked()) {
+        // The user wants to disable the PIN
+        removePinValue();
+      } else if (!isPinDefined && !mPinSwitch.isChecked()) {
+        getApplicationContext().getSharedPreferences(Constants.SETTINGS_SECURITY_FILE, MODE_PRIVATE).edit()
+          .putBoolean(Constants.SETTING_ASK_PIN_FOR_SENSITIVE_ACTIONS, true).apply();
+      } else {
+        Log.d(TAG, "Pin switch check state is not up to date with the actual pin value! Switch is" + mPinSwitch.isChecked() + " / pin defined " + isPinDefined);
+        mPinSwitch.setChecked(isPinRequired());
       }
     });
-    mPinInfo = findViewById(R.id.preference_pin_info);
 
-    securityPrefsListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
-      @SuppressLint("SetTextI18n")
-      @Override
-      public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
-        refreshPinDisplays(sharedPreferences);
+    securityPrefsListener = (sharedPreferences, s) -> mPinSwitch.setChecked(isPinRequired());
+
+    defaultPrefsListener = (prefs, key) -> {
+      if (Constants.SETTING_BTC_PATTERN.equals(key)) {
+        CoinUtils.setCoinPattern(prefs.getString(Constants.SETTING_BTC_PATTERN, getResources().getStringArray(R.array.btc_pattern_values)[0]));
       }
     };
   }
 
-  /**
-   * Refresh the Switch state and the last update TextView with the current values stored in preferences.
-   * @param sharedPreferences
-   */
-  private void refreshPinDisplays(final SharedPreferences sharedPreferences) {
-    final String pinValue = sharedPreferences.getString(Constants.SETTING_PIN_VALUE, Constants.PIN_UNDEFINED_VALUE);
-    final long lastUpdateMillis = sharedPreferences.getLong(Constants.SETTING_PIN_LAST_UPDATE, 0);
-    mPinSwitch.setChecked(!Constants.PIN_UNDEFINED_VALUE.equals(pinValue));
-    if (lastUpdateMillis != 0) {
-      mPinInfo.setText(getString(R.string.prefs_pin_lastupdate) + " " + DateFormat.getDateTimeInstance().format(lastUpdateMillis));
+  @Override
+  protected void onResume() {
+    super.onResume();
+    if (checkInit()) {
+      mPinSwitch.setChecked(isPinRequired());
+      getSharedPreferences(Constants.SETTINGS_SECURITY_FILE, MODE_PRIVATE).registerOnSharedPreferenceChangeListener(securityPrefsListener);
+      PreferenceManager.getDefaultSharedPreferences(getBaseContext()).registerOnSharedPreferenceChangeListener(defaultPrefsListener);
     }
   }
 
-  /**
-   * Opens a Dialog window to set the PIN to a new value. If the value is correct, saves the value in preferences.
-   */
-  private void setNewPinValue() {
-    final PinDialog newPinDialog = new PinDialog(PreferencesActivity.this, R.style.CustomAlertDialog, new PinDialog.PinDialogCallback() {
-      @SuppressLint("ApplySharedPref")
-      @Override
-      public void onPinConfirm(final PinDialog pNewPinDialog, final String newPinValue) {
-        try {
-          if (newPinValue != null && newPinValue.length() == Constants.PIN_LENGTH) {
-            Integer.parseInt(newPinValue); // check that the pin is a digit
-            final PinDialog confirmNewPinDialog = new PinDialog(PreferencesActivity.this, R.style.CustomAlertDialog, new PinDialog.PinDialogCallback() {
-              @Override
-              public void onPinConfirm(final PinDialog pConfirmPinDialog, final String confirmPinValue) {
-                // PINs must match
-                final SharedPreferences prefs = getSharedPreferences(Constants.SETTINGS_SECURITY_FILE, MODE_PRIVATE);
-                if (!newPinValue.equals(confirmPinValue)) {
-                  Toast.makeText(getApplicationContext(), R.string.pindialog_error_donotmatch, Toast.LENGTH_LONG).show();
-                }
-                // 2nd check and final before setting new PIN: the current PIN value must be the undefined value!
-                // If not, it means that the PIN value has been set between the moment the user asked to set a new PIN value and now.
-                // The PIN can only be set if the PIN is not already set.
-                else if (!prefs.getString(Constants.SETTING_PIN_VALUE, Constants.PIN_UNDEFINED_VALUE).equals(Constants.PIN_UNDEFINED_VALUE)) {
-                  Toast.makeText(getApplicationContext(), R.string.pindialog_error_alreadyset, Toast.LENGTH_LONG).show();
-                } else {
-                  getApplicationContext().getSharedPreferences(Constants.SETTINGS_SECURITY_FILE, MODE_PRIVATE).edit()
-                    .putString(Constants.SETTING_PIN_VALUE, confirmPinValue)
-                    .putLong(Constants.SETTING_PIN_LAST_UPDATE, (new Date()).getTime())
-                    .commit();
-                }
-                pConfirmPinDialog.dismiss();
-              }
-              @Override
-              public void onPinCancel(final PinDialog dialog) {
-              }
-            }, getString(R.string.pindialog_title_confirmnew));
-            pNewPinDialog.dismiss();
-            confirmNewPinDialog.show();
-          } else {
-            Toast.makeText(getApplicationContext(), R.string.pindialog_error_length, Toast.LENGTH_SHORT).show();
-          }
-        } catch (NumberFormatException e) {
-          Toast.makeText(getApplicationContext(), R.string.pindialog_error_notanumber, Toast.LENGTH_SHORT).show();
-        }
-      }
-
-      @Override
-      public void onPinCancel(final PinDialog dialog) {
-      }
-    }, getString(R.string.pindialog_title_createnew));
-    newPinDialog.show();
+  @Override
+  protected void onPause() {
+    super.onPause();
+    getSharedPreferences(Constants.SETTINGS_SECURITY_FILE, MODE_PRIVATE).unregisterOnSharedPreferenceChangeListener(securityPrefsListener);
+    PreferenceManager.getDefaultSharedPreferences(getBaseContext()).unregisterOnSharedPreferenceChangeListener(defaultPrefsListener);
   }
 
   /**
@@ -143,11 +105,9 @@ public class PreferencesActivity extends EclairActivity {
       public void onPinConfirm(final PinDialog dialog, final String pinValue) {
         if (isPinCorrect(pinValue, dialog)) {
           getApplicationContext().getSharedPreferences(Constants.SETTINGS_SECURITY_FILE, MODE_PRIVATE).edit()
-            .putString(Constants.SETTING_PIN_VALUE, Constants.PIN_UNDEFINED_VALUE)
-            .putLong(Constants.SETTING_PIN_LAST_UPDATE, (new Date()).getTime())
-            .commit();
+            .putBoolean(Constants.SETTING_ASK_PIN_FOR_SENSITIVE_ACTIONS, false).apply();
         } else {
-          Toast.makeText(getApplicationContext(), "Incorrect PIN.", Toast.LENGTH_SHORT).show();
+          Toast.makeText(getApplicationContext(), "Incorrect password", Toast.LENGTH_SHORT).show();
         }
       }
 
@@ -158,18 +118,42 @@ public class PreferencesActivity extends EclairActivity {
     removePinDialog.show();
   }
 
-  @Override
-  protected void onResume() {
-    super.onResume();
-    refreshPinDisplays(getSharedPreferences(Constants.SETTINGS_SECURITY_FILE, MODE_PRIVATE));
-    getApplicationContext().getSharedPreferences(Constants.SETTINGS_SECURITY_FILE, MODE_PRIVATE)
-      .registerOnSharedPreferenceChangeListener(securityPrefsListener);
+  public void deleteNetworkDB(View view) {
+    final File datadir = new File(getFilesDir(), Constants.ECLAIR_DATADIR);
+    final File networkDB = new File(datadir, "network.sqlite");
+    if (networkDB.delete()) {
+      Toast.makeText(getApplicationContext(), "Successfully deleted network DB", Toast.LENGTH_SHORT).show();
+    }
+  }
+
+  public void changePassword(View view) {
+    new PinDialog(PreferencesActivity.this, R.style.CustomAlertDialog, new PinDialog.PinDialogCallback() {
+      @Override
+      public void onPinConfirm(final PinDialog dialog, final String pinValue) {
+        dialog.dismiss();
+        try {
+          final File datadir = new File(getFilesDir(), Constants.ECLAIR_DATADIR);
+          final byte[] seed = WalletUtils.readSeedFile(datadir, pinValue);
+          encryptWallet(PreferencesActivity.this, true, datadir, seed);
+        } catch (GeneralSecurityException e) {
+          Toast.makeText(getApplicationContext(), "Incorrect password", Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+          Log.d(TAG, "failed to read seed ", e);
+          Toast.makeText(getApplicationContext(), R.string.seed_read_general_failure, Toast.LENGTH_SHORT).show();
+        }
+      }
+      @Override
+      public void onPinCancel(PinDialog dialog) {}
+    }).show();
   }
 
   @Override
-  protected void onPause() {
-    super.onPause();
-    getSharedPreferences(Constants.SETTINGS_SECURITY_FILE, MODE_PRIVATE)
-      .unregisterOnSharedPreferenceChangeListener(securityPrefsListener);
+  public void onEncryptSeedFailure(String message) {
+    Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+  }
+
+  @Override
+  public void onEncryptSeedSuccess() {
+    Toast.makeText(getApplicationContext(), "Password updated", Toast.LENGTH_SHORT).show();
   }
 }

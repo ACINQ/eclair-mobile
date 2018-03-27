@@ -1,30 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!--
+  ~ Copyright 2018 ACINQ SAS
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="match_parent"
   android:layout_height="wrap_content"
-  android:background="@color/redFadedDark"
-  android:paddingBottom="8dp"
-  android:paddingTop="8dp">
+  android:background="@color/red_faded_dark_x2"
+  android:columnCount="2"
+  android:paddingBottom="4dp"
+  android:paddingEnd="10dp"
+  android:paddingStart="10dp"
+  android:paddingTop="16dp">
 
   <TextView
     android:id="@+id/lightning_error_counter"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_marginStart="20dp"
+    android:layout_gravity="fill_horizontal"
+    android:layout_marginEnd="6dp"
+    android:gravity="end"
+    android:maxWidth="116dp"
+    android:minWidth="84dp"
     android:text="@string/paymentfailure_error_counter"
-    android:textColor="@color/redFadedLight"
+    android:textColor="@color/red_faded_light_x1"
     android:textStyle="bold" />
 
   <TextView
     android:id="@+id/lightning_error_type"
-    android:layout_width="wrap_content"
+    android:layout_width="0dp"
     android:layout_height="wrap_content"
-    android:layout_alignBaseline="@+id/lightning_error_counter"
-    android:layout_marginEnd="4dp"
-    android:layout_marginStart="4dp"
-    android:layout_toEndOf="@+id/lightning_error_counter"
+    android:layout_gravity="fill_horizontal"
     android:text="@string/unknown"
-    android:textColor="@color/white"
+    android:textColor="@color/almost_white"
     android:textIsSelectable="true"
     android:textStyle="bold" />
 
@@ -32,22 +52,20 @@
     android:id="@+id/lightning_error_cause_label"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_alignEnd="@+id/lightning_error_counter"
-    android:layout_below="@+id/lightning_error_type"
+    android:layout_gravity="fill_horizontal"
+    android:layout_marginEnd="6dp"
+    android:gravity="end"
     android:text="@string/paymentfailure_error_cause_label"
-    android:textColor="@color/redFadedLight"
+    android:textColor="@color/red_faded_light_x1"
     android:textSize="12sp" />
 
   <TextView
     android:id="@+id/lightning_error_cause"
-    android:layout_width="wrap_content"
+    android:layout_width="0dp"
     android:layout_height="wrap_content"
-    android:layout_below="@+id/lightning_error_type"
-    android:layout_marginEnd="4dp"
-    android:layout_marginStart="4dp"
-    android:layout_toEndOf="@+id/lightning_error_cause_label"
+    android:layout_gravity="fill_horizontal"
     android:text="@string/paymentfailure_error_cause"
-    android:textColor="@color/white"
+    android:textColor="@color/red_faded_light_x2"
     android:textIsSelectable="true"
     android:textSize="12sp" />
 
@@ -55,38 +73,58 @@
     android:id="@+id/lightning_error_origin_label"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_alignEnd="@+id/lightning_error_counter"
-    android:layout_below="@+id/lightning_error_cause"
+    android:layout_gravity="fill_horizontal"
+    android:layout_marginEnd="6dp"
+    android:gravity="end"
     android:text="@string/paymentfailure_error_origin_label"
-    android:textColor="@color/redFadedLight"
+    android:textAlignment="viewEnd"
+    android:textColor="@color/red_faded_light_x1"
     android:textSize="12sp"
     android:visibility="gone" />
 
   <TextView
     android:id="@+id/lightning_error_origin"
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:layout_gravity="fill_horizontal"
+    android:textColor="@color/red_faded_light_x2"
+    android:textIsSelectable="true"
+    android:textSize="12sp"
+    android:visibility="gone" />
+
+  <TextView
+    android:id="@+id/lightning_error_origin_channel_id_label"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_below="@+id/lightning_error_cause"
-    android:layout_marginEnd="4dp"
-    android:layout_marginStart="4dp"
-    android:layout_toEndOf="@+id/lightning_error_origin_label"
-    android:text="@string/paymentfailure_error_origin"
-    android:textColor="@color/white"
+    android:layout_gravity="fill_horizontal"
+    android:layout_marginEnd="6dp"
+    android:gravity="end"
+    android:text="@string/paymentfailure_error_origin_channel_label"
+    android:textAlignment="viewEnd"
+    android:textColor="@color/red_faded_light_x1"
+    android:textSize="12sp"
+    android:visibility="gone" />
+
+  <TextView
+    android:id="@+id/lightning_error_origin_channel_id"
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:layout_gravity="fill_horizontal"
+    android:textColor="@color/red_faded_light_x2"
     android:textIsSelectable="true"
     android:textSize="12sp"
     android:visibility="gone" />
 
   <TextView
     android:id="@+id/lightning_error_hops"
-    android:layout_width="wrap_content"
+    android:layout_width="0dp"
     android:layout_height="wrap_content"
-    android:layout_alignStart="@+id/lightning_error_type"
-    android:layout_below="@+id/lightning_error_origin"
-    android:layout_marginEnd="4dp"
+    android:layout_column="1"
+    android:layout_gravity="fill_horizontal"
     android:alpha="0.8"
-    android:textColor="@color/white"
+    android:textColor="@color/red_faded_light_x2"
     android:textIsSelectable="true"
     android:textSize="12sp"
     android:visibility="gone" />
 
-</RelativeLayout>
+</GridLayout>

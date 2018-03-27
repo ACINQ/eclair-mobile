@@ -1,4 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright 2018 ACINQ SAS
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="match_parent"
   android:layout_height="wrap_content"
@@ -10,41 +26,39 @@
     android:gravity="top|center"
     android:orientation="vertical">
 
+    <TextView
+      android:id="@+id/pin_title"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:background="@color/yellow_light_x2"
+      android:paddingTop="@dimen/app_padding"
+      android:paddingBottom="6dp"
+      android:paddingStart="8dp"
+      android:paddingEnd="8dp"
+      android:text="@string/pindialog_title_default"
+      android:textAlignment="center"
+      android:textColor="@color/grey_4"
+      android:textStyle="bold"
+      android:textSize="14sp" />
+
     <RelativeLayout
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:background="@color/yellowLight">
-
-      <TextView
-        android:id="@+id/pin_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:background="@drawable/rounded_corner_yellow_bottom"
-        android:paddingBottom="3dp"
-        android:paddingEnd="6dp"
-        android:paddingStart="6dp"
-        android:paddingTop="3dp"
-        android:text="@string/pindialog_title_default"
-        android:textAlignment="center"
-        android:textColor="@color/colorGrey_3"
-        android:textSize="12sp" />
+      android:background="@color/yellow_light_x2">
 
       <TextView
         android:id="@+id/pin_display_placeholder"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/pin_title"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="24dp"
-        android:layout_marginTop="28dp"
+        android:layout_marginTop="16dp"
         android:alpha="0.15"
         android:background="@android:color/transparent"
         android:gravity="center"
         android:letterSpacing="0.2"
         android:text="@string/pindialog_pwd_placeholder"
-        android:textColor="@color/colorGrey_3"
+        android:textColor="@color/grey_3"
         android:textSize="18sp" />
 
       <TextView
@@ -58,7 +72,7 @@
         android:letterSpacing="0.2"
         android:lines="1"
         android:maxLines="1"
-        android:textColor="@color/colorGrey_3"
+        android:textColor="@color/grey_3"
         android:textSize="18sp" />
 
     </RelativeLayout>
@@ -72,13 +86,13 @@
       <Button
         android:id="@+id/pin_num_1"
         android:layout_columnWeight="1"
-        android:layout_gravity="clip_horizontal"
+        android:layout_gravity="fill_horizontal"
         android:background="?android:attr/selectableItemBackground"
         android:fontFamily="sans-serif-light"
         android:gravity="center"
         android:minWidth="52dp"
         android:text="1"
-        android:textColor="@color/colorGrey_3"
+        android:textColor="@color/grey_3"
         android:textSize="20sp" />
 
       <Button
@@ -90,7 +104,7 @@
         android:gravity="center"
         android:minWidth="52dp"
         android:text="2"
-        android:textColor="@color/colorGrey_3"
+        android:textColor="@color/grey_3"
         android:textSize="20sp" />
 
       <Button
@@ -102,7 +116,7 @@
         android:gravity="center"
         android:minWidth="52dp"
         android:text="3"
-        android:textColor="@color/colorGrey_3"
+        android:textColor="@color/grey_3"
         android:textSize="20sp" />
 
       <Button
@@ -114,7 +128,7 @@
         android:gravity="center"
         android:minWidth="52dp"
         android:text="4"
-        android:textColor="@color/colorGrey_3"
+        android:textColor="@color/grey_3"
         android:textSize="20sp" />
 
       <Button
@@ -126,7 +140,7 @@
         android:gravity="center"
         android:minWidth="52dp"
         android:text="5"
-        android:textColor="@color/colorGrey_3"
+        android:textColor="@color/grey_3"
         android:textSize="20sp" />
 
       <Button
@@ -138,7 +152,7 @@
         android:gravity="center"
         android:minWidth="52dp"
         android:text="6"
-        android:textColor="@color/colorGrey_3"
+        android:textColor="@color/grey_3"
         android:textSize="20sp" />
 
       <Button
@@ -150,7 +164,7 @@
         android:gravity="center"
         android:minWidth="52dp"
         android:text="7"
-        android:textColor="@color/colorGrey_3"
+        android:textColor="@color/grey_3"
         android:textSize="20sp" />
 
       <Button
@@ -162,7 +176,7 @@
         android:gravity="center"
         android:minWidth="52dp"
         android:text="8"
-        android:textColor="@color/colorGrey_3"
+        android:textColor="@color/grey_3"
         android:textSize="20sp" />
 
       <Button
@@ -174,7 +188,7 @@
         android:gravity="center"
         android:minWidth="52dp"
         android:text="9"
-        android:textColor="@color/colorGrey_3"
+        android:textColor="@color/grey_3"
         android:textSize="20sp" />
 
       <ImageButton
@@ -187,7 +201,7 @@
         android:minHeight="48dp"
         android:minWidth="52dp"
         android:src="@drawable/ic_delete"
-        android:textColor="@color/redFaded"
+        android:textColor="@color/red_faded"
         android:textSize="14sp" />
 
       <Button
@@ -199,7 +213,7 @@
         android:gravity="center"
         android:minWidth="52dp"
         android:text="0"
-        android:textColor="@color/colorGrey_3"
+        android:textColor="@color/grey_3"
         android:textSize="20sp" />
 
       <ImageButton
