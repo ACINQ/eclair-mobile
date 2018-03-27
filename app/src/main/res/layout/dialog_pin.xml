@@ -86,7 +86,7 @@
       <Button
         android:id="@+id/pin_num_1"
         android:layout_columnWeight="1"
-        android:layout_gravity="clip_horizontal"
+        android:layout_gravity="fill_horizontal"
         android:background="?android:attr/selectableItemBackground"
         android:fontFamily="sans-serif-light"
         android:gravity="center"
