@@ -16,11 +16,11 @@
   -->
 
 <resources>
-  <color name="primary">#62798c</color>
+  <color name="primary">#00a2e9</color>
   <color name="primary_light_x4">#c8eefc</color>
-  <color name="primary_light_x3">#9bb6c0</color>
-  <color name="primary_light_x2">#4bc2ef</color>
-  <color name="primary_light_x1">#70889c</color>
+  <color name="primary_light_x3">#9ad2eb</color>
+  <color name="primary_light_x2">#67ccf2</color>
+  <color name="primary_light_x1">#33befb</color>
   <color name="primary_dark_x3">#0f729e</color>
   <color name="accent">#ba3259</color>
   <!-- very light greys for backgrounds -->
