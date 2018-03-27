@@ -16,7 +16,7 @@
 
 <resources>
   <string name="lang">eng</string>
-  <string name="app_name">Eclair DEV</string>
+  <string name="app_name">Eclair Wallet</string>
 
   <!-- //////////////// Activities name //////////////////// -->
 
@@ -288,8 +288,6 @@
   <string name="about_limitations_text"><![CDATA[
     <p>This wallet is experimental, bugs and crashes should be expected.</p>
     <p>Main limitations:
-    <br/>
-    - Works only on Bitcoin Testnet
     <br/>
     - Lightning channels are outbound only: you can pay with LN, but not receive/forward payments.
     </p>

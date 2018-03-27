@@ -47,11 +47,11 @@
     <item>###,###,###,##0.###########</item>
   </string-array>
   <string-array name="onchain_explorer_uri_labels">
-    <item>Blockcypher API (Testnet)</item>
-    <item>Blockcypher Web (Testnet)</item>
+    <item>Blockcypher API</item>
+    <item>Blockcypher Web</item>
   </string-array>
   <string-array name="onchain_explorer_uri_values">
-    <item>https://api.blockcypher.com/v1/btc/test3/txs/</item>
-    <item>https://live.blockcypher.com/btc-testnet/tx/</item>
+    <item>https://api.blockcypher.com/v1/btc/main/txs/</item>
+    <item>https://live.blockcypher.com/btc/tx/</item>
   </string-array>
 </resources>
