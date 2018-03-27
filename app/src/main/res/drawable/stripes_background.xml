@@ -1,4 +1,4 @@
 <bitmap
   xmlns:android="http://schemas.android.com/apk/res/android"
-  android:src="@drawable/red_stripes"
+  android:src="@drawable/yellow_stripes"
   android:tileMode="repeat" />

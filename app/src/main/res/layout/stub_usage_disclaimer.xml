@@ -29,7 +29,7 @@
       android:layout_height="wrap_content"
       android:layout_centerInParent="true"
       android:layout_margin="32dp"
-      android:background="@drawable/red_stripes_background"
+      android:background="@drawable/stripes_background"
       android:padding="2dp">
 
       <ScrollView
