@@ -72,7 +72,7 @@
       android:layout_below="@+id/channelitem_node"
       android:layout_alignStart="@+id/channelitem_node"
       android:text="@string/unknown"
-      android:textColor="@color/red"
+      android:textColor="@color/red_faded"
       android:textSize="10sp" />
   </RelativeLayout>
 

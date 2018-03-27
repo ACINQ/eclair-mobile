@@ -1,14 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <color name="primary">#62798c</color>
-  <color name="primary_light_x5">#e5f7fd</color>
-  <color name="primary_light_x4_desat">#9bb6c0</color>
   <color name="primary_light_x4">#c8eefc</color>
-  <color name="primary_light_x3">#85d8f7</color>
+  <color name="primary_light_x3">#9bb6c0</color>
   <color name="primary_light_x2">#4bc2ef</color>
   <color name="primary_light_x1">#70889c</color>
-  <color name="primary_dark_x1">#0190cf</color>
-  <color name="primary_dark_x2">#087eb2</color>
   <color name="primary_dark_x3">#0f729e</color>
   <color name="accent">#ba3259</color>
   <!-- very light greys for backgrounds -->
@@ -16,9 +12,8 @@
   <color name="grey_0_light_x2">#f6f6f6</color>
   <color name="grey_0_light_x1">#f2f2f2</color>
   <color name="grey_0_dark_x1">#dedede</color>
-  <!-- light greys for text that should be almost invisible to the user -->
+  <!-- light grey for text that should be almost invisible to the user -->
   <color name="grey_1">#bbbbbb</color>
-  <color name="grey_1_light_x1">#c3c3c3</color>
   <!-- light grey, ok for non important text -->
   <color name="grey_2">#888888</color>
   <!-- standard grey -->
@@ -30,9 +25,6 @@
   <color name="yellow_light_x2">#feedc5</color>
   <color name="yellow_light_x1">#ffda97</color>
   <color name="orange">#ffab00</color>
-  <!-- very flashy red -->
-  <color name="red">#cd1e56</color>
-  <!-- red that does not burn your retina -->
   <color name="red_faded">#ca4747</color>
   <color name="red_faded_light_x2">#ffa4a4</color>
   <color name="red_faded_light_x1">#ff6c6c</color>
@@ -40,6 +32,5 @@
   <color name="red_faded_dark_x2">#b13a3a</color>
   <color name="white">#ffffff</color>
   <color name="almost_white">#fbfbfb</color>
-  <color name="black">#000000</color>
   <color name="intro">#ffe785</color>
 </resources>

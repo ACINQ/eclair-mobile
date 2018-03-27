@@ -22,7 +22,7 @@
   <!-- theme for activity with primary color background and white text -->
   <style name="PrimaryBgTheme" parent="AppTheme">
     <item name="android:textColor">@color/white</item>
-    <item name="colorAccent">@color/primary_light_x4_desat</item>
+    <item name="colorAccent">@color/primary_light_x3</item>
     <item name="android:windowBackground">@color/primary</item>
     <item name="android:colorBackground">@color/primary</item>
     <item name="android:lineSpacingMultiplier">1.15</item>

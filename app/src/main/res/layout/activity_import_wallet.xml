@@ -49,13 +49,13 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="32dp"
         android:hint="@string/importwallet_input_hint"
-        android:textColorHint="@color/primary_light_x4_desat">
+        android:textColorHint="@color/primary_light_x3">
 
         <EditText
           android:id="@+id/mnemonics_input"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:backgroundTint="@color/primary_light_x4_desat"
+          android:backgroundTint="@color/primary_light_x3"
           android:digits="abcdefghijklmnopqrstuvwxyz "
           android:inputType="text|textNoSuggestions"
           android:textColor="@color/white"

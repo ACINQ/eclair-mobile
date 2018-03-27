@@ -29,7 +29,7 @@
       android:layout_centerHorizontal="true"
       android:layout_margin="16dp"
       android:textAlignment="center"
-      android:textColor="@color/primary_light_x4_desat"
+      android:textColor="@color/primary_light_x3"
       android:textSize="12sp" />
 
     <TextView

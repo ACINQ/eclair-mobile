@@ -105,14 +105,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/createrecovery_check_input_hint"
-            android:textColorHint="@color/primary_light_x4_desat">
+            android:textColorHint="@color/primary_light_x3">
 
             <EditText
               android:id="@+id/check_input"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:layout_marginBottom="16dp"
-              android:backgroundTint="@color/primary_light_x4_desat"
+              android:backgroundTint="@color/primary_light_x3"
               android:digits="abcdefghijklmnopqrstuvwxyz "
               android:inputType="text|textNoSuggestions"
               android:maxLines="2"

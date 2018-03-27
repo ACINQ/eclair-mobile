@@ -109,7 +109,7 @@
               android:layout_toStartOf="@+id/capacity_unit"
               android:fontFamily="sans-serif-light"
               android:text="@string/openchannel_capacity_hint"
-              android:textColor="@color/primary_light_x4_desat" />
+              android:textColor="@color/primary_light_x3" />
 
             <TextView
               android:id="@+id/capacity_unit"
@@ -150,7 +150,7 @@
             android:layout_marginEnd="8dp"
             android:text="@string/openchannel_pubkey"
             android:textAlignment="textEnd"
-            android:textColor="@color/primary_light_x4_desat"
+            android:textColor="@color/primary_light_x3"
             android:textSize="12sp" />
 
           <TextView
@@ -179,7 +179,7 @@
             android:layout_marginEnd="8dp"
             android:text="@string/openchannel_ip"
             android:textAlignment="textEnd"
-            android:textColor="@color/primary_light_x4_desat"
+            android:textColor="@color/primary_light_x3"
             android:textSize="12sp" />
 
           <TextView
@@ -206,7 +206,7 @@
             android:layout_marginEnd="8dp"
             android:text="@string/openchannel_port"
             android:textAlignment="textEnd"
-            android:textColor="@color/primary_light_x4_desat"
+            android:textColor="@color/primary_light_x3"
             android:textSize="12sp" />
 
           <TextView
@@ -235,7 +235,7 @@
             android:layout_marginEnd="8dp"
             android:text="@string/openchannel_fees"
             android:textAlignment="textEnd"
-            android:textColor="@color/primary_light_x4_desat"
+            android:textColor="@color/primary_light_x3"
             android:textSize="12sp" />
 
           <LinearLayout
