@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright 2018 ACINQ SAS
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,185 +17,167 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:tools="http://schemas.android.com/tools">
 
-  <RelativeLayout
+  <ScrollView
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/primary"
     android:theme="@style/PrimaryBgTheme"
     tools:context=".activities.CreateWalletRecoveryActivity">
 
-    <ScrollView
+    <LinearLayout
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:layout_centerInParent="true">
+      android:orientation="vertical"
+      android:layout_gravity="center"
+      android:padding="32dp">
 
+      <!-- display generated recovery -->
       <LinearLayout
+        android:id="@+id/display_step"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="32dp">
+        android:visibility="visible">
 
-        <!-- display generated recovery -->
-        <LinearLayout
-          android:id="@+id/display_step"
+        <TextView
+          android:id="@+id/check_failed"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:orientation="vertical"
-          android:visibility="visible">
+          android:layout_marginBottom="16dp"
+          android:background="@drawable/rounded_corner_red"
+          android:padding="8dp"
+          android:text="@string/createrecovery_check_failed"
+          android:visibility="gone" />
 
-          <TextView
-            android:id="@+id/check_failed"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:background="@drawable/rounded_corner_red"
-            android:padding="8dp"
-            android:text="@string/createrecovery_check_failed"
-            android:visibility="gone" />
-
-          <TextView
-            android:id="@+id/instructions"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:text="@string/createrecovery_instructions" />
-
-          <TextView
-            android:id="@+id/entropy_display"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="32dp"
-            android:textStyle="bold" />
-
-          <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <ImageButton
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:layout_gravity="start|center"
-              android:background="?android:attr/selectableItemBackground"
-              android:contentDescription="@string/btn_cancel"
-              android:onClick="cancel"
-              android:padding="@dimen/app_padding"
-              android:src="@drawable/ic_arrow_back" />
-
-            <View
-              android:layout_width="0dp"
-              android:layout_height="match_parent"
-              android:layout_weight="1" />
-
-            <Button
-              android:id="@+id/goto_check"
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:layout_gravity="center"
-              android:background="?android:attr/selectableItemBackground"
-              android:onClick="initCheckRecovery"
-              android:padding="@dimen/app_padding"
-              android:text="@string/createrecovery_goto_check" />
-          </LinearLayout>
-        </LinearLayout>
-
-        <!-- check that the generated recovery has been saved by the user -->
-        <LinearLayout
-          android:id="@+id/check_step"
+        <TextView
+          android:id="@+id/instructions"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:orientation="vertical"
-          android:padding="16dp"
-          android:visibility="gone">
+          android:layout_marginBottom="16dp"
+          android:text="@string/createrecovery_instructions" />
 
-          <TextView
-            android:id="@+id/check_question"
-            android:layout_width="match_parent"
+        <TextView
+          android:id="@+id/entropy_display"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_marginBottom="32dp"
+          android:textStyle="bold" />
+
+        <LinearLayout
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:orientation="horizontal">
+
+          <ImageButton
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:text="@string/createrecovery_check_question" />
+            android:layout_gravity="start|center"
+            android:background="?android:attr/selectableItemBackground"
+            android:contentDescription="@string/btn_cancel"
+            android:onClick="cancel"
+            android:padding="@dimen/app_padding"
+            android:src="@drawable/ic_arrow_back" />
 
-          <android.support.design.widget.TextInputLayout
-            android:id="@+id/check_input_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/createrecovery_check_input_hint"
-            android:textColorHint="@color/primary_light_x3">
-
-            <EditText
-              android:id="@+id/check_input"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:layout_marginBottom="16dp"
-              android:backgroundTint="@color/primary_light_x3"
-              android:digits="abcdefghijklmnopqrstuvwxyz "
-              android:inputType="text|textNoSuggestions"
-              android:maxLines="2"
-              android:textColor="@color/white" />
-          </android.support.design.widget.TextInputLayout>
+          <View
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
 
           <Button
+            android:id="@+id/goto_check"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:background="?android:attr/selectableItemBackground"
-            android:onClick="checkRecovery"
+            android:onClick="initCheckRecovery"
             android:padding="@dimen/app_padding"
-            android:text="@string/createrecovery_check_button" />
-
-        </LinearLayout>
-
-        <!-- generated recovery is safe and can be used -->
-        <LinearLayout
-          android:id="@+id/success_step"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:orientation="vertical"
-          android:padding="@dimen/app_padding"
-          android:textAlignment="center"
-          android:visibility="gone">
-
-          <TextView
-            android:id="@+id/write_error"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/app_padding"
-            android:background="@drawable/rounded_corner_red"
-            android:padding="8dp"
-            android:text="@string/createrecovery_error_write_seed"
-            android:visibility="gone" />
-
-          <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/wide_space"
-            android:text="@string/createrecovery_success_prompt_encrypt"
-            android:textAlignment="center" />
-
-          <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:background="?android:attr/selectableItemBackground"
-            android:onClick="finishCheckRecovery"
-            android:padding="@dimen/app_padding"
-            android:text="@string/createrecovery_success_finish" />
-
+            android:text="@string/createrecovery_goto_check" />
         </LinearLayout>
       </LinearLayout>
-    </ScrollView>
 
-    <Button
-      android:id="@+id/backup_skip"
-      style="?android:attr/borderlessButtonStyle"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:layout_alignParentBottom="true"
-      android:layout_gravity="center"
-      android:background="@color/primary_light_x1"
-      android:onClick="finishCheckRecovery"
-      android:padding="@dimen/app_padding"
-      android:text="@string/createrecovery_check_skip"
-      android:visibility="visible" />
-  </RelativeLayout>
+      <!-- check that the generated recovery has been saved by the user -->
+      <LinearLayout
+        android:id="@+id/check_step"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:visibility="gone">
+
+        <TextView
+          android:id="@+id/check_question"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_marginBottom="16dp"
+          android:text="@string/createrecovery_check_question" />
+
+        <android.support.design.widget.TextInputLayout
+          android:id="@+id/check_input_layout"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:hint="@string/createrecovery_check_input_hint"
+          android:textColorHint="@color/primary_light_x3">
+
+          <EditText
+            android:id="@+id/check_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:backgroundTint="@color/primary_light_x3"
+            android:digits="abcdefghijklmnopqrstuvwxyz "
+            android:inputType="text|textNoSuggestions"
+            android:maxLines="2"
+            android:textColor="@color/white" />
+        </android.support.design.widget.TextInputLayout>
+
+        <Button
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_gravity="center"
+          android:background="?android:attr/selectableItemBackground"
+          android:onClick="checkRecovery"
+          android:padding="@dimen/app_padding"
+          android:text="@string/createrecovery_check_button" />
+
+      </LinearLayout>
+
+      <!-- generated recovery is safe and can be used -->
+      <LinearLayout
+        android:id="@+id/success_step"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="@dimen/app_padding"
+        android:textAlignment="center"
+        android:visibility="gone">
+
+        <TextView
+          android:id="@+id/write_error"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_marginBottom="@dimen/app_padding"
+          android:background="@drawable/rounded_corner_red"
+          android:padding="8dp"
+          android:text="@string/createrecovery_error_write_seed"
+          android:visibility="gone" />
+
+        <TextView
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_marginBottom="@dimen/wide_space"
+          android:text="@string/createrecovery_success_prompt_encrypt"
+          android:textAlignment="center" />
+
+        <Button
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_gravity="center"
+          android:background="?android:attr/selectableItemBackground"
+          android:onClick="finishCheckRecovery"
+          android:padding="@dimen/app_padding"
+          android:text="@string/createrecovery_success_finish" />
+
+      </LinearLayout>
+    </LinearLayout>
+  </ScrollView>
 </layout>
