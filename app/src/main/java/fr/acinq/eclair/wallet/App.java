@@ -297,15 +297,11 @@ public class App extends Application {
       Object byte1 = Base58Check.decode(address)._1();
       boolean isTestNet = byte1.equals(Base58.Prefix$.MODULE$.PubkeyAddressTestnet()) || byte1.equals(Base58.Prefix$.MODULE$.ScriptAddressTestnet());
       boolean isMainNet = byte1.equals(Base58.Prefix$.MODULE$.PubkeyAddress()) || byte1.equals(Base58.Prefix$.MODULE$.ScriptAddress());
-      return isTestNet;
+      return isMainNet;
     } catch (Throwable t) {
       Log.w(TAG, "Could not check address parameter for address=" + address + " with cause=" + t.getMessage());
     }
     return false;
-  }
-
-  public boolean isProduction() {
-    return false; // FIXME NetworkParameters.ID_MAINNET.equals(wallet.getNetworkParameters().getId());
   }
 
   /**
