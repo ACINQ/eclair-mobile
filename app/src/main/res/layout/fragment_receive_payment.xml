@@ -44,7 +44,7 @@
         android:layout_marginTop="32dp"
         android:clickable="true"
         android:focusable="true"
-        android:onClick="home_doCopyReceptionAddress"
+        android:onClick="copyReceptionAddress"
         android:src="@drawable/qrcode_placeholder" />
 
       <TextView
@@ -54,7 +54,7 @@
         android:clickable="true"
         android:focusable="true"
         android:fontFamily="monospace"
-        android:onClick="home_doCopyReceptionAddress"
+        android:onClick="copyReceptionAddress"
         android:padding="16dp"
         android:text="@string/unknown"
         android:textAlignment="center"

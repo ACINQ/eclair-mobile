@@ -149,7 +149,7 @@ public class EclairEventService extends UntypedActor {
     // ---- we sent a channel sig => update corresponding payment to PENDING in app's DB
     else if (message instanceof ChannelSignatureSent) {
       ChannelSignatureSent sigSent = (ChannelSignatureSent) message;
-      Either<WaitingForRevocation, Crypto.Point> nextCommitInfo = sigSent.Commitments().remoteNextCommitInfo();
+      Either<WaitingForRevocation, Crypto.Point> nextCommitInfo = sigSent.commitments().remoteNextCommitInfo();
       if (nextCommitInfo.isLeft()) {
         RemoteCommit commit = nextCommitInfo.left().get().nextRemoteCommit();
         Iterator<DirectedHtlc> htlcsIterator = commit.spec().htlcs().iterator();
@@ -188,7 +188,7 @@ public class EclairEventService extends UntypedActor {
     else if (message instanceof ChannelSignatureReceived && channelDetailsMap.containsKey(((ChannelSignatureReceived) message).channel())) {
       ChannelSignatureReceived csr = (ChannelSignatureReceived) message;
       ChannelDetails cd = channelDetailsMap.get(csr.channel());
-      LocalCommit localCommit = csr.Commitments().localCommit();
+      LocalCommit localCommit = csr.commitments().localCommit();
       long outHtlcsAmount = 0L;
       Iterator<DirectedHtlc> htlcsIterator = localCommit.spec().htlcs().iterator();
       while (htlcsIterator.hasNext()) {
@@ -197,8 +197,8 @@ public class EclairEventService extends UntypedActor {
           outHtlcsAmount += h.add().amountMsat();
         }
       }
-      cd.channelReserveSat = csr.Commitments().localParams().channelReserveSatoshis();
-      cd.minimumHtlcAmountMsat = csr.Commitments().localParams().htlcMinimumMsat();
+      cd.channelReserveSat = csr.commitments().localParams().channelReserveSatoshis();
+      cd.minimumHtlcAmountMsat = csr.commitments().localParams().htlcMinimumMsat();
       cd.htlcsInFlightCount = htlcsIterator.size();
       cd.balanceMsat = new MilliSatoshi(localCommit.spec().toLocalMsat() + outHtlcsAmount);
       cd.capacityMsat = new MilliSatoshi(localCommit.spec().totalFunds());

@@ -123,7 +123,7 @@ public class HomeActivity extends EclairActivity {
       displayIntro(prefs);
     }
     // setup content
-    disableSendPayments();
+    disableSendPaymentButtons();
     setUpTabs(savedInstanceState);
     setUpBalanceInteraction(prefs);
     setUpExchangeRate();
@@ -261,8 +261,8 @@ public class HomeActivity extends EclairActivity {
     if (mExchangeRateHandler != null) {
       mExchangeRateHandler.removeCallbacks(mExchangeRateRunnable);
     }
-    home_closeSendButtons();
-    home_closeOpenChannelButtons();
+    closeSendPaymentButtons();
+    closeOpenChannelButtons();
   }
 
   @Override
@@ -357,7 +357,7 @@ public class HomeActivity extends EclairActivity {
     return "";
   }
 
-  public void home_sendPaste(View view) {
+  public void pasteSendPaymentRequest(View view) {
     if (canSendPayments) {
       Intent intent = new Intent(this, SendPaymentActivity.class);
       intent.putExtra(SendPaymentActivity.EXTRA_INVOICE, readFromClipboard());
@@ -365,7 +365,7 @@ public class HomeActivity extends EclairActivity {
     }
   }
 
-  public void home_sendScan(View view) {
+  public void scanSendPaymentRequest(View view) {
     if (canSendPayments) {
       Intent intent = new Intent(this, ScanActivity.class);
       intent.putExtra(ScanActivity.EXTRA_SCAN_TYPE, ScanActivity.TYPE_INVOICE);
@@ -373,73 +373,76 @@ public class HomeActivity extends EclairActivity {
     }
   }
 
-  public void home_toggleSendButtons(View view) {
+  public void toggleSendPaymentButtons(View view) {
     boolean isVisible = mBinding.sendpaymentActionsList.getVisibility() == View.VISIBLE;
     mBinding.sendpaymentToggler.animate().rotation(isVisible ? 0 : -90).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(150).start();
     mBinding.sendpaymentToggler.setBackgroundTintList(ContextCompat.getColorStateList(this, isVisible ? R.color.primary : R.color.grey_4));
     mBinding.sendpaymentActionsList.setVisibility(isVisible ? View.GONE : View.VISIBLE);
   }
 
-  private void enableSendPayments() {
+  private void enableSendPaymentButtons() {
     canSendPayments = true;
-    home_closeSendButtons();
-    home_closeOpenChannelButtons();
+    closeSendPaymentButtons();
+    closeOpenChannelButtons();
     mBinding.sendpaymentToggler.setEnabled(true);
     mBinding.homeOpenchannelToggler.setEnabled(true);
     mBinding.sendpaymentToggler.setAlpha(1f);
     mBinding.homeOpenchannelToggler.setAlpha(1f);
   }
 
-  private void disableSendPayments() {
+  private void disableSendPaymentButtons() {
     canSendPayments = false;
-    home_closeSendButtons();
-    home_closeOpenChannelButtons();
+    closeSendPaymentButtons();
+    closeOpenChannelButtons();
     mBinding.sendpaymentToggler.setEnabled(false);
     mBinding.homeOpenchannelToggler.setEnabled(false);
     mBinding.sendpaymentToggler.setAlpha(0.4f);
     mBinding.homeOpenchannelToggler.setAlpha(0.4f);
   }
 
-  public void home_closeSendButtons() {
+  public void closeSendPaymentButtons() {
     mBinding.sendpaymentToggler.animate().rotation(0).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(150).start();
     mBinding.sendpaymentToggler.setBackgroundTintList(ContextCompat.getColorStateList(this, R.color.primary));
     mBinding.sendpaymentActionsList.setVisibility(View.GONE);
   }
 
-  public void home_toggleOpenChannelButtons(View view) {
+  public void toggleOpenChannelButtons(View view) {
     boolean isVisible = mBinding.openchannelActionsList.getVisibility() == View.VISIBLE;
     mBinding.homeOpenchannelToggler.animate().rotation(isVisible ? 0 : 135).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(150).start();
     mBinding.homeOpenchannelToggler.setBackgroundTintList(ContextCompat.getColorStateList(this, isVisible ? R.color.green : R.color.grey_4));
     mBinding.openchannelActionsList.setVisibility(isVisible ? View.GONE : View.VISIBLE);
   }
 
-  public void home_closeOpenChannelButtons() {
+  public void closeOpenChannelButtons() {
     mBinding.homeOpenchannelToggler.animate().rotation(0).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(150).start();
     mBinding.homeOpenchannelToggler.setBackgroundTintList(ContextCompat.getColorStateList(this, R.color.green));
     mBinding.openchannelActionsList.setVisibility(View.GONE);
   }
 
-  public void home_doPasteURI(View view) {
+  public void pasteNodeURI(View view) {
     final String uri = readFromClipboard();
     final Intent intent = new Intent(getBaseContext(), OpenChannelActivity.class);
     intent.putExtra(OpenChannelActivity.EXTRA_NEW_HOST_URI, uri);
     startActivity(intent);
   }
 
-  public void home_doScanURI(View view) {
+  public void scanNodeURI(View view) {
     Intent intent = new Intent(this, ScanActivity.class);
     intent.putExtra(ScanActivity.EXTRA_SCAN_TYPE, ScanActivity.TYPE_URI);
     startActivity(intent);
   }
 
-  public void home_doRandomChannel(View view) {
+  public void openChannelWithAcinq(View view) {
     Intent intent = new Intent(getBaseContext(), OpenChannelActivity.class);
-    intent.putExtra(OpenChannelActivity.EXTRA_NEW_HOST_URI,
-      WalletUtils.LN_NODES.get(ThreadLocalRandom.current().nextInt(0, WalletUtils.LN_NODES.size())));
+    intent.putExtra(OpenChannelActivity.EXTRA_NEW_HOST_URI, WalletUtils.ACINQ_NODE);
     startActivity(intent);
   }
 
-  public void home_doCopyReceptionAddress(View view) {
+  public void openChannelRandom(View view) {
+    // todo
+  }
+
+  public void copyReceptionAddress(View view) {
     try {
       ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
       clipboard.setPrimaryClip(ClipData.newPlainText("Bitcoin address", app.getWalletAddress()));
@@ -528,10 +531,10 @@ public class HomeActivity extends EclairActivity {
   @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
   public void handleConnectionEvent(ElectrumConnectionEvent event) {
     if (event.connected) {
-      enableSendPayments();
+      enableSendPaymentButtons();
       mBinding.homeConnectionStatus.setVisibility(View.GONE);
     } else {
-      disableSendPayments();
+      disableSendPaymentButtons();
       mBinding.homeConnectionStatusTitle.setText(getString(R.string.chain_disconnected));
       mBinding.homeConnectionStatusDesc.setText(getString(R.string.chain_disconnected_desc));
       mBinding.homeConnectionStatus.setVisibility(View.VISIBLE);

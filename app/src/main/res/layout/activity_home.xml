@@ -184,7 +184,7 @@
           android:id="@+id/sendpayment_paste"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
-          android:onClick="home_sendPaste"
+          android:onClick="pasteSendPaymentRequest"
           app:icon="@mipmap/ic_paste"
           app:label="Paste a payment request" />
 
@@ -192,7 +192,7 @@
           android:id="@+id/sendpayment_scan"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
-          android:onClick="home_sendScan"
+          android:onClick="scanSendPaymentRequest"
           app:icon="@mipmap/ic_scan"
           app:label="Scan a payment request" />
 
@@ -206,7 +206,7 @@
         android:layout_marginEnd="@dimen/fab_margin"
         android:layout_marginStart="@dimen/fab_margin"
         android:layout_marginTop="8dp"
-        android:onClick="home_toggleSendButtons"
+        android:onClick="toggleSendPaymentButtons"
         android:src="@mipmap/ic_send"
         android:visibility="visible"
         app:backgroundTint="@color/primary"
@@ -235,28 +235,37 @@
           android:id="@+id/openchannel_paste"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
-          android:onClick="home_doPasteURI"
+          android:onClick="pasteNodeURI"
           app:bgcolor="@color/green"
           app:icon="@mipmap/ic_paste"
-          app:label="Paste a Node URI" />
+          app:label="@string/home_channel_paste_uri" />
 
         <fr.acinq.eclair.wallet.customviews.FabText
           android:id="@+id/openchannel_scan"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
-          android:onClick="home_doScanURI"
+          android:onClick="scanNodeURI"
           app:bgcolor="@color/green"
           app:icon="@mipmap/ic_scan"
-          app:label="Scan a Node URI" />
+          app:label="@string/home_channel_scan_uri" />
 
         <fr.acinq.eclair.wallet.customviews.FabText
           android:id="@+id/openchannel_random"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
-          android:onClick="home_doRandomChannel"
+          android:onClick="openChannelRandom"
           app:bgcolor="@color/green"
           app:icon="@drawable/icon_random_white"
-          app:label="Autoconnect" />
+          app:label="@string/home_channel_random" />
+
+        <fr.acinq.eclair.wallet.customviews.FabText
+          android:id="@+id/openchannel_acinq"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:onClick="openChannelWithAcinq"
+          app:bgcolor="@color/green"
+          app:icon="@drawable/icon_random_white"
+          app:label="@string/home_channel_acinq" />
 
       </LinearLayout>
 
@@ -268,7 +277,7 @@
         android:layout_marginEnd="@dimen/fab_margin"
         android:layout_marginStart="@dimen/fab_margin"
         android:layout_marginTop="8dp"
-        android:onClick="home_toggleOpenChannelButtons"
+        android:onClick="toggleOpenChannelButtons"
         android:src="@mipmap/ic_plus"
         app:backgroundTint="@color/green"
         app:fabSize="normal" />

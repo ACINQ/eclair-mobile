@@ -45,6 +45,11 @@
 
   <string name="home_status_disconnected">Disconnected</string>
 
+  <string name="home_channel_paste_uri">Paste a node URI</string>
+  <string name="home_channel_scan_uri">Scan a node URI</string>
+  <string name="home_channel_random">Random node</string>
+  <string name="home_channel_acinq">ACINQ node</string>
+
   <!-- //////////////// Home Intro //////////////////// -->
 
   <string name="home_intro_welcome">Welcome!</string>
@@ -72,24 +77,28 @@
 
   <!-- //////////////// Startup /////////////////// -->
 
-  <string name="start_error"><![CDATA[
-    <h3>Could not start wallet.</h3>
-    %1$s
-    ]]>
-  </string>
-  <string name="start_breaking"><![CDATA[
+  <string name="start_error_breaking_changes"><![CDATA[
     <h3>Breaking changes</h3>
     This new version requires a clean data directory. Please reset the app\'s data.
     <br />
     <br />
     From now on next versions should be backward compatible.
   ]]></string>
+  <string name="start_error_faq_link">Check our FAQ for more details.</string>
+  <string name="start_error_unreadable_seed">Seed is not readable; eclair can not start.</string>
+  <string name="start_error_timeout">Could not start eclair within a reasonable time frame.</string>
+  <string name="start_error_wrong_password">Wrong password.</string>
+  <string name="start_error_improper">App did not initialize properly, restarting…</string>
+  <string name="start_error_generic">Could not start eclair.</string>
+  <string name="start_error_datadir_unreadable">Datadir is not readable.</string>
+  <string name="start_error_datadir_not_directory">Datadir is not a directory.</string>
+  <string name="start_error_unencrypted">Your seed is not encrypted. Please enter a password.</string>
 
   <!-- //////////////// Create Recovery /////////////////// -->
 
   <string name="createrecovery_instructions">If you lose access to your phone, you will need this phrase to recover your wallet. Please backup this phrase in a secure location (not on this phone).</string>
   <string name="createrecovery_generation_failed">Could not generate the recovery phrase…</string>
-  <string name="createrecovery_goto_check">Ok, got it</string>
+  <string name="createrecovery_goto_check">OK, got it</string>
   <string name="createrecovery_check_skip">Skip (only on TESTNET)</string>
   <string name="createrecovery_check_question">What are the #%1$d, #%2$d and #%3$d words of your recovery phrase?</string>
   <string name="createrecovery_check_input_hint">Type the words here</string>
@@ -220,9 +229,9 @@
   <string name="payment_error_fees_onchain">The fees value is not valid.</string>
   <string name="payment_error_amount_onchain_insufficient_funds">The amount exceeds your balance.</string>
   <string name="payment_error_amount">The amount is not valid.</string>
-  <string name="payment_error_amount_ln_no_channels">You first need to open a Lightning channel to execute this payment.\n\nDo this by swiping to the right from the home view, and click on the green "+" button.</string>
-  <string name="payment_error_amount_ln_no_active_channels">None of your Lightning channels is ready to send payments.</string>
-  <string name="payment_error_amount_ln_insufficient_funds">None of your Lightning channels has enough balance to send this payment.</string>
+  <string name="payment_error_ln_no_channels">You first need to open a Lightning channel to execute this payment.\n\nDo this by swiping to the right from the home view, and click on the green "+" button.</string>
+  <string name="payment_error_ln_no_active_channels">None of your Lightning channels is ready to send payments.</string>
+  <string name="payment_error_ln_insufficient_funds">None of your Lightning channels has enough balance to send this payment.</string>
   <string name="payment_error_pending">This payment is already processing.</string>
   <string name="payment_error_paid">This payment has already been paid.</string>
   <string name="payment_error_incorrect_pin">PIN is incorrect.</string>

@@ -90,10 +90,7 @@ public class SendPaymentActivity extends EclairActivity
     } else {
       // check lightning channels status
       if (EclairEventService.getChannelsMap().size() == 0) {
-        canNotHandlePayment(R.string.payment_error_amount_ln_no_channels);
-        return;
-      } else if (!EclairEventService.hasActiveChannels()) {
-        canNotHandlePayment(R.string.payment_error_amount_ln_no_active_channels);
+        canNotHandlePayment(R.string.payment_error_ln_no_channels);
         return;
       } else {
         final Payment paymentInDB = app.getDBHelper().getPayment(output.paymentHash().toString(), PaymentType.BTC_LN);
@@ -116,7 +113,7 @@ public class SendPaymentActivity extends EclairActivity
       if (isAmountReadonly) {
         final MilliSatoshi amountMsat = WalletUtils.getAmountFromInvoice(mLNInvoice);
         if (!EclairEventService.hasActiveChannelsWithBalance(amountMsat.amount())) {
-          canNotHandlePayment(R.string.payment_error_amount_ln_insufficient_funds);
+          canNotHandlePayment(R.string.payment_error_ln_insufficient_funds);
           return;
         }
         mBinding.amountEditableValue.setText(CoinUtils.rawAmountInUnit(amountMsat, preferredBitcoinUnit).bigDecimal().toPlainString());
@@ -363,6 +360,10 @@ public class SendPaymentActivity extends EclairActivity
     // Get amount and executes payment. Depending on the settings, the user must first enter the correct PIN code
     try {
       if (mLNInvoice != null) {
+        if(!EclairEventService.hasActiveChannels()) {
+          handlePaymentError(R.string.payment_error_ln_no_active_channels);
+          return;
+        }
         final long amountMsat = CoinUtils.convertStringAmountToMsat(mBinding.amountEditableValue.getText().toString(), preferredBitcoinUnit.code()).amount();
         if (isPinRequired()) {
           pinDialog = new PinDialog(SendPaymentActivity.this, R.style.CustomAlertDialog, new PinDialog.PinDialogCallback() {
