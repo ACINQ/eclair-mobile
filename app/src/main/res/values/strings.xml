@@ -99,7 +99,6 @@
   <string name="createrecovery_instructions">If you lose access to your phone, you will need this phrase to recover your wallet. Please backup this phrase in a secure location (not on this phone).</string>
   <string name="createrecovery_generation_failed">Could not generate the recovery phrase…</string>
   <string name="createrecovery_goto_check">OK, got it</string>
-  <string name="createrecovery_check_skip">Skip (only on TESTNET)</string>
   <string name="createrecovery_check_question">What are the #%1$d, #%2$d and #%3$d words of your recovery phrase?</string>
   <string name="createrecovery_check_input_hint">Type the words here</string>
   <string name="createrecovery_check_button">Check</string>
@@ -336,7 +335,7 @@
   <!-- //////////////// General //////////////////// -->
 
   <string name="btc_fee_unit">sat/byte</string>
-  <string name="chain_name">TESTNET</string>
+  <string name="chain_name">MAINNET</string>
   <string name="chain_disconnected">Electrum disconnected</string>
   <string name="chain_disconnected_desc">Connection was lost. Sending funds is disabled.</string>
   <string name="chain_late">Electrum desynchronized</string>
