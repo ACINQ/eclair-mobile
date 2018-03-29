@@ -44,7 +44,7 @@ import fr.acinq.eclair.wallet.App;
 
 
 public class WalletUtils {
-  public final static String ACINQ_NODE = "03933884aaf1d6b108397e5efe5c86bcf2d8ca8d2f700eda99db9214fc2712b134@endurance.acinq.co:9735";
+  public final static String ACINQ_NODE = "03864ef025fde8fb587d989186ce6a4a186895ee44a926bfc370e2c366597a3f8f@34.239.230.56:9735";
   private static final String TAG = "WalletUtils";
   private static NumberFormat fiatFormat;
   public final static String UNENCRYPTED_SEED_NAME = "seed.dat";
