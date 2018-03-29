@@ -19,6 +19,7 @@ package fr.acinq.eclair.wallet.activities;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -39,6 +40,7 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.concurrent.TimeoutException;
 
 import akka.actor.ActorRef;
 import akka.actor.Props;
@@ -105,19 +107,24 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
             .putInt(Constants.SETTING_LAST_USED_VERSION, BuildConfig.VERSION_CODE).apply();
           goToHome();
         } else {
-          showError("The wallet could not start.");
+          // empty appkit, something went wrong.
+          showError(getString(R.string.start_error_improper));
+          new Handler().postDelayed(() -> startNode(new File(app.getFilesDir(), Constants.ECLAIR_DATADIR)), 1400);
         }
         break;
       case StartupTask.WRONG_PWD:
         app.pin.set(null);
-        showError("Wrong pin code.");
+        showError(getString(R.string.start_error_wrong_password));
         new Handler().postDelayed(() -> startNode(new File(app.getFilesDir(), Constants.ECLAIR_DATADIR)), 1400);
         break;
       case StartupTask.UNREADABLE:
-        showError("Seed is not readable; eclair wallet can not start.");
+        showError(getString(R.string.start_error_unreadable_seed), true);
+        break;
+      case StartupTask.TIMEOUT_ERROR:
+        showError(getString(R.string.start_error_timeout), true);
         break;
       default:
-        showError("The wallet could not start.");
+        showError(getString(R.string.start_error_generic), true);
         break;
     }
   }
@@ -129,12 +136,17 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
 
   private void showBreaking() {
     mBinding.startupError.setVisibility(View.VISIBLE);
-    mBinding.startupError.setText(Html.fromHtml(getString(R.string.start_breaking)));
+    mBinding.startupErrorText.setText(Html.fromHtml(getString(R.string.start_error_breaking_changes)));
+  }
+
+  private void showError(final String message, final boolean showFAQ) {
+    mBinding.startupError.setVisibility(View.VISIBLE);
+    mBinding.startupErrorFaq.setVisibility(showFAQ ? View.VISIBLE : View.GONE);
+    mBinding.startupErrorText.setText(message);
   }
 
   private void showError(final String message) {
-    mBinding.startupError.setVisibility(View.VISIBLE);
-    mBinding.startupError.setText(message);
+    showError(message, false);
   }
 
   private void goToHome() {
@@ -192,7 +204,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
         Log.i(TAG, "non encrypted seed file found in datadir, encryption is required");
         try {
           final byte[] unencryptedSeed = Files.toByteArray(unencryptedSeedFile);
-          showError("Your seed is not encrypted. Please enter a password.");
+          showError(getString(R.string.start_error_unencrypted));
           new Handler().postDelayed(() -> encryptWallet(this, false, datadir, unencryptedSeed), 2500);
         } catch (IOException e) {
           Log.e(TAG, "Could not encrypt unencrypted seed", e);
@@ -227,10 +239,10 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
     if (app.appKit == null) {
       if (datadir.exists() && !datadir.canRead()) {
         Log.e(TAG, "datadir is not readable. Aborting startup");
-        showError("Datadir is not readable.");
+        showError(getString(R.string.start_error_datadir_unreadable), true);
       } else if (datadir.exists() && !datadir.isDirectory()) {
         Log.e(TAG, "datadir is not a directory. Aborting startup");
-        showError("Datadir is not a directory.");
+        showError(getString(R.string.start_error_datadir_not_directory), true);
       } else {
         final String currentPassword = app.pin.get();
         if (currentPassword == null) {
@@ -274,6 +286,11 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
     startActivity(intent);
   }
 
+  public void openFAQ(View view) {
+    Intent faqIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/ACINQ/eclair/wiki/FAQ"));
+    startActivity(faqIntent);
+  }
+
   @Override
   public void onEncryptSeedFailure(String message) {
     showError(message);
@@ -296,6 +313,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
     private final static int WRONG_PWD = 1;
     private final static int UNREADABLE = 2;
     private final static int GENERIC_ERROR = 3;
+    private final static int TIMEOUT_ERROR = 4;
     private final String password;
 
     private StartupTask(String password) {
@@ -310,7 +328,6 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
 
     @Override
     protected Integer doInBackground(App... params) {
-
       try {
         App app = params[0];
         final File datadir = new File(app.getFilesDir(), Constants.ECLAIR_DATADIR);
@@ -335,7 +352,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
 
         publishProgress("starting core");
         Future<Kit> fKit = setup.bootstrap();
-        Kit kit = Await.result(fKit, Duration.create(20, "seconds"));
+        Kit kit = Await.result(fKit, Duration.create(60, "seconds"));
         ElectrumEclairWallet electrumWallet = (ElectrumEclairWallet) kit.wallet();
         publishProgress("checking compatibility");
         boolean isDBCompatible = true;
@@ -351,6 +368,8 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
         return WRONG_PWD;
       } catch (IOException e) {
         return UNREADABLE;
+      } catch (TimeoutException e) {
+        return TIMEOUT_ERROR;
       } catch (Exception e) {
         Log.e(TAG, "Failed to start eclair", e);
         return GENERIC_ERROR;
