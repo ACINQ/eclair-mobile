@@ -75,6 +75,7 @@
               android:paddingTop="3dp"
               android:text="@string/chain_name"
               android:textColor="@color/white"
+              android:visibility="gone"
               android:textSize="10sp"
               android:textStyle="bold" />
 
