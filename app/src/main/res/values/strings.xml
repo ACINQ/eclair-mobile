@@ -224,9 +224,9 @@
   <string name="payment_error_fees_onchain">The fees value is not valid.</string>
   <string name="payment_error_amount_onchain_insufficient_funds">The amount exceeds your balance.</string>
   <string name="payment_error_amount">The amount is not valid.</string>
-  <string name="payment_error_amount_ln_no_channels">You first need to open a Lightning channel to execute this payment.\n\nDo this by swiping to the right from the home view, and click on the green "+" button.</string>
-  <string name="payment_error_amount_ln_no_active_channels">None of your Lightning channels is ready to send payments.</string>
-  <string name="payment_error_amount_ln_insufficient_funds">None of your Lightning channels has enough balance to send this payment.</string>
+  <string name="payment_error_ln_no_channels">You first need to open a Lightning channel to execute this payment.\n\nDo this by swiping to the right from the home view, and click on the green "+" button.</string>
+  <string name="payment_error_ln_no_active_channels">None of your Lightning channels is ready to send payments.</string>
+  <string name="payment_error_ln_insufficient_funds">None of your Lightning channels has enough balance to send this payment.</string>
   <string name="payment_error_pending">This payment is already processing.</string>
   <string name="payment_error_paid">This payment has already been paid.</string>
   <string name="payment_error_incorrect_pin">PIN is incorrect.</string>
