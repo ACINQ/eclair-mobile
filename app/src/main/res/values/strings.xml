@@ -45,6 +45,11 @@
 
   <string name="home_status_disconnected">Disconnected</string>
 
+  <string name="home_channel_paste_uri">Paste a node URI</string>
+  <string name="home_channel_scan_uri">Scan a node URI</string>
+  <string name="home_channel_random">Random node</string>
+  <string name="home_channel_acinq">ACINQ node</string>
+
   <!-- //////////////// Home Intro //////////////////// -->
 
   <string name="home_intro_welcome">Welcome!</string>
