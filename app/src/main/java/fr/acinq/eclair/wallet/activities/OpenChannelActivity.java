@@ -54,6 +54,7 @@ import scala.concurrent.duration.Duration;
 public class OpenChannelActivity extends EclairActivity implements NodeURIReaderTask.AsyncNodeURIReaderTaskResponse {
 
   public static final String EXTRA_NEW_HOST_URI = BuildConfig.APPLICATION_ID + "NEW_HOST_URI";
+  public static final String EXTRA_USE_DNS_SEED = BuildConfig.APPLICATION_ID + "USE_DNS_SEED";
   private static final String TAG = "OpenChannelActivity";
   final MilliSatoshi minFunding = new MilliSatoshi(100000000); // 1 mBTC
   final MilliSatoshi maxFunding = package$.MODULE$.satoshi2millisatoshi(new Satoshi(Channel.MAX_FUNDING_SATOSHIS()));
@@ -137,8 +138,19 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
     });
     mBinding.capacityUnit.setText(preferredBitcoinUnit.shortLabel());
     setFeesToDefault();
-    remoteNodeURIAsString = getIntent().getStringExtra(EXTRA_NEW_HOST_URI).trim();
-    new NodeURIReaderTask(this, remoteNodeURIAsString).execute();
+
+    final boolean useDnsSeed = getIntent().getBooleanExtra(EXTRA_USE_DNS_SEED, false);
+
+    if (useDnsSeed) {
+      startDNSDiscovery();
+    } else {
+      remoteNodeURIAsString = getIntent().getStringExtra(EXTRA_NEW_HOST_URI).trim();
+      new NodeURIReaderTask(this, remoteNodeURIAsString).execute();
+    }
+  }
+
+  private void startDNSDiscovery() {
+    mBinding.loading.setText(getString(R.string.openchannel_dns_seed));
   }
 
   @Override

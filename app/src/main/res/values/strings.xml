@@ -122,6 +122,7 @@
   <!-- //////////////// Open Channel /////////////////// -->
 
   <string name="openchannel_loading_pleasewait">Reading the node address, please wait…</string>
+  <string name="openchannel_dns_seed">Node discovery is based on a DNS seed mechanism (see BOLT 10).\n\nThis feature is not available yet.</string>
   <string name="openchannel_title">Open a new Lightning Channel</string>
   <string name="openchannel_capacity">CAPACITY</string>
   <string name="openchannel_capacity_hint">Channel capacity in</string>

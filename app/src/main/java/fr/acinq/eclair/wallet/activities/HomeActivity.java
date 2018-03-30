@@ -439,7 +439,9 @@ public class HomeActivity extends EclairActivity {
   }
 
   public void openChannelRandom(View view) {
-    // todo
+    Intent intent = new Intent(getBaseContext(), OpenChannelActivity.class);
+    intent.putExtra(OpenChannelActivity.EXTRA_USE_DNS_SEED, true);
+    startActivity(intent);
   }
 
   public void copyReceptionAddress(View view) {
