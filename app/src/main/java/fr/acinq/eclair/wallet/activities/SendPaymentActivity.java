@@ -273,10 +273,12 @@ public class SendPaymentActivity extends EclairActivity
     mBinding.emptyOnchainWallet.setOnCheckedChangeListener((buttonView, isChecked) -> {
       if (mBitcoinInvoice != null) {
         if (isChecked) {
+          mBinding.emptyWalletDisclaimer.setVisibility(View.VISIBLE);
           mBinding.amountEditableValue.setEnabled(false);
           mBinding.amountEditableValue.setText(CoinUtils.rawAmountInUnit(
             app.onChainBalance.get(), preferredBitcoinUnit).bigDecimal().toPlainString());
         } else {
+          mBinding.emptyWalletDisclaimer.setVisibility(View.GONE);
           mBinding.amountEditableValue.setEnabled(true);
         }
       }
@@ -546,5 +548,4 @@ public class SendPaymentActivity extends EclairActivity
     super.onRestoreInstanceState(savedInstanceState);
     toggleForm();
   }
-
 }
