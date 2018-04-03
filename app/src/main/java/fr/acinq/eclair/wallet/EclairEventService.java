@@ -134,6 +134,9 @@ public class EclairEventService extends UntypedActor {
       cd.balanceMsat = new MilliSatoshi(cr.currentData().commitments().localCommit().spec().toLocalMsat());
       cd.capacityMsat = new MilliSatoshi(cr.currentData().commitments().localCommit().spec().totalFunds());
       cd.transactionId = cr.currentData().commitments().commitInput().outPoint().txid().toString();
+      cd.htlcsInFlightCount = cr.currentData().commitments().localCommit().spec().htlcs().iterator().size();
+      cd.channelReserveSat = cr.currentData().commitments().localParams().channelReserveSatoshis();
+      cd.minimumHtlcAmountMsat = cr.currentData().commitments().localParams().htlcMinimumMsat();
       channelDetailsMap.put(cr.channel(), cd);
       context().watch(cr.channel());
       EventBus.getDefault().post(new ChannelUpdateEvent());
