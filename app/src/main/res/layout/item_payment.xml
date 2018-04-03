@@ -90,8 +90,7 @@
       android:layout_marginEnd="4dp"
       android:layout_toStartOf="@+id/paymentitem_amount_unit"
       android:maxLines="1"
-      android:text="0.00"
-      android:textSize="16sp" />
+      android:textSize="14sp" />
 
     <TextView
       android:id="@+id/paymentitem_amount_unit"
@@ -124,7 +123,6 @@
       android:layout_marginEnd="4dp"
       android:layout_toStartOf="@+id/paymentitem_amount_unit"
       android:maxLines="1"
-      android:text="0"
       android:textColor="@color/grey_2"
       android:textSize="10sp"
       android:visibility="gone" />

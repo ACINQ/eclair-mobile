@@ -94,10 +94,10 @@
         <RelativeLayout
           android:layout_width="match_parent"
           android:layout_height="match_parent"
-          android:paddingBottom="20dp"
+          android:paddingBottom="16dp"
           android:paddingLeft="24dp"
           android:paddingRight="24dp"
-          android:paddingTop="0dp">
+          android:paddingTop="16dp">
 
           <fr.acinq.eclair.wallet.customviews.CoinAmountView
             android:id="@+id/balance_total"
@@ -105,10 +105,10 @@
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             app:alignment="center"
-            app:amount_color="@color/white"
+            app:amount_color="@color/almost_white"
             app:amount_size="38sp"
             app:unit="mBTC"
-            app:unit_color="@color/white"
+            app:unit_color="@color/almost_white"
             app:unit_size="12sp" />
 
           <fr.acinq.eclair.wallet.customviews.CoinAmountView
@@ -120,12 +120,12 @@
             android:alpha="0.8"
             app:alignment="center"
             app:amount_bold="true"
-            app:amount_color="@color/white"
+            app:amount_color="@color/almost_white"
             app:amount_size="11sp"
             app:image_size="12dp"
             app:image_src="@drawable/icon_btc_shape_white"
             app:unit="mBTC"
-            app:unit_color="@color/white"
+            app:unit_color="@color/almost_white"
             app:unit_size="10sp" />
 
           <fr.acinq.eclair.wallet.customviews.CoinAmountView
@@ -133,15 +133,16 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/balance_onchain"
+            android:layout_marginTop="1dp"
             android:alpha="0.8"
             app:alignment="center"
             app:amount_bold="true"
-            app:amount_color="@color/white"
+            app:amount_color="@color/almost_white"
             app:amount_size="11sp"
             app:image_size="12dp"
             app:image_src="@drawable/icon_bolt_shape_white"
             app:unit="mBTC"
-            app:unit_color="@color/white"
+            app:unit_color="@color/almost_white"
             app:unit_size="10sp" />
 
         </RelativeLayout>
