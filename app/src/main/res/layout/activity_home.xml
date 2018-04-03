@@ -94,10 +94,10 @@
         <RelativeLayout
           android:layout_width="match_parent"
           android:layout_height="match_parent"
-          android:paddingBottom="16dp"
+          android:paddingBottom="14dp"
           android:paddingLeft="24dp"
           android:paddingRight="24dp"
-          android:paddingTop="16dp">
+          android:paddingTop="4dp">
 
           <fr.acinq.eclair.wallet.customviews.CoinAmountView
             android:id="@+id/balance_total"
