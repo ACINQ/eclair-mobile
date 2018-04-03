@@ -309,7 +309,7 @@
   <string name="about_acinq_text"><![CDATA[
     <p>ACINQ is a bitcoin technology company, and a proud member of the Lightning development community.</p>
     <p>https://acinq.co</p>
-    <p>https://github.com/ACINQ/eclair</p>
+    <p>https://github.com/ACINQ/eclair-wallet</p>
     ]]>
   </string>
 

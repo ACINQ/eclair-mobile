@@ -305,7 +305,7 @@ public class HomeActivity extends EclairActivity {
         startActivity(aboutIntent);
         return true;
       case R.id.menu_home_faq:
-        Intent faqIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/ACINQ/eclair/wiki/FAQ"));
+        Intent faqIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/ACINQ/eclair-wallet/wiki/FAQ"));
         startActivity(faqIntent);
         return true;
       case R.id.menu_home_preferences:

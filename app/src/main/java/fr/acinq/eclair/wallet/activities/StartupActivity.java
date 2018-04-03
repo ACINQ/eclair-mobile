@@ -287,7 +287,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
   }
 
   public void openFAQ(View view) {
-    Intent faqIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/ACINQ/eclair/wiki/FAQ"));
+    Intent faqIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/ACINQ/eclair-wallet/wiki/FAQ"));
     startActivity(faqIntent);
   }
 
