@@ -59,7 +59,7 @@
   <string name="home_intro_openchannel">Swipe right</string>
   <string name="home_intro_openchannel_sub">To open a Lightning Network channel.</string>
   <string name="home_intro_openchannel_patience">Please be patient.</string>
-  <string name="home_intro_openchannel_patience_sub">Opening a channel takes 2 confirmations.</string>
+  <string name="home_intro_openchannel_patience_sub">Opening a channel takes 3 confirmations.</string>
   <string name="home_intro_sendpayment">Click here to send a payment</string>
   <string name="home_intro_sendpayment_sub">Make sure to have 1 channel\nin NORMAL state</string>
 
