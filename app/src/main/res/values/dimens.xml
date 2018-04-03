@@ -24,7 +24,7 @@
   <dimen name="fab_margin">16dp</dimen>
   <dimen name="text_margin">16dp</dimen>
 
-  <dimen name="item_height">44dp</dimen>
+  <dimen name="item_height">46dp</dimen>
 
   <dimen name="title_bar_padding_sm">8dp</dimen>
   <dimen name="title_bar_padding_md">12dp</dimen>

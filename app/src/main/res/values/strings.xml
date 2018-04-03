@@ -141,8 +141,8 @@
   <string name="openchannel_capacity_invalid">Channel capacity must be between %1$s and %2$s</string>
   <string name="openchannel_capacity_notenoughfunds">Not enough funds</string>
   <string name="openchannel_error_capacity_nan">Capacity amount is not valid</string>
-  <string name="openchannel_error_fees_nan">Funding transaction\'s fees are not valid</string>
-  <string name="openchannel_error_fees_gt_0">Funding transaction\'s fee must be greater than 0</string>
+  <string name="openchannel_error_fees_nan">Funding tx fees are not valid</string>
+  <string name="openchannel_error_fees_gt_0">Funding tx fee must be greater than 0</string>
   <string name="openchannel_error_address">This is not a valid node URI.\n\nExpected format is nodeId@host:port</string>
   <string name="openchannel_do_open">Open</string>
   <string name="openchannel_pubkey">Node id</string>
@@ -330,13 +330,13 @@
   <string name="networkinfos_title_lightning">Lightning Network</string>
   <string name="networkinfos_title_debug">Diagnostics</string>
   <string name="networkinfos_nodeid_label">Node id</string>
-  <string name="networkinfos_nodeid_desc">Lightning Network\'s public identifier</string>
+  <string name="networkinfos_nodeid_desc">Lightning Network public identifier</string>
   <string name="networkinfos_nodealias_label">Alias</string>
   <string name="networkinfos_nodealias_desc">Name of the node</string>
   <string name="networkinfos_blockcount_label">Block count</string>
   <string name="networkinfos_blockcount_desc">Current blockchain height</string>
   <string name="networkinfos_feerate_label">Fee rate</string>
-  <string name="networkinfos_feerate_desc">Current fee rate (satoshi/kW)</string>
+  <string name="networkinfos_feerate_desc">Current fee rate</string>
   <string name="networkinfos_networkchannels_label">Known channels</string>
   <string name="networkinfos_networkchannels_desc">Channels count in network</string>
   <string name="networkinfos_networknodes_label">Known nodes</string>

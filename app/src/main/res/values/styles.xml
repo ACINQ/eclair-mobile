@@ -79,7 +79,7 @@
     <item name="tabPaddingEnd">12dp</item>
     <item name="tabBackground">?attr/selectableItemBackground</item>
     <item name="tabTextAppearance">@style/CustomTabText</item>
-    <item name="tabSelectedTextColor">@color/primary</item>
+    <item name="tabSelectedTextColor">@color/grey_3</item>
   </style>
 
   <style name="CustomTabText" parent="TextAppearance.AppCompat.Button">
