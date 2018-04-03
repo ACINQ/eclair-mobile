@@ -78,7 +78,12 @@ public class LNPaymentDetailsActivity extends EclairActivity {
       }
       mBinding.recipient.setValue(p.getRecipient());
       mBinding.desc.setValue(p.getDescription());
-      mBinding.amountRequested.setValue(CoinUtils.formatAmountInUnit(new MilliSatoshi(p.getAmountRequestedMsat()), prefUnit, true));
+      if (p.getAmountRequestedMsat() == 0) {
+        // this is a donation
+        mBinding.amountRequested.setValue(getString(R.string.paymentdetails_amount_requested_donation));
+      } else {
+        mBinding.amountRequested.setValue(CoinUtils.formatAmountInUnit(new MilliSatoshi(p.getAmountRequestedMsat()), prefUnit, true));
+      }
       mBinding.amountSent.setValue(CoinUtils.formatAmountInUnit(new MilliSatoshi(p.getAmountSentMsat()), prefUnit, true));
       mBinding.paymenthash.setValue(p.getReference());
       mBinding.preimage.setValue(p.getPreimage());

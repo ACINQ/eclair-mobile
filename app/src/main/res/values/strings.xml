@@ -249,6 +249,7 @@
   <string name="paymentdetails_desc_desc">Description of the payment</string>
   <string name="paymentdetails_amount_requested_label">Amount requested</string>
   <string name="paymentdetails_amount_requested_desc">Requested by the payee</string>
+  <string name="paymentdetails_amount_requested_donation">Not set</string>
   <string name="paymentdetails_amount_sent_label">Amount sent</string>
   <string name="paymentdetails_amount_sent_desc">Amount that you really sent (without fees)</string>
   <string name="paymentdetails_paymenthash_label">Payment hash</string>
