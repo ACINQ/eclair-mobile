@@ -19,10 +19,13 @@ package fr.acinq.eclair.wallet.fragments;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.util.Log;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.common.base.Strings;
 
@@ -32,6 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import fr.acinq.eclair.wallet.R;
+import fr.acinq.eclair.wallet.utils.Constants;
 
 public class PinDialog extends Dialog {
 
@@ -40,6 +44,7 @@ public class PinDialog extends Dialog {
   private TextView mPinTitle;
   private String mPinValue = "";
   private TextView mPinDisplay;
+  private ImageButton mSubmitButton;
   private List<View> mButtonsList = new ArrayList<>();
   private PinDialogCallback mPinCallback;
 
@@ -67,9 +72,10 @@ public class PinDialog extends Dialog {
     mPinTitle = findViewById(R.id.pin_title);
     mPinTitle.setText(title);
     mPinDisplay = findViewById(R.id.pin_display);
+    mSubmitButton = findViewById(R.id.pin_submit);
 
-    mButtonsList.add(findViewById(R.id.pin_num_2));
     mButtonsList.add(findViewById(R.id.pin_num_1));
+    mButtonsList.add(findViewById(R.id.pin_num_2));
     mButtonsList.add(findViewById(R.id.pin_num_3));
     mButtonsList.add(findViewById(R.id.pin_num_4));
     mButtonsList.add(findViewById(R.id.pin_num_5));
@@ -79,12 +85,26 @@ public class PinDialog extends Dialog {
     mButtonsList.add(findViewById(R.id.pin_num_9));
     mButtonsList.add(findViewById(R.id.pin_num_0));
 
+    mPinDisplay.addTextChangedListener(new TextWatcher() {
+      @Override
+      public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+      @Override
+      public void onTextChanged(CharSequence s, int start, int before, int count) {
+        if (s == null || s.length() != Constants.PIN_LENGTH) {
+          mSubmitButton.setAlpha(0.4f);
+        } else {
+          mSubmitButton.setAlpha(1f);
+        }
+      }
+      @Override
+      public void afterTextChanged(Editable s) {}
+    });
     for (View v : mButtonsList) {
       v.setOnClickListener(new View.OnClickListener() {
         @Override
         public void onClick(View view) {
           if (mPinValue == null) mPinValue = "";
-          if (mPinValue.equals("") || mPinValue.length() < 6) {
+          if (mPinValue.equals("") || mPinValue.length() != Constants.PIN_LENGTH) {
             final String val = ((Button) view).getText().toString();
             mPinValue = mPinValue.concat(val);
             mPinDisplay.setText(Strings.repeat(PIN_PLACEHOLDER, mPinValue.length()));
@@ -99,10 +119,14 @@ public class PinDialog extends Dialog {
         mPinDisplay.setText("");
       }
     });
-    findViewById(R.id.pin_submit).setOnClickListener(new View.OnClickListener() {
+    mSubmitButton.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View view) {
-        mPinCallback.onPinConfirm(PinDialog.this, mPinValue);
+        if (mPinValue == null || mPinValue.length() != Constants.PIN_LENGTH) {
+          Toast.makeText(view.getContext(), view.getResources().getString(R.string.pindialog_error), Toast.LENGTH_SHORT).show();
+        } else {
+          mPinCallback.onPinConfirm(PinDialog.this, mPinValue);
+        }
       }
     });
   }

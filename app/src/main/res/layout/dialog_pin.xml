@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright 2018 ACINQ SAS
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -31,15 +30,15 @@
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:background="@color/yellow_light_x2"
-      android:paddingTop="@dimen/app_padding"
       android:paddingBottom="6dp"
-      android:paddingStart="8dp"
       android:paddingEnd="8dp"
+      android:paddingStart="8dp"
+      android:paddingTop="@dimen/app_padding"
       android:text="@string/pindialog_title_default"
       android:textAlignment="center"
       android:textColor="@color/grey_4"
-      android:textStyle="bold"
-      android:textSize="14sp" />
+      android:textSize="14sp"
+      android:textStyle="bold" />
 
     <RelativeLayout
       android:layout_width="match_parent"
@@ -220,6 +219,7 @@
         android:id="@+id/pin_submit"
         android:layout_columnWeight="1"
         android:layout_gravity="fill_horizontal"
+        android:alpha="0.4"
         android:background="?android:attr/selectableItemBackground"
         android:fontFamily="sans-serif-light"
         android:gravity="center"

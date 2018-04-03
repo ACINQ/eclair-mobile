@@ -19,6 +19,7 @@ package fr.acinq.eclair.wallet.activities;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -35,9 +36,7 @@ import fr.acinq.bitcoin.MnemonicCode;
 import fr.acinq.eclair.blockchain.electrum.ElectrumWallet;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.databinding.ActivityCreateWalletRecoveryBinding;
-import fr.acinq.eclair.wallet.fragments.PinDialog;
 import fr.acinq.eclair.wallet.utils.Constants;
-import fr.acinq.eclair.wallet.utils.WalletUtils;
 import scala.collection.JavaConverters;
 
 public class CreateWalletRecoveryActivity extends EclairActivity implements EclairActivity.EncryptSeedCallback {
@@ -68,24 +67,20 @@ public class CreateWalletRecoveryActivity extends EclairActivity implements Ecla
     mBinding.checkInput.setText("");
     mBinding.displayStep.setVisibility(View.VISIBLE);
     mBinding.checkStep.setVisibility(View.GONE);
-    mBinding.successStep.setVisibility(View.GONE);
+    mBinding.encryptStep.setVisibility(View.GONE);
   }
 
   private void goStepCheck() {
     mBinding.displayStep.setVisibility(View.GONE);
     mBinding.checkStep.setVisibility(View.VISIBLE);
-    mBinding.successStep.setVisibility(View.GONE);
+    mBinding.encryptStep.setVisibility(View.GONE);
   }
 
   private void goStepSuccess() {
     mBinding.displayStep.setVisibility(View.GONE);
     mBinding.checkStep.setVisibility(View.GONE);
-    mBinding.successStep.setVisibility(View.VISIBLE);
-  }
-
-  private void showWriteError(String message) {
-    mBinding.writeError.setText(message);
-    mBinding.writeError.setVisibility(View.VISIBLE);
+    mBinding.encryptStep.setVisibility(View.VISIBLE);
+    finishCheckRecovery();
   }
 
   @Override
@@ -100,14 +95,18 @@ public class CreateWalletRecoveryActivity extends EclairActivity implements Ecla
 
   /**
    * Shuffle the words position and initialize the question with the 3 first words in the list of words.
-   *
-   * @param view
    */
   public void initCheckRecovery(View view) {
     Collections.shuffle(recoveryPositions);
-    mBinding.checkQuestion.setText(getString(R.string.createrecovery_check_question,
-      recoveryPositions.get(0) + 1, recoveryPositions.get(1) + 1, recoveryPositions.get(2) + 1));
+    final List<Integer> pos = getFirst3Positions();
+    mBinding.checkQuestion.setText(getString(R.string.createrecovery_check_question, pos.get(0) + 1, pos.get(1) + 1, pos.get(2) + 1));
     goStepCheck();
+  }
+
+  private List<Integer> getFirst3Positions() {
+    final List<Integer> first3Positions = recoveryPositions.subList(0,3);
+    Collections.sort(first3Positions);
+    return first3Positions;
   }
 
   /**
@@ -123,8 +122,6 @@ public class CreateWalletRecoveryActivity extends EclairActivity implements Ecla
 
   /**
    * Check that the words entered by the user are correct. Proves that the user has made a backup of its list of words.
-   *
-   * @param view
    */
   public void checkRecovery(View view) {
     mBinding.checkFailed.setVisibility(View.GONE);
@@ -135,10 +132,11 @@ public class CreateWalletRecoveryActivity extends EclairActivity implements Ecla
     }
     try {
       final String[] userWords = mBinding.checkInput.getText().toString().split(" ");
+      final List<Integer> pos = getFirst3Positions();
       if (userWords.length == 3
-        && checkWordRecoveryPhrase(recoveryPositions.get(0), userWords[0])
-        && checkWordRecoveryPhrase(recoveryPositions.get(1), userWords[1])
-        && checkWordRecoveryPhrase(recoveryPositions.get(2), userWords[2])) {
+        && checkWordRecoveryPhrase(pos.get(0), userWords[0])
+        && checkWordRecoveryPhrase(pos.get(1), userWords[1])
+        && checkWordRecoveryPhrase(pos.get(2), userWords[2])) {
         goStepSuccess();
         return;
       }
@@ -153,10 +151,9 @@ public class CreateWalletRecoveryActivity extends EclairActivity implements Ecla
 
   /**
    * Backup was made. The mnemonics is safe to write to file and can be used by eclair.
-   *
-   * @param view
    */
-  public void finishCheckRecovery(View view) {
+  public void finishCheckRecovery() {
+    mBinding.writeError.setVisibility(View.GONE);
     if (mnemonics == null) {
       Toast.makeText(this, R.string.createrecovery_general_failure, Toast.LENGTH_SHORT).show();
       goToStartup();
@@ -167,16 +164,18 @@ public class CreateWalletRecoveryActivity extends EclairActivity implements Ecla
     encryptWallet(this, false, datadir, seed);
   }
 
+  @Override
+  public void onEncryptSeedFailure(String message) {
+    mBinding.writeError.setText(message);
+    mBinding.writeError.setVisibility(View.VISIBLE);
+    new Handler().postDelayed(this::finishCheckRecovery, 1400);
+  }
+
   private void goToStartup() {
     Intent startup = new Intent(this, StartupActivity.class);
     startup.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
     startup.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
     startActivity(startup);
-  }
-
-  @Override
-  public void onEncryptSeedFailure(String message) {
-    showWriteError(message);
   }
 
   @Override

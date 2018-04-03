@@ -91,7 +91,7 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
     this.mPayment = payment;
 
     // amount should be the amount paid, fallback to requested (useful for LN)
-    final long amountMsat = payment.getAmountPaidMsat() == 0 ? payment.getAmountRequestedMsat() : payment.getAmountPaidMsat();
+    final long amountMsat = payment.getAmountPaidMsat() == 0 ? payment.getAmountSentMsat() : payment.getAmountPaidMsat();
     // Adding a "-" prefix to the amount if this is an outgoing payment
     final String amountPrefix = PaymentDirection.SENT.equals(payment.getDirection()) ? "-" : "";
 

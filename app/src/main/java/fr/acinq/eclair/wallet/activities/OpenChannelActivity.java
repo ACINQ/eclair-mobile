@@ -54,6 +54,7 @@ import scala.concurrent.duration.Duration;
 public class OpenChannelActivity extends EclairActivity implements NodeURIReaderTask.AsyncNodeURIReaderTaskResponse {
 
   public static final String EXTRA_NEW_HOST_URI = BuildConfig.APPLICATION_ID + "NEW_HOST_URI";
+  public static final String EXTRA_USE_DNS_SEED = BuildConfig.APPLICATION_ID + "USE_DNS_SEED";
   private static final String TAG = "OpenChannelActivity";
   final MilliSatoshi minFunding = new MilliSatoshi(100000000); // 1 mBTC
   final MilliSatoshi maxFunding = package$.MODULE$.satoshi2millisatoshi(new Satoshi(Channel.MAX_FUNDING_SATOSHIS()));
@@ -137,8 +138,19 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
     });
     mBinding.capacityUnit.setText(preferredBitcoinUnit.shortLabel());
     setFeesToDefault();
-    remoteNodeURIAsString = getIntent().getStringExtra(EXTRA_NEW_HOST_URI).trim();
-    new NodeURIReaderTask(this, remoteNodeURIAsString).execute();
+
+    final boolean useDnsSeed = getIntent().getBooleanExtra(EXTRA_USE_DNS_SEED, false);
+
+    if (useDnsSeed) {
+      startDNSDiscovery();
+    } else {
+      remoteNodeURIAsString = getIntent().getStringExtra(EXTRA_NEW_HOST_URI).trim();
+      new NodeURIReaderTask(this, remoteNodeURIAsString).execute();
+    }
+  }
+
+  private void startDNSDiscovery() {
+    mBinding.loading.setText(getString(R.string.openchannel_dns_seed));
   }
 
   @Override
@@ -203,11 +215,11 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
     final MilliSatoshi amountMsat = CoinUtils.convertStringAmountToMsat(amount, preferredBitcoinUnit.code());
     mBinding.capacityFiat.setText(WalletUtils.convertMsatToFiatWithUnit(amountMsat.amount(), preferredFiatCurrency));
     if (amountMsat.amount() < minFunding.amount() || amountMsat.amount() >= maxFunding.amount()) {
-      toggleError(getString(R.string.openchannel_capacity_invalid, CoinUtils.formatAmountInUnit(minFunding, preferredBitcoinUnit, false),
+      showError(getString(R.string.openchannel_capacity_invalid, CoinUtils.formatAmountInUnit(minFunding, preferredBitcoinUnit, false),
         CoinUtils.formatAmountInUnit(maxFunding, preferredBitcoinUnit, true)));
       return false;
     } else if (package$.MODULE$.millisatoshi2satoshi(amountMsat).amount() + Validators.MIN_LEFTOVER_ONCHAIN_BALANCE_SAT > app.onChainBalance.get().amount()) {
-      toggleError(getString(R.string.openchannel_capacity_notenoughfunds));
+      showError(getString(R.string.openchannel_capacity_notenoughfunds));
       return false;
     } else {
       mBinding.error.setVisibility(View.GONE);
@@ -215,7 +227,7 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
     }
   }
 
-  private void toggleError(final String errorLabel) {
+  private void showError(final String errorLabel) {
     mBinding.errorValue.setText(errorLabel);
     mBinding.error.setVisibility(View.VISIBLE);
   }
@@ -257,18 +269,18 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
       }
     } catch (Exception e) {
       Log.d(TAG, "Could not convert amount to number with cause " + e.getMessage());
-      toggleError(getString(R.string.openchannel_error_capacity_nan));
+      showError(getString(R.string.openchannel_error_capacity_nan));
       return;
     }
 
     try {
       if (Long.parseLong(mBinding.feesValue.getText().toString()) <= 0) {
-        toggleError(getString(R.string.openchannel_error_fees_gt_0));
+        showError(getString(R.string.openchannel_error_fees_gt_0));
         return;
       }
     } catch (Exception e) {
       Log.w(TAG, "Could not read fees with cause=" + e.getMessage());
-      toggleError(getString(R.string.openchannel_error_fees_nan));
+      showError(getString(R.string.openchannel_error_fees_nan));
       return;
     }
 
@@ -280,7 +292,7 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
           if (isPinCorrect(pinValue, dialog)) {
             doOpenChannel();
           } else {
-            toggleError(getString(R.string.payment_error_incorrect_pin));
+            showError(getString(R.string.payment_error_incorrect_pin));
             enableForm();
           }
         }
@@ -319,16 +331,15 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
         });
       goToHome();
     } catch (Throwable t) {
-      toggleError(t.getLocalizedMessage());
+      showError(t.getLocalizedMessage());
     }
   }
 
   @Override
-  public void processNodeURIFinish(final NodeURI uri, final String errorMessage) {
+  public void processNodeURIFinish(final NodeURI uri) {
     this.remoteNodeURI = uri;
     if (this.remoteNodeURI == null || this.remoteNodeURI.address() == null || this.remoteNodeURI.nodeId() == null) {
-      final String message = getString(R.string.openchannel_error_address, errorMessage != null ? errorMessage : getString(R.string.openchannel_address_expected_format));
-      mBinding.loading.setText(message);
+      mBinding.loading.setText(getString(R.string.openchannel_error_address));
     } else {
       mBinding.loading.setVisibility(View.GONE);
       setURIFields(uri.nodeId().toString(), uri.address().getHost(), String.valueOf(uri.address().getPort()));

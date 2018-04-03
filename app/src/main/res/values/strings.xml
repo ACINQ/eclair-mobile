@@ -67,9 +67,22 @@
 
   <string name="disclaimer_1"><![CDATA[
     <h1>WARNING</h1>
-    <p>Eclair Wallet is experimental and runs on the <b>%1$s</b> Bitcoin blockchain.</p>
-    <p>This software and the Lightning Network are under heavy development. Make sure you
-    run the latest version because there may be backward incompatible changes.</p>
+    <p>
+      This is beta software based on bleeding edge technology, please <b>use with a reasonable
+      amount of money!</b>
+    </p>
+    <p>
+      <b>ON-CHAIN FUNDS</b>
+      <br />
+      On-chain funds are secured by the usual BIP49 seed, with a standard derivation path.
+      You can back them up like you would with any other wallet.
+    </p>
+    <p>
+      <b>OFF-CHAIN FUNDS (Lightning)</b><br />
+      Off-chain funds <b>cannot currently be backed up</b>. This will be improved in a coming
+      release, but for now, consider them like coins in your physical wallet: if you lose your
+      device or clear your application data, you will lose the bitcoins in your Lightning channels.
+    </p>
     ]]>
   </string>
   <string name="disclaimer_1_button_ok">I UNDERSTAND</string>
@@ -121,6 +134,7 @@
   <!-- //////////////// Open Channel /////////////////// -->
 
   <string name="openchannel_loading_pleasewait">Reading the node address, please wait…</string>
+  <string name="openchannel_dns_seed">Node discovery is based on a DNS seed mechanism (see BOLT 10).\n\nThis feature is not available yet.</string>
   <string name="openchannel_title">Open a new Lightning Channel</string>
   <string name="openchannel_capacity">CAPACITY</string>
   <string name="openchannel_capacity_hint">Channel capacity in</string>
@@ -129,8 +143,7 @@
   <string name="openchannel_error_capacity_nan">Capacity amount is not valid</string>
   <string name="openchannel_error_fees_nan">Funding transaction\'s fees are not valid</string>
   <string name="openchannel_error_fees_gt_0">Funding transaction\'s fee must be greater than 0</string>
-  <string name="openchannel_address_expected_format">Expected format is nodeId@host:port</string>
-  <string name="openchannel_error_address">This is not a valid address for a Lightning node.\n\n%1$s</string>
+  <string name="openchannel_error_address">This is not a valid node URI.\n\nExpected format is nodeId@host:port</string>
   <string name="openchannel_do_open">Open</string>
   <string name="openchannel_pubkey">Node id</string>
   <string name="openchannel_ip">Node ip</string>
@@ -208,6 +221,7 @@
   <string name="payment_type_onchain">On-Chain Payment</string>
   <string name="payment_type_lightning">Lightning Payment</string>
   <string name="payment_empty_wallet">Empty wallet</string>
+  <string name="payment_empty_wallet_disclaimer">Funds locked in lightning channels will not be affected.</string>
   <string name="payment_fees_custom">Custom</string>
   <string name="payment_fees_slow">Slow (12h)</string>
   <string name="payment_fees_medium">Medium (2h)</string>
@@ -247,6 +261,7 @@
   <string name="paymentdetails_desc_desc">Description of the payment</string>
   <string name="paymentdetails_amount_requested_label">Amount requested</string>
   <string name="paymentdetails_amount_requested_desc">Requested by the payee</string>
+  <string name="paymentdetails_amount_requested_donation">Not set</string>
   <string name="paymentdetails_amount_sent_label">Amount sent</string>
   <string name="paymentdetails_amount_sent_desc">Amount that you really sent (without fees)</string>
   <string name="paymentdetails_paymenthash_label">Payment hash</string>
@@ -305,7 +320,7 @@
   <string name="about_acinq_text"><![CDATA[
     <p>ACINQ is a bitcoin technology company, and a proud member of the Lightning development community.</p>
     <p>https://acinq.co</p>
-    <p>https://github.com/ACINQ/eclair</p>
+    <p>https://github.com/ACINQ/eclair-wallet</p>
     ]]>
   </string>
 
