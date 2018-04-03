@@ -333,13 +333,13 @@
   <string name="networkinfos_title_lightning">Lightning Network</string>
   <string name="networkinfos_title_debug">Diagnostics</string>
   <string name="networkinfos_nodeid_label">Node id</string>
-  <string name="networkinfos_nodeid_desc">Lightning Network\'s public identifier</string>
+  <string name="networkinfos_nodeid_desc">Lightning Network public identifier</string>
   <string name="networkinfos_nodealias_label">Alias</string>
   <string name="networkinfos_nodealias_desc">Name of the node</string>
   <string name="networkinfos_blockcount_label">Block count</string>
   <string name="networkinfos_blockcount_desc">Current blockchain height</string>
   <string name="networkinfos_feerate_label">Fee rate</string>
-  <string name="networkinfos_feerate_desc">Current fee rate (satoshi/kW)</string>
+  <string name="networkinfos_feerate_desc">Current fee rate</string>
   <string name="networkinfos_networkchannels_label">Known channels</string>
   <string name="networkinfos_networkchannels_desc">Channels count in network</string>
   <string name="networkinfos_networknodes_label">Known nodes</string>
