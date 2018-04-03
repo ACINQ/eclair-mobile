@@ -163,14 +163,16 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
   }
 
   private void startCheckup(final File datadir, final SharedPreferences prefs) {
-    if (prefs.getBoolean(Constants.SETTING_SHOW_DISCLAIMER, true) && !mBinding.stubDisclaimer.isInflated()) {
-      mBinding.stubDisclaimer.getViewStub().inflate();
-      mDisclaimerBinding.disclaimerFinish.setOnClickListener(v -> {
-        mDisclaimerBinding.getRoot().setVisibility(View.GONE);
-        prefs.edit().putBoolean(Constants.SETTING_SHOW_DISCLAIMER, false).apply();
-        checkAppVersion(datadir, prefs);
-      });
-      mDisclaimerBinding.disclaimerText.setText(Html.fromHtml(getString(R.string.disclaimer_1, getString(R.string.chain_name))));
+    if (prefs.getBoolean(Constants.SETTING_SHOW_DISCLAIMER, true)) {
+      if (!mBinding.stubDisclaimer.isInflated()) {
+        mBinding.stubDisclaimer.getViewStub().inflate();
+        mDisclaimerBinding.disclaimerFinish.setOnClickListener(v -> {
+          mDisclaimerBinding.getRoot().setVisibility(View.GONE);
+          prefs.edit().putBoolean(Constants.SETTING_SHOW_DISCLAIMER, false).apply();
+          checkAppVersion(datadir, prefs);
+        });
+        mDisclaimerBinding.disclaimerText.setText(Html.fromHtml(getString(R.string.disclaimer_1)));
+      }
     } else {
       checkAppVersion(datadir, prefs);
     }

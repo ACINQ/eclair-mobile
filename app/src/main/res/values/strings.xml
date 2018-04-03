@@ -67,9 +67,22 @@
 
   <string name="disclaimer_1"><![CDATA[
     <h1>WARNING</h1>
-    <p>Eclair Wallet is experimental and runs on the <b>%1$s</b> Bitcoin blockchain.</p>
-    <p>This software and the Lightning Network are under heavy development. Make sure you
-    run the latest version because there may be backward incompatible changes.</p>
+    <p>
+      This is beta software based on bleeding edge technology, please <b>use with a reasonable
+      amount of money!</b>
+    </p>
+    <p>
+      <b>ON-CHAIN FUNDS</b>
+      <br />
+      On-chain funds are secured by the usual BIP49 seed, with a standard derivation path.
+      You can back them up like you would with any other wallet.
+    </p>
+    <p>
+      <b>OFF-CHAIN FUNDS (Lightning)</b><br />
+      Off-chain funds <b>cannot currently be backed up</b>. This will be improved in a coming
+      release, but for now, consider them like coins in your physical wallet: if you lose your
+      device or clear your application data, you will lose the bitcoins in your Lightning channels.
+    </p>
     ]]>
   </string>
   <string name="disclaimer_1_button_ok">I UNDERSTAND</string>
