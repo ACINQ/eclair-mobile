@@ -36,9 +36,7 @@ import fr.acinq.bitcoin.MnemonicCode;
 import fr.acinq.eclair.blockchain.electrum.ElectrumWallet;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.databinding.ActivityCreateWalletRecoveryBinding;
-import fr.acinq.eclair.wallet.fragments.PinDialog;
 import fr.acinq.eclair.wallet.utils.Constants;
-import fr.acinq.eclair.wallet.utils.WalletUtils;
 import scala.collection.JavaConverters;
 
 public class CreateWalletRecoveryActivity extends EclairActivity implements EclairActivity.EncryptSeedCallback {
@@ -100,9 +98,15 @@ public class CreateWalletRecoveryActivity extends EclairActivity implements Ecla
    */
   public void initCheckRecovery(View view) {
     Collections.shuffle(recoveryPositions);
-    mBinding.checkQuestion.setText(getString(R.string.createrecovery_check_question,
-      recoveryPositions.get(0) + 1, recoveryPositions.get(1) + 1, recoveryPositions.get(2) + 1));
+    final List<Integer> pos = getFirst3Positions();
+    mBinding.checkQuestion.setText(getString(R.string.createrecovery_check_question, pos.get(0) + 1, pos.get(1) + 1, pos.get(2) + 1));
     goStepCheck();
+  }
+
+  private List<Integer> getFirst3Positions() {
+    final List<Integer> first3Positions = recoveryPositions.subList(0,3);
+    Collections.sort(first3Positions);
+    return first3Positions;
   }
 
   /**
@@ -128,10 +132,11 @@ public class CreateWalletRecoveryActivity extends EclairActivity implements Ecla
     }
     try {
       final String[] userWords = mBinding.checkInput.getText().toString().split(" ");
+      final List<Integer> pos = getFirst3Positions();
       if (userWords.length == 3
-        && checkWordRecoveryPhrase(recoveryPositions.get(0), userWords[0])
-        && checkWordRecoveryPhrase(recoveryPositions.get(1), userWords[1])
-        && checkWordRecoveryPhrase(recoveryPositions.get(2), userWords[2])) {
+        && checkWordRecoveryPhrase(pos.get(0), userWords[0])
+        && checkWordRecoveryPhrase(pos.get(1), userWords[1])
+        && checkWordRecoveryPhrase(pos.get(2), userWords[2])) {
         goStepSuccess();
         return;
       }
