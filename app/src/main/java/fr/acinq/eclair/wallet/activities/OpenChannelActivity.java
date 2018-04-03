@@ -228,7 +228,7 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
   }
 
   private void showError(final String errorLabel) {
-    mBinding.errorValue.setText(errorLabel);
+    mBinding.error.setText(errorLabel);
     mBinding.error.setVisibility(View.VISIBLE);
   }
 

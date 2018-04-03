@@ -142,8 +142,8 @@
   <string name="openchannel_capacity_invalid">Channel capacity must be between %1$s and %2$s</string>
   <string name="openchannel_capacity_notenoughfunds">Not enough funds</string>
   <string name="openchannel_error_capacity_nan">Capacity amount is not valid</string>
-  <string name="openchannel_error_fees_nan">Funding transaction\'s fees are not valid</string>
-  <string name="openchannel_error_fees_gt_0">Funding transaction\'s fee must be greater than 0</string>
+  <string name="openchannel_error_fees_nan">Funding tx fees are not valid</string>
+  <string name="openchannel_error_fees_gt_0">Funding tx fee must be greater than 0</string>
   <string name="openchannel_error_address">This is not a valid node URI.\n\nExpected format is nodeId@host:port</string>
   <string name="openchannel_do_open">Open</string>
   <string name="openchannel_pubkey">Node id</string>

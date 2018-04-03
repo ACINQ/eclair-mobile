@@ -145,7 +145,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:maxLines="1"
-            android:textColor="@color/grey_1"
+            android:textColor="@color/primary_light_x3"
             android:textSize="12sp" />
 
         </LinearLayout>
@@ -166,7 +166,7 @@
             android:layout_marginEnd="8dp"
             android:text="@string/openchannel_pubkey"
             android:textAlignment="textEnd"
-            android:textColor="@color/primary_light_x3"
+            android:textColor="@color/grey_1"
             android:textSize="12sp" />
 
           <TextView
@@ -195,7 +195,7 @@
             android:layout_marginEnd="8dp"
             android:text="@string/openchannel_ip"
             android:textAlignment="textEnd"
-            android:textColor="@color/primary_light_x3"
+            android:textColor="@color/grey_1"
             android:textSize="12sp" />
 
           <TextView
@@ -222,7 +222,7 @@
             android:layout_marginEnd="8dp"
             android:text="@string/openchannel_port"
             android:textAlignment="textEnd"
-            android:textColor="@color/primary_light_x3"
+            android:textColor="@color/grey_1"
             android:textSize="12sp" />
 
           <TextView
@@ -251,7 +251,7 @@
             android:layout_marginEnd="8dp"
             android:text="@string/openchannel_fees"
             android:textAlignment="textEnd"
-            android:textColor="@color/primary_light_x3"
+            android:textColor="@color/grey_1"
             android:textSize="12sp" />
 
           <LinearLayout
@@ -318,35 +318,21 @@
           android:textSize="12sp"
           android:visibility="gone" />
 
-        <!-- ERRORS -->
-        <LinearLayout
+        <TextView
           android:id="@+id/error"
-          android:layout_width="match_parent"
+          android:layout_width="wrap_content"
           android:layout_height="wrap_content"
-          android:layout_marginTop="18dp"
-          android:gravity="center"
-          android:paddingEnd="40dp"
-          android:paddingStart="48dp"
-          android:visibility="gone"
-          tools:ignore="UseCompoundDrawables">
-
-          <ImageView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_marginEnd="8dp"
-            android:contentDescription="@string/error_icon"
-            android:src="@drawable/ic_error" />
-
-          <TextView
-            android:id="@+id/error_value"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/openchannel_capacity_invalid"
-            android:textAlignment="viewStart"
-            android:textColor="@color/red_faded"
-            android:textSize="12sp" />
-
-        </LinearLayout>
+          android:layout_marginTop="12dp"
+          android:layout_marginLeft="32dp"
+          android:layout_marginRight="32dp"
+          android:drawablePadding="6dp"
+          android:drawableStart="@drawable/ic_error"
+          android:gravity="start|center"
+          android:paddingBottom="12dp"
+          android:text="@string/openchannel_capacity_invalid"
+          android:textColor="@color/grey_3"
+          android:textSize="12sp"
+          android:visibility="gone" />
 
         <LinearLayout
           android:layout_width="match_parent"
