@@ -19,7 +19,7 @@ package fr.acinq.eclair.wallet.tasks;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import fr.acinq.eclair.wallet.utils.BitcoinURI;
+import org.bitcoinj.uri.BitcoinURI;
 
 
 public class BitcoinInvoiceReaderTask extends AsyncTask<String, Integer, BitcoinURI> {

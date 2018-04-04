@@ -54,7 +54,7 @@ import fr.acinq.eclair.wallet.models.PaymentStatus;
 import fr.acinq.eclair.wallet.models.PaymentType;
 import fr.acinq.eclair.wallet.tasks.BitcoinInvoiceReaderTask;
 import fr.acinq.eclair.wallet.tasks.LNInvoiceReaderTask;
-import fr.acinq.eclair.wallet.utils.BitcoinURI;
+import org.bitcoinj.uri.BitcoinURI;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 import scala.util.Either;

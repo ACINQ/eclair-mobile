@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.acinq.eclair.wallet.utils;
+package org.bitcoinj.uri;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
@@ -33,10 +33,17 @@ import fr.acinq.bitcoin.Block;
 import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.package$;
+import fr.acinq.eclair.wallet.utils.BitcoinURIParseException;
+import fr.acinq.eclair.wallet.utils.Constants;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
+ * This file is a modified version of the BitcoinURI.java file written by the bitcoinj developers.
+ * See: https://github.com/bitcoinj/bitcoinj/blob/master/core/src/main/java/org/bitcoinj/uri/BitcoinURI.java
+ *
+ * ----
+ *
  * <p>Provides a standard implementation of a Bitcoin URI with support for the following:</p>
  * <p>
  * <ul>
