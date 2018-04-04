@@ -18,7 +18,7 @@ The wallet is available on [Google Play](https://play.google.com/store/apps/deta
 
 ### Opening a LN channel
 
-1. Make sur you have funds (swipe to the left from the home screen to display your address and receive funds).
+1. Make sure you have funds (swipe to the left from the home screen to display your address and receive funds).
 
    You can get Testnet bitcoins from [this faucet](https://testnet.manu.backend.hamburg/faucet).
 
