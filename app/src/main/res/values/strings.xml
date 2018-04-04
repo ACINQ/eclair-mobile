@@ -221,7 +221,7 @@
   <string name="payment_type_onchain">On-Chain Payment</string>
   <string name="payment_type_lightning">Lightning Payment</string>
   <string name="payment_empty_wallet">Empty wallet</string>
-  <string name="payment_empty_wallet_disclaimer">Funds locked in lightning channels will not be affected.</string>
+  <string name="payment_empty_wallet_disclaimer">Funds in your Lightning channels will not be included. You might want to close them first.</string>
   <string name="payment_fees_custom">Custom</string>
   <string name="payment_fees_slow">Slow (12h)</string>
   <string name="payment_fees_medium">Medium (2h)</string>

@@ -16,6 +16,8 @@
 
 package fr.acinq.eclair.wallet.utils;
 
+import org.bitcoinj.uri.BitcoinURI;
+
 /**
  * <p>Exception to provide the following to {@link BitcoinURI}:</p>
  * <ul>

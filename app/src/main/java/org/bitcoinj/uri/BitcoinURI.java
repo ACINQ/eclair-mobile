@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-package fr.acinq.eclair.wallet.utils;
-
-import javax.annotation.Nullable;
+package org.bitcoinj.uri;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
@@ -29,12 +27,23 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import javax.annotation.Nullable;
+
+import fr.acinq.bitcoin.Block;
 import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.eclair.CoinUtils;
+import fr.acinq.eclair.package$;
+import fr.acinq.eclair.wallet.utils.BitcoinURIParseException;
+import fr.acinq.eclair.wallet.utils.Constants;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
+ * This file is a modified version of the BitcoinURI.java file written by the bitcoinj developers.
+ * See: https://github.com/bitcoinj/bitcoinj/blob/master/core/src/main/java/org/bitcoinj/uri/BitcoinURI.java
+ *
+ * ----
+ *
  * <p>Provides a standard implementation of a Bitcoin URI with support for the following:</p>
  * <p>
  * <ul>
@@ -95,7 +104,7 @@ public class BitcoinURI {
   /**
    * Constructs a new object by trying to parse the input as a valid Bitcoin URI.
    *
-   * @param input  The raw URI data to be parsed (see class comments for accepted formats)
+   * @param input The raw URI data to be parsed (see class comments for accepted formats)
    * @throws BitcoinURIParseException If the input fails Bitcoin URI syntax and semantic checks.
    */
   public BitcoinURI(String input) throws BitcoinURIParseException {
@@ -150,7 +159,8 @@ public class BitcoinURI {
 
     if (!addressToken.isEmpty()) {
       // Attempt to parse the addressToken as a Bitcoin address for this network
-        putWithValidation(FIELD_ADDRESS, addressToken);
+      package$.MODULE$.addressToPublicKeyScript(addressToken, Block.LivenetGenesisBlock().hash());
+      putWithValidation(FIELD_ADDRESS, addressToken);
     }
 
     if (addressToken.isEmpty() && getPaymentRequestUrl() == null) {
