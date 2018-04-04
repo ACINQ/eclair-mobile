@@ -98,6 +98,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="4dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
             android:gravity="center">
 
             <EditText
@@ -108,7 +110,7 @@
               android:background="@android:color/transparent"
               android:fontFamily="sans-serif-light"
               android:inputType="numberDecimal"
-              android:maxLength="8"
+              android:overScrollMode="always"
               android:maxLines="1"
               android:minWidth="48dp"
               android:textAlignment="viewEnd"

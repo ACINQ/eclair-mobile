@@ -4,23 +4,21 @@
 
 The Eclair Wallet is a next generation, Lightning-ready Bitcoin wallet. It can be used as a regular Bitcoin wallet, and can also connect to the Lightning Network for cheap and instant payments.
 
-This software is based upon [Eclair](https://github.com/ACINQ/eclair), and follows the Lightning Network standard.
+This software is based upon [eclair](https://github.com/ACINQ/eclair), and follows the Lightning Network standard.
 
 ## Installation
 
-The wallet is available on [Google Play](https://play.google.com/store/apps/details?id=fr.acinq.eclair.wallet).
+The wallet is available on [Google Play](https://play.google.com/store/apps/details?id=fr.acinq.eclair.wallet), you can also download APKs from the [releases page](https://github.com/ACINQ/eclair-wallet/releases).
 
 ## Wallet Limitations
 
-- The wallet is still experimental. Bugs, crashes and backward incompatibilities should be expected.
-
 - Lightning channels are outbound only: you can pay with LN but you can not receive or forward payments with this wallet. For the complete LN experience, run a full [Eclair Node](https://github.com/ACINQ/eclair).
 
-## Usage with Lightning
+## Usage with Lightning (on TESTNET)
 
 ### Opening a LN channel
 
-1. Make sur you have funds (swipe to the left from the home screen to display your address and receive funds).
+1. Make sure you have funds (swipe to the left from the home screen to display your address and receive funds).
 
    You can get Testnet bitcoins from [this faucet](https://testnet.manu.backend.hamburg/faucet).
 
@@ -67,8 +65,8 @@ The wallet is available on [Google Play](https://play.google.com/store/apps/deta
 ## Developers
 
 1. clone this project
-2. clone [Eclair](https://github.com/ACINQ/eclair) and checkout the `wip-android` branch.
+2. clone [eclair](https://github.com/ACINQ/eclair) and checkout the `android` branch.
 
-   Follow the steps [here](https://github.com/ACINQ/eclair/blob/wip-android/BUILD.md) to build the project. This is a required dependency for the wallet.
+   Follow the steps [here](https://github.com/ACINQ/eclair/blob/android/BUILD.md) to build the eclair-core library.
 
 3. Open the Eclair Wallet project with Android studio. You should now be able to install it on your phone/on an emulator.

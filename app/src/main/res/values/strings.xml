@@ -309,7 +309,6 @@
   </string>
   <string name="about_limitations_title">Software Limitations</string>
   <string name="about_limitations_text"><![CDATA[
-    <p>This wallet is experimental, bugs and crashes should be expected.</p>
     <p>Main limitations:
     <br/>
     - Lightning channels are outbound only: you can pay with LN, but not receive/forward payments.
