@@ -16,8 +16,6 @@
 
 package fr.acinq.eclair.wallet.utils;
 
-import javax.annotation.Nullable;
-
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -29,8 +27,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import javax.annotation.Nullable;
+
+import fr.acinq.bitcoin.Block;
 import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.eclair.CoinUtils;
+import fr.acinq.eclair.package$;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -95,7 +97,7 @@ public class BitcoinURI {
   /**
    * Constructs a new object by trying to parse the input as a valid Bitcoin URI.
    *
-   * @param input  The raw URI data to be parsed (see class comments for accepted formats)
+   * @param input The raw URI data to be parsed (see class comments for accepted formats)
    * @throws BitcoinURIParseException If the input fails Bitcoin URI syntax and semantic checks.
    */
   public BitcoinURI(String input) throws BitcoinURIParseException {
@@ -150,7 +152,8 @@ public class BitcoinURI {
 
     if (!addressToken.isEmpty()) {
       // Attempt to parse the addressToken as a Bitcoin address for this network
-        putWithValidation(FIELD_ADDRESS, addressToken);
+      package$.MODULE$.addressToPublicKeyScript(addressToken, Block.TestnetGenesisBlock().hash());
+      putWithValidation(FIELD_ADDRESS, addressToken);
     }
 
     if (addressToken.isEmpty() && getPaymentRequestUrl() == null) {

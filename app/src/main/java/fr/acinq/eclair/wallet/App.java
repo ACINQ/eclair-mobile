@@ -287,28 +287,6 @@ public class App extends Application {
   }
 
   /**
-   * Checks if the bitcoin address parameters match with the wallet's chain.
-   *
-   * @param address bitcoin public address
-   * @return false if address chain does not match the wallet's.
-   */
-  public boolean checkAddressParameters(final String address) {
-    try {
-      Object byte1 = Base58Check.decode(address)._1();
-      boolean isTestNet = byte1.equals(Base58.Prefix$.MODULE$.PubkeyAddressTestnet()) || byte1.equals(Base58.Prefix$.MODULE$.ScriptAddressTestnet());
-      boolean isMainNet = byte1.equals(Base58.Prefix$.MODULE$.PubkeyAddress()) || byte1.equals(Base58.Prefix$.MODULE$.ScriptAddress());
-      return isTestNet;
-    } catch (Throwable t) {
-      Log.w(TAG, "Could not check address parameter for address=" + address + " with cause=" + t.getMessage());
-    }
-    return false;
-  }
-
-  public boolean isProduction() {
-    return false; // FIXME NetworkParameters.ID_MAINNET.equals(wallet.getNetworkParameters().getId());
-  }
-
-  /**
    * Broadcast a transaction using the payload.
    *
    * @param payload
