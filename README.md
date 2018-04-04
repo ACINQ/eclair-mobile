@@ -8,11 +8,9 @@ This software is based upon [Eclair](https://github.com/ACINQ/eclair), and follo
 
 ## Installation
 
-The wallet is available on [Google Play](https://play.google.com/store/apps/details?id=fr.acinq.eclair.wallet).
+The wallet is available on [Google Play](https://play.google.com/store/apps/details?id=fr.acinq.eclair.wallet), you can also download APKs from the [releases page](https://github.com/ACINQ/eclair-wallet/releases).
 
 ## Wallet Limitations
-
-- The wallet is still experimental. Bugs, crashes and backward incompatibilities should be expected.
 
 - Works only on Bitcoin Testnet.
 
