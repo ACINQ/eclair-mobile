@@ -330,7 +330,7 @@
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:textSize="10sp"
-          android:textColor="@color/grey_1"
+          android:textColor="@color/grey_2"
           android:visibility="gone"
           android:layout_marginTop="-8dp"
           android:paddingStart="68dp"
