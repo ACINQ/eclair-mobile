@@ -74,7 +74,7 @@
     <p>
       <b>ON-CHAIN FUNDS</b>
       <br />
-      On-chain funds are secured by the usual BIP49 seed, with a standard derivation path.
+      On-chain funds are secured by a BIP39 seed with a BIP49 derivation path.
       You can back them up like you would with any other wallet.
     </p>
     <p>
