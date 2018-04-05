@@ -47,7 +47,6 @@ import fr.acinq.eclair.wallet.fragments.PinDialog;
 import fr.acinq.eclair.wallet.models.FeeRating;
 import fr.acinq.eclair.wallet.tasks.NodeURIReaderTask;
 import fr.acinq.eclair.wallet.utils.Constants;
-import fr.acinq.eclair.wallet.utils.Validators;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 import scala.concurrent.duration.Duration;
 
@@ -218,7 +217,7 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
       showError(getString(R.string.openchannel_capacity_invalid, CoinUtils.formatAmountInUnit(minFunding, preferredBitcoinUnit, false),
         CoinUtils.formatAmountInUnit(maxFunding, preferredBitcoinUnit, true)));
       return false;
-    } else if (package$.MODULE$.millisatoshi2satoshi(amountMsat).amount() + Validators.MIN_LEFTOVER_ONCHAIN_BALANCE_SAT > app.onChainBalance.get().amount()) {
+    } else if (package$.MODULE$.millisatoshi2satoshi(amountMsat).amount() > app.onChainBalance.get().amount()) {
       showError(getString(R.string.openchannel_capacity_notenoughfunds));
       return false;
     } else {
