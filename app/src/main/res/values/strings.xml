@@ -74,7 +74,7 @@
     <p>
       <b>ON-CHAIN FUNDS</b>
       <br />
-      On-chain funds are secured by the usual BIP49 seed, with a standard derivation path.
+      On-chain funds are secured by a BIP39 seed with a BIP49 derivation path.
       You can back them up like you would with any other wallet.
     </p>
     <p>
@@ -109,7 +109,8 @@
 
   <!-- //////////////// Create Recovery /////////////////// -->
 
-  <string name="createrecovery_instructions">If you lose access to your phone, you will need this phrase to recover your wallet. Please backup this phrase in a secure location (not on this phone).</string>
+  <string name="createrecovery_instructions">If you lose access to your phone, you will need this list of 24 words to recover your on-chain funds.\n\nPlease backup this phrase in a secure location (not on this phone).</string>
+  <string name="createrecovery_word_display"><![CDATA[<small>#%1$d</small> <b>%2$s</b>]]></string>
   <string name="createrecovery_generation_failed">Could not generate the recovery phrase…</string>
   <string name="createrecovery_goto_check">OK, got it</string>
   <string name="createrecovery_check_skip">Skip (only on TESTNET)</string>
@@ -119,7 +120,7 @@
   <string name="createrecovery_error_write_seed">Could not save the wallet</string>
   <string name="createrecovery_success_prompt_encrypt">You now must set a password to encrypt you wallet.</string>
   <string name="createrecovery_success_finish">Encrypt wallet</string>
-  <string name="createrecovery_check_failed">Wrong words.\nPlease check your recovery phrase.</string>
+  <string name="createrecovery_check_failed">Words are not correct.\nPlease check your recovery phrase.</string>
   <string name="createrecovery_passphrase_hint">Enter a password for the wallet</string>
   <string name="createrecovery_passphrase_failed">This passphrase is not valid (not empty, max 20 chars, no special characters).</string>
   <string name="createrecovery_general_failure">Could not create wallet</string>
