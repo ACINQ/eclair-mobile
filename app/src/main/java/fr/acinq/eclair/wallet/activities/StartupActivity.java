@@ -270,6 +270,9 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
       } else {
         final String currentPassword = app.pin.get();
         if (currentPassword == null) {
+          if (pinDialog != null) {
+            pinDialog.dismiss();
+          }
           pinDialog = new PinDialog(StartupActivity.this, R.style.CustomAlertDialog, new PinDialog.PinDialogCallback() {
             @Override
             public void onPinConfirm(final PinDialog dialog, final String pinValue) {
