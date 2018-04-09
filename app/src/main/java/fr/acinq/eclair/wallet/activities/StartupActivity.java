@@ -191,7 +191,29 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
         return;
       }
     }
+    if (!isFreshInstall && lastUsedVersion <= 15) {
+      migrateTestnetSqlite(datadir);
+    }
     checkWalletInit(datadir);
+  }
+
+  private void migrateTestnetSqlite(final File datadir) {
+    final File eclairSqlite = new File(datadir, "eclair.sqlite");
+    final File testnetDir = new File(datadir, "testnet");
+    if (eclairSqlite.exists()) {
+      if (!testnetDir.exists()) {
+        testnetDir.mkdir();
+      }
+      final File eclairSqliteInTestnet = new File(testnetDir, "eclair.sqlite");
+      if (!eclairSqliteInTestnet.exists()) {
+        try {
+          Files.move(eclairSqlite, eclairSqliteInTestnet);
+          Log.i(TAG, "moved eclair.sqlite to testnet dir");
+        } catch (IOException e) {
+          showError(getString(R.string.start_error_generic));
+        }
+      }
+    }
   }
 
   private void checkWalletInit(final File datadir) {
@@ -344,7 +366,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
 
         Class.forName("org.sqlite.JDBC");
         publishProgress("setting up eclair");
-        Setup setup = new Setup(datadir, Option.apply(null), ConfigFactory.empty(), app.system, Option.apply(seed));
+        final Setup setup = new Setup(datadir, Option.apply(null), ConfigFactory.empty(), app.system, Option.apply(seed));
 
         // gui and electrum supervisor actors
         ActorRef guiUpdater = app.system.actorOf(Props.create(EclairEventService.class, app.getDBHelper()));
