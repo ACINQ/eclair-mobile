@@ -146,7 +146,7 @@ public class ChannelDetailsActivity extends EclairActivity {
         mBinding.countHtlcsInflight.setValue(String.valueOf(channel.getValue().htlcsInFlightCount));
         mBinding.minimumHtlcAmount.setValue(CoinUtils.formatAmountInUnit(new MilliSatoshi(channel.getValue().minimumHtlcAmountMsat), prefUnit, true));
         mBinding.transactionId.setValue(channel.getValue().transactionId);
-        mBinding.explorerButton.setOnClickListener(WalletUtils.getOpenTxListener(channel.getValue().transactionId));
+        mBinding.transactionId.actionButton.setOnClickListener(WalletUtils.getOpenTxListener(channel.getValue().transactionId));
       }
     } catch (Exception e) {
       Log.w(TAG, "could not read channel details with cause=" + e.getMessage());

@@ -173,7 +173,7 @@
   <string name="menu_faq">FAQ</string>
   <string name="menu_preferences">Preferences</string>
 
-  <string name="open_in_explorer">Open transaction in explorer</string>
+  <string name="open_in_explorer">Open in explorer</string>
   <string name="close_button">Close Channel</string>
 
   <!-- //////////////// Bitcoin Transaction Details //////////////////// -->
