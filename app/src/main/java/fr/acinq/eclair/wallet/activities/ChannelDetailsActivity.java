@@ -142,6 +142,7 @@ public class ChannelDetailsActivity extends EclairActivity {
         mBinding.nodeid.setValue(channel.getValue().remoteNodeId);
         mBinding.capacity.setValue(CoinUtils.formatAmountInUnit(channel.getValue().capacityMsat, prefUnit, true));
         mBinding.channelId.setValue(channel.getValue().channelId);
+        mBinding.channelId.actionButton.setOnClickListener(v -> openRawDataWindow());
         mBinding.reserve.setValue(CoinUtils.formatAmountInUnit(new Satoshi(channel.getValue().channelReserveSat), prefUnit, true));
         mBinding.countHtlcsInflight.setValue(String.valueOf(channel.getValue().htlcsInFlightCount));
         mBinding.minimumHtlcAmount.setValue(CoinUtils.formatAmountInUnit(new MilliSatoshi(channel.getValue().minimumHtlcAmountMsat), prefUnit, true));
@@ -152,6 +153,12 @@ public class ChannelDetailsActivity extends EclairActivity {
       Log.w(TAG, "could not read channel details with cause=" + e.getMessage());
       finish();
     }
+  }
+
+  private void openRawDataWindow() {
+    Intent intent = new Intent(getApplicationContext(), ChannelRawDataActivity.class);
+    intent.putExtra(LocalChannelItemHolder.EXTRA_CHANNEL_ID, this.mChannelId);
+    startActivity(intent);
   }
 
   private Map.Entry<ActorRef, EclairEventService.ChannelDetails> getChannel(String channelId) {

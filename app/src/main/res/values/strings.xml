@@ -25,6 +25,7 @@
   <string name="lnpayment_name">Lightning Payment Details</string>
   <string name="btcpayment_name">Transaction Details</string>
   <string name="channeldetails_name">Channel Details</string>
+  <string name="channelrawdata_name">Channel Raw Data</string>
 
   <!-- //////////////// Home //////////////////// -->
 
@@ -216,6 +217,13 @@
   <string name="channeldetails_closingtype_local">LOCAL</string>
   <string name="channeldetails_closingtype_remote">REMOTE</string>
   <string name="channeldetails_closingtype_other">OTHER</string>
+  <string name="channeldetails_raw_data">Raw channel data</string>
+
+  <!-- //////////////// Local Channel Raw Data //////////////////// -->
+
+  <string name="channelraw_desc">You can use this raw json data for debugging purposes.</string>
+  <string name="channelraw_copy">Copy</string>
+  <string name="channelraw_pleasewait">Fetching data, please wait…</string>
 
   <!-- //////////////// Send Payment //////////////////// -->
 
