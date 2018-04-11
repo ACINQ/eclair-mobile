@@ -8,12 +8,11 @@
     </encoder>
   </appender>
 
-  <!--<logger name="com.ning.http.client.providers.netty" level="INFO" />-->
-  <!--<logger name="fr.acinq.eclair.io" level="INFO" />-->
-  <!--<logger name="fr.acinq.eclair.router.Router" level="INFO" />-->
-  <!--<logger name="fr.acinq.eclair.crypto" level="WARN" />-->
+  <logger name="com.ning.http.client.providers.netty" level="WARN" />
+  <logger name="fr.acinq.eclair.router.Router" level="WARN" />
+  <logger name="fr.acinq.eclair.crypto" level="WARN" />
 
-  <root level="WARN">
+  <root level="INFO">
     <appender-ref ref="logcat" />
   </root>
 </configuration>

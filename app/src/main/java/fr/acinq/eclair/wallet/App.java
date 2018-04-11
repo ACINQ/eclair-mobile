@@ -37,8 +37,7 @@ import akka.dispatch.OnComplete;
 import akka.dispatch.OnFailure;
 import akka.pattern.Patterns;
 import akka.util.Timeout;
-import fr.acinq.bitcoin.Base58;
-import fr.acinq.bitcoin.Base58Check;
+import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.bitcoin.Transaction;
@@ -48,12 +47,15 @@ import fr.acinq.eclair.Globals;
 import fr.acinq.eclair.Kit;
 import fr.acinq.eclair.blockchain.electrum.ElectrumEclairWallet;
 import fr.acinq.eclair.blockchain.electrum.ElectrumWallet;
+import fr.acinq.eclair.channel.CMD_GETINFO$;
 import fr.acinq.eclair.channel.Channel;
+import fr.acinq.eclair.channel.Register;
 import fr.acinq.eclair.io.NodeURI;
 import fr.acinq.eclair.io.Peer;
 import fr.acinq.eclair.payment.PaymentLifecycle;
 import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.wallet.events.BitcoinPaymentFailedEvent;
+import fr.acinq.eclair.wallet.events.ChannelRawDataEvent;
 import fr.acinq.eclair.wallet.events.LNNewChannelFailureEvent;
 import fr.acinq.eclair.wallet.events.NetworkChannelsCountEvent;
 import fr.acinq.eclair.wallet.events.NotificationEvent;
@@ -196,7 +198,7 @@ public class App extends Application {
    */
   public void sendBitcoinPayment(final Satoshi amountSat, final String address, final long feesPerKw) {
     try {
-      Future fBitcoinPayment = appKit.electrumWallet.sendPayment(amountSat, address, feesPerKw);
+      Future<String> fBitcoinPayment = appKit.electrumWallet.sendPayment(amountSat, address, feesPerKw);
       fBitcoinPayment.onComplete(new OnComplete<String>() {
         @Override
         public void onComplete(final Throwable t, final String txId) {
@@ -223,7 +225,7 @@ public class App extends Application {
    */
   public void sendAllOnchain(final String address, final long feesPerKw) {
     try {
-      final Future fCreateSendAll = appKit.electrumWallet.sendAll(address, feesPerKw);
+      final Future<Tuple2<Transaction, Satoshi>> fCreateSendAll = appKit.electrumWallet.sendAll(address, feesPerKw);
       fCreateSendAll.onComplete(new OnComplete<Tuple2<Transaction, Satoshi>>() {
         @Override
         public void onComplete(final Throwable t, final Tuple2<Transaction, Satoshi> res) {
@@ -329,14 +331,32 @@ public class App extends Application {
    * The call timeouts fails after 10 seconds. When the call fails, the network's channels count will be -1.
    */
   public void getNetworkChannelsCount() {
-    Future<Object> paymentFuture = Patterns.ask(appKit.eclairKit.router(), Symbol.apply("channels"), new Timeout(Duration.create(10, "seconds")));
-    paymentFuture.onComplete(new OnComplete<Object>() {
+    Future<Object> future = Patterns.ask(appKit.eclairKit.router(), Symbol.apply("channels"), new Timeout(Duration.create(10, "seconds")));
+    future.onComplete(new OnComplete<Object>() {
       @Override
       public void onComplete(Throwable throwable, Object o) throws Throwable {
         if (throwable == null && o != null && o instanceof Iterable) {
           EventBus.getDefault().post(new NetworkChannelsCountEvent(((Iterable) o).size()));
         } else {
           EventBus.getDefault().post(new NetworkChannelsCountEvent(-1));
+        }
+      }
+    }, system.dispatcher());
+  }
+
+  /**
+   * Asynchronously ask for the raw json data of a local channel.
+   */
+  public void getLocalChannelRawData(final BinaryData channelId) {
+    Register.Forward<CMD_GETINFO$> forward = new Register.Forward<>(channelId, CMD_GETINFO$.MODULE$);
+    Future<Object> future = Patterns.ask(appKit.eclairKit.register(), forward, new Timeout(Duration.create(5, "seconds")));
+    future.onComplete(new OnComplete<Object>() {
+      @Override
+      public void onComplete(Throwable throwable, Object o) throws Throwable {
+        if (throwable == null && o != null) {
+          EventBus.getDefault().post(new ChannelRawDataEvent(o.toString()));
+        } else {
+          EventBus.getDefault().post(new ChannelRawDataEvent(null));
         }
       }
     }, system.dispatcher());

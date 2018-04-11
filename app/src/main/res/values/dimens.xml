@@ -26,6 +26,7 @@
 
   <dimen name="item_height">46dp</dimen>
 
+  <dimen name="word_list_padding">4dp</dimen>
   <dimen name="title_bar_padding_sm">8dp</dimen>
   <dimen name="title_bar_padding_md">12dp</dimen>
   <dimen name="title_bar_padding_lg">16dp</dimen>

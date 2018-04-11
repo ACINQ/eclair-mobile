@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright 2018 ACINQ SAS
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -90,9 +89,9 @@
                 android:id="@+id/state"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAllCaps="true"
-                android:maxLines="1"
                 android:ellipsize="end"
+                android:maxLines="1"
+                android:textAllCaps="true"
                 android:textSize="12sp" />
             </LinearLayout>
 
@@ -188,7 +187,9 @@
           android:id="@+id/channel_id"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
+          app:action_label="@string/channeldetails_raw_data"
           app:desc="@string/channeldetails_id_desc"
+          app:has_action="true"
           app:label="@string/channeldetails_id_label"
           app:value="@string/unknown" />
 
@@ -228,33 +229,13 @@
           android:id="@+id/transaction_id"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
+          app:action_bg="@color/yellow"
+          app:action_label="@string/open_in_explorer"
           app:desc="@string/channeldetails_transactionid_desc"
+          app:has_action="true"
           app:label="@string/channeldetails_transactionid_label"
           app:value="@string/unknown" />
 
-        <LinearLayout
-          android:id="@+id/explorer_button"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:background="@color/yellow"
-          android:clickable="true"
-          android:gravity="center"
-          android:orientation="horizontal"
-          android:padding="12dp">
-
-          <ImageView
-            android:layout_width="18dp"
-            android:layout_height="18dp"
-            android:layout_marginEnd="8dp"
-            android:src="@mipmap/ic_open_new_b" />
-
-          <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/open_in_explorer"
-            android:textAllCaps="true"
-            android:textSize="12sp" />
-        </LinearLayout>
       </LinearLayout>
     </android.support.v4.widget.NestedScrollView>
   </LinearLayout>

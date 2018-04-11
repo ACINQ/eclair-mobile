@@ -43,25 +43,29 @@
           android:id="@+id/check_failed"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:layout_marginBottom="16dp"
-          android:background="@drawable/rounded_corner_red"
+          android:layout_marginBottom="@dimen/wide_space"
+          android:drawablePadding="8dp"
+          android:drawableStart="@drawable/ic_warning_white"
+          android:background="@drawable/rounded_corner_primary_light_x1"
           android:padding="8dp"
           android:text="@string/createrecovery_check_failed"
+          android:textColor="@color/white"
+          android:textSize="12sp"
           android:visibility="gone" />
 
         <TextView
           android:id="@+id/instructions"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:layout_marginBottom="16dp"
+          android:layout_marginBottom="@dimen/app_padding"
+          android:textSize="12sp"
           android:text="@string/createrecovery_instructions" />
 
-        <TextView
-          android:id="@+id/entropy_display"
+        <TableLayout
+          android:id="@+id/words_table"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:layout_marginBottom="32dp"
-          android:textStyle="bold" />
+          android:layout_marginBottom="@dimen/wide_space" />
 
         <LinearLayout
           android:layout_width="match_parent"
@@ -126,7 +130,6 @@
             android:backgroundTint="@color/primary_light_x3"
             android:digits="abcdefghijklmnopqrstuvwxyz "
             android:inputType="text|textNoSuggestions"
-            android:maxLines="2"
             android:textColor="@color/white" />
         </android.support.design.widget.TextInputLayout>
 

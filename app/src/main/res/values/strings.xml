@@ -25,6 +25,7 @@
   <string name="lnpayment_name">Lightning Payment Details</string>
   <string name="btcpayment_name">Transaction Details</string>
   <string name="channeldetails_name">Channel Details</string>
+  <string name="channelrawdata_name">Channel Raw Data</string>
 
   <!-- //////////////// Home //////////////////// -->
 
@@ -74,7 +75,7 @@
     <p>
       <b>ON-CHAIN FUNDS</b>
       <br />
-      On-chain funds are secured by the usual BIP49 seed, with a standard derivation path.
+      On-chain funds are secured by a BIP39 seed with a BIP49 derivation path.
       You can back them up like you would with any other wallet.
     </p>
     <p>
@@ -109,7 +110,8 @@
 
   <!-- //////////////// Create Recovery /////////////////// -->
 
-  <string name="createrecovery_instructions">If you lose access to your phone, you will need this phrase to recover your wallet. Please backup this phrase in a secure location (not on this phone).</string>
+  <string name="createrecovery_instructions">If you lose access to your phone, you will need this list of 24 words to recover your on-chain funds.\n\nPlease backup this phrase in a secure location (not on this phone).</string>
+  <string name="createrecovery_word_display"><![CDATA[<small>#%1$d</small> <b>%2$s</b>]]></string>
   <string name="createrecovery_generation_failed">Could not generate the recovery phrase…</string>
   <string name="createrecovery_goto_check">OK, got it</string>
   <string name="createrecovery_check_question">What are the #%1$d, #%2$d and #%3$d words of your recovery phrase?</string>
@@ -118,7 +120,7 @@
   <string name="createrecovery_error_write_seed">Could not save the wallet</string>
   <string name="createrecovery_success_prompt_encrypt">You now must set a password to encrypt you wallet.</string>
   <string name="createrecovery_success_finish">Encrypt wallet</string>
-  <string name="createrecovery_check_failed">Wrong words.\nPlease check your recovery phrase.</string>
+  <string name="createrecovery_check_failed">Words are not correct.\nPlease check your recovery phrase.</string>
   <string name="createrecovery_passphrase_hint">Enter a password for the wallet</string>
   <string name="createrecovery_passphrase_failed">This passphrase is not valid (not empty, max 20 chars, no special characters).</string>
   <string name="createrecovery_general_failure">Could not create wallet</string>
@@ -171,7 +173,7 @@
   <string name="menu_faq">FAQ</string>
   <string name="menu_preferences">Preferences</string>
 
-  <string name="open_in_explorer">Open transaction in explorer</string>
+  <string name="open_in_explorer">Open in explorer</string>
   <string name="close_button">Close Channel</string>
 
   <!-- //////////////// Bitcoin Transaction Details //////////////////// -->
@@ -214,6 +216,13 @@
   <string name="channeldetails_closingtype_local">LOCAL</string>
   <string name="channeldetails_closingtype_remote">REMOTE</string>
   <string name="channeldetails_closingtype_other">OTHER</string>
+  <string name="channeldetails_raw_data">Raw channel data</string>
+
+  <!-- //////////////// Local Channel Raw Data //////////////////// -->
+
+  <string name="channelraw_desc">You can use this raw json data for debugging purposes.</string>
+  <string name="channelraw_copy">Copy</string>
+  <string name="channelraw_pleasewait">Fetching data, please wait…</string>
 
   <!-- //////////////// Send Payment //////////////////// -->
 
@@ -350,9 +359,9 @@
 
   <string name="btc_fee_unit">sat/byte</string>
   <string name="chain_name">MAINNET</string>
-  <string name="chain_disconnected">Electrum disconnected</string>
-  <string name="chain_disconnected_desc">Connection was lost. Sending funds is disabled.</string>
-  <string name="chain_late">Electrum desynchronized</string>
+  <string name="chain_disconnected">Lost connection with electrum server</string>
+  <string name="chain_disconnected_desc">Sending funds is disabled</string>
+  <string name="chain_late">Electrum server desynchronized</string>
   <string name="chain_late_desc">Attention, your wallet\'s block height looks stale. Sending lightning payments may trigger the unilateral closing of your channels!</string>
 
   <!-- //////////////// Pin dialogs //////////////////// -->

@@ -195,32 +195,11 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
   }
 
   private void checkWalletInit(final File datadir) {
-    if (!datadir.exists()) {
+    if (datadir.exists() && new File(datadir, WalletUtils.SEED_NAME).exists()) {
+      startNode(datadir);
+    } else {
       if (!mBinding.stubPickInitWallet.isInflated()) {
         mBinding.stubPickInitWallet.getViewStub().inflate();
-      }
-    } else {
-      final File unencryptedSeedFile = new File(datadir, WalletUtils.UNENCRYPTED_SEED_NAME);
-      final File encryptedSeedFile = new File(datadir, WalletUtils.SEED_NAME);
-      if (unencryptedSeedFile.exists() && !encryptedSeedFile.exists()) {
-        Log.i(TAG, "non encrypted seed file found in datadir, encryption is required");
-        try {
-          final byte[] unencryptedSeed = Files.toByteArray(unencryptedSeedFile);
-          showError(getString(R.string.start_error_unencrypted));
-          new Handler().postDelayed(() -> encryptWallet(this, false, datadir, unencryptedSeed), 2500);
-        } catch (IOException e) {
-          Log.e(TAG, "Could not encrypt unencrypted seed", e);
-        }
-      } else if (unencryptedSeedFile.exists() && encryptedSeedFile.exists()) {
-        // encrypted seed is the reference
-        unencryptedSeedFile.delete();
-        startNode(datadir);
-      } else if (encryptedSeedFile.exists()) {
-        startNode(datadir);
-      } else {
-        if (!mBinding.stubPickInitWallet.isInflated()) {
-          mBinding.stubPickInitWallet.getViewStub().inflate();
-        }
       }
     }
   }
@@ -248,6 +227,9 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
       } else {
         final String currentPassword = app.pin.get();
         if (currentPassword == null) {
+          if (pinDialog != null) {
+            pinDialog.dismiss();
+          }
           pinDialog = new PinDialog(StartupActivity.this, R.style.CustomAlertDialog, new PinDialog.PinDialogCallback() {
             @Override
             public void onPinConfirm(final PinDialog dialog, final String pinValue) {
@@ -344,7 +326,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
 
         Class.forName("org.sqlite.JDBC");
         publishProgress("setting up eclair");
-        Setup setup = new Setup(datadir, Option.apply(null), ConfigFactory.empty(), app.system, Option.apply(seed));
+        final Setup setup = new Setup(datadir, Option.apply(null), ConfigFactory.empty(), app.system, Option.apply(seed));
 
         // gui and electrum supervisor actors
         ActorRef guiUpdater = app.system.actorOf(Props.create(EclairEventService.class, app.getDBHelper()));

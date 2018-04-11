@@ -18,6 +18,7 @@
   android:layout_width="match_parent"
   android:layout_height="match_parent"
   android:background="?android:attr/selectableItemBackground"
+  android:baselineAligned="false"
   android:orientation="horizontal"
   android:paddingBottom="8dp"
   android:paddingEnd="@dimen/app_padding"
@@ -59,5 +60,20 @@
       android:textIsSelectable="true"
       android:textSize="10sp" />
 
+    <Button
+      android:id="@+id/view_action"
+      style="@style/Base.Widget.AppCompat.Button.Borderless"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_below="@id/view_value"
+      android:layout_gravity="center"
+      android:layout_marginTop="8dp"
+      android:background="@color/grey_0_light_x1"
+      android:elevation="0dp"
+      android:foreground="?android:attr/selectableItemBackground"
+      android:minHeight="0dp"
+      android:padding="12dp"
+      android:textSize="10sp"
+      android:visibility="gone" />
   </RelativeLayout>
 </LinearLayout>

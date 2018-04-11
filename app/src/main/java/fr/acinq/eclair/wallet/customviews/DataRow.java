@@ -18,8 +18,10 @@ package fr.acinq.eclair.wallet.customviews;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -30,6 +32,8 @@ public class DataRow extends LinearLayout {
   private TextView labelTextView;
   private TextView descTextView;
   private TextView valueTextView;
+  public Button actionButton;
+  private boolean hasAction;
 
   public DataRow(Context context) {
     super(context);
@@ -47,7 +51,6 @@ public class DataRow extends LinearLayout {
   }
 
   private void init(AttributeSet attrs, int defStyle) {
-
     final TypedArray arr = getContext().obtainStyledAttributes(attrs, R.styleable.DataRow, defStyle, 0);
     try {
       String service = Context.LAYOUT_INFLATER_SERVICE;
@@ -59,6 +62,13 @@ public class DataRow extends LinearLayout {
       descTextView.setText(arr.getString(R.styleable.DataRow_desc));
       valueTextView = layout.findViewById(R.id.view_value);
       valueTextView.setText(arr.getString(R.styleable.DataRow_value));
+      hasAction = arr.getBoolean(R.styleable.DataRow_has_action, false);
+      if (hasAction) {
+        actionButton = findViewById(R.id.view_action);
+        actionButton.setVisibility(VISIBLE);
+        actionButton.setText(arr.getString(R.styleable.DataRow_action_label));
+        actionButton.setBackgroundColor(arr.getColor(R.styleable.DataRow_action_bg, ContextCompat.getColor(getContext(), R.color.grey_0_light_x1)));
+      }
     } finally {
       arr.recycle();
     }

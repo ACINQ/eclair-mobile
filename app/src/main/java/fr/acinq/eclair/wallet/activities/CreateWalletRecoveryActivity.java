@@ -20,12 +20,14 @@ import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.Html;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.TableRow;
+import android.widget.TextView;
 import android.widget.Toast;
-
-import com.google.common.base.Joiner;
 
 import java.io.File;
 import java.util.Arrays;
@@ -54,12 +56,29 @@ public class CreateWalletRecoveryActivity extends EclairActivity implements Ecla
     try {
       mnemonics = JavaConverters.seqAsJavaListConverter(MnemonicCode.toMnemonics(fr.acinq.eclair.package$.MODULE$.randomBytes(
         ElectrumWallet.SEED_BYTES_LENGTH()).data(), MnemonicCode.englishWordlist())).asJava();
-      mBinding.entropyDisplay.setText(Joiner.on(" ").join(mnemonics));
+      final int bottomPadding = getResources().getDimensionPixelSize(R.dimen.word_list_padding);
+      final int rightPadding = getResources().getDimensionPixelSize(R.dimen.wide_space);
+      for (int i = 0; i < mnemonics.size(); i = i + 2) {
+        TableRow tr = new TableRow(this);
+        tr.setGravity(Gravity.CENTER);
+        tr.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
+        TextView t1 = new TextView(this);
+        t1.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
+        t1.setText(Html.fromHtml(getString(R.string.createrecovery_word_display, i + 1, mnemonics.get(i))));
+        t1.setPadding(0, 0, rightPadding, bottomPadding);
+        tr.addView(t1);
+        TextView t2 = new TextView(this);
+        t2.setText(Html.fromHtml(getString(R.string.createrecovery_word_display, i + 2, mnemonics.get(i+1))));
+        t2.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
+        t2.setPadding(0, 0, 0, bottomPadding);
+        tr.addView(t2);
+        mBinding.wordsTable.addView(tr);
+      }
     } catch (Exception e) {
       mnemonics = null;
       Log.e(TAG, "could not generate recovery phrase", e);
-      mBinding.entropyDisplay.setText(getString(R.string.createrecovery_generation_failed));
-      mBinding.gotoCheck.setVisibility(View.GONE);
+      Toast.makeText(getApplicationContext(), R.string.createrecovery_generation_failed, Toast.LENGTH_SHORT).show();
+      goToStartup();
     }
   }
 
