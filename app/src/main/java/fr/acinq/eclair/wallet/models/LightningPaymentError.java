@@ -105,6 +105,7 @@ public class LightningPaymentError implements Parcelable {
         }
       }
       return new LightningPaymentError(type, cause, origin, originChannelId, hopsNodesPK);
+
     } else if (failure instanceof PaymentLifecycle.LocalFailure) {
       final PaymentLifecycle.LocalFailure lf = (PaymentLifecycle.LocalFailure) failure;
       final String type = lf.getClass().getSimpleName();
@@ -122,8 +123,26 @@ public class LightningPaymentError implements Parcelable {
         cause = t.getClass().getSimpleName();
       }
       return new LightningPaymentError(type, cause, null, originChannelId, null);
+
+    } else if (failure instanceof PaymentLifecycle.UnreadableRemoteFailure) {
+      final PaymentLifecycle.UnreadableRemoteFailure unreadable = (PaymentLifecycle.UnreadableRemoteFailure) failure;
+      final String type = unreadable.getClass().getSimpleName();
+      final String cause = "A peer on the route failed the payment with an non readable cause";
+      final List<String> hopsNodesPK = new ArrayList<>();
+      if (unreadable.route().size() > 0) {
+        final List<Hop> hops = JavaConverters.seqAsJavaListConverter(unreadable.route()).asJava();
+        for (int hi = 0; hi < hops.size(); hi++) {
+          Hop h = hops.get(hi);
+          if (hi == 0) {
+            hopsNodesPK.add(h.nodeId().toString());
+          }
+          hopsNodesPK.add(h.nextNodeId().toString());
+        }
+      }
+      return new LightningPaymentError(type, cause, null, null, hopsNodesPK);
+
     } else {
-      return new LightningPaymentError("Unknown Error", "Unknown Cause", null, null, null);
+      return new LightningPaymentError("Unknown Error:" + failure.getClass().getSimpleName(), "Unknown Cause", null, null, null);
     }
   }
 
