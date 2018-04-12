@@ -17,8 +17,8 @@
 
   <application
     android:name=".App"
-    android:allowBackup="false"
-    android:fullBackupContent="false"
+    android:allowBackup="true"
+    android:fullBackupContent="true"
     android:icon="@mipmap/ic_launcher_testnet"
     android:label="@string/app_name"
     android:supportsRtl="true"
