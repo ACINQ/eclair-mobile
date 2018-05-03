@@ -315,15 +315,15 @@ public class App extends Application {
   }
 
   public long estimateSlowFees() {
-    return Math.max(Globals.feeratesPerByte().get().blocks_72(), 1);
+    return Math.max(Globals.feeratesPerKB().get().blocks_72() / 1000, 1);
   }
 
   public long estimateMediumFees() {
-    return Math.max(Globals.feeratesPerByte().get().blocks_12(), estimateSlowFees());
+    return Math.max(Globals.feeratesPerKB().get().blocks_12() / 1000, estimateSlowFees());
   }
 
   public long estimateFastFees() {
-    return Math.max(Globals.feeratesPerByte().get().blocks_2(), estimateMediumFees());
+    return Math.max(Globals.feeratesPerKB().get().blocks_2() / 1000, estimateMediumFees());
   }
 
   /**
