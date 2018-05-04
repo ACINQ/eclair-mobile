@@ -23,10 +23,15 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Toast;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.io.File;
 
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.databinding.ActivityToolsBinding;
+import fr.acinq.eclair.wallet.events.XpubEvent;
 import fr.acinq.eclair.wallet.utils.Constants;
 
 public class ToolsActivity extends EclairActivity {
@@ -41,13 +46,41 @@ public class ToolsActivity extends EclairActivity {
     setSupportActionBar(toolbar);
     ActionBar ab = getSupportActionBar();
     ab.setDisplayHomeAsUpEnabled(true);
+
+    mBinding.deleteNetworkDB.actionButton.setOnClickListener(v -> deleteNetworkDB());
   }
 
-  public void deleteNetworkDB(View view) {
+  @Override
+  public void onResume() {
+    super.onResume();
+    if (checkInit()) {
+      app.getXpubFromWallet();
+      if (!EventBus.getDefault().isRegistered(this)) {
+        EventBus.getDefault().register(this);
+      }
+    }
+  }
+
+  @Override
+  protected void onPause() {
+    EventBus.getDefault().unregister(this);
+    super.onPause();
+  }
+
+  private void deleteNetworkDB() {
     final File datadir = new File(getFilesDir(), Constants.ECLAIR_DATADIR);
     final File networkDB = new File(datadir, "testnet/network.sqlite");
     if (networkDB.delete()) {
       Toast.makeText(getApplicationContext(), "Successfully deleted network DB", Toast.LENGTH_SHORT).show();
+    }
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN)
+  public void handleRawDataEvent(XpubEvent event) {
+    if (event == null || event.xpub == null) {
+      mBinding.xpub.setValue("Could not get wallet xpub.");
+    } else {
+      mBinding.xpub.setValue(event.xpub.xpub() + "\n\n" + event.xpub.path());
     }
   }
 

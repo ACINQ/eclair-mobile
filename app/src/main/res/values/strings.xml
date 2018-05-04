@@ -427,7 +427,7 @@
   <string name="tools_networkdb_label">Delete Network DB</string>
   <string name="tools_networkdb_desc">Do not delete unless you know what you\'re doing. Restart the application once the DB has been deleted.</string>
   <string name="tools_networkdb_action">Delete Network DB</string>
-  <string name="tools_xpub_label">Extended Key</string>
-  <string name="tools_xpub_desc">Use this xpub to derive new onchain addresses.</string>
+  <string name="tools_xpub_label">Master Public Key</string>
+  <string name="tools_xpub_desc">All your addresses derive from this key.</string>
 
 </resources>

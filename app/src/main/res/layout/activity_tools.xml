@@ -55,6 +55,7 @@
           android:text="@string/tools_advanced_title" />
 
         <fr.acinq.eclair.wallet.customviews.DataRow
+          android:id="@+id/deleteNetworkDB"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           app:action_text_color="@color/white"
