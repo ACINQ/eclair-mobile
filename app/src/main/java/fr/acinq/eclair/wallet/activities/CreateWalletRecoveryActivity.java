@@ -95,7 +95,7 @@ public class CreateWalletRecoveryActivity extends EclairActivity implements Ecla
     mBinding.encryptStep.setVisibility(View.GONE);
   }
 
-  private void goStepSuccess() {
+  public void goStepSuccess(View v) {
     mBinding.displayStep.setVisibility(View.GONE);
     mBinding.checkStep.setVisibility(View.GONE);
     mBinding.encryptStep.setVisibility(View.VISIBLE);
@@ -156,7 +156,7 @@ public class CreateWalletRecoveryActivity extends EclairActivity implements Ecla
         && checkWordRecoveryPhrase(pos.get(0), userWords[0])
         && checkWordRecoveryPhrase(pos.get(1), userWords[1])
         && checkWordRecoveryPhrase(pos.get(2), userWords[2])) {
-        goStepSuccess();
+        goStepSuccess(view);
         return;
       }
     } catch (Exception e) {

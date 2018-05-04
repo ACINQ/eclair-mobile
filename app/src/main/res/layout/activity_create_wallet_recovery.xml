@@ -97,6 +97,17 @@
             android:padding="@dimen/app_padding"
             android:text="@string/createrecovery_goto_check" />
         </LinearLayout>
+
+        <Button
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_gravity="center"
+          android:background="?android:attr/selectableItemBackground"
+          android:onClick="goStepSuccess"
+          android:layout_marginTop="@dimen/app_padding"
+          android:padding="@dimen/app_padding"
+          android:textColor="@color/yellow"
+          android:text="@string/createrecovery_check_skip" />
       </LinearLayout>
 
       <!-- check that the generated recovery has been saved by the user -->

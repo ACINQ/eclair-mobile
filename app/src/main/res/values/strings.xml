@@ -115,7 +115,7 @@
   <string name="createrecovery_word_display"><![CDATA[<small>#%1$d</small> <b>%2$s</b>]]></string>
   <string name="createrecovery_generation_failed">Could not generate the recovery phrase…</string>
   <string name="createrecovery_goto_check">OK, got it</string>
-  <string name="createrecovery_check_skip">Skip (only on TESTNET)</string>
+  <string name="createrecovery_check_skip">Skip verification (TESTNET only)</string>
   <string name="createrecovery_check_question">What are the #%1$d, #%2$d and #%3$d words of your recovery phrase?</string>
   <string name="createrecovery_check_input_hint">Type the words here</string>
   <string name="createrecovery_check_button">Check</string>
