@@ -68,7 +68,7 @@ dependencies {
     exclude group: 'com.google.android', module: 'android'
   }
   // eclair core
-  compile 'fr.acinq.eclair:eclair-core_2.11:0.2-android-beta2'
+  compile 'fr.acinq.eclair:eclair-core_2.11:0.2-android-beta3'
   // database orm
   compile 'org.greenrobot:greendao:3.2.2'
   // required for greendao encryption, disabled for now
