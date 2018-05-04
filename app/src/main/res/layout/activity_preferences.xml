@@ -114,49 +114,5 @@
         android:textColor="@color/grey_1" />
     </LinearLayout>
 
-    <View
-      android:layout_width="match_parent"
-      android:layout_height="1dp"
-      android:background="@color/grey_0" />
-
-    <TextView
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:padding="@dimen/app_padding"
-      android:text="@string/prefs_advanced_title"
-      android:textAppearance="@android:style/TextAppearance.Material.Body2"
-      android:textColor="?android:attr/colorAccent" />
-
-    <RelativeLayout
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:layout_marginBottom="@dimen/app_padding"
-      android:paddingEnd="@dimen/app_padding"
-      android:paddingStart="@dimen/app_padding">
-
-      <TextView
-        android:id="@+id/prefs_networkdb_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_marginEnd="@dimen/app_padding"
-        android:layout_toStartOf="@+id/prefs_networkdb_button"
-        android:text="@string/prefs_advanced_networkdb"
-        android:textSize="14sp" />
-
-      <Button
-        android:id="@+id/prefs_networkdb_button"
-        style="?android:attr/borderlessButtonStyle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:background="@color/red_faded"
-        android:minHeight="0dp"
-        android:onClick="deleteNetworkDB"
-        android:padding="8dp"
-        android:text="@string/prefs_advanced_networkdb_button"
-        android:textColor="@color/white"
-        android:textSize="12sp" />
-    </RelativeLayout>
   </LinearLayout>
 </ScrollView>

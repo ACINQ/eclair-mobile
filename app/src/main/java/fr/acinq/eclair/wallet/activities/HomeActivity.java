@@ -297,20 +297,19 @@ public class HomeActivity extends EclairActivity {
   public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
       case R.id.menu_home_networkinfos:
-        Intent networkInfosIntent = new Intent(this, NetworkInfosActivity.class);
-        startActivity(networkInfosIntent);
+        startActivity(new Intent(this, NetworkInfosActivity.class));
+        return true;
+      case R.id.menu_home_tools:
+        startActivity(new Intent(this, ToolsActivity.class));
         return true;
       case R.id.menu_home_about:
-        Intent aboutIntent = new Intent(this, AboutActivity.class);
-        startActivity(aboutIntent);
+        startActivity(new Intent(this, AboutActivity.class));
         return true;
       case R.id.menu_home_faq:
-        Intent faqIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/ACINQ/eclair-wallet/wiki/FAQ"));
-        startActivity(faqIntent);
+        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/ACINQ/eclair-wallet/wiki/FAQ")));
         return true;
       case R.id.menu_home_preferences:
-        Intent prefsIntent = new Intent(this, PreferencesActivity.class);
-        startActivity(prefsIntent);
+        startActivity(new Intent(this, PreferencesActivity.class));
         return true;
       default:
         return super.onOptionsItemSelected(item);

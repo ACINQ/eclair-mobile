@@ -6,6 +6,10 @@
     android:title="@string/menu_networkinfos"
     app:showAsAction="never" />
   <item
+    android:id="@+id/menu_home_tools"
+    android:title="@string/menu_tools"
+    app:showAsAction="never" />
+  <item
     android:id="@+id/menu_home_preferences"
     android:title="@string/menu_preferences"
     app:showAsAction="never" />

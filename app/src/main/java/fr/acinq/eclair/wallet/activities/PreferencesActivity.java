@@ -118,14 +118,6 @@ public class PreferencesActivity extends EclairActivity implements EclairActivit
     removePinDialog.show();
   }
 
-  public void deleteNetworkDB(View view) {
-    final File datadir = new File(getFilesDir(), Constants.ECLAIR_DATADIR);
-    final File networkDB = new File(datadir, "testnet/network.sqlite");
-    if (networkDB.delete()) {
-      Toast.makeText(getApplicationContext(), "Successfully deleted network DB", Toast.LENGTH_SHORT).show();
-    }
-  }
-
   public void changePassword(View view) {
     new PinDialog(PreferencesActivity.this, R.style.CustomAlertDialog, new PinDialog.PinDialogCallback() {
       @Override

@@ -26,6 +26,7 @@
   <string name="btcpayment_name">Transaction Details</string>
   <string name="channeldetails_name">Channel Details</string>
   <string name="channelrawdata_name">Channel Raw Data</string>
+  <string name="tools_name">Tools</string>
 
   <!-- //////////////// Home //////////////////// -->
 
@@ -169,7 +170,8 @@
   <!-- /////////////// Menus /////////////// -->
 
   <string name="menu_home">Home</string>
-  <string name="menu_networkinfos">Network Overview</string>
+  <string name="menu_networkinfos">Network Info</string>
+  <string name="menu_tools">Tools</string>
   <string name="menu_about">About</string>
   <string name="menu_faq">FAQ</string>
   <string name="menu_preferences">Preferences</string>
@@ -392,10 +394,6 @@
   <string name="prefs_onchain_explorer">Preferred onchain explorer</string>
   <string name="prefs_onchain_explorer_dialog">Explore onchain tx with</string>
   <string name="prefs_security_title">Security Settings</string>
-  <string name="prefs_advanced_title">Advanced Usage</string>
-  <string name="prefs_advanced_warning">Do not proceed unless you know what you\'re doing.</string>
-  <string name="prefs_advanced_networkdb">Do not delete unless you know what you\'re doing.</string>
-  <string name="prefs_advanced_networkdb_button">Delete Network DB</string>
 
   <!-- //////////////// Scanner messages //////////////////// -->
 
@@ -419,5 +417,15 @@
   <string name="seed_read_general_failure">Could not read seed</string>
   <string name="wallet_init_create_new">Create new wallet</string>
   <string name="wallet_init_import_existing">Import existing wallet</string>
+
+  <!-- //////////////// tools //////////////////// -->
+
+  <string name="tools_advanced_title">Advanced Usage</string>
+  <string name="tools_wallet_title">Wallet</string>
+  <string name="tools_networkdb_label">Delete Network DB</string>
+  <string name="tools_networkdb_desc">Do not delete unless you know what you\'re doing. Restart the application once the DB has been deleted.</string>
+  <string name="tools_networkdb_action">Delete Network DB</string>
+  <string name="tools_xpub_label">Extended Key</string>
+  <string name="tools_xpub_desc">Use this xpub to derive new onchain addresses.</string>
 
 </resources>
