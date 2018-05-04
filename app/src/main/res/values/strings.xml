@@ -197,6 +197,8 @@
 
   <string name="channeldetails_id_label">Id</string>
   <string name="channeldetails_id_desc">Channel unique identifier</string>
+  <string name="channeldetails_to_self_delay_label">To Self Delay</string>
+  <string name="channeldetails_to_self_delay_desc">Refund delay for uncooperative close</string>
   <string name="channeldetails_reserve_label">Reserve</string>
   <string name="channeldetails_reserve_desc">Minimum balance that this channel must maintain</string>
   <string name="channeldetails_htlcs_count_label">Inflight HTLCs</string>

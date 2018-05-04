@@ -40,6 +40,7 @@ import fr.acinq.eclair.channel.ChannelRestored;
 import fr.acinq.eclair.channel.ChannelSignatureReceived;
 import fr.acinq.eclair.channel.ChannelSignatureSent;
 import fr.acinq.eclair.channel.ChannelStateChanged;
+import fr.acinq.eclair.channel.Commitments;
 import fr.acinq.eclair.channel.DATA_CLOSING;
 import fr.acinq.eclair.channel.HasCommitments;
 import fr.acinq.eclair.channel.LocalCommit;
@@ -131,12 +132,6 @@ public class EclairEventService extends UntypedActor {
       ChannelDetails cd = getChannelDetails(cr.channel());
       cd.channelId = cr.channelId().toString();
       cd.remoteNodeId = cr.remoteNodeId().toString();
-      cd.balanceMsat = new MilliSatoshi(cr.currentData().commitments().localCommit().spec().toLocalMsat());
-      cd.capacityMsat = new MilliSatoshi(cr.currentData().commitments().localCommit().spec().totalFunds());
-      cd.transactionId = cr.currentData().commitments().commitInput().outPoint().txid().toString();
-      cd.htlcsInFlightCount = cr.currentData().commitments().localCommit().spec().htlcs().iterator().size();
-      cd.channelReserveSat = cr.currentData().commitments().localParams().channelReserveSatoshis();
-      cd.minimumHtlcAmountMsat = cr.currentData().commitments().localParams().htlcMinimumMsat();
       channelDetailsMap.put(cr.channel(), cd);
       context().watch(cr.channel());
       EventBus.getDefault().post(new ChannelUpdateEvent());
@@ -248,7 +243,14 @@ public class EclairEventService extends UntypedActor {
       }
       cd.state = cs.currentState().toString();
       if (cs.currentData() instanceof HasCommitments) {
-        cd.transactionId = ((HasCommitments) cs.currentData()).commitments().commitInput().outPoint().txid().toString();
+        Commitments commitments = ((HasCommitments) cs.currentData()).commitments();
+        cd.toSelfDelayBlocks = commitments.remoteParams().toSelfDelay();
+        cd.htlcsInFlightCount = commitments.localCommit().spec().htlcs().iterator().size();
+        cd.channelReserveSat = commitments.localParams().channelReserveSatoshis();
+        cd.minimumHtlcAmountMsat = commitments.localParams().htlcMinimumMsat();
+        cd.transactionId = commitments.commitInput().outPoint().txid().toString();
+        cd.balanceMsat = new MilliSatoshi(commitments.localCommit().spec().toLocalMsat());
+        cd.capacityMsat = new MilliSatoshi(commitments.localCommit().spec().totalFunds());
       }
       channelDetailsMap.put(cs.channel(), cd);
       Log.d(TAG, "Channel " + cd.channelId + " changed state to " + cs.currentState());
@@ -298,8 +300,9 @@ public class EclairEventService extends UntypedActor {
     public Boolean isLocalClosing;
     public String remoteNodeId;
     public String transactionId;
-    public Long channelReserveSat = 0L;
-    public Long minimumHtlcAmountMsat = 0L;
+    public long channelReserveSat = 0;
+    public long minimumHtlcAmountMsat = 0;
+    public int toSelfDelayBlocks = 0;
     public int htlcsInFlightCount = 0;
   }
 

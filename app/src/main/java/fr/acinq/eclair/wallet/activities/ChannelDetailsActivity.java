@@ -143,6 +143,7 @@ public class ChannelDetailsActivity extends EclairActivity {
         mBinding.capacity.setValue(CoinUtils.formatAmountInUnit(channel.getValue().capacityMsat, prefUnit, true));
         mBinding.channelId.setValue(channel.getValue().channelId);
         mBinding.channelId.actionButton.setOnClickListener(v -> openRawDataWindow());
+        mBinding.toSelfDelay.setValue(String.valueOf(channel.getValue().toSelfDelayBlocks));
         mBinding.reserve.setValue(CoinUtils.formatAmountInUnit(new Satoshi(channel.getValue().channelReserveSat), prefUnit, true));
         mBinding.countHtlcsInflight.setValue(String.valueOf(channel.getValue().htlcsInFlightCount));
         mBinding.minimumHtlcAmount.setValue(CoinUtils.formatAmountInUnit(new MilliSatoshi(channel.getValue().minimumHtlcAmountMsat), prefUnit, true));

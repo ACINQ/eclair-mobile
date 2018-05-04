@@ -196,6 +196,16 @@
         <include layout="@layout/include_separator" />
 
         <fr.acinq.eclair.wallet.customviews.DataRow
+          android:id="@+id/to_self_delay"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          app:desc="@string/channeldetails_to_self_delay_desc"
+          app:label="@string/channeldetails_to_self_delay_label"
+          app:value="@string/unknown" />
+
+        <include layout="@layout/include_separator" />
+
+        <fr.acinq.eclair.wallet.customviews.DataRow
           android:id="@+id/reserve"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
