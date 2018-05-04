@@ -355,7 +355,7 @@
 
   <!-- //////////////// Payment Item //////////////////// -->
 
-  <string name="paymentitem_confidence_suffix">conf</string>
+  <string name="paymentitem_confidence_suffix">confs</string>
   <string name="paymentitem_fee_prefix">fee:</string>
 
   <!-- //////////////// General //////////////////// -->

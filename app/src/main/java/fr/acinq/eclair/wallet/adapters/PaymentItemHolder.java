@@ -150,11 +150,11 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
       // convention: negative number of confirmations means conflicted
       if (payment.getConfidenceBlocks() >= 0) {
         // text
-        final String confidenceBlocks = payment.getConfidenceBlocks() < 7 ?
-          Integer.toString(payment.getConfidenceBlocks()) : "6+";
+        final String confidenceBlocks = payment.getConfidenceBlocks() < 13 ?
+          Integer.toString(payment.getConfidenceBlocks()) : "12+";
         mStatus.setText(confidenceBlocks + " " + itemView.getResources().getString(R.string.paymentitem_confidence_suffix));
         // color: green above 2
-        if (payment.getConfidenceBlocks() < 2) {
+        if (payment.getConfidenceBlocks() < 3) {
           mStatus.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.grey_2));
         } else {
           mStatus.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.green));
