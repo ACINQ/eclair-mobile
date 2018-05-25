@@ -15,11 +15,15 @@ android {
   }
   buildTypes {
     release {
+      resValue "string", "CHAIN", CHAIN_TESTNET
+      buildConfigField "String", "CHAIN", CHAIN_TESTNET
       debuggable false
       minifyEnabled false
       proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
     }
     debug {
+      resValue "string", "CHAIN", CHAIN_TESTNET
+      buildConfigField "String", "CHAIN", CHAIN_TESTNET
       debuggable true
     }
   }

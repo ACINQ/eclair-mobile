@@ -137,7 +137,7 @@ public class SendPaymentActivity extends EclairActivity
   @Override
   public void processBitcoinInvoiceFinish(final BitcoinURI output) {
     if (output == null || output.getAddress() == null) {
-      canNotHandlePayment(R.string.payment_invalid_address);
+      canNotHandlePayment(getString(R.string.payment_invalid_address, BuildConfig.CHAIN.toUpperCase()));
     } else {
       mBitcoinInvoice = output;
       isAmountReadonly = mBitcoinInvoice.getAmount() != null;
@@ -155,11 +155,15 @@ public class SendPaymentActivity extends EclairActivity
     }
   }
 
-  private void canNotHandlePayment(final int causeMessageId) {
+  private void canNotHandlePayment(final int messageId) {
+    canNotHandlePayment(getString(messageId));
+  }
+
+  private void canNotHandlePayment(final String message) {
     mBinding.form.setVisibility(View.GONE);
     mBinding.loading.setVisibility(View.VISIBLE);
     mBinding.loading.setTextIsSelectable(true);
-    mBinding.loading.setText(causeMessageId);
+    mBinding.loading.setText(message);
   }
 
   /**
@@ -295,7 +299,7 @@ public class SendPaymentActivity extends EclairActivity
       }
       new LNInvoiceReaderTask(this, mInvoice).execute();
     } else {
-      canNotHandlePayment(R.string.payment_invalid_address);
+      canNotHandlePayment(getString(R.string.payment_invalid_address, BuildConfig.CHAIN.toUpperCase()));
     }
   }
 

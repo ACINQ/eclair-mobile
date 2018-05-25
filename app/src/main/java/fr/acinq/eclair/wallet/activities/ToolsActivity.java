@@ -29,6 +29,7 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.File;
 
+import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.databinding.ActivityToolsBinding;
 import fr.acinq.eclair.wallet.events.XpubEvent;
@@ -69,7 +70,7 @@ public class ToolsActivity extends EclairActivity {
 
   private void deleteNetworkDB() {
     final File datadir = new File(getFilesDir(), Constants.ECLAIR_DATADIR);
-    final File networkDB = new File(datadir, "testnet/network.sqlite");
+    final File networkDB = new File(datadir, BuildConfig.CHAIN + "/network.sqlite");
     if (networkDB.delete()) {
       Toast.makeText(getApplicationContext(), "Successfully deleted network DB", Toast.LENGTH_SHORT).show();
     }

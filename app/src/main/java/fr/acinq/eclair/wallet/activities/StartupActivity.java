@@ -192,7 +192,9 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
       }
     }
     if (!isFreshInstall && lastUsedVersion <= 15) {
-      migrateTestnetSqlite(datadir);
+      if ("testnet".equals(BuildConfig.CHAIN)) {
+        migrateTestnetSqlite(datadir);
+      }
     }
     checkWalletInit(datadir);
   }

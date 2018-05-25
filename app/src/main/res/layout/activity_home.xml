@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright 2018 ACINQ SAS
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -73,7 +72,8 @@
               android:paddingLeft="5dp"
               android:paddingRight="5dp"
               android:paddingTop="3dp"
-              android:text="@string/chain_name"
+              android:text="@string/CHAIN"
+              android:textAllCaps="true"
               android:textColor="@color/white"
               android:textSize="10sp"
               android:textStyle="bold" />

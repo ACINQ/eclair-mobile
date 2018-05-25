@@ -29,10 +29,12 @@ import java.util.Map;
 
 import javax.annotation.Nullable;
 
+import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.bitcoin.Block;
 import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.package$;
+import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.utils.BitcoinURIParseException;
 import fr.acinq.eclair.wallet.utils.Constants;
 
@@ -159,7 +161,8 @@ public class BitcoinURI {
 
     if (!addressToken.isEmpty()) {
       // Attempt to parse the addressToken as a Bitcoin address for this network
-      package$.MODULE$.addressToPublicKeyScript(addressToken, Block.TestnetGenesisBlock().hash());
+      final BinaryData chainHash = "mainnet".equals(BuildConfig.CHAIN) ? Block.LivenetGenesisBlock().hash() : Block.TestnetGenesisBlock().hash();
+      package$.MODULE$.addressToPublicKeyScript(addressToken, chainHash);
       putWithValidation(FIELD_ADDRESS, addressToken);
     }
 

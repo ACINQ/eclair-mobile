@@ -231,7 +231,7 @@
 
   <!-- //////////////// Send Payment //////////////////// -->
 
-  <string name="payment_invalid_address">This is not a valid payment address.\n\nPlease use a Bitcoin address or a Lightning payment request to initiate a payment.</string>
+  <string name="payment_invalid_address">This is not a valid payment address.\n\nPlease use a %1$s Bitcoin address or Lightning payment request to initiate a payment.</string>
   <string name="payment_type_onchain">On-Chain Payment</string>
   <string name="payment_type_lightning">Lightning Payment</string>
   <string name="payment_empty_wallet">Empty wallet</string>
@@ -363,7 +363,6 @@
   <!-- //////////////// General //////////////////// -->
 
   <string name="btc_fee_unit">sat/byte</string>
-  <string name="chain_name">TESTNET</string>
   <string name="chain_disconnected">Electrum disconnected</string>
   <string name="chain_disconnected_desc">Connection was lost. Sending funds is disabled.</string>
   <string name="chain_late">Electrum desynchronized</string>
