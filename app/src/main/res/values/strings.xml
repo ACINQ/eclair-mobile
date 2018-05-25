@@ -16,7 +16,7 @@
 
 <resources>
   <string name="lang">eng</string>
-  <string name="app_name">Eclair Wallet Testnet</string>
+  <string name="app_name">Eclair DEV</string>
 
   <!-- //////////////// Activities name //////////////////// -->
 
