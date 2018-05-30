@@ -30,6 +30,8 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import akka.actor.ActorSystem;
@@ -62,6 +64,7 @@ import fr.acinq.eclair.wallet.events.NotificationEvent;
 import fr.acinq.eclair.wallet.events.WalletStateUpdateEvent;
 import fr.acinq.eclair.wallet.events.XpubEvent;
 import fr.acinq.eclair.wallet.utils.Constants;
+import fr.acinq.eclair.wallet.utils.WalletUtils;
 import scala.Symbol;
 import scala.Tuple2;
 import scala.collection.Iterable;
@@ -73,42 +76,13 @@ import scala.concurrent.duration.FiniteDuration;
 public class App extends Application {
 
   public final static String TAG = "App";
-  private final static ExchangeRate exchangeRate = new ExchangeRate();
+  public final static Map<String, Float> RATES = new HashMap<>();
   public final ActorSystem system = ActorSystem.apply("system");
   public AtomicReference<Satoshi> onChainBalance = new AtomicReference<>(new Satoshi(0));
   public AtomicReference<String> pin = new AtomicReference<>(null);
   public AppKit appKit;
   private DBHelper dbHelper;
   private String walletAddress = "N/A";
-
-  /**
-   * Update the application's exchange rate in BTCUSD and BTCEUR.
-   *
-   * @param eurRate value of 1 BTC in EURO
-   * @param usdRate value of 1 BTC in USD
-   */
-  public static void updateExchangeRate(final float eurRate, final float usdRate) {
-    exchangeRate.eurRate = eurRate;
-    exchangeRate.usdRate = usdRate;
-  }
-
-  /**
-   * Returns the value of 1 BTC in EURO.
-   *
-   * @return
-   */
-  public static float getEurRate() {
-    return exchangeRate.eurRate;
-  }
-
-  /**
-   * Returns the value of 1 BTC in USD.
-   *
-   * @return
-   */
-  public static float getUsdRate() {
-    return exchangeRate.usdRate;
-  }
 
   @Override
   public void onCreate() {
@@ -383,20 +357,15 @@ public class App extends Application {
 
     // on-chain balance is initialized with what can be found from the database
     this.onChainBalance.set(package$.MODULE$.millisatoshi2satoshi(new MilliSatoshi(dbHelper.getOnchainBalanceMsat())));
-
+    // fiat/coin preferences
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+    WalletUtils.retrieveRatesFromPrefs(prefs);
     CoinUtils.setCoinPattern(prefs.getString(Constants.SETTING_BTC_PATTERN, getResources().getStringArray(R.array.btc_pattern_values)[2]));
-    updateExchangeRate(prefs.getFloat(Constants.SETTING_LAST_KNOWN_RATE_BTC_EUR, 0.0f),
-      prefs.getFloat(Constants.SETTING_LAST_KNOWN_RATE_BTC_USD, 0.0f));
   }
+
 
   public DBHelper getDBHelper() {
     return dbHelper;
-  }
-
-  private static class ExchangeRate {
-    private float eurRate;
-    private float usdRate;
   }
 
   public static class AppKit {

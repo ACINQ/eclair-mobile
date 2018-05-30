@@ -37,8 +37,7 @@ public interface Constants {
   String SETTING_BTC_UNIT = "btc_unit";
   String SETTING_BTC_PATTERN = "btc_pattern";
   String SETTING_DISPLAY_IN_FIAT = "display_in_fiat";
-  String SETTING_LAST_KNOWN_RATE_BTC_EUR = "last_known_rate_btc_eur";
-  String SETTING_LAST_KNOWN_RATE_BTC_USD = "last_known_rate_btc_usd";
+  String SETTING_LAST_KNOWN_RATE_BTC_ = "last_known_rate_btc_";
 
   // onchain explorer
   String SETTING_ONCHAIN_EXPLORER = "onchain_explorer";
