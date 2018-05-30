@@ -37,6 +37,7 @@ import fr.acinq.eclair.package$;
 import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.utils.BitcoinURIParseException;
 import fr.acinq.eclair.wallet.utils.Constants;
+import fr.acinq.eclair.wallet.utils.WalletUtils;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -161,8 +162,7 @@ public class BitcoinURI {
 
     if (!addressToken.isEmpty()) {
       // Attempt to parse the addressToken as a Bitcoin address for this network
-      final BinaryData chainHash = "mainnet".equals(BuildConfig.CHAIN) ? Block.LivenetGenesisBlock().hash() : Block.TestnetGenesisBlock().hash();
-      package$.MODULE$.addressToPublicKeyScript(addressToken, chainHash);
+      package$.MODULE$.addressToPublicKeyScript(addressToken, WalletUtils.getChainHash());
       putWithValidation(FIELD_ADDRESS, addressToken);
     }
 

@@ -27,29 +27,27 @@ import android.widget.Toast;
 import com.google.common.io.Files;
 import com.tozny.crypto.android.AesCbcWithIntegrity;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.security.MessageDigest;
 import java.text.NumberFormat;
-import java.util.Arrays;
-import java.util.List;
 
+import fr.acinq.bitcoin.BinaryData;
+import fr.acinq.bitcoin.Block;
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.CoinUnit;
 import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.wallet.App;
-
+import fr.acinq.eclair.wallet.BuildConfig;
 
 public class WalletUtils {
   public final static String ACINQ_NODE = "03933884aaf1d6b108397e5efe5c86bcf2d8ca8d2f700eda99db9214fc2712b134@endurance.acinq.co:9735";
-  private static final String TAG = "WalletUtils";
-  private static NumberFormat fiatFormat;
   public final static String UNENCRYPTED_SEED_NAME = "seed.dat";
   public final static String SEED_NAME = "enc_seed.dat";
+  private static final String TAG = "WalletUtils";
   private final static String SEED_NAME_TEMP = "enc_seed_temp.dat";
+  private static NumberFormat fiatFormat;
 
   public static View.OnClickListener getOpenTxListener(final String txId) {
     return v -> {
@@ -165,4 +163,7 @@ public class WalletUtils {
     return paymentRequest.amount().isEmpty() ? new MilliSatoshi(0) : paymentRequest.amount().get();
   }
 
+  public static BinaryData getChainHash() {
+    return "mainnet".equals(BuildConfig.CHAIN) ? Block.LivenetGenesisBlock().hash() : Block.TestnetGenesisBlock().hash();
+  }
 }

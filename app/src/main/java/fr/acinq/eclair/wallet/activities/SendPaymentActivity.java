@@ -57,6 +57,7 @@ import fr.acinq.eclair.wallet.tasks.LNInvoiceReaderTask;
 import org.bitcoinj.uri.BitcoinURI;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
+import scala.Option;
 import scala.util.Either;
 
 public class SendPaymentActivity extends EclairActivity
@@ -88,6 +89,11 @@ public class SendPaymentActivity extends EclairActivity
       // try reading invoice as a bitcoin uri
       new BitcoinInvoiceReaderTask(this, mInvoice).execute();
     } else {
+      final Option<String> acceptedPrefix = PaymentRequest.prefixes().get(WalletUtils.getChainHash());
+      if (acceptedPrefix.isEmpty() || !acceptedPrefix.get().equals(output.prefix())) {
+        canNotHandlePayment(getString(R.string.payment_ln_invalid_chain, BuildConfig.CHAIN.toUpperCase()));
+        return;
+      }
       // check lightning channels status
       if (EclairEventService.getChannelsMap().size() == 0) {
         canNotHandlePayment(R.string.payment_error_ln_no_channels);
