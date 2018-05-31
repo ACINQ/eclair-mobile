@@ -89,6 +89,7 @@
         android:background="?android:attr/selectableItemBackground"
         android:fontFamily="sans-serif-light"
         android:gravity="center"
+        android:hapticFeedbackEnabled="true"
         android:minWidth="52dp"
         android:text="1"
         android:textColor="@color/grey_3"
@@ -101,6 +102,7 @@
         android:background="?android:attr/selectableItemBackground"
         android:fontFamily="sans-serif-light"
         android:gravity="center"
+        android:hapticFeedbackEnabled="true"
         android:minWidth="52dp"
         android:text="2"
         android:textColor="@color/grey_3"
@@ -113,6 +115,7 @@
         android:background="?android:attr/selectableItemBackground"
         android:fontFamily="sans-serif-light"
         android:gravity="center"
+        android:hapticFeedbackEnabled="true"
         android:minWidth="52dp"
         android:text="3"
         android:textColor="@color/grey_3"
@@ -137,6 +140,7 @@
         android:background="?android:attr/selectableItemBackground"
         android:fontFamily="sans-serif-light"
         android:gravity="center"
+        android:hapticFeedbackEnabled="true"
         android:minWidth="52dp"
         android:text="5"
         android:textColor="@color/grey_3"
@@ -149,6 +153,7 @@
         android:background="?android:attr/selectableItemBackground"
         android:fontFamily="sans-serif-light"
         android:gravity="center"
+        android:hapticFeedbackEnabled="true"
         android:minWidth="52dp"
         android:text="6"
         android:textColor="@color/grey_3"
@@ -161,6 +166,7 @@
         android:background="?android:attr/selectableItemBackground"
         android:fontFamily="sans-serif-light"
         android:gravity="center"
+        android:hapticFeedbackEnabled="true"
         android:minWidth="52dp"
         android:text="7"
         android:textColor="@color/grey_3"
@@ -173,6 +179,7 @@
         android:background="?android:attr/selectableItemBackground"
         android:fontFamily="sans-serif-light"
         android:gravity="center"
+        android:hapticFeedbackEnabled="true"
         android:minWidth="52dp"
         android:text="8"
         android:textColor="@color/grey_3"
@@ -185,6 +192,7 @@
         android:background="?android:attr/selectableItemBackground"
         android:fontFamily="sans-serif-light"
         android:gravity="center"
+        android:hapticFeedbackEnabled="true"
         android:minWidth="52dp"
         android:text="9"
         android:textColor="@color/grey_3"
@@ -197,11 +205,10 @@
         android:background="?android:attr/selectableItemBackground"
         android:fontFamily="sans-serif-light"
         android:gravity="center"
+        android:hapticFeedbackEnabled="true"
         android:minHeight="48dp"
         android:minWidth="52dp"
-        android:src="@drawable/ic_delete"
-        android:textColor="@color/red_faded"
-        android:textSize="14sp" />
+        android:src="@drawable/ic_delete" />
 
       <Button
         android:id="@+id/pin_num_0"
@@ -210,24 +217,23 @@
         android:background="?android:attr/selectableItemBackground"
         android:fontFamily="sans-serif-light"
         android:gravity="center"
+        android:hapticFeedbackEnabled="true"
         android:minWidth="52dp"
         android:text="0"
         android:textColor="@color/grey_3"
         android:textSize="20sp" />
 
       <ImageButton
-        android:id="@+id/pin_submit"
+        android:id="@+id/pin_backspace"
         android:layout_columnWeight="1"
         android:layout_gravity="fill_horizontal"
-        android:alpha="0.4"
         android:background="?android:attr/selectableItemBackground"
         android:fontFamily="sans-serif-light"
         android:gravity="center"
+        android:hapticFeedbackEnabled="true"
         android:minHeight="48dp"
         android:minWidth="52dp"
-        android:src="@drawable/ic_check"
-        android:textColor="@color/green"
-        android:textSize="14sp" />
+        android:src="@drawable/ic_backspace" />
 
     </GridLayout>
   </LinearLayout>

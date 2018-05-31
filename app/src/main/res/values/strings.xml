@@ -381,6 +381,7 @@
 
   <!-- //////////////// Preferences //////////////////// -->
 
+  <string name="prefs_cat_general">General</string>
   <string name="prefs_cat_display">Display</string>
   <string name="prefs_cat_lightning">Lightning</string>
   <string name="prefs_fiat_currency">Fiat currency</string>
@@ -397,6 +398,7 @@
   <string name="prefs_onchain_explorer">Preferred onchain explorer</string>
   <string name="prefs_onchain_explorer_dialog">Explore onchain tx with</string>
   <string name="prefs_security_title">Security Settings</string>
+  <string name="prefs_haptic_title">Haptic feedback on PIN</string>
 
   <!-- //////////////// Scanner messages //////////////////// -->
 

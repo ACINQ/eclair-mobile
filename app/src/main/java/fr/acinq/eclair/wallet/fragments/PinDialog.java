@@ -19,8 +19,12 @@ package fr.acinq.eclair.wallet.fragments;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
+import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.HapticFeedbackConstants;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -44,7 +48,7 @@ public class PinDialog extends Dialog {
   private TextView mPinTitle;
   private String mPinValue = "";
   private TextView mPinDisplay;
-  private ImageButton mSubmitButton;
+  private ImageButton mBackspaceButton;
   private List<View> mButtonsList = new ArrayList<>();
   private PinDialogCallback mPinCallback;
 
@@ -72,7 +76,7 @@ public class PinDialog extends Dialog {
     mPinTitle = findViewById(R.id.pin_title);
     mPinTitle.setText(title);
     mPinDisplay = findViewById(R.id.pin_display);
-    mSubmitButton = findViewById(R.id.pin_submit);
+    mBackspaceButton = findViewById(R.id.pin_backspace);
 
     mButtonsList.add(findViewById(R.id.pin_num_1));
     mButtonsList.add(findViewById(R.id.pin_num_2));
@@ -90,10 +94,14 @@ public class PinDialog extends Dialog {
       public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
       @Override
       public void onTextChanged(CharSequence s, int start, int before, int count) {
-        if (s == null || s.length() != Constants.PIN_LENGTH) {
-          mSubmitButton.setAlpha(0.4f);
-        } else {
-          mSubmitButton.setAlpha(1f);
+        if (s != null && s.length() == Constants.PIN_LENGTH) {
+          // automatically confirm pin when pin is 6 chars long
+          new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+              mPinCallback.onPinConfirm(PinDialog.this, mPinValue);
+            }
+          }, 300);
         }
       }
       @Override
@@ -103,6 +111,10 @@ public class PinDialog extends Dialog {
       v.setOnClickListener(new View.OnClickListener() {
         @Override
         public void onClick(View view) {
+          if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean(Constants.SETTING_HAPTIC_FEEDBACK, true)) {
+            view.setHapticFeedbackEnabled(true);
+            view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY, HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
+          }
           if (mPinValue == null) mPinValue = "";
           if (mPinValue.equals("") || mPinValue.length() != Constants.PIN_LENGTH) {
             final String val = ((Button) view).getText().toString();
@@ -119,13 +131,12 @@ public class PinDialog extends Dialog {
         mPinDisplay.setText("");
       }
     });
-    mSubmitButton.setOnClickListener(new View.OnClickListener() {
+    mBackspaceButton.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View view) {
-        if (mPinValue == null || mPinValue.length() != Constants.PIN_LENGTH) {
-          Toast.makeText(view.getContext(), view.getResources().getString(R.string.pindialog_error), Toast.LENGTH_SHORT).show();
-        } else {
-          mPinCallback.onPinConfirm(PinDialog.this, mPinValue);
+        if (mPinValue != null && mPinValue.length() > 0) {
+          mPinValue = mPinValue.substring(0, mPinValue.length() - 1);
+          mPinDisplay.setText(Strings.repeat(PIN_PLACEHOLDER, mPinValue.length()));
         }
       }
     });
