@@ -32,6 +32,7 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.net.InetSocketAddress;
 import java.util.concurrent.atomic.AtomicReference;
 
 import akka.actor.ActorSystem;
@@ -48,6 +49,7 @@ import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.Globals;
 import fr.acinq.eclair.JsonSerializers$;
 import fr.acinq.eclair.Kit;
+import fr.acinq.eclair.blockchain.electrum.ElectrumClient;
 import fr.acinq.eclair.blockchain.electrum.ElectrumEclairWallet;
 import fr.acinq.eclair.blockchain.electrum.ElectrumWallet;
 import fr.acinq.eclair.channel.CMD_GETINFO$;
@@ -63,7 +65,6 @@ import fr.acinq.eclair.wallet.events.ChannelRawDataEvent;
 import fr.acinq.eclair.wallet.events.LNNewChannelFailureEvent;
 import fr.acinq.eclair.wallet.events.NetworkChannelsCountEvent;
 import fr.acinq.eclair.wallet.events.NotificationEvent;
-import fr.acinq.eclair.wallet.events.WalletStateUpdateEvent;
 import fr.acinq.eclair.wallet.events.XpubEvent;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
@@ -81,7 +82,7 @@ public class App extends Application {
   public final static String TAG = "App";
   public final static Map<String, Float> RATES = new HashMap<>();
   public final ActorSystem system = ActorSystem.apply("system");
-  public AtomicReference<Satoshi> onChainBalance = new AtomicReference<>(new Satoshi(0));
+  private AtomicReference<ElectrumState> electrumState = new AtomicReference<>(null);
   public AtomicReference<String> pin = new AtomicReference<>(null);
   public AppKit appKit;
   private DBHelper dbHelper;
@@ -138,8 +139,19 @@ public class App extends Application {
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
-  public void handleWalletBalanceEvent(WalletStateUpdateEvent event) {
-    this.onChainBalance.set(event.balance);
+  public void handleElectrumStateEvent(ElectrumWallet.WalletReady event) {
+    final ElectrumState state = this.electrumState.get() == null ? new ElectrumState() : this.electrumState.get();
+    state.confirmedBalance = event.confirmedBalance();
+    state.unconfirmedBalance = event.unconfirmedBalance();
+    state.blockTimestamp = event.timestamp();
+    this.electrumState.set(state);
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN)
+  public void handleElectrumReadyEvent(ElectrumClient.ElectrumReady event) {
+    final ElectrumState state = this.electrumState.get() == null ? new ElectrumState() : this.electrumState.get();
+    state.address = event.serverAddress();
+    this.electrumState.set(state);
   }
 
   public String getWalletAddress() {
@@ -360,17 +372,41 @@ public class App extends Application {
       this.dbHelper = new DBHelper(getApplicationContext());
     }
 
-    // on-chain balance is initialized with what can be found from the database
-    this.onChainBalance.set(package$.MODULE$.millisatoshi2satoshi(new MilliSatoshi(dbHelper.getOnchainBalanceMsat())));
-    // fiat/coin preferences
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
     WalletUtils.retrieveRatesFromPrefs(prefs);
     CoinUtils.setCoinPattern(prefs.getString(Constants.SETTING_BTC_PATTERN, getResources().getStringArray(R.array.btc_pattern_values)[2]));
   }
 
+  public Satoshi getOnchainBalance() {
+    // if electrum has not send any data, fetch last known onchain balance from DB
+    if (this.electrumState.get() == null
+      || this.electrumState.get().confirmedBalance == null ||this.electrumState.get().unconfirmedBalance == null) {
+      return package$.MODULE$.millisatoshi2satoshi(new MilliSatoshi(dbHelper.getOnchainBalanceMsat()));
+    } else {
+      final Satoshi confirmed = electrumState.get().confirmedBalance;
+      final Satoshi unconfirmed = electrumState.get().unconfirmedBalance;
+      return confirmed.$plus(unconfirmed);
+    }
+  }
+
+  public long getBlockTimestamp() {
+    return this.electrumState.get() == null ? 0 : this.electrumState.get().blockTimestamp;
+  }
+
+  public String getElectrumServerAddress() {
+    final InetSocketAddress address = this.electrumState.get() == null ? null : this.electrumState.get().address;
+    return address == null ? getString(R.string.unknown) : address.toString();
+  }
 
   public DBHelper getDBHelper() {
     return dbHelper;
+  }
+
+  public static class ElectrumState {
+    private Satoshi confirmedBalance;
+    private Satoshi unconfirmedBalance;
+    private long blockTimestamp;
+    private InetSocketAddress address;
   }
 
   public static class AppKit {

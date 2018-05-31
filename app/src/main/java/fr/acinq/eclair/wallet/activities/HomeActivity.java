@@ -55,6 +55,9 @@ import java.util.List;
 
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.package$;
+import fr.acinq.eclair.blockchain.electrum.ElectrumClient;
+import fr.acinq.eclair.blockchain.electrum.ElectrumWallet;
+import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.EclairEventService;
 import fr.acinq.eclair.wallet.R;
@@ -68,7 +71,6 @@ import fr.acinq.eclair.wallet.events.LNNewChannelOpenedEvent;
 import fr.acinq.eclair.wallet.events.LNPaymentFailedEvent;
 import fr.acinq.eclair.wallet.events.LNPaymentSuccessEvent;
 import fr.acinq.eclair.wallet.events.PaymentEvent;
-import fr.acinq.eclair.wallet.events.WalletStateUpdateEvent;
 import fr.acinq.eclair.wallet.fragments.ChannelsListFragment;
 import fr.acinq.eclair.wallet.fragments.PaymentsListFragment;
 import fr.acinq.eclair.wallet.fragments.ReceivePaymentFragment;
@@ -435,8 +437,9 @@ public class HomeActivity extends EclairActivity {
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
-  public void handleWalletBalanceEvent(WalletStateUpdateEvent event) {
-    if (event.isSync) {
+  public void handleElectrumStateEvent(ElectrumWallet.WalletReady event) {
+    final Long diffTimestamp = Math.abs(System.currentTimeMillis() / 1000L - event.timestamp());
+    if (diffTimestamp < Constants.DESYNC_DIFF_TIMESTAMP_SEC) {
       mBinding.homeConnectionStatus.setVisibility(View.GONE);
     } else {
       mBinding.homeConnectionStatusTitle.setText(getString(R.string.chain_late));
@@ -498,13 +501,13 @@ public class HomeActivity extends EclairActivity {
   private void updateBalance() {
     final LNBalanceUpdateEvent lnBalanceEvent = EventBus.getDefault().getStickyEvent(LNBalanceUpdateEvent.class);
     final MilliSatoshi lnBalance = lnBalanceEvent == null ? new MilliSatoshi(0) : lnBalanceEvent.total();
-    final MilliSatoshi walletBalance = app == null ? new MilliSatoshi(0) : package$.MODULE$.satoshi2millisatoshi(app.onChainBalance.get());
+    final MilliSatoshi walletBalance = app == null ? new MilliSatoshi(0) : package$.MODULE$.satoshi2millisatoshi(app.getOnchainBalance());
     mBinding.balanceTotal.setAmountMsat(new MilliSatoshi(lnBalance.amount() + walletBalance.amount()));
     mBinding.balanceOnchain.setAmountMsat(walletBalance);
     mBinding.balanceLightning.setAmountMsat(lnBalance);
   }
 
-  @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
+  @Subscribe(threadMode = ThreadMode.MAIN)
   public void handleConnectionEvent(ElectrumConnectionEvent event) {
     if (event.connected) {
       enableSendPaymentButtons();

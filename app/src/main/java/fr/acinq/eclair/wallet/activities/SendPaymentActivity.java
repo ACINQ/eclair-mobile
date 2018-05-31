@@ -228,7 +228,7 @@ public class SendPaymentActivity extends EclairActivity
           final MilliSatoshi amountMsat = CoinUtils.convertStringAmountToMsat(s.toString(), preferredBitcoinUnit.code());
           mBinding.amountFiat.setText(WalletUtils.convertMsatToFiatWithUnit(amountMsat.amount(), preferredFiatCurrency));
           if (mBitcoinInvoice != null) {
-            if (package$.MODULE$.millisatoshi2satoshi(amountMsat).$greater(app.onChainBalance.get())) {
+            if (package$.MODULE$.millisatoshi2satoshi(amountMsat).$greater(app.getOnchainBalance())) {
               handlePaymentError(R.string.payment_error_amount_onchain_insufficient_funds);
             } else {
               mBinding.paymentError.setVisibility(View.GONE);
@@ -283,8 +283,7 @@ public class SendPaymentActivity extends EclairActivity
         if (isChecked) {
           mBinding.emptyWalletDisclaimer.setVisibility(View.VISIBLE);
           mBinding.amountEditableValue.setEnabled(false);
-          mBinding.amountEditableValue.setText(CoinUtils.rawAmountInUnit(
-            app.onChainBalance.get(), preferredBitcoinUnit).bigDecimal().toPlainString());
+          mBinding.amountEditableValue.setText(CoinUtils.rawAmountInUnit(app.getOnchainBalance(), preferredBitcoinUnit).bigDecimal().toPlainString());
         } else {
           mBinding.emptyWalletDisclaimer.setVisibility(View.GONE);
           mBinding.amountEditableValue.setEnabled(true);
@@ -401,7 +400,7 @@ public class SendPaymentActivity extends EclairActivity
         final Satoshi amountSat = isAmountReadonly
           ? mBitcoinInvoice.getAmount()
           : CoinUtils.convertStringAmountToSat(mBinding.amountEditableValue.getText().toString(), preferredBitcoinUnit.code());
-        if (amountSat.$greater(app.onChainBalance.get())) {
+        if (amountSat.$greater(app.getOnchainBalance())) {
           handlePaymentError(R.string.payment_error_amount_onchain_insufficient_funds);
           return;
         }

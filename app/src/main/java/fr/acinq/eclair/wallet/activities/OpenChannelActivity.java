@@ -217,7 +217,7 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
       showError(getString(R.string.openchannel_capacity_invalid, CoinUtils.formatAmountInUnit(minFunding, preferredBitcoinUnit, false),
         CoinUtils.formatAmountInUnit(maxFunding, preferredBitcoinUnit, true)));
       return false;
-    } else if (package$.MODULE$.millisatoshi2satoshi(amountMsat).amount() > app.onChainBalance.get().amount()) {
+    } else if (package$.MODULE$.millisatoshi2satoshi(amountMsat).amount() > app.getOnchainBalance().amount()) {
       showError(getString(R.string.openchannel_capacity_notenoughfunds));
       return false;
     } else {

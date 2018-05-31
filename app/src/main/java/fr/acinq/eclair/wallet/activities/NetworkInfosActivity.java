@@ -25,7 +25,9 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.text.DateFormat;
 import java.text.NumberFormat;
+import java.util.Date;
 
 import fr.acinq.eclair.Globals;
 import fr.acinq.eclair.wallet.R;
@@ -39,6 +41,8 @@ public class NetworkInfosActivity extends EclairActivity implements SwipeRefresh
   private DataRow mNetworkChannelCount;
   private DataRow mBlockCount;
   private DataRow mFeeRate;
+  private DataRow mElectrumAddress;
+  private DataRow mBlockTimestamp;
   private SwipeRefreshLayout mRefreshLayout;
 
   @Override
@@ -54,6 +58,8 @@ public class NetworkInfosActivity extends EclairActivity implements SwipeRefresh
     mNodePublicKeyRow = findViewById(R.id.networkinfos_nodeid);
     mNetworkChannelCount = findViewById(R.id.networkinfos_networkchannels_count);
     mBlockCount = findViewById(R.id.networkinfos_blockcount);
+    mBlockTimestamp = findViewById(R.id.networkinfos_block_timestamp);
+    mElectrumAddress = findViewById(R.id.networkinfos_electrum_address);
     mFeeRate = findViewById(R.id.networkinfos_feerate);
 
     mRefreshLayout = findViewById(R.id.networkinfos_swiperefresh);
@@ -68,6 +74,8 @@ public class NetworkInfosActivity extends EclairActivity implements SwipeRefresh
 
   private void refreshData() {
     mBlockCount.setValue(String.valueOf(Globals.blockCount().get()));
+    mBlockTimestamp.setValue(DateFormat.getDateTimeInstance().format(new Date(app.getBlockTimestamp() * 1000)));
+    mElectrumAddress.setValue(app.getElectrumServerAddress());
     mFeeRate.setValue(NumberFormat.getInstance().format(Globals.feeratesPerKw().get().block_1()) + " sat/kw");
     app.getNetworkChannelsCount();
     mRefreshLayout.setRefreshing(false);

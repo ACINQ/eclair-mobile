@@ -94,7 +94,6 @@ public class WalletUtils {
   public static JsonObjectRequest exchangeRateRequest(final SharedPreferences prefs) {
     return new JsonObjectRequest(Request.Method.GET, PRICE_RATE_API, null,
       response -> {
-        Log.i(TAG, "price api call!");
         final SharedPreferences.Editor editor = prefs.edit();
         saveCurrency(editor, response, "AUD"); // australian dollar
         saveCurrency(editor, response, "BRL"); // br real

@@ -20,7 +20,7 @@
 
   <!-- //////////////// Activities name //////////////////// -->
 
-  <string name="networkinfos_name">Network Overview</string>
+  <string name="networkinfos_name">Network Info</string>
   <string name="about_name">About</string>
   <string name="lnpayment_name">Lightning Payment Details</string>
   <string name="btcpayment_name">Transaction Details</string>
@@ -351,10 +351,12 @@
   <string name="networkinfos_blockcount_desc">Current blockchain height</string>
   <string name="networkinfos_feerate_label">Fee rate</string>
   <string name="networkinfos_feerate_desc">Current fee rate</string>
+  <string name="networkinfos_electrum_address_label">Electrum server</string>
+  <string name="networkinfos_electrum_address_desc">Server you\'re connected to for access to the blockchain</string>
+  <string name="networkinfos_block_timestamp_label">Block timestamp</string>
+  <string name="networkinfos_block_timestamp_desc">Last block timestamp</string>
   <string name="networkinfos_networkchannels_label">Known channels</string>
   <string name="networkinfos_networkchannels_desc">Channels count in network</string>
-  <string name="networkinfos_networknodes_label">Known nodes</string>
-  <string name="networkinfos_networknodes_desc">Nodes count in network</string>
 
   <!-- //////////////// Payment Item //////////////////// -->
 
@@ -364,10 +366,10 @@
   <!-- //////////////// General //////////////////// -->
 
   <string name="btc_fee_unit">sat/byte</string>
-  <string name="chain_disconnected">Electrum disconnected</string>
-  <string name="chain_disconnected_desc">Connection was lost. Sending funds is disabled.</string>
-  <string name="chain_late">Electrum desynchronized</string>
-  <string name="chain_late_desc">Attention, your wallet\'s block height looks stale. Sending lightning payments may trigger the unilateral closing of your channels!</string>
+  <string name="chain_disconnected">Connection to electrum server lost</string>
+  <string name="chain_disconnected_desc">Sending funds is disabled.</string>
+  <string name="chain_late">Electrum server not synchronized</string>
+  <string name="chain_late_desc">Attention, your wallet\'s block height looks stale. Sending lightning payments may trigger unilateral closing of your channels!</string>
 
   <!-- //////////////// Pin dialogs //////////////////// -->
 

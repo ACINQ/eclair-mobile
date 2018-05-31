@@ -21,6 +21,11 @@ import fr.acinq.eclair.wallet.models.FeeRating;
 
 public interface Constants {
 
+  /**
+   * time diff in sec beyond which a timestamp in a block header can safely be considered as late
+   */
+  long DESYNC_DIFF_TIMESTAMP_SEC = 6 * 60 * 60L;
+
   /* ----------- FILES NAMES ------------ */
   String ECLAIR_DATADIR = "eclair-wallet-data";
 
