@@ -46,11 +46,13 @@ import fr.acinq.bitcoin.Transaction;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.Globals;
+import fr.acinq.eclair.JsonSerializers$;
 import fr.acinq.eclair.Kit;
 import fr.acinq.eclair.blockchain.electrum.ElectrumEclairWallet;
 import fr.acinq.eclair.blockchain.electrum.ElectrumWallet;
 import fr.acinq.eclair.channel.CMD_GETINFO$;
 import fr.acinq.eclair.channel.Channel;
+import fr.acinq.eclair.channel.RES_GETINFO;
 import fr.acinq.eclair.channel.Register;
 import fr.acinq.eclair.io.NodeURI;
 import fr.acinq.eclair.io.Peer;
@@ -72,6 +74,7 @@ import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
 import scala.concurrent.duration.FiniteDuration;
+import upickle.default$;
 
 public class App extends Application {
 
@@ -329,7 +332,9 @@ public class App extends Application {
       @Override
       public void onComplete(Throwable throwable, Object o) throws Throwable {
         if (throwable == null && o != null) {
-          EventBus.getDefault().post(new ChannelRawDataEvent(o.toString()));
+          RES_GETINFO result = (RES_GETINFO) o;
+          String json = default$.MODULE$.write(result, 1, JsonSerializers$.MODULE$.cmdResGetinfoReadWriter());
+          EventBus.getDefault().post(new ChannelRawDataEvent(json));
         } else {
           EventBus.getDefault().post(new ChannelRawDataEvent(null));
         }
