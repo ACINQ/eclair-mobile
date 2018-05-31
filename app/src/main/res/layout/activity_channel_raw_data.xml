@@ -26,15 +26,6 @@
     <!-- Custom toolbar -->
     <include layout="@layout/toolbar" />
 
-    <TextView
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:padding="@dimen/app_padding"
-      android:text="@string/channelraw_desc"
-      android:textSize="12sp" />
-
-    <include layout="@layout/include_separator" />
-
     <LinearLayout
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
@@ -42,6 +33,7 @@
       android:clickable="true"
       android:focusable="true"
       android:gravity="center"
+      android:onClick="copyRawData"
       android:orientation="horizontal"
       android:padding="@dimen/app_padding">
 
@@ -65,20 +57,18 @@
       android:layout_height="1dp"
       android:background="@color/grey_0_dark_x1" />
 
-    <android.support.v4.widget.NestedScrollView
+    <TextView
+      android:id="@+id/raw_json"
       android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      android:background="@color/grey_0_light_x1">
+      android:layout_height="wrap_content"
+      android:background="@color/grey_0_light_x1"
+      android:fontFamily="monospace"
+      android:padding="@dimen/app_padding"
+      android:scrollHorizontally="true"
+      android:text="@string/openchannel_loading_pleasewait"
+      android:textColor="@color/grey_3"
+      android:textIsSelectable="true"
+      android:textSize="10sp" />
 
-      <TextView
-        android:id="@+id/raw_json"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="@dimen/app_padding"
-        android:text="@string/openchannel_loading_pleasewait"
-        android:textColor="@color/grey_3"
-        android:textIsSelectable="true" />
-
-    </android.support.v4.widget.NestedScrollView>
   </LinearLayout>
 </layout>

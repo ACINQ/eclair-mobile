@@ -16,12 +16,17 @@
 
 package fr.acinq.eclair.wallet.activities;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import org.greenrobot.eventbus.EventBus;
@@ -52,6 +57,7 @@ public class ChannelRawDataActivity extends EclairActivity {
     ab.setDisplayHomeAsUpEnabled(true);
     Intent intent = getIntent();
     mChannelId = intent.getStringExtra(LocalChannelItemHolder.EXTRA_CHANNEL_ID);
+    mBinding.rawJson.setHorizontallyScrolling(true);
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
@@ -77,5 +83,15 @@ public class ChannelRawDataActivity extends EclairActivity {
   protected void onPause() {
     EventBus.getDefault().unregister(this);
     super.onPause();
+  }
+
+  public void copyRawData(View v) {
+    try {
+      ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+      clipboard.setPrimaryClip(ClipData.newPlainText("Channel data", mBinding.rawJson.getText().toString()));
+      Toast.makeText(this.getApplicationContext(), "Copied data to clipboard", Toast.LENGTH_SHORT).show();
+    } catch (Exception e) {
+      Toast.makeText(this.getApplicationContext(), "Could not copy data", Toast.LENGTH_SHORT).show();
+    }
   }
 }
