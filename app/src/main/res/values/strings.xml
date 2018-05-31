@@ -15,10 +15,15 @@
   -->
 
 <resources>
+
+  <!-- //////////////// Application Strings //////////////////// -->
+
   <string name="lang">eng</string>
   <string name="app_name">Eclair DEV</string>
+  <string name="notification_channel_closing_ln_channel_name">Channel Closing</string>
+  <string name="notification_channel_closing_ln_channel_desc">Notification displayed when a channel is closing, be it cooperative or not.</string>
 
-  <!-- //////////////// Activities name //////////////////// -->
+  <!-- //////////////// Activities Name //////////////////// -->
 
   <string name="networkinfos_name">Network Info</string>
   <string name="about_name">About</string>
@@ -433,4 +438,10 @@
   <string name="tools_xpub_label">Master Public Key</string>
   <string name="tools_xpub_desc">All your addresses derive from this key.</string>
 
+  <!-- //////////////// Notification //////////////////// -->
+
+  <string name="notif_channelclosing_title">Closing channel with %1$s …</string>
+  <string name="notif_channelclosing_message">Your final balance: %1$s</string>
+  <string name="notif_channelclosing_bigmessage">You should see an incoming on-chain transaction.</string>
+  <string name="notif_channelclosing_bigmessage_localclosing">You or your wallet unilaterally closed this channel. You will receive your funds in %1$d blocks. This value is dependent on the channel configuration.</string>
 </resources>

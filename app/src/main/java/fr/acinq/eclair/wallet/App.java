@@ -17,22 +17,25 @@
 package fr.acinq.eclair.wallet;
 
 import android.app.Application;
-import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.content.Context;
+import android.app.PendingIntent;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
-import java.net.InetSocketAddress;
 import java.util.concurrent.atomic.AtomicReference;
 
 import akka.actor.ActorSystem;
@@ -60,11 +63,12 @@ import fr.acinq.eclair.io.NodeURI;
 import fr.acinq.eclair.io.Peer;
 import fr.acinq.eclair.payment.PaymentLifecycle;
 import fr.acinq.eclair.payment.PaymentRequest;
+import fr.acinq.eclair.wallet.activities.ChannelDetailsActivity;
 import fr.acinq.eclair.wallet.events.BitcoinPaymentFailedEvent;
 import fr.acinq.eclair.wallet.events.ChannelRawDataEvent;
+import fr.acinq.eclair.wallet.events.ClosingChannelNotificationEvent;
 import fr.acinq.eclair.wallet.events.LNNewChannelFailureEvent;
 import fr.acinq.eclair.wallet.events.NetworkChannelsCountEvent;
-import fr.acinq.eclair.wallet.events.NotificationEvent;
 import fr.acinq.eclair.wallet.events.XpubEvent;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
@@ -77,14 +81,17 @@ import scala.concurrent.duration.Duration;
 import scala.concurrent.duration.FiniteDuration;
 import upickle.default$;
 
+import static fr.acinq.eclair.wallet.adapters.LocalChannelItemHolder.EXTRA_CHANNEL_ID;
+import static fr.acinq.eclair.wallet.events.ClosingChannelNotificationEvent.NOTIF_CHANNEL_CLOSED_ID;
+
 public class App extends Application {
 
   public final static String TAG = "App";
   public final static Map<String, Float> RATES = new HashMap<>();
   public final ActorSystem system = ActorSystem.apply("system");
-  private AtomicReference<ElectrumState> electrumState = new AtomicReference<>(null);
   public AtomicReference<String> pin = new AtomicReference<>(null);
   public AppKit appKit;
+  private AtomicReference<ElectrumState> electrumState = new AtomicReference<>(null);
   private DBHelper dbHelper;
   private String walletAddress = "N/A";
 
@@ -119,18 +126,28 @@ public class App extends Application {
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
-  public void handleNotification(NotificationEvent notificationEvent) {
-    NotificationCompat.Builder notification = new NotificationCompat.Builder(this.getBaseContext())
-      .setVisibility(NotificationCompat.VISIBILITY_SECRET)
-      .setPriority(Notification.PRIORITY_HIGH)
-      .setDefaults(Notification.DEFAULT_SOUND)
-      .setVibrate(new long[]{0})
+  public void handleNotification(ClosingChannelNotificationEvent event) {
+    final String notifTitle = getString(R.string.notif_channelclosing_title, event.remoteNodeId);
+    final String notifMessage = getString(R.string.notif_channelclosing_message, CoinUtils.formatAmountInUnit(event.balanceAtClosing, CoinUtils.getUnitFromString("btc"), true));
+    final StringBuilder notifBigMessage = new StringBuilder().append(notifMessage).append("\n");
+    if (event.isLocalClosing) {
+      notifBigMessage.append(getString(R.string.notif_channelclosing_bigmessage_localclosing, event.toSelfDelay));
+    } else {
+      notifBigMessage.append(getString(R.string.notif_channelclosing_bigmessage));
+    }
+    final Intent intent = new Intent(this, ChannelDetailsActivity.class);
+    intent.putExtra(EXTRA_CHANNEL_ID, event.channelId);
+    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
+    final NotificationCompat.Builder builder = new NotificationCompat.Builder(this.getBaseContext(), ClosingChannelNotificationEvent.NOTIF_CHANNEL_CLOSED_ID)
       .setSmallIcon(R.drawable.eclair_256x256)
-      .setContentTitle(notificationEvent.title)
-      .setContentText(notificationEvent.message)
-      .setStyle(new NotificationCompat.BigTextStyle().bigText(notificationEvent.bigMessage));
-    NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-    mNotificationManager.notify(notificationEvent.tag, notificationEvent.id, notification.build());
+      .setContentTitle(notifTitle)
+      .setContentText(notifMessage)
+      .setStyle(new NotificationCompat.BigTextStyle().bigText(notifBigMessage.toString()))
+      .setContentIntent(PendingIntent.getActivity(this, (int) (System.currentTimeMillis() & 0xfffffff), intent, PendingIntent.FLAG_CANCEL_CURRENT))
+      .setAutoCancel(true);
+
+    NotificationManagerCompat.from(this).notify((int) (System.currentTimeMillis() & 0xfffffff), builder.build());
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
@@ -372,15 +389,29 @@ public class App extends Application {
       this.dbHelper = new DBHelper(getApplicationContext());
     }
 
+    // rates & coin patterns
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
     WalletUtils.retrieveRatesFromPrefs(prefs);
     CoinUtils.setCoinPattern(prefs.getString(Constants.SETTING_BTC_PATTERN, getResources().getStringArray(R.array.btc_pattern_values)[3]));
+
+    // notification channels (android 8+)
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+      final CharSequence name = getString(R.string.notification_channel_closing_ln_channel_name);
+      final String description = getString(R.string.notification_channel_closing_ln_channel_desc);
+      final int importance = NotificationManager.IMPORTANCE_HIGH;
+      final NotificationChannel channel = new NotificationChannel(NOTIF_CHANNEL_CLOSED_ID, name, importance);
+      channel.setDescription(description);
+      // Register the channel with the system
+      final NotificationManager notificationManager = getSystemService(NotificationManager.class);
+      if (notificationManager != null) notificationManager.createNotificationChannel(channel);
+    }
+
   }
 
   public Satoshi getOnchainBalance() {
     // if electrum has not send any data, fetch last known onchain balance from DB
     if (this.electrumState.get() == null
-      || this.electrumState.get().confirmedBalance == null ||this.electrumState.get().unconfirmedBalance == null) {
+      || this.electrumState.get().confirmedBalance == null || this.electrumState.get().unconfirmedBalance == null) {
       return package$.MODULE$.millisatoshi2satoshi(new MilliSatoshi(dbHelper.getOnchainBalanceMsat()));
     } else {
       final Satoshi confirmed = electrumState.get().confirmedBalance;

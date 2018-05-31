@@ -36,7 +36,7 @@ import fr.acinq.eclair.wallet.utils.WalletUtils;
 
 public class LocalChannelItemHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-  public static final String EXTRA_CHANNEL_ID = BuildConfig.APPLICATION_ID + "CHANNEL_ID";
+  public static final String EXTRA_CHANNEL_ID = BuildConfig.APPLICATION_ID + ".CHANNEL_ID";
 
   private final TextView state;
   private final TextView balance;

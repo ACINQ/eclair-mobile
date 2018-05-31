@@ -16,7 +16,6 @@
 
 package fr.acinq.eclair.wallet;
 
-import android.os.Build;
 import android.util.Log;
 
 import org.greenrobot.eventbus.EventBus;
@@ -31,7 +30,6 @@ import akka.actor.Terminated;
 import akka.actor.UntypedActor;
 import fr.acinq.bitcoin.Crypto;
 import fr.acinq.bitcoin.MilliSatoshi;
-import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.channel.CLOSED$;
 import fr.acinq.eclair.channel.CLOSING$;
 import fr.acinq.eclair.channel.ChannelCreated;
@@ -53,10 +51,10 @@ import fr.acinq.eclair.router.NORMAL$;
 import fr.acinq.eclair.transactions.DirectedHtlc;
 import fr.acinq.eclair.transactions.OUT$;
 import fr.acinq.eclair.wallet.events.ChannelUpdateEvent;
+import fr.acinq.eclair.wallet.events.ClosingChannelNotificationEvent;
 import fr.acinq.eclair.wallet.events.LNBalanceUpdateEvent;
 import fr.acinq.eclair.wallet.events.LNPaymentFailedEvent;
 import fr.acinq.eclair.wallet.events.LNPaymentSuccessEvent;
-import fr.acinq.eclair.wallet.events.NotificationEvent;
 import fr.acinq.eclair.wallet.events.PaymentEvent;
 import fr.acinq.eclair.wallet.models.LightningPaymentError;
 import fr.acinq.eclair.wallet.models.Payment;
@@ -229,16 +227,9 @@ public class EclairEventService extends UntypedActor {
         // Otherwise the notification would show up each time the wallet is started and the channel is
         // still closing, even though the user has already been alerted the last time he used the app.
         // Same thing for CLOSING -> CLOSED
-        if (Build.VERSION.SDK_INT < 26 && cd.state != null && !CLOSED$.MODULE$.toString().equals(cs.currentState().toString()) && !WAIT_FOR_INIT_INTERNAL$.MODULE$.toString().equals(cd.state)) {
-          String notifTitle = "Closing channel with " + cd.remoteNodeId.substring(0, 7) + "...";
-          MilliSatoshi balanceLeft = new MilliSatoshi(d.commitments().localCommit().spec().toLocalMsat());
-          final String notifMessage = "Your final balance: " + CoinUtils.formatAmountInUnit(balanceLeft, CoinUtils.getUnitFromString("btc"), true);
-          final String notifBigMessage = notifMessage +
-            "\n" + (cd.isLocalClosing
-              ? "You unilaterally closed this channel. You will receive your funds in " + d.commitments().localParams().toSelfDelay() + " blocks."
-              : "You should see an incoming onchain transaction.");
-          EventBus.getDefault().post(new NotificationEvent(
-            NotificationEvent.NOTIF_CHANNEL_CLOSED_ID, cd.channelId, notifTitle, notifMessage, notifBigMessage));
+        if (cd.state != null && !CLOSED$.MODULE$.toString().equals(cs.currentState().toString()) && !WAIT_FOR_INIT_INTERNAL$.MODULE$.toString().equals(cd.state)) {
+          final MilliSatoshi balanceLeft = new MilliSatoshi(d.commitments().localCommit().spec().toLocalMsat());
+          EventBus.getDefault().post(new ClosingChannelNotificationEvent(cd.channelId, cd.remoteNodeId, cd.isLocalClosing, balanceLeft, cd.toSelfDelayBlocks));
         }
       }
       cd.state = cs.currentState().toString();

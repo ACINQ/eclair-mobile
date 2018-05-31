@@ -26,6 +26,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -104,7 +105,10 @@ public class ChannelDetailsActivity extends EclairActivity {
     try {
       final Map.Entry<ActorRef, EclairEventService.ChannelDetails> channel = getChannel(mChannelId);
 
-      if (channel.getValue() != null && channel.getKey() != null && channel.getValue() != null) {
+      if (channel == null) {
+        Toast.makeText(this, "This channel does not exist anymore", Toast.LENGTH_LONG).show();
+        finish();
+      } else if (channel.getValue() != null && channel.getKey() != null && channel.getValue() != null) {
 
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         final CoinUnit prefUnit = WalletUtils.getPreferredCoinUnit(prefs);
