@@ -66,7 +66,7 @@ public class WalletUtils {
   }
 
   private static void retrieveRateFromPrefs(final SharedPreferences prefs, final String fiatCode) {
-    App.RATES.put("EUR", prefs.getFloat(Constants.SETTING_LAST_KNOWN_RATE_BTC_ + "EUR", -1.0f));
+    App.RATES.put(fiatCode, prefs.getFloat(Constants.SETTING_LAST_KNOWN_RATE_BTC_ + fiatCode, -1.0f));
   }
   public static void retrieveRatesFromPrefs(final SharedPreferences prefs) {
     retrieveRateFromPrefs(prefs, "AUD");
