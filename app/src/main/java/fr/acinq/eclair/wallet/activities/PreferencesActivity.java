@@ -72,7 +72,7 @@ public class PreferencesActivity extends EclairActivity implements EclairActivit
 
     defaultPrefsListener = (prefs, key) -> {
       if (Constants.SETTING_BTC_PATTERN.equals(key)) {
-        CoinUtils.setCoinPattern(prefs.getString(Constants.SETTING_BTC_PATTERN, getResources().getStringArray(R.array.btc_pattern_values)[0]));
+        CoinUtils.setCoinPattern(prefs.getString(Constants.SETTING_BTC_PATTERN, getResources().getStringArray(R.array.btc_pattern_values)[3]));
       }
     };
   }
