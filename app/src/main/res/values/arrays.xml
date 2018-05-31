@@ -75,11 +75,13 @@
   <string-array name="btc_pattern_labels">
     <item>2 decimals</item>
     <item>5 decimals</item>
+    <item>8 decimals</item>
     <item>Exact precision</item>
   </string-array>
   <string-array name="btc_pattern_values">
     <item>###,###,###,##0.00</item>
     <item>###,###,###,##0.00000</item>
+    <item>###,###,###,##0.00000000</item>
     <item>###,###,###,##0.###########</item>
   </string-array>
   <string-array name="onchain_explorer_uri_labels">

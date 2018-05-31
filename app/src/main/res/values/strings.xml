@@ -387,7 +387,7 @@
   <string name="prefs_fiat_currency">Fiat currency</string>
   <string name="prefs_fiat_currency_dialog">Display in fiat currency</string>
   <string name="prefs_btc_unit">Bitcoin unit</string>
-  <string name="prefs_btc_decimals">Number of decimals in amounts</string>
+  <string name="prefs_btc_decimals">Number of decimals shown</string>
   <string name="prefs_change_password">Change the app password</string>
   <string name="prefs_change_password_desc">Seed will be re-encrypted with a new password</string>
   <string name="prefs_change_password_button">Change password</string>
