@@ -301,7 +301,7 @@
   <string name="paymentfailure_show_details">Click here for details</string>
   <string name="paymentfailure_error_size">%1$d attempt(s) made.</string>
   <string name="paymentfailure_error_counter">#%1$d of %2$d:</string>
-  <string name="paymentfailure_error_cause_label">Cause:</string>
+  <string name="paymentfailure_error_type_label">Type:</string>
   <string name="paymentfailure_error_cause">%1$s</string>
   <string name="paymentfailure_error_origin_label">Origin:</string>
   <string name="paymentfailure_error_origin_channel_label">Channel:</string>
