@@ -16,6 +16,24 @@
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
+  <PreferenceCategory android:title="@string/prefs_cat_general">
+
+    <ListPreference
+      android:defaultValue="https://api.blockcypher.com/v1/btc/main/txs/"
+      android:dialogTitle="@string/prefs_onchain_explorer_dialog"
+      android:entries="@array/onchain_explorer_uri_labels"
+      android:entryValues="@array/onchain_explorer_uri_values"
+      android:key="onchain_explorer"
+      android:summary="%s"
+      android:title="@string/prefs_onchain_explorer" />
+
+    <SwitchPreference
+      android:defaultValue="true"
+      android:key="haptic_feedback"
+      android:title="@string/prefs_haptic_title" />
+
+  </PreferenceCategory>
+
   <PreferenceCategory android:title="@string/prefs_cat_display">
 
     <ListPreference
@@ -45,14 +63,6 @@
       android:summary="%s"
       android:title="@string/prefs_btc_decimals" />
 
-    <ListPreference
-      android:defaultValue="https://api.blockcypher.com/v1/btc/main/txs/"
-      android:dialogTitle="@string/prefs_onchain_explorer_dialog"
-      android:entries="@array/onchain_explorer_uri_labels"
-      android:entryValues="@array/onchain_explorer_uri_values"
-      android:key="onchain_explorer"
-      android:summary="%s"
-      android:title="@string/prefs_onchain_explorer" />
   </PreferenceCategory>
 
   <PreferenceCategory android:title="@string/prefs_cat_lightning">

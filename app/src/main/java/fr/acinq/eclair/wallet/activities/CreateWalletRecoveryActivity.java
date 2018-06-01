@@ -36,6 +36,7 @@ import java.util.List;
 
 import fr.acinq.bitcoin.MnemonicCode;
 import fr.acinq.eclair.blockchain.electrum.ElectrumWallet;
+import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.databinding.ActivityCreateWalletRecoveryBinding;
 import fr.acinq.eclair.wallet.utils.Constants;
@@ -53,6 +54,10 @@ public class CreateWalletRecoveryActivity extends EclairActivity implements Ecla
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     mBinding = DataBindingUtil.setContentView(this, R.layout.activity_create_wallet_recovery);
+    if ("testnet".equals(BuildConfig.CHAIN)) {
+      mBinding.skipCheck.setEnabled(true);
+      mBinding.skipCheck.setVisibility(View.VISIBLE);
+    }
     try {
       mnemonics = JavaConverters.seqAsJavaListConverter(MnemonicCode.toMnemonics(fr.acinq.eclair.package$.MODULE$.randomBytes(
         ElectrumWallet.SEED_BYTES_LENGTH()).data(), MnemonicCode.englishWordlist())).asJava();
@@ -95,7 +100,7 @@ public class CreateWalletRecoveryActivity extends EclairActivity implements Ecla
     mBinding.encryptStep.setVisibility(View.GONE);
   }
 
-  private void goStepSuccess() {
+  public void goStepSuccess(View v) {
     mBinding.displayStep.setVisibility(View.GONE);
     mBinding.checkStep.setVisibility(View.GONE);
     mBinding.encryptStep.setVisibility(View.VISIBLE);
@@ -156,7 +161,7 @@ public class CreateWalletRecoveryActivity extends EclairActivity implements Ecla
         && checkWordRecoveryPhrase(pos.get(0), userWords[0])
         && checkWordRecoveryPhrase(pos.get(1), userWords[1])
         && checkWordRecoveryPhrase(pos.get(2), userWords[2])) {
-        goStepSuccess();
+        goStepSuccess(view);
         return;
       }
     } catch (Exception e) {

@@ -72,6 +72,8 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
   private ActivityStartupBinding mBinding;
   private StubUsageDisclaimerBinding mDisclaimerBinding;
   private PinDialog pinDialog;
+  public final static String ORIGIN = BuildConfig.APPLICATION_ID + "ORIGIN";
+  public final static String ORIGIN_EXTRA = BuildConfig.APPLICATION_ID + "ORIGIN_EXTRA";
   private static final HashSet<Integer> BREAKING_VERSIONS = new HashSet<>(Arrays.asList(14));
 
   @Override
@@ -151,7 +153,12 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
 
   private void goToHome() {
     finish();
-    Intent homeIntent = new Intent(getBaseContext(), HomeActivity.class);
+    final Intent originIntent = getIntent();
+    final Intent homeIntent = new Intent(getBaseContext(), HomeActivity.class);
+    if (originIntent.hasExtra(ORIGIN)) {
+      homeIntent.putExtra(ORIGIN, originIntent.getStringExtra(ORIGIN));
+      homeIntent.putExtra(ORIGIN_EXTRA, originIntent.getStringExtra(ORIGIN_EXTRA));
+    }
     homeIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
     homeIntent.putExtra(HomeActivity.EXTRA_PAYMENT_URI, getIntent().getData());
     startActivity(homeIntent);

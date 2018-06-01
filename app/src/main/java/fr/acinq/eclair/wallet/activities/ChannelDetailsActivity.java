@@ -26,6 +26,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -95,7 +96,7 @@ public class ChannelDetailsActivity extends EclairActivity {
   @Override
   protected void onResume() {
     super.onResume();
-    if (checkInit()) {
+    if (checkInit(ChannelDetailsActivity.class.getSimpleName(), mChannelId)) {
       refreshChannel();
     }
   }
@@ -103,8 +104,10 @@ public class ChannelDetailsActivity extends EclairActivity {
   private void refreshChannel() {
     try {
       final Map.Entry<ActorRef, EclairEventService.ChannelDetails> channel = getChannel(mChannelId);
-
-      if (channel.getValue() != null && channel.getKey() != null && channel.getValue() != null) {
+      if (channel == null) {
+        Log.d(TAG, "could not find channel " + mChannelId);
+        Toast.makeText(this, "This channel does not exist anymore", Toast.LENGTH_LONG).show();
+      } else if (channel.getValue() != null && channel.getKey() != null && channel.getValue() != null) {
 
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         final CoinUnit prefUnit = WalletUtils.getPreferredCoinUnit(prefs);
@@ -143,6 +146,7 @@ public class ChannelDetailsActivity extends EclairActivity {
         mBinding.capacity.setValue(CoinUtils.formatAmountInUnit(channel.getValue().capacityMsat, prefUnit, true));
         mBinding.channelId.setValue(channel.getValue().channelId);
         mBinding.channelId.actionButton.setOnClickListener(v -> openRawDataWindow());
+        mBinding.toSelfDelay.setValue(String.valueOf(channel.getValue().toSelfDelayBlocks));
         mBinding.reserve.setValue(CoinUtils.formatAmountInUnit(new Satoshi(channel.getValue().channelReserveSat), prefUnit, true));
         mBinding.countHtlcsInflight.setValue(String.valueOf(channel.getValue().htlcsInFlightCount));
         mBinding.minimumHtlcAmount.setValue(CoinUtils.formatAmountInUnit(new MilliSatoshi(channel.getValue().minimumHtlcAmountMsat), prefUnit, true));
@@ -151,7 +155,6 @@ public class ChannelDetailsActivity extends EclairActivity {
       }
     } catch (Exception e) {
       Log.w(TAG, "could not read channel details with cause=" + e.getMessage());
-      finish();
     }
   }
 

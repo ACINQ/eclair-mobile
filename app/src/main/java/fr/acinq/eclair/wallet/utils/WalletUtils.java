@@ -24,33 +24,102 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.google.common.io.Files;
 import com.tozny.crypto.android.AesCbcWithIntegrity;
 
-import java.io.ByteArrayOutputStream;
+import org.json.JSONObject;
+
 import java.io.File;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.security.MessageDigest;
 import java.text.NumberFormat;
-import java.util.Arrays;
-import java.util.List;
 
+import fr.acinq.bitcoin.BinaryData;
+import fr.acinq.bitcoin.Block;
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.CoinUnit;
 import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.wallet.App;
-
+import fr.acinq.eclair.wallet.BuildConfig;
 
 public class WalletUtils {
   public final static String ACINQ_NODE = "03864ef025fde8fb587d989186ce6a4a186895ee44a926bfc370e2c366597a3f8f@node.acinq.co:9735";
-  private static final String TAG = "WalletUtils";
-  private static NumberFormat fiatFormat;
+  private final static String PRICE_RATE_API = "https://blockchain.info/fr/ticker";
   public final static String UNENCRYPTED_SEED_NAME = "seed.dat";
   public final static String SEED_NAME = "enc_seed.dat";
+  private static final String TAG = "WalletUtils";
   private final static String SEED_NAME_TEMP = "enc_seed_temp.dat";
+  private static NumberFormat fiatFormat;
 
+  private static void saveCurrency(final SharedPreferences.Editor editor, final JSONObject o, final String fiatCode) {
+    float rate = -1.0f;
+    try {
+      rate = (float) o.getJSONObject(fiatCode).getDouble("last");
+    } catch (Exception e) {
+      Log.d(TAG, "could not read " + fiatCode + " from price api response");
+    }
+    App.RATES.put(fiatCode, rate);
+    editor.putFloat(Constants.SETTING_LAST_KNOWN_RATE_BTC_ + fiatCode, rate);
+  }
+
+  private static void retrieveRateFromPrefs(final SharedPreferences prefs, final String fiatCode) {
+    App.RATES.put(fiatCode, prefs.getFloat(Constants.SETTING_LAST_KNOWN_RATE_BTC_ + fiatCode, -1.0f));
+  }
+  public static void retrieveRatesFromPrefs(final SharedPreferences prefs) {
+    retrieveRateFromPrefs(prefs, "AUD");
+    retrieveRateFromPrefs(prefs, "BRL");
+    retrieveRateFromPrefs(prefs, "CLP");
+    retrieveRateFromPrefs(prefs, "USD");
+    retrieveRateFromPrefs(prefs, "CNY");
+    retrieveRateFromPrefs(prefs, "DKK");
+    retrieveRateFromPrefs(prefs, "EUR");
+    retrieveRateFromPrefs(prefs, "GBP");
+    retrieveRateFromPrefs(prefs, "HKD");
+    retrieveRateFromPrefs(prefs, "INR");
+    retrieveRateFromPrefs(prefs, "JPY");
+    retrieveRateFromPrefs(prefs, "KRW");
+    retrieveRateFromPrefs(prefs, "NZD");
+    retrieveRateFromPrefs(prefs, "PLN");
+    retrieveRateFromPrefs(prefs, "RUB");
+    retrieveRateFromPrefs(prefs, "SEK");
+    retrieveRateFromPrefs(prefs, "SGD");
+    retrieveRateFromPrefs(prefs, "THB");
+    retrieveRateFromPrefs(prefs, "TWD");
+    retrieveRateFromPrefs(prefs, "USD");
+  }
+
+  public static JsonObjectRequest exchangeRateRequest(final SharedPreferences prefs) {
+    return new JsonObjectRequest(Request.Method.GET, PRICE_RATE_API, null,
+      response -> {
+        final SharedPreferences.Editor editor = prefs.edit();
+        saveCurrency(editor, response, "AUD"); // australian dollar
+        saveCurrency(editor, response, "BRL"); // br real
+        saveCurrency(editor, response, "CHF"); // swiss franc
+        saveCurrency(editor, response, "CLP"); // chilean pesos
+        saveCurrency(editor, response, "CNY"); // yuan
+        saveCurrency(editor, response, "DKK"); // denmark krone
+        saveCurrency(editor, response, "EUR"); // euro
+        saveCurrency(editor, response, "GBP"); // pound
+        saveCurrency(editor, response, "HKD"); // hong kong dollar
+        saveCurrency(editor, response, "INR"); // indian rupee
+        saveCurrency(editor, response, "JPY"); // yen
+        saveCurrency(editor, response, "KRW"); // won
+        saveCurrency(editor, response, "NZD"); // nz dollar
+        saveCurrency(editor, response, "PLN"); // zloty
+        saveCurrency(editor, response, "RUB"); // ruble
+        saveCurrency(editor, response, "SEK"); // swedish krona
+        saveCurrency(editor, response, "SGD"); // singapore dollar
+        saveCurrency(editor, response, "THB"); // thai baht
+        saveCurrency(editor, response, "TWD"); // taiwan dollar
+        saveCurrency(editor, response, "USD"); // usd
+        editor.apply();
+      }, (error) -> {
+      Log.d(TAG, "error when querying price api api with cause " + error.getMessage());
+    });
+  }
   public static View.OnClickListener getOpenTxListener(final String txId) {
     return v -> {
       final String uri = PreferenceManager.getDefaultSharedPreferences(v.getContext())
@@ -121,30 +190,27 @@ public class WalletUtils {
   }
 
   /**
-   * Gets the user's preferred fiat currency. Default is USD
-   *
-   * @param prefs
-   * @return
+   * Gets the user's preferred fiat currency. Default is USD.
    */
   public static String getPreferredFiat(final SharedPreferences prefs) {
-    return prefs.getString(Constants.SETTING_SELECTED_FIAT_CURRENCY, Constants.FIAT_USD);
+    return prefs.getString(Constants.SETTING_SELECTED_FIAT_CURRENCY, Constants.FIAT_USD).toUpperCase();
   }
 
   /**
-   * Converts bitcoin amount to the fiat in parameter. Defaults to USD if the fiat code is unknown
+   * Converts bitcoin amount to the fiat currency preferred by the user.
    *
-   * @param amountMsat   amount in milli satoshis
-   * @param fiatCurrency Fiat currency code, EUR/USD, defaults to USD
+   * @param amountMsat amount in milli satoshis
+   * @param fiatCode fiat currency code (USD, EUR, RUB, JPY, ...)
    * @return localized formatted string of the converted amount
    */
-  public static String convertMsatToFiat(final long amountMsat, final String fiatCurrency) {
-    final double rate = Constants.FIAT_EURO.equals(fiatCurrency) ? App.getEurRate() : App.getUsdRate();
-    if (rate <= 0) return "N/A";
+  public static String convertMsatToFiat(final long amountMsat, final String fiatCode) {
+    final double rate = App.RATES.containsKey(fiatCode) ? App.RATES.get(fiatCode) : -1.0f;
+    if (rate < 0) return "???";
     return getFiatFormat().format(package$.MODULE$.millisatoshi2btc(new MilliSatoshi(amountMsat)).amount().doubleValue() * rate);
   }
 
-  public static String convertMsatToFiatWithUnit(final long amountMsat, final String fiatCurrency) {
-    return convertMsatToFiat(amountMsat, fiatCurrency) + " " + fiatCurrency.toUpperCase();
+  public static String convertMsatToFiatWithUnit(final long amountMsat, final String fiatCode) {
+    return convertMsatToFiat(amountMsat, fiatCode) + " " + fiatCode.toUpperCase();
   }
 
   public static CoinUnit getPreferredCoinUnit(final SharedPreferences prefs) {
@@ -153,9 +219,6 @@ public class WalletUtils {
 
   /**
    * Return amount as Long, in millisatoshi
-   *
-   * @param paymentRequest
-   * @return
    */
   public static long getLongAmountFromInvoice(PaymentRequest paymentRequest) {
     return paymentRequest.amount().isEmpty() ? 0 : paymentRequest.amount().get().amount();
@@ -165,4 +228,7 @@ public class WalletUtils {
     return paymentRequest.amount().isEmpty() ? new MilliSatoshi(0) : paymentRequest.amount().get();
   }
 
+  public static BinaryData getChainHash() {
+    return "mainnet".equals(BuildConfig.CHAIN) ? Block.LivenetGenesisBlock().hash() : Block.TestnetGenesisBlock().hash();
+  }
 }

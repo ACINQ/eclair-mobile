@@ -15,17 +15,23 @@
   -->
 
 <resources>
+
+  <!-- //////////////// Application Strings //////////////////// -->
+
   <string name="lang">eng</string>
   <string name="app_name">Eclair Wallet</string>
+  <string name="notification_channel_closing_ln_channel_name">Channel Closing</string>
+  <string name="notification_channel_closing_ln_channel_desc">Notification displayed when a channel is closing, be it cooperative or not.</string>
 
-  <!-- //////////////// Activities name //////////////////// -->
+  <!-- //////////////// Activities Name //////////////////// -->
 
-  <string name="networkinfos_name">Network Overview</string>
+  <string name="networkinfos_name">Network Info</string>
   <string name="about_name">About</string>
   <string name="lnpayment_name">Lightning Payment Details</string>
   <string name="btcpayment_name">Transaction Details</string>
   <string name="channeldetails_name">Channel Details</string>
   <string name="channelrawdata_name">Channel Raw Data</string>
+  <string name="tools_name">Tools</string>
 
   <!-- //////////////// Home //////////////////// -->
 
@@ -98,7 +104,7 @@
     <br />
     From now on next versions should be backward compatible.
   ]]></string>
-  <string name="start_error_faq_link">Check our FAQ for more details.</string>
+  <string name="start_error_faq_link">Check our FAQ for help.</string>
   <string name="start_error_unreadable_seed">Seed is not readable; eclair can not start.</string>
   <string name="start_error_timeout">Could not start eclair within a reasonable time frame.</string>
   <string name="start_error_wrong_password">Wrong password.</string>
@@ -114,6 +120,7 @@
   <string name="createrecovery_word_display"><![CDATA[<small>#%1$d</small> <b>%2$s</b>]]></string>
   <string name="createrecovery_generation_failed">Could not generate the recovery phrase…</string>
   <string name="createrecovery_goto_check">OK, got it</string>
+  <string name="createrecovery_skip_check">Skip verification (TESTNET only)</string>
   <string name="createrecovery_check_question">What are the #%1$d, #%2$d and #%3$d words of your recovery phrase?</string>
   <string name="createrecovery_check_input_hint">Type the words here</string>
   <string name="createrecovery_check_button">Check</string>
@@ -168,7 +175,8 @@
   <!-- /////////////// Menus /////////////// -->
 
   <string name="menu_home">Home</string>
-  <string name="menu_networkinfos">Network Overview</string>
+  <string name="menu_networkinfos">Network Info</string>
+  <string name="menu_tools">Tools</string>
   <string name="menu_about">About</string>
   <string name="menu_faq">FAQ</string>
   <string name="menu_preferences">Preferences</string>
@@ -194,6 +202,8 @@
 
   <string name="channeldetails_id_label">Id</string>
   <string name="channeldetails_id_desc">Channel unique identifier</string>
+  <string name="channeldetails_to_self_delay_label">To Self Delay</string>
+  <string name="channeldetails_to_self_delay_desc">Refund delay for uncooperative close</string>
   <string name="channeldetails_reserve_label">Reserve</string>
   <string name="channeldetails_reserve_desc">Minimum balance that this channel must maintain</string>
   <string name="channeldetails_htlcs_count_label">Inflight HTLCs</string>
@@ -220,13 +230,13 @@
 
   <!-- //////////////// Local Channel Raw Data //////////////////// -->
 
-  <string name="channelraw_desc">You can use this raw json data for debugging purposes.</string>
   <string name="channelraw_copy">Copy</string>
   <string name="channelraw_pleasewait">Fetching data, please wait…</string>
 
   <!-- //////////////// Send Payment //////////////////// -->
 
-  <string name="payment_invalid_address">This is not a valid payment address.\n\nPlease use a Bitcoin address or a Lightning payment request to initiate a payment.</string>
+  <string name="payment_invalid_address">This is not a valid payment address.\n\nPlease use a %1$s Bitcoin address or Lightning payment request to initiate a payment.</string>
+  <string name="payment_ln_invalid_chain">This payment request is not valid for %1$s.\n\nPlease make sure that you are on the correct blockchain.</string>
   <string name="payment_type_onchain">On-Chain Payment</string>
   <string name="payment_type_lightning">Lightning Payment</string>
   <string name="payment_empty_wallet">Empty wallet</string>
@@ -291,7 +301,7 @@
   <string name="paymentfailure_show_details">Click here for details</string>
   <string name="paymentfailure_error_size">%1$d attempt(s) made.</string>
   <string name="paymentfailure_error_counter">#%1$d of %2$d:</string>
-  <string name="paymentfailure_error_cause_label">Cause:</string>
+  <string name="paymentfailure_error_type_label">Type:</string>
   <string name="paymentfailure_error_cause">%1$s</string>
   <string name="paymentfailure_error_origin_label">Origin:</string>
   <string name="paymentfailure_error_origin_channel_label">Channel:</string>
@@ -311,7 +321,7 @@
   <string name="about_general_title">About Eclair Wallet</string>
   <string name="about_general_text"><![CDATA[
     <p>An advanced Lightning/Bitcoin mobile wallet by ACINQ. It relies on Electrum servers for access to the Bitcoin network.</p>
-    <p>Fees are retrieved from the BitGo API. USD/EUR rates are retrieved from the Coindesk API. Note that this conversion to USD/EUR may not be accurate.</b></p>
+    <p>Fees are retrieved from the BitGo API. Exchange rates are retrieved from the Blockchain.info api. Note that this conversion to fiat may not be accurate.</b></p>
     <p>This software is compliant with the BOLT specifications (Lightning Network standard).</p>
     <p><b>Installed version: %1$s</b></p>
     ]]>
@@ -345,24 +355,25 @@
   <string name="networkinfos_blockcount_desc">Current blockchain height</string>
   <string name="networkinfos_feerate_label">Fee rate</string>
   <string name="networkinfos_feerate_desc">Current fee rate</string>
+  <string name="networkinfos_electrum_address_label">Electrum server</string>
+  <string name="networkinfos_electrum_address_desc">Server you\'re connected to for access to the blockchain</string>
+  <string name="networkinfos_block_timestamp_label">Block timestamp</string>
+  <string name="networkinfos_block_timestamp_desc">Last block timestamp</string>
   <string name="networkinfos_networkchannels_label">Known channels</string>
   <string name="networkinfos_networkchannels_desc">Channels count in network</string>
-  <string name="networkinfos_networknodes_label">Known nodes</string>
-  <string name="networkinfos_networknodes_desc">Nodes count in network</string>
 
   <!-- //////////////// Payment Item //////////////////// -->
 
-  <string name="paymentitem_confidence_suffix">conf</string>
+  <string name="paymentitem_confidence_suffix">confs</string>
   <string name="paymentitem_fee_prefix">fee:</string>
 
   <!-- //////////////// General //////////////////// -->
 
   <string name="btc_fee_unit">sat/byte</string>
-  <string name="chain_name">MAINNET</string>
-  <string name="chain_disconnected">Lost connection with electrum server</string>
-  <string name="chain_disconnected_desc">Sending funds is disabled</string>
-  <string name="chain_late">Electrum server desynchronized</string>
-  <string name="chain_late_desc">Attention, your wallet\'s block height looks stale. Sending lightning payments may trigger the unilateral closing of your channels!</string>
+  <string name="chain_disconnected">Connection to electrum server lost</string>
+  <string name="chain_disconnected_desc">Sending funds is disabled.</string>
+  <string name="chain_late">Electrum server not synchronized</string>
+  <string name="chain_late_desc">Attention, your wallet\'s block height looks stale. Sending lightning payments may trigger unilateral closing of your channels!</string>
 
   <!-- //////////////// Pin dialogs //////////////////// -->
 
@@ -375,12 +386,13 @@
 
   <!-- //////////////// Preferences //////////////////// -->
 
+  <string name="prefs_cat_general">General</string>
   <string name="prefs_cat_display">Display</string>
   <string name="prefs_cat_lightning">Lightning</string>
   <string name="prefs_fiat_currency">Fiat currency</string>
   <string name="prefs_fiat_currency_dialog">Display in fiat currency</string>
   <string name="prefs_btc_unit">Bitcoin unit</string>
-  <string name="prefs_btc_decimals">Number of decimals in amounts</string>
+  <string name="prefs_btc_decimals">Number of decimals shown</string>
   <string name="prefs_change_password">Change the app password</string>
   <string name="prefs_change_password_desc">Seed will be re-encrypted with a new password</string>
   <string name="prefs_change_password_button">Change password</string>
@@ -391,10 +403,7 @@
   <string name="prefs_onchain_explorer">Preferred onchain explorer</string>
   <string name="prefs_onchain_explorer_dialog">Explore onchain tx with</string>
   <string name="prefs_security_title">Security Settings</string>
-  <string name="prefs_advanced_title">Advanced Usage</string>
-  <string name="prefs_advanced_warning">Do not proceed unless you know what you\'re doing.</string>
-  <string name="prefs_advanced_networkdb">Do not delete unless you know what you\'re doing.</string>
-  <string name="prefs_advanced_networkdb_button">Delete Network DB</string>
+  <string name="prefs_haptic_title">Haptic feedback on PIN</string>
 
   <!-- //////////////// Scanner messages //////////////////// -->
 
@@ -419,4 +428,21 @@
   <string name="wallet_init_create_new">Create new wallet</string>
   <string name="wallet_init_import_existing">Import existing wallet</string>
 
+  <!-- //////////////// tools //////////////////// -->
+
+  <string name="tools_advanced_title">Advanced Usage</string>
+  <string name="tools_wallet_title">Wallet</string>
+  <string name="tools_networkdb_label">Delete Network DB</string>
+  <string name="tools_networkdb_desc">Do not delete unless you know what you\'re doing. Restart the application once the DB has been deleted.</string>
+  <string name="tools_networkdb_action">Delete Network DB</string>
+  <string name="tools_xpub_label">Master Public Key</string>
+  <string name="tools_xpub_desc">All your addresses derive from this key.</string>
+
+  <!-- //////////////// Notification //////////////////// -->
+
+  <string name="notif_channelclosing_title">Closing channel with %1$s …</string>
+  <string name="notif_channelclosing_message">Your final balance: %1$s</string>
+  <string name="notif_channelclosing_bigmessage">Channel id: %1$s</string>
+  <string name="notif_channelclosing_bigmessage_normal">You should see an incoming on-chain transaction.</string>
+  <string name="notif_channelclosing_bigmessage_localclosing">You or your wallet unilaterally closed this channel. You will receive your funds in %1$d blocks. This value is dependent on the channel configuration.</string>
 </resources>

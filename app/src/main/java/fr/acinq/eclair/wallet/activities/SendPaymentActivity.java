@@ -57,6 +57,7 @@ import fr.acinq.eclair.wallet.tasks.LNInvoiceReaderTask;
 import org.bitcoinj.uri.BitcoinURI;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
+import scala.Option;
 import scala.util.Either;
 
 public class SendPaymentActivity extends EclairActivity
@@ -88,6 +89,11 @@ public class SendPaymentActivity extends EclairActivity
       // try reading invoice as a bitcoin uri
       new BitcoinInvoiceReaderTask(this, mInvoice).execute();
     } else {
+      final Option<String> acceptedPrefix = PaymentRequest.prefixes().get(WalletUtils.getChainHash());
+      if (acceptedPrefix.isEmpty() || !acceptedPrefix.get().equals(output.prefix())) {
+        canNotHandlePayment(getString(R.string.payment_ln_invalid_chain, BuildConfig.CHAIN.toUpperCase()));
+        return;
+      }
       // check lightning channels status
       if (EclairEventService.getChannelsMap().size() == 0) {
         canNotHandlePayment(R.string.payment_error_ln_no_channels);
@@ -137,7 +143,7 @@ public class SendPaymentActivity extends EclairActivity
   @Override
   public void processBitcoinInvoiceFinish(final BitcoinURI output) {
     if (output == null || output.getAddress() == null) {
-      canNotHandlePayment(R.string.payment_invalid_address);
+      canNotHandlePayment(getString(R.string.payment_invalid_address, BuildConfig.CHAIN.toUpperCase()));
     } else {
       mBitcoinInvoice = output;
       isAmountReadonly = mBitcoinInvoice.getAmount() != null;
@@ -155,11 +161,15 @@ public class SendPaymentActivity extends EclairActivity
     }
   }
 
-  private void canNotHandlePayment(final int causeMessageId) {
+  private void canNotHandlePayment(final int messageId) {
+    canNotHandlePayment(getString(messageId));
+  }
+
+  private void canNotHandlePayment(final String message) {
     mBinding.form.setVisibility(View.GONE);
     mBinding.loading.setVisibility(View.VISIBLE);
     mBinding.loading.setTextIsSelectable(true);
-    mBinding.loading.setText(causeMessageId);
+    mBinding.loading.setText(message);
   }
 
   /**
@@ -218,7 +228,7 @@ public class SendPaymentActivity extends EclairActivity
           final MilliSatoshi amountMsat = CoinUtils.convertStringAmountToMsat(s.toString(), preferredBitcoinUnit.code());
           mBinding.amountFiat.setText(WalletUtils.convertMsatToFiatWithUnit(amountMsat.amount(), preferredFiatCurrency));
           if (mBitcoinInvoice != null) {
-            if (package$.MODULE$.millisatoshi2satoshi(amountMsat).$greater(app.onChainBalance.get())) {
+            if (package$.MODULE$.millisatoshi2satoshi(amountMsat).$greater(app.getOnchainBalance())) {
               handlePaymentError(R.string.payment_error_amount_onchain_insufficient_funds);
             } else {
               mBinding.paymentError.setVisibility(View.GONE);
@@ -273,8 +283,7 @@ public class SendPaymentActivity extends EclairActivity
         if (isChecked) {
           mBinding.emptyWalletDisclaimer.setVisibility(View.VISIBLE);
           mBinding.amountEditableValue.setEnabled(false);
-          mBinding.amountEditableValue.setText(CoinUtils.rawAmountInUnit(
-            app.onChainBalance.get(), preferredBitcoinUnit).bigDecimal().toPlainString());
+          mBinding.amountEditableValue.setText(CoinUtils.rawAmountInUnit(app.getOnchainBalance(), preferredBitcoinUnit).bigDecimal().toPlainString());
         } else {
           mBinding.emptyWalletDisclaimer.setVisibility(View.GONE);
           mBinding.amountEditableValue.setEnabled(true);
@@ -295,7 +304,7 @@ public class SendPaymentActivity extends EclairActivity
       }
       new LNInvoiceReaderTask(this, mInvoice).execute();
     } else {
-      canNotHandlePayment(R.string.payment_invalid_address);
+      canNotHandlePayment(getString(R.string.payment_invalid_address, BuildConfig.CHAIN.toUpperCase()));
     }
   }
 
@@ -391,7 +400,7 @@ public class SendPaymentActivity extends EclairActivity
         final Satoshi amountSat = isAmountReadonly
           ? mBitcoinInvoice.getAmount()
           : CoinUtils.convertStringAmountToSat(mBinding.amountEditableValue.getText().toString(), preferredBitcoinUnit.code());
-        if (amountSat.$greater(app.onChainBalance.get())) {
+        if (amountSat.$greater(app.getOnchainBalance())) {
           handlePaymentError(R.string.payment_error_amount_onchain_insufficient_funds);
           return;
         }

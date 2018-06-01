@@ -17,19 +17,25 @@
 package fr.acinq.eclair.wallet;
 
 import android.app.Application;
-import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.content.Context;
+import android.app.PendingIntent;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.net.InetSocketAddress;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import akka.actor.ActorSystem;
@@ -44,23 +50,28 @@ import fr.acinq.bitcoin.Transaction;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.Globals;
+import fr.acinq.eclair.JsonSerializers$;
 import fr.acinq.eclair.Kit;
+import fr.acinq.eclair.blockchain.electrum.ElectrumClient;
 import fr.acinq.eclair.blockchain.electrum.ElectrumEclairWallet;
 import fr.acinq.eclair.blockchain.electrum.ElectrumWallet;
 import fr.acinq.eclair.channel.CMD_GETINFO$;
 import fr.acinq.eclair.channel.Channel;
+import fr.acinq.eclair.channel.RES_GETINFO;
 import fr.acinq.eclair.channel.Register;
 import fr.acinq.eclair.io.NodeURI;
 import fr.acinq.eclair.io.Peer;
 import fr.acinq.eclair.payment.PaymentLifecycle;
 import fr.acinq.eclair.payment.PaymentRequest;
+import fr.acinq.eclair.wallet.activities.ChannelDetailsActivity;
 import fr.acinq.eclair.wallet.events.BitcoinPaymentFailedEvent;
 import fr.acinq.eclair.wallet.events.ChannelRawDataEvent;
+import fr.acinq.eclair.wallet.events.ClosingChannelNotificationEvent;
 import fr.acinq.eclair.wallet.events.LNNewChannelFailureEvent;
 import fr.acinq.eclair.wallet.events.NetworkChannelsCountEvent;
-import fr.acinq.eclair.wallet.events.NotificationEvent;
-import fr.acinq.eclair.wallet.events.WalletStateUpdateEvent;
+import fr.acinq.eclair.wallet.events.XpubEvent;
 import fr.acinq.eclair.wallet.utils.Constants;
+import fr.acinq.eclair.wallet.utils.WalletUtils;
 import scala.Symbol;
 import scala.Tuple2;
 import scala.collection.Iterable;
@@ -68,46 +79,21 @@ import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
 import scala.concurrent.duration.FiniteDuration;
+import upickle.default$;
+
+import static fr.acinq.eclair.wallet.adapters.LocalChannelItemHolder.EXTRA_CHANNEL_ID;
+import static fr.acinq.eclair.wallet.events.ClosingChannelNotificationEvent.NOTIF_CHANNEL_CLOSED_ID;
 
 public class App extends Application {
 
   public final static String TAG = "App";
-  private final static ExchangeRate exchangeRate = new ExchangeRate();
+  public final static Map<String, Float> RATES = new HashMap<>();
   public final ActorSystem system = ActorSystem.apply("system");
-  public AtomicReference<Satoshi> onChainBalance = new AtomicReference<>(new Satoshi(0));
   public AtomicReference<String> pin = new AtomicReference<>(null);
   public AppKit appKit;
+  private AtomicReference<ElectrumState> electrumState = new AtomicReference<>(null);
   private DBHelper dbHelper;
   private String walletAddress = "N/A";
-
-  /**
-   * Update the application's exchange rate in BTCUSD and BTCEUR.
-   *
-   * @param eurRate value of 1 BTC in EURO
-   * @param usdRate value of 1 BTC in USD
-   */
-  public static void updateExchangeRate(final float eurRate, final float usdRate) {
-    exchangeRate.eurRate = eurRate;
-    exchangeRate.usdRate = usdRate;
-  }
-
-  /**
-   * Returns the value of 1 BTC in EURO.
-   *
-   * @return
-   */
-  public static float getEurRate() {
-    return exchangeRate.eurRate;
-  }
-
-  /**
-   * Returns the value of 1 BTC in USD.
-   *
-   * @return
-   */
-  public static float getUsdRate() {
-    return exchangeRate.usdRate;
-  }
 
   @Override
   public void onCreate() {
@@ -140,18 +126,29 @@ public class App extends Application {
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
-  public void handleNotification(NotificationEvent notificationEvent) {
-    NotificationCompat.Builder notification = new NotificationCompat.Builder(this.getBaseContext())
-      .setVisibility(NotificationCompat.VISIBILITY_SECRET)
-      .setPriority(Notification.PRIORITY_HIGH)
-      .setDefaults(Notification.DEFAULT_SOUND)
-      .setVibrate(new long[]{0})
+  public void handleNotification(ClosingChannelNotificationEvent event) {
+    final String notifTitle = getString(R.string.notif_channelclosing_title, event.remoteNodeId);
+    final String notifMessage = getString(R.string.notif_channelclosing_message, CoinUtils.formatAmountInUnit(event.balanceAtClosing, CoinUtils.getUnitFromString("btc"), true));
+    final StringBuilder notifBigMessage = new StringBuilder().append(notifMessage).append("\n")
+      .append(getString(R.string.notif_channelclosing_bigmessage, event.channelId.substring(0, 12) + "...")).append("\n");
+    if (event.isLocalClosing) {
+      notifBigMessage.append(getString(R.string.notif_channelclosing_bigmessage_localclosing, event.toSelfDelay));
+    } else {
+      notifBigMessage.append(getString(R.string.notif_channelclosing_bigmessage_normal));
+    }
+    final Intent intent = new Intent(this, ChannelDetailsActivity.class);
+    intent.putExtra(EXTRA_CHANNEL_ID, event.channelId);
+    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
+    final NotificationCompat.Builder builder = new NotificationCompat.Builder(this.getBaseContext(), ClosingChannelNotificationEvent.NOTIF_CHANNEL_CLOSED_ID)
       .setSmallIcon(R.drawable.eclair_256x256)
-      .setContentTitle(notificationEvent.title)
-      .setContentText(notificationEvent.message)
-      .setStyle(new NotificationCompat.BigTextStyle().bigText(notificationEvent.bigMessage));
-    NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-    mNotificationManager.notify(notificationEvent.tag, notificationEvent.id, notification.build());
+      .setContentTitle(notifTitle)
+      .setContentText(notifMessage)
+      .setStyle(new NotificationCompat.BigTextStyle().bigText(notifBigMessage.toString()))
+      .setContentIntent(PendingIntent.getActivity(this, (int) (System.currentTimeMillis() & 0xfffffff), intent, PendingIntent.FLAG_CANCEL_CURRENT))
+      .setAutoCancel(true);
+
+    NotificationManagerCompat.from(this).notify((int) (System.currentTimeMillis() & 0xfffffff), builder.build());
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
@@ -160,8 +157,19 @@ public class App extends Application {
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
-  public void handleWalletBalanceEvent(WalletStateUpdateEvent event) {
-    this.onChainBalance.set(event.balance);
+  public void handleElectrumStateEvent(ElectrumWallet.WalletReady event) {
+    final ElectrumState state = this.electrumState.get() == null ? new ElectrumState() : this.electrumState.get();
+    state.confirmedBalance = event.confirmedBalance();
+    state.unconfirmedBalance = event.unconfirmedBalance();
+    state.blockTimestamp = event.timestamp();
+    this.electrumState.set(state);
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN)
+  public void handleElectrumReadyEvent(ElectrumClient.ElectrumReady event) {
+    final ElectrumState state = this.electrumState.get() == null ? new ElectrumState() : this.electrumState.get();
+    state.address = event.serverAddress();
+    this.electrumState.set(state);
   }
 
   public String getWalletAddress() {
@@ -315,15 +323,15 @@ public class App extends Application {
   }
 
   public long estimateSlowFees() {
-    return Math.max(Globals.feeratesPerByte().get().blocks_72(), 1);
+    return Math.max(Globals.feeratesPerKB().get().blocks_72() / 1000, 1);
   }
 
   public long estimateMediumFees() {
-    return Math.max(Globals.feeratesPerByte().get().blocks_12(), estimateSlowFees());
+    return Math.max(Globals.feeratesPerKB().get().blocks_12() / 1000, estimateSlowFees());
   }
 
   public long estimateFastFees() {
-    return Math.max(Globals.feeratesPerByte().get().blocks_2(), estimateMediumFees());
+    return Math.max(Globals.feeratesPerKB().get().blocks_2() / 1000, estimateMediumFees());
   }
 
   /**
@@ -354,9 +362,24 @@ public class App extends Application {
       @Override
       public void onComplete(Throwable throwable, Object o) throws Throwable {
         if (throwable == null && o != null) {
-          EventBus.getDefault().post(new ChannelRawDataEvent(o.toString()));
+          RES_GETINFO result = (RES_GETINFO) o;
+          String json = default$.MODULE$.write(result, 1, JsonSerializers$.MODULE$.cmdResGetinfoReadWriter());
+          EventBus.getDefault().post(new ChannelRawDataEvent(json));
         } else {
           EventBus.getDefault().post(new ChannelRawDataEvent(null));
+        }
+      }
+    }, system.dispatcher());
+  }
+
+  public void getXpubFromWallet() {
+    appKit.electrumWallet.getXpub().onComplete(new OnComplete<ElectrumWallet.GetXpubResponse>() {
+      @Override
+      public void onComplete(Throwable failure, ElectrumWallet.GetXpubResponse success) throws Throwable {
+        if (failure == null && success != null) {
+          EventBus.getDefault().post(new XpubEvent(success));
+        } else {
+          EventBus.getDefault().post(new XpubEvent(null));
         }
       }
     }, system.dispatcher());
@@ -367,22 +390,55 @@ public class App extends Application {
       this.dbHelper = new DBHelper(getApplicationContext());
     }
 
-    // on-chain balance is initialized with what can be found from the database
-    this.onChainBalance.set(package$.MODULE$.millisatoshi2satoshi(new MilliSatoshi(dbHelper.getOnchainBalanceMsat())));
-
+    // rates & coin patterns
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-    CoinUtils.setCoinPattern(prefs.getString(Constants.SETTING_BTC_PATTERN, getResources().getStringArray(R.array.btc_pattern_values)[2]));
-    updateExchangeRate(prefs.getFloat(Constants.SETTING_LAST_KNOWN_RATE_BTC_EUR, 0.0f),
-      prefs.getFloat(Constants.SETTING_LAST_KNOWN_RATE_BTC_USD, 0.0f));
+    WalletUtils.retrieveRatesFromPrefs(prefs);
+    CoinUtils.setCoinPattern(prefs.getString(Constants.SETTING_BTC_PATTERN, getResources().getStringArray(R.array.btc_pattern_values)[3]));
+
+    // notification channels (android 8+)
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+      final CharSequence name = getString(R.string.notification_channel_closing_ln_channel_name);
+      final String description = getString(R.string.notification_channel_closing_ln_channel_desc);
+      final int importance = NotificationManager.IMPORTANCE_HIGH;
+      final NotificationChannel channel = new NotificationChannel(NOTIF_CHANNEL_CLOSED_ID, name, importance);
+      channel.setDescription(description);
+      // Register the channel with the system
+      final NotificationManager notificationManager = getSystemService(NotificationManager.class);
+      if (notificationManager != null) notificationManager.createNotificationChannel(channel);
+    }
+
+  }
+
+  public Satoshi getOnchainBalance() {
+    // if electrum has not send any data, fetch last known onchain balance from DB
+    if (this.electrumState.get() == null
+      || this.electrumState.get().confirmedBalance == null || this.electrumState.get().unconfirmedBalance == null) {
+      return package$.MODULE$.millisatoshi2satoshi(new MilliSatoshi(dbHelper.getOnchainBalanceMsat()));
+    } else {
+      final Satoshi confirmed = electrumState.get().confirmedBalance;
+      final Satoshi unconfirmed = electrumState.get().unconfirmedBalance;
+      return confirmed.$plus(unconfirmed);
+    }
+  }
+
+  public long getBlockTimestamp() {
+    return this.electrumState.get() == null ? 0 : this.electrumState.get().blockTimestamp;
+  }
+
+  public String getElectrumServerAddress() {
+    final InetSocketAddress address = this.electrumState.get() == null ? null : this.electrumState.get().address;
+    return address == null ? getString(R.string.unknown) : address.toString();
   }
 
   public DBHelper getDBHelper() {
     return dbHelper;
   }
 
-  private static class ExchangeRate {
-    private float eurRate;
-    private float usdRate;
+  public static class ElectrumState {
+    private Satoshi confirmedBalance;
+    private Satoshi unconfirmedBalance;
+    private long blockTimestamp;
+    private InetSocketAddress address;
   }
 
   public static class AppKit {

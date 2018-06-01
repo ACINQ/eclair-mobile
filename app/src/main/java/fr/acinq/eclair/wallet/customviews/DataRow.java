@@ -61,13 +61,18 @@ public class DataRow extends LinearLayout {
       descTextView = layout.findViewById(R.id.view_desc);
       descTextView.setText(arr.getString(R.styleable.DataRow_desc));
       valueTextView = layout.findViewById(R.id.view_value);
-      valueTextView.setText(arr.getString(R.styleable.DataRow_value));
+      if (arr.hasValue(R.styleable.DataRow_value)) {
+        valueTextView.setText(arr.getString(R.styleable.DataRow_value));
+      } else {
+        valueTextView.setVisibility(GONE);
+      }
       hasAction = arr.getBoolean(R.styleable.DataRow_has_action, false);
       if (hasAction) {
         actionButton = findViewById(R.id.view_action);
         actionButton.setVisibility(VISIBLE);
         actionButton.setText(arr.getString(R.styleable.DataRow_action_label));
         actionButton.setBackgroundColor(arr.getColor(R.styleable.DataRow_action_bg, ContextCompat.getColor(getContext(), R.color.grey_0_light_x1)));
+        actionButton.setTextColor(arr.getColor(R.styleable.DataRow_action_text_color, ContextCompat.getColor(getContext(), R.color.grey_4)));
       }
     } finally {
       arr.recycle();
@@ -75,6 +80,7 @@ public class DataRow extends LinearLayout {
   }
 
   public void setValue(String value) {
+    valueTextView.setVisibility(VISIBLE);
     valueTextView.setText(value);
   }
 }

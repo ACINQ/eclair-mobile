@@ -114,7 +114,7 @@ public class PaymentsListFragment extends Fragment implements SwipeRefreshLayout
     qb.whereOr(
       PaymentDao.Properties.Type.eq(PaymentType.BTC_ONCHAIN),
       qb.and(PaymentDao.Properties.Type.eq(PaymentType.BTC_LN), PaymentDao.Properties.Status.notEq(PaymentStatus.INIT)));
-    qb.orderDesc(PaymentDao.Properties.Updated).limit(100);
+    qb.orderDesc(PaymentDao.Properties.Updated).orderAsc(PaymentDao.Properties.ConfidenceBlocks).limit(100);
     final List<Payment> list = qb.list();
 
     if (mEmptyLabel != null) {

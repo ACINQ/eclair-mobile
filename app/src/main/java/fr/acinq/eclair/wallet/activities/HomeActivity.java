@@ -41,7 +41,6 @@ import android.view.ViewStub;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.Toast;
 
-import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
@@ -50,15 +49,14 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.greenrobot.eventbus.util.ThrowableFailureEvent;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
 
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.package$;
+import fr.acinq.eclair.blockchain.electrum.ElectrumClient;
+import fr.acinq.eclair.blockchain.electrum.ElectrumWallet;
 import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.EclairEventService;
@@ -73,12 +71,13 @@ import fr.acinq.eclair.wallet.events.LNNewChannelOpenedEvent;
 import fr.acinq.eclair.wallet.events.LNPaymentFailedEvent;
 import fr.acinq.eclair.wallet.events.LNPaymentSuccessEvent;
 import fr.acinq.eclair.wallet.events.PaymentEvent;
-import fr.acinq.eclair.wallet.events.WalletStateUpdateEvent;
 import fr.acinq.eclair.wallet.fragments.ChannelsListFragment;
 import fr.acinq.eclair.wallet.fragments.PaymentsListFragment;
 import fr.acinq.eclair.wallet.fragments.ReceivePaymentFragment;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
+
+import static fr.acinq.eclair.wallet.adapters.LocalChannelItemHolder.EXTRA_CHANNEL_ID;
 
 public class HomeActivity extends EclairActivity {
 
@@ -95,9 +94,8 @@ public class HomeActivity extends EclairActivity {
 
   private PaymentsListFragment mPaymentsListFragment;
   private ChannelsListFragment mChannelsListFragment;
-  private Handler mExchangeRateHandler;
+  private Handler mExchangeRateHandler = new Handler();
   private Runnable mExchangeRateRunnable;
-  private JsonObjectRequest mExchangeRateRequest;
 
   @Override
   protected void onCreate(final Bundle savedInstanceState) {
@@ -114,6 +112,7 @@ public class HomeActivity extends EclairActivity {
       finish();
       return;
     }
+
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
     // --- check initial app state
     if (app.hasBreakingChanges()) {
@@ -127,8 +126,22 @@ public class HomeActivity extends EclairActivity {
     setUpTabs(savedInstanceState);
     setUpBalanceInteraction(prefs);
     setUpExchangeRate();
-    // app may be started with a payment request intent
-    readURIIntent(getIntent());
+
+    final Intent intent = getIntent();
+    Log.i(TAG, "intent = " + intent);
+    if (intent.hasExtra(StartupActivity.ORIGIN)) {
+      final String origin = intent.getStringExtra(StartupActivity.ORIGIN);
+      final String originParam = intent.getStringExtra(StartupActivity.ORIGIN_EXTRA);
+      if (ChannelDetailsActivity.class.getSimpleName().equals(origin)) {
+        final Intent channelDetailsIntent = new Intent(this, ChannelDetailsActivity.class);
+        channelDetailsIntent.putExtra(EXTRA_CHANNEL_ID, originParam);
+        startActivity(channelDetailsIntent);
+      }
+    } else {
+      // app may be started with a payment request intent
+      readURIIntent(getIntent());
+    }
+
   }
 
   private void displayBreakingChanges() {
@@ -186,29 +199,12 @@ public class HomeActivity extends EclairActivity {
 
   private void setUpExchangeRate() {
     final RequestQueue queue = Volley.newRequestQueue(this);
-    mExchangeRateRequest = new JsonObjectRequest(Request.Method.GET, "https://api.coindesk.com/v1/bpi/currentprice.json", null,
-      response -> {
-        try {
-          JSONObject bpi = response.getJSONObject("bpi");
-          float btc_eur = (float) bpi.getJSONObject("EUR").getDouble("rate_float");
-          float btc_usd = (float) bpi.getJSONObject("USD").getDouble("rate_float");
-          App.updateExchangeRate(btc_eur, btc_usd);
-          // also save in prefs
-          final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-          prefs.edit().putFloat(Constants.SETTING_LAST_KNOWN_RATE_BTC_EUR, btc_eur)
-            .putFloat(Constants.SETTING_LAST_KNOWN_RATE_BTC_USD, btc_usd).apply();
-        } catch (JSONException e) {
-          Log.i("ExchangeRate", "Could not read coindesk response with cause=" + e.getMessage());
-        }
-      }, (error) -> {
-        Log.d("ExchangeRate", "Error when querying coindesk api with cause " + error.getMessage());
-      });
-    mExchangeRateHandler = new Handler();
+    final JsonObjectRequest request = WalletUtils.exchangeRateRequest(PreferenceManager.getDefaultSharedPreferences(getBaseContext()));
     mExchangeRateRunnable = new Runnable() {
       @Override
       public void run() {
-        queue.add(mExchangeRateRequest);
-        mExchangeRateHandler.postDelayed(this, 10 * 60 * 1000);
+        queue.add(request);
+        mExchangeRateHandler.postDelayed(this, 20 * 60 * 1000);
       }
     };
   }
@@ -258,9 +254,7 @@ public class HomeActivity extends EclairActivity {
   @Override
   public void onPause() {
     super.onPause();
-    if (mExchangeRateHandler != null) {
-      mExchangeRateHandler.removeCallbacks(mExchangeRateRunnable);
-    }
+    mExchangeRateHandler.removeCallbacks(mExchangeRateRunnable);
     closeSendPaymentButtons();
     closeOpenChannelButtons();
   }
@@ -297,20 +291,19 @@ public class HomeActivity extends EclairActivity {
   public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
       case R.id.menu_home_networkinfos:
-        Intent networkInfosIntent = new Intent(this, NetworkInfosActivity.class);
-        startActivity(networkInfosIntent);
+        startActivity(new Intent(this, NetworkInfosActivity.class));
+        return true;
+      case R.id.menu_home_tools:
+        startActivity(new Intent(this, ToolsActivity.class));
         return true;
       case R.id.menu_home_about:
-        Intent aboutIntent = new Intent(this, AboutActivity.class);
-        startActivity(aboutIntent);
+        startActivity(new Intent(this, AboutActivity.class));
         return true;
       case R.id.menu_home_faq:
-        Intent faqIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/ACINQ/eclair-wallet/wiki/FAQ"));
-        startActivity(faqIntent);
+        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/ACINQ/eclair-wallet/wiki/FAQ")));
         return true;
       case R.id.menu_home_preferences:
-        Intent prefsIntent = new Intent(this, PreferencesActivity.class);
-        startActivity(prefsIntent);
+        startActivity(new Intent(this, PreferencesActivity.class));
         return true;
       default:
         return super.onOptionsItemSelected(item);
@@ -461,8 +454,9 @@ public class HomeActivity extends EclairActivity {
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
-  public void handleWalletBalanceEvent(WalletStateUpdateEvent event) {
-    if (event.isSync) {
+  public void handleElectrumStateEvent(ElectrumWallet.WalletReady event) {
+    final Long diffTimestamp = Math.abs(System.currentTimeMillis() / 1000L - event.timestamp());
+    if (diffTimestamp < Constants.DESYNC_DIFF_TIMESTAMP_SEC) {
       mBinding.homeConnectionStatus.setVisibility(View.GONE);
     } else {
       mBinding.homeConnectionStatusTitle.setText(getString(R.string.chain_late));
@@ -524,13 +518,13 @@ public class HomeActivity extends EclairActivity {
   private void updateBalance() {
     final LNBalanceUpdateEvent lnBalanceEvent = EventBus.getDefault().getStickyEvent(LNBalanceUpdateEvent.class);
     final MilliSatoshi lnBalance = lnBalanceEvent == null ? new MilliSatoshi(0) : lnBalanceEvent.total();
-    final MilliSatoshi walletBalance = app == null ? new MilliSatoshi(0) : package$.MODULE$.satoshi2millisatoshi(app.onChainBalance.get());
+    final MilliSatoshi walletBalance = app == null ? new MilliSatoshi(0) : package$.MODULE$.satoshi2millisatoshi(app.getOnchainBalance());
     mBinding.balanceTotal.setAmountMsat(new MilliSatoshi(lnBalance.amount() + walletBalance.amount()));
     mBinding.balanceOnchain.setAmountMsat(walletBalance);
     mBinding.balanceLightning.setAmountMsat(lnBalance);
   }
 
-  @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
+  @Subscribe(threadMode = ThreadMode.MAIN)
   public void handleConnectionEvent(ElectrumConnectionEvent event) {
     if (event.connected) {
       enableSendPaymentButtons();

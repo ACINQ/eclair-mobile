@@ -44,9 +44,9 @@
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:layout_marginBottom="@dimen/wide_space"
+          android:background="@drawable/rounded_corner_primary_light_x1"
           android:drawablePadding="8dp"
           android:drawableStart="@drawable/ic_warning_white"
-          android:background="@drawable/rounded_corner_primary_light_x1"
           android:padding="8dp"
           android:text="@string/createrecovery_check_failed"
           android:textColor="@color/white"
@@ -58,8 +58,8 @@
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:layout_marginBottom="@dimen/app_padding"
-          android:textSize="12sp"
-          android:text="@string/createrecovery_instructions" />
+          android:text="@string/createrecovery_instructions"
+          android:textSize="12sp" />
 
         <TableLayout
           android:id="@+id/words_table"
@@ -97,6 +97,20 @@
             android:padding="@dimen/app_padding"
             android:text="@string/createrecovery_goto_check" />
         </LinearLayout>
+
+        <Button
+          android:id="@+id/skip_check"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_gravity="center"
+          android:layout_marginTop="@dimen/app_padding"
+          android:background="?android:attr/selectableItemBackground"
+          android:enabled="false"
+          android:onClick="goStepSuccess"
+          android:padding="@dimen/app_padding"
+          android:text="@string/createrecovery_skip_check"
+          android:textColor="@color/yellow"
+          android:visibility="gone" />
       </LinearLayout>
 
       <!-- check that the generated recovery has been saved by the user -->

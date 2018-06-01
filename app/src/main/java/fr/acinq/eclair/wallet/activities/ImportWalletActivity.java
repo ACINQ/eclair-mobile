@@ -68,20 +68,24 @@ public class ImportWalletActivity extends EclairActivity implements EclairActivi
     startActivity(startup);
   }
 
+  private boolean validateMnemonics(String mnemonics) {
+    try {
+      MnemonicCode.validate(mnemonics);
+      return true;
+    }
+    catch(Exception e) {
+      showError(e.getMessage());
+      return false;
+    }
+  }
+
   public void importMnemonics(View view) {
     reset();
     final String phrase = mBinding.mnemonicsInput.getText().toString().trim();
-    if (Strings.isNullOrEmpty(phrase)) {
-      showError(getString(R.string.importwallet_error, "can not be empty"));
-    } else {
-      final List<String> mnemonics = Arrays.asList(phrase.split(" "));
-      if (mnemonics.size() != 12 && mnemonics.size() != 24) {
-        showError(getString(R.string.importwallet_error, "must count 12 or 24 words separated by spaces"));
-      } else {
-        final File datadir = new File(getFilesDir(), Constants.ECLAIR_DATADIR);
-        final byte[] seed = MnemonicCode.toSeed(JavaConverters.collectionAsScalaIterableConverter(mnemonics).asScala().toSeq(), "").toString().getBytes();
-        encryptWallet(this, false, datadir, seed);
-      }
+    if (validateMnemonics(phrase)) {
+      final File datadir = new File(getFilesDir(), Constants.ECLAIR_DATADIR);
+      final byte[] seed = MnemonicCode.toSeed(phrase, "").toString().getBytes();
+      encryptWallet(this, false, datadir, seed);
     }
   }
 

@@ -21,6 +21,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 
 import org.greenrobot.greendao.annotation.NotNull;
 
@@ -43,11 +44,36 @@ public abstract class EclairActivity extends AppCompatActivity {
     app = ((App) getApplication());
   }
 
+  /**
+   * Checks that the application was correctly initialized before accessing this activity. Redirect to Startup if not, which
+   * restarts eclair correctly.
+   */
   protected boolean checkInit() {
     if (app == null || app.appKit == null || app.getDBHelper() == null || app.pin.get() == null) {
-      Intent startup = new Intent(this, StartupActivity.class);
+      final Intent startup = new Intent(this, StartupActivity.class);
       startup.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
       startup.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+      startActivity(startup);
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * Adds an origin when checking that the application was correctly initialized before accessing this activity.
+   * Enables redirection to the original activity that was intended once the app is started.
+   *
+   * @param origin class name of the origin activity
+   * @param extra extra parameter for this activity (such as an id)
+   * @return
+   */
+  protected boolean checkInit(final String origin, final String extra) {
+    if (app == null || app.appKit == null || app.getDBHelper() == null || app.pin.get() == null) {
+      final Intent startup = new Intent(this, StartupActivity.class);
+      startup.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+      startup.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+      startup.putExtra(StartupActivity.ORIGIN, origin);
+      startup.putExtra(StartupActivity.ORIGIN_EXTRA, extra);
       startActivity(startup);
       return false;
     }
