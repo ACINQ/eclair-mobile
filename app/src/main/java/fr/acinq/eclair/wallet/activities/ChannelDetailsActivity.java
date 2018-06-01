@@ -96,7 +96,7 @@ public class ChannelDetailsActivity extends EclairActivity {
   @Override
   protected void onResume() {
     super.onResume();
-    if (checkInit()) {
+    if (checkInit(ChannelDetailsActivity.class.getSimpleName(), mChannelId)) {
       refreshChannel();
     }
   }
@@ -104,10 +104,9 @@ public class ChannelDetailsActivity extends EclairActivity {
   private void refreshChannel() {
     try {
       final Map.Entry<ActorRef, EclairEventService.ChannelDetails> channel = getChannel(mChannelId);
-
       if (channel == null) {
+        Log.d(TAG, "could not find channel " + mChannelId);
         Toast.makeText(this, "This channel does not exist anymore", Toast.LENGTH_LONG).show();
-        finish();
       } else if (channel.getValue() != null && channel.getKey() != null && channel.getValue() != null) {
 
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
@@ -156,7 +155,6 @@ public class ChannelDetailsActivity extends EclairActivity {
       }
     } catch (Exception e) {
       Log.w(TAG, "could not read channel details with cause=" + e.getMessage());
-      finish();
     }
   }
 

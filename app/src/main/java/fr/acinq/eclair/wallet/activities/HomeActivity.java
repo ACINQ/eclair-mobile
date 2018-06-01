@@ -77,6 +77,8 @@ import fr.acinq.eclair.wallet.fragments.ReceivePaymentFragment;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 
+import static fr.acinq.eclair.wallet.adapters.LocalChannelItemHolder.EXTRA_CHANNEL_ID;
+
 public class HomeActivity extends EclairActivity {
 
   public static final String EXTRA_PAGE = BuildConfig.APPLICATION_ID + "EXTRA_PAGE";
@@ -110,6 +112,7 @@ public class HomeActivity extends EclairActivity {
       finish();
       return;
     }
+
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
     // --- check initial app state
     if (app.hasBreakingChanges()) {
@@ -123,8 +126,22 @@ public class HomeActivity extends EclairActivity {
     setUpTabs(savedInstanceState);
     setUpBalanceInteraction(prefs);
     setUpExchangeRate();
-    // app may be started with a payment request intent
-    readURIIntent(getIntent());
+
+    final Intent intent = getIntent();
+    Log.i(TAG, "intent = " + intent);
+    if (intent.hasExtra(StartupActivity.ORIGIN)) {
+      final String origin = intent.getStringExtra(StartupActivity.ORIGIN);
+      final String originParam = intent.getStringExtra(StartupActivity.ORIGIN_EXTRA);
+      if (ChannelDetailsActivity.class.getSimpleName().equals(origin)) {
+        final Intent channelDetailsIntent = new Intent(this, ChannelDetailsActivity.class);
+        channelDetailsIntent.putExtra(EXTRA_CHANNEL_ID, originParam);
+        startActivity(channelDetailsIntent);
+      }
+    } else {
+      // app may be started with a payment request intent
+      readURIIntent(getIntent());
+    }
+
   }
 
   private void displayBreakingChanges() {

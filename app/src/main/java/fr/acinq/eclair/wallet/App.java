@@ -129,11 +129,12 @@ public class App extends Application {
   public void handleNotification(ClosingChannelNotificationEvent event) {
     final String notifTitle = getString(R.string.notif_channelclosing_title, event.remoteNodeId);
     final String notifMessage = getString(R.string.notif_channelclosing_message, CoinUtils.formatAmountInUnit(event.balanceAtClosing, CoinUtils.getUnitFromString("btc"), true));
-    final StringBuilder notifBigMessage = new StringBuilder().append(notifMessage).append("\n");
+    final StringBuilder notifBigMessage = new StringBuilder().append(notifMessage).append("\n")
+      .append(getString(R.string.notif_channelclosing_bigmessage, event.channelId.substring(0, 12) + "...")).append("\n");
     if (event.isLocalClosing) {
       notifBigMessage.append(getString(R.string.notif_channelclosing_bigmessage_localclosing, event.toSelfDelay));
     } else {
-      notifBigMessage.append(getString(R.string.notif_channelclosing_bigmessage));
+      notifBigMessage.append(getString(R.string.notif_channelclosing_bigmessage_normal));
     }
     final Intent intent = new Intent(this, ChannelDetailsActivity.class);
     intent.putExtra(EXTRA_CHANNEL_ID, event.channelId);
