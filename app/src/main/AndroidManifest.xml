@@ -17,8 +17,6 @@
 
   <application
     android:name=".App"
-    android:allowBackup="false"
-    android:fullBackupContent="false"
     android:icon="@mipmap/ic_launcher_livenet"
     android:label="@string/app_name"
     android:supportsRtl="true"
