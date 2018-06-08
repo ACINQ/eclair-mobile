@@ -101,6 +101,12 @@ public class ChannelDetailsActivity extends EclairActivity {
     }
   }
 
+  @Override
+  protected void onNewIntent(final Intent intent) {
+    super.onNewIntent(intent);
+    mChannelId = intent.getStringExtra(LocalChannelItemHolder.EXTRA_CHANNEL_ID);
+  }
+
   private void refreshChannel() {
     try {
       final Map.Entry<ActorRef, EclairEventService.ChannelDetails> channel = getChannel(mChannelId);

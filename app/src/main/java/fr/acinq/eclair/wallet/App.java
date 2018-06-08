@@ -145,7 +145,7 @@ public class App extends Application {
       .setContentTitle(notifTitle)
       .setContentText(notifMessage)
       .setStyle(new NotificationCompat.BigTextStyle().bigText(notifBigMessage.toString()))
-      .setContentIntent(PendingIntent.getActivity(this, (int) (System.currentTimeMillis() & 0xfffffff), intent, PendingIntent.FLAG_CANCEL_CURRENT))
+      .setContentIntent(PendingIntent.getActivity(this, (int) (System.currentTimeMillis() & 0xfffffff), intent, PendingIntent.FLAG_UPDATE_CURRENT))
       .setAutoCancel(true);
 
     NotificationManagerCompat.from(this).notify((int) (System.currentTimeMillis() & 0xfffffff), builder.build());
