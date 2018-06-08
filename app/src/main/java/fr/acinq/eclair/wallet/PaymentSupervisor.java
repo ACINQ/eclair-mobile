@@ -106,7 +106,7 @@ public class PaymentSupervisor extends UntypedActor {
         p.setConfidenceBlocks(depth);
         dbHelper.updatePayment(p);
       }
-      if (depth < 16) { // don't update ui for updates in tx with confidence >= 16
+      if (depth <= 6) { // don't update the ui for updates in tx with confidence > 6
         EventBus.getDefault().post(new PaymentEvent());
       }
 
