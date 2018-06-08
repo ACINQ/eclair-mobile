@@ -32,7 +32,6 @@ import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.blockchain.electrum.ElectrumClient;
 import fr.acinq.eclair.blockchain.electrum.ElectrumWallet;
 import fr.acinq.eclair.wallet.events.PaymentEvent;
-import fr.acinq.eclair.wallet.events.ElectrumConnectionEvent;
 import fr.acinq.eclair.wallet.models.Payment;
 import fr.acinq.eclair.wallet.models.PaymentDirection;
 import fr.acinq.eclair.wallet.models.PaymentType;
@@ -115,16 +114,14 @@ public class PaymentSupervisor extends UntypedActor {
       final ElectrumWallet.WalletReady ready = (ElectrumWallet.WalletReady) message;
       Log.i(TAG, "Received WalletReady: " + ready);
       EventBus.getDefault().post(ready);
-      EventBus.getDefault().post(new ElectrumConnectionEvent(true));
 
     } else if (message instanceof ElectrumWallet.NewWalletReceiveAddress) {
       Log.d(TAG, "Received NewWalletReceiveAddress message=" + message);
-      ElectrumWallet.NewWalletReceiveAddress address = (ElectrumWallet.NewWalletReceiveAddress) message;
-      EventBus.getDefault().postSticky(address);
+      EventBus.getDefault().postSticky(message);
 
     } else if (message instanceof ElectrumClient.ElectrumDisconnected$) {
       Log.d(TAG, "Received ElectrumDisconnected");
-      EventBus.getDefault().post(new ElectrumConnectionEvent(false));
+      EventBus.getDefault().post(message);
 
     } else if (message instanceof ElectrumClient.ElectrumReady) {
       Log.i(TAG, "Received ElectrumReady with server=" + ((ElectrumClient.ElectrumReady) message).serverAddress());

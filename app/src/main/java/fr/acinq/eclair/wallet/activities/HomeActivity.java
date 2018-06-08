@@ -57,14 +57,12 @@ import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.blockchain.electrum.ElectrumClient;
 import fr.acinq.eclair.blockchain.electrum.ElectrumWallet;
-import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.EclairEventService;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.databinding.ActivityHomeBinding;
 import fr.acinq.eclair.wallet.events.BitcoinPaymentFailedEvent;
 import fr.acinq.eclair.wallet.events.ChannelUpdateEvent;
-import fr.acinq.eclair.wallet.events.ElectrumConnectionEvent;
 import fr.acinq.eclair.wallet.events.LNBalanceUpdateEvent;
 import fr.acinq.eclair.wallet.events.LNNewChannelFailureEvent;
 import fr.acinq.eclair.wallet.events.LNNewChannelOpenedEvent;
@@ -122,7 +120,12 @@ public class HomeActivity extends EclairActivity {
       displayIntro(prefs);
     }
     // setup content
-    disableSendPaymentButtons();
+    if (app.isWalletConnected()) {
+      enableSendPaymentButtons();
+    } else {
+      disableSendPaymentButtons();
+    }
+
     setUpTabs(savedInstanceState);
     setUpBalanceInteraction(prefs);
     setUpExchangeRate();
@@ -455,6 +458,9 @@ public class HomeActivity extends EclairActivity {
 
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void handleElectrumStateEvent(ElectrumWallet.WalletReady event) {
+    enableSendPaymentButtons();
+    mBinding.homeConnectionStatus.setVisibility(View.GONE);
+
     final Long diffTimestamp = Math.abs(System.currentTimeMillis() / 1000L - event.timestamp());
     if (diffTimestamp < Constants.DESYNC_DIFF_TIMESTAMP_SEC) {
       mBinding.homeConnectionStatus.setVisibility(View.GONE);
@@ -525,16 +531,11 @@ public class HomeActivity extends EclairActivity {
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
-  public void handleConnectionEvent(ElectrumConnectionEvent event) {
-    if (event.connected) {
-      enableSendPaymentButtons();
-      mBinding.homeConnectionStatus.setVisibility(View.GONE);
-    } else {
-      disableSendPaymentButtons();
-      mBinding.homeConnectionStatusTitle.setText(getString(R.string.chain_disconnected));
-      mBinding.homeConnectionStatusDesc.setText(getString(R.string.chain_disconnected_desc));
-      mBinding.homeConnectionStatus.setVisibility(View.VISIBLE);
-    }
+  public void handleDisconnectionEvent(ElectrumClient.ElectrumDisconnected$ event) {
+    disableSendPaymentButtons();
+    mBinding.homeConnectionStatusTitle.setText(getString(R.string.chain_disconnected));
+    mBinding.homeConnectionStatusDesc.setText(getString(R.string.chain_disconnected_desc));
+    mBinding.homeConnectionStatus.setVisibility(View.VISIBLE);
   }
 
   private class HomePagerAdapter extends FragmentStatePagerAdapter {
