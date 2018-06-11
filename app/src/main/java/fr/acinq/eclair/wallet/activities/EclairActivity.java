@@ -81,7 +81,7 @@ public abstract class EclairActivity extends AppCompatActivity {
   }
 
   protected boolean isPinRequired () {
-    return getApplicationContext().getSharedPreferences(Constants.SETTINGS_SECURITY_FILE, MODE_PRIVATE)
+    return EclairActivity.this.getSharedPreferences(Constants.SETTINGS_SECURITY_FILE, MODE_PRIVATE)
       .getBoolean(Constants.SETTING_ASK_PIN_FOR_SENSITIVE_ACTIONS, false);
   }
 
@@ -129,7 +129,7 @@ public abstract class EclairActivity extends AppCompatActivity {
         confirmationDialog.setCanceledOnTouchOutside(cancelable);
         confirmationDialog.setCancelable(cancelable);
         pFirstDialog.dismiss();
-        confirmationDialog.show();
+        if (!EclairActivity.this.isFinishing()) confirmationDialog.show();
       }
 
       @Override
@@ -138,7 +138,7 @@ public abstract class EclairActivity extends AppCompatActivity {
     }, getString(R.string.seed_encrypt_prompt));
     firstPinDialog.setCanceledOnTouchOutside(cancelable);
     firstPinDialog.setCancelable(cancelable);
-    firstPinDialog.show();
+    if (!EclairActivity.this.isFinishing()) firstPinDialog.show();
   }
 
   public interface EncryptSeedCallback {
