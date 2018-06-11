@@ -38,3 +38,4 @@ local.properties
 build/
 bin/
 app/release
+app/debug
