@@ -227,6 +227,7 @@
   <string name="channeldetails_closingtype_remote">REMOTE</string>
   <string name="channeldetails_closingtype_other">OTHER</string>
   <string name="channeldetails_raw_data">Raw channel data</string>
+  <string name="channeldetails_unknown">Unknown channel</string>
 
   <!-- //////////////// Local Channel Raw Data //////////////////// -->
 
@@ -445,4 +446,11 @@
   <string name="notif_channelclosing_bigmessage">Channel id: %1$s</string>
   <string name="notif_channelclosing_bigmessage_normal">You should see an incoming on-chain transaction.</string>
   <string name="notif_channelclosing_bigmessage_localclosing">You or your wallet unilaterally closed this channel. You will receive your funds in %1$d blocks. This value is dependent on the channel configuration.</string>
+
+  <!-- //////////////// Notification //////////////////// -->
+  <string name="rawdata_error">Could not get channel data.</string>
+  <string name="rawdata_loading">Loading channel data, hold on…</string>
+  <string name="rawdata_copy_success">Copied data to clipboard</string>
+  <string name="rawdata_copy_error">Could not copy data</string>
+
 </resources>

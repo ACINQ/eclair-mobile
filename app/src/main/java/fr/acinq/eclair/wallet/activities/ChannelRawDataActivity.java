@@ -23,9 +23,8 @@ import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
@@ -37,7 +36,6 @@ import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.adapters.LocalChannelItemHolder;
 import fr.acinq.eclair.wallet.databinding.ActivityChannelRawDataBinding;
-import fr.acinq.eclair.wallet.events.BitcoinPaymentFailedEvent;
 import fr.acinq.eclair.wallet.events.ChannelRawDataEvent;
 
 public class ChannelRawDataActivity extends EclairActivity {
@@ -63,7 +61,7 @@ public class ChannelRawDataActivity extends EclairActivity {
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void handleRawDataEvent(ChannelRawDataEvent event) {
     if (event == null || event.json == null) {
-      mBinding.rawJson.setText("could not get channel data...");
+      mBinding.rawJson.setText(getString(R.string.rawdata_error));
     } else {
       mBinding.rawJson.setText(event.json);
     }
@@ -79,19 +77,31 @@ public class ChannelRawDataActivity extends EclairActivity {
       app.getLocalChannelRawData(BinaryData.apply(mChannelId));
     }
   }
+
   @Override
   protected void onPause() {
     EventBus.getDefault().unregister(this);
     super.onPause();
   }
 
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+    switch (item.getItemId()) {
+      case android.R.id.home:
+        onBackPressed();
+        return true;
+      default:
+        return super.onOptionsItemSelected(item);
+    }
+  }
+
   public void copyRawData(View v) {
     try {
       ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
       clipboard.setPrimaryClip(ClipData.newPlainText("Channel data", mBinding.rawJson.getText().toString()));
-      Toast.makeText(this.getApplicationContext(), "Copied data to clipboard", Toast.LENGTH_SHORT).show();
+      Toast.makeText(this.getApplicationContext(), getString(R.string.rawdata_copy_success), Toast.LENGTH_SHORT).show();
     } catch (Exception e) {
-      Toast.makeText(this.getApplicationContext(), "Could not copy data", Toast.LENGTH_SHORT).show();
+      Toast.makeText(this.getApplicationContext(), getString(R.string.rawdata_copy_error), Toast.LENGTH_SHORT).show();
     }
   }
 }

@@ -65,7 +65,7 @@
       android:fontFamily="monospace"
       android:padding="@dimen/app_padding"
       android:scrollHorizontally="true"
-      android:text="@string/openchannel_loading_pleasewait"
+      android:text="@string/rawdata_loading"
       android:textColor="@color/grey_3"
       android:textIsSelectable="true"
       android:textSize="10sp" />
