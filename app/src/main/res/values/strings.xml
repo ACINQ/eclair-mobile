@@ -397,8 +397,8 @@
   <string name="prefs_change_password">Change the app password</string>
   <string name="prefs_change_password_desc">Seed will be re-encrypted with a new password</string>
   <string name="prefs_change_password_button">Change password</string>
-  <string name="prefs_pin_title">Ask for PIN before payment</string>
-  <string name="prefs_pin_default_info">This is the PIN encrypting your wallet</string>
+  <string name="prefs_pin_title">Ask for password before payment</string>
+  <string name="prefs_pin_default_info">Uses the PIN encrypting your wallet</string>
   <string name="prefs_lightning_max_fee">Cap Lightning fees</string>
   <string name="prefs_lightning_max_fee_desc">Abort lightning payments if the fees would exceed 3% of the amount to pay. This prevents overpaying opportunistic nodes in the middle of the route.\n\nDoes not affect on-chain payments.</string>
   <string name="prefs_onchain_explorer">Preferred onchain explorer</string>

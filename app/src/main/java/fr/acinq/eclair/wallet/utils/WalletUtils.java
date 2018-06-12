@@ -181,7 +181,7 @@ public class WalletUtils {
     if (fiatFormat == null) {
       fiatFormat = NumberFormat.getInstance();
       fiatFormat.setMinimumFractionDigits(2);
-      fiatFormat.setMaximumFractionDigits(2);
+      fiatFormat.setMaximumFractionDigits(3);
     }
     return fiatFormat;
   }
@@ -206,7 +206,7 @@ public class WalletUtils {
    */
   public static String convertMsatToFiat(final long amountMsat, final String fiatCode) {
     final double rate = App.RATES.containsKey(fiatCode) ? App.RATES.get(fiatCode) : -1.0f;
-    if (rate < 0) return "???";
+    if (rate < 0) return "--";
     return getFiatFormat().format(package$.MODULE$.millisatoshi2btc(new MilliSatoshi(amountMsat)).amount().doubleValue() * rate);
   }
 
