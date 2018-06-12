@@ -181,7 +181,7 @@ public class WalletUtils {
     if (fiatFormat == null) {
       fiatFormat = NumberFormat.getInstance();
       fiatFormat.setMinimumFractionDigits(2);
-      fiatFormat.setMaximumFractionDigits(3);
+      fiatFormat.setMaximumFractionDigits(2);
     }
     return fiatFormat;
   }
