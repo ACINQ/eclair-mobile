@@ -227,6 +227,7 @@
   <string name="channeldetails_closingtype_remote">REMOTE</string>
   <string name="channeldetails_closingtype_other">OTHER</string>
   <string name="channeldetails_raw_data">Raw channel data</string>
+  <string name="channeldetails_unknown">Unknown channel</string>
 
   <!-- //////////////// Local Channel Raw Data //////////////////// -->
 
@@ -396,8 +397,8 @@
   <string name="prefs_change_password">Change the app password</string>
   <string name="prefs_change_password_desc">Seed will be re-encrypted with a new password</string>
   <string name="prefs_change_password_button">Change password</string>
-  <string name="prefs_pin_title">Ask for PIN before payment</string>
-  <string name="prefs_pin_default_info">This is the PIN encrypting your wallet</string>
+  <string name="prefs_pin_title">Ask for password before payment</string>
+  <string name="prefs_pin_default_info">Uses the PIN encrypting your wallet</string>
   <string name="prefs_lightning_max_fee">Cap Lightning fees</string>
   <string name="prefs_lightning_max_fee_desc">Abort lightning payments if the fees would exceed 3% of the amount to pay. This prevents overpaying opportunistic nodes in the middle of the route.\n\nDoes not affect on-chain payments.</string>
   <string name="prefs_onchain_explorer">Preferred onchain explorer</string>
@@ -445,4 +446,11 @@
   <string name="notif_channelclosing_bigmessage">Channel id: %1$s</string>
   <string name="notif_channelclosing_bigmessage_normal">You should see an incoming on-chain transaction.</string>
   <string name="notif_channelclosing_bigmessage_localclosing">You or your wallet unilaterally closed this channel. You will receive your funds in %1$d blocks. This value is dependent on the channel configuration.</string>
+
+  <!-- //////////////// Notification //////////////////// -->
+  <string name="rawdata_error">Could not get channel data.</string>
+  <string name="rawdata_loading">Loading channel data, hold on…</string>
+  <string name="rawdata_copy_success">Copied data to clipboard</string>
+  <string name="rawdata_copy_error">Could not copy data</string>
+
 </resources>

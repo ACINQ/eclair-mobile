@@ -104,6 +104,7 @@
     <activity
       android:name=".activities.ChannelDetailsActivity"
       android:label="@string/channeldetails_name"
+      android:launchMode="singleTop"
       android:parentActivityName=".activities.HomeActivity"
       android:screenOrientation="portrait" />
     <activity

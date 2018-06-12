@@ -146,6 +146,7 @@
             android:id="@+id/capacity_fiat"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-light"
             android:maxLines="1"
             android:textColor="@color/primary_light_x3"
             android:textSize="12sp" />

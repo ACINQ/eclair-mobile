@@ -101,12 +101,18 @@ public class ChannelDetailsActivity extends EclairActivity {
     }
   }
 
+  @Override
+  protected void onNewIntent(final Intent intent) {
+    super.onNewIntent(intent);
+    mChannelId = intent.getStringExtra(LocalChannelItemHolder.EXTRA_CHANNEL_ID);
+  }
+
   private void refreshChannel() {
     try {
       final Map.Entry<ActorRef, EclairEventService.ChannelDetails> channel = getChannel(mChannelId);
       if (channel == null) {
-        Log.d(TAG, "could not find channel " + mChannelId);
-        Toast.makeText(this, "This channel does not exist anymore", Toast.LENGTH_LONG).show();
+        Log.d(TAG, "could not find channel with id=" + mChannelId);
+        Toast.makeText(this, getString(R.string.channeldetails_unknown), Toast.LENGTH_LONG).show();
       } else if (channel.getValue() != null && channel.getKey() != null && channel.getValue() != null) {
 
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());

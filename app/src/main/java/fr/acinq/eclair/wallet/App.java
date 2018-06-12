@@ -145,7 +145,7 @@ public class App extends Application {
       .setContentTitle(notifTitle)
       .setContentText(notifMessage)
       .setStyle(new NotificationCompat.BigTextStyle().bigText(notifBigMessage.toString()))
-      .setContentIntent(PendingIntent.getActivity(this, (int) (System.currentTimeMillis() & 0xfffffff), intent, PendingIntent.FLAG_CANCEL_CURRENT))
+      .setContentIntent(PendingIntent.getActivity(this, (int) (System.currentTimeMillis() & 0xfffffff), intent, PendingIntent.FLAG_UPDATE_CURRENT))
       .setAutoCancel(true);
 
     NotificationManagerCompat.from(this).notify((int) (System.currentTimeMillis() & 0xfffffff), builder.build());
@@ -157,11 +157,19 @@ public class App extends Application {
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
-  public void handleElectrumStateEvent(ElectrumWallet.WalletReady event) {
+  public void handleWalletReadyEvent(ElectrumWallet.WalletReady event) {
     final ElectrumState state = this.electrumState.get() == null ? new ElectrumState() : this.electrumState.get();
     state.confirmedBalance = event.confirmedBalance();
     state.unconfirmedBalance = event.unconfirmedBalance();
     state.blockTimestamp = event.timestamp();
+    state.isConnected = true;
+    this.electrumState.set(state);
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN)
+  public void handleWalletDisconnectedEvent(ElectrumClient.ElectrumDisconnected$ event) {
+    final ElectrumState state = this.electrumState.get() == null ? new ElectrumState() : this.electrumState.get();
+    state.isConnected = false;
     this.electrumState.set(state);
   }
 
@@ -174,6 +182,10 @@ public class App extends Application {
 
   public String getWalletAddress() {
     return this.walletAddress;
+  }
+
+  public boolean isWalletConnected() {
+    return this.electrumState.get() != null && this.electrumState.get().isConnected;
   }
 
   /**
@@ -439,6 +451,7 @@ public class App extends Application {
     private Satoshi unconfirmedBalance;
     private long blockTimestamp;
     private InetSocketAddress address;
+    private boolean isConnected = false;
   }
 
   public static class AppKit {
