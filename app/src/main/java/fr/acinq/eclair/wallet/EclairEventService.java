@@ -176,8 +176,6 @@ public class EclairEventService extends UntypedActor {
             EventBus.getDefault().post(new PaymentEvent());
           }
         }
-      } else {
-        // do nothing
       }
     }
     // ---- balance update, only for the channels we know
@@ -187,15 +185,17 @@ public class EclairEventService extends UntypedActor {
       LocalCommit localCommit = csr.commitments().localCommit();
       long outHtlcsAmount = 0L;
       Iterator<DirectedHtlc> htlcsIterator = localCommit.spec().htlcs().iterator();
+      int htlcsCount = 0;
       while (htlcsIterator.hasNext()) {
         DirectedHtlc h = htlcsIterator.next();
         if (h.direction() instanceof OUT$) {
+          htlcsCount++;
           outHtlcsAmount += h.add().amountMsat();
         }
       }
       cd.channelReserveSat = csr.commitments().localParams().channelReserveSatoshis();
       cd.minimumHtlcAmountMsat = csr.commitments().localParams().htlcMinimumMsat();
-      cd.htlcsInFlightCount = htlcsIterator.size();
+      cd.htlcsInFlightCount = htlcsCount;
       cd.balanceMsat = new MilliSatoshi(localCommit.spec().toLocalMsat() + outHtlcsAmount);
       cd.capacityMsat = new MilliSatoshi(localCommit.spec().totalFunds());
       EventBus.getDefault().post(new ChannelUpdateEvent());
