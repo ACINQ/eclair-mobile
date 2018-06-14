@@ -16,14 +16,12 @@
 
 <resources>
 
-  <!-- app padding -->
-  <dimen name="wide_space">32dp</dimen>
-  <dimen name="app_padding">16dp</dimen>
-  <dimen name="note_padding">12dp</dimen>
-  <dimen name="app_bar_height">180dp</dimen>
-  <dimen name="fab_margin">16dp</dimen>
-  <dimen name="text_margin">16dp</dimen>
+  <dimen name="space_lg">32dp</dimen>
+  <dimen name="space_md">16dp</dimen>
+  <dimen name="space_sm">12dp</dimen>
+  <dimen name="space_xs">8dp</dimen>
 
+  <dimen name="app_bar_height">180dp</dimen>
   <dimen name="item_height">46dp</dimen>
 
   <dimen name="word_list_padding">4dp</dimen>

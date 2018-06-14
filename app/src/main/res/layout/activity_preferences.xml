@@ -34,7 +34,7 @@
     <TextView
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:padding="@dimen/app_padding"
+      android:padding="@dimen/space_md"
       android:text="@string/prefs_security_title"
       android:textAppearance="@android:style/TextAppearance.Material.Body2"
       android:textColor="?android:attr/colorAccent" />
@@ -42,9 +42,9 @@
     <RelativeLayout
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:layout_marginBottom="@dimen/app_padding"
-      android:paddingEnd="@dimen/app_padding"
-      android:paddingStart="@dimen/app_padding">
+      android:layout_marginBottom="@dimen/space_md"
+      android:paddingEnd="@dimen/space_md"
+      android:paddingStart="@dimen/space_md">
 
       <TextView
         android:layout_width="wrap_content"
@@ -90,7 +90,7 @@
     <LinearLayout
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:padding="@dimen/app_padding"
+      android:padding="@dimen/space_md"
       android:background="?android:attr/selectableItemBackground"
       android:clickable="true"
       android:focusable="true"
@@ -102,14 +102,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="6dp"
-        android:layout_marginEnd="@dimen/app_padding"
+        android:layout_marginEnd="@dimen/space_md"
         android:text="@string/prefs_change_password"
         android:textSize="14sp" />
 
       <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/app_padding"
+        android:layout_marginEnd="@dimen/space_md"
         android:text="@string/prefs_change_password_desc"
         android:textColor="@color/grey_1" />
     </LinearLayout>

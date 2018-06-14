@@ -33,7 +33,7 @@
       android:paddingBottom="6dp"
       android:paddingEnd="8dp"
       android:paddingStart="8dp"
-      android:paddingTop="@dimen/app_padding"
+      android:paddingTop="@dimen/space_md"
       android:text="@string/pindialog_title_default"
       android:textAlignment="center"
       android:textColor="@color/grey_4"

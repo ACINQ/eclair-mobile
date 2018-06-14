@@ -318,7 +318,7 @@
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:layout_gravity="start"
-          android:layout_marginEnd="@dimen/app_padding"
+          android:layout_marginEnd="@dimen/space_md"
           android:layout_marginStart="36dp"
           android:buttonTint="@color/primary_light_x1"
           android:maxLines="1"
@@ -336,7 +336,7 @@
           android:visibility="gone"
           android:layout_marginTop="-8dp"
           android:paddingStart="68dp"
-          android:paddingEnd="@dimen/app_padding"
+          android:paddingEnd="@dimen/space_md"
           android:text="@string/payment_empty_wallet_disclaimer"/>
 
         <TextView
@@ -383,7 +383,7 @@
           android:id="@+id/layout_buttons"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:layout_marginTop="@dimen/app_padding"
+          android:layout_marginTop="@dimen/space_md"
           android:gravity="center"
           android:orientation="horizontal">
 

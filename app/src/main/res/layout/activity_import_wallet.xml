@@ -93,7 +93,7 @@
           android:background="?android:attr/selectableItemBackground"
           android:contentDescription="@string/btn_cancel"
           android:onClick="cancel"
-          android:padding="@dimen/app_padding"
+          android:padding="@dimen/space_md"
           android:src="@drawable/ic_arrow_back" />
 
         <View
@@ -107,7 +107,7 @@
           android:layout_gravity="end|center"
           android:background="?android:attr/selectableItemBackground"
           android:onClick="importMnemonics"
-          android:padding="@dimen/app_padding"
+          android:padding="@dimen/space_md"
           android:text="@string/importwallet_check_button" />
       </LinearLayout>
 

@@ -41,9 +41,9 @@
           android:layout_height="wrap_content"
           android:orientation="vertical"
           android:paddingBottom="8dp"
-          android:paddingEnd="@dimen/app_padding"
-          android:paddingStart="@dimen/app_padding"
-          android:paddingTop="@dimen/app_padding">
+          android:paddingEnd="@dimen/space_md"
+          android:paddingStart="@dimen/space_md"
+          android:paddingTop="@dimen/space_md">
 
           <TextView
             android:layout_width="match_parent"
@@ -67,7 +67,7 @@
           <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/app_padding"
+            android:layout_marginTop="@dimen/space_md"
             android:baselineAligned="false"
             android:orientation="horizontal">
 

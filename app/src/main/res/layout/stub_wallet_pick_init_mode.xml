@@ -31,7 +31,7 @@
       android:layout_height="wrap_content"
       android:background="?android:attr/selectableItemBackground"
       android:onClick="pickCreateNewWallet"
-      android:padding="@dimen/app_padding"
+      android:padding="@dimen/space_md"
       android:text="@string/wallet_init_create_new"
       android:textColor="@color/white" />
 
@@ -47,7 +47,7 @@
       android:layout_height="wrap_content"
       android:background="?android:attr/selectableItemBackground"
       android:onClick="pickImportExistingWallet"
-      android:padding="@dimen/app_padding"
+      android:padding="@dimen/space_md"
       android:text="@string/wallet_init_import_existing"
       android:textColor="@color/white" />
 
