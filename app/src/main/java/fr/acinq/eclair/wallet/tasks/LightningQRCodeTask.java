@@ -31,54 +31,32 @@ import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import java.util.HashMap;
 import java.util.Map;
 
-public class QRCodeTask extends AsyncTask<String, Integer, Bitmap> {
+public class LightningQRCodeTask extends AsyncTask<String, Integer, Bitmap> {
 
   public interface AsyncQRCodeResponse {
-    void processFinish(Bitmap output);
+    void processLightningQRCodeFinish(Bitmap output);
   }
   private AsyncQRCodeResponse delegate;
 
-  private static final String TAG = "QRCodeTask";
+  private static final String TAG = LightningQRCodeTask.class.getSimpleName();
   private final QRCodeWriter writer = new QRCodeWriter();
   private final int width;
   private final int height;
   private final String source;
 
-  public QRCodeTask(AsyncQRCodeResponse delegate, String source, int width, int height){
+  public LightningQRCodeTask(AsyncQRCodeResponse delegate, String source, int width, int height){
     this.delegate = delegate;
     this.width = width;
     this.height = height;
-    this.source = "bitcoin:" + source;
+    this.source = "lightning:" + source;
   }
 
   @Override
   protected Bitmap doInBackground(String... params) {
-    return generateBitmap(this.writer, this.source, this.width, this.height);
+    return QRCodeTask.generateBitmap(this.writer, this.source, this.width, this.height);
   }
 
   protected void onPostExecute(Bitmap result) {
-    delegate.processFinish(result);
-  }
-
-  public static Bitmap generateBitmap(final QRCodeWriter writer, final String source, final int width, final int height) {
-    final Map<EncodeHintType, Object> hintsMap = new HashMap<>();
-    hintsMap.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.L);
-    hintsMap.put(EncodeHintType.MARGIN, 1);
-    final int qrWidth = width;
-    final int qrHeight = height;
-    try {
-      BitMatrix matrix = writer.encode(source, BarcodeFormat.QR_CODE, qrWidth, qrHeight, hintsMap);
-      final int[] pixels = new int[qrWidth * qrHeight];
-      for (int j = 0; j < qrHeight; j++) {
-        final int offset = j * qrWidth;
-        for (int i = 0; i < qrWidth; i++) {
-          pixels[offset + i] = matrix.get(i, j) ? Color.BLACK : 0xffffffff;
-        }
-      }
-      return Bitmap.createScaledBitmap(Bitmap.createBitmap(pixels, qrWidth, qrHeight, Bitmap.Config.ARGB_8888), width, height, false);
-    } catch (WriterException e) {
-      Log.w(TAG, "Failed to generate QR code for source " + source + " with cause=" + e.getMessage());
-      return null;
-    }
+    delegate.processLightningQRCodeFinish(result);
   }
 }

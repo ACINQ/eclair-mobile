@@ -96,4 +96,29 @@
     <item name="android:divider">@drawable/prefs_divider</item>
   </style>
 
+  <style name="LabelTextViewStyle" parent="TextAppearance.AppCompat">
+    <item name="android:textColor">@color/grey_1</item>
+    <item name="android:textSize">10sp</item>
+    <item name="android:textAllCaps">true</item>
+    <item name="android:layout_marginStart">@dimen/space_md</item>
+    <item name="android:layout_marginEnd">@dimen/space_md</item>
+    <item name="android:layout_marginBottom">@dimen/space_xxs</item>
+  </style>
+
+  <style name="NormalTextViewStyle" parent="TextAppearance.AppCompat">
+    <item name="android:textColor">@color/grey_4</item>
+    <item name="android:textSize">12sp</item>
+    <item name="android:layout_marginStart">@dimen/space_md</item>
+    <item name="android:layout_marginEnd">@dimen/space_md</item>
+  </style>
+
+  <style name="ValueTextViewStyle" parent="TextAppearance.AppCompat">
+    <item name="android:textColor">@color/grey_4</item>
+    <item name="android:textSize">12sp</item>
+    <item name="android:layout_marginStart">@dimen/space_md</item>
+    <item name="android:layout_marginEnd">@dimen/space_md</item>
+    <item name="android:fontFamily">monospace</item>
+    <item name="android:textIsSelectable">true</item>
+  </style>
+
 </resources>

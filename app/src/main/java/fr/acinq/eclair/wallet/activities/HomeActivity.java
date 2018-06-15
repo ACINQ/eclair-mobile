@@ -440,17 +440,6 @@ public class HomeActivity extends EclairActivity {
     startActivity(intent);
   }
 
-  public void copyReceptionAddress(View view) {
-    try {
-      ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-      clipboard.setPrimaryClip(ClipData.newPlainText("Bitcoin address", app.getWalletAddress()));
-      Toast.makeText(this.getApplicationContext(), "Copied address to clipboard", Toast.LENGTH_SHORT).show();
-    } catch (Exception e) {
-      Log.w(TAG, "failed to copy address with cause=" + e.getMessage());
-      Toast.makeText(this.getApplicationContext(), "Could not copy address", Toast.LENGTH_SHORT).show();
-    }
-  }
-
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void handleLNBalanceEvent(LNBalanceUpdateEvent event) {
     updateBalance();

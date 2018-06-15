@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright 2018 ACINQ SAS
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  android:layout_width="match_parent"
+  android:layout_height="wrap_content">
+
+  <ScrollView
+    android:id="@+id/content_scrollview"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:scrollbars="vertical"
+    app:layout_constraintBottom_toTopOf="@+id/buttons_layout"
+    app:layout_constraintTop_toTopOf="parent">
+
+    <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:gravity="top|start"
+      android:orientation="vertical"
+      android:padding="@dimen/space_lg">
+
+      <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/space_md"
+        android:text="@string/dialog_prparams_intro" />
+
+      <android.support.design.widget.TextInputLayout
+        android:id="@+id/description_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/space_md"
+        android:hint="@string/dialog_prparams_description"
+        android:textColorHint="@color/grey_2">
+
+        <EditText
+          android:id="@+id/description"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:backgroundTint="@color/primary"
+          android:inputType="text"
+          android:textSize="12sp" />
+      </android.support.design.widget.TextInputLayout>
+
+      <android.support.design.widget.TextInputLayout
+        android:id="@+id/amount_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/space_md"
+        android:hint="@string/dialog_prparams_amount"
+        android:textColorHint="@color/grey_2">
+
+        <EditText
+          android:id="@+id/amount"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:backgroundTint="@color/primary"
+          android:inputType="numberDecimal"
+          android:textSize="12sp" />
+
+      </android.support.design.widget.TextInputLayout>
+
+      <TextView
+        android:id="@+id/amount_error"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/space_md"
+        android:text="@string/dialog_prparams_amount_error"
+        android:textColor="@color/red_faded"
+        android:textSize="12sp"
+        android:visibility="gone" />
+
+    </LinearLayout>
+  </ScrollView>
+
+  <LinearLayout
+    android:id="@+id/buttons_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center|end"
+    android:orientation="horizontal"
+    app:layout_constraintBottom_toBottomOf="parent">
+
+    <Button
+      android:id="@+id/close_channel_cancel"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginEnd="16dp"
+      android:background="?android:attr/selectableItemBackground"
+      android:onClick="closeApp"
+      android:padding="@dimen/space_md"
+      android:text="@string/btn_cancel"
+      android:textColor="@color/grey_1" />
+
+    <Button
+      android:id="@+id/close_channel_close"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:background="?android:attr/selectableItemBackground"
+      android:padding="@dimen/space_md"
+      android:text="@string/btn_ok"
+      android:textColor="@color/grey_4" />
+  </LinearLayout>
+</android.support.constraint.ConstraintLayout>

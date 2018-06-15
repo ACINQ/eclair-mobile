@@ -68,5 +68,4 @@ public interface Constants {
   FeeRating FEE_RATING_MEDIUM = new FeeRating(1, "Medium (2h)");
   FeeRating FEE_RATING_FAST = new FeeRating(2, "Fast (20min)");
   FeeRating FEE_RATING_CUSTOM = new FeeRating(3, "Custom");
-
 }

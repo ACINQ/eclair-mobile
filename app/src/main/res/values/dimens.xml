@@ -16,10 +16,14 @@
 
 <resources>
 
+  <dimen name="space_xxxl">96dp</dimen>
+  <dimen name="space_xxl">64dp</dimen>
+  <dimen name="space_xl">48dp</dimen>
   <dimen name="space_lg">32dp</dimen>
   <dimen name="space_md">16dp</dimen>
   <dimen name="space_sm">12dp</dimen>
   <dimen name="space_xs">8dp</dimen>
+  <dimen name="space_xxs">4dp</dimen>
 
   <dimen name="app_bar_height">180dp</dimen>
   <dimen name="item_height">46dp</dimen>

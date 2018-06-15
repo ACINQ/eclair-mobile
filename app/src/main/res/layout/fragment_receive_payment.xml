@@ -16,51 +16,203 @@
   ~ limitations under the License.
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:tools="http://schemas.android.com/tools"
-  android:layout_width="match_parent"
-  android:layout_height="wrap_content"
-  android:gravity="top|center"
-  android:orientation="vertical">
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+  <data>
+
+    <import type="android.view.View" />
+
+    <variable
+      name="paymentType"
+      type="java.lang.Integer" />
+
+    <variable
+      name="lightningShowAdvanced"
+      type="java.lang.Boolean" />
+
+  </data>
 
   <ScrollView
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="fr.acinq.eclair.wallet.fragments.ReceivePaymentFragment">
+    android:background="@color/grey_0_light_x1"
+    android:overScrollMode="never">
 
     <LinearLayout
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:gravity="center_horizontal"
+      android:layout_marginBottom="@dimen/space_lg"
+      android:layout_marginEnd="@dimen/space_xl"
+      android:layout_marginStart="@dimen/space_xl"
+      android:layout_marginTop="@dimen/space_lg"
       android:orientation="vertical">
 
-      <ImageView
-        android:id="@+id/receivepayment_qr"
-        android:layout_width="220dp"
-        android:layout_height="220dp"
-        android:layout_marginBottom="@dimen/space_md"
-        android:layout_marginLeft="@dimen/space_md"
-        android:layout_marginRight="@dimen/space_md"
-        android:layout_marginTop="@dimen/space_lg"
-        android:clickable="true"
-        android:focusable="true"
-        android:onClick="copyReceptionAddress"
-        android:src="@drawable/qrcode_placeholder" />
-
-      <TextView
-        android:id="@+id/receivepayment_address"
+      <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:clickable="true"
-        android:focusable="true"
-        android:fontFamily="monospace"
-        android:onClick="copyReceptionAddress"
-        android:padding="16dp"
-        android:text="@string/unknown"
-        android:textAlignment="center"
-        android:textIsSelectable="true"
-        android:textSize="12sp" />
+        android:orientation="horizontal">
 
+        <Button
+          android:id="@+id/pick_onchain_button"
+          style="@style/Base.Widget.AppCompat.Button.Borderless"
+          android:layout_width="0dp"
+          android:layout_height="match_parent"
+          android:layout_weight="0.5"
+          android:background="@{paymentType == 0 ? @color/white : @android:color/transparent}"
+          android:elevation="0dp"
+          android:foreground="?android:attr/selectableItemBackground"
+          android:minHeight="0dp"
+          android:padding="@dimen/space_md"
+          android:text="@string/receivepayment_onchain_title"
+          android:textColor="@{paymentType == 0 ? @color/primary : @color/grey_1}"
+          android:textSize="10sp" />
+
+        <Button
+          android:id="@+id/pick_lightning_button"
+          style="@style/Base.Widget.AppCompat.Button.Borderless"
+          android:layout_width="0dp"
+          android:layout_height="match_parent"
+          android:layout_weight="0.5"
+          android:background="@{paymentType == 1 ? @color/white : @android:color/transparent}"
+          android:elevation="0dp"
+          android:foreground="?android:attr/selectableItemBackground"
+          android:minHeight="0dp"
+          android:padding="@dimen/space_md"
+          android:text="@string/receivepayment_lightning_title"
+          android:textColor="@{paymentType == 1 ? @color/primary : @color/grey_1}"
+          android:textSize="10sp" />
+
+      </LinearLayout>
+
+      <LinearLayout
+        android:id="@+id/onchain_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/space_xxxl"
+        android:background="@color/white"
+        android:orientation="vertical"
+        android:paddingBottom="@dimen/space_lg"
+        android:visibility="@{paymentType == 0 ? View.VISIBLE : View.GONE}">
+
+        <ImageView
+          android:id="@+id/onchain_qr"
+          android:layout_width="160dp"
+          android:layout_height="wrap_content"
+          android:layout_gravity="center"
+          android:layout_marginBottom="@dimen/space_lg"
+          android:layout_marginTop="@dimen/space_lg"
+          android:adjustViewBounds="true"
+          android:clickable="true"
+          android:focusable="true"
+          android:scaleType="fitCenter"
+          android:src="@drawable/qrcode_placeholder"
+          android:visibility="visible" />
+
+        <TextView
+          style="@style/LabelTextViewStyle"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:text="@string/receivepayment_onchain_address_title" />
+
+        <TextView
+          android:id="@+id/onchain_address"
+          style="@style/ValueTextViewStyle"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:clickable="true"
+          android:focusable="true" />
+
+      </LinearLayout>
+
+      <LinearLayout
+        android:id="@+id/lightning_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/space_xxxl"
+        android:background="@color/white"
+        android:orientation="vertical"
+        android:visibility="@{paymentType == 1 ? View.VISIBLE : View.GONE}">
+
+        <ImageView
+          android:id="@+id/lightning_qr"
+          android:layout_width="160dp"
+          android:layout_height="wrap_content"
+          android:layout_gravity="center"
+          android:layout_marginBottom="@dimen/space_lg"
+          android:layout_marginTop="@dimen/space_lg"
+          android:adjustViewBounds="true"
+          android:clickable="true"
+          android:focusable="true"
+          android:scaleType="fitCenter"
+          android:src="@drawable/qrcode_placeholder"
+          android:visibility="visible" />
+
+        <TextView
+          style="@style/LabelTextViewStyle"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:text="@string/receivepayment_lightning_pr_title" />
+
+        <TextView
+          android:id="@+id/lightning_pr"
+          style="@style/ValueTextViewStyle"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_marginBottom="@dimen/space_md"
+          android:clickable="true"
+          android:ellipsize="end"
+          android:focusable="true"
+          android:singleLine="true"
+          android:text="@string/unknown" />
+
+        <View
+          android:layout_width="50dp"
+          android:layout_height="1dp"
+          android:layout_marginStart="@dimen/space_md"
+          android:background="@color/grey_0" />
+
+        <LinearLayout
+          android:id="@+id/lightning_parameters"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:background="?android:attr/selectableItemBackground"
+          android:paddingTop="@dimen/space_md"
+          android:paddingBottom="@dimen/space_md"
+          android:clickable="true"
+          android:focusable="true"
+          android:orientation="vertical">
+
+          <TextView
+            style="@style/LabelTextViewStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/receivepayment_lightning_description_title" />
+
+          <TextView
+            android:id="@+id/lightning_description"
+            style="@style/NormalTextViewStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/space_md"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:text="@string/receivepayment_lightning_description_notset" />
+
+          <TextView
+            style="@style/LabelTextViewStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/receivepayment_lightning_amount_title" />
+
+          <TextView
+            android:id="@+id/lightning_amount"
+            style="@style/NormalTextViewStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/receivepayment_lightning_amount_notset" />
+
+        </LinearLayout>
+      </LinearLayout>
     </LinearLayout>
   </ScrollView>
-</LinearLayout>
+</layout>

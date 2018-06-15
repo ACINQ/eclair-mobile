@@ -44,6 +44,10 @@ public abstract class EclairActivity extends AppCompatActivity {
     app = ((App) getApplication());
   }
 
+  public App getApp() {
+    return this.app;
+  }
+
   /**
    * Checks that the application was correctly initialized before accessing this activity. Redirect to Startup if not, which
    * restarts eclair correctly.
@@ -145,6 +149,5 @@ public abstract class EclairActivity extends AppCompatActivity {
     void onEncryptSeedFailure(final String message);
     void onEncryptSeedSuccess();
   }
-
 }
 
