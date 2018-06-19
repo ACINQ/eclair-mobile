@@ -22,6 +22,8 @@
   <string name="app_name">Eclair DEV</string>
   <string name="notification_channel_closing_ln_channel_name">Channel Closing</string>
   <string name="notification_channel_closing_ln_channel_desc">Notification displayed when a channel is closing, be it cooperative or not.</string>
+  <string name="notification_channel_restart_name">Synchronization reminder</string>
+  <string name="notification_channel_restart_desc">A notification that reminds you to start the app from time to time. Required when you intend to receive lightning payments with the app.</string>
 
   <!-- //////////////// Activities Name //////////////////// -->
 
@@ -446,6 +448,9 @@
   <string name="notif_channelclosing_bigmessage">Channel id: %1$s</string>
   <string name="notif_channelclosing_bigmessage_normal">You should see an incoming on-chain transaction.</string>
   <string name="notif_channelclosing_bigmessage_localclosing">You or your wallet unilaterally closed this channel. You will receive your funds in %1$d blocks. This value is dependent on the channel configuration.</string>
+
+  <string name="notif_startreminder_title">Eclair Wallet should be started</string>
+  <string name="notif_startreminder_message">Receiving lightning payments means that you should watch the blockchain from time to time.</string>
 
   <!-- //////////////// Channel Data //////////////////// -->
 

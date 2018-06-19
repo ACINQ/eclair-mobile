@@ -16,6 +16,9 @@
 
 package fr.acinq.eclair.wallet.activities;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
@@ -60,6 +63,7 @@ import fr.acinq.eclair.wallet.databinding.ActivityStartupBinding;
 import fr.acinq.eclair.wallet.databinding.StubUsageDisclaimerBinding;
 import fr.acinq.eclair.wallet.fragments.PinDialog;
 import fr.acinq.eclair.wallet.utils.Constants;
+import fr.acinq.eclair.wallet.utils.StartNotificationReminder;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 import scala.Option;
 import scala.concurrent.Await;
@@ -100,11 +104,26 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
     super.onDestroy();
   }
 
+  private void setupStartReminderAlarm() {
+    final AlarmManager m = ((AlarmManager) getSystemService(Context.ALARM_SERVICE));
+    if (m != null) {
+      final PendingIntent broadcastIntent = StartNotificationReminder.getBroadcastIntent(getApplicationContext());
+      // first cancel existing alarm
+      m.cancel(broadcastIntent);
+      // then schedule a repeatable alarm that displays a notification. Next alarm date is saved in app prefs so that
+      // a BOOT_COMPLETED intent knows the best time when a reminder notification must be shown.
+      final long nextReminder = System.currentTimeMillis() + Constants.ONE_DAY_MS * 3;
+      PreferenceManager.getDefaultSharedPreferences(getBaseContext()).edit().putLong(Constants.SETTING_NEXT_START_REMINDER_ALARM, nextReminder).apply();
+      m.setRepeating(AlarmManager.RTC_WAKEUP, nextReminder, Constants.ONE_DAY_MS, broadcastIntent);
+    }
+  }
+
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void processStartupFinish(StartupCompleteEvent event) {
     switch(event.status) {
       case StartupTask.SUCCESS:
         if (app.appKit != null) {
+          setupStartReminderAlarm();
           PreferenceManager.getDefaultSharedPreferences(getBaseContext()).edit()
             .putInt(Constants.SETTING_LAST_USED_VERSION, BuildConfig.VERSION_CODE).apply();
           goToHome();

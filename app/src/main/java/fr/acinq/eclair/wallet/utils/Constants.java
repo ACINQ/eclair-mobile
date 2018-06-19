@@ -25,6 +25,7 @@ public interface Constants {
    * time diff in sec beyond which a timestamp in a block header can safely be considered as late
    */
   long DESYNC_DIFF_TIMESTAMP_SEC = 6 * 60 * 60L;
+  long ONE_DAY_MS = 1000L * 60 * 60; // * 24
 
   /* ----------- FILES NAMES ------------ */
   String ECLAIR_DATADIR = "eclair-wallet-data";
@@ -34,6 +35,7 @@ public interface Constants {
   String SETTING_SHOW_DISCLAIMER = "showDisclaimer";
   String SETTING_SHOW_INTRO = "showIntro";
   String SETTING_LAST_USED_VERSION = "last_used_version";
+  String SETTING_NEXT_START_REMINDER_ALARM = "next_start_reminder_date";
 
   // currencies
   String SETTING_SELECTED_FIAT_CURRENCY = "fiat_currency";
@@ -68,4 +70,9 @@ public interface Constants {
   FeeRating FEE_RATING_MEDIUM = new FeeRating(1, "Medium (2h)");
   FeeRating FEE_RATING_FAST = new FeeRating(2, "Fast (20min)");
   FeeRating FEE_RATING_CUSTOM = new FeeRating(3, "Custom");
+
+  /* ----------- NOTIFICATION CHANNEL IDS ------------ */
+  String NOTIF_CHANNEL_CLOSED_ID = "CHANNEL_CLOSED";
+  String NOTIF_CHANNEL_START_REMINDER_ID = "START_APP";
+  int NOTIF_START_REMINDER_REQUEST_CODE = 437165794;
 }

@@ -83,7 +83,6 @@ import scala.concurrent.duration.FiniteDuration;
 import upickle.default$;
 
 import static fr.acinq.eclair.wallet.adapters.LocalChannelItemHolder.EXTRA_CHANNEL_ID;
-import static fr.acinq.eclair.wallet.events.ClosingChannelNotificationEvent.NOTIF_CHANNEL_CLOSED_ID;
 
 public class App extends Application {
 
@@ -141,7 +140,7 @@ public class App extends Application {
     intent.putExtra(EXTRA_CHANNEL_ID, event.channelId);
     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
-    final NotificationCompat.Builder builder = new NotificationCompat.Builder(this.getBaseContext(), ClosingChannelNotificationEvent.NOTIF_CHANNEL_CLOSED_ID)
+    final NotificationCompat.Builder builder = new NotificationCompat.Builder(this.getBaseContext(), Constants.NOTIF_CHANNEL_CLOSED_ID)
       .setSmallIcon(R.drawable.eclair_256x256)
       .setContentTitle(notifTitle)
       .setContentText(notifMessage)
@@ -425,16 +424,19 @@ public class App extends Application {
 
     // notification channels (android 8+)
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-      final CharSequence name = getString(R.string.notification_channel_closing_ln_channel_name);
-      final String description = getString(R.string.notification_channel_closing_ln_channel_desc);
-      final int importance = NotificationManager.IMPORTANCE_HIGH;
-      final NotificationChannel channel = new NotificationChannel(NOTIF_CHANNEL_CLOSED_ID, name, importance);
-      channel.setDescription(description);
+      final NotificationChannel lightningChannelClosing = new NotificationChannel(Constants.NOTIF_CHANNEL_CLOSED_ID,
+        getString(R.string.notification_channel_closing_ln_channel_name), NotificationManager.IMPORTANCE_DEFAULT);
+      lightningChannelClosing.setDescription(getString(R.string.notification_channel_closing_ln_channel_desc));
+      final NotificationChannel startAppReminder = new NotificationChannel(Constants.NOTIF_CHANNEL_START_REMINDER_ID,
+        getString(R.string.notification_channel_restart_name), NotificationManager.IMPORTANCE_HIGH);
+      startAppReminder.setDescription(getString(R.string.notification_channel_restart_desc));
       // Register the channel with the system
       final NotificationManager notificationManager = getSystemService(NotificationManager.class);
-      if (notificationManager != null) notificationManager.createNotificationChannel(channel);
+      if (notificationManager != null) {
+        notificationManager.createNotificationChannel(lightningChannelClosing);
+        notificationManager.createNotificationChannel(startAppReminder);
+      }
     }
-
   }
 
   public Satoshi getOnchainBalance() {

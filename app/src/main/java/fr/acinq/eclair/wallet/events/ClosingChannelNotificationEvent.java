@@ -19,7 +19,6 @@ package fr.acinq.eclair.wallet.events;
 import fr.acinq.bitcoin.MilliSatoshi;
 
 public class ClosingChannelNotificationEvent {
-  public final static String NOTIF_CHANNEL_CLOSED_ID = "CHANNEL_CLOSED";
 
   public final String channelId;
   public final String remoteNodeId;
