@@ -56,6 +56,7 @@ import fr.acinq.eclair.wallet.models.PaymentType;
 import fr.acinq.eclair.wallet.tasks.LightningPaymentRequestTask;
 import fr.acinq.eclair.wallet.tasks.LightningQRCodeTask;
 import fr.acinq.eclair.wallet.tasks.QRCodeTask;
+import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 import scala.Option;
 
@@ -66,6 +67,7 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
 
   private PaymentRequestParametersDialog mPRParamsDialog;
 
+  private String lightningPaymentRequest = null;
   private String lightningDescription = "";
   private Option<MilliSatoshi> lightningAmount = Option.apply(null);
 
@@ -77,10 +79,11 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
 
   @Override
   public View onCreateView(final LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState) {
+    final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
     mPRParamsDialog = new PaymentRequestParametersDialog(ReceivePaymentFragment.this.getContext(), ReceivePaymentFragment.this, R.style.CustomAlertDialog);
     mBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_receive_payment, container, false);
     mBinding.setPaymentType(0);
-    mBinding.setLightningShowAdvanced(false);
+    mBinding.setIsLightningInboundEnabled(prefs.getBoolean(Constants.SETTING_ENABLE_LIGHTNING_INBOUND_PAYMENTS, false));
     mBinding.pickOnchainButton.setOnClickListener(v -> mBinding.setPaymentType(0));
     mBinding.pickLightningButton.setOnClickListener(v -> {
       if (!isGeneratingPaymentRequest) setPaymentRequest();
@@ -97,6 +100,11 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
     super.onResume();
     if (!EventBus.getDefault().isRegistered(this)) {
       EventBus.getDefault().register(this);
+    }
+    final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+    mBinding.setIsLightningInboundEnabled(prefs.getBoolean(Constants.SETTING_ENABLE_LIGHTNING_INBOUND_PAYMENTS, false));
+    if (mBinding.getIsLightningInboundEnabled() && mBinding.getPaymentType() == 1 && !isGeneratingPaymentRequest && lightningPaymentRequest == null) {
+      setPaymentRequest();
     }
     setOnchainAddress();
   }
@@ -116,12 +124,15 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
   }
 
   private void setPaymentRequest() {
-    loadingPaymentRequestFields();
-    try {
-      new LightningPaymentRequestTask(this, (EclairActivity) this.getActivity()).execute(this.lightningDescription, this.lightningAmount);
-    } catch (Exception e) {
-      failPaymentRequestFields();
-      Log.e(TAG, "could not generate payment request", e);
+    final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+    if (prefs.getBoolean(Constants.SETTING_ENABLE_LIGHTNING_INBOUND_PAYMENTS, false)) {
+      loadingPaymentRequestFields();
+      try {
+        new LightningPaymentRequestTask(this, (EclairActivity) this.getActivity()).execute(this.lightningDescription, this.lightningAmount);
+      } catch (Exception e) {
+        failPaymentRequestFields();
+        Log.e(TAG, "could not generate payment request", e);
+      }
     }
   }
 
@@ -183,6 +194,7 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
       newPayment.setUpdated(new Date());
       if (getApp() != null) getApp().getDBHelper().insertOrUpdatePayment(newPayment);
 
+      this.lightningPaymentRequest = paymentRequestStr;
       this.lightningDescription = description;
       this.lightningAmount = paymentRequest.amount();
       updateLightningDescriptionView();
@@ -203,6 +215,7 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
 
   private void failPaymentRequestFields() {
     mBinding.lightningPr.setText(R.string.receivepayment_lightning_error);
+    this.lightningPaymentRequest = null;
     this.lightningDescription = "";
     this.lightningAmount = Option.apply(null);
     updateLightningDescriptionView();

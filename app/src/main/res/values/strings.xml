@@ -405,6 +405,8 @@
   <string name="prefs_pin_default_info">Uses the PIN encrypting your wallet</string>
   <string name="prefs_lightning_max_fee">Cap Lightning fees</string>
   <string name="prefs_lightning_max_fee_desc">Abort lightning payments if the fees would exceed 3% of the amount to pay. This prevents overpaying opportunistic nodes in the middle of the route.\n\nDoes not affect on-chain payments.</string>
+  <string name="prefs_lightning_enable_inbound">Enable Inbound Lightning Payments</string>
+  <string name="prefs_lightning_enable_inbound_desc">This is a placeholder text warning the user that by enabling Eclair Wallet to receive payments over Lightning, he must regularly start the app so that it can watch the blockchain.</string>
   <string name="prefs_onchain_explorer">Preferred onchain explorer</string>
   <string name="prefs_onchain_explorer_dialog">Explore onchain tx with</string>
   <string name="prefs_security_title">Security Settings</string>
@@ -461,11 +463,12 @@
   <string name="rawdata_copy_success">Copied data to clipboard</string>
   <string name="rawdata_copy_error">Could not copy data</string>
 
-  <!-- //////////////// Channel Data //////////////////// -->
+  <!-- //////////////// Receive Payment //////////////////// -->
 
   <string name="receivepayment_onchain_title">On-chain</string>
   <string name="receivepayment_lightning_title">Lightning</string>
   <string name="receivepayment_onchain_address_title">Your Bitcoin address</string>
+  <string name="receivepayment_lightning_inbound_disabled">You must enable Lightning payment reception in the app settings.\n\nNote that, to safely use this feature, you should run the app once a week.</string>
   <string name="receivepayment_lightning_pr_title">Payment Request</string>
   <string name="receivepayment_lightning_description_title">Payment description (optional)</string>
   <string name="receivepayment_lightning_description_notset">No description given</string>

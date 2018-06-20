@@ -53,6 +53,7 @@ public interface Constants {
 
   // lightning
   String SETTING_CAP_LIGHTNING_FEES = "cap_lightning_fees";
+  String SETTING_ENABLE_LIGHTNING_INBOUND_PAYMENTS = "enable_lightning_inbound_payments";
 
   /* ----------- SETTINGS - PIN CODE ------------ */
 

@@ -73,5 +73,11 @@
       android:summary="@string/prefs_lightning_max_fee_desc"
       android:title="@string/prefs_lightning_max_fee" />
 
+    <SwitchPreference
+      android:defaultValue="false"
+      android:key="enable_lightning_inbound_payments"
+      android:summary="@string/prefs_lightning_enable_inbound_desc"
+      android:title="@string/prefs_lightning_enable_inbound" />
+
   </PreferenceCategory>
 </PreferenceScreen>
