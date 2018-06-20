@@ -162,21 +162,19 @@
           android:id="@+id/nodeid"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
+          app:has_border="true"
           app:desc="@string/channeldetails_nodeid_desc"
           app:label="@string/channeldetails_nodeid_label"
           app:value="@string/unknown" />
-
-        <include layout="@layout/include_separator" />
 
         <fr.acinq.eclair.wallet.customviews.DataRow
           android:id="@+id/capacity"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
+          app:has_border="true"
           app:desc="@string/channeldetails_capacity_desc"
           app:label="@string/channeldetails_capacity_label"
           app:value="@string/unknown" />
-
-        <include layout="@layout/include_separator" />
 
         <fr.acinq.eclair.wallet.customviews.TitleBar
           android:layout_width="match_parent"
@@ -187,53 +185,48 @@
           android:id="@+id/channel_id"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
+          app:has_border="true"
           app:action_label="@string/channeldetails_raw_data"
           app:desc="@string/channeldetails_id_desc"
           app:has_action="true"
           app:label="@string/channeldetails_id_label"
           app:value="@string/unknown" />
 
-        <include layout="@layout/include_separator" />
-
         <fr.acinq.eclair.wallet.customviews.DataRow
           android:id="@+id/to_self_delay"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
+          app:has_border="true"
           app:desc="@string/channeldetails_to_self_delay_desc"
           app:label="@string/channeldetails_to_self_delay_label"
           app:value="@string/unknown" />
-
-        <include layout="@layout/include_separator" />
 
         <fr.acinq.eclair.wallet.customviews.DataRow
           android:id="@+id/reserve"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
+          app:has_border="true"
           app:desc="@string/channeldetails_reserve_desc"
           app:label="@string/channeldetails_reserve_label"
           app:value="@string/unknown" />
-
-        <include layout="@layout/include_separator" />
 
         <fr.acinq.eclair.wallet.customviews.DataRow
           android:id="@+id/count_htlcs_inflight"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
+          app:has_border="true"
           app:desc="@string/channeldetails_htlcs_count_desc"
           app:label="@string/channeldetails_htlcs_count_label"
           app:value="@string/unknown" />
-
-        <include layout="@layout/include_separator" />
 
         <fr.acinq.eclair.wallet.customviews.DataRow
           android:id="@+id/minimum_htlc_amount"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
+          app:has_border="true"
           app:desc="@string/channeldetails_min_htlc_amount_desc"
           app:label="@string/channeldetails_min_htlc_amount_label"
           app:value="@string/unknown" />
-
-        <include layout="@layout/include_separator" />
 
         <fr.acinq.eclair.wallet.customviews.DataRow
           android:id="@+id/transaction_id"

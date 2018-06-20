@@ -60,12 +60,11 @@
           android:layout_height="wrap_content"
           app:action_text_color="@color/white"
           app:action_bg="@color/red_faded"
+          app:has_border="true"
           app:action_label="@string/tools_networkdb_action"
           app:desc="@string/tools_networkdb_desc"
           app:has_action="true"
           app:label="@string/tools_networkdb_label" />
-
-        <include layout="@layout/include_separator" />
 
       </LinearLayout>
     </android.support.v4.widget.NestedScrollView>

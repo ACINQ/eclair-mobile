@@ -29,12 +29,12 @@ import java.text.DateFormat;
 
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.eclair.CoinUnit;
+import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.adapters.PaymentItemHolder;
-import fr.acinq.eclair.wallet.customviews.DataRow;
 import fr.acinq.eclair.wallet.databinding.ActivityLnPaymentDetailsBinding;
 import fr.acinq.eclair.wallet.models.Payment;
-import fr.acinq.eclair.CoinUtils;
+import fr.acinq.eclair.wallet.models.PaymentDirection;
 import fr.acinq.eclair.wallet.models.PaymentStatus;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 
@@ -62,6 +62,8 @@ public class LNPaymentDetailsActivity extends EclairActivity {
     long paymentId = intent.getLongExtra(PaymentItemHolder.EXTRA_PAYMENT_ID, -1);
     try {
       final Payment p = app.getDBHelper().getPayment(paymentId);
+      final boolean isPaymentReceived = PaymentDirection.RECEIVED.equals(p.getDirection());
+      mBinding.setIsReceived(isPaymentReceived);
 
       final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
       final CoinUnit prefUnit = WalletUtils.getPreferredCoinUnit(prefs);
@@ -84,6 +86,12 @@ public class LNPaymentDetailsActivity extends EclairActivity {
       } else {
         mBinding.amountRequested.setValue(CoinUtils.formatAmountInUnit(new MilliSatoshi(p.getAmountRequestedMsat()), prefUnit, true));
       }
+      if (isPaymentReceived) {
+        mBinding.amountRequested.setDescription(getString(R.string.paymentdetails_amount_requested_inbound_desc));
+      } else {
+        mBinding.amountRequested.setDescription(getString(R.string.paymentdetails_amount_requested_desc));
+      }
+
       mBinding.amountSent.setValue(CoinUtils.formatAmountInUnit(new MilliSatoshi(p.getAmountSentMsat()), prefUnit, true));
       mBinding.paymenthash.setValue(p.getReference());
       mBinding.preimage.setValue(p.getPreimage());

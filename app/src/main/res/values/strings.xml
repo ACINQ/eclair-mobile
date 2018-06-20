@@ -275,6 +275,7 @@
 
   <string name="paymentdetails_technicals_title">TECHNICAL INFORMATION</string>
   <string name="paymentdetails_amount_paid_label">Amount paid (incl. fees)</string>
+  <string name="paymentdetails_amount_received_label">Amount received</string>
   <string name="paymentdetails_fees_label">Routing fees</string>
   <string name="paymentdetails_recipient_label">Paid to</string>
   <string name="paymentdetails_recipient_desc">Id of the node receiving the payment.</string>
@@ -283,6 +284,7 @@
   <string name="paymentdetails_desc_desc">Description of the payment</string>
   <string name="paymentdetails_amount_requested_label">Amount requested</string>
   <string name="paymentdetails_amount_requested_desc">Requested by the payee</string>
+  <string name="paymentdetails_amount_requested_inbound_desc">Set when you generated the payment request</string>
   <string name="paymentdetails_amount_requested_donation">Not set</string>
   <string name="paymentdetails_amount_sent_label">Amount sent</string>
   <string name="paymentdetails_amount_sent_desc">Amount that you really sent (without fees)</string>

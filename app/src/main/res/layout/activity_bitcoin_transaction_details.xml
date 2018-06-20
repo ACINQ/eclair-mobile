@@ -39,57 +39,49 @@
         android:id="@+id/transactiondetails_amount"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        app:has_border="true"
         app:desc="@string/transactiondetails_amount_desc"
         app:label="@string/transactiondetails_amount_label"
         app:value="@string/unknown" />
-
-      <include layout="@layout/include_separator" />
 
       <fr.acinq.eclair.wallet.customviews.DataRow
         android:id="@+id/transactiondetails_fees"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        app:has_border="true"
         app:desc="@string/transactiondetails_fees_desc"
         app:label="@string/transactiondetails_fees_label"
         app:value="@string/unknown" />
-
-      <include layout="@layout/include_separator" />
 
       <fr.acinq.eclair.wallet.customviews.DataRow
         android:id="@+id/transactiondetails_txid"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        app:has_border="true"
         app:desc="@string/transactiondetails_txid_desc"
         app:label="@string/transactiondetails_txid_label"
         app:value="@string/unknown" />
-
-      <include layout="@layout/include_separator" />
 
       <fr.acinq.eclair.wallet.customviews.DataRow
         android:id="@+id/transactiondetails_confs"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:desc=""
+        app:has_border="true"
         app:label="@string/transactiondetails_confs_label"
         app:value="@string/unknown" />
-
-      <include layout="@layout/include_separator" />
 
       <fr.acinq.eclair.wallet.customviews.DataRow
         android:id="@+id/transactiondetails_confs_type"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:desc=""
+        app:has_border="true"
         app:label="@string/transactiondetails_confs_type_label"
         app:value="@string/unknown" />
-
-      <include layout="@layout/include_separator" />
 
       <fr.acinq.eclair.wallet.customviews.DataRow
         android:id="@+id/transactiondetails_date"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:desc=""
         app:label="@string/transactiondetails_date_label"
         app:value="@string/unknown" />
 

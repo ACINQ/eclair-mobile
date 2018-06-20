@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright 2018 ACINQ SAS
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,6 +18,16 @@
   xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools">
 
+  <data>
+
+    <import type="android.view.View" />
+
+    <variable
+      name="isReceived"
+      type="java.lang.Boolean" />
+
+  </data>
+
   <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -28,7 +37,7 @@
     <!-- Custom toolbar -->
     <include layout="@layout/toolbar" />
 
-    <android.support.v4.widget.NestedScrollView
+    <ScrollView
       android:layout_width="match_parent"
       android:layout_height="wrap_content">
 
@@ -46,7 +55,7 @@
           <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/paymentdetails_amount_paid_label"
+            android:text="@{isReceived ? @string/paymentdetails_amount_received_label : @string/paymentdetails_amount_paid_label}"
             android:textAllCaps="true"
             android:textColor="@color/grey_1"
             android:textSize="10sp" />
@@ -67,7 +76,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/space_md"
             android:baselineAligned="false"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:visibility="@{isReceived ? View.GONE : View.VISIBLE}">
 
             <LinearLayout
               android:layout_width="0dp"
@@ -92,8 +102,8 @@
             <LinearLayout
               android:layout_width="0dp"
               android:layout_height="wrap_content"
-              android:layout_weight="0.5"
               android:layout_marginStart="@dimen/space_md"
+              android:layout_weight="0.5"
               android:orientation="vertical">
 
               <TextView
@@ -118,11 +128,11 @@
           android:id="@+id/recipient"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
+          android:visibility="@{isReceived ? View.GONE : View.VISIBLE}"
           app:desc="@string/paymentdetails_recipient_desc"
+          app:has_border="true"
           app:label="@string/paymentdetails_recipient_label"
           app:value="@string/unknown" />
-
-        <include layout="@layout/include_separator" />
 
         <fr.acinq.eclair.wallet.customviews.DataRow
           android:id="@+id/desc"
@@ -141,61 +151,56 @@
           android:id="@+id/amount_requested"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          app:desc="@string/paymentdetails_amount_requested_desc"
+          app:has_border="true"
           app:label="@string/paymentdetails_amount_requested_label"
           app:value="@string/unknown" />
-
-        <include layout="@layout/include_separator" />
 
         <fr.acinq.eclair.wallet.customviews.DataRow
           android:id="@+id/amount_sent"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
+          android:visibility="@{isReceived ? View.GONE : View.VISIBLE}"
           app:desc="@string/paymentdetails_amount_sent_desc"
+          app:has_border="true"
           app:label="@string/paymentdetails_amount_sent_label"
           app:value="@string/unknown" />
-
-        <include layout="@layout/include_separator" />
 
         <fr.acinq.eclair.wallet.customviews.DataRow
           android:id="@+id/paymenthash"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           app:desc="@string/paymentdetails_paymenthash_desc"
+          app:has_border="true"
           app:label="@string/paymentdetails_paymenthash_label"
           app:value="@string/unknown" />
-
-        <include layout="@layout/include_separator" />
 
         <fr.acinq.eclair.wallet.customviews.DataRow
           android:id="@+id/preimage"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
+          android:visibility="@{isReceived ? View.GONE : View.VISIBLE}"
           app:desc="@string/paymentdetails_preimage_desc"
+          app:has_border="true"
           app:label="@string/paymentdetails_preimage_label"
           app:value="@string/unknown" />
-
-        <include layout="@layout/include_separator" />
 
         <fr.acinq.eclair.wallet.customviews.DataRow
           android:id="@+id/paymentrequest"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           app:desc="@string/paymentdetails_paymentrequest_desc"
+          app:has_border="true"
           app:label="@string/paymentdetails_paymentrequest_label"
           app:value="@string/unknown" />
-
-        <include layout="@layout/include_separator" />
 
         <fr.acinq.eclair.wallet.customviews.DataRow
           android:id="@+id/created"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           app:desc="@string/paymentdetails_created_desc"
+          app:has_border="true"
           app:label="@string/paymentdetails_created_label"
           app:value="@string/unknown" />
-
-        <include layout="@layout/include_separator" />
 
         <fr.acinq.eclair.wallet.customviews.DataRow
           android:id="@+id/updated"
@@ -205,7 +210,6 @@
           app:label="@string/paymentdetails_updated_label"
           app:value="@string/unknown" />
       </LinearLayout>
-    </android.support.v4.widget.NestedScrollView>
-
+    </ScrollView>
   </LinearLayout>
 </layout>
