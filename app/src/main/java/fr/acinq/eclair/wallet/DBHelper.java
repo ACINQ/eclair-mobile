@@ -123,6 +123,13 @@ public class DBHelper {
     insertOrUpdatePayment(p);
   }
 
+  void updatePaymentReceived(final Payment p, final long amountReceivedMsat) {
+    p.setAmountPaidMsat(amountReceivedMsat);
+    p.setStatus(PaymentStatus.PAID);
+    p.setUpdated(new Date());
+    insertOrUpdatePayment(p);
+  }
+
   void updatePaymentFailed(final Payment p) {
     Log.i(TAG, "update payment to failed with status=" + p.getStatus());
     if (p.getStatus() != PaymentStatus.PAID) {

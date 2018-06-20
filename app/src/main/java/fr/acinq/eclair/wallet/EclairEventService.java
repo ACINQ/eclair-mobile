@@ -47,6 +47,7 @@ import fr.acinq.eclair.channel.RemoteCommit;
 import fr.acinq.eclair.channel.WAIT_FOR_INIT_INTERNAL$;
 import fr.acinq.eclair.channel.WaitingForRevocation;
 import fr.acinq.eclair.payment.PaymentLifecycle;
+import fr.acinq.eclair.payment.PaymentReceived;
 import fr.acinq.eclair.router.NORMAL$;
 import fr.acinq.eclair.transactions.DirectedHtlc;
 import fr.acinq.eclair.transactions.OUT$;
@@ -150,30 +151,32 @@ public class EclairEventService extends UntypedActor {
         RemoteCommit commit = nextCommitInfo.left().get().nextRemoteCommit();
         Iterator<DirectedHtlc> htlcsIterator = commit.spec().htlcs().iterator();
         while (htlcsIterator.hasNext()) {
-          DirectedHtlc h = htlcsIterator.next();
-          String htlcPaymentHash = h.add().paymentHash().toString();
-          Payment p = dbHelper.getPayment(htlcPaymentHash, PaymentType.BTC_LN);
-          if (p != null) {
-            // regular case: we know this payment hash
-            if (p.getStatus() == PaymentStatus.INIT) {
-              dbHelper.updatePaymentPending(p);
+          final DirectedHtlc h = htlcsIterator.next();
+          if (h.direction() instanceof OUT$) {
+            final String htlcPaymentHash = h.add().paymentHash().toString();
+            Payment p = dbHelper.getPayment(htlcPaymentHash, PaymentType.BTC_LN);
+            if (p != null) {
+              // regular case: we know this payment hash
+              if (p.getStatus() == PaymentStatus.INIT) {
+                dbHelper.updatePaymentPending(p);
+                EventBus.getDefault().post(new PaymentEvent());
+              }
+            } else {
+              // rare case: an htlc is sent without the app knowing its payment hash
+              // this can happen if the app could not save the payment into its own payments DB
+              // we don't know much about this htlc, except that it was sent and will affects the channel's balance
+              p = new Payment();
+              p.setType(PaymentType.BTC_LN);
+              p.setDirection(PaymentDirection.SENT);
+              p.setReference(htlcPaymentHash);
+              p.setAmountPaidMsat(h.add().amountMsat());
+              p.setRecipient("unknown recipient");
+              p.setPaymentRequest("unknown invoice");
+              p.setStatus(PaymentStatus.PENDING);
+              p.setUpdated(new Date());
+              dbHelper.insertOrUpdatePayment(p);
               EventBus.getDefault().post(new PaymentEvent());
             }
-          } else {
-            // rare case: an htlc is sent without the app knowing its payment hash
-            // this can happen if the app could not save the payment into its own payments DB
-            // we don't know much about this htlc, except that it was sent and will affects the channel's balance
-            p = new Payment();
-            p.setType(PaymentType.BTC_LN);
-            p.setDirection(PaymentDirection.SENT);
-            p.setReference(htlcPaymentHash);
-            p.setAmountPaidMsat(h.add().amountMsat());
-            p.setRecipient("unknown recipient");
-            p.setPaymentRequest("unknown invoice");
-            p.setStatus(PaymentStatus.PENDING);
-            p.setUpdated(new Date());
-            dbHelper.insertOrUpdatePayment(p);
-            EventBus.getDefault().post(new PaymentEvent());
           }
         }
       }
@@ -266,6 +269,27 @@ public class EclairEventService extends UntypedActor {
         EventBus.getDefault().post(new PaymentEvent());
       } else {
         Log.d(TAG, "received and ignored an unknown PaymentFailed event with hash=" + event.paymentHash().toString());
+      }
+    }
+    else if (message instanceof fr.acinq.eclair.payment.PaymentReceived) {
+      final PaymentReceived pr = (PaymentReceived) message;
+      final Payment paymentInDB = dbHelper.getPayment(pr.paymentHash().toString(), PaymentType.BTC_LN);
+      if (paymentInDB != null) {
+        dbHelper.updatePaymentReceived(paymentInDB, pr.amount().amount());
+        EventBus.getDefault().post(new PaymentEvent());
+      } else {
+        Log.i(TAG, "received an unknown payment with hash=" + pr.paymentHash().toString());
+        final Payment p = new Payment();
+        p.setType(PaymentType.BTC_LN);
+        p.setDirection(PaymentDirection.RECEIVED);
+        p.setReference(pr.paymentHash().toString());
+        p.setAmountPaidMsat(pr.amount().amount());
+        p.setRecipient("unknown recipient");
+        p.setPaymentRequest("unknown invoice");
+        p.setStatus(PaymentStatus.PAID);
+        p.setUpdated(new Date());
+        dbHelper.insertOrUpdatePayment(p);
+        EventBus.getDefault().post(new PaymentEvent());
       }
     }
     else if (message instanceof PaymentLifecycle.PaymentSucceeded) {

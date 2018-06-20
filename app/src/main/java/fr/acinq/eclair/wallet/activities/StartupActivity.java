@@ -53,6 +53,7 @@ import fr.acinq.eclair.Kit;
 import fr.acinq.eclair.Setup;
 import fr.acinq.eclair.blockchain.electrum.ElectrumEclairWallet;
 import fr.acinq.eclair.channel.ChannelEvent;
+import fr.acinq.eclair.payment.PaymentEvent;
 import fr.acinq.eclair.payment.PaymentLifecycle;
 import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.BuildConfig;
@@ -403,6 +404,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
         ActorRef guiUpdater = app.system.actorOf(Props.create(EclairEventService.class, app.getDBHelper()));
         setup.system().eventStream().subscribe(guiUpdater, ChannelEvent.class);
         setup.system().eventStream().subscribe(guiUpdater, PaymentLifecycle.PaymentResult.class);
+        setup.system().eventStream().subscribe(guiUpdater, PaymentEvent.class);
         app.system.actorOf(Props.create(PaymentSupervisor.class, app.getDBHelper()), "payments");
 
         publishProgress("starting core");

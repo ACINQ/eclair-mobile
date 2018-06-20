@@ -39,6 +39,8 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.util.Date;
+
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.blockchain.electrum.ElectrumWallet;
@@ -47,6 +49,10 @@ import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.activities.EclairActivity;
 import fr.acinq.eclair.wallet.databinding.FragmentReceivePaymentBinding;
+import fr.acinq.eclair.wallet.models.Payment;
+import fr.acinq.eclair.wallet.models.PaymentDirection;
+import fr.acinq.eclair.wallet.models.PaymentStatus;
+import fr.acinq.eclair.wallet.models.PaymentType;
 import fr.acinq.eclair.wallet.tasks.LightningPaymentRequestTask;
 import fr.acinq.eclair.wallet.tasks.LightningQRCodeTask;
 import fr.acinq.eclair.wallet.tasks.QRCodeTask;
@@ -161,12 +167,27 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
     if (paymentRequest == null) {
       failPaymentRequestFields();
     } else {
-      Log.i(TAG, "successfully generated payment_request=" + paymentRequest);
       final String paymentRequestStr = PaymentRequest.write(paymentRequest);
-      this.lightningDescription = paymentRequest.description().isLeft() ? paymentRequest.description().left().get() : paymentRequest.description().right().get().toString();
+      final String description = paymentRequest.description().isLeft() ? paymentRequest.description().left().get() : paymentRequest.description().right().get().toString();
+      Log.i(TAG, "successfully generated payment_request=" + paymentRequestStr);
+
+      final Payment newPayment = new Payment();
+      newPayment.setType(PaymentType.BTC_LN);
+      newPayment.setDirection(PaymentDirection.RECEIVED);
+      newPayment.setReference(paymentRequest.paymentHash().toString());
+      newPayment.setAmountRequestedMsat(WalletUtils.getLongAmountFromInvoice(paymentRequest));
+      newPayment.setRecipient(paymentRequest.nodeId().toString());
+      newPayment.setPaymentRequest(paymentRequestStr.toLowerCase());
+      newPayment.setStatus(PaymentStatus.INIT);
+      newPayment.setDescription(description);
+      newPayment.setUpdated(new Date());
+      if (getApp() != null) getApp().getDBHelper().insertOrUpdatePayment(newPayment);
+
+      this.lightningDescription = description;
       this.lightningAmount = paymentRequest.amount();
       updateLightningDescriptionView();
       updateLightningAmountView();
+
       mBinding.lightningPr.setText(paymentRequestStr);
       mBinding.lightningPr.setOnClickListener(v -> copyReceptionAddress(paymentRequestStr));
       mBinding.lightningQr.setOnClickListener(v -> copyReceptionAddress(paymentRequestStr));
