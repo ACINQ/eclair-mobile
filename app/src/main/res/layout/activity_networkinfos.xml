@@ -48,31 +48,28 @@
           android:id="@+id/networkinfos_blockcount"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
+          app:has_border="true"
           app:desc="@string/networkinfos_blockcount_desc"
           app:label="@string/networkinfos_blockcount_label"
           app:value="@string/unknown" />
-
-        <include layout="@layout/include_separator" />
 
         <fr.acinq.eclair.wallet.customviews.DataRow
           android:id="@+id/networkinfos_block_timestamp"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
+          app:has_border="true"
           app:desc="@string/networkinfos_block_timestamp_desc"
           app:label="@string/networkinfos_block_timestamp_label"
           app:value="@string/unknown" />
-
-        <include layout="@layout/include_separator" />
 
         <fr.acinq.eclair.wallet.customviews.DataRow
           android:id="@+id/networkinfos_electrum_address"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
+          app:has_border="true"
           app:desc="@string/networkinfos_electrum_address_desc"
           app:label="@string/networkinfos_electrum_address_label"
           app:value="@string/unknown" />
-
-        <include layout="@layout/include_separator" />
 
         <fr.acinq.eclair.wallet.customviews.DataRow
           android:id="@+id/networkinfos_feerate"
@@ -91,25 +88,21 @@
           android:id="@+id/networkinfos_nodeid"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
+          app:has_border="true"
           app:desc="@string/networkinfos_nodeid_desc"
           app:label="@string/networkinfos_nodeid_label"
           app:value="@string/unknown" />
-
-        <include layout="@layout/include_separator" />
 
         <fr.acinq.eclair.wallet.customviews.DataRow
           android:id="@+id/networkinfos_networkchannels_count"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
+          app:has_border="true"
           app:desc="@string/networkinfos_networkchannels_desc"
           app:label="@string/networkinfos_networkchannels_label"
           app:value="@string/unknown" />
 
-        <include layout="@layout/include_separator" />
-
       </LinearLayout>
-
     </ScrollView>
   </android.support.v4.widget.SwipeRefreshLayout>
-
 </LinearLayout>

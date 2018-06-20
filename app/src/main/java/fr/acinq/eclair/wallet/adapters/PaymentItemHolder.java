@@ -93,7 +93,7 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
     // amount should be the amount paid, fallback to requested (useful for LN)
     final long amountMsat = payment.getAmountPaidMsat() == 0 ? payment.getAmountSentMsat() : payment.getAmountPaidMsat();
     // Adding a "-" prefix to the amount if this is an outgoing payment
-    final String amountPrefix = PaymentDirection.SENT.equals(payment.getDirection()) ? "-" : "";
+    final String amountPrefix = PaymentDirection.SENT.equals(payment.getDirection()) ? "-" : "+";
 
     // setting amount & unit with optional conversion to fiat
     if (displayAmountAsFiat) {
