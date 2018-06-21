@@ -43,6 +43,7 @@ public class LocalChannelItemHolder extends RecyclerView.ViewHolder implements V
   private final TextView node;
   private final TextView state;
   private final TextView delayedClosing;
+  private final TextView inflightHtlcs;
   private final View additionalInfo;
   private EclairEventService.ChannelDetails channelItem;
 
@@ -53,6 +54,7 @@ public class LocalChannelItemHolder extends RecyclerView.ViewHolder implements V
     this.node = itemView.findViewById(R.id.channelitem_node);
     this.balanceUnit = itemView.findViewById(R.id.channelitem_balance_unit);
     this.delayedClosing = itemView.findViewById(R.id.delayed_closing);
+    this.inflightHtlcs = itemView.findViewById(R.id.inflight_htlcs);
     this.additionalInfo = itemView.findViewById(R.id.additional_info);
     itemView.setOnClickListener(this);
   }
@@ -84,7 +86,19 @@ public class LocalChannelItemHolder extends RecyclerView.ViewHolder implements V
       // TODO: get the exact block at which the closing tx will be broadcast
       delayedClosing.setText(itemView.getResources().getString(R.string.channelitem_delayed_closing_unknown, channelItem.toSelfDelayBlocks));
       delayedClosing.setVisibility(View.VISIBLE);
+    }
+
+    if (channelItem.htlcsInFlightCount > 0) {
+      inflightHtlcs.setText(itemView.getResources().getString(R.string.channelitem_inflight_htlcs, channelItem.htlcsInFlightCount));
+      inflightHtlcs.setVisibility(View.VISIBLE);
+    } else {
+      inflightHtlcs.setVisibility(View.GONE);
+    }
+
+    if (channelItem.htlcsInFlightCount > 0 || CLOSING$.MODULE$.toString().equals(channelItem.state) && channelItem.isLocalClosing) {
       additionalInfo.setVisibility(View.VISIBLE);
+    } else {
+      additionalInfo.setVisibility(View.GONE);
     }
 
     // setting amount & unit with optional conversion to fiat

@@ -105,6 +105,16 @@
       android:textColor="@color/grey_2"
       android:textSize="10sp"
       android:visibility="gone" />
+
+    <TextView
+      android:id="@+id/inflight_htlcs"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginBottom="10dp"
+      android:layout_marginEnd="8dp"
+      android:textColor="@color/grey_2"
+      android:textSize="10sp"
+      android:visibility="gone" />
   </LinearLayout>
 
   <View
