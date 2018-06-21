@@ -96,4 +96,18 @@
     <item name="android:divider">@drawable/prefs_divider</item>
   </style>
 
+  <style name="PinButtonStyle" parent="@style/Widget.AppCompat.Button.Borderless.Colored">
+    <item name="android:fontFamily">sans-serif-light</item>
+    <item name="android:layout_width">@dimen/pin_button_size</item>
+    <item name="android:layout_height">@dimen/pin_button_size</item>
+    <item name="android:gravity">center</item>
+    <item name="android:layout_margin">1dp</item>
+    <item name="android:background">@drawable/rounded_corner_white</item>
+    <item name="android:alpha">0.7</item>
+    <item name="android:foreground">?android:attr/selectableItemBackground</item>
+    <item name="android:hapticFeedbackEnabled">true</item>
+    <item name="android:textColor">@color/grey_4</item>
+    <item name="android:textSize">20sp</item>
+  </style>
+
 </resources>

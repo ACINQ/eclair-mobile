@@ -32,4 +32,6 @@
 
   <dimen name="payment_title_width">45dp</dimen>
 
+  <dimen name="pin_button_size">70dp</dimen>
+
 </resources>
