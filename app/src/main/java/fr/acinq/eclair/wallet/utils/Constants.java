@@ -25,7 +25,7 @@ public interface Constants {
    * time diff in sec beyond which a timestamp in a block header can safely be considered as late
    */
   long DESYNC_DIFF_TIMESTAMP_SEC = 6 * 60 * 60L;
-  long ONE_DAY_MS = 1000L * 60 * 60; // * 24
+  long ONE_DAY_MS = 1000L * 60 * 60 * 24;
 
   /* ----------- FILES NAMES ------------ */
   String ECLAIR_DATADIR = "eclair-wallet-data";
