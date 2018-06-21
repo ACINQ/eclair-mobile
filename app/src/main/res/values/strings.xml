@@ -368,6 +368,11 @@
   <string name="paymentitem_confidence_suffix">confs</string>
   <string name="paymentitem_fee_prefix">fee:</string>
 
+  <!-- //////////////// Local Channel Item //////////////////// -->
+
+  <string name="channelitem_delayed_closing">Your funds will be available in %1$d block(s).</string>
+  <string name="channelitem_delayed_closing_unknown">Your funds will be available after a %1$d blocks delay.</string>
+
   <!-- //////////////// General //////////////////// -->
 
   <string name="btc_fee_unit">sat/byte</string>
