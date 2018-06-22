@@ -38,6 +38,7 @@ import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.eclair.CoinUnit;
 import fr.acinq.eclair.CoinUtils;
+import fr.acinq.eclair.Features;
 import fr.acinq.eclair.channel.CLOSING$;
 import fr.acinq.eclair.channel.NEGOTIATING$;
 import fr.acinq.eclair.channel.OFFLINE$;
@@ -55,6 +56,7 @@ import fr.acinq.eclair.router.NORMAL$;
 import fr.acinq.eclair.wallet.EclairEventService;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.adapters.LocalChannelItemHolder;
+import fr.acinq.eclair.wallet.customviews.DataRow;
 import fr.acinq.eclair.wallet.databinding.ActivityChannelDetailsBinding;
 import fr.acinq.eclair.wallet.fragments.CloseChannelDialog;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
@@ -152,16 +154,31 @@ public class ChannelDetailsActivity extends EclairActivity {
         mBinding.capacity.setValue(CoinUtils.formatAmountInUnit(channel.getValue().capacityMsat, prefUnit, true));
         mBinding.channelId.setValue(channel.getValue().channelId);
         mBinding.channelId.actionButton.setOnClickListener(v -> openRawDataWindow());
+        mBinding.shortChannelId.setValue(channel.getValue().shortChannelId);
+        displayFeatureSupport(mBinding.advancedRoutingSync, Features.hasFeature(channel.getValue().localFeatures, Features.INITIAL_ROUTING_SYNC_BIT_OPTIONAL()));
+        displayFeatureSupport(mBinding.dataLossProtection, Features.hasFeature(channel.getValue().localFeatures, Features.OPTION_DATA_LOSS_PROTECT_OPTIONAL())
+          || Features.hasFeature(channel.getValue().localFeatures, Features.OPTION_DATA_LOSS_PROTECT_MANDATORY()));
         mBinding.toSelfDelay.setValue(String.valueOf(channel.getValue().toSelfDelayBlocks));
         mBinding.reserve.setValue(CoinUtils.formatAmountInUnit(new Satoshi(channel.getValue().channelReserveSat), prefUnit, true));
         mBinding.countHtlcsInflight.setValue(String.valueOf(channel.getValue().htlcsInFlightCount));
         mBinding.minimumHtlcAmount.setValue(CoinUtils.formatAmountInUnit(new MilliSatoshi(channel.getValue().minimumHtlcAmountMsat), prefUnit, true));
-        mBinding.transactionId.setValue(channel.getValue().transactionId);
-        mBinding.transactionId.actionButton.setOnClickListener(WalletUtils.getOpenTxListener(channel.getValue().transactionId));
+        mBinding.transactionId.setValue(channel.getValue().fundingTxId);
+        mBinding.transactionId.actionButton.setOnClickListener(WalletUtils.getOpenTxListener(channel.getValue().fundingTxId));
       }
     } catch (Exception e) {
       Log.w(TAG, "could not read channel details with cause=" + e.getMessage());
     }
+  }
+
+  private void displayFeatureSupport(final DataRow view, final boolean isSupported) {
+    if (isSupported) {
+      view.setValue(getString(R.string.channeldetails_feature_supported));
+      view.getValueView().setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_circle_check, 0, 0, 0);
+    } else {
+      view.setValue(getString(R.string.channeldetails_feature_not_supported));
+      view.getValueView().setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_circle_cross, 0, 0, 0);
+    }
+    view.getValueView().setCompoundDrawablePadding(12);
   }
 
   private void openRawDataWindow() {

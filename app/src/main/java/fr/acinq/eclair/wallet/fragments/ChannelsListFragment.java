@@ -36,12 +36,10 @@ import fr.acinq.eclair.CoinUnit;
 import fr.acinq.eclair.wallet.EclairEventService;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.adapters.LocalChannelItemAdapter;
-import fr.acinq.eclair.wallet.models.ChannelItem;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 
 public class ChannelsListFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
-  private View mView;
   private LocalChannelItemAdapter mChannelAdapter;
   private SwipeRefreshLayout mRefreshLayout;
   private TextView mEmptyLabel;
@@ -68,7 +66,7 @@ public class ChannelsListFragment extends Fragment implements SwipeRefreshLayout
   @Override
   public View onCreateView(LayoutInflater inflater, ViewGroup container,
                            Bundle savedInstanceState) {
-    mView = inflater.inflate(R.layout.fragment_channelslist, container, false);
+    final View mView = inflater.inflate(R.layout.fragment_channelslist, container, false);
     mRefreshLayout = mView.findViewById(R.id.localchannels_swiperefresh);
     mRefreshLayout.setColorSchemeResources(R.color.primary, R.color.green, R.color.accent);
     mRefreshLayout.setOnRefreshListener(this);
@@ -82,36 +80,17 @@ public class ChannelsListFragment extends Fragment implements SwipeRefreshLayout
     return mView;
   }
 
-  private List<ChannelItem> getChannels() {
-    List<ChannelItem> items = new ArrayList<>();
-    for (EclairEventService.ChannelDetails d : EclairEventService.getChannelsMap().values()) {
-      ChannelItem item = new ChannelItem(d.channelId, d.capacityMsat, d.remoteNodeId);
-      if (d.state == null) {
-        item.state = "UNKNOWN";
-      } else {
-        item.state = d.state;
-        item.isCooperativeClosing = d.isCooperativeClosing;
-      }
-      item.balanceMsat = d.balanceMsat;
-      items.add(item);
-    }
-    if (mEmptyLabel != null) {
-      if (items.isEmpty()) {
-        mEmptyLabel.setVisibility(View.VISIBLE);
-      } else {
-        mEmptyLabel.setVisibility(View.GONE);
-      }
-    }
-    return items;
-  }
-
   public void updateList() {
     if (mChannelAdapter != null && getContext() != null) {
       final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
       final CoinUnit prefUnit = WalletUtils.getPreferredCoinUnit(prefs);
       final String fiatCode = WalletUtils.getPreferredFiat(prefs);
       final boolean displayBalanceAsFiat = WalletUtils.shouldDisplayInFiat(prefs);
-      mChannelAdapter.update(getChannels(), fiatCode, prefUnit, displayBalanceAsFiat);
+      final List<EclairEventService.ChannelDetails> channels = new ArrayList<>(EclairEventService.getChannelsMap().values());
+      if (mEmptyLabel != null) {
+        mEmptyLabel.setVisibility(channels.isEmpty() ? View.VISIBLE : View.GONE);
+      }
+      mChannelAdapter.update(channels, fiatCode, prefUnit, displayBalanceAsFiat);
     }
   }
 }

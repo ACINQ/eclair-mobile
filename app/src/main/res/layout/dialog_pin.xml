@@ -76,165 +76,79 @@
 
     </RelativeLayout>
 
-    <GridLayout
+    <RelativeLayout
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:layout_marginTop="1dp"
-      android:columnCount="3">
+      android:background="@color/yellow_light_x2">
 
-      <Button
-        android:id="@+id/pin_num_1"
-        android:layout_columnWeight="1"
-        android:layout_gravity="fill_horizontal"
-        android:background="?android:attr/selectableItemBackground"
-        android:fontFamily="sans-serif-light"
-        android:gravity="center"
-        android:hapticFeedbackEnabled="true"
-        android:minWidth="52dp"
-        android:text="1"
-        android:textColor="@color/grey_3"
-        android:textSize="20sp" />
+      <GridLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:columnCount="3"
+        android:padding="1dp">
 
-      <Button
-        android:id="@+id/pin_num_2"
-        android:layout_columnWeight="1"
-        android:layout_gravity="fill_horizontal"
-        android:background="?android:attr/selectableItemBackground"
-        android:fontFamily="sans-serif-light"
-        android:gravity="center"
-        android:hapticFeedbackEnabled="true"
-        android:minWidth="52dp"
-        android:text="2"
-        android:textColor="@color/grey_3"
-        android:textSize="20sp" />
+        <Button
+          android:id="@+id/pin_num_1"
+          style="@style/PinButtonStyle"
+          android:text="1" />
 
-      <Button
-        android:id="@+id/pin_num_3"
-        android:layout_columnWeight="1"
-        android:layout_gravity="fill_horizontal"
-        android:background="?android:attr/selectableItemBackground"
-        android:fontFamily="sans-serif-light"
-        android:gravity="center"
-        android:hapticFeedbackEnabled="true"
-        android:minWidth="52dp"
-        android:text="3"
-        android:textColor="@color/grey_3"
-        android:textSize="20sp" />
+        <Button
+          android:id="@+id/pin_num_2"
+          style="@style/PinButtonStyle"
+          android:text="2" />
 
-      <Button
-        android:id="@+id/pin_num_4"
-        android:layout_columnWeight="1"
-        android:layout_gravity="fill_horizontal"
-        android:background="?android:attr/selectableItemBackground"
-        android:fontFamily="sans-serif-light"
-        android:gravity="center"
-        android:minWidth="52dp"
-        android:text="4"
-        android:textColor="@color/grey_3"
-        android:textSize="20sp" />
+        <Button
+          android:id="@+id/pin_num_3"
+          style="@style/PinButtonStyle"
+          android:text="3" />
 
-      <Button
-        android:id="@+id/pin_num_5"
-        android:layout_columnWeight="1"
-        android:layout_gravity="fill_horizontal"
-        android:background="?android:attr/selectableItemBackground"
-        android:fontFamily="sans-serif-light"
-        android:gravity="center"
-        android:hapticFeedbackEnabled="true"
-        android:minWidth="52dp"
-        android:text="5"
-        android:textColor="@color/grey_3"
-        android:textSize="20sp" />
+        <Button
+          android:id="@+id/pin_num_4"
+          style="@style/PinButtonStyle"
+          android:text="4" />
 
-      <Button
-        android:id="@+id/pin_num_6"
-        android:layout_columnWeight="1"
-        android:layout_gravity="fill_horizontal"
-        android:background="?android:attr/selectableItemBackground"
-        android:fontFamily="sans-serif-light"
-        android:gravity="center"
-        android:hapticFeedbackEnabled="true"
-        android:minWidth="52dp"
-        android:text="6"
-        android:textColor="@color/grey_3"
-        android:textSize="20sp" />
+        <Button
+          android:id="@+id/pin_num_5"
+          style="@style/PinButtonStyle"
+          android:text="5" />
 
-      <Button
-        android:id="@+id/pin_num_7"
-        android:layout_columnWeight="1"
-        android:layout_gravity="fill_horizontal"
-        android:background="?android:attr/selectableItemBackground"
-        android:fontFamily="sans-serif-light"
-        android:gravity="center"
-        android:hapticFeedbackEnabled="true"
-        android:minWidth="52dp"
-        android:text="7"
-        android:textColor="@color/grey_3"
-        android:textSize="20sp" />
+        <Button
+          android:id="@+id/pin_num_6"
+          style="@style/PinButtonStyle"
+          android:text="6" />
 
-      <Button
-        android:id="@+id/pin_num_8"
-        android:layout_columnWeight="1"
-        android:layout_gravity="fill_horizontal"
-        android:background="?android:attr/selectableItemBackground"
-        android:fontFamily="sans-serif-light"
-        android:gravity="center"
-        android:hapticFeedbackEnabled="true"
-        android:minWidth="52dp"
-        android:text="8"
-        android:textColor="@color/grey_3"
-        android:textSize="20sp" />
+        <Button
+          android:id="@+id/pin_num_7"
+          style="@style/PinButtonStyle"
+          android:text="7" />
 
-      <Button
-        android:id="@+id/pin_num_9"
-        android:layout_columnWeight="1"
-        android:layout_gravity="fill_horizontal"
-        android:background="?android:attr/selectableItemBackground"
-        android:fontFamily="sans-serif-light"
-        android:gravity="center"
-        android:hapticFeedbackEnabled="true"
-        android:minWidth="52dp"
-        android:text="9"
-        android:textColor="@color/grey_3"
-        android:textSize="20sp" />
+        <Button
+          android:id="@+id/pin_num_8"
+          style="@style/PinButtonStyle"
+          android:text="8" />
 
-      <ImageButton
-        android:id="@+id/pin_num_clear"
-        android:layout_columnWeight="1"
-        android:layout_gravity="fill_horizontal"
-        android:background="?android:attr/selectableItemBackground"
-        android:fontFamily="sans-serif-light"
-        android:gravity="center"
-        android:hapticFeedbackEnabled="true"
-        android:minHeight="48dp"
-        android:minWidth="52dp"
-        android:src="@drawable/ic_delete" />
+        <Button
+          android:id="@+id/pin_num_9"
+          style="@style/PinButtonStyle"
+          android:text="9" />
 
-      <Button
-        android:id="@+id/pin_num_0"
-        android:layout_columnWeight="1"
-        android:layout_gravity="fill_horizontal"
-        android:background="?android:attr/selectableItemBackground"
-        android:fontFamily="sans-serif-light"
-        android:gravity="center"
-        android:hapticFeedbackEnabled="true"
-        android:minWidth="52dp"
-        android:text="0"
-        android:textColor="@color/grey_3"
-        android:textSize="20sp" />
+        <ImageButton
+          android:id="@+id/pin_num_clear"
+          style="@style/PinButtonStyle"
+          android:src="@drawable/ic_delete" />
 
-      <ImageButton
-        android:id="@+id/pin_backspace"
-        android:layout_columnWeight="1"
-        android:layout_gravity="fill_horizontal"
-        android:background="?android:attr/selectableItemBackground"
-        android:fontFamily="sans-serif-light"
-        android:gravity="center"
-        android:hapticFeedbackEnabled="true"
-        android:minHeight="48dp"
-        android:minWidth="52dp"
-        android:src="@drawable/ic_backspace" />
+        <Button
+          android:id="@+id/pin_num_0"
+          style="@style/PinButtonStyle"
+          android:text="0" />
 
-    </GridLayout>
+        <ImageButton
+          android:id="@+id/pin_backspace"
+          style="@style/PinButtonStyle"
+          android:src="@drawable/ic_backspace" />
+
+      </GridLayout>
+    </RelativeLayout>
   </LinearLayout>
 </ScrollView>

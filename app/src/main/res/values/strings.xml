@@ -202,8 +202,15 @@
 
   <!-- //////////////// Local Channel Details //////////////////// -->
 
+  <string name="channeldetails_feature_supported">Supported by peer.</string>
+  <string name="channeldetails_feature_not_supported">Peer does not support this feature.</string>
   <string name="channeldetails_id_label">Id</string>
   <string name="channeldetails_id_desc">Channel unique identifier</string>
+  <string name="channeldetails_short_id_label">Short Channel Id</string>
+  <string name="channeldetails_advanced_routing_label">Advanced Routing Sync Support</string>
+  <string name="channeldetails_advanced_routing_desc">Synchronizing the routing table is much faster when starting the app.</string>
+  <string name="channeldetails_data_loss_protection_label">Dataloss Protection Support</string>
+  <string name="channeldetails_data_loss_protection_desc">Channel can be backup in case of loss of data</string>
   <string name="channeldetails_to_self_delay_label">To Self Delay</string>
   <string name="channeldetails_to_self_delay_desc">Refund delay for uncooperative close</string>
   <string name="channeldetails_reserve_label">Reserve</string>
@@ -371,6 +378,12 @@
 
   <string name="paymentitem_confidence_suffix">confs</string>
   <string name="paymentitem_fee_prefix">fee:</string>
+
+  <!-- //////////////// Local Channel Item //////////////////// -->
+
+  <string name="channelitem_delayed_closing">Your funds will be available in %1$d block(s).</string>
+  <string name="channelitem_delayed_closing_unknown">Your funds will be available after a %1$d blocks delay.</string>
+  <string name="channelitem_inflight_htlcs">%1$d inflight payment(s).</string>
 
   <!-- //////////////// General //////////////////// -->
 

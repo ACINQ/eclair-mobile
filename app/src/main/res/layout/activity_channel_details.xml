@@ -193,6 +193,35 @@
           app:value="@string/unknown" />
 
         <fr.acinq.eclair.wallet.customviews.DataRow
+          android:id="@+id/short_channel_id"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          app:label="@string/channeldetails_short_id_label"
+          app:value="@string/unknown" />
+
+        <include layout="@layout/include_separator" />
+
+        <fr.acinq.eclair.wallet.customviews.DataRow
+          android:id="@+id/advanced_routing_sync"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          app:desc="@string/channeldetails_advanced_routing_desc"
+          app:label="@string/channeldetails_advanced_routing_label"
+          app:value="@string/unknown" />
+
+        <include layout="@layout/include_separator" />
+
+        <fr.acinq.eclair.wallet.customviews.DataRow
+          android:id="@+id/data_loss_protection"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          app:desc="@string/channeldetails_data_loss_protection_desc"
+          app:label="@string/channeldetails_data_loss_protection_label"
+          app:value="@string/unknown" />
+
+        <include layout="@layout/include_separator" />
+
+        <fr.acinq.eclair.wallet.customviews.DataRow
           android:id="@+id/to_self_delay"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"

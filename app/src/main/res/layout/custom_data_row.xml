@@ -57,6 +57,7 @@
       android:layout_height="wrap_content"
       android:fontFamily="monospace"
       android:textIsSelectable="true"
+      android:gravity="start|center_vertical"
       android:textSize="10sp" />
 
     <Button

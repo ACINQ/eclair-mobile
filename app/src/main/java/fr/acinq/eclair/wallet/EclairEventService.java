@@ -21,15 +21,19 @@ import android.util.Log;
 import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import akka.actor.ActorRef;
 import akka.actor.Terminated;
 import akka.actor.UntypedActor;
+import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.bitcoin.Crypto;
 import fr.acinq.bitcoin.MilliSatoshi;
+import fr.acinq.bitcoin.Transaction;
 import fr.acinq.eclair.channel.CLOSED$;
 import fr.acinq.eclair.channel.CLOSING$;
 import fr.acinq.eclair.channel.ChannelCreated;
@@ -44,6 +48,7 @@ import fr.acinq.eclair.channel.HasCommitments;
 import fr.acinq.eclair.channel.LocalCommit;
 import fr.acinq.eclair.channel.OFFLINE$;
 import fr.acinq.eclair.channel.RemoteCommit;
+import fr.acinq.eclair.channel.ShortChannelIdAssigned;
 import fr.acinq.eclair.channel.WAIT_FOR_INIT_INTERNAL$;
 import fr.acinq.eclair.channel.WaitingForRevocation;
 import fr.acinq.eclair.payment.PaymentLifecycle;
@@ -62,7 +67,9 @@ import fr.acinq.eclair.wallet.models.Payment;
 import fr.acinq.eclair.wallet.models.PaymentDirection;
 import fr.acinq.eclair.wallet.models.PaymentStatus;
 import fr.acinq.eclair.wallet.models.PaymentType;
+import scala.Option;
 import scala.collection.Iterator;
+import scala.collection.JavaConverters;
 import scala.collection.Seq;
 import scala.util.Either;
 
@@ -138,10 +145,12 @@ public class EclairEventService extends UntypedActor {
     }
     // ---- channel id assigned
     else if (message instanceof ChannelIdAssigned && channelDetailsMap.containsKey(((ChannelIdAssigned) message).channel())) {
-      ChannelIdAssigned cia = (ChannelIdAssigned) message;
-      ChannelDetails cd = channelDetailsMap.get(cia.channel());
-      cd.channelId = cia.channelId().toString();
-      EventBus.getDefault().post(new ChannelUpdateEvent());
+      final ChannelIdAssigned cia = (ChannelIdAssigned) message;
+      channelDetailsMap.get(cia.channel()).channelId = cia.channelId().toString();
+    }
+    else if (message instanceof ShortChannelIdAssigned && channelDetailsMap.containsKey(((ShortChannelIdAssigned) message).channel())) {
+      final ShortChannelIdAssigned s = (ShortChannelIdAssigned) message;
+      channelDetailsMap.get(s.channel()).shortChannelId = s.shortChannelId().toString();
     }
     // ---- we sent a channel sig => update corresponding payment to PENDING in app's DB
     else if (message instanceof ChannelSignatureSent) {
@@ -186,8 +195,8 @@ public class EclairEventService extends UntypedActor {
       ChannelSignatureReceived csr = (ChannelSignatureReceived) message;
       ChannelDetails cd = channelDetailsMap.get(csr.channel());
       LocalCommit localCommit = csr.commitments().localCommit();
-      long outHtlcsAmount = 0L;
       Iterator<DirectedHtlc> htlcsIterator = localCommit.spec().htlcs().iterator();
+      long outHtlcsAmount = 0L;
       int htlcsCount = 0;
       while (htlcsIterator.hasNext()) {
         DirectedHtlc h = htlcsIterator.next();
@@ -212,37 +221,48 @@ public class EclairEventService extends UntypedActor {
     }
     // ---- channel state changed
     else if (message instanceof ChannelStateChanged) {
-      ChannelStateChanged cs = (ChannelStateChanged) message;
-      ChannelDetails cd = getChannelDetails(cs.channel());
+      final ChannelStateChanged cs = (ChannelStateChanged) message;
+      final ChannelDetails cd = getChannelDetails(cs.channel());
 
       if (cs.currentData() instanceof DATA_CLOSING) {
-        DATA_CLOSING d = (DATA_CLOSING) cs.currentData();
-        // cooperative closing if publish is only mutual
+        final DATA_CLOSING d = (DATA_CLOSING) cs.currentData();
+        // closing is cooperative if publish is only mutual
         cd.isCooperativeClosing = !d.mutualClosePublished().isEmpty() && d.localCommitPublished().isEmpty()
           && d.remoteCommitPublished().isEmpty() && d.revokedCommitPublished().isEmpty();
+        // closing is initiated by the remote peer
         cd.isRemoteClosing = d.mutualClosePublished().isEmpty() && d.localCommitPublished().isEmpty()
           && d.remoteCommitPublished().isDefined() && d.revokedCommitPublished().isEmpty();
-        // local close are delayed by 144 blocks
+        // close is initiated locally, funds reception is delayed
         cd.isLocalClosing = d.mutualClosePublished().isEmpty() && d.localCommitPublished().isDefined()
           && d.remoteCommitPublished().isEmpty() && d.revokedCommitPublished().isEmpty();
+
+        if (cd.isCooperativeClosing) {
+          cd.mainClosingTxs = JavaConverters.seqAsJavaListConverter(d.mutualClosePublished()).asJava();
+        } else if (cd.isRemoteClosing) {
+          cd.mainClosingTxs = Collections.singletonList(d.remoteCommitPublished().get().commitTx());
+        } else if (cd.isLocalClosing) {
+          cd.mainClosingTxs = Collections.singletonList(d.localCommitPublished().get().commitTx());
+          cd.mainDelayedClosingTx = d.localCommitPublished().get().claimMainDelayedOutputTx();
+        }
 
         // Don't show the notification if state goes from straight from WAIT_FOR_INIT_INTERNAL to CLOSING
         // Otherwise the notification would show up each time the wallet is started and the channel is
         // still closing, even though the user has already been alerted the last time he used the app.
         // Same thing for CLOSING -> CLOSED
-        if (cd.state != null && !CLOSED$.MODULE$.toString().equals(cs.currentState().toString()) && !WAIT_FOR_INIT_INTERNAL$.MODULE$.toString().equals(cd.state)) {
+        if (!CLOSED$.MODULE$.toString().equals(cs.currentState().toString()) && !WAIT_FOR_INIT_INTERNAL$.MODULE$.toString().equals(cs.previousState().toString())) {
           final MilliSatoshi balanceLeft = new MilliSatoshi(d.commitments().localCommit().spec().toLocalMsat());
           EventBus.getDefault().post(new ClosingChannelNotificationEvent(cd.channelId, cd.remoteNodeId, cd.isLocalClosing, balanceLeft, cd.toSelfDelayBlocks));
         }
       }
       cd.state = cs.currentState().toString();
       if (cs.currentData() instanceof HasCommitments) {
-        Commitments commitments = ((HasCommitments) cs.currentData()).commitments();
+        final Commitments commitments = ((HasCommitments) cs.currentData()).commitments();
+        cd.localFeatures = commitments.remoteParams().localFeatures();
         cd.toSelfDelayBlocks = commitments.remoteParams().toSelfDelay();
         cd.htlcsInFlightCount = commitments.localCommit().spec().htlcs().iterator().size();
         cd.channelReserveSat = commitments.localParams().channelReserveSatoshis();
         cd.minimumHtlcAmountMsat = commitments.localParams().htlcMinimumMsat();
-        cd.transactionId = commitments.commitInput().outPoint().txid().toString();
+        cd.fundingTxId = commitments.commitInput().outPoint().txid().toString();
         cd.balanceMsat = new MilliSatoshi(commitments.localCommit().spec().toLocalMsat());
         cd.capacityMsat = new MilliSatoshi(commitments.localCommit().spec().totalFunds());
       }
@@ -309,16 +329,20 @@ public class EclairEventService extends UntypedActor {
     public MilliSatoshi balanceMsat = new MilliSatoshi(0);
     public MilliSatoshi capacityMsat = new MilliSatoshi(0);
     public String channelId;
-    public String state;
+    public String shortChannelId;
+    public String state = "N/A";
     public Boolean isCooperativeClosing;
     public Boolean isRemoteClosing;
     public Boolean isLocalClosing;
     public String remoteNodeId;
-    public String transactionId;
+    public String fundingTxId;
+    public List<Transaction> mainClosingTxs = new ArrayList<>();
+    public Option<Transaction> mainDelayedClosingTx = Option.apply(null);
     public long channelReserveSat = 0;
     public long minimumHtlcAmountMsat = 0;
     public int toSelfDelayBlocks = 0;
     public int htlcsInFlightCount = 0;
+    public BinaryData localFeatures;
   }
 
   public static boolean hasActiveChannels () {
