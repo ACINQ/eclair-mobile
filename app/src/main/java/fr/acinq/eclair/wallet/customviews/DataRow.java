@@ -83,4 +83,8 @@ public class DataRow extends LinearLayout {
     valueTextView.setVisibility(VISIBLE);
     valueTextView.setText(value);
   }
+
+  public TextView getValueView() {
+    return this.valueTextView;
+  }
 }
