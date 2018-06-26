@@ -46,6 +46,7 @@ import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.blockchain.electrum.ElectrumWallet;
 import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.wallet.App;
+import fr.acinq.eclair.wallet.EclairEventService;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.activities.EclairActivity;
 import fr.acinq.eclair.wallet.databinding.FragmentReceivePaymentBinding;
@@ -84,6 +85,7 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
     mBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_receive_payment, container, false);
     mBinding.setPaymentType(0);
     mBinding.setIsLightningInboundEnabled(prefs.getBoolean(Constants.SETTING_ENABLE_LIGHTNING_INBOUND_PAYMENTS, false));
+    mBinding.setHasNormalChannels(EclairEventService.hasActiveChannels());
     mBinding.pickOnchainButton.setOnClickListener(v -> mBinding.setPaymentType(0));
     mBinding.pickLightningButton.setOnClickListener(v -> {
       if (!isGeneratingPaymentRequest) setPaymentRequest();
@@ -103,6 +105,7 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
     }
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
     mBinding.setIsLightningInboundEnabled(prefs.getBoolean(Constants.SETTING_ENABLE_LIGHTNING_INBOUND_PAYMENTS, false));
+    mBinding.setHasNormalChannels(EclairEventService.hasActiveChannels());
     if (mBinding.getIsLightningInboundEnabled() && mBinding.getPaymentType() == 1 && !isGeneratingPaymentRequest && lightningPaymentRequest == null) {
       setPaymentRequest();
     }

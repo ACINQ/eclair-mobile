@@ -482,6 +482,7 @@
   <string name="receivepayment_lightning_title">Lightning</string>
   <string name="receivepayment_onchain_address_title">Your Bitcoin address</string>
   <string name="receivepayment_lightning_inbound_disabled">You must enable Lightning payment reception in the app settings.\n\nNote that, to safely use this feature, you should run the app once a week.</string>
+  <string name="receivepayment_lightning_no_routes_available">Your node currently has no payment channels ready to receive funds.\n\nCheck that you\'ve opened at least one channel, and that it is in NORMAL state.</string>
   <string name="receivepayment_lightning_pr_title">Payment Request</string>
   <string name="receivepayment_lightning_description_title">Payment description (optional)</string>
   <string name="receivepayment_lightning_description_notset">No description given</string>

@@ -30,6 +30,10 @@
       name="isLightningInboundEnabled"
       type="java.lang.Boolean" />
 
+    <variable
+      name="hasNormalChannels"
+      type="java.lang.Boolean" />
+
   </data>
 
   <ScrollView
@@ -124,21 +128,37 @@
 
       </LinearLayout>
 
-    <LinearLayout
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:layout_marginBottom="@dimen/space_xxxl"
-      android:background="@color/white"
-      android:orientation="vertical"
-      android:visibility="@{paymentType == 1 &amp;&amp; !isLightningInboundEnabled ? View.VISIBLE : View.GONE}">
-
-      <TextView
+      <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="@dimen/space_lg"
-        android:text="@string/receivepayment_lightning_inbound_disabled" />
+        android:layout_marginBottom="@dimen/space_xxxl"
+        android:background="@color/white"
+        android:orientation="vertical"
+        android:visibility="@{paymentType == 1 &amp;&amp; !isLightningInboundEnabled ? View.VISIBLE : View.GONE}">
 
-    </LinearLayout>
+        <TextView
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:padding="@dimen/space_lg"
+          android:text="@string/receivepayment_lightning_inbound_disabled" />
+
+      </LinearLayout>
+
+      <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/space_xxxl"
+        android:background="@color/white"
+        android:orientation="vertical"
+        android:visibility="@{paymentType == 1 &amp;&amp; isLightningInboundEnabled &amp;&amp; !hasNormalChannels ? View.VISIBLE : View.GONE}">
+
+        <TextView
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:padding="@dimen/space_lg"
+          android:text="@string/receivepayment_lightning_no_routes_available" />
+
+      </LinearLayout>
 
       <LinearLayout
         android:id="@+id/lightning_view"
@@ -147,7 +167,7 @@
         android:layout_marginBottom="@dimen/space_xxxl"
         android:background="@color/white"
         android:orientation="vertical"
-        android:visibility="@{paymentType == 1 &amp;&amp; isLightningInboundEnabled ? View.VISIBLE : View.GONE}">
+        android:visibility="@{paymentType == 1 &amp;&amp; isLightningInboundEnabled &amp;&amp; hasNormalChannels ? View.VISIBLE : View.GONE}">
 
         <ImageView
           android:id="@+id/lightning_qr"
@@ -192,11 +212,11 @@
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:background="?android:attr/selectableItemBackground"
-          android:paddingTop="@dimen/space_md"
-          android:paddingBottom="@dimen/space_md"
           android:clickable="true"
           android:focusable="true"
-          android:orientation="vertical">
+          android:orientation="vertical"
+          android:paddingBottom="@dimen/space_md"
+          android:paddingTop="@dimen/space_md">
 
           <TextView
             style="@style/LabelTextViewStyle"
