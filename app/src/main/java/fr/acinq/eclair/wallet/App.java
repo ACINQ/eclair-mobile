@@ -193,7 +193,7 @@ public class App extends Application {
    */
   public PaymentRequest generatePaymentRequest(final String description, final Option<MilliSatoshi> amountMsat_opt) {
     Future<Object> f = Patterns.ask(appKit.eclairKit.paymentHandler(),
-      new PaymentLifecycle.ReceivePayment(amountMsat_opt, description, Option.apply(null)),
+      new PaymentLifecycle.ReceivePayment(amountMsat_opt, description, Option.apply(null), EclairEventService.getRoutes()),
       new Timeout(Duration.create(10, "seconds")));
     try {
       return (PaymentRequest) Await.result(f, Duration.create(5, "seconds"));

@@ -34,6 +34,7 @@ import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.bitcoin.Crypto;
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.Transaction;
+import fr.acinq.eclair.ShortChannelId;
 import fr.acinq.eclair.channel.CLOSED$;
 import fr.acinq.eclair.channel.CLOSING$;
 import fr.acinq.eclair.channel.ChannelCreated;
@@ -45,6 +46,7 @@ import fr.acinq.eclair.channel.ChannelStateChanged;
 import fr.acinq.eclair.channel.Commitments;
 import fr.acinq.eclair.channel.DATA_CLOSING;
 import fr.acinq.eclair.channel.HasCommitments;
+import fr.acinq.eclair.channel.LocalChannelUpdate;
 import fr.acinq.eclair.channel.LocalCommit;
 import fr.acinq.eclair.channel.OFFLINE$;
 import fr.acinq.eclair.channel.RemoteCommit;
@@ -53,6 +55,7 @@ import fr.acinq.eclair.channel.WAIT_FOR_INIT_INTERNAL$;
 import fr.acinq.eclair.channel.WaitingForRevocation;
 import fr.acinq.eclair.payment.PaymentLifecycle;
 import fr.acinq.eclair.payment.PaymentReceived;
+import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.router.NORMAL$;
 import fr.acinq.eclair.transactions.DirectedHtlc;
 import fr.acinq.eclair.transactions.OUT$;
@@ -89,6 +92,24 @@ public class EclairEventService extends UntypedActor {
 
   public static Map<ActorRef, ChannelDetails> getChannelsMap() {
     return channelDetailsMap;
+  }
+
+  public static Seq<Seq<PaymentRequest.ExtraHop>> getRoutes() {
+    final List<Seq<PaymentRequest.ExtraHop>> routes = new ArrayList<>();
+    for (EclairEventService.ChannelDetails channel : getChannelsMap().values()) {
+      if (channel.state.equals(NORMAL$.MODULE$.toString())) {
+        routes.add(getExtraHops(channel));
+      }
+    }
+    return JavaConverters.asScalaIteratorConverter(routes.iterator()).asScala().toSeq();
+  }
+
+  private static Seq<PaymentRequest.ExtraHop> getExtraHops(ChannelDetails channel) {
+    final List<PaymentRequest.ExtraHop> hops = new ArrayList<>();
+    final PaymentRequest.ExtraHop hop = new PaymentRequest.ExtraHop(Crypto.PublicKey$.MODULE$.apply(BinaryData.apply(channel.remoteNodeId)),
+      ShortChannelId.apply(channel.shortChannelId), channel.feeBaseMsat, channel.feeProportinalMillionths, channel.cltvExpiryDelta);
+    hops.add(hop);
+    return JavaConverters.asScalaIteratorConverter(hops.iterator()).asScala().toSeq();
   }
 
   /**
@@ -148,6 +169,7 @@ public class EclairEventService extends UntypedActor {
       final ChannelIdAssigned cia = (ChannelIdAssigned) message;
       channelDetailsMap.get(cia.channel()).channelId = cia.channelId().toString();
     }
+    // ---- short channel id
     else if (message instanceof ShortChannelIdAssigned && channelDetailsMap.containsKey(((ShortChannelIdAssigned) message).channel())) {
       final ShortChannelIdAssigned s = (ShortChannelIdAssigned) message;
       channelDetailsMap.get(s.channel()).shortChannelId = s.shortChannelId().toString();
@@ -271,7 +293,19 @@ public class EclairEventService extends UntypedActor {
       EventBus.getDefault().post(new ChannelUpdateEvent());
       postLNBalanceEvent();
     }
-    // ---- events that update payments status
+    // ---- local channels only
+    else if (message instanceof LocalChannelUpdate) {
+      final LocalChannelUpdate cur = (LocalChannelUpdate) message;
+      if (cur.channelUpdate() != null) {
+        final ChannelDetails cd = getChannelByShortId(cur.shortChannelId().toString());
+        if (cd != null) {
+          cd.feeBaseMsat = cur.channelUpdate().feeBaseMsat();
+          cd.feeProportinalMillionths = cur.channelUpdate().feeProportionalMillionths();
+          cd.cltvExpiryDelta = cur.channelUpdate().cltvExpiryDelta();
+        }
+      }
+    }
+    // ---- payment sent has failed
     else if (message instanceof PaymentLifecycle.PaymentFailed) {
       PaymentLifecycle.PaymentFailed event = (PaymentLifecycle.PaymentFailed) message;
       final Payment paymentInDB = dbHelper.getPayment(event.paymentHash().toString(), PaymentType.BTC_LN);
@@ -291,6 +325,7 @@ public class EclairEventService extends UntypedActor {
         Log.d(TAG, "received and ignored an unknown PaymentFailed event with hash=" + event.paymentHash().toString());
       }
     }
+    // ---- payment is received
     else if (message instanceof fr.acinq.eclair.payment.PaymentReceived) {
       final PaymentReceived pr = (PaymentReceived) message;
       final Payment paymentInDB = dbHelper.getPayment(pr.paymentHash().toString(), PaymentType.BTC_LN);
@@ -312,6 +347,7 @@ public class EclairEventService extends UntypedActor {
         EventBus.getDefault().post(new PaymentEvent());
       }
     }
+    // ---- payment is successfully sent
     else if (message instanceof PaymentLifecycle.PaymentSucceeded) {
       PaymentLifecycle.PaymentSucceeded event = (PaymentLifecycle.PaymentSucceeded) message;
       Payment paymentInDB = dbHelper.getPayment(event.paymentHash().toString(), PaymentType.BTC_LN);
@@ -343,9 +379,12 @@ public class EclairEventService extends UntypedActor {
     public int toSelfDelayBlocks = 0;
     public int htlcsInFlightCount = 0;
     public BinaryData localFeatures;
+    public Long feeBaseMsat;
+    public Long feeProportinalMillionths;
+    public int cltvExpiryDelta;
   }
 
-  public static boolean hasActiveChannels () {
+  public static boolean hasActiveChannels() {
     for (ChannelDetails d : channelDetailsMap.values()) {
       if (NORMAL$.MODULE$.toString().equals(d.state)) {
         return true;
@@ -361,12 +400,22 @@ public class EclairEventService extends UntypedActor {
    * @param requiredBalanceMsat
    * @return
    */
-  public static boolean hasActiveChannelsWithBalance (long requiredBalanceMsat) {
+  public static boolean hasActiveChannelsWithBalance(long requiredBalanceMsat) {
     for (ChannelDetails d : channelDetailsMap.values()) {
       if (NORMAL$.MODULE$.toString().equals(d.state) && d.balanceMsat.amount() > requiredBalanceMsat + 5000000) {
         return true;
       }
     }
     return false;
+  }
+
+  private static ChannelDetails getChannelByShortId(final String shortId) {
+    if (shortId == null) return null;
+    for (ChannelDetails cd : channelDetailsMap.values()) {
+      if (shortId.equals(cd.shortChannelId)) {
+        return cd;
+      }
+    }
+    return null;
   }
 }

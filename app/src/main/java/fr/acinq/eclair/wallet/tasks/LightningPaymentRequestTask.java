@@ -16,11 +16,8 @@
 
 package fr.acinq.eclair.wallet.tasks;
 
-import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.util.Log;
-
-import com.google.zxing.qrcode.QRCodeWriter;
 
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.eclair.payment.PaymentRequest;
@@ -44,12 +41,17 @@ public class LightningPaymentRequestTask extends AsyncTask<Object, Integer, Paym
 
   @Override
   protected PaymentRequest doInBackground(Object... params) {
-    if (this.activity != null && this.activity.getApp() != null && params.length == 2 && params[0] instanceof String && params[1] instanceof Option) {
-      final String description = (String) params[0];
-      final Option<MilliSatoshi> amount_opt = (Option<MilliSatoshi>) params[1];
-      return this.activity.getApp().generatePaymentRequest(description, amount_opt);
-    } else {
-      Log.w(TAG, "could not generate Payment Request, incorrect parameters");
+    try {
+      if (this.activity != null && this.activity.getApp() != null && params.length == 2 && params[0] instanceof String && params[1] instanceof Option) {
+        final String description = (String) params[0];
+        final Option<MilliSatoshi> amount_opt = (Option<MilliSatoshi>) params[1];
+        return this.activity.getApp().generatePaymentRequest(description, amount_opt);
+      } else {
+        Log.w(TAG, "could not generate Payment Request, incorrect parameters");
+        return null;
+      }
+    } catch (Exception e) {
+      Log.e(TAG, "could not generate Payment Request with cause ", e);
       return null;
     }
   }
