@@ -22,6 +22,7 @@ import android.util.Log;
 
 import org.greenrobot.greendao.DaoException;
 import org.greenrobot.greendao.database.Database;
+import org.greenrobot.greendao.query.DeleteQuery;
 import org.greenrobot.greendao.query.QueryBuilder;
 
 import java.util.Date;
@@ -150,6 +151,20 @@ public class DBHelper {
 
   public void insertOrUpdatePayment(Payment p) {
     daoSession.getPaymentDao().insertOrReplace(p);
+  }
+
+  /**
+   * Removes all Lightning payments to be received and in INIT status from database.
+   * Payments requests are not saved in core and are forgotten after the app restarts, so there is
+   * no point in keeping them in the front database.
+   */
+  public void cleanLightningPayments() {
+    final DeleteQuery<Payment> query = daoSession.queryBuilder(Payment.class)
+      .where(PaymentDao.Properties.Type.eq(PaymentType.BTC_LN), PaymentDao.Properties.Direction.eq(PaymentDirection.RECEIVED),
+        PaymentDao.Properties.Status.eq(PaymentStatus.INIT))
+      .buildDelete();
+    query.executeDeleteWithoutDetachingEntities();
+    daoSession.clear();
   }
 
   public void updatePayment(Payment p) {

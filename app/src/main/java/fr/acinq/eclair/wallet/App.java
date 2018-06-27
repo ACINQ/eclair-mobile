@@ -415,6 +415,7 @@ public class App extends Application {
   public void checkupInit() {
     if (this.dbHelper == null) {
       this.dbHelper = new DBHelper(getApplicationContext());
+      this.dbHelper.cleanLightningPayments();
     }
 
     // rates & coin patterns
