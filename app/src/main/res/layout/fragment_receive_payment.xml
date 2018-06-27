@@ -24,15 +24,15 @@
 
     <variable
       name="paymentType"
-      type="java.lang.Integer" />
+      type="int" />
 
     <variable
       name="isLightningInboundEnabled"
-      type="java.lang.Boolean" />
+      type="boolean" />
 
     <variable
       name="hasNormalChannels"
-      type="java.lang.Boolean" />
+      type="boolean" />
 
   </data>
 
