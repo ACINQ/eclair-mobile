@@ -148,9 +148,12 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
       }
       if (PaymentDirection.RECEIVED.equals(payment.getDirection())) {
         mStatus.setVisibility(View.GONE);
+      } else {
+        mStatus.setVisibility(View.VISIBLE);
       }
       mPaymentIcon.setImageResource(R.mipmap.ic_bolt_circle);
     } else {
+      mStatus.setVisibility(View.VISIBLE);
       if (payment.getCreated() != null) {
         mDate.setText(DateFormat.getDateTimeInstance().format(payment.getCreated()));
       }
