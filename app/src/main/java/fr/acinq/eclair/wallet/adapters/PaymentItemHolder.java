@@ -134,7 +134,7 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
       } else {
         mDescription.setText(payment.getDescription());
       }
-      mStatus.setText(payment.getStatus().name());
+      mStatus.setText(payment.getStatus().toString());
       if (PaymentStatus.FAILED.equals(payment.getStatus())) {
         mStatus.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.red_faded));
       } else if (PaymentStatus.PAID.equals(payment.getStatus())) {
@@ -142,8 +142,14 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
       } else {
         mStatus.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.orange));
       }
+      if (PaymentDirection.RECEIVED.equals(payment.getDirection())) {
+        mStatus.setVisibility(View.GONE);
+      } else {
+        mStatus.setVisibility(View.VISIBLE);
+      }
       mPaymentIcon.setImageResource(R.mipmap.ic_bolt_circle);
     } else {
+      mStatus.setVisibility(View.VISIBLE);
       if (payment.getCreated() != null) {
         mDate.setText(DateFormat.getDateTimeInstance().format(payment.getCreated()));
       }
