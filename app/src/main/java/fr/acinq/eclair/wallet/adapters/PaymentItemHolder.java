@@ -51,6 +51,7 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
   private static final String TAG = "PaymentItemHolder";
 
   private final ImageView mPaymentIcon;
+  private final ImageView mPaymentDirection;
   private final TextView mDescription;
   private final TextView mFeesPrefix;
   private final TextView mFees;
@@ -64,7 +65,8 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
 
   public PaymentItemHolder(final View itemView) {
     super(itemView);
-    this.mPaymentIcon = itemView.findViewById(R.id.paymentitem_image);
+    this.mPaymentIcon = itemView.findViewById(R.id.paymentitem_type);
+    this.mPaymentDirection = itemView.findViewById(R.id.paymentitem_direction);
     this.mAmountView = itemView.findViewById(R.id.paymentitem_amount);
     this.mAmountValue = itemView.findViewById(R.id.paymentitem_amount_value);
     this.mAmountUnit = itemView.findViewById(R.id.paymentitem_amount_unit);
@@ -114,11 +116,13 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
       mFeesPrefix.setVisibility(View.GONE);
       mFees.setVisibility(View.GONE);
       mFeesUnit.setVisibility(View.GONE);
+      mPaymentDirection.setImageResource(R.drawable.ic_in_circle);
     } else {
       mAmountValue.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.red_faded));
       mFeesPrefix.setVisibility(View.VISIBLE);
       mFees.setVisibility(View.VISIBLE);
       mFeesUnit.setVisibility(View.VISIBLE);
+      mPaymentDirection.setImageResource(R.drawable.ic_out_circle);
     }
     mDescription.setTypeface(Typeface.DEFAULT);
     mDescription.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.grey_4));
