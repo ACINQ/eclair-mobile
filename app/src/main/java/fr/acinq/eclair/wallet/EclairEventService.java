@@ -184,6 +184,7 @@ public class EclairEventService extends UntypedActor {
         while (htlcsIterator.hasNext()) {
           final DirectedHtlc h = htlcsIterator.next();
           // Move payment status to PENDING -- only for sent payment.
+          // (IN from remote commit means that payment is sent)
           // Received payments are either INIT (invisible to user), or PAID.
           if (h.direction() instanceof IN$) {
             final String htlcPaymentHash = h.add().paymentHash().toString();
