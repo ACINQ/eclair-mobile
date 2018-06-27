@@ -58,7 +58,7 @@ import fr.acinq.eclair.payment.PaymentReceived;
 import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.router.NORMAL$;
 import fr.acinq.eclair.transactions.DirectedHtlc;
-import fr.acinq.eclair.transactions.OUT$;
+import fr.acinq.eclair.transactions.IN$;
 import fr.acinq.eclair.wallet.events.ChannelUpdateEvent;
 import fr.acinq.eclair.wallet.events.ClosingChannelNotificationEvent;
 import fr.acinq.eclair.wallet.events.LNBalanceUpdateEvent;
@@ -183,26 +183,22 @@ public class EclairEventService extends UntypedActor {
         Iterator<DirectedHtlc> htlcsIterator = commit.spec().htlcs().iterator();
         while (htlcsIterator.hasNext()) {
           final DirectedHtlc h = htlcsIterator.next();
-          if (h.direction() instanceof OUT$) {
+          // Move payment status to PENDING -- only for sent payment.
+          // Received payments are either INIT (invisible to user), or PAID.
+          if (h.direction() instanceof IN$) {
             final String htlcPaymentHash = h.add().paymentHash().toString();
             Payment p = dbHelper.getPayment(htlcPaymentHash, PaymentType.BTC_LN);
             if (p != null) {
-              // regular case: we know this payment hash
               if (p.getStatus() == PaymentStatus.INIT) {
                 dbHelper.updatePaymentPending(p);
                 EventBus.getDefault().post(new PaymentEvent());
               }
             } else {
-              // rare case: an htlc is sent without the app knowing its payment hash
-              // this can happen if the app could not save the payment into its own payments DB
-              // we don't know much about this htlc, except that it was sent and will affects the channel's balance
               p = new Payment();
               p.setType(PaymentType.BTC_LN);
               p.setDirection(PaymentDirection.SENT);
               p.setReference(htlcPaymentHash);
               p.setAmountPaidMsat(h.add().amountMsat());
-              p.setRecipient("unknown recipient");
-              p.setPaymentRequest("unknown invoice");
               p.setStatus(PaymentStatus.PENDING);
               p.setUpdated(new Date());
               dbHelper.insertOrUpdatePayment(p);
@@ -218,19 +214,10 @@ public class EclairEventService extends UntypedActor {
       ChannelDetails cd = channelDetailsMap.get(csr.channel());
       LocalCommit localCommit = csr.commitments().localCommit();
       Iterator<DirectedHtlc> htlcsIterator = localCommit.spec().htlcs().iterator();
-      long outHtlcsAmount = 0L;
-      int htlcsCount = 0;
-      while (htlcsIterator.hasNext()) {
-        DirectedHtlc h = htlcsIterator.next();
-        if (h.direction() instanceof OUT$) {
-          htlcsCount++;
-          outHtlcsAmount += h.add().amountMsat();
-        }
-      }
       cd.channelReserveSat = csr.commitments().localParams().channelReserveSatoshis();
       cd.minimumHtlcAmountMsat = csr.commitments().localParams().htlcMinimumMsat();
-      cd.htlcsInFlightCount = htlcsCount;
-      cd.balanceMsat = new MilliSatoshi(localCommit.spec().toLocalMsat() + outHtlcsAmount);
+      cd.htlcsInFlightCount = htlcsIterator.size();
+      cd.balanceMsat = new MilliSatoshi(localCommit.spec().toLocalMsat());
       cd.capacityMsat = new MilliSatoshi(localCommit.spec().totalFunds());
       EventBus.getDefault().post(new ChannelUpdateEvent());
       postLNBalanceEvent();
@@ -267,8 +254,8 @@ public class EclairEventService extends UntypedActor {
           cd.mainDelayedClosingTx = d.localCommitPublished().get().claimMainDelayedOutputTx();
         }
 
-        // Don't show the notification if state goes from straight from WAIT_FOR_INIT_INTERNAL to CLOSING
-        // Otherwise the notification would show up each time the wallet is started and the channel is
+        // Don't show the notification if state goes straight from WAIT_FOR_INIT_INTERNAL to CLOSING,
+        // otherwise the notification would show up each time the wallet is started and the channel is
         // still closing, even though the user has already been alerted the last time he used the app.
         // Same thing for CLOSING -> CLOSED
         if (!CLOSED$.MODULE$.toString().equals(cs.currentState().toString()) && !WAIT_FOR_INIT_INTERNAL$.MODULE$.toString().equals(cs.previousState().toString())) {
@@ -289,7 +276,6 @@ public class EclairEventService extends UntypedActor {
         cd.capacityMsat = new MilliSatoshi(commitments.localCommit().spec().totalFunds());
       }
       channelDetailsMap.put(cs.channel(), cd);
-      Log.d(TAG, "Channel " + cd.channelId + " changed state to " + cs.currentState());
       EventBus.getDefault().post(new ChannelUpdateEvent());
       postLNBalanceEvent();
     }
@@ -339,8 +325,6 @@ public class EclairEventService extends UntypedActor {
         p.setDirection(PaymentDirection.RECEIVED);
         p.setReference(pr.paymentHash().toString());
         p.setAmountPaidMsat(pr.amount().amount());
-        p.setRecipient("unknown recipient");
-        p.setPaymentRequest("unknown invoice");
         p.setStatus(PaymentStatus.PAID);
         p.setUpdated(new Date());
         dbHelper.insertOrUpdatePayment(p);

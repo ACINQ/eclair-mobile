@@ -70,7 +70,7 @@ public class LNPaymentDetailsActivity extends EclairActivity {
 
       mBinding.amountPaid.setAmountMsat(new MilliSatoshi(p.getAmountPaidMsat()));
       mBinding.fees.setText(CoinUtils.formatAmountInUnit(new MilliSatoshi(p.getFeesPaidMsat()), prefUnit, true));
-      mBinding.status.setText(p.getStatus().name());
+      mBinding.status.setText(p.getStatus().toString());
       if (PaymentStatus.PAID == p.getStatus()) {
         mBinding.status.setTextColor(ContextCompat.getColor(this, R.color.green));
       } else if (PaymentStatus.FAILED == p.getStatus()) {

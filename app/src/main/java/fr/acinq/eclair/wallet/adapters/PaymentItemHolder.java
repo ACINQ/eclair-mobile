@@ -134,7 +134,7 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
       } else {
         mDescription.setText(payment.getDescription());
       }
-      mStatus.setText(payment.getStatus().name());
+      mStatus.setText(payment.getStatus().toString());
       if (PaymentStatus.FAILED.equals(payment.getStatus())) {
         mStatus.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.red_faded));
       } else if (PaymentStatus.PAID.equals(payment.getStatus())) {
