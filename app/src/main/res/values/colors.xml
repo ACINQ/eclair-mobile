@@ -47,6 +47,8 @@
   <color name="red_faded_light_x1">#ff6c6c</color>
   <color name="red_faded_dark_x1">#be4141</color>
   <color name="red_faded_dark_x2">#b13a3a</color>
+  <color name="blue">#67ccf2</color>
+  <color name="blue_light_x1">#c8eefc</color>
   <color name="white">#ffffff</color>
   <color name="almost_white">#fbfbfb</color>
   <color name="intro">#ffe785</color>
