@@ -285,7 +285,7 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
 
     disableForm();
     if (isPinRequired()) {
-      pinDialog = new PinDialog(OpenChannelActivity.this, R.style.CustomAlertDialog, new PinDialog.PinDialogCallback() {
+      pinDialog = new PinDialog(OpenChannelActivity.this, R.style.FullScreenDialog, new PinDialog.PinDialogCallback() {
         @Override
         public void onPinConfirm(final PinDialog dialog, final String pinValue) {
           if (isPinCorrect(pinValue, dialog)) {

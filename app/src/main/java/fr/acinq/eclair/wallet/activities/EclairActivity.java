@@ -105,10 +105,10 @@ public abstract class EclairActivity extends AppCompatActivity {
   }
 
   protected void encryptWallet(final EncryptSeedCallback callback, final boolean cancelable, final File datadir, final byte[] seed) {
-    final PinDialog firstPinDialog = new PinDialog(EclairActivity.this, R.style.CustomAlertDialog, new PinDialog.PinDialogCallback() {
+    final PinDialog firstPinDialog = new PinDialog(EclairActivity.this, R.style.FullScreenDialog, new PinDialog.PinDialogCallback() {
       @Override
       public void onPinConfirm(final PinDialog pFirstDialog, final String newPinValue) {
-        final PinDialog confirmationDialog = new PinDialog(EclairActivity.this, R.style.CustomAlertDialog, new PinDialog.PinDialogCallback() {
+        final PinDialog confirmationDialog = new PinDialog(EclairActivity.this, R.style.FullScreenDialog, new PinDialog.PinDialogCallback() {
           @Override
           public void onPinConfirm(final PinDialog pConfirmDialog, final String confirmPinValue) {
             if (newPinValue == null || newPinValue.length() != Constants.PIN_LENGTH) {

@@ -60,6 +60,15 @@
     <item name="actionBarTheme">@null</item>
   </style>
 
+  <style name="FullScreenDialog" parent="@style/CustomDialog">
+    <item name="android:layout_width">match_parent</item>
+    <item name="android:layout_height">match_parent</item>
+    <item name="android:windowBackground">@color/primary</item>
+    <item name="windowActionBar">false</item>
+    <item name="android:windowNoTitle">true</item>
+    <item name="android:windowIsFloating">false</item>
+  </style>
+
   <style name="CustomAlertDialog" parent="CustomDialog">
     <item name="android:windowMinWidthMajor">70%</item>
     <item name="android:windowMinWidthMinor">70%</item>
@@ -126,13 +135,14 @@
     <item name="android:layout_width">@dimen/pin_button_size</item>
     <item name="android:layout_height">@dimen/pin_button_size</item>
     <item name="android:gravity">center</item>
-    <item name="android:layout_margin">1dp</item>
-    <item name="android:background">@drawable/rounded_corner_white</item>
-    <item name="android:alpha">0.7</item>
-    <item name="android:foreground">?android:attr/selectableItemBackground</item>
+    <item name="android:layout_margin">8dp</item>
     <item name="android:hapticFeedbackEnabled">true</item>
-    <item name="android:textColor">@color/grey_4</item>
+    <item name="android:textColor">@color/white</item>
     <item name="android:textSize">20sp</item>
+  </style>
+
+  <style name="PinButtonCircleStyle" parent="@style/PinButtonStyle">
+    <item name="android:background">@drawable/circle_pin</item>
   </style>
 
 </resources>

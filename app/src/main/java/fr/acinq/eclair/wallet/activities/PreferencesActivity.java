@@ -99,7 +99,7 @@ public class PreferencesActivity extends EclairActivity implements EclairActivit
    * removed from the preferences. If the PIN is incorrect, the action fails.
    */
   private void removePinValue() {
-    final PinDialog removePinDialog = new PinDialog(PreferencesActivity.this, R.style.CustomAlertDialog, new PinDialog.PinDialogCallback() {
+    final PinDialog removePinDialog = new PinDialog(PreferencesActivity.this, R.style.FullScreenDialog, new PinDialog.PinDialogCallback() {
       @SuppressLint("ApplySharedPref")
       @Override
       public void onPinConfirm(final PinDialog dialog, final String pinValue) {
@@ -119,7 +119,7 @@ public class PreferencesActivity extends EclairActivity implements EclairActivit
   }
 
   public void changePassword(View view) {
-    new PinDialog(PreferencesActivity.this, R.style.CustomAlertDialog, new PinDialog.PinDialogCallback() {
+    new PinDialog(PreferencesActivity.this, R.style.FullScreenDialog, new PinDialog.PinDialogCallback() {
       @Override
       public void onPinConfirm(final PinDialog dialog, final String pinValue) {
         dialog.dismiss();
