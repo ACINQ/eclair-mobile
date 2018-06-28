@@ -16,48 +16,48 @@
 
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="match_parent"
-  android:layout_height="wrap_content"
+  android:layout_height="match_parent"
   android:scrollbars="vertical">
 
   <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:gravity="top|center"
+    android:layout_gravity="center"
+    android:paddingBottom="@dimen/space_md"
+    android:paddingTop="@dimen/space_md"
     android:orientation="vertical">
 
     <TextView
       android:id="@+id/pin_title"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:background="@color/yellow_light_x2"
-      android:paddingBottom="6dp"
       android:paddingEnd="8dp"
       android:paddingStart="8dp"
-      android:paddingTop="@dimen/space_md"
       android:text="@string/pindialog_title_default"
       android:textAlignment="center"
-      android:textColor="@color/grey_4"
-      android:textSize="14sp"
-      android:textStyle="bold" />
+      android:textColor="@color/almost_white"
+      android:textSize="14sp" />
 
     <RelativeLayout
       android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:background="@color/yellow_light_x2">
+      android:layout_marginBottom="@dimen/space_md"
+      android:layout_marginTop="@dimen/space_md"
+      android:paddingTop="@dimen/space_md"
+      android:paddingBottom="@dimen/space_md"
+      android:background="@color/primary_dark_x1"
+      android:layout_height="wrap_content">
 
       <TextView
         android:id="@+id/pin_display_placeholder"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="24dp"
-        android:layout_marginTop="16dp"
-        android:alpha="0.15"
+        android:alpha="0.5"
         android:background="@android:color/transparent"
         android:gravity="center"
         android:letterSpacing="0.2"
         android:text="@string/pindialog_pwd_placeholder"
-        android:textColor="@color/grey_3"
+        android:textColor="@color/primary_light_x1"
         android:textSize="18sp" />
 
       <TextView
@@ -71,81 +71,81 @@
         android:letterSpacing="0.2"
         android:lines="1"
         android:maxLines="1"
-        android:textColor="@color/grey_3"
+        android:textColor="@color/primary_light_x3"
         android:textSize="18sp" />
 
     </RelativeLayout>
 
     <RelativeLayout
       android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:background="@color/yellow_light_x2">
+      android:layout_height="wrap_content">
 
       <GridLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:columnCount="3"
-        android:padding="1dp">
+        android:columnCount="3">
 
         <Button
           android:id="@+id/pin_num_1"
-          style="@style/PinButtonStyle"
+          style="@style/PinButtonCircleStyle"
           android:text="1" />
 
         <Button
           android:id="@+id/pin_num_2"
-          style="@style/PinButtonStyle"
+          style="@style/PinButtonCircleStyle"
           android:text="2" />
 
         <Button
           android:id="@+id/pin_num_3"
-          style="@style/PinButtonStyle"
+          style="@style/PinButtonCircleStyle"
           android:text="3" />
 
         <Button
           android:id="@+id/pin_num_4"
-          style="@style/PinButtonStyle"
+          style="@style/PinButtonCircleStyle"
           android:text="4" />
 
         <Button
           android:id="@+id/pin_num_5"
-          style="@style/PinButtonStyle"
+          style="@style/PinButtonCircleStyle"
           android:text="5" />
 
         <Button
           android:id="@+id/pin_num_6"
-          style="@style/PinButtonStyle"
+          style="@style/PinButtonCircleStyle"
           android:text="6" />
 
         <Button
           android:id="@+id/pin_num_7"
-          style="@style/PinButtonStyle"
+          style="@style/PinButtonCircleStyle"
           android:text="7" />
 
         <Button
           android:id="@+id/pin_num_8"
-          style="@style/PinButtonStyle"
+          style="@style/PinButtonCircleStyle"
           android:text="8" />
 
         <Button
           android:id="@+id/pin_num_9"
-          style="@style/PinButtonStyle"
+          style="@style/PinButtonCircleStyle"
           android:text="9" />
 
         <ImageButton
           android:id="@+id/pin_num_clear"
           style="@style/PinButtonStyle"
+          android:alpha="0.8"
           android:src="@drawable/ic_delete" />
 
         <Button
           android:id="@+id/pin_num_0"
-          style="@style/PinButtonStyle"
+          style="@style/PinButtonCircleStyle"
           android:text="0" />
 
         <ImageButton
           android:id="@+id/pin_backspace"
           style="@style/PinButtonStyle"
+          android:alpha="0.8"
           android:src="@drawable/ic_backspace" />
 
       </GridLayout>
