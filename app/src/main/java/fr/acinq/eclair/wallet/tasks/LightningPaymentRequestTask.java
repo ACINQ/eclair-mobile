@@ -42,10 +42,12 @@ public class LightningPaymentRequestTask extends AsyncTask<Object, Integer, Paym
   @Override
   protected PaymentRequest doInBackground(Object... params) {
     try {
-      if (this.activity != null && this.activity.getApp() != null && params.length == 2 && params[0] instanceof String && params[1] instanceof Option) {
+      if (this.activity != null && this.activity.getApp() != null && params.length == 3
+        && params[0] instanceof String && params[1] instanceof Option && params[2] instanceof Long) {
         final String description = (String) params[0];
         final Option<MilliSatoshi> amount_opt = (Option<MilliSatoshi>) params[1];
-        return this.activity.getApp().generatePaymentRequest(description, amount_opt);
+        final long expiry = (Long) params[2];
+        return this.activity.getApp().generatePaymentRequest(description, amount_opt, expiry);
       } else {
         Log.w(TAG, "could not generate Payment Request, incorrect parameters");
         return null;

@@ -54,6 +54,8 @@ public interface Constants {
   // lightning
   String SETTING_CAP_LIGHTNING_FEES = "cap_lightning_fees";
   String SETTING_ENABLE_LIGHTNING_INBOUND_PAYMENTS = "enable_lightning_inbound_payments";
+  String SETTING_PAYMENT_REQUEST_DEFAULT_DESCRIPTION = "payment_request_default_description";
+  String SETTING_PAYMENT_REQUEST_EXPIRY = "payment_request_expiry";
 
   /* ----------- SETTINGS - PIN CODE ------------ */
 

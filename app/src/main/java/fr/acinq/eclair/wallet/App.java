@@ -191,9 +191,9 @@ public class App extends Application {
   /**
    * Generates a payment request. Uses a blocking await so must *not* be called from an UI thread. Fails after 5 secs.
    */
-  public PaymentRequest generatePaymentRequest(final String description, final Option<MilliSatoshi> amountMsat_opt) {
+  public PaymentRequest generatePaymentRequest(final String description, final Option<MilliSatoshi> amountMsat_opt, final long expiry) {
     Future<Object> f = Patterns.ask(appKit.eclairKit.paymentHandler(),
-      new PaymentLifecycle.ReceivePayment(amountMsat_opt, description, Option.apply(null), EclairEventService.getRoutes()),
+      new PaymentLifecycle.ReceivePayment(amountMsat_opt, description, Option.apply(expiry), EclairEventService.getRoutes()),
       new Timeout(Duration.create(10, "seconds")));
     try {
       return (PaymentRequest) Await.result(f, Duration.create(5, "seconds"));

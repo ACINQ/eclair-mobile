@@ -92,4 +92,14 @@
     <item>https://api.blockcypher.com/v1/btc/test3/txs/</item>
     <item>https://live.blockcypher.com/btc-testnet/tx/</item>
   </string-array>
+  <string-array name="lightning_pr_expiry_labels">
+    <item>20 minutes</item>
+    <item>1 hour</item>
+    <item>6 hours</item>
+  </string-array>
+  <string-array name="lightning_pr_expiry_values">
+    <item>1200</item>
+    <item>3600</item>
+    <item>21600</item>
+  </string-array>
 </resources>

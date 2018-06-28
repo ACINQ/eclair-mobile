@@ -43,7 +43,8 @@ public class PaymentRequestParametersDialog extends Dialog {
 
   private PaymentRequestParametersDialogCallback mCallback;
 
-  public PaymentRequestParametersDialog(final Context context, final @NotNull PaymentRequestParametersDialogCallback callback, final int themeResId) {
+  public PaymentRequestParametersDialog(final Context context, final @NotNull PaymentRequestParametersDialogCallback callback,
+                                        final int themeResId, final String description, final Option<MilliSatoshi> amountMsat) {
     super(context, themeResId);
     mCallback = callback;
     setContentView(R.layout.dialog_payment_request_parameters);
@@ -56,6 +57,11 @@ public class PaymentRequestParametersDialog extends Dialog {
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this.getContext());
     final CoinUnit prefUnit = WalletUtils.getPreferredCoinUnit(prefs);
     amountLayout.setHint(context.getString(R.string.dialog_prparams_amount, prefUnit.shortLabel()));
+
+    descriptionEdit.setText(description);
+    if (amountMsat.isDefined()) {
+      amountEdit.setText(CoinUtils.rawAmountInUnit(amountMsat.get(), prefUnit).bigDecimal().toPlainString());
+    }
 
     setOnCancelListener(new OnCancelListener() {
       @Override

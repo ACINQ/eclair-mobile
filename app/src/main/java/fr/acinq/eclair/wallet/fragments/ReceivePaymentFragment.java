@@ -68,6 +68,7 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
 
   private PaymentRequestParametersDialog mPRParamsDialog;
 
+  private boolean lightningUseDefaultDescription = true;
   private String lightningPaymentRequest = null;
   private String lightningDescription = "";
   private Option<MilliSatoshi> lightningAmount = Option.apply(null);
@@ -81,7 +82,6 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
   @Override
   public View onCreateView(final LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState) {
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
-    mPRParamsDialog = new PaymentRequestParametersDialog(ReceivePaymentFragment.this.getContext(), ReceivePaymentFragment.this, R.style.CustomAlertDialog);
     mBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_receive_payment, container, false);
     mBinding.setPaymentType(0);
     mBinding.setIsLightningInboundEnabled(prefs.getBoolean(Constants.SETTING_ENABLE_LIGHTNING_INBOUND_PAYMENTS, false));
@@ -92,7 +92,11 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
       mBinding.setPaymentType(1);
     });
     mBinding.lightningParameters.setOnClickListener(v -> {
-      if (!isGeneratingPaymentRequest) mPRParamsDialog.show();
+      if (!isGeneratingPaymentRequest) {
+        mPRParamsDialog = new PaymentRequestParametersDialog(ReceivePaymentFragment.this.getContext(), ReceivePaymentFragment.this,
+          R.style.CustomAlertDialog, this.lightningDescription, this.lightningAmount);
+        mPRParamsDialog.show();
+      }
     });
     return mBinding.getRoot();
   }
@@ -127,11 +131,17 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
   }
 
   private void setPaymentRequest() {
+    mBinding.setHasNormalChannels(EclairEventService.hasActiveChannels());
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+    if (lightningUseDefaultDescription) {
+      lightningDescription = prefs.getString(Constants.SETTING_PAYMENT_REQUEST_DEFAULT_DESCRIPTION, "");
+    }
     if (prefs.getBoolean(Constants.SETTING_ENABLE_LIGHTNING_INBOUND_PAYMENTS, false)) {
       loadingPaymentRequestFields();
       try {
-        new LightningPaymentRequestTask(this, (EclairActivity) this.getActivity()).execute(this.lightningDescription, this.lightningAmount);
+        new LightningPaymentRequestTask(this, (EclairActivity) this.getActivity())
+          .execute(this.lightningDescription, this.lightningAmount,
+            Long.parseLong(prefs.getString(Constants.SETTING_PAYMENT_REQUEST_EXPIRY, "3600")));
       } catch (Exception e) {
         failPaymentRequestFields();
         Log.e(TAG, "could not generate payment request", e);
@@ -230,6 +240,7 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
   public void onConfirm(PaymentRequestParametersDialog dialog, String description, Option<MilliSatoshi> amount) {
     this.lightningDescription = description;
     this.lightningAmount = amount;
+    this.lightningUseDefaultDescription = false; // value from dialog always overrides default value
     dialog.dismiss();
     setPaymentRequest();
   }
