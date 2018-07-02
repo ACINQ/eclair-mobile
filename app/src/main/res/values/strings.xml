@@ -31,7 +31,6 @@
   <string name="btcpayment_name">Transaction Details</string>
   <string name="channeldetails_name">Channel Details</string>
   <string name="channelrawdata_name">Channel Raw Data</string>
-  <string name="tools_name">Tools</string>
 
   <!-- //////////////// Home //////////////////// -->
 
@@ -177,7 +176,6 @@
 
   <string name="menu_home">Home</string>
   <string name="menu_networkinfos">Network Info</string>
-  <string name="menu_tools">Tools</string>
   <string name="menu_about">About</string>
   <string name="menu_faq">FAQ</string>
   <string name="menu_settings">Settings</string>
@@ -371,6 +369,12 @@
   <string name="networkinfos_block_timestamp_desc">Last block timestamp</string>
   <string name="networkinfos_networkchannels_label">Known channels</string>
   <string name="networkinfos_networkchannels_desc">Channels count in network</string>
+  <string name="networkinfos_wallet_title">Wallet</string>
+  <string name="networkinfos_networkdb_label">Delete Network DB</string>
+  <string name="networkinfos_networkdb_desc">Do not delete unless you know what you\'re doing. Restart the application once the DB has been deleted.</string>
+  <string name="networkinfos_networkdb_action">Delete Network DB</string>
+  <string name="networkinfos_xpub_label">Master Public Key</string>
+  <string name="networkinfos_xpub_desc">All your addresses derive from this key.</string>
 
   <!-- //////////////// Payment Item //////////////////// -->
 
@@ -436,7 +440,7 @@
   <string name="dialog_close_channel_forceclose">Force-close</string>
   <string name="dialog_close_channel_cancel">Cancel</string>
 
-  <!-- //////////////// wallet //////////////////// -->
+  <!-- //////////////// Wallet //////////////////// -->
 
   <string name="seed_encrypt_prompt">Enter a password to \nencrypt the seed</string>
   <string name="seed_encrypt_prompt_confirm">Confirm password</string>
@@ -444,16 +448,6 @@
   <string name="seed_read_general_failure">Could not read seed</string>
   <string name="wallet_init_create_new">Create new wallet</string>
   <string name="wallet_init_import_existing">Import existing wallet</string>
-
-  <!-- //////////////// tools //////////////////// -->
-
-  <string name="tools_advanced_title">Advanced Usage</string>
-  <string name="tools_wallet_title">Wallet</string>
-  <string name="tools_networkdb_label">Delete Network DB</string>
-  <string name="tools_networkdb_desc">Do not delete unless you know what you\'re doing. Restart the application once the DB has been deleted.</string>
-  <string name="tools_networkdb_action">Delete Network DB</string>
-  <string name="tools_xpub_label">Master Public Key</string>
-  <string name="tools_xpub_desc">All your addresses derive from this key.</string>
 
   <!-- //////////////// Notification //////////////////// -->
 
@@ -463,7 +457,7 @@
   <string name="notif_channelclosing_bigmessage_normal">You should see an incoming on-chain transaction.</string>
   <string name="notif_channelclosing_bigmessage_localclosing">You or your wallet unilaterally closed this channel. You will receive your funds in %1$d blocks. This value is dependent on the channel configuration.</string>
 
-  <!-- //////////////// Notification //////////////////// -->
+  <!-- //////////////// Channel Data //////////////////// -->
 
   <string name="rawdata_error">Could not get channel data.</string>
   <string name="rawdata_loading">Loading channel data, hold on…</string>

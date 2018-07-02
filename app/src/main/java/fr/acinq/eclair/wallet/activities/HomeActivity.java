@@ -296,9 +296,6 @@ public class HomeActivity extends EclairActivity {
       case R.id.menu_home_networkinfos:
         startActivity(new Intent(this, NetworkInfosActivity.class));
         return true;
-      case R.id.menu_home_tools:
-        startActivity(new Intent(this, ToolsActivity.class));
-        return true;
       case R.id.menu_home_about:
         startActivity(new Intent(this, AboutActivity.class));
         return true;
