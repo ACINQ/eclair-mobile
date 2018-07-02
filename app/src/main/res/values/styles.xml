@@ -44,11 +44,24 @@
     <item name="android:lineSpacingMultiplier">1.15</item>
   </style>
 
-  <style name="AppTheme.ForceBar" parent="AppTheme">
-    <item name="windowActionBar">true</item>
-    <item name="windowNoTitle">false</item>
-    <item name="actionBarTheme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
-    <item name="android:textColorSecondary">@color/grey_1</item>
+  <style name="PreferenceStyle" parent="Preference">
+    <item name="android:actionBarStyle">@style/PreferenceStyle.ActionBar</item>
+    <item name="android:colorAccent">@color/primary</item>
+    <item name="colorPrimary">@color/primary</item>
+    <item name="colorPrimaryDark">@color/primary</item>
+    <item name="android:statusBarColor">@color/primary</item>
+  </style>
+
+  <style name="ActionBar" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
+    <item name="android:background">@color/primary</item>
+    <item name="android:displayOptions">showTitle</item>
+    <item name="android:height">@dimen/action_bar_height</item>
+  </style>
+
+  <style name="PreferenceStyle.ActionBar" parent="@style/ActionBar">
+    <item name="android:displayOptions">homeAsUp|showTitle</item>
+    <item name="android:textColorPrimary">@color/white</item>
+    <item name="android:textColor">@color/white</item>
   </style>
 
   <style name="CustomDialog" parent="@style/Theme.AppCompat.Light.Dialog">
@@ -67,6 +80,7 @@
     <item name="windowActionBar">false</item>
     <item name="android:windowNoTitle">true</item>
     <item name="android:windowIsFloating">false</item>
+    <item name="android:statusBarColor">@color/primary</item>
   </style>
 
   <style name="CustomAlertDialog" parent="CustomDialog">

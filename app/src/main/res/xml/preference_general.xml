@@ -64,14 +64,4 @@
       android:title="@string/prefs_btc_decimals" />
 
   </PreferenceCategory>
-
-  <PreferenceCategory android:title="@string/prefs_cat_lightning">
-
-    <SwitchPreference
-      android:defaultValue="true"
-      android:key="cap_lightning_fees"
-      android:summary="@string/prefs_lightning_max_fee_desc"
-      android:title="@string/prefs_lightning_max_fee" />
-
-  </PreferenceCategory>
 </PreferenceScreen>

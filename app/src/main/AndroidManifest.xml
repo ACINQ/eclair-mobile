@@ -122,10 +122,20 @@
       android:screenOrientation="portrait" />
     <activity
       android:name=".activities.PreferencesActivity"
-      android:label="@string/menu_preferences"
-      android:parentActivityName=".activities.PreferencesActivity"
+      android:label="@string/menu_settings"
+      android:parentActivityName=".activities.HomeActivity"
       android:screenOrientation="portrait"
-      android:theme="@style/AppTheme.ForceBar" />
+      android:theme="@style/PreferenceStyle" />
+    <activity
+      android:name=".activities.SecuritySettingsActivity"
+      android:label="@string/menu_settings_security"
+      android:parentActivityName=".activities.PreferencesActivity"
+      android:screenOrientation="portrait">
+      <intent-filter>
+        <action android:name="fr.acinq.eclair.wallet.activities.SecuritySettingsActivity" />
+        <category android:name="android.intent.category.DEFAULT" />
+      </intent-filter>
+    </activity>
     <activity
       android:name=".activities.ChannelRawDataActivity"
       android:label="@string/channelrawdata_name"

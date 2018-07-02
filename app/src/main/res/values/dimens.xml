@@ -22,6 +22,7 @@
   <dimen name="space_xs">8dp</dimen>
 
   <dimen name="app_bar_height">180dp</dimen>
+  <dimen name="action_bar_height">58dp</dimen>
   <dimen name="item_height">50dp</dimen>
 
   <dimen name="word_list_padding">4dp</dimen>
