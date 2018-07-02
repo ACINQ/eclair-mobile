@@ -16,55 +16,6 @@
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-  <PreferenceCategory android:title="@string/prefs_cat_general">
-
-    <ListPreference
-      android:defaultValue="https://api.blockcypher.com/v1/btc/test3/txs/"
-      android:dialogTitle="@string/prefs_onchain_explorer_dialog"
-      android:entries="@array/onchain_explorer_uri_labels"
-      android:entryValues="@array/onchain_explorer_uri_values"
-      android:key="onchain_explorer"
-      android:summary="%s"
-      android:title="@string/prefs_onchain_explorer" />
-
-    <SwitchPreference
-      android:defaultValue="true"
-      android:key="haptic_feedback"
-      android:title="@string/prefs_haptic_title" />
-
-  </PreferenceCategory>
-
-  <PreferenceCategory android:title="@string/prefs_cat_display">
-
-    <ListPreference
-      android:defaultValue="USD"
-      android:dialogTitle="@string/prefs_fiat_currency_dialog"
-      android:entries="@array/fiat_labels"
-      android:entryValues="@array/fiat_values"
-      android:key="fiat_currency"
-      android:summary="%s"
-      android:title="@string/prefs_fiat_currency" />
-
-    <ListPreference
-      android:defaultValue="btc"
-      android:dialogTitle="@string/prefs_btc_unit"
-      android:entries="@array/btc_unit_labels"
-      android:entryValues="@array/btc_unit_values"
-      android:key="btc_unit"
-      android:summary="%s"
-      android:title="@string/prefs_btc_unit" />
-
-    <ListPreference
-      android:defaultValue="###,###,###,##0.###########"
-      android:dialogTitle="@string/prefs_btc_decimals"
-      android:entries="@array/btc_pattern_labels"
-      android:entryValues="@array/btc_pattern_values"
-      android:key="btc_pattern"
-      android:summary="%s"
-      android:title="@string/prefs_btc_decimals" />
-
-  </PreferenceCategory>
-
   <PreferenceCategory android:title="@string/prefs_cat_lightning">
 
     <SwitchPreference
@@ -79,6 +30,9 @@
       android:summary="@string/prefs_lightning_enable_inbound_desc"
       android:title="@string/prefs_lightning_enable_inbound" />
 
+  </PreferenceCategory>
+
+  <PreferenceCategory android:title="Payment Request parameters">
     <EditTextPreference
       android:dialogTitle="@string/prefs_payment_request_default_description"
       android:key="payment_request_default_description"
@@ -93,6 +47,5 @@
       android:key="payment_request_expiry"
       android:summary="%s"
       android:title="@string/prefs_payment_request_expiry" />
-
   </PreferenceCategory>
 </PreferenceScreen>
