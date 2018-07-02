@@ -33,7 +33,6 @@
   <string name="btcpayment_name">Transaction Details</string>
   <string name="channeldetails_name">Channel Details</string>
   <string name="channelrawdata_name">Channel Raw Data</string>
-  <string name="tools_name">Tools</string>
 
   <!-- //////////////// Home //////////////////// -->
 
@@ -178,7 +177,6 @@
 
   <string name="menu_home">Home</string>
   <string name="menu_networkinfos">Network Info</string>
-  <string name="menu_tools">Tools</string>
   <string name="menu_about">About</string>
   <string name="menu_faq">FAQ</string>
   <string name="menu_settings">Settings</string>
@@ -374,6 +372,12 @@
   <string name="networkinfos_block_timestamp_desc">Last block timestamp</string>
   <string name="networkinfos_networkchannels_label">Known channels</string>
   <string name="networkinfos_networkchannels_desc">Channels count in network</string>
+  <string name="networkinfos_wallet_title">Wallet</string>
+  <string name="networkinfos_networkdb_label">Delete Network DB</string>
+  <string name="networkinfos_networkdb_desc">Do not delete unless you know what you\'re doing. Restart the application once the DB has been deleted.</string>
+  <string name="networkinfos_networkdb_action">Delete Network DB</string>
+  <string name="networkinfos_xpub_label">Master Public Key</string>
+  <string name="networkinfos_xpub_desc">All your addresses derive from this key.</string>
 
   <!-- //////////////// Payment Item //////////////////// -->
 
@@ -452,16 +456,6 @@
   <string name="seed_read_general_failure">Could not read seed</string>
   <string name="wallet_init_create_new">Create new wallet</string>
   <string name="wallet_init_import_existing">Import existing wallet</string>
-
-  <!-- //////////////// Tools //////////////////// -->
-
-  <string name="tools_advanced_title">Advanced Usage</string>
-  <string name="tools_wallet_title">Wallet</string>
-  <string name="tools_networkdb_label">Delete Network DB</string>
-  <string name="tools_networkdb_desc">Do not delete unless you know what you\'re doing. Restart the application once the DB has been deleted.</string>
-  <string name="tools_networkdb_action">Delete Network DB</string>
-  <string name="tools_xpub_label">Master Public Key</string>
-  <string name="tools_xpub_desc">All your addresses derive from this key.</string>
 
   <!-- //////////////// Notification //////////////////// -->
 

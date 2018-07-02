@@ -142,10 +142,6 @@
       android:label="@string/channelrawdata_name"
       android:parentActivityName=".activities.ChannelDetailsActivity"
       android:screenOrientation="portrait" />
-    <activity android:name=".activities.ToolsActivity"
-      android:label="@string/tools_name"
-      android:parentActivityName=".activities.HomeActivity"
-      android:screenOrientation="portrait" />
     <receiver android:name=".utils.StartNotificationReminder">
       <intent-filter>
         <action android:name="android.intent.action.BOOT_COMPLETED"/>

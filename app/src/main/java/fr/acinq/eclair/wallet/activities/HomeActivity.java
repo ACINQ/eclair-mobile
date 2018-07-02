@@ -17,7 +17,6 @@
 package fr.acinq.eclair.wallet.activities;
 
 import android.annotation.SuppressLint;
-import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
@@ -295,9 +294,6 @@ public class HomeActivity extends EclairActivity {
     switch (item.getItemId()) {
       case R.id.menu_home_networkinfos:
         startActivity(new Intent(this, NetworkInfosActivity.class));
-        return true;
-      case R.id.menu_home_tools:
-        startActivity(new Intent(this, ToolsActivity.class));
         return true;
       case R.id.menu_home_about:
         startActivity(new Intent(this, AboutActivity.class));

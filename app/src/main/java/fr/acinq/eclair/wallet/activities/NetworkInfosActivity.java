@@ -16,55 +16,50 @@
 
 package fr.acinq.eclair.wallet.activities;
 
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
+import android.widget.Toast;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.io.File;
 import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.util.Date;
 
 import fr.acinq.eclair.Globals;
+import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.R;
-import fr.acinq.eclair.wallet.customviews.DataRow;
+import fr.acinq.eclair.wallet.databinding.ActivityNetworkInfosBinding;
 import fr.acinq.eclair.wallet.events.NetworkChannelsCountEvent;
+import fr.acinq.eclair.wallet.events.XpubEvent;
+import fr.acinq.eclair.wallet.utils.Constants;
 
 public class NetworkInfosActivity extends EclairActivity implements SwipeRefreshLayout.OnRefreshListener {
 
-  private static final String TAG = "NetworkInfosActivity";
-  private DataRow mNodePublicKeyRow;
-  private DataRow mNetworkChannelCount;
-  private DataRow mBlockCount;
-  private DataRow mFeeRate;
-  private DataRow mElectrumAddress;
-  private DataRow mBlockTimestamp;
-  private SwipeRefreshLayout mRefreshLayout;
+  private static final String TAG = NetworkInfosActivity.class.getSimpleName();
+  private ActivityNetworkInfosBinding mBinding;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    setContentView(R.layout.activity_networkinfos);
+    mBinding = DataBindingUtil.setContentView(this, R.layout.activity_network_infos);
 
     Toolbar toolbar = findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
     ActionBar ab = getSupportActionBar();
     ab.setDisplayHomeAsUpEnabled(true);
 
-    mNodePublicKeyRow = findViewById(R.id.networkinfos_nodeid);
-    mNetworkChannelCount = findViewById(R.id.networkinfos_networkchannels_count);
-    mBlockCount = findViewById(R.id.networkinfos_blockcount);
-    mBlockTimestamp = findViewById(R.id.networkinfos_block_timestamp);
-    mElectrumAddress = findViewById(R.id.networkinfos_electrum_address);
-    mFeeRate = findViewById(R.id.networkinfos_feerate);
-
-    mRefreshLayout = findViewById(R.id.networkinfos_swiperefresh);
-    mRefreshLayout.setColorSchemeResources(R.color.primary, R.color.green, R.color.accent);
-    mRefreshLayout.setOnRefreshListener(this);
+    // refresh
+    mBinding.swipeRefresh.setColorSchemeResources(R.color.primary, R.color.green, R.color.accent);
+    mBinding.swipeRefresh.setOnRefreshListener(this);
+    // delete db
+    mBinding.deleteNetworkDB.actionButton.setOnClickListener(v -> deleteNetworkDB());
   }
 
   @Override
@@ -73,21 +68,12 @@ public class NetworkInfosActivity extends EclairActivity implements SwipeRefresh
   }
 
   private void refreshData() {
-    mBlockCount.setValue(String.valueOf(Globals.blockCount().get()));
-    mBlockTimestamp.setValue(DateFormat.getDateTimeInstance().format(new Date(app.getBlockTimestamp() * 1000)));
-    mElectrumAddress.setValue(app.getElectrumServerAddress());
-    mFeeRate.setValue(NumberFormat.getInstance().format(Globals.feeratesPerKw().get().block_1()) + " sat/kw");
+    mBinding.blockCount.setValue(String.valueOf(Globals.blockCount().get()));
+    mBinding.blockTimestamp.setValue(DateFormat.getDateTimeInstance().format(new Date(app.getBlockTimestamp() * 1000)));
+    mBinding.electrumAddress.setValue(app.getElectrumServerAddress());
+    mBinding.feeRate.setValue(NumberFormat.getInstance().format(Globals.feeratesPerKw().get().block_1()) + " sat/kw");
     app.getNetworkChannelsCount();
-    mRefreshLayout.setRefreshing(false);
-  }
-
-  @Subscribe(threadMode = ThreadMode.MAIN)
-  public void handleNetworkChannelsCountEvent(NetworkChannelsCountEvent event) {
-    if (event.count == -1) {
-      mNetworkChannelCount.setValue(getResources().getString(R.string.unknown));
-    } else {
-      mNetworkChannelCount.setValue(Integer.toString(event.count));
-    }
+    mBinding.swipeRefresh.setRefreshing(false);
   }
 
   @Override
@@ -97,7 +83,8 @@ public class NetworkInfosActivity extends EclairActivity implements SwipeRefresh
       if (!EventBus.getDefault().isRegistered(this)) {
         EventBus.getDefault().register(this);
       }
-      mNodePublicKeyRow.setValue(app.nodePublicKey());
+      app.getXpubFromWallet();
+      mBinding.nodeId.setValue(app.nodePublicKey());
       refreshData();
     }
   }
@@ -106,5 +93,31 @@ public class NetworkInfosActivity extends EclairActivity implements SwipeRefresh
   protected void onPause() {
     super.onPause();
     EventBus.getDefault().unregister(this);
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN)
+  public void handleRawDataEvent(XpubEvent event) {
+    if (event == null || event.xpub == null) {
+      mBinding.xpub.setValue("Could not get wallet xpub.");
+    } else {
+      mBinding.xpub.setValue(event.xpub.xpub() + "\n\n" + event.xpub.path());
+    }
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN)
+  public void handleNetworkChannelsCountEvent(NetworkChannelsCountEvent event) {
+    if (event.count == -1) {
+      mBinding.networkChannelsCount.setValue(getResources().getString(R.string.unknown));
+    } else {
+      mBinding.networkChannelsCount.setValue(Integer.toString(event.count));
+    }
+  }
+
+  private void deleteNetworkDB() {
+    final File datadir = new File(getFilesDir(), Constants.ECLAIR_DATADIR);
+    final File networkDB = new File(datadir, BuildConfig.CHAIN + "/network.sqlite");
+    if (networkDB.delete()) {
+      Toast.makeText(getApplicationContext(), "Successfully deleted network DB", Toast.LENGTH_SHORT).show();
+    }
   }
 }
