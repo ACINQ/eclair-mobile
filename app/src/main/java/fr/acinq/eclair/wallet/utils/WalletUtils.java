@@ -16,12 +16,15 @@
 
 package fr.acinq.eclair.wallet.utils;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.preference.PreferenceManager;
+import android.text.Html;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -35,15 +38,18 @@ import java.io.File;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.text.NumberFormat;
+import java.util.regex.Pattern;
 
 import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.bitcoin.Block;
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.CoinUnit;
+import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.BuildConfig;
+import fr.acinq.eclair.wallet.R;
 
 public class WalletUtils {
   public final static String ACINQ_NODE = "03933884aaf1d6b108397e5efe5c86bcf2d8ca8d2f700eda99db9214fc2712b134@endurance.acinq.co:9735";
@@ -216,6 +222,24 @@ public class WalletUtils {
 
   public static CoinUnit getPreferredCoinUnit(final SharedPreferences prefs) {
     return fr.acinq.eclair.CoinUtils.getUnitFromString(prefs.getString(Constants.SETTING_BTC_UNIT, Constants.BTC_CODE));
+  }
+
+  /**
+   * Prints a stringified amount in a text view. Decimal part if present is smaller than int part.
+   */
+  @SuppressLint("SetTextI18n")
+  public static void printAmountInView(final TextView view, final String amount, final String direction) {
+    final String decSep = String.valueOf(CoinUtils.COIN_FORMAT().getDecimalFormatSymbols().getDecimalSeparator());
+    final String[] amountParts = amount.split(Pattern.quote(decSep));
+    if (amountParts.length == 2) {
+      view.setText(Html.fromHtml(view.getContext().getString(R.string.pretty_amount_value, direction + amountParts[0] + decSep, amountParts[1])));
+    } else {
+      view.setText(direction + amount);
+    }
+  }
+
+  public static void printAmountInView(final TextView view, final String amount) {
+    printAmountInView(view, amount, "");
   }
 
   /**

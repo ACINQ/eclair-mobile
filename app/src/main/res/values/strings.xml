@@ -171,6 +171,7 @@
   <string name="generic_error">Action failed</string>
   <string name="error_icon">Error Icon</string>
   <string name="error_generic">Internal Error</string>
+  <string name="pretty_amount_value"><![CDATA[%1$s<small>%2$s<small>]]></string>
 
   <!-- /////////////// Menus /////////////// -->
 
@@ -461,6 +462,7 @@
   <string name="notif_channelclosing_bigmessage_localclosing">You or your wallet unilaterally closed this channel. You will receive your funds in %1$d blocks. This value is dependent on the channel configuration.</string>
 
   <!-- //////////////// Notification //////////////////// -->
+
   <string name="rawdata_error">Could not get channel data.</string>
   <string name="rawdata_loading">Loading channel data, hold on…</string>
   <string name="rawdata_copy_success">Copied data to clipboard</string>

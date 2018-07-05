@@ -33,8 +33,8 @@ import android.widget.TextView;
 
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.eclair.CoinUnit;
-import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.CoinUtils;
+import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 
 public class CoinAmountView extends RelativeLayout {
@@ -68,12 +68,11 @@ public class CoinAmountView extends RelativeLayout {
   public void refreshUnits() {
     this.prefBtcUnit = WalletUtils.getPreferredCoinUnit(prefs);
     this.prefFiatCurrency = WalletUtils.getPreferredFiat(prefs);
-    final boolean displayAmountAsFiat = WalletUtils.shouldDisplayInFiat(prefs);
-    if (displayAmountAsFiat) {
-      amountTextView.setText(WalletUtils.convertMsatToFiat(amountMsat.amount(), prefFiatCurrency));
+    if (WalletUtils.shouldDisplayInFiat(prefs)) {
+      WalletUtils.printAmountInView(amountTextView, WalletUtils.convertMsatToFiat(amountMsat.amount(), prefFiatCurrency));
       unitTextView.setText(prefFiatCurrency.toUpperCase());
     } else {
-      amountTextView.setText(CoinUtils.formatAmountInUnit(amountMsat, prefBtcUnit, false));
+      WalletUtils.printAmountInView(amountTextView, CoinUtils.formatAmountInUnit(amountMsat, prefBtcUnit, false));
       unitTextView.setText(prefBtcUnit.shortLabel());
     }
     refreshView();

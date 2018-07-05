@@ -103,10 +103,10 @@ public class LocalChannelItemHolder extends RecyclerView.ViewHolder implements V
 
     // setting amount & unit with optional conversion to fiat
     if (displayAmountAsFiat) {
-      balance.setText(WalletUtils.convertMsatToFiat(channelItem.balanceMsat.amount(), fiatCode));
+      WalletUtils.printAmountInView(balance, WalletUtils.convertMsatToFiat(channelItem.balanceMsat.amount(), fiatCode));
       balanceUnit.setText(fiatCode.toUpperCase());
     } else {
-      balance.setText(CoinUtils.formatAmountInUnit(channelItem.balanceMsat, prefUnit, false));
+      WalletUtils.printAmountInView(balance, CoinUtils.formatAmountInUnit(channelItem.balanceMsat, prefUnit, false));
       balanceUnit.setText(prefUnit.shortLabel());
     }
     node.setText("With " + channelItem.remoteNodeId);
