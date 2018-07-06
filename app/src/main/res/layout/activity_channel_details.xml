@@ -18,6 +18,18 @@
   xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools">
 
+  <data>
+
+    <variable
+      name="hasAdvancedRoutingSync"
+      type="boolean" />
+
+    <variable
+      name="hasDataLossProtection"
+      type="boolean" />
+
+  </data>
+
   <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -162,8 +174,8 @@
           android:id="@+id/nodeid"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          app:has_border="true"
           app:desc="@string/channeldetails_nodeid_desc"
+          app:has_border="true"
           app:label="@string/channeldetails_nodeid_label"
           app:value="@string/unknown" />
 
@@ -171,8 +183,8 @@
           android:id="@+id/capacity"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          app:has_border="true"
           app:desc="@string/channeldetails_capacity_desc"
+          app:has_border="true"
           app:label="@string/channeldetails_capacity_label"
           app:value="@string/unknown" />
 
@@ -185,10 +197,10 @@
           android:id="@+id/channel_id"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          app:has_border="true"
           app:action_label="@string/channeldetails_raw_data"
           app:desc="@string/channeldetails_id_desc"
           app:has_action="true"
+          app:has_border="true"
           app:label="@string/channeldetails_id_label"
           app:value="@string/unknown" />
 
@@ -196,28 +208,52 @@
           android:id="@+id/short_channel_id"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
+          app:has_border="true"
           app:label="@string/channeldetails_short_id_label"
           app:value="@string/unknown" />
 
-        <include layout="@layout/include_separator" />
-
-        <fr.acinq.eclair.wallet.customviews.DataRow
-          android:id="@+id/advanced_routing_sync"
+        <LinearLayout
           android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          app:desc="@string/channeldetails_advanced_routing_desc"
-          app:label="@string/channeldetails_advanced_routing_label"
-          app:value="@string/unknown" />
+          android:layout_height="match_parent"
+          android:orientation="horizontal"
+          android:paddingBottom="@dimen/space_xs"
+          android:paddingEnd="@dimen/space_md"
+          android:paddingStart="@dimen/space_md"
+          android:paddingTop="@dimen/space_xs">
 
-        <include layout="@layout/include_separator" />
+          <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:text="@string/channeldetails_features_label"
+            android:textStyle="bold" />
 
-        <fr.acinq.eclair.wallet.customviews.DataRow
-          android:id="@+id/data_loss_protection"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          app:desc="@string/channeldetails_data_loss_protection_desc"
-          app:label="@string/channeldetails_data_loss_protection_label"
-          app:value="@string/unknown" />
+          <LinearLayout
+            android:layout_width="0.0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_md"
+            android:layout_weight="0.5"
+            android:orientation="vertical">
+
+            <TextView
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_marginBottom="@dimen/space_xs"
+              android:drawablePadding="@dimen/space_xxs"
+              android:drawableStart="@{hasAdvancedRoutingSync ? @drawable/ic_circle_check : @drawable/ic_circle_cross}"
+              android:text="@string/channeldetails_advanced_routing_label"
+              android:textSize="10sp" />
+
+            <TextView
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:drawablePadding="@dimen/space_xxs"
+              android:drawableStart="@{hasDataLossProtection ? @drawable/ic_circle_check : @drawable/ic_circle_cross}"
+              android:text="@string/channeldetails_data_loss_protection_label"
+              android:textSize="10sp" />
+
+          </LinearLayout>
+        </LinearLayout>
 
         <include layout="@layout/include_separator" />
 
@@ -225,8 +261,8 @@
           android:id="@+id/to_self_delay"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          app:has_border="true"
           app:desc="@string/channeldetails_to_self_delay_desc"
+          app:has_border="true"
           app:label="@string/channeldetails_to_self_delay_label"
           app:value="@string/unknown" />
 
@@ -234,8 +270,8 @@
           android:id="@+id/reserve"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          app:has_border="true"
           app:desc="@string/channeldetails_reserve_desc"
+          app:has_border="true"
           app:label="@string/channeldetails_reserve_label"
           app:value="@string/unknown" />
 
@@ -243,8 +279,8 @@
           android:id="@+id/count_htlcs_inflight"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          app:has_border="true"
           app:desc="@string/channeldetails_htlcs_count_desc"
+          app:has_border="true"
           app:label="@string/channeldetails_htlcs_count_label"
           app:value="@string/unknown" />
 
@@ -252,8 +288,8 @@
           android:id="@+id/minimum_htlc_amount"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          app:has_border="true"
           app:desc="@string/channeldetails_min_htlc_amount_desc"
+          app:has_border="true"
           app:label="@string/channeldetails_min_htlc_amount_label"
           app:value="@string/unknown" />
 

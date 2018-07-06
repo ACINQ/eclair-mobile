@@ -155,9 +155,8 @@ public class ChannelDetailsActivity extends EclairActivity {
         mBinding.channelId.setValue(channel.getValue().channelId);
         mBinding.channelId.actionButton.setOnClickListener(v -> openRawDataWindow());
         mBinding.shortChannelId.setValue(channel.getValue().shortChannelId);
-        displayFeatureSupport(mBinding.advancedRoutingSync, Features.hasFeature(channel.getValue().localFeatures, Features.INITIAL_ROUTING_SYNC_BIT_OPTIONAL()));
-        displayFeatureSupport(mBinding.dataLossProtection, Features.hasFeature(channel.getValue().localFeatures, Features.OPTION_DATA_LOSS_PROTECT_OPTIONAL())
-          || Features.hasFeature(channel.getValue().localFeatures, Features.OPTION_DATA_LOSS_PROTECT_MANDATORY()));
+        mBinding.setHasAdvancedRoutingSync(Features.hasFeature(channel.getValue().localFeatures, Features.INITIAL_ROUTING_SYNC_BIT_OPTIONAL()));
+        mBinding.setHasDataLossProtection(Features.hasFeature(channel.getValue().localFeatures, Features.OPTION_DATA_LOSS_PROTECT_OPTIONAL()));
         mBinding.toSelfDelay.setValue(String.valueOf(channel.getValue().toSelfDelayBlocks));
         mBinding.reserve.setValue(CoinUtils.formatAmountInUnit(new Satoshi(channel.getValue().channelReserveSat), prefUnit, true));
         mBinding.countHtlcsInflight.setValue(String.valueOf(channel.getValue().htlcsInFlightCount));
@@ -168,17 +167,6 @@ public class ChannelDetailsActivity extends EclairActivity {
     } catch (Exception e) {
       Log.w(TAG, "could not read channel details with cause=" + e.getMessage());
     }
-  }
-
-  private void displayFeatureSupport(final DataRow view, final boolean isSupported) {
-    if (isSupported) {
-      view.setValue(getString(R.string.channeldetails_feature_supported));
-      view.getValueView().setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_circle_check, 0, 0, 0);
-    } else {
-      view.setValue(getString(R.string.channeldetails_feature_not_supported));
-      view.getValueView().setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_circle_cross, 0, 0, 0);
-    }
-    view.getValueView().setCompoundDrawablePadding(12);
   }
 
   private void openRawDataWindow() {

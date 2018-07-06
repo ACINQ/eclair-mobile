@@ -200,15 +200,12 @@
 
   <!-- //////////////// Local Channel Details //////////////////// -->
 
-  <string name="channeldetails_feature_supported">Supported by peer.</string>
-  <string name="channeldetails_feature_not_supported">Peer does not support this feature.</string>
   <string name="channeldetails_id_label">Id</string>
   <string name="channeldetails_id_desc">Channel unique identifier</string>
   <string name="channeldetails_short_id_label">Short Channel Id</string>
-  <string name="channeldetails_advanced_routing_label">Advanced Routing Sync Support</string>
-  <string name="channeldetails_advanced_routing_desc">Synchronizing the routing table is much faster when starting the app.</string>
-  <string name="channeldetails_data_loss_protection_label">Dataloss Protection Support</string>
-  <string name="channeldetails_data_loss_protection_desc">Channel can be backup in case of loss of data</string>
+  <string name="channeldetails_features_label">Features support</string>
+  <string name="channeldetails_advanced_routing_label">Advanced routing sync</string>
+  <string name="channeldetails_data_loss_protection_label">Dataloss protection</string>
   <string name="channeldetails_to_self_delay_label">To Self Delay</string>
   <string name="channeldetails_to_self_delay_desc">Refund delay for uncooperative close</string>
   <string name="channeldetails_reserve_label">Reserve</string>
