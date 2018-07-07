@@ -16,6 +16,7 @@
 
 package fr.acinq.eclair.wallet.activities;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.PersistableBundle;
@@ -54,6 +55,14 @@ public class PreferencesActivity extends PreferenceActivity {
         CoinUtils.setCoinPattern(prefs.getString(Constants.SETTING_BTC_PATTERN, getResources().getStringArray(R.array.btc_pattern_values)[3]));
       }
     };
+  }
+
+  @Override
+  public void onHeaderClick(Header header, int position) {
+    super.onHeaderClick(header, position);
+    if (header.id == R.id.header_security) {
+      startActivity(new Intent(getBaseContext(), SecuritySettingsActivity.class));
+    }
   }
 
   @Override
