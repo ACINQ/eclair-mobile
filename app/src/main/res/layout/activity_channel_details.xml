@@ -39,7 +39,7 @@
     <!-- Custom toolbar -->
     <include layout="@layout/toolbar" />
 
-    <android.support.v4.widget.NestedScrollView
+    <ScrollView
       android:layout_width="match_parent"
       android:layout_height="wrap_content">
 
@@ -305,6 +305,6 @@
           app:value="@string/unknown" />
 
       </LinearLayout>
-    </android.support.v4.widget.NestedScrollView>
+    </ScrollView>
   </LinearLayout>
 </layout>

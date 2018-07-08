@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright 2018 ACINQ SAS
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,104 +14,176 @@
   ~ limitations under the License.
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools"
-  android:layout_width="match_parent"
-  android:layout_height="match_parent"
-  android:orientation="vertical"
   tools:context="fr.acinq.eclair.wallet.activities.BitcoinTransactionDetailsActivity">
 
-  <!-- Custom toolbar -->
-  <include layout="@layout/toolbar" />
+  <data>
 
-  <android.support.v4.widget.NestedScrollView
+    <import type="android.view.View" />
+
+    <variable
+      name="isTxReceived"
+      type="boolean" />
+
+  </data>
+
+  <LinearLayout
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
-    <LinearLayout
+    <!-- Custom toolbar -->
+    <include layout="@layout/toolbar" />
+
+    <ScrollView
       android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:orientation="vertical">
-
-      <fr.acinq.eclair.wallet.customviews.DataRow
-        android:id="@+id/transactiondetails_amount"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:has_border="true"
-        app:desc="@string/transactiondetails_amount_desc"
-        app:label="@string/transactiondetails_amount_label"
-        app:value="@string/unknown" />
-
-      <fr.acinq.eclair.wallet.customviews.DataRow
-        android:id="@+id/transactiondetails_fees"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:has_border="true"
-        app:desc="@string/transactiondetails_fees_desc"
-        app:label="@string/transactiondetails_fees_label"
-        app:value="@string/unknown" />
-
-      <fr.acinq.eclair.wallet.customviews.DataRow
-        android:id="@+id/transactiondetails_txid"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:has_border="true"
-        app:desc="@string/transactiondetails_txid_desc"
-        app:label="@string/transactiondetails_txid_label"
-        app:value="@string/unknown" />
-
-      <fr.acinq.eclair.wallet.customviews.DataRow
-        android:id="@+id/transactiondetails_confs"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:has_border="true"
-        app:label="@string/transactiondetails_confs_label"
-        app:value="@string/unknown" />
-
-      <fr.acinq.eclair.wallet.customviews.DataRow
-        android:id="@+id/transactiondetails_confs_type"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:has_border="true"
-        app:label="@string/transactiondetails_confs_type_label"
-        app:value="@string/unknown" />
-
-      <fr.acinq.eclair.wallet.customviews.DataRow
-        android:id="@+id/transactiondetails_date"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:label="@string/transactiondetails_date_label"
-        app:value="@string/unknown" />
-
-      <include layout="@layout/include_open_in_explorer" />
+      android:layout_height="wrap_content">
 
       <LinearLayout
-        android:id="@+id/transactiondetails_rebroadcast"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:background="@color/grey_4"
-        android:clickable="true"
-        android:gravity="center"
-        android:orientation="horizontal"
-        android:focusable="true"
-        android:padding="12dp">
+        android:orientation="vertical">
 
-        <ImageView
-          android:layout_width="18dp"
-          android:layout_height="18dp"
-          android:layout_marginEnd="8dp"
-          android:src="@mipmap/ic_broadcast" />
-
-        <TextView
-          android:layout_width="wrap_content"
+        <LinearLayout
+          android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:text="@string/transactiondetails_rebroadcast"
-          android:textColor="@color/white"
-          android:textAllCaps="true"
-          android:textSize="12sp" />
+          android:orientation="vertical"
+          android:padding="@dimen/space_md">
+
+          <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@{isTxReceived ? @string/transactiondetails_amount_received_label : @string/transactiondetails_amount_sent_label}"
+            android:textAllCaps="true"
+            android:textColor="@color/grey_1"
+            android:textSize="10sp" />
+
+          <fr.acinq.eclair.wallet.customviews.CoinAmountView
+            android:id="@+id/tx_amount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:alignment="left"
+            app:amount_color="@color/grey_4"
+            app:amount_size="36sp"
+            app:unit="mBTC"
+            app:unit_color="@color/grey_3"
+            app:unit_size="12sp" />
+
+          <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <LinearLayout
+              android:layout_width="0dp"
+              android:layout_height="wrap_content"
+              android:layout_weight="0.5"
+              android:orientation="vertical">
+
+              <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_sm"
+                android:text="@string/transactiondetails_confs_label"
+                android:textAllCaps="true"
+                android:textColor="@color/grey_1"
+                android:textSize="10sp" />
+
+              <TextView
+                android:id="@+id/confs"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            </LinearLayout>
+
+            <LinearLayout
+              android:layout_width="0dp"
+              android:layout_height="wrap_content"
+              android:layout_weight="0.5"
+              android:orientation="vertical"
+              android:paddingStart="@dimen/space_xs"
+              android:visibility="@{isTxReceived ? View.GONE : View.VISIBLE}">
+
+              <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_sm"
+                android:text="@string/transactiondetails_fees_label"
+                android:textAllCaps="true"
+                android:textColor="@color/grey_1"
+                android:textSize="10sp" />
+
+              <TextView
+                android:id="@+id/fees"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            </LinearLayout>
+
+          </LinearLayout>
+
+        </LinearLayout>
+
+        <include layout="@layout/include_separator" />
+
+        <fr.acinq.eclair.wallet.customviews.DataRow
+          android:id="@+id/tx_id"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          app:action_bg="@color/yellow"
+          app:action_label="@string/open_in_explorer"
+          app:desc="@string/transactiondetails_txid_desc"
+          app:has_action="true"
+          app:has_border="true"
+          app:label="@string/transactiondetails_txid_label"
+          app:value="@string/unknown" />
+
+        <fr.acinq.eclair.wallet.customviews.DataRow
+          android:id="@+id/confs_type"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          app:has_border="true"
+          app:label="@string/transactiondetails_confs_type_label"
+          app:value="@string/unknown" />
+
+        <fr.acinq.eclair.wallet.customviews.DataRow
+          android:id="@+id/date"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          app:label="@string/transactiondetails_date_label"
+          app:value="@string/unknown" />
+
+        <LinearLayout
+          android:id="@+id/rebroadcast"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_marginTop="8dp"
+          android:background="@color/grey_4"
+          android:clickable="true"
+          android:focusable="true"
+          android:gravity="center"
+          android:orientation="horizontal"
+          android:padding="12dp"
+          android:visibility="gone">
+
+          <ImageView
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:layout_marginEnd="8dp"
+            android:src="@mipmap/ic_broadcast" />
+
+          <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/transactiondetails_rebroadcast"
+            android:textAllCaps="true"
+            android:textColor="@color/white"
+            android:textSize="12sp" />
+        </LinearLayout>
       </LinearLayout>
-    </LinearLayout>
-  </android.support.v4.widget.NestedScrollView>
-</LinearLayout>
+    </ScrollView>
+  </LinearLayout>
+</layout>

@@ -56,7 +56,6 @@ import fr.acinq.eclair.router.NORMAL$;
 import fr.acinq.eclair.wallet.EclairEventService;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.adapters.LocalChannelItemHolder;
-import fr.acinq.eclair.wallet.customviews.DataRow;
 import fr.acinq.eclair.wallet.databinding.ActivityChannelDetailsBinding;
 import fr.acinq.eclair.wallet.fragments.CloseChannelDialog;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
@@ -75,7 +74,6 @@ public class ChannelDetailsActivity extends EclairActivity {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    setContentView(R.layout.activity_channel_details);
     mBinding = DataBindingUtil.setContentView(this, R.layout.activity_channel_details);
 
     Toolbar toolbar = findViewById(R.id.toolbar);

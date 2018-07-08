@@ -186,17 +186,18 @@
 
   <!-- //////////////// Bitcoin Transaction Details //////////////////// -->
 
-  <string name="transactiondetails_amount_label">Amount paid</string>
-  <string name="transactiondetails_amount_desc">Includes fees</string>
-  <string name="transactiondetails_fees_label">Fees</string>
-  <string name="transactiondetails_fees_desc">Paid to the Bitcoin network\'s miners</string>
+  <string name="transactiondetails_amount_sent_label">Amount sent (incl. fees)</string>
+  <string name="transactiondetails_amount_received_label">Amount received</string>
+  <string name="transactiondetails_fees_label">Mining Fees</string>
   <string name="transactiondetails_txid_label">Transaction Id</string>
   <string name="transactiondetails_txid_desc">Unique identifier of this transaction</string>
-  <string name="transactiondetails_date_label">Timestamp</string>
+  <string name="transactiondetails_date_label">Local timestamp</string>
   <string name="transactiondetails_confs_label">Confirmations</string>
   <string name="transactiondetails_confs_type_label">Confidence type</string>
-  <string name="transactiondetails_rebroadcast">Rebroadcast Transaction</string>
+  <string name="transactiondetails_rebroadcast">Rebroadcast transaction</string>
   <string name="transactiondetails_rebroadcast_dialog">Rebroadcast this transaction?</string>
+  <string name="transactiondetails_rebroadcast_success">Broadcast sent</string>
+  <string name="transactiondetails_rebroadcast_failure">Broadcast failed</string>
 
   <!-- //////////////// Local Channel Details //////////////////// -->
 

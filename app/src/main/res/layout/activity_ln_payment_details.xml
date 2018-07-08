@@ -56,7 +56,7 @@
             android:layout_height="wrap_content"
             app:alignment="left"
             app:amount_color="@color/grey_4"
-            app:amount_size="32sp"
+            app:amount_size="36sp"
             app:unit="mBTC"
             app:unit_color="@color/grey_3"
             app:unit_size="12sp" />
