@@ -212,10 +212,12 @@
           app:label="@string/channeldetails_short_id_label"
           app:value="@string/unknown" />
 
+        <!-- Channel feature support -->
         <LinearLayout
           android:layout_width="match_parent"
           android:layout_height="match_parent"
           android:orientation="horizontal"
+          android:visibility="gone"
           android:paddingBottom="@dimen/space_xs"
           android:paddingEnd="@dimen/space_md"
           android:paddingStart="@dimen/space_md"
