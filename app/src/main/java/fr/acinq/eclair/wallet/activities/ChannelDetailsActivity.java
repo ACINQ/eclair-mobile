@@ -153,7 +153,9 @@ public class ChannelDetailsActivity extends EclairActivity {
         mBinding.channelId.setValue(channel.getValue().channelId);
         mBinding.channelId.actionButton.setOnClickListener(v -> openRawDataWindow());
         mBinding.shortChannelId.setValue(channel.getValue().shortChannelId);
-        mBinding.setHasAdvancedRoutingSync(Features.hasFeature(channel.getValue().localFeatures, Features.INITIAL_ROUTING_SYNC_BIT_OPTIONAL()));
+        mBinding.setHasAdvancedRoutingSync(
+          Features.hasFeature(channel.getValue().localFeatures, Features.CHANNEL_RANGE_QUERIES_BIT_OPTIONAL())
+          || Features.hasFeature(channel.getValue().localFeatures, Features.CHANNEL_RANGE_QUERIES_BIT_MANDATORY()));
         mBinding.setHasDataLossProtection(Features.hasFeature(channel.getValue().localFeatures, Features.OPTION_DATA_LOSS_PROTECT_OPTIONAL()));
         mBinding.toSelfDelay.setValue(String.valueOf(channel.getValue().toSelfDelayBlocks));
         mBinding.reserve.setValue(CoinUtils.formatAmountInUnit(new Satoshi(channel.getValue().channelReserveSat), prefUnit, true));
