@@ -33,7 +33,9 @@ import akka.actor.UntypedActor;
 import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.bitcoin.Crypto;
 import fr.acinq.bitcoin.MilliSatoshi;
+import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.bitcoin.Transaction;
+import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.channel.CLOSED$;
 import fr.acinq.eclair.channel.CLOSING$;
 import fr.acinq.eclair.channel.ChannelCreated;
@@ -331,15 +333,12 @@ public class EclairEventService extends UntypedActor {
   }
 
   /**
-   * Check if the wallet has at least 1 NORMAL channel with enough balance. An arbitrary 5k satoshis = 0.05mBTC reserve is required for now.
-   * TODO: pull the real reserve from the eclair configuration
-   *
-   * @param requiredBalanceMsat
-   * @return
+   * Checks if the wallet has at least 1 NORMAL channel with enough balance (including channel reserve).
    */
-  public static boolean hasActiveChannelsWithBalance (long requiredBalanceMsat) {
+  public static boolean hasActiveChannelsWithBalance (final long requiredBalanceMsat) {
     for (ChannelDetails d : channelDetailsMap.values()) {
-      if (NORMAL$.MODULE$.toString().equals(d.state) && d.balanceMsat.amount() > requiredBalanceMsat + 5000000) {
+      if (NORMAL$.MODULE$.toString().equals(d.state)
+        & d.balanceMsat.amount() > requiredBalanceMsat + package$.MODULE$.satoshi2millisatoshi(new Satoshi(d.channelReserveSat)).amount()) {
         return true;
       }
     }
