@@ -147,7 +147,7 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
       } else {
         mStatus.setVisibility(View.VISIBLE);
       }
-      mPaymentIcon.setImageResource(R.mipmap.ic_bolt_circle);
+      mPaymentIcon.setImageResource(R.drawable.ic_bolt_circle);
     } else {
       mStatus.setVisibility(View.VISIBLE);
       if (payment.getCreated() != null) {
@@ -168,7 +168,7 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
         mStatus.setText("In conflict");
         mStatus.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.red_faded));
       }
-      mPaymentIcon.setImageResource(R.mipmap.ic_bitcoin_circle);
+      mPaymentIcon.setImageResource(R.drawable.ic_bitcoin_circle);
       mDescription.setText(payment.getReference());
     }
   }

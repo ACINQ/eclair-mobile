@@ -18,6 +18,14 @@
 
   <data>
 
+    <import type="android.view.View" />
+
+    <import type="fr.acinq.eclair.wallet.activities.SendPaymentActivity" />
+
+    <variable
+      name="paymentStep"
+      type="int" />
+
     <variable
       name="feeRatingState"
       type="fr.acinq.eclair.wallet.models.FeeRating" />
@@ -27,26 +35,114 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- loading message displayed when the invoice is being parsed -->
+    <!-- loading message displayed when the invoice is being read -->
     <TextView
-      android:id="@+id/loading"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:layout_centerInParent="true"
-      android:layout_margin="16dp"
+      android:layout_margin="@dimen/space_md"
       android:elevation="4dp"
-      android:padding="16dp"
+      android:padding="@dimen/space_md"
       android:text="@string/payment_loading_pleasewait"
       android:textAlignment="center"
       android:textColor="@color/grey_3"
-      android:visibility="visible" />
+      android:visibility="@{paymentStep == SendPaymentActivity.LOADING ? View.VISIBLE : View.GONE}" />
 
-    <ScrollView
-      android:id="@+id/form"
+    <!-- error when reading invoice -->
+    <TextView
+      android:id="@+id/read_error"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:layout_centerInParent="true"
-      android:visibility="gone">
+      android:layout_margin="@dimen/space_md"
+      android:elevation="4dp"
+      android:padding="@dimen/space_md"
+      android:text="@string/payment_invalid_address"
+      android:textAlignment="center"
+      android:textColor="@color/grey_4"
+      android:textIsSelectable="true"
+      android:visibility="@{paymentStep == SendPaymentActivity.READ_ERROR ? View.VISIBLE : View.GONE}" />
+
+    <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_centerInParent="true"
+      android:orientation="horizontal"
+      android:visibility="@{paymentStep == SendPaymentActivity.PICK_PAYMENT_TYPE ? View.VISIBLE : View.GONE}">
+
+      <LinearLayout
+        android:id="@+id/pick_onchain"
+        android:layout_width="0dp"
+        android:layout_height="200dp"
+        android:layout_weight="0.5"
+        android:background="?android:attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="@dimen/space_md">
+
+        <ImageView
+          android:layout_width="28dp"
+          android:layout_height="28dp"
+          android:src="@drawable/ic_bitcoin_circle" />
+
+        <TextView
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_marginTop="@dimen/space_xs"
+          android:text="@string/payment_pick_onchain"
+          android:textAlignment="center" />
+      </LinearLayout>
+
+      <View
+        android:id="@+id/pick_separator"
+        android:layout_width="1dp"
+        android:layout_height="match_parent"
+        android:background="@color/grey_0" />
+
+      <LinearLayout
+        android:id="@+id/pick_lightning"
+        android:layout_width="0dp"
+        android:layout_height="200dp"
+        android:layout_weight="0.5"
+        android:background="?android:attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="@dimen/space_md">
+
+        <ImageView
+          android:id="@+id/pick_lightning_image"
+          android:layout_width="28dp"
+          android:layout_height="28dp"
+          android:src="@drawable/ic_bolt_circle" />
+
+        <TextView
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_marginTop="@dimen/space_xs"
+          android:text="@string/payment_pick_lightning"
+          android:textAlignment="center" />
+
+        <TextView
+          android:id="@+id/pick_lightning_error"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_marginTop="@dimen/space_xs"
+          android:textAlignment="center"
+          android:textColor="@color/grey_4"
+          android:textSize="10sp"
+          android:visibility="gone" />
+      </LinearLayout>
+    </LinearLayout>
+
+    <ScrollView
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_centerInParent="true"
+      android:visibility="@{paymentStep == SendPaymentActivity.ONCHAIN_PAYMENT || paymentStep == SendPaymentActivity.LIGHTNING_PAYMENT ? View.VISIBLE : View.GONE}">
 
       <LinearLayout
         android:layout_width="match_parent"
@@ -67,7 +163,6 @@
 
           <!-- payment type: onchain -->
           <LinearLayout
-            android:id="@+id/type_onchain"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="6dp"
@@ -83,40 +178,12 @@
               android:layout_width="16dp"
               android:layout_height="16dp"
               android:layout_marginEnd="4dp"
-              android:src="@mipmap/ic_bitcoin_circle" />
+              android:src="@{paymentStep == SendPaymentActivity.ONCHAIN_PAYMENT ? @drawable/ic_bitcoin_circle : @drawable/ic_bolt_circle}" />
 
             <TextView
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
-              android:text="@string/payment_type_onchain"
-              android:textColor="@color/grey_2"
-              android:textSize="10sp" />
-          </LinearLayout>
-
-          <!-- payment type: lightning -->
-          <LinearLayout
-            android:id="@+id/type_lightning"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="6dp"
-            android:background="@drawable/rounded_corner_grey_bottom"
-            android:gravity="center"
-            android:orientation="horizontal"
-            android:paddingBottom="4dp"
-            android:paddingLeft="6dp"
-            android:paddingRight="6dp"
-            android:paddingTop="3dp">
-
-            <ImageView
-              android:layout_width="16dp"
-              android:layout_height="16dp"
-              android:layout_marginEnd="4dp"
-              android:src="@mipmap/ic_bolt_circle" />
-
-            <TextView
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:text="@string/payment_type_lightning"
+              android:text="@{paymentStep == SendPaymentActivity.ONCHAIN_PAYMENT ? @string/payment_type_onchain :  @string/payment_type_lightning}"
               android:textColor="@color/grey_2"
               android:textSize="10sp" />
           </LinearLayout>
@@ -127,9 +194,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="4dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="16dp"
             android:gravity="center">
 
             <EditText
@@ -141,9 +208,9 @@
               android:fontFamily="sans-serif-light"
               android:hint=""
               android:inputType="numberDecimal"
-              android:overScrollMode="always"
               android:maxLines="1"
               android:minWidth="36dp"
+              android:overScrollMode="always"
               android:textAlignment="viewEnd"
               android:textColor="@color/grey_4"
               android:textColorHint="@color/grey_0_dark_x1"
@@ -220,7 +287,8 @@
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:orientation="horizontal"
-          android:padding="12dp">
+          android:padding="12dp"
+          android:visibility="@{paymentStep == SendPaymentActivity.LIGHTNING_PAYMENT ? View.VISIBLE : View.GONE}">
 
           <TextView
             android:layout_width="@dimen/payment_title_width"
@@ -253,7 +321,7 @@
           android:paddingLeft="12dp"
           android:paddingRight="12dp"
           android:paddingTop="4dp"
-          android:visibility="gone">
+          android:visibility="@{paymentStep == SendPaymentActivity.ONCHAIN_PAYMENT ? View.VISIBLE : View.GONE}">
 
           <TextView
             android:layout_width="@dimen/payment_title_width"
@@ -325,19 +393,19 @@
           android:text="@string/payment_empty_wallet"
           android:textColor="@color/grey_4"
           android:textSize="12sp"
-          android:visibility="gone" />
+          android:visibility="@{paymentStep == SendPaymentActivity.ONCHAIN_PAYMENT ? View.VISIBLE : View.GONE}" />
 
         <TextView
           android:id="@+id/empty_wallet_disclaimer"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:textSize="10sp"
-          android:textColor="@color/grey_2"
-          android:visibility="gone"
           android:layout_marginTop="-8dp"
-          android:paddingStart="68dp"
           android:paddingEnd="@dimen/space_md"
-          android:text="@string/payment_empty_wallet_disclaimer"/>
+          android:paddingStart="68dp"
+          android:text="@string/payment_empty_wallet_disclaimer"
+          android:textColor="@color/grey_2"
+          android:textSize="10sp"
+          android:visibility="gone" />
 
         <TextView
           android:id="@+id/fees_warning"

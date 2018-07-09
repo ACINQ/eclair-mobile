@@ -141,7 +141,7 @@
 
   <!-- //////////////// Open Channel /////////////////// -->
 
-  <string name="openchannel_loading_pleasewait">Reading the node address, please wait…</string>
+  <string name="openchannel_loading_pleasewait">Reading node address, please wait…</string>
   <string name="openchannel_dns_seed">Node discovery is based on a DNS seed mechanism (see BOLT 10).\n\nThis feature is not available yet.</string>
   <string name="openchannel_title">Open a new Lightning Channel</string>
   <string name="openchannel_capacity">CAPACITY</string>
@@ -243,6 +243,8 @@
 
   <string name="payment_invalid_address">This is not a valid payment address.\n\nPlease use a %1$s Bitcoin address or Lightning payment request to initiate a payment.</string>
   <string name="payment_ln_invalid_chain">This payment request is not valid for %1$s.\n\nPlease make sure that you are on the correct blockchain.</string>
+  <string name="payment_pick_onchain">Pay on-chain</string>
+  <string name="payment_pick_lightning">Pay with Lightning</string>
   <string name="payment_type_onchain">On-Chain Payment</string>
   <string name="payment_type_lightning">Lightning Payment</string>
   <string name="payment_empty_wallet">Empty wallet</string>
@@ -257,7 +259,7 @@
   <string name="payment_fees_not_capped">Uncapped routing fee ; check the application\'s preferences.</string>
   <string name="payment_fees_verylow">Fees are very low and your transaction could take a very long time to confirm.</string>
   <string name="payment_fees_veryhigh">Fees seem very high. Please make sure that this amount is correct.</string>
-  <string name="payment_loading_pleasewait">Reading the invoice, please wait…</string>
+  <string name="payment_loading_pleasewait">Reading invoice, please wait…</string>
   <string name="payment_amount_to_send">Amount in </string>
   <string name="payment_toast_sentbtc">Payment sent</string>
   <string name="payment_toast_balance">Insufficient balance</string>
@@ -267,6 +269,7 @@
   <string name="payment_error_fees_onchain">The fees value is not valid.</string>
   <string name="payment_error_amount_onchain_insufficient_funds">The amount exceeds your balance.</string>
   <string name="payment_error_amount">The amount is not valid.</string>
+  <string name="payment_error_ln_pick_no_channels">You need lightning channels for this option.</string>
   <string name="payment_error_ln_no_channels">You first need to open a Lightning channel to execute this payment.\n\nDo this by swiping right to left from the home view, and tapping the green "+" button.</string>
   <string name="payment_error_ln_no_active_channels">None of your Lightning channels is ready to send payments.</string>
   <string name="payment_error_ln_insufficient_funds">None of your Lightning channels has enough balance to send this payment.</string>

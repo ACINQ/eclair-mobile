@@ -29,6 +29,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
+import org.bitcoinj.uri.BitcoinURI;
 import org.greenrobot.eventbus.util.AsyncExecutor;
 
 import java.util.Arrays;
@@ -54,11 +55,12 @@ import fr.acinq.eclair.wallet.models.PaymentStatus;
 import fr.acinq.eclair.wallet.models.PaymentType;
 import fr.acinq.eclair.wallet.tasks.BitcoinInvoiceReaderTask;
 import fr.acinq.eclair.wallet.tasks.LNInvoiceReaderTask;
-import org.bitcoinj.uri.BitcoinURI;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 import scala.Option;
 import scala.util.Either;
+import scala.util.Left;
+import scala.util.Right;
 
 public class SendPaymentActivity extends EclairActivity
   implements LNInvoiceReaderTask.AsyncInvoiceReaderTaskResponse, BitcoinInvoiceReaderTask.AsyncInvoiceReaderTaskResponse {
@@ -66,11 +68,15 @@ public class SendPaymentActivity extends EclairActivity
   public static final String EXTRA_INVOICE = BuildConfig.APPLICATION_ID + "EXTRA_INVOICE";
   private static final String TAG = "SendPayment";
   private final static List<String> LIGHTNING_PREFIXES = Arrays.asList("lightning:", "lightning://");
+  public final static int LOADING = 0;
+  public final static int READ_ERROR = 1;
+  public final static int PICK_PAYMENT_TYPE = 2;
+  public final static int ONCHAIN_PAYMENT = 3;
+  public final static int LIGHTNING_PAYMENT = 4;
 
   private boolean isProcessingPayment = false;
-  private PaymentRequest mLNInvoice = null;
-  private BitcoinURI mBitcoinInvoice = null;
-  private String mInvoice = null;
+  private Either<BitcoinURI, PaymentRequest> invoice;
+  private String invoiceAsString = null;
   private boolean isAmountReadonly = true;
 
   private ActivitySendPaymentBinding mBinding;
@@ -82,42 +88,81 @@ public class SendPaymentActivity extends EclairActivity
   private boolean capLightningFees = true;
   private PinDialog pinDialog;
 
+  @Override
+  public void processBitcoinInvoiceFinish(final BitcoinURI bitcoinURI) {
+    if (bitcoinURI == null || bitcoinURI.getAddress() == null) {
+      canNotHandlePayment(getString(R.string.payment_invalid_address, BuildConfig.CHAIN.toUpperCase()));
+    } else {
+      invoiceReadSuccessfully(Left.apply(bitcoinURI));
+    }
+  }
+
   @SuppressLint("SetTextI18n")
   @Override
-  public void processLNInvoiceFinish(final PaymentRequest output) {
-    if (output == null) {
+  public void processLNInvoiceFinish(final PaymentRequest paymentRequest) {
+    if (paymentRequest == null) {
       // try reading invoice as a bitcoin uri
-      new BitcoinInvoiceReaderTask(this, mInvoice).execute();
+      new BitcoinInvoiceReaderTask(this, invoiceAsString).execute();
     } else {
-      final Option<String> acceptedPrefix = PaymentRequest.prefixes().get(WalletUtils.getChainHash());
-      if (acceptedPrefix.isEmpty() || !acceptedPrefix.get().equals(output.prefix())) {
-        canNotHandlePayment(getString(R.string.payment_ln_invalid_chain, BuildConfig.CHAIN.toUpperCase()));
-        return;
-      }
-      // check lightning channels status
-      if (EclairEventService.getChannelsMap().size() == 0) {
-        canNotHandlePayment(R.string.payment_error_ln_no_channels);
-        return;
-      } else {
-        final Payment paymentInDB = app.getDBHelper().getPayment(output.paymentHash().toString(), PaymentType.BTC_LN);
-        if (paymentInDB != null && paymentInDB.getStatus() == PaymentStatus.PENDING) {
-          canNotHandlePayment(R.string.payment_error_pending);
-          return;
-        } else if (paymentInDB != null && paymentInDB.getStatus() == PaymentStatus.PAID) {
-          canNotHandlePayment(R.string.payment_error_paid);
-          return;
-        }
-      }
-      mLNInvoice = output;
-      isAmountReadonly = mLNInvoice.amount().isDefined();
+      invoiceReadSuccessfully(Right.apply(paymentRequest));
+    }
+  }
 
+  /**
+   * Checks if a payment request is correct, and returns a string with an error message if not.
+   *
+   * @param paymentRequest
+   * @return Option.None if no problem was found, string message otherwise
+   */
+  private Option<String> checkPaymentRequestError(final PaymentRequest paymentRequest) {
+    final Option<String> acceptedPrefix = PaymentRequest.prefixes().get(WalletUtils.getChainHash());
+    // check payment request chain
+    if (acceptedPrefix.isEmpty() || !acceptedPrefix.get().equals(paymentRequest.prefix())) {
+      return Option.apply(getString(R.string.payment_ln_invalid_chain, BuildConfig.CHAIN.toUpperCase()));
+    }
+    // check lightning channels status
+    if (EclairEventService.getChannelsMap().size() == 0) {
+      return Option.apply(getString(R.string.payment_error_ln_no_channels));
+    } else {
+      // check that payment is not already processed
+      final Payment paymentInDB = app.getDBHelper().getPayment(paymentRequest.paymentHash().toString(), PaymentType.BTC_LN);
+      if (paymentInDB != null && paymentInDB.getStatus() == PaymentStatus.PENDING) {
+        return Option.apply(getString(R.string.payment_error_pending));
+      } else if (paymentInDB != null && paymentInDB.getStatus() == PaymentStatus.PAID) {
+        return Option.apply(getString(R.string.payment_error_paid));
+      }
+    }
+    return Option.apply(null);
+  }
+
+  private void setupOnchainPaymentForm(final BitcoinURI bitcoinURI) {
+    isAmountReadonly = bitcoinURI.getAmount() != null;
+    if (isAmountReadonly) {
+      final MilliSatoshi amountMsat = package$.MODULE$.satoshi2millisatoshi(bitcoinURI.getAmount());
+      mBinding.amountEditableHint.setVisibility(View.GONE);
+      mBinding.amountEditableValue.setText(CoinUtils.formatAmountInUnit(amountMsat, preferredBitcoinUnit, false));
+      mBinding.amountFiat.setText(WalletUtils.convertMsatToFiatWithUnit(amountMsat.amount(), preferredFiatCurrency));
+      disableAmountInteractions();
+    }
+    setFeesToDefault();
+    mBinding.recipientValue.setText(bitcoinURI.getAddress());
+    forceFocusAmount();
+    mBinding.setPaymentStep(ONCHAIN_PAYMENT);
+    invoice = Left.apply(bitcoinURI);
+  }
+
+  private void setupLightningPaymentForm(final PaymentRequest paymentRequest) {
+    final Option<String> error_opt = checkPaymentRequestError(paymentRequest);
+    if (error_opt.isDefined()) {
+      canNotHandlePayment(error_opt.get());
+    } else {
       if (!capLightningFees) {
         mBinding.feesWarning.setText(R.string.payment_fees_not_capped);
         mBinding.feesWarning.setVisibility(View.VISIBLE);
       }
-
+      isAmountReadonly = paymentRequest.amount().isDefined();
       if (isAmountReadonly) {
-        final MilliSatoshi amountMsat = WalletUtils.getAmountFromInvoice(mLNInvoice);
+        final MilliSatoshi amountMsat = WalletUtils.getAmountFromInvoice(paymentRequest);
         if (!EclairEventService.hasActiveChannelsWithBalance(amountMsat.amount())) {
           canNotHandlePayment(R.string.payment_error_ln_insufficient_funds);
           return;
@@ -128,10 +173,12 @@ public class SendPaymentActivity extends EclairActivity
         // see https://github.com/lightningnetwork/lightning-rfc/blob/master/04-onion-routing.md#requirements-2
         // as such, the amount field stays editable.
       }
-      mBinding.recipientValue.setText(output.nodeId().toBin().toString());
-      Either<String, BinaryData> desc = output.description();
+      mBinding.recipientValue.setText(paymentRequest.nodeId().toBin().toString());
+      Either<String, BinaryData> desc = paymentRequest.description();
       mBinding.descriptionValue.setText(desc.isLeft() ? desc.left().get() : desc.right().get().toString());
-      invoiceReadSuccessfully(true);
+      forceFocusAmount();
+      mBinding.setPaymentStep(LIGHTNING_PAYMENT);
+      invoice = Right.apply(paymentRequest);
     }
   }
 
@@ -140,58 +187,45 @@ public class SendPaymentActivity extends EclairActivity
     mBinding.amountEditableValue.setOnClickListener(null);
   }
 
-  @Override
-  public void processBitcoinInvoiceFinish(final BitcoinURI output) {
-    if (output == null || output.getAddress() == null) {
-      canNotHandlePayment(getString(R.string.payment_invalid_address, BuildConfig.CHAIN.toUpperCase()));
-    } else {
-      mBitcoinInvoice = output;
-      isAmountReadonly = mBitcoinInvoice.getAmount() != null;
-      mBinding.emptyOnchainWallet.setVisibility(View.VISIBLE);
-      if (isAmountReadonly) {
-        final MilliSatoshi amountMsat = package$.MODULE$.satoshi2millisatoshi(mBitcoinInvoice.getAmount());
-        mBinding.amountEditableHint.setVisibility(View.GONE);
-        mBinding.amountEditableValue.setText(CoinUtils.formatAmountInUnit(amountMsat, preferredBitcoinUnit, false));
-        mBinding.amountFiat.setText(WalletUtils.convertMsatToFiatWithUnit(amountMsat.amount(), preferredFiatCurrency));
-        disableAmountInteractions();
-      }
-      setFeesToDefault();
-      mBinding.recipientValue.setText(output.getAddress());
-      invoiceReadSuccessfully(false);
-    }
-  }
-
   private void canNotHandlePayment(final int messageId) {
     canNotHandlePayment(getString(messageId));
   }
 
   private void canNotHandlePayment(final String message) {
-    mBinding.form.setVisibility(View.GONE);
-    mBinding.loading.setVisibility(View.VISIBLE);
-    mBinding.loading.setTextIsSelectable(true);
-    mBinding.loading.setText(message);
+    mBinding.readError.setText(message);
+    mBinding.setPaymentStep(READ_ERROR);
   }
 
   /**
    * Displays the various fields in the payment form, depending on the payment type.
    */
-  private void invoiceReadSuccessfully(final boolean isLightning) {
-    if (isLightning) {
-      mBinding.feesOnchain.setVisibility(View.GONE);
-      mBinding.typeOnchain.setVisibility(View.GONE);
-      mBinding.typeLightning.setVisibility(View.VISIBLE);
-      mBinding.description.setVisibility(View.VISIBLE);
-      mBinding.recipient.setVisibility(View.VISIBLE);
+  private void invoiceReadSuccessfully(final Either<BitcoinURI, PaymentRequest> pInvoice) {
+    if (pInvoice != null && pInvoice.isLeft() && pInvoice.left().get() != null) {
+      final BitcoinURI bitcoinURI = pInvoice.left().get();
+      // bitcoin uri with an embedded lightning invoice => user must choose
+      if (bitcoinURI.getLightningPaymentRequest() != null) {
+        final PaymentRequest paymentRequest = bitcoinURI.getLightningPaymentRequest();
+        if (EclairEventService.getChannelsMap().isEmpty()) {
+          mBinding.pickLightningError.setText(R.string.payment_error_ln_pick_no_channels);
+          mBinding.pickLightningError.setVisibility(View.VISIBLE);
+          mBinding.pickLightningImage.setAlpha(0.3f);
+          mBinding.pickLightning.setEnabled(false);
+        } else {
+          mBinding.pickLightning.setOnClickListener(v -> setupLightningPaymentForm(paymentRequest));
+        }
+        mBinding.pickOnchain.setOnClickListener(v -> setupOnchainPaymentForm(bitcoinURI));
+        mBinding.setPaymentStep(PICK_PAYMENT_TYPE);
+      } else {
+        setupOnchainPaymentForm(bitcoinURI);
+      }
+    } else if (pInvoice != null && pInvoice.isRight() && pInvoice.right().get() != null) {
+      setupLightningPaymentForm(pInvoice.right().get());
     } else {
-      mBinding.feesOnchain.setVisibility(View.VISIBLE);
-      mBinding.typeOnchain.setVisibility(View.VISIBLE);
-      mBinding.typeLightning.setVisibility(View.GONE);
-      mBinding.description.setVisibility(View.GONE);
-      mBinding.recipient.setVisibility(View.VISIBLE);
+      closeAndGoHome();
     }
-    // display form
-    mBinding.loading.setVisibility(View.GONE);
-    mBinding.form.setVisibility(View.VISIBLE);
+  }
+
+  private void forceFocusAmount() {
     if (!isAmountReadonly) {
       InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
       if (inputMethodManager != null) {
@@ -199,123 +233,6 @@ public class SendPaymentActivity extends EclairActivity
         mBinding.amountEditableValue.requestFocus();
       }
     }
-  }
-
-  @Override
-  protected void onCreate(final Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    setContentView(R.layout.activity_send_payment);
-    mBinding = DataBindingUtil.setContentView(this, R.layout.activity_send_payment);
-    mBinding.setFeeRatingState(feeRatingState);
-
-    final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-    preferredBitcoinUnit = WalletUtils.getPreferredCoinUnit(sharedPref);
-    preferredFiatCurrency = WalletUtils.getPreferredFiat(sharedPref);
-    capLightningFees = sharedPref.getBoolean(Constants.SETTING_CAP_LIGHTNING_FEES, true);
-    mBinding.amountEditableUnit.setText(preferredBitcoinUnit.shortLabel());
-
-    mBinding.amountEditableValue.addTextChangedListener(new TextWatcher() {
-      @Override
-      public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-      }
-
-      @SuppressLint("SetTextI18n")
-      @Override
-      public void onTextChanged(CharSequence s, int start, int before, int count) {
-        // toggle hint depending on amount input
-        mBinding.amountEditableHint.setVisibility(s == null || s.length() == 0 ? View.VISIBLE : View.GONE);
-        try {
-          final MilliSatoshi amountMsat = CoinUtils.convertStringAmountToMsat(s.toString(), preferredBitcoinUnit.code());
-          mBinding.amountFiat.setText(WalletUtils.convertMsatToFiatWithUnit(amountMsat.amount(), preferredFiatCurrency));
-          if (mBitcoinInvoice != null) {
-            if (package$.MODULE$.millisatoshi2satoshi(amountMsat).$greater(app.getOnchainBalance())) {
-              handlePaymentError(R.string.payment_error_amount_onchain_insufficient_funds);
-            } else {
-              mBinding.paymentError.setVisibility(View.GONE);
-            }
-          }
-        } catch (Exception e) {
-          Log.w(TAG, "Could not read amount with cause=" + e.getMessage());
-          mBinding.amountFiat.setText("0 " + preferredFiatCurrency.toUpperCase());
-        }
-      }
-
-      @Override
-      public void afterTextChanged(final Editable s) {
-      }
-    });
-
-    mBinding.feesValue.addTextChangedListener(new TextWatcher() {
-      @Override
-      public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after) {
-      }
-
-      @SuppressLint("SetTextI18n")
-      @Override
-      public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
-        try {
-          final Long feesSatPerByte = Long.parseLong(s.toString());
-          if (feesSatPerByte != app.estimateSlowFees() && feesSatPerByte != app.estimateMediumFees() && feesSatPerByte != app.estimateFastFees()) {
-            feeRatingState = Constants.FEE_RATING_CUSTOM;
-            mBinding.setFeeRatingState(feeRatingState);
-          }
-          if (feesSatPerByte <= app.estimateSlowFees() / 2) {
-            mBinding.feesWarning.setText(R.string.payment_fees_verylow);
-            mBinding.feesWarning.setVisibility(View.VISIBLE);
-          } else if (feesSatPerByte >= app.estimateFastFees() * 2) {
-            mBinding.feesWarning.setText(R.string.payment_fees_veryhigh);
-            mBinding.feesWarning.setVisibility(View.VISIBLE);
-          } else {
-            mBinding.feesWarning.setVisibility(View.GONE);
-          }
-        } catch (NumberFormatException e) {
-          Log.w(TAG, "Could not read fees with cause=" + e.getMessage());
-        }
-      }
-
-      @Override
-      public void afterTextChanged(Editable s) {
-      }
-    });
-
-    mBinding.emptyOnchainWallet.setOnCheckedChangeListener((buttonView, isChecked) -> {
-      if (mBitcoinInvoice != null) {
-        if (isChecked) {
-          mBinding.emptyWalletDisclaimer.setVisibility(View.VISIBLE);
-          mBinding.amountEditableValue.setEnabled(false);
-          mBinding.amountEditableValue.setText(CoinUtils.rawAmountInUnit(app.getOnchainBalance(), preferredBitcoinUnit).bigDecimal().toPlainString());
-        } else {
-          mBinding.emptyWalletDisclaimer.setVisibility(View.GONE);
-          mBinding.amountEditableValue.setEnabled(true);
-        }
-      }
-    });
-
-    // --- read invoice from intent
-    final Intent intent = getIntent();
-    mInvoice = intent.getStringExtra(EXTRA_INVOICE).trim();
-    Log.d(TAG, "Initializing payment with invoice=" + mInvoice);
-    if (mInvoice != null) {
-      for (String prefix : LIGHTNING_PREFIXES) {
-        if (mInvoice.toLowerCase().startsWith(prefix)) {
-          mInvoice = mInvoice.substring(prefix.length());
-          break;
-        }
-      }
-      new LNInvoiceReaderTask(this, mInvoice).execute();
-    } else {
-      canNotHandlePayment(getString(R.string.payment_invalid_address, BuildConfig.CHAIN.toUpperCase()));
-    }
-  }
-
-  @Override
-  protected void onResume() {
-    super.onResume();
-    checkInit();
-  }
-
-  public void focusAmount(final View view) {
-    mBinding.amountEditableValue.requestFocus();
   }
 
   public void pickFees(final View view) {
@@ -342,17 +259,6 @@ public class SendPaymentActivity extends EclairActivity
     mBinding.setFeeRatingState(feeRatingState);
   }
 
-  public void cancelPayment(View view) {
-    closeAndGoHome();
-  }
-
-  private void closeAndGoHome() {
-    Intent intent = new Intent(getBaseContext(), HomeActivity.class);
-    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-    startActivity(intent);
-    finish();
-  }
-
   /**
    * Prepare the execution of the current payment request stored in the activity, be it an on-chain payment or a lightning payment.
    * Opens a PIN dialog to confirm the payment. If the PIN is correct the payment is executed.
@@ -368,8 +274,9 @@ public class SendPaymentActivity extends EclairActivity
 
     // Get amount and executes payment. Depending on the settings, the user must first enter the correct PIN code
     try {
-      if (mLNInvoice != null) {
-        if(!EclairEventService.hasActiveChannels()) {
+      if (isLightningInvoice()) {
+        final PaymentRequest paymentRequest = invoice.right().get();
+        if (!EclairEventService.hasActiveChannels()) {
           handlePaymentError(R.string.payment_error_ln_no_active_channels);
           return;
         }
@@ -379,7 +286,7 @@ public class SendPaymentActivity extends EclairActivity
             @Override
             public void onPinConfirm(final PinDialog dialog, final String pinValue) {
               if (isPinCorrect(pinValue, dialog)) {
-                sendLNPayment(amountMsat, mLNInvoice, mInvoice);
+                sendLNPayment(amountMsat, paymentRequest, invoiceAsString);
               } else {
                 handlePaymentError(R.string.payment_error_incorrect_pin);
               }
@@ -393,12 +300,13 @@ public class SendPaymentActivity extends EclairActivity
           });
           pinDialog.show();
         } else {
-          sendLNPayment(amountMsat, mLNInvoice, mInvoice);
+          sendLNPayment(amountMsat, paymentRequest, invoiceAsString);
           closeAndGoHome();
         }
-      } else if (mBitcoinInvoice != null) {
+      } else if (isOnchainInvoice()) {
+        final BitcoinURI bitcoinURI = invoice.left().get();
         final Satoshi amountSat = isAmountReadonly
-          ? mBitcoinInvoice.getAmount()
+          ? bitcoinURI.getAmount()
           : CoinUtils.convertStringAmountToSat(mBinding.amountEditableValue.getText().toString(), preferredBitcoinUnit.code());
         if (amountSat.$greater(app.getOnchainBalance())) {
           handlePaymentError(R.string.payment_error_amount_onchain_insufficient_funds);
@@ -411,7 +319,7 @@ public class SendPaymentActivity extends EclairActivity
             pinDialog = new PinDialog(SendPaymentActivity.this, R.style.FullScreenDialog, new PinDialog.PinDialogCallback() {
               public void onPinConfirm(final PinDialog dialog, final String pinValue) {
                 if (isPinCorrect(pinValue, dialog)) {
-                  sendBitcoinPayment(amountSat, feesPerKw, mBitcoinInvoice, emptyWallet);
+                  sendBitcoinPayment(amountSat, feesPerKw, bitcoinURI, emptyWallet);
                   closeAndGoHome();
                 } else {
                   handlePaymentError(R.string.payment_error_incorrect_pin);
@@ -426,7 +334,7 @@ public class SendPaymentActivity extends EclairActivity
             });
             pinDialog.show();
           } else {
-            sendBitcoinPayment(amountSat, feesPerKw, mBitcoinInvoice, emptyWallet);
+            sendBitcoinPayment(amountSat, feesPerKw, bitcoinURI, emptyWallet);
             closeAndGoHome();
           }
         } catch (NumberFormatException e) {
@@ -451,15 +359,6 @@ public class SendPaymentActivity extends EclairActivity
     toggleForm();
     mBinding.paymentErrorText.setText(getString(messageId));
     mBinding.paymentError.setVisibility(View.VISIBLE);
-  }
-
-  @Override
-  protected void onPause() {
-    // dismiss the pin dialog if it exists to prevent leak.
-    if (pinDialog != null) {
-      pinDialog.dismiss();
-    }
-    super.onPause();
   }
 
   /**
@@ -518,13 +417,24 @@ public class SendPaymentActivity extends EclairActivity
    * @param bitcoinURI contains the bitcoin address
    */
   private void sendBitcoinPayment(final Satoshi amountSat, final Long feesPerKw, final BitcoinURI bitcoinURI, final boolean emptyWallet) {
-    Log.i(TAG, "sending " + amountSat + " sat invoice " + mBitcoinInvoice.toString());
+    Log.i(TAG, "sending " + amountSat + " sat for invoic=" + bitcoinURI.toString());
     if (emptyWallet) {
       Log.i(TAG, "sendBitcoinPayment: emptying wallet with special method....");
       app.sendAllOnchain(bitcoinURI.getAddress(), feesPerKw);
     } else {
       app.sendBitcoinPayment(amountSat, bitcoinURI.getAddress(), feesPerKw);
     }
+  }
+
+  public void cancelPayment(View view) {
+    closeAndGoHome();
+  }
+
+  private void closeAndGoHome() {
+    Intent intent = new Intent(getBaseContext(), HomeActivity.class);
+    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+    startActivity(intent);
+    finish();
   }
 
   /**
@@ -548,6 +458,136 @@ public class SendPaymentActivity extends EclairActivity
       mBinding.btnCancel.setEnabled(true);
       mBinding.layoutButtons.setAlpha(1);
     }
+  }
+
+  private boolean isOnchainInvoice() {
+    return invoice != null && invoice.isLeft() && invoice.left().get() != null;
+  }
+
+  private boolean isLightningInvoice() {
+    return invoice != null && invoice.isRight() && invoice.right().get() != null;
+  }
+
+  @Override
+  protected void onCreate(final Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    mBinding = DataBindingUtil.setContentView(this, R.layout.activity_send_payment);
+    mBinding.setFeeRatingState(feeRatingState);
+    mBinding.setPaymentStep(LOADING);
+
+    final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+    preferredBitcoinUnit = WalletUtils.getPreferredCoinUnit(sharedPref);
+    preferredFiatCurrency = WalletUtils.getPreferredFiat(sharedPref);
+    capLightningFees = sharedPref.getBoolean(Constants.SETTING_CAP_LIGHTNING_FEES, true);
+    mBinding.amountEditableUnit.setText(preferredBitcoinUnit.shortLabel());
+
+    mBinding.amountEditableValue.addTextChangedListener(new TextWatcher() {
+      @Override
+      public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+      }
+
+      @SuppressLint("SetTextI18n")
+      @Override
+      public void onTextChanged(CharSequence s, int start, int before, int count) {
+        // toggle hint depending on amount input
+        mBinding.amountEditableHint.setVisibility(s == null || s.length() == 0 ? View.VISIBLE : View.GONE);
+        try {
+          final MilliSatoshi amountMsat = CoinUtils.convertStringAmountToMsat(s.toString(), preferredBitcoinUnit.code());
+          mBinding.amountFiat.setText(WalletUtils.convertMsatToFiatWithUnit(amountMsat.amount(), preferredFiatCurrency));
+          if (invoice != null && invoice.isLeft()) {
+            if (package$.MODULE$.millisatoshi2satoshi(amountMsat).$greater(app.getOnchainBalance())) {
+              handlePaymentError(R.string.payment_error_amount_onchain_insufficient_funds);
+            } else {
+              mBinding.paymentError.setVisibility(View.GONE);
+            }
+          }
+        } catch (Exception e) {
+          Log.w(TAG, "Could not read amount with cause=" + e.getMessage());
+          mBinding.amountFiat.setText("0 " + preferredFiatCurrency.toUpperCase());
+        }
+      }
+
+      @Override
+      public void afterTextChanged(final Editable s) {
+      }
+    });
+
+    mBinding.feesValue.addTextChangedListener(new TextWatcher() {
+      @Override
+      public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after) {
+      }
+
+      @SuppressLint("SetTextI18n")
+      @Override
+      public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
+        try {
+          final Long feesSatPerByte = Long.parseLong(s.toString());
+          if (feesSatPerByte != app.estimateSlowFees() && feesSatPerByte != app.estimateMediumFees() && feesSatPerByte != app.estimateFastFees()) {
+            feeRatingState = Constants.FEE_RATING_CUSTOM;
+            mBinding.setFeeRatingState(feeRatingState);
+          }
+          if (feesSatPerByte <= app.estimateSlowFees() / 2) {
+            mBinding.feesWarning.setText(R.string.payment_fees_verylow);
+            mBinding.feesWarning.setVisibility(View.VISIBLE);
+          } else if (feesSatPerByte >= app.estimateFastFees() * 2) {
+            mBinding.feesWarning.setText(R.string.payment_fees_veryhigh);
+            mBinding.feesWarning.setVisibility(View.VISIBLE);
+          } else {
+            mBinding.feesWarning.setVisibility(View.GONE);
+          }
+        } catch (NumberFormatException e) {
+          Log.w(TAG, "Could not read fees with cause=" + e.getMessage());
+        }
+      }
+
+      @Override
+      public void afterTextChanged(Editable s) {
+      }
+    });
+
+    mBinding.emptyOnchainWallet.setOnCheckedChangeListener((buttonView, isChecked) -> {
+      if (invoice != null && invoice.isLeft()) {
+        if (isChecked) {
+          mBinding.emptyWalletDisclaimer.setVisibility(View.VISIBLE);
+          mBinding.amountEditableValue.setEnabled(false);
+          mBinding.amountEditableValue.setText(CoinUtils.rawAmountInUnit(app.getOnchainBalance(), preferredBitcoinUnit).bigDecimal().toPlainString());
+        } else {
+          mBinding.emptyWalletDisclaimer.setVisibility(View.GONE);
+          mBinding.amountEditableValue.setEnabled(true);
+        }
+      }
+    });
+
+    // --- read invoice from intent
+    final Intent intent = getIntent();
+    invoiceAsString = intent.getStringExtra(EXTRA_INVOICE).trim();
+    Log.d(TAG, "Initializing payment with invoice=" + invoiceAsString);
+    if (invoiceAsString != null) {
+      for (String prefix : LIGHTNING_PREFIXES) {
+        if (invoiceAsString.toLowerCase().startsWith(prefix)) {
+          invoiceAsString = invoiceAsString.substring(prefix.length());
+          break;
+        }
+      }
+      new LNInvoiceReaderTask(this, invoiceAsString).execute();
+    } else {
+      canNotHandlePayment(getString(R.string.payment_invalid_address, BuildConfig.CHAIN.toUpperCase()));
+    }
+  }
+
+  @Override
+  protected void onResume() {
+    super.onResume();
+    checkInit();
+  }
+
+  @Override
+  protected void onPause() {
+    // dismiss the pin dialog if it exists to prevent leak.
+    if (pinDialog != null) {
+      pinDialog.dismiss();
+    }
+    super.onPause();
   }
 
   @Override
