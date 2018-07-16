@@ -68,7 +68,7 @@ dependencies {
   implementation 'org.slf4j:slf4j-api:1.7.25'
   implementation 'com.github.tony19:logback-android:1.1.1-12'
   // eclair core
-  implementation 'fr.acinq.eclair:eclair-core_2.11:0.2-android-beta7'
+  implementation 'fr.acinq.eclair:eclair-core_2.11:0.2-android-beta8'
   // database orm
   implementation 'org.greenrobot:greendao:3.2.2'
   // required for greendao encryption, disabled for now
