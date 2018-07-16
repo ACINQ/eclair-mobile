@@ -51,7 +51,6 @@ public class PaymentsListFragment extends Fragment implements SwipeRefreshLayout
   private PaymentListItemAdapter mPaymentAdapter;
   private SwipeRefreshLayout mRefreshLayout;
   private TextView mEmptyLabel;
-  private SharedPreferences.OnSharedPreferenceChangeListener prefListener;
 
   @Override
   public void onRefresh() {
@@ -69,18 +68,7 @@ public class PaymentsListFragment extends Fragment implements SwipeRefreshLayout
   @Override
   public void onResume() {
     super.onResume();
-    if (getActivity() != null && prefListener != null) {
-      PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext()).registerOnSharedPreferenceChangeListener(prefListener);
-    }
     updateList();
-  }
-
-  @Override
-  public void onPause() {
-    super.onPause();
-    if (getActivity() != null && prefListener != null) {
-      PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext()).unregisterOnSharedPreferenceChangeListener(prefListener);
-    }
   }
 
   @Override
@@ -101,29 +89,28 @@ public class PaymentsListFragment extends Fragment implements SwipeRefreshLayout
   }
 
   /**
-   * Fetches the last 100 payments from DB, ordered by update date (desc).
+   * Fetches the last 150 payments from DB, ordered by update date (desc).
    * <p>
    * TODO seek + infinite scroll
    *
    * @return list of payments
    */
   private List<Payment> getPayments() {
+    if (getActivity() == null || getActivity().getApplication() == null || ((App) getActivity().getApplication()).getDBHelper() == null) {
+      return new ArrayList<>();
+    }
 
-    if (getActivity() == null || getActivity().getApplication() == null || ((App) getActivity().getApplication()).getDBHelper() == null) return new ArrayList<>();
     final QueryBuilder<Payment> qb = ((App) getActivity().getApplication()).getDBHelper().getDaoSession().getPaymentDao().queryBuilder();
     qb.whereOr(
       PaymentDao.Properties.Type.eq(PaymentType.BTC_ONCHAIN),
       qb.and(PaymentDao.Properties.Type.eq(PaymentType.BTC_LN), PaymentDao.Properties.Status.notEq(PaymentStatus.INIT)));
-    qb.orderDesc(PaymentDao.Properties.Updated).orderAsc(PaymentDao.Properties.ConfidenceBlocks).limit(100);
+    qb.orderDesc(PaymentDao.Properties.Updated).orderAsc(PaymentDao.Properties.ConfidenceBlocks).limit(150);
     final List<Payment> list = qb.list();
 
     if (mEmptyLabel != null) {
-      if (list.isEmpty()) {
-        mEmptyLabel.setVisibility(View.VISIBLE);
-      } else {
-        mEmptyLabel.setVisibility(View.GONE);
-      }
+      mEmptyLabel.setVisibility(list.isEmpty() ? View.VISIBLE : View.GONE);
     }
+
     return list;
   }
 

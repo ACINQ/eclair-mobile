@@ -44,6 +44,7 @@ import android.widget.Toast;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.common.util.concurrent.RateLimiter;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -94,6 +95,8 @@ public class HomeActivity extends EclairActivity {
   private ChannelsListFragment mChannelsListFragment;
   private Handler mExchangeRateHandler = new Handler();
   private Runnable mExchangeRateRunnable;
+  // debounce for requesting payment list update -- max once per 2 secs
+  private final RateLimiter paymentListUpdateLimiter = RateLimiter.create(.5f);
 
   @Override
   protected void onCreate(final Bundle savedInstanceState) {
@@ -482,7 +485,9 @@ public class HomeActivity extends EclairActivity {
 
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void handlePaymentEvent(PaymentEvent event) {
-    mPaymentsListFragment.updateList();
+    if (paymentListUpdateLimiter.tryAcquire()) {
+      mPaymentsListFragment.updateList();
+    }
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
@@ -537,7 +542,7 @@ public class HomeActivity extends EclairActivity {
 
   private class HomePagerAdapter extends FragmentStatePagerAdapter {
     private final List<Fragment> mFragmentList;
-    private final String[] titles = new String[] { getString(R.string.receive_title),getString(R.string.payments_title), getString(R.string.localchannels_title) };
+    private final String[] titles = new String[]{getString(R.string.receive_title), getString(R.string.payments_title), getString(R.string.localchannels_title)};
 
     public HomePagerAdapter(FragmentManager fm, List<Fragment> fragments) {
       super(fm);
