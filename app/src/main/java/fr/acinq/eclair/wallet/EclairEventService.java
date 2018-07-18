@@ -20,6 +20,7 @@ import android.util.Log;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -35,7 +36,9 @@ import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.channel.CLOSED$;
 import fr.acinq.eclair.channel.CLOSING$;
+import fr.acinq.eclair.channel.Channel;
 import fr.acinq.eclair.channel.ChannelCreated;
+import fr.acinq.eclair.channel.ChannelFailed;
 import fr.acinq.eclair.channel.ChannelIdAssigned;
 import fr.acinq.eclair.channel.ChannelRestored;
 import fr.acinq.eclair.channel.ChannelSignatureReceived;
@@ -223,6 +226,26 @@ public class EclairEventService extends UntypedActor {
       activeChannelsMap.remove(event.getActor());
       EventBus.getDefault().post(new ChannelUpdateEvent());
       postLNBalanceEvent();
+    }
+    // ---- channel is in error
+    else if (message instanceof ChannelFailed) {
+      final ChannelFailed event = (ChannelFailed) message;
+      final LocalChannel c = getChannel(event.channel());
+      if (event.error() instanceof Channel.LocalError) {
+        final Channel.LocalError localError = (Channel.LocalError) event.error();
+        if (localError.t() != null) {
+          c.setClosingErrorMessage(localError.t().getMessage());
+          dbHelper.saveLocalChannel(c);
+        }
+      } else if (event.error() instanceof Channel.RemoteError) {
+        final Channel.RemoteError remoteError = (Channel.RemoteError) event.error();
+        if (fr.acinq.eclair.package$.MODULE$.isAsciiPrintable(remoteError.e().data())) {
+          c.setClosingErrorMessage(new String(remoteError.e().data().toString().getBytes(), StandardCharsets.US_ASCII));
+        } else {
+          c.setClosingErrorMessage(remoteError.e().data().toString());
+        }
+        dbHelper.saveLocalChannel(c);
+      }
     }
     // ---- channel state changed
     else if (message instanceof ChannelStateChanged) {

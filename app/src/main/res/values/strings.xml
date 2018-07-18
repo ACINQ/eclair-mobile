@@ -219,12 +219,12 @@
   <string name="channeldetails_htlcs_count_desc">Current number of HTLCs in the commitment tx</string>
   <string name="channeldetails_min_htlc_amount_label">Min. payment amount</string>
   <string name="channeldetails_min_htlc_amount_desc">Minimum amount that can be sent through this channel</string>
+  <string name="channeldetails_closing_cause_label">Cause of closing</string>
   <string name="channeldetails_nodeid_label">Remote node id</string>
   <string name="channeldetails_nodeid_desc">Public key of the remote peer</string>
   <string name="channeldetails_state_label">State</string>
   <string name="channeldetails_state_desc">State of the channel</string>
   <string name="channeldetails_state_closing_type_label">Closing type</string>
-  <string name="channeldetails_state_closing_type_desc">MUTUAL/LOCAL/REMOTE/OTHER</string>
   <string name="channeldetails_balance_closed_label">Balance</string>
   <string name="channeldetails_balance_closed_desc">Balance when the channel was closed</string>
   <string name="channeldetails_capacity_label">Capacity</string>
@@ -233,9 +233,9 @@
   <string name="channeldetails_balance_desc">Your current balance"</string>
   <string name="channeldetails_transactionid_label">Transaction Id</string>
   <string name="channeldetails_transactionid_desc">Id of the onchain transaction that funded the channel</string>
-  <string name="channeldetails_closingtype_mutual">MUTUAL</string>
-  <string name="channeldetails_closingtype_local">LOCAL</string>
-  <string name="channeldetails_closingtype_remote">REMOTE</string>
+  <string name="channeldetails_closingtype_mutual">MUTUAL (cooperative)</string>
+  <string name="channeldetails_closingtype_local">LOCAL (initiated by your node)</string>
+  <string name="channeldetails_closingtype_remote">REMOTE (initiated by the peer)</string>
   <string name="channeldetails_closingtype_other">OTHER</string>
   <string name="channeldetails_raw_data">Raw channel data</string>
   <string name="channeldetails_unknown">Unknown channel</string>

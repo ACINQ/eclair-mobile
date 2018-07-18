@@ -29,6 +29,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.google.common.base.Strings;
+
 import java.text.DateFormat;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -179,6 +181,11 @@ public class ChannelDetailsActivity extends EclairActivity {
       mBinding.closedSince.setText(getString(R.string.channeldetails_closed_since,
         DateUtils.getRelativeTimeSpanString(channel.getUpdated().getTime(), System.currentTimeMillis(), DateUtils.DAY_IN_MILLIS), closedBalance));
       mBinding.openedOn.setText(getString(R.string.channeldetails_opened_on, DateFormat.getDateTimeInstance().format(channel.getCreated())));
+    }
+
+    if (CLOSING$.MODULE$.toString().equals(channel.state) || !channel.getIsActive()) {
+      if (!Strings.isNullOrEmpty(channel.getClosingErrorMessage())) mBinding.closingCause.setValue(channel.getClosingErrorMessage());
+      mBinding.closingCause.setVisibility(View.VISIBLE);
     }
 
     mBinding.nodeid.setValue(channel.getPeerNodeId());

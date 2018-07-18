@@ -171,7 +171,6 @@
                   android:id="@+id/closing_type"
                   android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
-                  android:textAllCaps="true"
                   android:textSize="12sp" />
               </LinearLayout>
 
@@ -207,6 +206,15 @@
         </LinearLayout>
 
         <include layout="@layout/include_separator" />
+
+        <fr.acinq.eclair.wallet.customviews.DataRow
+          android:id="@+id/closing_cause"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:visibility="gone"
+          app:has_border="true"
+          app:label="@string/channeldetails_closing_cause_label"
+          app:value="@string/unknown" />
 
         <fr.acinq.eclair.wallet.customviews.DataRow
           android:id="@+id/nodeid"
