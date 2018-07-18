@@ -381,12 +381,12 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
 
         Class.forName("org.sqlite.JDBC");
         publishProgress("setting up eclair");
-        final Setup setup = new Setup(datadir, Option.apply(null), ConfigFactory.empty(), app.system, Option.apply(seed));
+        final Setup setup = new Setup(datadir, ConfigFactory.empty(), Option.apply(seed), app.system);
 
         // gui and electrum supervisor actors
         ActorRef guiUpdater = app.system.actorOf(Props.create(EclairEventService.class, app.getDBHelper()));
-        setup.system().eventStream().subscribe(guiUpdater, ChannelEvent.class);
-        setup.system().eventStream().subscribe(guiUpdater, PaymentLifecycle.PaymentResult.class);
+        app.system.eventStream().subscribe(guiUpdater, ChannelEvent.class);
+        app.system.eventStream().subscribe(guiUpdater, PaymentLifecycle.PaymentResult.class);
         app.system.actorOf(Props.create(PaymentSupervisor.class, app.getDBHelper()), "payments");
 
         publishProgress("starting core");
