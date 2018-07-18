@@ -46,7 +46,9 @@
   <string name="payments_title">Transaction history</string>
   <string name="payments_empty">No transactions yet…</string>
   <string name="localchannels_title">Lightning Channels</string>
-  <string name="localchannels_empty">No channels yet…\nTo open a new channel click on the button below.</string>
+  <string name="localchannels_active_empty">No active channels yet…\nTo open a new channel click on the button below.</string>
+  <string name="localchannels_show_inactive">Show closed channels</string>
+  <string name="localchannels_hide_inactive">Hide closed channels</string>
   <string name="receive_title">Your bitcoin address</string>
 
   <string name="home_status_disconnected">Disconnected</string>
@@ -201,6 +203,8 @@
 
   <!-- //////////////// Local Channel Details //////////////////// -->
 
+  <string name="channeldetails_closed_since">This channel was closed %1$s with a balance of %2$s.</string>
+  <string name="channeldetails_opened_on">Opened on %1$s.</string>
   <string name="channeldetails_id_label">Id</string>
   <string name="channeldetails_id_desc">Channel unique identifier</string>
   <string name="channeldetails_short_id_label">Short Channel Id</string>
@@ -221,6 +225,8 @@
   <string name="channeldetails_state_desc">State of the channel</string>
   <string name="channeldetails_state_closing_type_label">Closing type</string>
   <string name="channeldetails_state_closing_type_desc">MUTUAL/LOCAL/REMOTE/OTHER</string>
+  <string name="channeldetails_balance_closed_label">Balance</string>
+  <string name="channeldetails_balance_closed_desc">Balance when the channel was closed</string>
   <string name="channeldetails_capacity_label">Capacity</string>
   <string name="channeldetails_capacity_desc">Funds locked in the channel</string>
   <string name="channeldetails_balance_label">Balance</string>
@@ -386,7 +392,11 @@
 
   <string name="channelitem_delayed_closing">Your funds will be available in %1$d block(s).</string>
   <string name="channelitem_delayed_closing_unknown">Your funds will be available after a %1$d blocks delay.</string>
+  <string name="channelitem_with_node">With %1$s</string>
   <string name="channelitem_inflight_htlcs">%1$d inflight payment(s).</string>
+  <string name="channelitem_cooperative">(cooperative)</string>
+  <string name="channelitem_uncooperative">(uncooperative)</string>
+  <string name="channelitem_inactive_date">Closed %1$s</string>
 
   <!-- //////////////// General //////////////////// -->
 

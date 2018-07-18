@@ -199,7 +199,7 @@ public class HomeActivity extends EclairActivity {
       mBinding.balanceLightning.refreshUnits();
       mBinding.balanceTotal.refreshUnits();
       mPaymentsListFragment.refreshList();
-      mChannelsListFragment.updateList();
+      mChannelsListFragment.updateActiveChannelsList();
     });
   }
 
@@ -505,7 +505,7 @@ public class HomeActivity extends EclairActivity {
 
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void handleChannelUpdateEvent(ChannelUpdateEvent event) {
-    mChannelsListFragment.updateList();
+    mChannelsListFragment.updateActiveChannelsList();
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)

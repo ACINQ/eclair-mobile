@@ -23,18 +23,15 @@ import org.greenrobot.eventbus.EventBus;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import akka.actor.ActorRef;
 import akka.actor.Terminated;
 import akka.actor.UntypedActor;
-import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.bitcoin.Crypto;
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.Satoshi;
-import fr.acinq.bitcoin.Transaction;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.channel.CLOSED$;
 import fr.acinq.eclair.channel.CLOSING$;
@@ -63,12 +60,13 @@ import fr.acinq.eclair.wallet.events.LNBalanceUpdateEvent;
 import fr.acinq.eclair.wallet.events.LNPaymentFailedEvent;
 import fr.acinq.eclair.wallet.events.LNPaymentSuccessEvent;
 import fr.acinq.eclair.wallet.events.PaymentEvent;
+import fr.acinq.eclair.wallet.models.ClosingType;
 import fr.acinq.eclair.wallet.models.LightningPaymentError;
+import fr.acinq.eclair.wallet.models.LocalChannel;
 import fr.acinq.eclair.wallet.models.Payment;
 import fr.acinq.eclair.wallet.models.PaymentDirection;
 import fr.acinq.eclair.wallet.models.PaymentStatus;
 import fr.acinq.eclair.wallet.models.PaymentType;
-import scala.Option;
 import scala.collection.Iterator;
 import scala.collection.JavaConverters;
 import scala.collection.Seq;
@@ -86,10 +84,10 @@ public class EclairEventService extends UntypedActor {
   }
 
   private static final String TAG = "EclairEventService";
-  private static Map<ActorRef, ChannelDetails> channelDetailsMap = new ConcurrentHashMap<>();
+  private static Map<ActorRef, LocalChannel> activeChannelsMap = new ConcurrentHashMap<>();
 
-  public static Map<ActorRef, ChannelDetails> getChannelsMap() {
-    return channelDetailsMap;
+  public static Map<ActorRef, LocalChannel> getChannelsMap() {
+    return activeChannelsMap;
   }
 
   /**
@@ -102,61 +100,64 @@ public class EclairEventService extends UntypedActor {
     long offlineTotal = 0;
     long closingTotal = 0;
     long ignoredBalanceMsat = 0;
-    for (ChannelDetails d : channelDetailsMap.values()) {
-      if (NORMAL$.MODULE$.toString().equals(d.state)) {
-        availableTotal += d.balanceMsat.amount();
-      } else if (CLOSED$.MODULE$.toString().equals(d.state)) {
+    for (LocalChannel c : activeChannelsMap.values()) {
+      if (NORMAL$.MODULE$.toString().equals(c.state)) {
+        availableTotal += c.getBalanceMsat();
+      } else if (CLOSED$.MODULE$.toString().equals(c.state)) {
         // closed channel balance is ignored
-      } else if (CLOSING$.MODULE$.toString().equals(d.state)) {
-        closingTotal += d.balanceMsat.amount();
-      } else if (OFFLINE$.MODULE$.toString().equals(d.state)) {
-        offlineTotal += d.balanceMsat.amount();
-      } else if (d.state == null || d.state.startsWith("ERR_")) {
-        ignoredBalanceMsat += d.balanceMsat.amount();
+      } else if (CLOSING$.MODULE$.toString().equals(c.state)) {
+        closingTotal += c.getBalanceMsat();
+      } else if (OFFLINE$.MODULE$.toString().equals(c.state)) {
+        offlineTotal += c.getBalanceMsat();
+      } else if (c.state == null || c.state.startsWith("ERR_")) {
+        ignoredBalanceMsat += c.getBalanceMsat();
       } else {
-        pendingTotal += d.balanceMsat.amount();
+        pendingTotal += c.getBalanceMsat();
       }
     }
     EventBus.getDefault().postSticky(new LNBalanceUpdateEvent(availableTotal, pendingTotal, offlineTotal, closingTotal, ignoredBalanceMsat));
   }
 
-  private static ChannelDetails getChannelDetails(ActorRef ref) {
-    return channelDetailsMap.containsKey(ref) ? channelDetailsMap.get(ref) : new ChannelDetails();
+  private static LocalChannel getChannel(ActorRef ref) {
+    return activeChannelsMap.containsKey(ref) ? activeChannelsMap.get(ref) : new LocalChannel();
   }
 
   @Override
   public void onReceive(final Object message) {
     if (message instanceof ChannelCreated) {
-      ChannelCreated cc = (ChannelCreated) message;
-      ChannelDetails cd = getChannelDetails(cc.channel());
-      cd.channelId = cc.temporaryChannelId().toString();
-      cd.remoteNodeId = cc.remoteNodeId().toString();
-      channelDetailsMap.put(cc.channel(), cd);
-      context().watch(cc.channel());
+      final ChannelCreated event = (ChannelCreated) message;
+      final LocalChannel c = getChannel(event.channel());
+      c.setChannelId(event.temporaryChannelId().toString());
+      c.setPeerNodeId(event.remoteNodeId().toString());
+      activeChannelsMap.put(event.channel(), c);
+      context().watch(event.channel());
       EventBus.getDefault().post(new ChannelUpdateEvent());
     } else if (message instanceof ChannelRestored) {
-      ChannelRestored cr = (ChannelRestored) message;
-      ChannelDetails cd = getChannelDetails(cr.channel());
-      cd.channelId = cr.channelId().toString();
-      cd.remoteNodeId = cr.remoteNodeId().toString();
-      channelDetailsMap.put(cr.channel(), cd);
-      context().watch(cr.channel());
+      final ChannelRestored event = (ChannelRestored) message;
+      final LocalChannel c = getChannel(event.channel());
+      c.setChannelId(event.channelId().toString());
+      c.setPeerNodeId(event.remoteNodeId().toString());
+      activeChannelsMap.put(event.channel(), c);
+      context().watch(event.channel());
       EventBus.getDefault().post(new ChannelUpdateEvent());
       postLNBalanceEvent();
     }
     // ---- channel id assigned
-    else if (message instanceof ChannelIdAssigned && channelDetailsMap.containsKey(((ChannelIdAssigned) message).channel())) {
-      final ChannelIdAssigned cia = (ChannelIdAssigned) message;
-      channelDetailsMap.get(cia.channel()).channelId = cia.channelId().toString();
+    else if (message instanceof ChannelIdAssigned && activeChannelsMap.containsKey(((ChannelIdAssigned) message).channel())) {
+      final ChannelIdAssigned event = (ChannelIdAssigned) message;
+      final LocalChannel c = getChannel(event.channel());
+      c.setChannelId(event.channelId().toString());
+      dbHelper.saveLocalChannel(c);
     }
-    else if (message instanceof ShortChannelIdAssigned && channelDetailsMap.containsKey(((ShortChannelIdAssigned) message).channel())) {
-      final ShortChannelIdAssigned s = (ShortChannelIdAssigned) message;
-      channelDetailsMap.get(s.channel()).shortChannelId = s.shortChannelId().toString();
+    else if (message instanceof ShortChannelIdAssigned && activeChannelsMap.containsKey(((ShortChannelIdAssigned) message).channel())) {
+      final ShortChannelIdAssigned event = (ShortChannelIdAssigned) message;
+      final LocalChannel c = getChannel(event.channel());
+      c.setShortChannelId(event.shortChannelId().toString());
     }
     // ---- we sent a channel sig => update corresponding payment to PENDING in app's DB
     else if (message instanceof ChannelSignatureSent) {
-      ChannelSignatureSent sigSent = (ChannelSignatureSent) message;
-      Either<WaitingForRevocation, Crypto.Point> nextCommitInfo = sigSent.commitments().remoteNextCommitInfo();
+      final ChannelSignatureSent sigSent = (ChannelSignatureSent) message;
+      final Either<WaitingForRevocation, Crypto.Point> nextCommitInfo = sigSent.commitments().remoteNextCommitInfo();
       if (nextCommitInfo.isLeft()) {
         RemoteCommit commit = nextCommitInfo.left().get().nextRemoteCommit();
         Iterator<DirectedHtlc> htlcsIterator = commit.spec().htlcs().iterator();
@@ -190,11 +191,12 @@ public class EclairEventService extends UntypedActor {
       }
     }
     // ---- balance update, only for the channels we know
-    else if (message instanceof ChannelSignatureReceived && channelDetailsMap.containsKey(((ChannelSignatureReceived) message).channel())) {
-      ChannelSignatureReceived csr = (ChannelSignatureReceived) message;
-      ChannelDetails cd = channelDetailsMap.get(csr.channel());
-      LocalCommit localCommit = csr.commitments().localCommit();
-      Iterator<DirectedHtlc> htlcsIterator = localCommit.spec().htlcs().iterator();
+    else if (message instanceof ChannelSignatureReceived && activeChannelsMap.containsKey(((ChannelSignatureReceived) message).channel())) {
+      final ChannelSignatureReceived event = (ChannelSignatureReceived) message;
+      final LocalChannel c = getChannel(event.channel());
+      final LocalCommit localCommit = event.commitments().localCommit();
+      final Iterator<DirectedHtlc> htlcsIterator = localCommit.spec().htlcs().iterator();
+
       long outHtlcsAmount = 0L;
       int htlcsCount = 0;
       while (htlcsIterator.hasNext()) {
@@ -204,75 +206,79 @@ public class EclairEventService extends UntypedActor {
           outHtlcsAmount += h.add().amountMsat();
         }
       }
-      cd.channelReserveSat = csr.commitments().localParams().channelReserveSatoshis();
-      cd.minimumHtlcAmountMsat = csr.commitments().localParams().htlcMinimumMsat();
-      cd.htlcsInFlightCount = htlcsCount;
-      cd.balanceMsat = new MilliSatoshi(localCommit.spec().toLocalMsat() + outHtlcsAmount);
-      cd.capacityMsat = new MilliSatoshi(localCommit.spec().totalFunds());
+
+      c.setChannelReserveSat(event.commitments().localParams().channelReserveSatoshis());
+      c.setMinimumHtlcAmountMsat(event.commitments().localParams().htlcMinimumMsat());
+      c.htlcsInFlightCount = htlcsCount;
+      c.setBalanceMsat(localCommit.spec().toLocalMsat() + outHtlcsAmount);
+      c.setCapacityMsat(localCommit.spec().totalFunds());
       EventBus.getDefault().post(new ChannelUpdateEvent());
       postLNBalanceEvent();
     }
     // ---- channel has been terminated
     else if (message instanceof Terminated) {
-      channelDetailsMap.remove(((Terminated) message).getActor());
+      final Terminated event = (Terminated) message;
+      final LocalChannel c = activeChannelsMap.get(event.getActor());
+      if (c != null) dbHelper.channelTerminated(c.getChannelId());
+      activeChannelsMap.remove(event.getActor());
       EventBus.getDefault().post(new ChannelUpdateEvent());
       postLNBalanceEvent();
     }
     // ---- channel state changed
     else if (message instanceof ChannelStateChanged) {
-      final ChannelStateChanged cs = (ChannelStateChanged) message;
-      final ChannelDetails cd = getChannelDetails(cs.channel());
+      final ChannelStateChanged event = (ChannelStateChanged) message;
+      final LocalChannel c = getChannel(event.channel());
 
-      if (cs.currentData() instanceof DATA_CLOSING) {
-        final DATA_CLOSING d = (DATA_CLOSING) cs.currentData();
-        // closing is cooperative if publish is only mutual
-        cd.isCooperativeClosing = !d.mutualClosePublished().isEmpty() && d.localCommitPublished().isEmpty()
-          && d.remoteCommitPublished().isEmpty() && d.revokedCommitPublished().isEmpty();
-        // closing is initiated by the remote peer
-        cd.isRemoteClosing = d.mutualClosePublished().isEmpty() && d.localCommitPublished().isEmpty()
-          && d.remoteCommitPublished().isDefined() && d.revokedCommitPublished().isEmpty();
-        // close is initiated locally, funds reception is delayed
-        cd.isLocalClosing = d.mutualClosePublished().isEmpty() && d.localCommitPublished().isDefined()
-          && d.remoteCommitPublished().isEmpty() && d.revokedCommitPublished().isEmpty();
-
-        if (cd.isCooperativeClosing) {
-          cd.mainClosingTxs = JavaConverters.seqAsJavaListConverter(d.mutualClosePublished()).asJava();
-        } else if (cd.isRemoteClosing) {
-          cd.mainClosingTxs = Collections.singletonList(d.remoteCommitPublished().get().commitTx());
-        } else if (cd.isLocalClosing) {
-          cd.mainClosingTxs = Collections.singletonList(d.localCommitPublished().get().commitTx());
-          cd.mainDelayedClosingTx = d.localCommitPublished().get().claimMainDelayedOutputTx();
+      if (event.currentData() instanceof DATA_CLOSING) {
+        final DATA_CLOSING d = (DATA_CLOSING) event.currentData();
+        if (!d.mutualClosePublished().isEmpty() && d.localCommitPublished().isEmpty()
+          && d.remoteCommitPublished().isEmpty() && d.revokedCommitPublished().isEmpty()) {
+          c.setClosingType(ClosingType.MUTUAL);
+          c.mainClosingTxs = JavaConverters.seqAsJavaListConverter(d.mutualClosePublished()).asJava();
+        } else if (d.mutualClosePublished().isEmpty() && d.localCommitPublished().isEmpty()
+          && d.remoteCommitPublished().isDefined() && d.revokedCommitPublished().isEmpty()) {
+          c.setClosingType(ClosingType.REMOTE);
+          c.mainClosingTxs = Collections.singletonList(d.remoteCommitPublished().get().commitTx());
+        } else if (d.mutualClosePublished().isEmpty() && d.localCommitPublished().isDefined()
+          && d.remoteCommitPublished().isEmpty() && d.revokedCommitPublished().isEmpty()) {
+          c.setClosingType(ClosingType.LOCAL);
+          c.mainClosingTxs = Collections.singletonList(d.localCommitPublished().get().commitTx());
+          c.mainDelayedClosingTx = d.localCommitPublished().get().claimMainDelayedOutputTx();
+        } else {
+          c.setClosingType(ClosingType.OTHER);
         }
 
         // Don't show the notification if state goes from straight from WAIT_FOR_INIT_INTERNAL to CLOSING
         // Otherwise the notification would show up each time the wallet is started and the channel is
         // still closing, even though the user has already been alerted the last time he used the app.
         // Same thing for CLOSING -> CLOSED
-        if (!CLOSED$.MODULE$.toString().equals(cs.currentState().toString()) && !WAIT_FOR_INIT_INTERNAL$.MODULE$.toString().equals(cs.previousState().toString())) {
+        if (!CLOSED$.MODULE$.toString().equals(event.currentState().toString())
+          && !WAIT_FOR_INIT_INTERNAL$.MODULE$.toString().equals(event.previousState().toString())) {
           final MilliSatoshi balanceLeft = new MilliSatoshi(d.commitments().localCommit().spec().toLocalMsat());
-          EventBus.getDefault().post(new ClosingChannelNotificationEvent(cd.channelId, cd.remoteNodeId, cd.isLocalClosing, balanceLeft, cd.toSelfDelayBlocks));
+          EventBus.getDefault().post(new ClosingChannelNotificationEvent(
+            c.getChannelId(), c.getPeerNodeId(), ClosingType.LOCAL.equals(c.getClosingType()), balanceLeft, c.getToSelfDelayBlocks()));
         }
       }
-      cd.state = cs.currentState().toString();
-      if (cs.currentData() instanceof HasCommitments) {
-        final Commitments commitments = ((HasCommitments) cs.currentData()).commitments();
-        cd.localFeatures = commitments.remoteParams().localFeatures();
-        cd.toSelfDelayBlocks = commitments.remoteParams().toSelfDelay();
-        cd.htlcsInFlightCount = commitments.localCommit().spec().htlcs().iterator().size();
-        cd.channelReserveSat = commitments.localParams().channelReserveSatoshis();
-        cd.minimumHtlcAmountMsat = commitments.localParams().htlcMinimumMsat();
-        cd.fundingTxId = commitments.commitInput().outPoint().txid().toString();
-        cd.balanceMsat = new MilliSatoshi(commitments.localCommit().spec().toLocalMsat());
-        cd.capacityMsat = new MilliSatoshi(commitments.localCommit().spec().totalFunds());
+      c.state = event.currentState().toString();
+      if (event.currentData() instanceof HasCommitments) {
+        final Commitments commitments = ((HasCommitments) event.currentData()).commitments();
+        c.setLocalFeatures(commitments.remoteParams().localFeatures().toString());
+        c.setToSelfDelayBlocks(commitments.remoteParams().toSelfDelay());
+        c.htlcsInFlightCount = commitments.localCommit().spec().htlcs().iterator().size();
+        c.setChannelReserveSat(commitments.localParams().channelReserveSatoshis());
+        c.setMinimumHtlcAmountMsat(commitments.localParams().htlcMinimumMsat());
+        c.setFundingTxId(commitments.commitInput().outPoint().txid().toString());
+        c.setBalanceMsat(commitments.localCommit().spec().toLocalMsat());
+        c.setCapacityMsat(commitments.localCommit().spec().totalFunds());
       }
-      channelDetailsMap.put(cs.channel(), cd);
-      Log.d(TAG, "Channel " + cd.channelId + " changed state to " + cs.currentState());
+      activeChannelsMap.put(event.channel(), c);
+      dbHelper.saveLocalChannel(c);
       EventBus.getDefault().post(new ChannelUpdateEvent());
       postLNBalanceEvent();
     }
     // ---- events that update payments status
     else if (message instanceof PaymentLifecycle.PaymentFailed) {
-      PaymentLifecycle.PaymentFailed event = (PaymentLifecycle.PaymentFailed) message;
+      final PaymentLifecycle.PaymentFailed event = (PaymentLifecycle.PaymentFailed) message;
       final Payment paymentInDB = dbHelper.getPayment(event.paymentHash().toString(), PaymentType.BTC_LN);
       if (paymentInDB != null) {
         dbHelper.updatePaymentFailed(paymentInDB);
@@ -291,8 +297,8 @@ public class EclairEventService extends UntypedActor {
       }
     }
     else if (message instanceof PaymentLifecycle.PaymentSucceeded) {
-      PaymentLifecycle.PaymentSucceeded event = (PaymentLifecycle.PaymentSucceeded) message;
-      Payment paymentInDB = dbHelper.getPayment(event.paymentHash().toString(), PaymentType.BTC_LN);
+      final PaymentLifecycle.PaymentSucceeded event = (PaymentLifecycle.PaymentSucceeded) message;
+      final Payment paymentInDB = dbHelper.getPayment(event.paymentHash().toString(), PaymentType.BTC_LN);
       if (paymentInDB != null) {
         dbHelper.updatePaymentPaid(paymentInDB, event.amountMsat(), event.amountMsat() - paymentInDB.getAmountSentMsat(), event.paymentPreimage().toString());
         EventBus.getDefault().post(new LNPaymentSuccessEvent(paymentInDB));
@@ -303,29 +309,9 @@ public class EclairEventService extends UntypedActor {
     }
   }
 
-  public static class ChannelDetails {
-    public MilliSatoshi balanceMsat = new MilliSatoshi(0);
-    public MilliSatoshi capacityMsat = new MilliSatoshi(0);
-    public String channelId;
-    public String shortChannelId;
-    public String state = "N/A";
-    public Boolean isCooperativeClosing;
-    public Boolean isRemoteClosing;
-    public Boolean isLocalClosing;
-    public String remoteNodeId;
-    public String fundingTxId;
-    public List<Transaction> mainClosingTxs = new ArrayList<>();
-    public Option<Transaction> mainDelayedClosingTx = Option.apply(null);
-    public long channelReserveSat = 0;
-    public long minimumHtlcAmountMsat = 0;
-    public int toSelfDelayBlocks = 0;
-    public int htlcsInFlightCount = 0;
-    public BinaryData localFeatures;
-  }
-
   public static boolean hasActiveChannels () {
-    for (ChannelDetails d : channelDetailsMap.values()) {
-      if (NORMAL$.MODULE$.toString().equals(d.state)) {
+    for (LocalChannel c : activeChannelsMap.values()) {
+      if (NORMAL$.MODULE$.toString().equals(c.state)) {
         return true;
       }
     }
@@ -335,13 +321,22 @@ public class EclairEventService extends UntypedActor {
   /**
    * Checks if the wallet has at least 1 NORMAL channel with enough balance (including channel reserve).
    */
-  public static boolean hasActiveChannelsWithBalance (final long requiredBalanceMsat) {
-    for (ChannelDetails d : channelDetailsMap.values()) {
+  public static boolean hasNormalChannelsWithBalance(final long requiredBalanceMsat) {
+    for (LocalChannel d : activeChannelsMap.values()) {
       if (NORMAL$.MODULE$.toString().equals(d.state)
-        & d.balanceMsat.amount() > requiredBalanceMsat + package$.MODULE$.satoshi2millisatoshi(new Satoshi(d.channelReserveSat)).amount()) {
+        & d.getBalanceMsat() > requiredBalanceMsat + package$.MODULE$.satoshi2millisatoshi(new Satoshi(d.getChannelReserveSat())).amount()) {
         return true;
       }
     }
     return false;
+  }
+
+  public static Map.Entry<ActorRef, LocalChannel> getChannelFromId(String channelId) {
+    for (Map.Entry<ActorRef, LocalChannel> c : EclairEventService.getChannelsMap().entrySet()) {
+      if (c.getValue().getChannelId().equals(channelId)) {
+        return c;
+      }
+    }
+    return null;
   }
 }

@@ -20,6 +20,12 @@
 
   <data>
 
+    <import type="android.view.View" />
+
+    <variable
+      name="isActive"
+      type="boolean" />
+
     <variable
       name="hasAdvancedRoutingSync"
       type="boolean" />
@@ -51,11 +57,43 @@
         <LinearLayout
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
+          android:background="@color/primary_light_x1"
+          android:orientation="vertical"
+          android:paddingBottom="@dimen/space_md"
+          android:paddingEnd="@dimen/space_md"
+          android:paddingStart="@dimen/space_md"
+          android:paddingTop="@dimen/space_lg"
+          android:visibility="@{!isActive ? View.VISIBLE : View.GONE}">
+
+          <TextView
+            android:id="@+id/closed_since"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-light"
+            android:text="@string/channeldetails_closed_since"
+            android:textColor="@color/white"
+            android:textSize="16sp" />
+
+          <TextView
+            android:id="@+id/opened_on"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_xs"
+            android:text="@string/channeldetails_opened_on"
+            android:textColor="@color/primary_light_x3"
+            android:textSize="12sp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
           android:orientation="vertical"
           android:paddingBottom="8dp"
           android:paddingEnd="@dimen/space_md"
           android:paddingStart="@dimen/space_md"
-          android:paddingTop="@dimen/space_md">
+          android:paddingTop="@dimen/space_md"
+          android:visibility="@{isActive ? View.VISIBLE : View.GONE}">
 
           <TextView
             android:layout_width="match_parent"
@@ -180,6 +218,15 @@
           app:value="@string/unknown" />
 
         <fr.acinq.eclair.wallet.customviews.DataRow
+          android:id="@+id/balance_closed"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          app:desc="@string/channeldetails_balance_closed_desc"
+          app:has_border="true"
+          app:label="@string/channeldetails_balance_closed_label"
+          app:value="@string/unknown" />
+
+        <fr.acinq.eclair.wallet.customviews.DataRow
           android:id="@+id/capacity"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
@@ -208,6 +255,7 @@
           android:id="@+id/short_channel_id"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
+          android:visibility="@{isActive ? View.VISIBLE : View.GONE}"
           app:has_border="true"
           app:label="@string/channeldetails_short_id_label"
           app:value="@string/unknown" />
@@ -217,11 +265,11 @@
           android:layout_width="match_parent"
           android:layout_height="match_parent"
           android:orientation="horizontal"
-          android:visibility="gone"
           android:paddingBottom="@dimen/space_xs"
           android:paddingEnd="@dimen/space_md"
           android:paddingStart="@dimen/space_md"
-          android:paddingTop="@dimen/space_xs">
+          android:paddingTop="@dimen/space_xs"
+          android:visibility="gone">
 
           <TextView
             android:layout_width="0dp"
@@ -257,7 +305,9 @@
           </LinearLayout>
         </LinearLayout>
 
-        <include layout="@layout/include_separator" />
+        <include
+          layout="@layout/include_separator"
+          android:visibility="gone" />
 
         <fr.acinq.eclair.wallet.customviews.DataRow
           android:id="@+id/to_self_delay"

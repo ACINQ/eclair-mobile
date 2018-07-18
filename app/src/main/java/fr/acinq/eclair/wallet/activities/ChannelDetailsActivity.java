@@ -24,16 +24,21 @@ import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
+import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import java.text.DateFormat;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Nullable;
+
 import akka.actor.ActorRef;
+import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.eclair.CoinUnit;
@@ -58,6 +63,8 @@ import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.adapters.LocalChannelItemHolder;
 import fr.acinq.eclair.wallet.databinding.ActivityChannelDetailsBinding;
 import fr.acinq.eclair.wallet.fragments.CloseChannelDialog;
+import fr.acinq.eclair.wallet.models.ClosingType;
+import fr.acinq.eclair.wallet.models.LocalChannel;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 
 public class ChannelDetailsActivity extends EclairActivity {
@@ -109,78 +116,93 @@ public class ChannelDetailsActivity extends EclairActivity {
 
   private void refreshChannel() {
     try {
-      final Map.Entry<ActorRef, EclairEventService.ChannelDetails> channel = getChannel(mChannelId);
-      if (channel == null) {
-        Log.d(TAG, "could not find channel with id=" + mChannelId);
-        Toast.makeText(this, getString(R.string.channeldetails_unknown), Toast.LENGTH_LONG).show();
-      } else if (channel.getValue() != null && channel.getKey() != null && channel.getValue() != null) {
-
-        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        final CoinUnit prefUnit = WalletUtils.getPreferredCoinUnit(prefs);
-        final String state = channel.getValue().state;
-
-        mBinding.balance.setAmountMsat(channel.getValue().balanceMsat);
-        mBinding.state.setText(state);
-
-        if (NORMAL$.MODULE$.toString().equals(state)) {
-          mBinding.state.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.green));
-        } else if (OFFLINE$.MODULE$.toString().equals(state) || state.startsWith("ERR_")) {
-          mBinding.state.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.red_faded));
+      final Map.Entry<ActorRef, LocalChannel> activeChannel = EclairEventService.getChannelFromId(mChannelId);
+      if (activeChannel != null && activeChannel.getValue() != null) {
+        setupView(activeChannel.getValue(), activeChannel.getKey());
+      } else {
+        Log.d(TAG, "could not find active channel with id=" + mChannelId);
+        final LocalChannel channelDB = app.getDBHelper().getLocalChannel(mChannelId);
+        if (channelDB != null) {
+          setupView(channelDB, null);
         } else {
-          mBinding.state.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.orange));
+          Log.d(TAG, "could not find channel with id=" + mChannelId + " in DB");
+          Toast.makeText(this, getString(R.string.channeldetails_unknown), Toast.LENGTH_LONG).show();
+          finish();
         }
-
-        if (CLOSING$.MODULE$.toString().equals(state)) {
-          mBinding.closingTypeView.setVisibility(View.VISIBLE);
-          if (channel.getValue().isCooperativeClosing) {
-            mBinding.closingType.setText(getString(R.string.channeldetails_closingtype_mutual));
-          } else if (channel.getValue().isLocalClosing) {
-            mBinding.closingType.setText(getString(R.string.channeldetails_closingtype_local));
-          } else if (channel.getValue().isRemoteClosing) {
-            mBinding.closingType.setText(getString(R.string.channeldetails_closingtype_remote));
-          } else {
-            mBinding.closingType.setText(getString(R.string.channeldetails_closingtype_other));
-          }
-        }
-
-        mCloseChannelDialog = new CloseChannelDialog(ChannelDetailsActivity.this, dialog -> finish(), R.style.CustomAlertDialog, channel.getKey(),
-          STATE_MUTUAL_CLOSE.contains(state), STATE_FORCE_CLOSE.contains(state));
-        mBinding.closeButton.setOnClickListener(v -> mCloseChannelDialog.show());
-        mBinding.closeButton.setVisibility(STATE_MUTUAL_CLOSE.contains(state) || STATE_FORCE_CLOSE.contains(state) ? View.VISIBLE : View.GONE);
-
-        mBinding.nodeid.setValue(channel.getValue().remoteNodeId);
-        mBinding.capacity.setValue(CoinUtils.formatAmountInUnit(channel.getValue().capacityMsat, prefUnit, true));
-        mBinding.channelId.setValue(channel.getValue().channelId);
-        mBinding.channelId.actionButton.setOnClickListener(v -> openRawDataWindow());
-        mBinding.shortChannelId.setValue(channel.getValue().shortChannelId);
-        mBinding.setHasAdvancedRoutingSync(
-          Features.hasFeature(channel.getValue().localFeatures, Features.CHANNEL_RANGE_QUERIES_BIT_OPTIONAL())
-          || Features.hasFeature(channel.getValue().localFeatures, Features.CHANNEL_RANGE_QUERIES_BIT_MANDATORY()));
-        mBinding.setHasDataLossProtection(Features.hasFeature(channel.getValue().localFeatures, Features.OPTION_DATA_LOSS_PROTECT_OPTIONAL()));
-        mBinding.toSelfDelay.setValue(String.valueOf(channel.getValue().toSelfDelayBlocks));
-        mBinding.reserve.setValue(CoinUtils.formatAmountInUnit(new Satoshi(channel.getValue().channelReserveSat), prefUnit, true));
-        mBinding.countHtlcsInflight.setValue(String.valueOf(channel.getValue().htlcsInFlightCount));
-        mBinding.minimumHtlcAmount.setValue(CoinUtils.formatAmountInUnit(new MilliSatoshi(channel.getValue().minimumHtlcAmountMsat), prefUnit, true));
-        mBinding.transactionId.setValue(channel.getValue().fundingTxId);
-        mBinding.transactionId.actionButton.setOnClickListener(WalletUtils.getOpenTxListener(channel.getValue().fundingTxId));
       }
     } catch (Exception e) {
       Log.w(TAG, "could not read channel details with cause=" + e.getMessage());
+      finish();
     }
+  }
+
+  private void setupView(final LocalChannel channel, @Nullable final ActorRef actorRef) {
+    final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+    final CoinUnit prefUnit = WalletUtils.getPreferredCoinUnit(prefs);
+    mBinding.setIsActive(channel.getIsActive());
+
+    if (channel.getIsActive()) {
+      mBinding.balance.setAmountMsat(new MilliSatoshi(channel.getBalanceMsat()));
+      mBinding.state.setText(channel.state);
+      if (NORMAL$.MODULE$.toString().equals(channel.state)) {
+        mBinding.state.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.green));
+      } else if (OFFLINE$.MODULE$.toString().equals(channel.state) || channel.state.startsWith("ERR_")) {
+        mBinding.state.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.red_faded));
+      } else {
+        mBinding.state.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.orange));
+      }
+
+      if (CLOSING$.MODULE$.toString().equals(channel.state)) {
+        mBinding.closingTypeView.setVisibility(View.VISIBLE);
+        if (ClosingType.MUTUAL.equals(channel.getClosingType())) {
+          mBinding.closingType.setText(getString(R.string.channeldetails_closingtype_mutual));
+        } else if (ClosingType.LOCAL.equals(channel.getClosingType())) {
+          mBinding.closingType.setText(getString(R.string.channeldetails_closingtype_local));
+        } else if (ClosingType.REMOTE.equals(channel.getClosingType())) {
+          mBinding.closingType.setText(getString(R.string.channeldetails_closingtype_remote));
+        } else {
+          mBinding.closingType.setText(getString(R.string.channeldetails_closingtype_other));
+        }
+      }
+
+      mCloseChannelDialog = new CloseChannelDialog(ChannelDetailsActivity.this, dialog -> finish(), R.style.CustomAlertDialog, actorRef,
+        STATE_MUTUAL_CLOSE.contains(channel.state), STATE_FORCE_CLOSE.contains(channel.state));
+      mBinding.closeButton.setOnClickListener(v -> mCloseChannelDialog.show());
+      mBinding.closeButton.setVisibility(STATE_MUTUAL_CLOSE.contains(channel.state) || STATE_FORCE_CLOSE.contains(channel.state)
+        ? View.VISIBLE : View.GONE);
+
+      mBinding.channelId.actionButton.setOnClickListener(v -> openRawDataWindow());
+    } else {
+      mBinding.channelId.actionButton.setVisibility(View.GONE);
+      final String closedBalance = CoinUtils.formatAmountInUnit(new MilliSatoshi(channel.getBalanceMsat()), prefUnit, true);
+      mBinding.balanceClosed.setValue(closedBalance);
+      mBinding.closedSince.setText(getString(R.string.channeldetails_closed_since,
+        DateUtils.getRelativeTimeSpanString(channel.getUpdated().getTime(), System.currentTimeMillis(), DateUtils.DAY_IN_MILLIS), closedBalance));
+      mBinding.openedOn.setText(getString(R.string.channeldetails_opened_on, DateFormat.getDateTimeInstance().format(channel.getCreated())));
+    }
+
+    mBinding.nodeid.setValue(channel.getPeerNodeId());
+    mBinding.capacity.setValue(CoinUtils.formatAmountInUnit(new MilliSatoshi(channel.getCapacityMsat()), prefUnit, true));
+    mBinding.channelId.setValue(channel.getChannelId());
+    mBinding.shortChannelId.setValue(channel.getShortChannelId());
+    if (channel.getLocalFeatures() != null) {
+      final BinaryData localFeatures = BinaryData.apply(channel.getLocalFeatures());
+      mBinding.setHasAdvancedRoutingSync(
+        Features.hasFeature(localFeatures, Features.CHANNEL_RANGE_QUERIES_BIT_OPTIONAL())
+          || Features.hasFeature(localFeatures, Features.CHANNEL_RANGE_QUERIES_BIT_MANDATORY()));
+      mBinding.setHasDataLossProtection(Features.hasFeature(localFeatures, Features.OPTION_DATA_LOSS_PROTECT_OPTIONAL()));
+    }
+    mBinding.toSelfDelay.setValue(String.valueOf(channel.getToSelfDelayBlocks()));
+    mBinding.reserve.setValue(CoinUtils.formatAmountInUnit(new Satoshi(channel.getChannelReserveSat()), prefUnit, true));
+    mBinding.countHtlcsInflight.setValue(String.valueOf(channel.htlcsInFlightCount));
+    mBinding.minimumHtlcAmount.setValue(CoinUtils.formatAmountInUnit(new MilliSatoshi(channel.getMinimumHtlcAmountMsat()), prefUnit, true));
+    mBinding.transactionId.setValue(channel.getFundingTxId());
+    mBinding.transactionId.actionButton.setOnClickListener(WalletUtils.getOpenTxListener(channel.getFundingTxId()));
   }
 
   private void openRawDataWindow() {
     Intent intent = new Intent(getApplicationContext(), ChannelRawDataActivity.class);
     intent.putExtra(LocalChannelItemHolder.EXTRA_CHANNEL_ID, this.mChannelId);
     startActivity(intent);
-  }
-
-  private Map.Entry<ActorRef, EclairEventService.ChannelDetails> getChannel(String channelId) {
-    for (Map.Entry<ActorRef, EclairEventService.ChannelDetails> e : EclairEventService.getChannelsMap().entrySet()) {
-      if (e.getValue().channelId.equals(channelId)) {
-        return e;
-      }
-    }
-    return null;
   }
 }

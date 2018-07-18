@@ -25,9 +25,13 @@ import org.greenrobot.greendao.database.Database;
 import org.greenrobot.greendao.query.QueryBuilder;
 
 import java.util.Date;
+import java.util.List;
 
+import fr.acinq.eclair.channel.CLOSED$;
 import fr.acinq.eclair.wallet.models.DaoMaster;
 import fr.acinq.eclair.wallet.models.DaoSession;
+import fr.acinq.eclair.wallet.models.LocalChannel;
+import fr.acinq.eclair.wallet.models.LocalChannelDao;
 import fr.acinq.eclair.wallet.models.Payment;
 import fr.acinq.eclair.wallet.models.PaymentDao;
 import fr.acinq.eclair.wallet.models.PaymentDirection;
@@ -151,5 +155,34 @@ public class DBHelper {
 
   public Payment getPayment(Long id) {
     return daoSession.getPaymentDao().load(id);
+  }
+
+  public LocalChannel getLocalChannel(final String channelId) {
+    QueryBuilder<LocalChannel> qb = daoSession.getLocalChannelDao().queryBuilder();
+    qb.where(LocalChannelDao.Properties.ChannelId.eq(channelId));
+    return qb.unique();
+  }
+
+  public List<LocalChannel> getInactiveChannels() {
+    final QueryBuilder<LocalChannel> qb = daoSession.getLocalChannelDao().queryBuilder();
+    qb.where(LocalChannelDao.Properties.IsActive.eq(false));
+    qb.orderDesc(LocalChannelDao.Properties.Updated);
+    return qb.list();
+  }
+
+  /**
+   * shorthand to save local channel in DB
+   */
+  public void saveLocalChannel(final LocalChannel channel) {
+    channel.setUpdated(new Date());
+    daoSession.getLocalChannelDao().insertOrReplace(channel);
+  }
+
+  public void channelTerminated(final String channelId) {
+    final LocalChannel channel = getLocalChannel(channelId);
+    if (channel != null) {
+      channel.setIsActive(false);
+      saveLocalChannel(channel);
+    }
   }
 }

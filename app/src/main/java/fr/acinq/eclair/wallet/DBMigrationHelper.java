@@ -53,5 +53,12 @@ public class DBMigrationHelper extends DaoMaster.OpenHelper {
       db.execSQL("ALTER TABLE " + PaymentDao.TABLENAME +
         " ADD COLUMN " + PaymentDao.Properties.AmountSentMsat.columnName + " INTEGER");
     }
+    if (oldVersion < 6) {
+      // adds the channel id column and the serialized successful route
+      db.execSQL("ALTER TABLE " + PaymentDao.TABLENAME +
+        " ADD COLUMN " + PaymentDao.Properties.LocalChannelId.columnName + " TEXT");
+      db.execSQL("ALTER TABLE " + PaymentDao.TABLENAME +
+        " ADD COLUMN " + PaymentDao.Properties.SerializedRoute.columnName + " TEXT");
+    }
   }
 }

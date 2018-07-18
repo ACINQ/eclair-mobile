@@ -163,7 +163,7 @@ public class SendPaymentActivity extends EclairActivity
       isAmountReadonly = paymentRequest.amount().isDefined();
       if (isAmountReadonly) {
         final MilliSatoshi amountMsat = WalletUtils.getAmountFromInvoice(paymentRequest);
-        if (!EclairEventService.hasActiveChannelsWithBalance(amountMsat.amount())) {
+        if (!EclairEventService.hasNormalChannelsWithBalance(amountMsat.amount())) {
           canNotHandlePayment(R.string.payment_error_ln_insufficient_funds);
           return;
         }

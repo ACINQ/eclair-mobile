@@ -63,6 +63,14 @@ public class Payment {
    * Serialized LN Payment request
    */
   private String paymentRequest;
+  /**
+   * Id of the local channel in the route which successfully completed the payment.
+   */
+  private String localChannelId;
+  /**
+   * Serialized route which successfully completed the payment.
+   */
+  private String serializedRoute;
   private String description;
   /**
    * Tx confirmations count
@@ -113,10 +121,11 @@ public class Payment {
     this.type = type;
   }
 
-  @Generated(hash = 1357595814)
+  @Generated(hash = 1567105455)
   public Payment(Long id, @NotNull PaymentType type, @NotNull PaymentDirection direction, @NotNull String reference, String recipient, String preimage,
-          String paymentRequest, String description, int confidenceBlocks, int confidenceType, String txPayload, PaymentStatus status, @NotNull Date created, Date updated,
-          String lastErrorCause, long amountRequestedMsat, long amountSentMsat, long amountPaidMsat, long feesPaidMsat) {
+          String paymentRequest, String localChannelId, String serializedRoute, String description, int confidenceBlocks, int confidenceType, String txPayload,
+          PaymentStatus status, @NotNull Date created, Date updated, String lastErrorCause, long amountRequestedMsat, long amountSentMsat, long amountPaidMsat,
+          long feesPaidMsat) {
       this.id = id;
       this.type = type;
       this.direction = direction;
@@ -124,6 +133,8 @@ public class Payment {
       this.recipient = recipient;
       this.preimage = preimage;
       this.paymentRequest = paymentRequest;
+      this.localChannelId = localChannelId;
+      this.serializedRoute = serializedRoute;
       this.description = description;
       this.confidenceBlocks = confidenceBlocks;
       this.confidenceType = confidenceType;
@@ -288,6 +299,22 @@ public class Payment {
 
   public void setStatus(PaymentStatus status) {
     this.status = status;
+  }
+
+  public String getLocalChannelId() {
+      return this.localChannelId;
+  }
+
+  public void setLocalChannelId(String localChannelId) {
+      this.localChannelId = localChannelId;
+  }
+
+  public String getSerializedRoute() {
+      return this.serializedRoute;
+  }
+
+  public void setSerializedRoute(String serializedRoute) {
+      this.serializedRoute = serializedRoute;
   }
 
 }
