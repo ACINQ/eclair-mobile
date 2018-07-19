@@ -22,6 +22,7 @@ import android.content.Context;
 import org.greenrobot.greendao.database.Database;
 
 import fr.acinq.eclair.wallet.models.DaoMaster;
+import fr.acinq.eclair.wallet.models.LocalChannelDao;
 import fr.acinq.eclair.wallet.models.PaymentDao;
 
 /**
@@ -59,6 +60,9 @@ public class DBMigrationHelper extends DaoMaster.OpenHelper {
         " ADD COLUMN " + PaymentDao.Properties.LocalChannelId.columnName + " TEXT");
       db.execSQL("ALTER TABLE " + PaymentDao.TABLENAME +
         " ADD COLUMN " + PaymentDao.Properties.SerializedRoute.columnName + " TEXT");
+    }
+    if (oldVersion < 7) {
+      LocalChannelDao.createTable(db, true);
     }
   }
 }
