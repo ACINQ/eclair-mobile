@@ -24,7 +24,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
-import android.text.format.DateUtils;
+import android.text.Html;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -175,16 +175,20 @@ public class ChannelDetailsActivity extends EclairActivity {
 
       mBinding.channelId.actionButton.setOnClickListener(v -> openRawDataWindow());
     } else {
+      // ---- channel is inactive
       mBinding.channelId.actionButton.setVisibility(View.GONE);
       final String closedBalance = CoinUtils.formatAmountInUnit(new MilliSatoshi(channel.getBalanceMsat()), prefUnit, true);
       mBinding.balanceClosed.setValue(closedBalance);
-      mBinding.closedSince.setText(getString(R.string.channeldetails_closed_since,
-        DateUtils.getRelativeTimeSpanString(channel.getUpdated().getTime(), System.currentTimeMillis(), DateUtils.DAY_IN_MILLIS), closedBalance));
-      mBinding.openedOn.setText(getString(R.string.channeldetails_opened_on, DateFormat.getDateTimeInstance().format(channel.getCreated())));
+      mBinding.terminatedDisclaimer.setText(getString(R.string.channeldetails_terminated_disclaimer));
+      mBinding.openedOn.setText(Html.fromHtml(getString(R.string.channeldetails_opened_on,
+        DateFormat.getDateTimeInstance().format(channel.getCreated()))));
+      mBinding.closedOn.setText(Html.fromHtml(getString(R.string.channeldetails_closed_on,
+        DateFormat.getDateTimeInstance().format(channel.getUpdated()))));
     }
 
     if (CLOSING$.MODULE$.toString().equals(channel.state) || !channel.getIsActive()) {
-      if (!Strings.isNullOrEmpty(channel.getClosingErrorMessage())) mBinding.closingCause.setValue(channel.getClosingErrorMessage());
+      if (!Strings.isNullOrEmpty(channel.getClosingErrorMessage()))
+        mBinding.closingCause.setValue(channel.getClosingErrorMessage());
       mBinding.closingCause.setVisibility(View.VISIBLE);
     }
 

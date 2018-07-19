@@ -54,36 +54,75 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <LinearLayout
+        <android.support.constraint.ConstraintLayout
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:background="@color/primary_light_x1"
           android:orientation="vertical"
-          android:paddingBottom="@dimen/space_md"
+          android:paddingBottom="@dimen/space_lg"
           android:paddingEnd="@dimen/space_md"
           android:paddingStart="@dimen/space_md"
           android:paddingTop="@dimen/space_lg"
           android:visibility="@{!isActive ? View.VISIBLE : View.GONE}">
 
+          <ImageView
+            android:id="@+id/terminated_icon"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/ic_error_outline_white"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
           <TextView
-            android:id="@+id/closed_since"
-            android:layout_width="match_parent"
+            android:id="@+id/terminated_disclaimer"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:fontFamily="sans-serif-light"
-            android:text="@string/channeldetails_closed_since"
+            android:text="@string/channeldetails_terminated_disclaimer"
             android:textColor="@color/white"
-            android:textSize="16sp" />
+            android:layout_marginStart="@dimen/space_md"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintStart_toEndOf="@id/terminated_icon"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_default="wrap" />
+
+          <View
+            android:id="@+id/terminated_separator"
+            android:layout_width="50dp"
+            android:layout_height="1dp"
+            android:layout_marginTop="@dimen/space_xs"
+            android:background="@color/primary_light_x2"
+            app:layout_constraintStart_toStartOf="@id/terminated_disclaimer"
+            app:layout_constraintTop_toBottomOf="@id/terminated_disclaimer" />
 
           <TextView
             android:id="@+id/opened_on"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/space_xs"
-            android:text="@string/channeldetails_opened_on"
             android:textColor="@color/primary_light_x3"
-            android:textSize="12sp" />
+            android:textSize="12sp"
+            app:layout_goneMarginTop="@dimen/space_xs"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintStart_toStartOf="@id/terminated_disclaimer"
+            app:layout_constraintTop_toBottomOf="@id/terminated_separator"
+            app:layout_constraintWidth_default="wrap" />
 
-        </LinearLayout>
+          <TextView
+            android:id="@+id/closed_on"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_xxs"
+            android:textColor="@color/primary_light_x3"
+            android:textSize="12sp"
+            app:layout_goneMarginTop="@dimen/space_xs"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintStart_toStartOf="@id/terminated_disclaimer"
+            app:layout_constraintTop_toBottomOf="@id/opened_on"
+            app:layout_constraintWidth_default="wrap" />
+
+        </android.support.constraint.ConstraintLayout>
 
         <LinearLayout
           android:layout_width="match_parent"
@@ -339,6 +378,7 @@
           android:id="@+id/count_htlcs_inflight"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
+          android:visibility="@{isActive ? View.VISIBLE : View.GONE}"
           app:desc="@string/channeldetails_htlcs_count_desc"
           app:has_border="true"
           app:label="@string/channeldetails_htlcs_count_label"

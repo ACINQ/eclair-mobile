@@ -203,8 +203,9 @@
 
   <!-- //////////////// Local Channel Details //////////////////// -->
 
-  <string name="channeldetails_closed_since">This channel was closed %1$s with a balance of %2$s.</string>
-  <string name="channeldetails_opened_on">Opened on %1$s.</string>
+  <string name="channeldetails_terminated_disclaimer">This channel has been terminated.</string>
+  <string name="channeldetails_opened_on"><![CDATA[Opened <b>%1$s</b>]]></string>
+  <string name="channeldetails_closed_on"><![CDATA[Closed <b>%1$s</b>]]></string>
   <string name="channeldetails_id_label">Id</string>
   <string name="channeldetails_id_desc">Channel unique identifier</string>
   <string name="channeldetails_short_id_label">Short Channel Id</string>

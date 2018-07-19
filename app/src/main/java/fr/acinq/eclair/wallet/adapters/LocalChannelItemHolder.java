@@ -20,6 +20,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
+import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -88,7 +89,10 @@ public class LocalChannelItemHolder extends RecyclerView.ViewHolder implements V
 
     if (!item.getIsActive()) {
       state.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.grey_1));
-      state.setText(itemView.getResources().getString(R.string.channelitem_inactive_date, DateFormat.getDateTimeInstance().format(channel.getUpdated())));
+      final long delaySinceClosed = channel.getUpdated().getTime() - System.currentTimeMillis();
+      state.setText(itemView.getResources().getString(R.string.channelitem_inactive_date,
+        DateUtils.getRelativeTimeSpanString(channel.getUpdated().getTime(), System.currentTimeMillis(),
+          delaySinceClosed <= 24 * 60 * 60 * 1000 ? DateUtils.HOUR_IN_MILLIS : DateUtils.DAY_IN_MILLIS)));
       balanceProgressBar.setVisibility(View.GONE);
     } else {
       // ---- state
