@@ -29,12 +29,12 @@ import java.text.DateFormat;
 
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.eclair.CoinUnit;
+import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.adapters.PaymentItemHolder;
-import fr.acinq.eclair.wallet.customviews.DataRow;
 import fr.acinq.eclair.wallet.databinding.ActivityLnPaymentDetailsBinding;
 import fr.acinq.eclair.wallet.models.Payment;
-import fr.acinq.eclair.CoinUtils;
+import fr.acinq.eclair.wallet.models.PaymentDirection;
 import fr.acinq.eclair.wallet.models.PaymentStatus;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 

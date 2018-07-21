@@ -45,7 +45,7 @@
         android:text="@string/about_general_text"
         android:textSize="12sp"
         android:autoLink="web"
-        android:padding="@dimen/app_padding" />
+        android:padding="@dimen/space_md" />
 
       <fr.acinq.eclair.wallet.customviews.TitleBar
         android:layout_width="match_parent"
@@ -58,7 +58,7 @@
         android:layout_height="wrap_content"
         android:text="@string/about_limitations_text"
         android:textSize="12sp"
-        android:padding="@dimen/app_padding" />
+        android:padding="@dimen/space_md" />
 
       <fr.acinq.eclair.wallet.customviews.TitleBar
         android:layout_width="match_parent"
@@ -72,7 +72,7 @@
         android:text="@string/about_acinq_text"
         android:textSize="12sp"
         android:autoLink="web"
-        android:padding="@dimen/app_padding" />
+        android:padding="@dimen/space_md" />
 
     </LinearLayout>
 

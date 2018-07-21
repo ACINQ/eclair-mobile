@@ -20,6 +20,7 @@
   xmlns:tools="http://schemas.android.com/tools"
   android:layout_width="match_parent"
   android:layout_height="wrap_content"
+  android:background="@color/grey_0_light_x3"
   android:gravity="top|center"
   android:orientation="vertical">
 
@@ -38,10 +39,10 @@
         android:id="@+id/receivepayment_qr"
         android:layout_width="220dp"
         android:layout_height="220dp"
-        android:layout_marginBottom="16dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginBottom="@dimen/space_md"
+        android:layout_marginLeft="@dimen/space_md"
+        android:layout_marginRight="@dimen/space_md"
+        android:layout_marginTop="@dimen/space_lg"
         android:clickable="true"
         android:focusable="true"
         android:onClick="copyReceptionAddress"

@@ -33,7 +33,6 @@ public class DataRow extends LinearLayout {
   private TextView descTextView;
   private TextView valueTextView;
   public Button actionButton;
-  private boolean hasAction;
 
   public DataRow(Context context) {
     super(context);
@@ -59,14 +58,20 @@ public class DataRow extends LinearLayout {
       labelTextView = layout.findViewById(R.id.view_label);
       labelTextView.setText(arr.getString(R.styleable.DataRow_label));
       descTextView = layout.findViewById(R.id.view_desc);
-      descTextView.setText(arr.getString(R.styleable.DataRow_desc));
+      if (arr.hasValue(R.styleable.DataRow_desc)) {
+        descTextView.setText(arr.getString(R.styleable.DataRow_desc));
+      }
       valueTextView = layout.findViewById(R.id.view_value);
       if (arr.hasValue(R.styleable.DataRow_value)) {
         valueTextView.setText(arr.getString(R.styleable.DataRow_value));
       } else {
         valueTextView.setVisibility(GONE);
       }
-      hasAction = arr.getBoolean(R.styleable.DataRow_has_action, false);
+      boolean hasBorder = arr.getBoolean(R.styleable.DataRow_has_border, false);
+      if (hasBorder) {
+        layout.setBackground(getResources().getDrawable(R.drawable.transparent_bottom_border));
+      }
+      boolean hasAction = arr.getBoolean(R.styleable.DataRow_has_action, false);
       if (hasAction) {
         actionButton = findViewById(R.id.view_action);
         actionButton.setVisibility(VISIBLE);
@@ -82,5 +87,14 @@ public class DataRow extends LinearLayout {
   public void setValue(String value) {
     valueTextView.setVisibility(VISIBLE);
     valueTextView.setText(value);
+  }
+
+  public TextView getValueView() {
+    return this.valueTextView;
+  }
+
+  public void setDescription(final String description) {
+    descTextView.setVisibility(VISIBLE);
+    descTextView.setText(description);
   }
 }

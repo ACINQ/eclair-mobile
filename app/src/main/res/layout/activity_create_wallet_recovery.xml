@@ -43,7 +43,7 @@
           android:id="@+id/check_failed"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:layout_marginBottom="@dimen/wide_space"
+          android:layout_marginBottom="@dimen/space_lg"
           android:background="@drawable/rounded_corner_primary_light_x1"
           android:drawablePadding="8dp"
           android:drawableStart="@drawable/ic_warning_white"
@@ -57,7 +57,7 @@
           android:id="@+id/instructions"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:layout_marginBottom="@dimen/app_padding"
+          android:layout_marginBottom="@dimen/space_md"
           android:text="@string/createrecovery_instructions"
           android:textSize="12sp" />
 
@@ -65,7 +65,7 @@
           android:id="@+id/words_table"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:layout_marginBottom="@dimen/wide_space" />
+          android:layout_marginBottom="@dimen/space_lg" />
 
         <LinearLayout
           android:layout_width="match_parent"
@@ -79,7 +79,7 @@
             android:background="?android:attr/selectableItemBackground"
             android:contentDescription="@string/btn_cancel"
             android:onClick="cancel"
-            android:padding="@dimen/app_padding"
+            android:padding="@dimen/space_md"
             android:src="@drawable/ic_arrow_back" />
 
           <View
@@ -94,7 +94,7 @@
             android:layout_gravity="center"
             android:background="?android:attr/selectableItemBackground"
             android:onClick="initCheckRecovery"
-            android:padding="@dimen/app_padding"
+            android:padding="@dimen/space_md"
             android:text="@string/createrecovery_goto_check" />
         </LinearLayout>
 
@@ -103,11 +103,11 @@
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:layout_gravity="center"
-          android:layout_marginTop="@dimen/app_padding"
+          android:layout_marginTop="@dimen/space_md"
           android:background="?android:attr/selectableItemBackground"
           android:enabled="false"
           android:onClick="goStepSuccess"
-          android:padding="@dimen/app_padding"
+          android:padding="@dimen/space_md"
           android:text="@string/createrecovery_skip_check"
           android:textColor="@color/yellow"
           android:visibility="gone" />
@@ -153,7 +153,7 @@
           android:layout_gravity="center"
           android:background="?android:attr/selectableItemBackground"
           android:onClick="checkRecovery"
-          android:padding="@dimen/app_padding"
+          android:padding="@dimen/space_md"
           android:text="@string/createrecovery_check_button" />
 
       </LinearLayout>
@@ -164,7 +164,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="@dimen/app_padding"
+        android:padding="@dimen/space_md"
         android:textAlignment="center"
         android:visibility="gone">
 
@@ -173,7 +173,7 @@
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:background="@drawable/rounded_corner_white"
-          android:padding="@dimen/app_padding"
+          android:padding="@dimen/space_md"
           android:text="@string/createrecovery_error_write_seed"
           android:textAlignment="center"
           android:textColor="@color/grey_4"

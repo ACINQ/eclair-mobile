@@ -20,69 +20,115 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
+import android.text.format.DateUtils;
+import android.util.Log;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import java.text.DateFormat;
+
+import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.eclair.CoinUnit;
+import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.channel.CLOSING$;
 import fr.acinq.eclair.channel.NORMAL$;
 import fr.acinq.eclair.channel.OFFLINE$;
 import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.activities.ChannelDetailsActivity;
-import fr.acinq.eclair.wallet.models.ChannelItem;
-import fr.acinq.eclair.CoinUtils;
+import fr.acinq.eclair.wallet.models.ClosingType;
+import fr.acinq.eclair.wallet.models.LocalChannel;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 
 public class LocalChannelItemHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
   public static final String EXTRA_CHANNEL_ID = BuildConfig.APPLICATION_ID + ".CHANNEL_ID";
 
-  private final TextView state;
   private final TextView balance;
   private final TextView balanceUnit;
   private final TextView node;
-  private ChannelItem channelItem;
+  private final TextView state;
+  private final TextView delayedClosing;
+  private final TextView inflightHtlcs;
+  private final ProgressBar balanceProgressBar;
+  private LocalChannel channel;
 
-  public LocalChannelItemHolder(View itemView) {
+  LocalChannelItemHolder(View itemView) {
     super(itemView);
     this.state = itemView.findViewById(R.id.channelitem_state);
     this.balance = itemView.findViewById(R.id.channelitem_balance_value);
     this.node = itemView.findViewById(R.id.channelitem_node);
     this.balanceUnit = itemView.findViewById(R.id.channelitem_balance_unit);
+    this.delayedClosing = itemView.findViewById(R.id.delayed_closing);
+    this.inflightHtlcs = itemView.findViewById(R.id.inflight_htlcs);
+    this.balanceProgressBar = itemView.findViewById(R.id.balance_progress);
     itemView.setOnClickListener(this);
   }
 
   @Override
   public void onClick(View v) {
     Intent intent = new Intent(v.getContext(), ChannelDetailsActivity.class);
-    intent.putExtra(EXTRA_CHANNEL_ID, this.channelItem.id);
+    intent.putExtra(EXTRA_CHANNEL_ID, this.channel.getChannelId());
     v.getContext().startActivity(intent);
   }
 
   @SuppressLint("SetTextI18n")
-  protected void bindItem(final ChannelItem channelItem, final String fiatCode, final CoinUnit prefUnit, final boolean displayAmountAsFiat) {
-    this.channelItem = channelItem;
-    state.setText(channelItem.state);
-    if (NORMAL$.MODULE$.toString().equals(channelItem.state)) {
-      state.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.green));
-    } else if (OFFLINE$.MODULE$.toString().equals(channelItem.state) || channelItem.state.startsWith("ERR_")) {
-      state.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.red_faded));
-    } else {
-      if (CLOSING$.MODULE$.toString().equals(channelItem.state)) {
-        state.setText(channelItem.state.toUpperCase() + (channelItem.isCooperativeClosing ? " (cooperative)" : " (uncooperative)"));
-      }
-      state.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.orange));
-    }
+  protected void bindItem(final LocalChannel item, final String fiatCode, final CoinUnit prefUnit, final boolean displayAmountAsFiat) {
+    this.channel = item;
+    node.setText(itemView.getResources().getString(R.string.channelitem_with_node, item.getPeerNodeId()));
 
-    // setting amount & unit with optional conversion to fiat
+    // ---- setting amount & unit with optional conversion to fiat
     if (displayAmountAsFiat) {
-      balance.setText(WalletUtils.convertMsatToFiat(channelItem.balanceMsat.amount(), fiatCode));
+      WalletUtils.printAmountInView(balance, WalletUtils.convertMsatToFiat(item.getBalanceMsat(), fiatCode));
       balanceUnit.setText(fiatCode.toUpperCase());
     } else {
-      balance.setText(CoinUtils.formatAmountInUnit(channelItem.balanceMsat, prefUnit, false));
+      WalletUtils.printAmountInView(balance, CoinUtils.formatAmountInUnit(new MilliSatoshi(item.getBalanceMsat()), prefUnit, false));
       balanceUnit.setText(prefUnit.shortLabel());
     }
-    node.setText("With " + channelItem.targetPubkey);
+
+    if (!item.getIsActive()) {
+      state.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.grey_1));
+      final long delaySinceClosed = channel.getUpdated().getTime() - System.currentTimeMillis();
+      state.setText(itemView.getResources().getString(R.string.channelitem_inactive_date,
+        DateUtils.getRelativeTimeSpanString(channel.getUpdated().getTime(), System.currentTimeMillis(),
+          delaySinceClosed <= 24 * 60 * 60 * 1000 ? DateUtils.HOUR_IN_MILLIS : DateUtils.DAY_IN_MILLIS)));
+      balanceProgressBar.setVisibility(View.GONE);
+    } else {
+      // ---- state
+      state.setText(item.state);
+      if (NORMAL$.MODULE$.toString().equals(item.state)) {
+        state.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.green));
+      } else if (OFFLINE$.MODULE$.toString().equals(item.state) || item.state.startsWith("ERR_")) {
+        state.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.red_faded));
+      } else {
+        if (CLOSING$.MODULE$.toString().equals(item.state)) {
+          state.setText(item.state.toUpperCase() + " " + itemView.getResources().getString(
+            ClosingType.MUTUAL.equals(item.getClosingType()) ? R.string.channelitem_cooperative : R.string.channelitem_uncooperative));
+        }
+        state.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.orange));
+      }
+
+      // ---- additional dynamic info, such as delayed closing tx, inflight htlcs...
+      if (CLOSING$.MODULE$.toString().equals(item.state) && ClosingType.LOCAL.equals(item.getClosingType())) {
+        // TODO: get the exact block at which the closing tx will be broadcast
+        delayedClosing.setText(itemView.getResources().getString(R.string.channelitem_delayed_closing_unknown, item.getToSelfDelayBlocks()));
+        delayedClosing.setVisibility(View.VISIBLE);
+      } else {
+        delayedClosing.setVisibility(View.GONE);
+      }
+
+      if (item.htlcsInFlightCount > 0) {
+        inflightHtlcs.setText(itemView.getResources().getString(R.string.channelitem_inflight_htlcs, item.htlcsInFlightCount));
+        inflightHtlcs.setVisibility(View.VISIBLE);
+      } else {
+        inflightHtlcs.setVisibility(View.GONE);
+      }
+
+      if (channel.getCapacityMsat() > 0) {
+        final double progress = (double) channel.getBalanceMsat() / channel.getCapacityMsat() * 100;
+        balanceProgressBar.setProgress((int) progress);
+      }
+    }
   }
 }

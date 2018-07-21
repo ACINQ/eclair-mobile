@@ -35,7 +35,7 @@
       android:gravity="center"
       android:onClick="copyRawData"
       android:orientation="horizontal"
-      android:padding="@dimen/app_padding">
+      android:padding="@dimen/space_md">
 
       <ImageView
         android:layout_width="18dp"
@@ -63,7 +63,7 @@
       android:layout_height="wrap_content"
       android:background="@color/grey_0_light_x1"
       android:fontFamily="monospace"
-      android:padding="@dimen/app_padding"
+      android:padding="@dimen/space_md"
       android:scrollHorizontally="true"
       android:text="@string/rawdata_loading"
       android:textColor="@color/grey_3"

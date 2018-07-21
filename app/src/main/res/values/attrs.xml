@@ -36,6 +36,7 @@
     <attr name="label" />
     <attr name="desc" format="string" />
     <attr name="value" format="string" />
+    <attr name="has_border" format="boolean" />
     <attr name="has_action" format="boolean" />
     <attr name="action_label" format="string" />
     <attr name="action_bg" format="color" />

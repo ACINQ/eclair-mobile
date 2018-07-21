@@ -62,7 +62,7 @@ public class CreateWalletRecoveryActivity extends EclairActivity implements Ecla
       mnemonics = JavaConverters.seqAsJavaListConverter(MnemonicCode.toMnemonics(fr.acinq.eclair.package$.MODULE$.randomBytes(
         ElectrumWallet.SEED_BYTES_LENGTH()).data(), MnemonicCode.englishWordlist())).asJava();
       final int bottomPadding = getResources().getDimensionPixelSize(R.dimen.word_list_padding);
-      final int rightPadding = getResources().getDimensionPixelSize(R.dimen.wide_space);
+      final int rightPadding = getResources().getDimensionPixelSize(R.dimen.space_lg);
       for (int i = 0; i < mnemonics.size(); i = i + 2) {
         TableRow tr = new TableRow(this);
         tr.setGravity(Gravity.CENTER);

@@ -102,7 +102,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
 
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void processStartupFinish(StartupCompleteEvent event) {
-    switch(event.status) {
+    switch (event.status) {
       case StartupTask.SUCCESS:
         if (app.appKit != null) {
           PreferenceManager.getDefaultSharedPreferences(getBaseContext()).edit()
@@ -237,15 +237,18 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
           if (pinDialog != null) {
             pinDialog.dismiss();
           }
-          pinDialog = new PinDialog(StartupActivity.this, R.style.CustomAlertDialog, new PinDialog.PinDialogCallback() {
-            @Override
-            public void onPinConfirm(final PinDialog dialog, final String pinValue) {
-              new StartupTask(pinValue).execute(app);
-              dialog.dismiss();
-            }
-            @Override
-            public void onPinCancel(PinDialog dialog) {}
-          }, "Enter password to unlock");
+          pinDialog = new PinDialog(StartupActivity.this, R.style.FullScreenDialog,
+            new PinDialog.PinDialogCallback() {
+              @Override
+              public void onPinConfirm(final PinDialog dialog, final String pinValue) {
+                new StartupTask(pinValue).execute(app);
+                dialog.dismiss();
+              }
+
+              @Override
+              public void onPinCancel(PinDialog dialog) {
+              }
+            }, "Enter password to unlock");
           pinDialog.setCanceledOnTouchOutside(false);
           pinDialog.setCancelable(false);
           pinDialog.show();
@@ -333,12 +336,12 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
 
         Class.forName("org.sqlite.JDBC");
         publishProgress("setting up eclair");
-        final Setup setup = new Setup(datadir, Option.apply(null), ConfigFactory.empty(), app.system, Option.apply(seed));
+        final Setup setup = new Setup(datadir, ConfigFactory.empty(), Option.apply(seed), app.system);
 
         // gui and electrum supervisor actors
         ActorRef guiUpdater = app.system.actorOf(Props.create(EclairEventService.class, app.getDBHelper()));
-        setup.system().eventStream().subscribe(guiUpdater, ChannelEvent.class);
-        setup.system().eventStream().subscribe(guiUpdater, PaymentLifecycle.PaymentResult.class);
+        app.system.eventStream().subscribe(guiUpdater, ChannelEvent.class);
+        app.system.eventStream().subscribe(guiUpdater, PaymentLifecycle.PaymentResult.class);
         app.system.actorOf(Props.create(PaymentSupervisor.class, app.getDBHelper()), "payments");
 
         publishProgress("starting core");

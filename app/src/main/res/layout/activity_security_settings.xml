@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  ~ Copyright 2018 ACINQ SAS
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+  <ScrollView
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:orientation="vertical">
+
+      <!-- Custom toolbar -->
+      <include layout="@layout/toolbar" />
+
+      <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/space_md"
+        android:text="@string/prefs_security_title"
+        android:textAppearance="@android:style/TextAppearance.Material.Body2"
+        android:textColor="?android:attr/colorAccent" />
+
+      <!-- Wraps the PIN switch to prevent manual input by intercepting click events -->
+      <!-- The switch value can only be set programmatically -->
+      <RelativeLayout
+        android:id="@+id/pin_switch_wrapper"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/space_md"
+        android:clickable="true"
+        android:focusable="true"
+        android:paddingEnd="@dimen/space_md"
+        android:paddingStart="@dimen/space_md">
+
+        <Switch
+          android:id="@+id/pin_switch"
+          android:layout_width="wrap_content"
+          android:layout_alignParentEnd="true"
+          android:layout_height="wrap_content"
+          android:clickable="false"
+          android:focusable="false" />
+
+        <TextView
+          android:id="@+id/pin_title"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_alignBaseline="@+id/pin_switch"
+          android:layout_marginBottom="2dp"
+          android:layout_alignParentStart="true"
+          android:layout_marginEnd="@dimen/space_md"
+          android:layout_toStartOf="@+id/pin_switch"
+          android:text="@string/prefs_pin_title"
+          android:textSize="16sp" />
+
+        <TextView
+          android:id="@+id/pin_info"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_below="@+id/pin_title"
+          android:layout_alignParentStart="true"
+          android:layout_marginEnd="@dimen/space_md"
+          android:layout_toStartOf="@id/pin_switch"
+          android:text="@string/prefs_pin_default_info"
+          android:textColor="@color/grey_1" />
+      </RelativeLayout>
+
+      <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/grey_0_dark_x1" />
+
+      <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?android:attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:onClick="changePassword"
+        android:orientation="vertical"
+        android:padding="@dimen/space_md">
+
+        <TextView
+          android:id="@+id/change_password_title"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginBottom="2dp"
+          android:layout_marginEnd="@dimen/space_md"
+          android:text="@string/prefs_change_password"
+          android:textSize="16sp" />
+
+        <TextView
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginEnd="@dimen/space_md"
+          android:text="@string/prefs_change_password_desc"
+          android:textColor="@color/grey_1" />
+      </LinearLayout>
+
+    </LinearLayout>
+  </ScrollView>
+</layout>

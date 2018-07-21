@@ -44,11 +44,24 @@
     <item name="android:lineSpacingMultiplier">1.15</item>
   </style>
 
-  <style name="AppTheme.ForceBar" parent="AppTheme">
-    <item name="windowActionBar">true</item>
-    <item name="windowNoTitle">false</item>
-    <item name="actionBarTheme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
-    <item name="android:textColorSecondary">@color/grey_1</item>
+  <style name="PreferenceStyle" parent="Preference">
+    <item name="android:actionBarStyle">@style/PreferenceStyle.ActionBar</item>
+    <item name="android:colorAccent">@color/primary</item>
+    <item name="colorPrimary">@color/primary</item>
+    <item name="colorPrimaryDark">@color/primary</item>
+    <item name="android:statusBarColor">@color/primary</item>
+  </style>
+
+  <style name="ActionBar" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
+    <item name="android:background">@color/primary</item>
+    <item name="android:displayOptions">showTitle</item>
+    <item name="android:height">@dimen/action_bar_height</item>
+  </style>
+
+  <style name="PreferenceStyle.ActionBar" parent="@style/ActionBar">
+    <item name="android:displayOptions">homeAsUp|showTitle</item>
+    <item name="android:textColorPrimary">@color/white</item>
+    <item name="android:textColor">@color/white</item>
   </style>
 
   <style name="CustomDialog" parent="@style/Theme.AppCompat.Light.Dialog">
@@ -58,6 +71,16 @@
     <item name="windowActionBar">false</item>
     <item name="windowNoTitle">true</item>
     <item name="actionBarTheme">@null</item>
+  </style>
+
+  <style name="FullScreenDialog" parent="@style/CustomDialog">
+    <item name="android:layout_width">match_parent</item>
+    <item name="android:layout_height">match_parent</item>
+    <item name="android:windowBackground">@color/primary</item>
+    <item name="windowActionBar">false</item>
+    <item name="android:windowNoTitle">true</item>
+    <item name="android:windowIsFloating">false</item>
+    <item name="android:statusBarColor">@color/primary</item>
   </style>
 
   <style name="CustomAlertDialog" parent="CustomDialog">
@@ -94,6 +117,21 @@
 
   <style name="CustomPrefsFragmentStyle" parent="@style/PreferenceFragment.Material">
     <item name="android:divider">@drawable/prefs_divider</item>
+  </style>
+
+  <style name="PinButtonStyle" parent="@style/Widget.AppCompat.Button.Borderless.Colored">
+    <item name="android:fontFamily">sans-serif-light</item>
+    <item name="android:layout_width">@dimen/pin_button_size</item>
+    <item name="android:layout_height">@dimen/pin_button_size</item>
+    <item name="android:gravity">center</item>
+    <item name="android:layout_margin">8dp</item>
+    <item name="android:hapticFeedbackEnabled">true</item>
+    <item name="android:textColor">@color/white</item>
+    <item name="android:textSize">20sp</item>
+  </style>
+
+  <style name="PinButtonCircleStyle" parent="@style/PinButtonStyle">
+    <item name="android:background">@drawable/circle_pin</item>
   </style>
 
 </resources>

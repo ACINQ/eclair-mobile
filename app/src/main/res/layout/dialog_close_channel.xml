@@ -37,16 +37,16 @@
       <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/app_padding"
+        android:layout_margin="@dimen/space_md"
         android:text="@string/dialog_close_channel_question" />
 
       <CheckBox
         android:id="@+id/close_channel_force_checkbox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/app_padding"
-        android:layout_marginEnd="@dimen/app_padding"
-        android:layout_marginStart="@dimen/app_padding"
+        android:layout_marginBottom="@dimen/space_md"
+        android:layout_marginEnd="@dimen/space_md"
+        android:layout_marginStart="@dimen/space_md"
         android:buttonTint="@color/primary"
         android:text="@string/dialog_close_channel_force_checkbox_opt"
         android:visibility="gone" />
@@ -59,7 +59,7 @@
         android:drawablePadding="8dp"
         android:drawableStart="@drawable/ic_warning_tri"
         android:layout_marginBottom="40dp"
-        android:padding="@dimen/app_padding"
+        android:padding="@dimen/space_md"
         android:text="@string/dialog_close_channel_force_warning"
         android:textColor="@color/grey_3"
         android:textSize="12sp"
@@ -82,7 +82,7 @@
       android:layout_marginEnd="16dp"
       android:background="?android:attr/selectableItemBackground"
       android:onClick="closeApp"
-      android:padding="@dimen/app_padding"
+      android:padding="@dimen/space_md"
       android:text="@string/dialog_close_channel_cancel"
       android:textColor="@color/grey_1" />
 
@@ -91,7 +91,7 @@
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:background="?android:attr/selectableItemBackground"
-      android:padding="@dimen/app_padding"
+      android:padding="@dimen/space_md"
       android:text="@string/dialog_close_channel_close"
       android:textColor="@color/grey_4" />
   </LinearLayout>

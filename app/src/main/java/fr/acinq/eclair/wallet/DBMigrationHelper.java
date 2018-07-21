@@ -22,6 +22,7 @@ import android.content.Context;
 import org.greenrobot.greendao.database.Database;
 
 import fr.acinq.eclair.wallet.models.DaoMaster;
+import fr.acinq.eclair.wallet.models.LocalChannelDao;
 import fr.acinq.eclair.wallet.models.PaymentDao;
 
 /**
@@ -52,6 +53,16 @@ public class DBMigrationHelper extends DaoMaster.OpenHelper {
       // adds the amount sent column (because it can be different from amount requested)
       db.execSQL("ALTER TABLE " + PaymentDao.TABLENAME +
         " ADD COLUMN " + PaymentDao.Properties.AmountSentMsat.columnName + " INTEGER");
+    }
+    if (oldVersion < 6) {
+      // adds the channel id column and the serialized successful route
+      db.execSQL("ALTER TABLE " + PaymentDao.TABLENAME +
+        " ADD COLUMN " + PaymentDao.Properties.LocalChannelId.columnName + " TEXT");
+      db.execSQL("ALTER TABLE " + PaymentDao.TABLENAME +
+        " ADD COLUMN " + PaymentDao.Properties.SerializedRoute.columnName + " TEXT");
+    }
+    if (oldVersion < 7) {
+      LocalChannelDao.createTable(db, true);
     }
   }
 }
