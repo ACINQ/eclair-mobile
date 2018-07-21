@@ -70,6 +70,7 @@ import fr.acinq.eclair.wallet.models.Payment;
 import fr.acinq.eclair.wallet.models.PaymentDirection;
 import fr.acinq.eclair.wallet.models.PaymentStatus;
 import fr.acinq.eclair.wallet.models.PaymentType;
+import fr.acinq.eclair.wallet.utils.WalletUtils;
 import scala.collection.Iterator;
 import scala.collection.JavaConverters;
 import scala.collection.Seq;
@@ -240,7 +241,7 @@ public class EclairEventService extends UntypedActor {
       } else if (event.error() instanceof Channel.RemoteError) {
         final Channel.RemoteError remoteError = (Channel.RemoteError) event.error();
         if (fr.acinq.eclair.package$.MODULE$.isAsciiPrintable(remoteError.e().data())) {
-          c.setClosingErrorMessage(new String(remoteError.e().data().toString().getBytes(), StandardCharsets.US_ASCII));
+          c.setClosingErrorMessage(WalletUtils.toAscii(remoteError.e().data()));
         } else {
           c.setClosingErrorMessage(remoteError.e().data().toString());
         }

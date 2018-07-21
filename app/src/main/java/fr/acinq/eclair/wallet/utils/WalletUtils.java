@@ -36,6 +36,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.text.NumberFormat;
 import java.util.regex.Pattern;
@@ -254,5 +255,14 @@ public class WalletUtils {
 
   public static BinaryData getChainHash() {
     return "mainnet".equals(BuildConfig.CHAIN) ? Block.LivenetGenesisBlock().hash() : Block.TestnetGenesisBlock().hash();
+  }
+
+  public static String toAscii(final BinaryData b) {
+    final byte[] bytes = new byte[b.length()];
+    for (int i = 0; i < b.length(); i++) {
+      bytes[i] = (Byte)b.data().apply(i);
+    }
+    String s = new String(bytes, StandardCharsets.US_ASCII);
+    return s;
   }
 }
