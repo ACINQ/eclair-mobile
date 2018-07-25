@@ -6,6 +6,10 @@ Eclair Wallet is a next generation, Lightning-ready Bitcoin wallet. It can be us
 
 This software is based upon [eclair](https://github.com/ACINQ/eclair), and follows the Lightning Network standard.
 
+## Pre-Requirements
+
+Google AndroiD 5.x > 
+
 ## Installation
 
 The wallet is available on [Google Play](https://play.google.com/store/apps/details?id=fr.acinq.eclair.wallet), you can also download APKs from the [releases page](https://github.com/ACINQ/eclair-wallet/releases).
