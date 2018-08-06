@@ -39,6 +39,7 @@ import fr.acinq.eclair.wallet.databinding.ActivityNetworkInfosBinding;
 import fr.acinq.eclair.wallet.events.NetworkChannelsCountEvent;
 import fr.acinq.eclair.wallet.events.XpubEvent;
 import fr.acinq.eclair.wallet.utils.Constants;
+import fr.acinq.eclair.wallet.utils.WalletUtils;
 
 public class NetworkInfosActivity extends EclairActivity implements SwipeRefreshLayout.OnRefreshListener {
 
@@ -114,8 +115,7 @@ public class NetworkInfosActivity extends EclairActivity implements SwipeRefresh
   }
 
   private void deleteNetworkDB() {
-    final File datadir = new File(getFilesDir(), Constants.ECLAIR_DATADIR);
-    final File networkDB = new File(datadir, BuildConfig.CHAIN + "/network.sqlite");
+    final File networkDB = WalletUtils.getNetworkDBFile(getApplicationContext());
     if (networkDB.delete()) {
       Toast.makeText(getApplicationContext(), "Successfully deleted network DB", Toast.LENGTH_SHORT).show();
     }

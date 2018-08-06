@@ -17,8 +17,8 @@
 
   <application
     android:name=".App"
-    android:allowBackup="true"
-    android:fullBackupContent="true"
+    android:allowBackup="false"
+    android:fullBackupContent="false"
     android:icon="@mipmap/ic_launcher_testnet"
     android:label="@string/app_name"
     android:supportsRtl="true"
@@ -48,7 +48,7 @@
       </intent-filter>
     </activity>
     <activity
-      android:name=".activities.CreateWalletRecoveryActivity"
+      android:name=".activities.CreateWalletFromScratchActivity"
       android:launchMode="singleTop"
       android:parentActivityName=".activities.StartupActivity"
       android:screenOrientation="portrait"
@@ -132,10 +132,23 @@
       android:parentActivityName=".activities.PreferencesActivity"
       android:screenOrientation="portrait" />
     <activity
+      android:name=".activities.EnableChannelsBackupActivity"
+      android:label="@string/menu_settings_channels_backup"
+      android:parentActivityName=".activities.PreferencesActivity"
+      android:screenOrientation="portrait" />
+    <activity
+      android:name=".activities.RestoreChannelsBackupActivity"
+      android:label="@string/menu_settings_channels_restore"
+      android:parentActivityName=".activities.StartupActivity"
+      android:screenOrientation="portrait" />
+    <activity
       android:name=".activities.ChannelRawDataActivity"
       android:label="@string/channelrawdata_name"
       android:parentActivityName=".activities.ChannelDetailsActivity"
       android:screenOrientation="portrait" />
+
+    <!-- services -->
+    <service android:name=".services.ChannelsBackupService" />
   </application>
 
 </manifest>

@@ -18,6 +18,15 @@
   xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools">
 
+  <data>
+
+    <import type="android.view.View" />
+
+    <variable
+      name="channelsBackupEnabled"
+      type="boolean" />
+  </data>
+
   <RelativeLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -66,7 +75,7 @@
             <TextView
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
-              android:layout_marginStart="16dp"
+              android:layout_marginStart="@dimen/space_md"
               android:background="@drawable/rounded_corner_green"
               android:paddingBottom="3dp"
               android:paddingLeft="5dp"
@@ -77,6 +86,23 @@
               android:textColor="@color/white"
               android:textSize="10sp"
               android:textStyle="bold" />
+
+            <Button
+              android:id="@+id/channels_backup_warning"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_marginStart="@dimen/space_xs"
+              android:background="@android:color/transparent"
+              android:contentDescription="@string/home_backup_disabled_icon_desc"
+              android:padding="@dimen/space_xs"
+              android:drawablePadding="@dimen/space_xs"
+              android:drawableStart="@drawable/ic_cloud_off_yellow_24dp"
+              android:onClick="enableChannelsBackup"
+              android:text="NO BACKUP"
+              android:textAllCaps="true"
+              android:textColor="@color/yellow"
+              android:textSize="10sp"
+              android:visibility="@{channelsBackupEnabled ? View.GONE : View.VISIBLE}" />
 
           </LinearLayout>
 

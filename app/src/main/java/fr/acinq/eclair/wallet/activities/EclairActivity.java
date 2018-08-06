@@ -21,9 +21,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
-
-import org.greenrobot.greendao.annotation.NotNull;
 
 import java.io.File;
 import java.security.MessageDigest;
@@ -86,7 +83,7 @@ public abstract class EclairActivity extends AppCompatActivity {
   }
 
   @SuppressLint("ApplySharedPref")
-  protected boolean isPinCorrect (final String pin, @NotNull final PinDialog dialog) {
+  protected boolean isPinCorrect (final String pin, final PinDialog dialog) {
     if (checkInit()) {
       final boolean isCorrect = MessageDigest.isEqual(pin.getBytes(), app.pin.get().getBytes());
       if (isCorrect) {

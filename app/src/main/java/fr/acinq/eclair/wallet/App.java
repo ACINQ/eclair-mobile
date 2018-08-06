@@ -28,6 +28,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
+import android.widget.Toast;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -64,12 +65,13 @@ import fr.acinq.eclair.io.Peer;
 import fr.acinq.eclair.payment.PaymentLifecycle;
 import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.wallet.activities.ChannelDetailsActivity;
+import fr.acinq.eclair.wallet.events.BackupEclairDBEvent;
 import fr.acinq.eclair.wallet.events.BitcoinPaymentFailedEvent;
 import fr.acinq.eclair.wallet.events.ChannelRawDataEvent;
 import fr.acinq.eclair.wallet.events.ClosingChannelNotificationEvent;
-import fr.acinq.eclair.wallet.events.LNNewChannelFailureEvent;
 import fr.acinq.eclair.wallet.events.NetworkChannelsCountEvent;
 import fr.acinq.eclair.wallet.events.XpubEvent;
+import fr.acinq.eclair.wallet.services.ChannelsBackupService;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 import scala.Symbol;
@@ -90,6 +92,7 @@ public class App extends Application {
   public final static Map<String, Float> RATES = new HashMap<>();
   public final ActorSystem system = ActorSystem.apply("system");
   public AtomicReference<String> pin = new AtomicReference<>(null);
+  public AtomicReference<String> seedHash = new AtomicReference<>(null);
   public AppKit appKit;
   private AtomicReference<ElectrumState> electrumState = new AtomicReference<>(null);
   private DBHelper dbHelper;
@@ -104,9 +107,7 @@ public class App extends Application {
   }
 
   /**
-   * Returns true if the wallet is not compatible with the local datas.
-   *
-   * @return
+   * Returns true if the wallet is not compatible with the local data.
    */
   public boolean hasBreakingChanges() {
     return !appKit.isDBCompatible;
@@ -114,8 +115,6 @@ public class App extends Application {
 
   /**
    * Return application's version
-   *
-   * @return
    */
   public String getVersion() {
     try {
@@ -123,6 +122,13 @@ public class App extends Application {
     } catch (PackageManager.NameNotFoundException e) {
     }
     return "N/A";
+  }
+
+  @Subscribe(threadMode = ThreadMode.BACKGROUND)
+  public void handleSaveEclairDBEvent(final BackupEclairDBEvent event) {
+    final Intent backupService = new Intent(this, ChannelsBackupService.class);
+    backupService.putExtra(ChannelsBackupService.SEED_HASH_EXTRA, seedHash.get());
+    startService(backupService);
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
@@ -294,12 +300,12 @@ public class App extends Application {
         @Override
         public void onComplete(Throwable throwable, Object result) throws Throwable {
           if (throwable != null) {
-            EventBus.getDefault().post(new LNNewChannelFailureEvent(throwable.getMessage()));
+            Toast.makeText(getApplicationContext(), getString(R.string.home_toast_openchannel_failed) + throwable.getMessage(), Toast.LENGTH_LONG).show();
           } else if ("connected".equals(result.toString()) || "already connected".equals(result.toString())) {
             final Future<Object> openFuture = Patterns.ask(appKit.eclairKit.switchboard(), open, new Timeout(timeout));
             openFuture.onComplete(onComplete, system.dispatcher());
           } else {
-            EventBus.getDefault().post(new LNNewChannelFailureEvent(result.toString()));
+            Toast.makeText(getApplicationContext(), getString(R.string.home_toast_openchannel_failed) + result.toString(), Toast.LENGTH_LONG).show();
           }
         }
       };
@@ -376,7 +382,7 @@ public class App extends Application {
         if (throwable == null && o != null) {
           RES_GETINFO result = (RES_GETINFO) o;
           String json = default$.MODULE$.write(result, 1, JsonSerializers$.MODULE$.cmdResGetinfoReadWriter());
-          EventBus.getDefault().post(new ChannelRawDataEvent(json));
+          EventBus.getDefault().post(json);
         } else {
           EventBus.getDefault().post(new ChannelRawDataEvent(null));
         }
@@ -456,7 +462,7 @@ public class App extends Application {
 
   public static class AppKit {
     final private ElectrumEclairWallet electrumWallet;
-    final private Kit eclairKit;
+    final public Kit eclairKit;
     final private boolean isDBCompatible;
 
     public AppKit(final ElectrumEclairWallet wallet, Kit kit, boolean isDBCompatible) {

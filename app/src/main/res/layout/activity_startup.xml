@@ -22,13 +22,6 @@
     android:layout_height="match_parent"
     tools:context="activities.StartupActivity">
 
-    <!-- usage disclaimer -->
-    <ViewStub
-      android:id="@+id/stub_disclaimer"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      android:layout="@layout/stub_usage_disclaimer" />
-
     <!-- pick wallet initialization mode -->
     <ViewStub
       android:id="@+id/stub_pick_init_wallet"

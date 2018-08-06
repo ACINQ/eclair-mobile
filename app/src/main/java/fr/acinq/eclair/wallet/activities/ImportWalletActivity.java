@@ -17,24 +17,19 @@
 package fr.acinq.eclair.wallet.activities;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.view.View;
-import android.widget.Toast;
-
-import com.google.common.base.Strings;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.List;
 
 import fr.acinq.bitcoin.MnemonicCode;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.databinding.ActivityImportWalletBinding;
-import fr.acinq.eclair.wallet.fragments.PinDialog;
 import fr.acinq.eclair.wallet.utils.Constants;
-import fr.acinq.eclair.wallet.utils.WalletUtils;
-import scala.collection.JavaConverters;
 
 public class ImportWalletActivity extends EclairActivity implements EclairActivity.EncryptSeedCallback {
 
@@ -45,6 +40,7 @@ public class ImportWalletActivity extends EclairActivity implements EclairActivi
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     mBinding = DataBindingUtil.setContentView(this, R.layout.activity_import_wallet);
+    mBinding.setImportStep(Constants.IMPORT_WALLET_INIT);
   }
 
   private void reset() {
@@ -72,8 +68,7 @@ public class ImportWalletActivity extends EclairActivity implements EclairActivi
     try {
       MnemonicCode.validate(mnemonics);
       return true;
-    }
-    catch(Exception e) {
+    } catch (Exception e) {
       showError(e.getMessage());
       return false;
     }
@@ -96,7 +91,10 @@ public class ImportWalletActivity extends EclairActivity implements EclairActivi
 
   @Override
   public void onEncryptSeedSuccess() {
-    goToStartup();
+    mBinding.setImportStep(Constants.IMPORT_WALLET_SUCCESS);
+    final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+    prefs.edit().putInt(Constants.SETTING_WALLET_ORIGIN, Constants.WALLET_ORIGIN_RESTORED_FROM_SEED).apply();
+    new Handler().postDelayed(this::goToStartup, 1700);
   }
 
 }

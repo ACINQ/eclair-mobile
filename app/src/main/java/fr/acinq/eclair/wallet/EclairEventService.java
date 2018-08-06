@@ -20,7 +20,6 @@ import android.util.Log;
 
 import org.greenrobot.eventbus.EventBus;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -40,6 +39,7 @@ import fr.acinq.eclair.channel.Channel;
 import fr.acinq.eclair.channel.ChannelCreated;
 import fr.acinq.eclair.channel.ChannelFailed;
 import fr.acinq.eclair.channel.ChannelIdAssigned;
+import fr.acinq.eclair.channel.ChannelPersisted;
 import fr.acinq.eclair.channel.ChannelRestored;
 import fr.acinq.eclair.channel.ChannelSignatureReceived;
 import fr.acinq.eclair.channel.ChannelSignatureSent;
@@ -82,9 +82,11 @@ import scala.util.Either;
 public class EclairEventService extends UntypedActor {
 
   private DBHelper dbHelper;
+  private ActorRef backupScheduler;
 
-  public EclairEventService(DBHelper dbHelper) {
+  public EclairEventService(final DBHelper dbHelper, final ActorRef backupScheduler) {
     this.dbHelper = dbHelper;
+    this.backupScheduler = backupScheduler;
   }
 
   private static final String TAG = "EclairEventService";
@@ -218,6 +220,10 @@ public class EclairEventService extends UntypedActor {
       c.setCapacityMsat(localCommit.spec().totalFunds());
       EventBus.getDefault().post(new ChannelUpdateEvent());
       postLNBalanceEvent();
+    }
+    // ---- channel must be saved
+    else if (message instanceof ChannelPersisted) {
+      backupScheduler.tell(BackupScheduler.DO_BACKUP, null);
     }
     // ---- channel has been terminated
     else if (message instanceof Terminated) {

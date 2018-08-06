@@ -17,9 +17,11 @@
 package fr.acinq.eclair.wallet.activities;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.text.Html;
 import android.util.Log;
 import android.view.Gravity;
@@ -35,32 +37,30 @@ import java.util.Collections;
 import java.util.List;
 
 import fr.acinq.bitcoin.MnemonicCode;
-import fr.acinq.eclair.blockchain.electrum.ElectrumWallet;
 import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.R;
-import fr.acinq.eclair.wallet.databinding.ActivityCreateWalletRecoveryBinding;
+import fr.acinq.eclair.wallet.databinding.ActivityCreateWalletFromScratchBinding;
 import fr.acinq.eclair.wallet.utils.Constants;
 import scala.collection.JavaConverters;
 
-public class CreateWalletRecoveryActivity extends EclairActivity implements EclairActivity.EncryptSeedCallback {
+public class CreateWalletFromScratchActivity extends EclairActivity implements EclairActivity.EncryptSeedCallback {
 
-  private static final String TAG = "CreateRecovery";
-  List<Integer> recoveryPositions = Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23);
+  private static final String TAG = CreateWalletFromScratchActivity.class.getSimpleName();
+  List<Integer> recoveryPositions = Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12); //, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23);
   private List<String> mnemonics = null;
 
-  private ActivityCreateWalletRecoveryBinding mBinding;
+  private ActivityCreateWalletFromScratchBinding mBinding;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    mBinding = DataBindingUtil.setContentView(this, R.layout.activity_create_wallet_recovery);
+    mBinding = DataBindingUtil.setContentView(this, R.layout.activity_create_wallet_from_scratch);
     if ("testnet".equals(BuildConfig.CHAIN)) {
       mBinding.skipCheck.setEnabled(true);
       mBinding.skipCheck.setVisibility(View.VISIBLE);
     }
     try {
-      mnemonics = JavaConverters.seqAsJavaListConverter(MnemonicCode.toMnemonics(fr.acinq.eclair.package$.MODULE$.randomBytes(
-        ElectrumWallet.SEED_BYTES_LENGTH()).data(), MnemonicCode.englishWordlist())).asJava();
+      mnemonics = JavaConverters.seqAsJavaListConverter(MnemonicCode.toMnemonics(fr.acinq.eclair.package$.MODULE$.randomBytes(16).data(), MnemonicCode.englishWordlist())).asJava();
       final int bottomPadding = getResources().getDimensionPixelSize(R.dimen.word_list_padding);
       final int rightPadding = getResources().getDimensionPixelSize(R.dimen.space_lg);
       for (int i = 0; i < mnemonics.size(); i = i + 2) {
@@ -69,11 +69,11 @@ public class CreateWalletRecoveryActivity extends EclairActivity implements Ecla
         tr.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
         TextView t1 = new TextView(this);
         t1.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
-        t1.setText(Html.fromHtml(getString(R.string.createrecovery_word_display, i + 1, mnemonics.get(i))));
+        t1.setText(Html.fromHtml(getString(R.string.createwallet_word_display, i + 1, mnemonics.get(i))));
         t1.setPadding(0, 0, rightPadding, bottomPadding);
         tr.addView(t1);
         TextView t2 = new TextView(this);
-        t2.setText(Html.fromHtml(getString(R.string.createrecovery_word_display, i + 2, mnemonics.get(i+1))));
+        t2.setText(Html.fromHtml(getString(R.string.createwallet_word_display, i + 2, mnemonics.get(i + 1))));
         t2.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
         t2.setPadding(0, 0, 0, bottomPadding);
         tr.addView(t2);
@@ -82,7 +82,7 @@ public class CreateWalletRecoveryActivity extends EclairActivity implements Ecla
     } catch (Exception e) {
       mnemonics = null;
       Log.e(TAG, "could not generate recovery phrase", e);
-      Toast.makeText(getApplicationContext(), R.string.createrecovery_generation_failed, Toast.LENGTH_SHORT).show();
+      Toast.makeText(getApplicationContext(), R.string.createwallet_generation_failed, Toast.LENGTH_SHORT).show();
       goToStartup();
     }
   }
@@ -123,12 +123,12 @@ public class CreateWalletRecoveryActivity extends EclairActivity implements Ecla
   public void initCheckRecovery(View view) {
     Collections.shuffle(recoveryPositions);
     final List<Integer> pos = getFirst3Positions();
-    mBinding.checkQuestion.setText(getString(R.string.createrecovery_check_question, pos.get(0) + 1, pos.get(1) + 1, pos.get(2) + 1));
+    mBinding.checkQuestion.setText(getString(R.string.createwallet_check_question, pos.get(0) + 1, pos.get(1) + 1, pos.get(2) + 1));
     goStepCheck();
   }
 
   private List<Integer> getFirst3Positions() {
-    final List<Integer> first3Positions = recoveryPositions.subList(0,3);
+    final List<Integer> first3Positions = recoveryPositions.subList(0, 3);
     Collections.sort(first3Positions);
     return first3Positions;
   }
@@ -174,14 +174,14 @@ public class CreateWalletRecoveryActivity extends EclairActivity implements Ecla
   }
 
   /**
-   * Backup was made. The mnemonics is safe to write to file and can be used by eclair.
+   * Backup was made. Seed is safe to write to file and can be used by eclair.
    */
   public void finishCheckRecovery() {
     mBinding.writeError.setVisibility(View.GONE);
     if (mnemonics == null) {
-      Toast.makeText(this, R.string.createrecovery_general_failure, Toast.LENGTH_SHORT).show();
+      Toast.makeText(this, R.string.createwallet_general_failure, Toast.LENGTH_SHORT).show();
       goToStartup();
-       return;
+      return;
     }
     final File datadir = new File(getFilesDir(), Constants.ECLAIR_DATADIR);
     final byte[] seed = MnemonicCode.toSeed(JavaConverters.collectionAsScalaIterableConverter(mnemonics).asScala().toSeq(), "").toString().getBytes();
@@ -204,6 +204,8 @@ public class CreateWalletRecoveryActivity extends EclairActivity implements Ecla
 
   @Override
   public void onEncryptSeedSuccess() {
+    final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+    prefs.edit().putInt(Constants.SETTING_WALLET_ORIGIN, Constants.WALLET_ORIGIN_FROM_SCRATCH).apply();
     goToStartup();
   }
 }
