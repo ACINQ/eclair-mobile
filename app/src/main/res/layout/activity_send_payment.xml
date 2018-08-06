@@ -157,7 +157,7 @@
           android:clickable="true"
           android:focusable="true"
           android:gravity="center"
-          android:onClick="focusAmount"
+          android:onClick="forceFocusAmount"
           android:orientation="vertical"
           android:paddingBottom="10dp">
 
