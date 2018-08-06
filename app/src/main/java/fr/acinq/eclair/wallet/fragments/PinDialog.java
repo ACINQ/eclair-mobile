@@ -31,8 +31,6 @@ import android.widget.TextView;
 
 import com.google.common.base.Strings;
 
-import org.greenrobot.greendao.annotation.NotNull;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,11 +48,11 @@ public class PinDialog extends Dialog {
   private List<View> mButtonsList = new ArrayList<>();
   private PinDialogCallback mPinCallback;
 
-  public PinDialog(final Context context, final int themeResId, final @NotNull PinDialogCallback pinCallback) {
+  public PinDialog(final Context context, final int themeResId, final PinDialogCallback pinCallback) {
     this(context, themeResId, pinCallback, context.getString(R.string.pindialog_title_default));
   }
 
-  public PinDialog(final Context context, final int themeResId, final @NotNull PinDialogCallback pinCallback, final String title) {
+  public PinDialog(final Context context, final int themeResId, final PinDialogCallback pinCallback, final String title) {
     super(context, themeResId);
 
     // callback must be defined
@@ -94,48 +92,34 @@ public class PinDialog extends Dialog {
       public void onTextChanged(CharSequence s, int start, int before, int count) {
         if (s != null && s.length() == Constants.PIN_LENGTH) {
           // automatically confirm pin when pin is 6 chars long
-          new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-              mPinCallback.onPinConfirm(PinDialog.this, mPinValue);
-            }
-          }, 300);
+          new Handler().postDelayed(() -> mPinCallback.onPinConfirm(PinDialog.this, mPinValue), 300);
         }
       }
       @Override
       public void afterTextChanged(Editable s) {}
     });
     for (View v : mButtonsList) {
-      v.setOnClickListener(new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-          if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean(Constants.SETTING_HAPTIC_FEEDBACK, true)) {
-            view.setHapticFeedbackEnabled(true);
-            view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY, HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
-          }
-          if (mPinValue == null) mPinValue = "";
-          if (mPinValue.equals("") || mPinValue.length() != Constants.PIN_LENGTH) {
-            final String val = ((Button) view).getText().toString();
-            mPinValue = mPinValue.concat(val);
-            mPinDisplay.setText(Strings.repeat(PIN_PLACEHOLDER, mPinValue.length()));
-          }
+      v.setOnClickListener(view -> {
+        if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean(Constants.SETTING_HAPTIC_FEEDBACK, true)) {
+          view.setHapticFeedbackEnabled(true);
+          view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY, HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
+        }
+        if (mPinValue == null) mPinValue = "";
+        if (mPinValue.equals("") || mPinValue.length() != Constants.PIN_LENGTH) {
+          final String val = ((Button) view).getText().toString();
+          mPinValue = mPinValue.concat(val);
+          mPinDisplay.setText(Strings.repeat(PIN_PLACEHOLDER, mPinValue.length()));
         }
       });
     }
-    findViewById(R.id.pin_num_clear).setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View view) {
-        mPinValue = "";
-        mPinDisplay.setText("");
-      }
+    findViewById(R.id.pin_num_clear).setOnClickListener(view -> {
+      mPinValue = "";
+      mPinDisplay.setText("");
     });
-    mBackspaceButton.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View view) {
-        if (mPinValue != null && mPinValue.length() > 0) {
-          mPinValue = mPinValue.substring(0, mPinValue.length() - 1);
-          mPinDisplay.setText(Strings.repeat(PIN_PLACEHOLDER, mPinValue.length()));
-        }
+    mBackspaceButton.setOnClickListener(view -> {
+      if (mPinValue != null && mPinValue.length() > 0) {
+        mPinValue = mPinValue.substring(0, mPinValue.length() - 1);
+        mPinDisplay.setText(Strings.repeat(PIN_PLACEHOLDER, mPinValue.length()));
       }
     });
   }
