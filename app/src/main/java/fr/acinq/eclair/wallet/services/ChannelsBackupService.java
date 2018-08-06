@@ -36,12 +36,14 @@ import com.google.android.gms.tasks.Task;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
 
 import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.activities.GoogleDriveBaseActivity;
 import fr.acinq.eclair.wallet.utils.Constants;
+import fr.acinq.eclair.wallet.utils.EncryptedBackup;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 
 public class ChannelsBackupService extends IntentService {
@@ -84,7 +86,12 @@ public class ChannelsBackupService extends IntentService {
             final File eclairDBFile = WalletUtils.getEclairDBFile(context);
             final DriveContents contents = contentsTask.getResult();
 
-            final InputStream i = Files.asByteSource(eclairDBFile).openStream();
+            // encrypt backup
+            final EncryptedBackup backup = EncryptedBackup.encrypt(
+              Files.toByteArray(eclairDBFile), "1234", EncryptedBackup.BACKUP_VERSION_1);
+
+            // write encrypted backup as file content
+            final InputStream i = new ByteArrayInputStream(backup.write());
             ByteStreams.copy(i, contents.getOutputStream());
             i.close();
 
@@ -105,7 +112,12 @@ public class ChannelsBackupService extends IntentService {
             final File eclairDBFile = WalletUtils.getEclairDBFile(context);
             final DriveContents contents = contentsTask.getResult();
 
-            final InputStream i = Files.asByteSource(eclairDBFile).openStream();
+            // encrypt backup
+            final EncryptedBackup backup = EncryptedBackup.encrypt(
+              Files.toByteArray(eclairDBFile), "1234", EncryptedBackup.BACKUP_VERSION_1);
+
+            // write encrypted backup as file content
+            final InputStream i = new ByteArrayInputStream(backup.write());
             ByteStreams.copy(i, contents.getOutputStream());
             i.close();
 

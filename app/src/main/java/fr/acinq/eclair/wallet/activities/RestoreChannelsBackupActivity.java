@@ -40,6 +40,7 @@ import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.databinding.ActivityRestoreChannelsBackupBinding;
 import fr.acinq.eclair.wallet.models.Payment;
 import fr.acinq.eclair.wallet.utils.Constants;
+import fr.acinq.eclair.wallet.utils.EncryptedBackup;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 
 public class RestoreChannelsBackupActivity extends GoogleDriveBaseActivity {
@@ -110,7 +111,14 @@ public class RestoreChannelsBackupActivity extends GoogleDriveBaseActivity {
         }).addOnSuccessListener(driveFileContents -> {
           try {
             WalletUtils.getChainDatadir(getApplicationContext()).mkdirs();
-            Files.write(getBytesFromDriveContents(driveFileContents), WalletUtils.getEclairDBFile(getApplicationContext()));
+
+            // decrypt file content
+            final EncryptedBackup encryptedContent = EncryptedBackup.read(getBytesFromDriveContents(driveFileContents));
+
+            // decrypt and write backup
+            Files.write(encryptedContent.decrypt("1234") , WalletUtils.getEclairDBFile(getApplicationContext()));
+
+            // celebrate
             runOnUiThread(() -> {
               mBinding.setRestoreStep(Constants.RESTORE_BACKUP_SUCCESS);
               new Handler().postDelayed(() -> finishRestore(null), 1700);
