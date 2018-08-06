@@ -458,6 +458,11 @@
   <string name="prefs_security_title">Security Settings</string>
   <string name="prefs_haptic_title">Haptic feedback on PIN</string>
 
+  <!-- //////////////// Security Settings //////////////////// -->
+
+  <string name="security_password_update_success">Password updated</string>
+  <string name="security_password_update_failure">Incorrect password</string>
+
   <!-- //////////////// Scanner messages //////////////////// -->
 
   <string name="scan_title_invoice">Please scan a QR code containing a Bitcoin address or a Lightning payment request.</string>
