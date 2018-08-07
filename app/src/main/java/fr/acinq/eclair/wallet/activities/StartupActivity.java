@@ -42,10 +42,13 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import akka.actor.ActorRef;
+import akka.actor.ActorSelection;
 import akka.actor.Props;
+import akka.dispatch.Futures;
 import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.bitcoin.DeterministicWallet;
 import fr.acinq.eclair.DBCompatChecker;
@@ -70,6 +73,7 @@ import scala.Option;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
+import scala.concurrent.duration.FiniteDuration;
 
 public class StartupActivity extends EclairActivity implements EclairActivity.EncryptSeedCallback {
 
@@ -444,18 +448,29 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
         publishProgress("setting up eclair");
         final Setup setup = new Setup(datadir, ConfigFactory.empty(), Option.apply(seed), app.system);
 
-        // gui and electrum supervisor actors
-        final ActorRef backupScheduler = app.system.actorOf(Props.create(BackupScheduler.class), "BackupScheduler");
-        final ActorRef guiUpdater = app.system.actorOf(Props.create(EclairEventService.class, app.getDBHelper(), backupScheduler));
+        // backup scheduler actor
+        ActorSelection backupActorFutureSelection = app.system.actorSelection("BackupScheduler");
+        Future<ActorRef> backupActorFuture = backupActorFutureSelection.resolveOne(FiniteDuration.apply(1, TimeUnit.SECONDS))
+          .fallbackTo(Futures.successful(app.system.actorOf(Props.create(BackupScheduler.class), "BackupScheduler")));
+        final ActorRef backupScheduler = Await.result(backupActorFuture, Duration.create(2, "seconds"));
+
+        // gui updater actor
+        ActorSelection guiActorFutureSelection = app.system.actorSelection("GuiUpdater");
+        Future<ActorRef> guiActorFuture = guiActorFutureSelection.resolveOne(FiniteDuration.apply(1, TimeUnit.SECONDS))
+          .fallbackTo(Futures.successful(app.system.actorOf(Props.create(EclairEventService.class, app.getDBHelper(), backupScheduler), "GuiUpdater")));
+        final ActorRef guiUpdater = Await.result(guiActorFuture, Duration.create(2, "seconds"));
         app.system.eventStream().subscribe(guiUpdater, ChannelEvent.class);
         app.system.eventStream().subscribe(guiUpdater, SyncProgress.class);
         app.system.eventStream().subscribe(guiUpdater, PaymentLifecycle.PaymentResult.class);
+
+        // electrum payment supervisor actor
         app.system.actorOf(Props.create(PaymentSupervisor.class, app.getDBHelper()), "payments");
 
         publishProgress("starting core");
         Future<Kit> fKit = setup.bootstrap();
         Kit kit = Await.result(fKit, Duration.create(60, "seconds"));
         ElectrumEclairWallet electrumWallet = (ElectrumEclairWallet) kit.wallet();
+
         publishProgress("checking compatibility");
         boolean isDBCompatible = true;
         try {
@@ -463,6 +478,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
         } catch (Exception e) {
           isDBCompatible = false;
         }
+
         publishProgress("done");
         app.appKit = new App.AppKit(electrumWallet, kit, isDBCompatible);
         return SUCCESS;
