@@ -17,6 +17,7 @@
 package fr.acinq.eclair.wallet.activities;
 
 import android.annotation.SuppressLint;
+import android.app.Dialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -33,6 +34,7 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -41,7 +43,8 @@ import android.view.ViewStub;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
-import android.view.animation.BounceInterpolator;
+import android.view.animation.LinearInterpolator;
+import android.view.animation.RotateAnimation;
 import android.widget.Toast;
 
 import com.android.volley.RequestQueue;
@@ -61,6 +64,7 @@ import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.blockchain.electrum.ElectrumClient;
 import fr.acinq.eclair.blockchain.electrum.ElectrumWallet;
+import fr.acinq.eclair.router.SyncProgress;
 import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.EclairEventService;
 import fr.acinq.eclair.wallet.R;
@@ -99,6 +103,8 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
   // debounce for requesting payment list update -- max once per 2 secs
   private final RateLimiter paymentListUpdateLimiter = RateLimiter.create(.5f);
   private final Animation mBlinkingAnimation = new AlphaAnimation(0.3f, 1);
+  private final Animation mRotatingAnimation = new RotateAnimation(0, -360, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF,
+    0.5f);
 
   @Override
   protected void onCreate(final Bundle savedInstanceState) {
@@ -134,10 +140,15 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
     setUpBalanceInteraction(prefs);
     setUpExchangeRate();
 
+    // --- animations
     mBlinkingAnimation.setDuration(500);
-//    mBlinkingAnimation.setInterpolator(new BounceInterpolator());
     mBlinkingAnimation.setRepeatCount(Animation.INFINITE);
     mBlinkingAnimation.setRepeatMode(Animation.REVERSE);
+
+    mRotatingAnimation.setDuration(2000);
+    mRotatingAnimation.setRepeatCount(Animation.INFINITE);
+    mRotatingAnimation.setInterpolator(new LinearInterpolator());
+    mBinding.syncProgressIcon.startAnimation(mRotatingAnimation);
 
     final Intent intent = getIntent();
     Log.i(TAG, "intent = " + intent);
@@ -483,6 +494,22 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
       Log.w(TAG, "failed to copy address with cause=" + e.getMessage());
       Toast.makeText(this.getApplicationContext(), "Could not copy address", Toast.LENGTH_SHORT).show();
     }
+  }
+
+  public void popinSyncProgress(final View view) {
+    final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+    builder.setMessage(R.string.home_sync_progress_about);
+    final Dialog syncAbout = builder.create();
+    syncAbout.show();
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN)
+  public void handleSyncProgressEvent(SyncProgress progress) {
+    final int p = (int) (progress.progress() * 100);
+    if (p == 100) {
+      mBinding.syncProgressIcon.clearAnimation();
+    }
+    mBinding.setSyncProgress(p);
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)

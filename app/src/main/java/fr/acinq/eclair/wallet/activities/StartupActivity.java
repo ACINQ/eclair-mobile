@@ -55,6 +55,7 @@ import fr.acinq.eclair.blockchain.electrum.ElectrumEclairWallet;
 import fr.acinq.eclair.channel.ChannelEvent;
 import fr.acinq.eclair.crypto.LocalKeyManager;
 import fr.acinq.eclair.payment.PaymentLifecycle;
+import fr.acinq.eclair.router.SyncProgress;
 import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.BackupScheduler;
 import fr.acinq.eclair.wallet.BuildConfig;
@@ -447,6 +448,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
         final ActorRef backupScheduler = app.system.actorOf(Props.create(BackupScheduler.class), "BackupScheduler");
         final ActorRef guiUpdater = app.system.actorOf(Props.create(EclairEventService.class, app.getDBHelper(), backupScheduler));
         app.system.eventStream().subscribe(guiUpdater, ChannelEvent.class);
+        app.system.eventStream().subscribe(guiUpdater, SyncProgress.class);
         app.system.eventStream().subscribe(guiUpdater, PaymentLifecycle.PaymentResult.class);
         app.system.actorOf(Props.create(PaymentSupervisor.class, app.getDBHelper()), "payments");
 

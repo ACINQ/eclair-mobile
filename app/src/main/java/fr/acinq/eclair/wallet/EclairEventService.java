@@ -55,6 +55,7 @@ import fr.acinq.eclair.channel.WAIT_FOR_INIT_INTERNAL$;
 import fr.acinq.eclair.channel.WaitingForRevocation;
 import fr.acinq.eclair.payment.PaymentLifecycle;
 import fr.acinq.eclair.router.NORMAL$;
+import fr.acinq.eclair.router.SyncProgress;
 import fr.acinq.eclair.transactions.DirectedHtlc;
 import fr.acinq.eclair.transactions.OUT$;
 import fr.acinq.eclair.wallet.events.ChannelUpdateEvent;
@@ -224,6 +225,10 @@ public class EclairEventService extends UntypedActor {
     // ---- channel must be saved
     else if (message instanceof ChannelPersisted) {
       backupScheduler.tell(BackupScheduler.DO_BACKUP, null);
+    }
+    // ---- network map syncing
+    else if (message instanceof SyncProgress) {
+      EventBus.getDefault().post(message);
     }
     // ---- channel has been terminated
     else if (message instanceof Terminated) {

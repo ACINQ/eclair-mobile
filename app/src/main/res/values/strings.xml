@@ -34,12 +34,16 @@
 
   <!-- //////////////// Home //////////////////// -->
 
-  <string name="home_onchain_balance">WALLET:</string>
-  <string name="home_offchain_balance">LIGHTNING:</string>
-  <string name="home_balance_available">Offchain Spendable</string>
-  <string name="home_toast_openchannel_success">Opening channel with </string>
   <string name="home_toast_openchannel_failed">Failed to open channel: </string>
-  <string name="home_toast_noconnection">Not yet connected to the network</string>
+  <string name="home_channel_paste_uri">Paste a node URI</string>
+  <string name="home_channel_scan_uri">Scan a node URI</string>
+  <string name="home_channel_random">Random node</string>
+  <string name="home_channel_acinq">ACINQ node</string>
+  <string name="home_sync_progress">%1$d%%</string>
+  <string name="home_sync_progress_desc">Progress in downloading the map of the lightning network</string>
+  <string name="home_sync_progress_about">This is a placeholder message describing the network syncing process.\n\nLorem ipsum dolor sit amet.</string>
+  <string name="home_no_backup">NO BACKUP</string>
+  <string name="home_backup_disabled_icon_desc">Channels backup is disabled!</string>
 
   <string name="payment_do_send">Pay</string>
 
@@ -50,15 +54,6 @@
   <string name="localchannels_show_inactive">Show closed channels</string>
   <string name="localchannels_hide_inactive">Hide closed channels</string>
   <string name="receive_title">Your bitcoin address</string>
-
-  <string name="home_status_disconnected">Disconnected</string>
-
-  <string name="home_channel_paste_uri">Paste a node URI</string>
-  <string name="home_channel_scan_uri">Scan a node URI</string>
-  <string name="home_channel_random">Random node</string>
-  <string name="home_channel_acinq">ACINQ node</string>
-
-  <string name="home_backup_disabled_icon_desc">Channels backup is disabled!</string>
 
   <!-- //////////////// Home Intro //////////////////// -->
 
