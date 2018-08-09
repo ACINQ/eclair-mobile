@@ -53,7 +53,7 @@
 
       <TextView
         android:id="@+id/startup_error_text"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="@dimen/space_lg"
         android:text="@string/start_error_timeout"
@@ -61,19 +61,31 @@
         android:textColor="@color/grey_4" />
 
       <Button
+        android:id="@+id/startup_restart"
+        style="@style/EndButtonStyle"
+        android:layout_gravity="center"
+        android:layout_marginBottom="@dimen/space_md"
+        android:drawablePadding="@dimen/space_xs"
+        android:drawableStart="@drawable/ic_refresh_black_24dp"
+        android:onClick="restart"
+        android:text="@string/start_error_restart"
+        android:textColor="@color/grey_4"
+        android:translationY="-16dp" />
+
+      <Button
         android:id="@+id/startup_error_faq"
         style="@style/Base.Widget.AppCompat.Button.Borderless"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/grey_0_light_x2"
+        android:onClick="openFAQ"
         android:paddingBottom="8dp"
         android:paddingEnd="@dimen/space_lg"
         android:paddingStart="@dimen/space_lg"
         android:paddingTop="8dp"
         android:text="@string/start_error_faq_link"
-        android:onClick="openFAQ"
-        android:textSize="12sp"
         android:textColor="@color/grey_2"
+        android:textSize="12sp"
         android:visibility="gone" />
     </LinearLayout>
   </RelativeLayout>

@@ -91,7 +91,6 @@ public class App extends Application {
 
   public final static String TAG = "App";
   public final static Map<String, Float> RATES = new HashMap<>();
-  public final ActorSystem system = ActorSystem.apply("system");
   public AtomicReference<String> pin = new AtomicReference<>(null);
   public AtomicReference<String> seedHash = new AtomicReference<>(null);
   public AppKit appKit;
@@ -218,7 +217,7 @@ public class App extends Application {
       @Override
       public void onFailure(Throwable failure) throws Throwable {
       }
-    }, system.dispatcher());
+    }, appKit.eclairKit.system().dispatcher());
   }
 
   /**
@@ -241,7 +240,7 @@ public class App extends Application {
             EventBus.getDefault().post(new BitcoinPaymentFailedEvent(t.getLocalizedMessage()));
           }
         }
-      }, this.system.dispatcher());
+      }, appKit.eclairKit.system().dispatcher());
     } catch (Throwable t) {
       Log.w(TAG, "could not send bitcoin tx with cause=" + t.getMessage());
       EventBus.getDefault().post(new BitcoinPaymentFailedEvent(t.getLocalizedMessage()));
@@ -273,7 +272,7 @@ public class App extends Application {
                     EventBus.getDefault().post(new BitcoinPaymentFailedEvent("broadcast failed"));
                   }
                 }
-              }, system.dispatcher());
+              }, appKit.eclairKit.system().dispatcher());
             } else {
               Log.w(TAG, "could not create send all tx");
               EventBus.getDefault().post(new BitcoinPaymentFailedEvent("tx creation failed"));
@@ -283,7 +282,7 @@ public class App extends Application {
             EventBus.getDefault().post(new BitcoinPaymentFailedEvent(t.getLocalizedMessage()));
           }
         }
-      }, this.system.dispatcher());
+      }, appKit.eclairKit.system().dispatcher());
     } catch (Throwable t) {
       Log.w(TAG, "could not send send all balance with cause=" + t.getMessage());
       EventBus.getDefault().post(new BitcoinPaymentFailedEvent(t.getLocalizedMessage()));
@@ -309,14 +308,14 @@ public class App extends Application {
             Toast.makeText(getApplicationContext(), getString(R.string.home_toast_openchannel_failed) + throwable.getMessage(), Toast.LENGTH_LONG).show();
           } else if ("connected".equals(result.toString()) || "already connected".equals(result.toString())) {
             final Future<Object> openFuture = Patterns.ask(appKit.eclairKit.switchboard(), open, new Timeout(timeout));
-            openFuture.onComplete(onComplete, system.dispatcher());
+            openFuture.onComplete(onComplete, appKit.eclairKit.system().dispatcher());
           } else {
             Toast.makeText(getApplicationContext(), getString(R.string.home_toast_openchannel_failed) + result.toString(), Toast.LENGTH_LONG).show();
           }
         }
       };
       final Future<Object> connectFuture = Patterns.ask(appKit.eclairKit.switchboard(), new Peer.Connect(nodeURI), new Timeout(timeout));
-      connectFuture.onComplete(onConnectComplete, system.dispatcher());
+      connectFuture.onComplete(onConnectComplete, appKit.eclairKit.system().dispatcher());
     }
   }
 
@@ -373,7 +372,7 @@ public class App extends Application {
           EventBus.getDefault().post(new NetworkChannelsCountEvent(-1));
         }
       }
-    }, system.dispatcher());
+    }, appKit.eclairKit.system().dispatcher());
   }
 
   /**
@@ -393,7 +392,7 @@ public class App extends Application {
           EventBus.getDefault().post(new ChannelRawDataEvent(null));
         }
       }
-    }, system.dispatcher());
+    }, appKit.eclairKit.system().dispatcher());
   }
 
   public void getXpubFromWallet() {
@@ -406,7 +405,7 @@ public class App extends Application {
           EventBus.getDefault().post(new XpubEvent(null));
         }
       }
-    }, system.dispatcher());
+    }, appKit.eclairKit.system().dispatcher());
   }
 
   public void checkupInit() {
@@ -471,7 +470,7 @@ public class App extends Application {
     final public Kit eclairKit;
     final private boolean isDBCompatible;
 
-    public AppKit(final ElectrumEclairWallet wallet, Kit kit, boolean isDBCompatible) {
+    public AppKit(final ElectrumEclairWallet wallet, final Kit kit, final boolean isDBCompatible) {
       this.electrumWallet = wallet;
       this.eclairKit = kit;
       this.isDBCompatible = isDBCompatible;

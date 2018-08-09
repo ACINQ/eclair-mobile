@@ -45,8 +45,11 @@ import java.util.HashSet;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import akka.actor.ActorContext;
 import akka.actor.ActorRef;
 import akka.actor.ActorSelection;
+import akka.actor.ActorSystem;
+import akka.actor.PoisonPill;
 import akka.actor.Props;
 import akka.dispatch.Futures;
 import fr.acinq.bitcoin.BinaryData;
@@ -140,12 +143,12 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
       case StartupTask.TIMEOUT_ERROR:
         app.pin.set(null);
         app.seedHash.set(null);
-        showError(getString(R.string.start_error_timeout), true);
+        showError(getString(R.string.start_error_timeout), true, true);
         break;
       default:
         app.pin.set(null);
         app.seedHash.set(null);
-        showError(getString(R.string.start_error_generic), true);
+        showError(getString(R.string.start_error_generic), true, true);
         break;
     }
   }
@@ -160,14 +163,15 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
     mBinding.startupErrorText.setText(Html.fromHtml(getString(R.string.start_error_breaking_changes)));
   }
 
-  private void showError(final String message, final boolean showFAQ) {
+  private void showError(final String message, final boolean showRestart, final boolean showFAQ) {
     mBinding.startupError.setVisibility(View.VISIBLE);
     mBinding.startupErrorFaq.setVisibility(showFAQ ? View.VISIBLE : View.GONE);
+    mBinding.startupRestart.setVisibility(showRestart ? View.VISIBLE : View.GONE);
     mBinding.startupErrorText.setText(message);
   }
 
   private void showError(final String message) {
-    showError(message, false);
+    showError(message, false, false);
   }
 
   private void goToHome() {
@@ -234,7 +238,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
           Files.move(eclairSqlite, eclairSqliteInTestnet);
           Log.i(TAG, "moved eclair.sqlite to testnet dir");
         } catch (IOException e) {
-          showError(getString(R.string.start_error_generic));
+          showError(getString(R.string.start_error_generic), true, false);
         }
       }
     }
@@ -315,10 +319,10 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
     if (app.appKit == null) {
       if (datadir.exists() && !datadir.canRead()) {
         Log.e(TAG, "datadir is not readable. Aborting startup");
-        showError(getString(R.string.start_error_datadir_unreadable), true);
+        showError(getString(R.string.start_error_datadir_unreadable), true, true);
       } else if (datadir.exists() && !datadir.isDirectory()) {
         Log.e(TAG, "datadir is not a directory. Aborting startup");
-        showError(getString(R.string.start_error_datadir_not_directory), true);
+        showError(getString(R.string.start_error_datadir_not_directory), true, true);
       } else {
         final String currentPassword = app.pin.get();
         if (currentPassword == null) {
@@ -389,7 +393,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
           app.pin.set(null);
           app.seedHash.set(null);
           runOnUiThread(() -> {
-            showError(getString(R.string.start_error_unreadable_seed), true);
+            showError(getString(R.string.start_error_unreadable_seed), true, true);
           });
         }
       }
@@ -410,6 +414,10 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
   public void openFAQ(View view) {
     Intent faqIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/ACINQ/eclair-wallet/wiki/FAQ"));
     startActivity(faqIntent);
+  }
+
+  public void restart(View view) {
+    checkup();
   }
 
   @Override
@@ -442,6 +450,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
 
     @Override
     protected Integer doInBackground(Object... params) {
+      final ActorSystem system = ActorSystem.apply("system");
       try {
         App app = (App) params[0];
         final BinaryData seed = (BinaryData) params[1];
@@ -453,25 +462,19 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
 
         Class.forName("org.sqlite.JDBC");
         publishProgress("setting up eclair");
-        final Setup setup = new Setup(datadir, ConfigFactory.empty(), Option.apply(seed), app.system);
+        final Setup setup = new Setup(datadir, ConfigFactory.empty(), Option.apply(seed), system);
 
         // backup scheduler actor
-        ActorSelection backupActorFutureSelection = app.system.actorSelection("BackupScheduler");
-        Future<ActorRef> backupActorFuture = backupActorFutureSelection.resolveOne(FiniteDuration.apply(1, TimeUnit.SECONDS))
-          .fallbackTo(Futures.successful(app.system.actorOf(Props.create(BackupScheduler.class), "BackupScheduler")));
-        final ActorRef backupScheduler = Await.result(backupActorFuture, Duration.create(2, "seconds"));
+        final ActorRef backupScheduler = system.actorOf(Props.create(BackupScheduler.class), "BackupScheduler");
 
         // gui updater actor
-        ActorSelection guiActorFutureSelection = app.system.actorSelection("GuiUpdater");
-        Future<ActorRef> guiActorFuture = guiActorFutureSelection.resolveOne(FiniteDuration.apply(1, TimeUnit.SECONDS))
-          .fallbackTo(Futures.successful(app.system.actorOf(Props.create(EclairEventService.class, app.getDBHelper(), backupScheduler), "GuiUpdater")));
-        final ActorRef guiUpdater = Await.result(guiActorFuture, Duration.create(2, "seconds"));
-        app.system.eventStream().subscribe(guiUpdater, ChannelEvent.class);
-        app.system.eventStream().subscribe(guiUpdater, SyncProgress.class);
-        app.system.eventStream().subscribe(guiUpdater, PaymentLifecycle.PaymentResult.class);
+        final ActorRef guiUpdater = system.actorOf(Props.create(EclairEventService.class, app.getDBHelper(), backupScheduler), "GuiUpdater");
+        system.eventStream().subscribe(guiUpdater, ChannelEvent.class);
+        system.eventStream().subscribe(guiUpdater, SyncProgress.class);
+        system.eventStream().subscribe(guiUpdater, PaymentLifecycle.PaymentResult.class);
 
         // electrum payment supervisor actor
-        app.system.actorOf(Props.create(PaymentSupervisor.class, app.getDBHelper()), "payments");
+        system.actorOf(Props.create(PaymentSupervisor.class, app.getDBHelper()), "payments");
 
         publishProgress("starting core");
         Future<Kit> fKit = setup.bootstrap();
@@ -489,11 +492,15 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
         publishProgress("done");
         app.appKit = new App.AppKit(electrumWallet, kit, isDBCompatible);
         return SUCCESS;
-      } catch (TimeoutException e) {
-        return TIMEOUT_ERROR;
-      } catch (Exception e) {
-        Log.e(TAG, "Failed to start eclair", e);
-        return GENERIC_ERROR;
+
+      } catch (Throwable t) {
+        Log.e(TAG, "Failed to start eclair", t);
+        system.shutdown();
+        if (t instanceof TimeoutException) {
+          return TIMEOUT_ERROR;
+        } else {
+          return GENERIC_ERROR;
+        }
       }
     }
 

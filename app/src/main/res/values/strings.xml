@@ -103,6 +103,7 @@
     <br />
     From now on next versions should be backward compatible.
   ]]></string>
+  <string name="start_error_restart">Restart</string>
   <string name="start_error_faq_link">Check our FAQ for help.</string>
   <string name="start_error_unreadable_seed">Seed is not readable; eclair can not start.</string>
   <string name="start_error_timeout">Could not start eclair within a reasonable time frame.</string>
