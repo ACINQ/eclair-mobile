@@ -101,7 +101,7 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
   private Handler mExchangeRateHandler = new Handler();
   private Runnable mExchangeRateRunnable;
   // debounce for requesting payment list update -- max once per 2 secs
-  private final RateLimiter paymentListUpdateLimiter = RateLimiter.create(.5f);
+  private final RateLimiter paymentListUpdateLimiter = RateLimiter.create(2f);
   private final Animation mBlinkingAnimation = new AlphaAnimation(0.3f, 1);
   private final Animation mRotatingAnimation = new RotateAnimation(0, -360, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF,
     0.5f);
