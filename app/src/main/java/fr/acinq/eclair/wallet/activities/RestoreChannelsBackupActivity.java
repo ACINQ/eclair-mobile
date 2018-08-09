@@ -134,7 +134,7 @@ public class RestoreChannelsBackupActivity extends GoogleDriveBaseActivity {
         }).addOnFailureListener(e -> {
           runOnUiThread(() -> {
             if (e instanceof NoFilesFound) {
-              Log.e(TAG, "backup file could not be found in drive", e);
+              Log.e(TAG, "backup file could not be found in drive");
               mBinding.setRestoreStep(Constants.RESTORE_BACKUP_NO_BACKUP_FOUND);
             } else {
               Log.e(TAG, "backup file could not be restored from drive", e);

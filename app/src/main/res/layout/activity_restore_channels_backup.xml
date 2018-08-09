@@ -51,13 +51,14 @@
           android:layout_height="wrap_content"
           android:background="@drawable/rounded_corner_green_top"
           android:padding="@dimen/space_lg"
-          android:text="@string/restorechannels_title" />
+          android:text="@string/restorechannels_title"
+          android:textColor="@color/white" />
 
         <LinearLayout
           style="@style/ClickableLayout"
-          android:padding="@dimen/space_lg"
           android:background="@drawable/rounded_corner_white_bottom"
-          android:onClick="requestAccess">
+          android:onClick="requestAccess"
+          android:padding="@dimen/space_lg">
 
           <ImageView
             android:layout_width="wrap_content"
@@ -103,7 +104,7 @@
       android:layout_margin="@dimen/space_lg"
       android:background="@drawable/rounded_corner_white"
       android:padding="@dimen/space_lg"
-      android:text="@string/restorechannels_permissions_error"
+      android:text="@string/restorechannels_failure"
       android:visibility="@{restoreStep == Constants.RESTORE_BACKUP_FAILURE ? View.VISIBLE : View.GONE}" />
 
     <LinearLayout
@@ -117,29 +118,29 @@
 
       <TextView
         android:id="@+id/invalidBackup"
-        android:padding="@dimen/space_lg"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:padding="@dimen/space_lg"
         android:text="@string/restorechannels_no_backup" />
 
       <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="end"
         android:layout_marginTop="@dimen/space_md"
         android:background="@android:color/transparent"
         android:foreground="?android:attr/selectableItemBackground"
-        android:layout_gravity="end"
-        android:onClick="backToInit"
+        android:onClick="requestAccess"
         android:padding="@dimen/space_md"
         android:text="@string/restorechannels_no_backup_try_again" />
 
       <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="end"
         android:layout_marginTop="@dimen/space_md"
         android:background="@android:color/transparent"
         android:foreground="?android:attr/selectableItemBackground"
-        android:layout_gravity="end"
         android:onClick="finishRestore"
         android:padding="@dimen/space_md"
         android:text="@string/restorechannels_no_backup_and_finish"

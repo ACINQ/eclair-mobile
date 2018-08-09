@@ -51,24 +51,20 @@ public class EnableChannelsBackupActivity extends GoogleDriveBaseActivity {
   private static final String TAG = EnableChannelsBackupActivity.class.getSimpleName();
   public static final String FROM_STARTUP = BuildConfig.APPLICATION_ID + ".FROM_STARTUP";
   private ActivityEnableChannelsBackupBinding mBinding;
+  boolean isFromStartup = false;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     mBinding = DataBindingUtil.setContentView(this, R.layout.activity_enable_channels_backup);
+    PreferenceManager.getDefaultSharedPreferences(getBaseContext()).edit().putBoolean(Constants.SETTING_CHANNELS_BACKUP_SEEN_ONCE, true).apply();
 
     final Intent intent = getIntent();
-    final boolean fromStartup = intent.getBooleanExtra(FROM_STARTUP, false);
-    if (fromStartup) {
-      mBinding.closeButton.setText(getString(R.string.backup_drive_nevermind));
-      mBinding.closeButton.setOnClickListener(v -> {
-        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        prefs.edit().putBoolean(Constants.SETTING_CHANNELS_BACKUP_SEEN_ONCE, true).apply();
-        finish();
-      });
-    } else {
-      mBinding.closeButton.setOnClickListener(v -> finish());
+    isFromStartup = intent.getBooleanExtra(FROM_STARTUP, false);
+    if (isFromStartup) {
+      mBinding.closeButton.setText(getString(R.string.backup_drive_continue));
     }
+    mBinding.closeButton.setOnClickListener(v -> finish());
 
     final int connectionResult = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(getApplicationContext());
     if (connectionResult != ConnectionResult.SUCCESS) {
@@ -123,9 +119,9 @@ public class EnableChannelsBackupActivity extends GoogleDriveBaseActivity {
         googleSignInClient.revokeAccess()
           .addOnSuccessListener(aVoid -> runOnUiThread(() -> applyAccessDenied()))
           .addOnFailureListener(e -> {
-          Log.e(TAG, "could not revoke access to drive", e);
-          checkAccess();
-        });
+            Log.e(TAG, "could not revoke access to drive", e);
+            checkAccess();
+          });
       }
     }.start();
   }
@@ -157,6 +153,9 @@ public class EnableChannelsBackupActivity extends GoogleDriveBaseActivity {
         if (resultCode != RESULT_OK) {
           Log.i(TAG, "Google Drive sign-in failed with code " + resultCode);
           applyAccessDenied();
+          if (isFromStartup) {
+            finish();
+          }
           return;
         }
         final Task<GoogleSignInAccount> getAccountTask = GoogleSignIn.getSignedInAccountFromIntent(data);
@@ -165,6 +164,9 @@ public class EnableChannelsBackupActivity extends GoogleDriveBaseActivity {
         } else {
           Log.i(TAG, "Google Drive sign-in failed, could not get account");
           applyAccessDenied();
+          if (isFromStartup) {
+            finish();
+          }
         }
         break;
     }
@@ -176,7 +178,13 @@ public class EnableChannelsBackupActivity extends GoogleDriveBaseActivity {
     new Thread() {
       @Override
       public void run() {
-        runOnUiThread(() -> applyAccessGranted(signInAccount));
+        runOnUiThread(() -> {
+          if (isFromStartup) {
+            finish();
+          } else {
+            applyAccessGranted(signInAccount);
+          }
+        });
         retrieveEclairBackupTask().addOnSuccessListener(metadataBuffer -> runOnUiThread(() -> {
           if (metadataBuffer.getCount() == 0) {
             mBinding.existingBackupState.setText(getString(R.string.backup_drive_no_backup));

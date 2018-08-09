@@ -139,7 +139,7 @@
   <string name="importwallet_instructions">Enter the recovery phrase of your wallet.\nPassphrase are not supported yet.</string>
   <string name="importwallet_error">This phrase is not valid: %1$s</string>
   <string name="importwallet_input_hint">Type the recovery phrase here</string>
-  <string name="importwallet_encrypt_button">Encrypt and save</string>
+  <string name="importwallet_encrypt_button">Restore</string>
   <string name="importwallet_encrypt_success">Seed has been restored and encrypted.</string>
 
   <!-- //////////////// Restore Channels /////////////////// -->
@@ -476,7 +476,7 @@
   <!-- //////////////// Setup Channels Backup /////////////////// -->
 
   <string name="backup_drive_unavailable">Google Drive is not available on your phone. Channel can not be backed up.</string>
-  <string name="backup_drive_nevermind">Nevermind</string>
+  <string name="backup_drive_continue">Continue</string>
   <string name="backup_drive_title">Active channels can be saved in Google Drive. If you lose access to your phone, by using the same seed you will be able to restore your lightning channels.</string>
   <string name="backup_drive_details_more_button">More info</string>
   <string name="backup_drive_details_less_button">Hide details…</string>
