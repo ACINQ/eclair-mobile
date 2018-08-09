@@ -16,12 +16,10 @@
 
 package fr.acinq.eclair.wallet.services;
 
-import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
-import android.support.annotation.Nullable;
+import android.support.annotation.NonNull;
+import android.support.v4.app.JobIntentService;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -42,100 +40,103 @@ import java.io.InputStream;
 
 import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.activities.GoogleDriveBaseActivity;
-import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.EncryptedBackup;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 
-public class ChannelsBackupService extends IntentService {
+public class ChannelsBackupService extends JobIntentService {
 
   private static final String TAG = ChannelsBackupService.class.getSimpleName();
-  public final static String SEED_HASH_EXTRA = BuildConfig.APPLICATION_ID + ".SEED_HASH";
-
-
-  public ChannelsBackupService() {
-    super("ChannelsBackupService");
-  }
+  public final static String SEED_HASH_EXTRA = BuildConfig.APPLICATION_ID + ".SEED_HASH2";
 
   @Override
-  protected void onHandleIntent(@Nullable Intent intent) {
+  protected void onHandleWork(@NonNull Intent intent) {
     Log.i(TAG, "Channel backup requested");
-    final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-    if (prefs.getBoolean(Constants.SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_ENABLED, false) && intent.hasExtra(SEED_HASH_EXTRA)) {
-
-      final GoogleSignInAccount signInAccount = GoogleDriveBaseActivity.getSigninAccount(getApplicationContext());
+    if (intent.hasExtra(SEED_HASH_EXTRA)) {
+      final String seedHash = intent.getStringExtra(SEED_HASH_EXTRA);
+      Log.i(TAG, "Saving eclair DB in Drivemm intent seed hash=" + seedHash );
+      final Context context = getApplicationContext();
+      final GoogleSignInAccount signInAccount = GoogleDriveBaseActivity.getSigninAccount(context);
       if (signInAccount != null) {
-        saveEclairDBInDrive(Drive.getDriveResourceClient(getApplicationContext(), signInAccount), getApplicationContext(),
-          WalletUtils.getEclairBackupFileName(intent.getStringExtra(SEED_HASH_EXTRA)));
+        final String backupFileName = WalletUtils.getEclairBackupFileName(seedHash);
+        final DriveResourceClient driveResourceClient = Drive.getDriveResourceClient(context, signInAccount);
+        final Task<DriveFolder> appFolderTask = driveResourceClient.getAppFolder();
+        appFolderTask
+          .continueWithTask(t -> {
+            return GoogleDriveBaseActivity.retrieveEclairBackupTask(appFolderTask, driveResourceClient, backupFileName);
+          })
+          .addOnSuccessListener(metadataBuffer -> {
+            if (metadataBuffer.getCount() == 0) {
+              createBackup(context, driveResourceClient, appFolderTask, backupFileName)
+                .addOnSuccessListener(v -> {
+                  Log.i(TAG, "successfully created channels backup");
+                  Toast.makeText(context, "Backup was created!", Toast.LENGTH_LONG).show();
+                })
+                .addOnFailureListener(e -> {
+                  Toast.makeText(context, "Could not create backup!", Toast.LENGTH_LONG).show();
+                  Log.e(TAG, "could not create backup", e);
+                });
+            } else {
+              Log.i(TAG, "update");
+              updateBackup(context, driveResourceClient, metadataBuffer.get(0).getDriveId().asDriveFile())
+                .addOnSuccessListener(v -> {
+                  Log.i(TAG, "successfully updated channels backup");
+                  Toast.makeText(context, "Backup was updated!", Toast.LENGTH_LONG).show();
+                })
+                .addOnFailureListener(e -> {
+                  Toast.makeText(context, "Could not update backup!", Toast.LENGTH_LONG).show();
+                  Log.e(TAG, "could not update backup", e);
+                });
+            }
+          })
+          .addOnFailureListener(e -> {
+            Toast.makeText(context, "Could not save backup!", Toast.LENGTH_LONG).show();
+            Log.e(TAG, "Unable to save backup file", e);
+          });
       } else {
         Log.e(TAG, "could not save channels backup, permission required...");
       }
-    } else {
-      Log.d(TAG, "backup event ignored because channel backup is disabled in settings");
     }
   }
 
-  public void saveEclairDBInDrive(final DriveResourceClient driveResourceClient, final Context context, final String backupFileName) {
-    Log.i(TAG, "Saving eclair DB in Drive");
-    final Task<DriveFolder> appFolderTask = driveResourceClient.getAppFolder();
-    try {
-      appFolderTask.continueWithTask(t -> {
-        return GoogleDriveBaseActivity.retrieveEclairBackupTask(appFolderTask, driveResourceClient, backupFileName);
-      }).addOnSuccessListener(metadataBuffer -> {
-        if (metadataBuffer.getCount() == 0) {
-          driveResourceClient.createContents().continueWithTask(contentsTask -> {
-            final File eclairDBFile = WalletUtils.getEclairDBFile(context);
-            final DriveContents contents = contentsTask.getResult();
+  private Task<DriveFile> createBackup(final Context context, final DriveResourceClient driveResourceClient,
+                                             Task<DriveFolder> appFolderTask, final String backupFileName) {
+    return driveResourceClient.createContents().continueWithTask(contentsTask -> {
+      final File eclairDBFile = WalletUtils.getEclairDBFile(context);
+      final DriveContents contents = contentsTask.getResult();
 
-            // encrypt backup
-            final EncryptedBackup backup = EncryptedBackup.encrypt(
-              Files.toByteArray(eclairDBFile), "1234", EncryptedBackup.BACKUP_VERSION_1);
+      // encrypt backup
+      final EncryptedBackup backup = EncryptedBackup.encrypt(
+        Files.toByteArray(eclairDBFile), "1234", EncryptedBackup.BACKUP_VERSION_1);
 
-            // write encrypted backup as file content
-            final InputStream i = new ByteArrayInputStream(backup.write());
-            ByteStreams.copy(i, contents.getOutputStream());
-            i.close();
+      // write encrypted backup as file content
+      final InputStream i = new ByteArrayInputStream(backup.write());
+      ByteStreams.copy(i, contents.getOutputStream());
+      i.close();
 
-            final MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
-              .setTitle(backupFileName)
-              .setMimeType("application/octet-stream")
-              .build();
+      final MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
+        .setTitle(backupFileName)
+        .setMimeType("application/octet-stream")
+        .build();
 
-            return driveResourceClient.createFile(appFolderTask.getResult(), changeSet, contents);
-          }).addOnSuccessListener(v -> {
-            Toast.makeText(context, "Backup was created!", Toast.LENGTH_LONG).show();
-          }).addOnFailureListener(e -> {
-            Toast.makeText(context, "Could not create backup!", Toast.LENGTH_LONG).show();
-            Log.e(TAG, "could not create backup", e);
-          });
-        } else {
-          driveResourceClient.openFile(metadataBuffer.get(0).getDriveId().asDriveFile(), DriveFile.MODE_WRITE_ONLY).continueWithTask(contentsTask -> {
-            final File eclairDBFile = WalletUtils.getEclairDBFile(context);
-            final DriveContents contents = contentsTask.getResult();
+      return driveResourceClient.createFile(appFolderTask.getResult(), changeSet, contents);
+    });
+  }
 
-            // encrypt backup
-            final EncryptedBackup backup = EncryptedBackup.encrypt(
-              Files.toByteArray(eclairDBFile), "1234", EncryptedBackup.BACKUP_VERSION_1);
+  private Task<Void> updateBackup(final Context context, final DriveResourceClient driveResourceClient, final DriveFile driveFile) {
+    return driveResourceClient.openFile(driveFile, DriveFile.MODE_WRITE_ONLY).continueWithTask(contentsTask -> {
+      final File eclairDBFile = WalletUtils.getEclairDBFile(context);
+      final DriveContents contents = contentsTask.getResult();
 
-            // write encrypted backup as file content
-            final InputStream i = new ByteArrayInputStream(backup.write());
-            ByteStreams.copy(i, contents.getOutputStream());
-            i.close();
+      // encrypt backup
+      final EncryptedBackup backup = EncryptedBackup.encrypt(
+        Files.toByteArray(eclairDBFile), "1234", EncryptedBackup.BACKUP_VERSION_1);
 
-            return driveResourceClient.commitContents(contents, null);
-          }).addOnSuccessListener(v -> {
-            Toast.makeText(context, "Backup was updated!", Toast.LENGTH_LONG).show();
-          }).addOnFailureListener(e -> {
-            Toast.makeText(context, "Could not update backup!", Toast.LENGTH_LONG).show();
-            Log.e(TAG, "could not update backup", e);
-          });
-        }
-      }).addOnFailureListener(e -> {
-        Toast.makeText(context, "Could not save backup!", Toast.LENGTH_LONG).show();
-        Log.e(TAG, "Unable to save backup file", e);
-      });
-    } catch (Throwable t) {
-      Toast.makeText(context, "Could not save backup!", Toast.LENGTH_LONG).show();
-      Log.e(TAG, "Unable to save backup file", t);
-    }
+      // write encrypted backup as file content
+      final InputStream i = new ByteArrayInputStream(backup.write());
+      ByteStreams.copy(i, contents.getOutputStream());
+      i.close();
+
+      return driveResourceClient.commitContents(contents, null);
+    });
   }
 }

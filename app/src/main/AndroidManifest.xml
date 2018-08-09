@@ -148,7 +148,10 @@
       android:screenOrientation="portrait" />
 
     <!-- services -->
-    <service android:name=".services.ChannelsBackupService" />
+    <service android:name=".services.TerminationService" />
+    <service
+      android:name=".services.ChannelsBackupService"
+      android:permission="android.permission.BIND_JOB_SERVICE" />
   </application>
 
 </manifest>

@@ -25,6 +25,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.preference.PreferenceManager;
+import android.support.v4.app.JobIntentService;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
@@ -126,9 +127,14 @@ public class App extends Application {
 
   @Subscribe(threadMode = ThreadMode.BACKGROUND)
   public void handleSaveEclairDBEvent(final BackupEclairDBEvent event) {
-    final Intent backupService = new Intent(this, ChannelsBackupService.class);
-    backupService.putExtra(ChannelsBackupService.SEED_HASH_EXTRA, seedHash.get());
-    startService(backupService);
+    final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+    if (prefs.getBoolean(Constants.SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_ENABLED, false)) {
+      final Intent backupIntent = new Intent();
+      backupIntent.putExtra(ChannelsBackupService.SEED_HASH_EXTRA, seedHash);
+      JobIntentService.enqueueWork(getApplicationContext(), ChannelsBackupService.class, 1, backupIntent);
+    } else {
+      Log.d(TAG, "backup event ignored because channel backup is disabled in preferences");
+    }
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)

@@ -67,6 +67,8 @@ import fr.acinq.eclair.wallet.PaymentSupervisor;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.databinding.ActivityStartupBinding;
 import fr.acinq.eclair.wallet.fragments.PinDialog;
+import fr.acinq.eclair.wallet.services.ChannelsBackupService;
+import fr.acinq.eclair.wallet.services.TerminationService;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 import scala.Option;
@@ -123,6 +125,11 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
           prefs.edit()
             .putBoolean(Constants.SETTING_HAS_STARTED_ONCE, true)
             .putInt(Constants.SETTING_LAST_USED_VERSION, BuildConfig.VERSION_CODE).apply();
+
+          final Intent termination = new Intent(getBaseContext(), TerminationService.class);
+          termination.putExtra(ChannelsBackupService.SEED_HASH_EXTRA, app.seedHash.get());
+          startService(termination);
+
           goToHome();
         } else {
           // empty appkit, something went wrong.
