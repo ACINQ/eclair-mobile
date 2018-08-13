@@ -25,7 +25,6 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.preference.PreferenceManager;
-import android.support.v4.app.JobIntentService;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
@@ -66,13 +65,11 @@ import fr.acinq.eclair.io.Peer;
 import fr.acinq.eclair.payment.PaymentLifecycle;
 import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.wallet.activities.ChannelDetailsActivity;
-import fr.acinq.eclair.wallet.events.BackupEclairDBEvent;
 import fr.acinq.eclair.wallet.events.BitcoinPaymentFailedEvent;
 import fr.acinq.eclair.wallet.events.ChannelRawDataEvent;
 import fr.acinq.eclair.wallet.events.ClosingChannelNotificationEvent;
 import fr.acinq.eclair.wallet.events.NetworkChannelsCountEvent;
 import fr.acinq.eclair.wallet.events.XpubEvent;
-import fr.acinq.eclair.wallet.services.ChannelsBackupService;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 import scala.Symbol;
@@ -91,6 +88,7 @@ public class App extends Application {
 
   public final static String TAG = "App";
   public final static Map<String, Float> RATES = new HashMap<>();
+  public final ActorSystem system = ActorSystem.apply("system");
   public AtomicReference<String> pin = new AtomicReference<>(null);
   public AtomicReference<String> seedHash = new AtomicReference<>(null);
   public AppKit appKit;
@@ -122,18 +120,6 @@ public class App extends Application {
     } catch (PackageManager.NameNotFoundException e) {
     }
     return "N/A";
-  }
-
-  @Subscribe(threadMode = ThreadMode.BACKGROUND)
-  public void handleSaveEclairDBEvent(final BackupEclairDBEvent event) {
-    final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-    if (prefs.getBoolean(Constants.SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_ENABLED, false)) {
-      final Intent backupIntent = new Intent();
-      backupIntent.putExtra(ChannelsBackupService.SEED_HASH_EXTRA, seedHash);
-      JobIntentService.enqueueWork(getApplicationContext(), ChannelsBackupService.class, 1, backupIntent);
-    } else {
-      Log.d(TAG, "backup event ignored because channel backup is disabled in preferences");
-    }
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
@@ -217,7 +203,7 @@ public class App extends Application {
       @Override
       public void onFailure(Throwable failure) throws Throwable {
       }
-    }, appKit.eclairKit.system().dispatcher());
+    }, this.system.dispatcher());
   }
 
   /**
@@ -240,7 +226,7 @@ public class App extends Application {
             EventBus.getDefault().post(new BitcoinPaymentFailedEvent(t.getLocalizedMessage()));
           }
         }
-      }, appKit.eclairKit.system().dispatcher());
+      }, this.system.dispatcher());
     } catch (Throwable t) {
       Log.w(TAG, "could not send bitcoin tx with cause=" + t.getMessage());
       EventBus.getDefault().post(new BitcoinPaymentFailedEvent(t.getLocalizedMessage()));
@@ -272,7 +258,7 @@ public class App extends Application {
                     EventBus.getDefault().post(new BitcoinPaymentFailedEvent("broadcast failed"));
                   }
                 }
-              }, appKit.eclairKit.system().dispatcher());
+              }, system.dispatcher());
             } else {
               Log.w(TAG, "could not create send all tx");
               EventBus.getDefault().post(new BitcoinPaymentFailedEvent("tx creation failed"));
@@ -282,7 +268,7 @@ public class App extends Application {
             EventBus.getDefault().post(new BitcoinPaymentFailedEvent(t.getLocalizedMessage()));
           }
         }
-      }, appKit.eclairKit.system().dispatcher());
+      }, this.system.dispatcher());
     } catch (Throwable t) {
       Log.w(TAG, "could not send send all balance with cause=" + t.getMessage());
       EventBus.getDefault().post(new BitcoinPaymentFailedEvent(t.getLocalizedMessage()));
@@ -308,14 +294,14 @@ public class App extends Application {
             Toast.makeText(getApplicationContext(), getString(R.string.home_toast_openchannel_failed) + throwable.getMessage(), Toast.LENGTH_LONG).show();
           } else if ("connected".equals(result.toString()) || "already connected".equals(result.toString())) {
             final Future<Object> openFuture = Patterns.ask(appKit.eclairKit.switchboard(), open, new Timeout(timeout));
-            openFuture.onComplete(onComplete, appKit.eclairKit.system().dispatcher());
+            openFuture.onComplete(onComplete, system.dispatcher());
           } else {
             Toast.makeText(getApplicationContext(), getString(R.string.home_toast_openchannel_failed) + result.toString(), Toast.LENGTH_LONG).show();
           }
         }
       };
       final Future<Object> connectFuture = Patterns.ask(appKit.eclairKit.switchboard(), new Peer.Connect(nodeURI), new Timeout(timeout));
-      connectFuture.onComplete(onConnectComplete, appKit.eclairKit.system().dispatcher());
+      connectFuture.onComplete(onConnectComplete, this.system.dispatcher());
     }
   }
 
@@ -372,7 +358,7 @@ public class App extends Application {
           EventBus.getDefault().post(new NetworkChannelsCountEvent(-1));
         }
       }
-    }, appKit.eclairKit.system().dispatcher());
+    }, this.system.dispatcher());
   }
 
   /**
@@ -392,7 +378,7 @@ public class App extends Application {
           EventBus.getDefault().post(new ChannelRawDataEvent(null));
         }
       }
-    }, appKit.eclairKit.system().dispatcher());
+    }, this.system.dispatcher());
   }
 
   public void getXpubFromWallet() {
@@ -405,7 +391,7 @@ public class App extends Application {
           EventBus.getDefault().post(new XpubEvent(null));
         }
       }
-    }, appKit.eclairKit.system().dispatcher());
+    }, this.system.dispatcher());
   }
 
   public void checkupInit() {

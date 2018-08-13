@@ -25,10 +25,15 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 import akka.actor.ActorRef;
 import akka.actor.Terminated;
 import akka.actor.UntypedActor;
+import androidx.work.Data;
+import androidx.work.ExistingWorkPolicy;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
 import fr.acinq.bitcoin.Crypto;
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.Satoshi;
@@ -71,6 +76,7 @@ import fr.acinq.eclair.wallet.models.Payment;
 import fr.acinq.eclair.wallet.models.PaymentDirection;
 import fr.acinq.eclair.wallet.models.PaymentStatus;
 import fr.acinq.eclair.wallet.models.PaymentType;
+import fr.acinq.eclair.wallet.services.ChannelsBackupWorker;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 import scala.collection.Iterator;
 import scala.collection.JavaConverters;
@@ -83,11 +89,18 @@ import scala.util.Either;
 public class EclairEventService extends UntypedActor {
 
   private DBHelper dbHelper;
-  private ActorRef backupScheduler;
+  private OneTimeWorkRequest channelsBackupWork;
 
-  public EclairEventService(final DBHelper dbHelper, final ActorRef backupScheduler) {
+  public EclairEventService(final DBHelper dbHelper, final String seedHash) {
     this.dbHelper = dbHelper;
-    this.backupScheduler = backupScheduler;
+
+    this.channelsBackupWork = new OneTimeWorkRequest.Builder(ChannelsBackupWorker.class)
+      .setInputData(new Data.Builder()
+        .putString(ChannelsBackupWorker.BACKUP_NAME_INPUT, WalletUtils.getEclairBackupFileName(seedHash))
+        .build())
+      .setInitialDelay(2, TimeUnit.SECONDS)
+      .addTag("ChannelsBackupWork")
+      .build();
   }
 
   private static final String TAG = "EclairEventService";
@@ -155,8 +168,7 @@ public class EclairEventService extends UntypedActor {
       final LocalChannel c = getChannel(event.channel());
       c.setChannelId(event.channelId().toString());
       dbHelper.saveLocalChannel(c);
-    }
-    else if (message instanceof ShortChannelIdAssigned && activeChannelsMap.containsKey(((ShortChannelIdAssigned) message).channel())) {
+    } else if (message instanceof ShortChannelIdAssigned && activeChannelsMap.containsKey(((ShortChannelIdAssigned) message).channel())) {
       final ShortChannelIdAssigned event = (ShortChannelIdAssigned) message;
       final LocalChannel c = getChannel(event.channel());
       c.setShortChannelId(event.shortChannelId().toString());
@@ -224,7 +236,12 @@ public class EclairEventService extends UntypedActor {
     }
     // ---- channel must be saved
     else if (message instanceof ChannelPersisted) {
-      backupScheduler.tell(BackupScheduler.DO_BACKUP, null);
+
+      WorkManager.getInstance()
+        .beginUniqueWork("ChannelsBackup", ExistingWorkPolicy.REPLACE, channelsBackupWork)
+        .enqueue();
+
+//      backupScheduler.tell(BackupScheduler.DO_BACKUP, null);
     }
     // ---- network map syncing
     else if (message instanceof SyncProgress) {
@@ -330,8 +347,7 @@ public class EclairEventService extends UntypedActor {
       } else {
         Log.d(TAG, "received and ignored an unknown PaymentFailed event with hash=" + event.paymentHash().toString());
       }
-    }
-    else if (message instanceof PaymentLifecycle.PaymentSucceeded) {
+    } else if (message instanceof PaymentLifecycle.PaymentSucceeded) {
       final PaymentLifecycle.PaymentSucceeded event = (PaymentLifecycle.PaymentSucceeded) message;
       final Payment paymentInDB = dbHelper.getPayment(event.paymentHash().toString(), PaymentType.BTC_LN);
       if (paymentInDB != null) {
@@ -344,7 +360,7 @@ public class EclairEventService extends UntypedActor {
     }
   }
 
-  public static boolean hasActiveChannels () {
+  public static boolean hasActiveChannels() {
     for (LocalChannel c : activeChannelsMap.values()) {
       if (NORMAL$.MODULE$.toString().equals(c.state)) {
         return true;

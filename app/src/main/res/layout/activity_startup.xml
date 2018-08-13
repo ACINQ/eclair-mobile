@@ -70,7 +70,7 @@
         android:onClick="restart"
         android:text="@string/start_error_restart"
         android:textColor="@color/grey_4"
-        android:translationY="-16dp" />
+        android:translationY="-12dp" />
 
       <Button
         android:id="@+id/startup_error_faq"

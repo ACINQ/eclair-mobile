@@ -17,9 +17,9 @@
 package fr.acinq.eclair.wallet.services;
 
 import android.content.Context;
-import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
-import android.support.v4.app.JobIntentService;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -29,77 +29,91 @@ import com.google.android.gms.drive.DriveContents;
 import com.google.android.gms.drive.DriveFile;
 import com.google.android.gms.drive.DriveFolder;
 import com.google.android.gms.drive.DriveResourceClient;
+import com.google.android.gms.drive.MetadataBuffer;
 import com.google.android.gms.drive.MetadataChangeSet;
 import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
+import java.util.concurrent.TimeUnit;
 
+import androidx.work.Worker;
 import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.activities.GoogleDriveBaseActivity;
+import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.EncryptedBackup;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 
-public class ChannelsBackupService extends JobIntentService {
+public class ChannelsBackupWorker extends Worker {
 
-  private static final String TAG = ChannelsBackupService.class.getSimpleName();
-  public final static String SEED_HASH_EXTRA = BuildConfig.APPLICATION_ID + ".SEED_HASH2";
+  public final static String BACKUP_NAME_INPUT = BuildConfig.APPLICATION_ID + ".BACKUP_NAME";
+  private static final String TAG = ChannelsBackupWorker.class.getSimpleName();
 
+  @NonNull
   @Override
-  protected void onHandleWork(@NonNull Intent intent) {
-    Log.i(TAG, "Channel backup requested");
-    if (intent.hasExtra(SEED_HASH_EXTRA)) {
-      final String seedHash = intent.getStringExtra(SEED_HASH_EXTRA);
-      Log.i(TAG, "Saving eclair DB in Drivemm intent seed hash=" + seedHash );
-      final Context context = getApplicationContext();
-      final GoogleSignInAccount signInAccount = GoogleDriveBaseActivity.getSigninAccount(context);
-      if (signInAccount != null) {
-        final String backupFileName = WalletUtils.getEclairBackupFileName(seedHash);
-        final DriveResourceClient driveResourceClient = Drive.getDriveResourceClient(context, signInAccount);
-        final Task<DriveFolder> appFolderTask = driveResourceClient.getAppFolder();
-        appFolderTask
-          .continueWithTask(t -> {
-            return GoogleDriveBaseActivity.retrieveEclairBackupTask(appFolderTask, driveResourceClient, backupFileName);
-          })
-          .addOnSuccessListener(metadataBuffer -> {
-            if (metadataBuffer.getCount() == 0) {
-              createBackup(context, driveResourceClient, appFolderTask, backupFileName)
-                .addOnSuccessListener(v -> {
-                  Log.i(TAG, "successfully created channels backup");
-                  Toast.makeText(context, "Backup was created!", Toast.LENGTH_LONG).show();
-                })
-                .addOnFailureListener(e -> {
-                  Toast.makeText(context, "Could not create backup!", Toast.LENGTH_LONG).show();
-                  Log.e(TAG, "could not create backup", e);
-                });
-            } else {
-              Log.i(TAG, "update");
-              updateBackup(context, driveResourceClient, metadataBuffer.get(0).getDriveId().asDriveFile())
-                .addOnSuccessListener(v -> {
-                  Log.i(TAG, "successfully updated channels backup");
-                  Toast.makeText(context, "Backup was updated!", Toast.LENGTH_LONG).show();
-                })
-                .addOnFailureListener(e -> {
-                  Toast.makeText(context, "Could not update backup!", Toast.LENGTH_LONG).show();
-                  Log.e(TAG, "could not update backup", e);
-                });
-            }
+  public Result doWork() {
+
+    final String backupFileName = getInputData().getString(BACKUP_NAME_INPUT);
+    final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+    if (!prefs.getBoolean(Constants.SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_ENABLED, false) || backupFileName == null) {
+      Log.i(TAG, "ignored channels backup request because feature is disabled.");
+      return Result.SUCCESS;
+    }
+
+    final Context context = getApplicationContext();
+    final GoogleSignInAccount signInAccount = GoogleDriveBaseActivity.getSigninAccount(context);
+
+    // --- check authorization
+    if (signInAccount == null) {
+      Log.i(TAG, "account is not signed in");
+      return Result.FAILURE;
+    }
+
+    Log.i(TAG, "saving backup with file name=" + backupFileName);
+    final DriveResourceClient driveResourceClient = Drive.getDriveResourceClient(context, signInAccount);
+
+    final Task<DriveFolder> appFolderTask = driveResourceClient.getAppFolder();
+    final Task<MetadataBuffer> metadataBufferTask = appFolderTask
+      .continueWithTask(t -> GoogleDriveBaseActivity.retrieveEclairBackupTask(appFolderTask, driveResourceClient, backupFileName));
+    try {
+      final MetadataBuffer buffer = Tasks.await(metadataBufferTask, 60, TimeUnit.SECONDS);
+
+      if (buffer.getCount() == 0) {
+        Tasks.await(createBackup(context, driveResourceClient, appFolderTask, backupFileName)
+          .addOnSuccessListener(aVoid -> {
+            Log.i(TAG, "successfully created channels backup");
+            Toast.makeText(context, "Backup was created!", Toast.LENGTH_SHORT).show();
           })
           .addOnFailureListener(e -> {
-            Toast.makeText(context, "Could not save backup!", Toast.LENGTH_LONG).show();
-            Log.e(TAG, "Unable to save backup file", e);
-          });
+            Toast.makeText(context, "Could not create backup!", Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "could not create backup", e);
+          }), 60, TimeUnit.SECONDS);
       } else {
-        Log.e(TAG, "could not save channels backup, permission required...");
+        Tasks.await(updateBackup(context, driveResourceClient, buffer.get(0).getDriveId().asDriveFile())
+          .addOnSuccessListener(v -> {
+            Log.i(TAG, "successfully updated channels backup");
+            Toast.makeText(context, "Backup was updated!", Toast.LENGTH_SHORT).show();
+          })
+          .addOnFailureListener(e -> {
+            Toast.makeText(context, "Could not update backup!", Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "could not update backup", e);
+          }), 60, TimeUnit.SECONDS);
       }
+
+      return Result.SUCCESS;
+    } catch (Exception e) {
+      Log.e(TAG, "failed to retrieve backup metadata", e);
+      return Result.FAILURE;
     }
+
   }
 
   private Task<DriveFile> createBackup(final Context context, final DriveResourceClient driveResourceClient,
-                                             Task<DriveFolder> appFolderTask, final String backupFileName) {
+                                       Task<DriveFolder> appFolderTask, final String backupFileName) {
     return driveResourceClient.createContents().continueWithTask(contentsTask -> {
       final File eclairDBFile = WalletUtils.getEclairDBFile(context);
       final DriveContents contents = contentsTask.getResult();
@@ -139,4 +153,5 @@ public class ChannelsBackupService extends JobIntentService {
       return driveResourceClient.commitContents(contents, null);
     });
   }
+
 }
