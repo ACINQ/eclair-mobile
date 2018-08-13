@@ -48,16 +48,6 @@
         android:orientation="vertical">
 
         <TextView
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:layout_marginBottom="16dp"
-          android:background="@drawable/rounded_corner_yellow"
-          android:padding="8dp"
-          android:text="@string/importwallet_disclaimer"
-          android:textColor="@color/grey_3"
-          android:textSize="12sp" />
-
-        <TextView
           android:id="@+id/import_error"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
@@ -133,10 +123,13 @@
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_centerInParent="true"
+      android:layout_margin="@dimen/space_lg"
+      android:background="@drawable/rounded_corner_white"
       android:drawablePadding="@dimen/space_sm"
       android:drawableStart="@drawable/ic_circle_check"
       android:padding="@dimen/space_md"
       android:text="@string/importwallet_encrypt_success"
+      android:textColor="@color/grey_4"
       android:visibility="@{importStep == Constants.IMPORT_WALLET_SUCCESS ? View.VISIBLE : View.GONE}" />
 
   </RelativeLayout>
