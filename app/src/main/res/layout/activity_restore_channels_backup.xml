@@ -81,7 +81,7 @@
       android:layout_centerInParent="true"
       android:layout_margin="@dimen/space_lg"
       android:background="@drawable/rounded_corner_white"
-      android:drawablePadding="@dimen/space_xs"
+      android:drawablePadding="@dimen/space_sm"
       android:drawableStart="@drawable/ic_circle_check"
       android:padding="@dimen/space_lg"
       android:text="@string/restorechannels_success"
@@ -157,6 +157,16 @@
       android:padding="@dimen/space_lg"
       android:text="@string/restorechannels_looking_for_backup"
       android:visibility="@{restoreStep == Constants.RESTORE_BACKUP_SEARCHING ? View.VISIBLE : View.GONE}" />
+
+    <TextView
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_centerInParent="true"
+      android:layout_margin="@dimen/space_lg"
+      android:background="@drawable/rounded_corner_white"
+      android:padding="@dimen/space_lg"
+      android:text="@string/restorechannels_sync_rate_limit"
+      android:visibility="@{restoreStep == Constants.RESTORE_BACKUP_SYNC_RATELIMIT ? View.VISIBLE : View.GONE}" />
 
   </RelativeLayout>
 </layout>

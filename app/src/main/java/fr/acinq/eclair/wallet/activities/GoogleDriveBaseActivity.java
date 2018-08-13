@@ -1,48 +1,49 @@
+/*
+ * Copyright 2018 ACINQ SAS
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package fr.acinq.eclair.wallet.activities;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Handler;
+import android.support.annotation.UiThread;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.common.AccountPicker;
 import com.google.android.gms.common.api.Scope;
-import com.google.android.gms.common.api.internal.TaskUtil;
 import com.google.android.gms.drive.Drive;
 import com.google.android.gms.drive.DriveClient;
 import com.google.android.gms.drive.DriveContents;
-import com.google.android.gms.drive.DriveFile;
 import com.google.android.gms.drive.DriveFolder;
 import com.google.android.gms.drive.DriveResourceClient;
 import com.google.android.gms.drive.MetadataBuffer;
-import com.google.android.gms.drive.MetadataChangeSet;
 import com.google.android.gms.drive.query.Filters;
 import com.google.android.gms.drive.query.Query;
 import com.google.android.gms.drive.query.SearchableField;
 import com.google.android.gms.drive.query.SortOrder;
 import com.google.android.gms.drive.query.SortableField;
 import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.Tasks;
-import com.google.common.io.ByteStreams;
-import com.google.common.io.Files;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.GeneralSecurityException;
 import java.util.HashSet;
 import java.util.Set;
 
-import fr.acinq.bitcoin.BinaryData;
-import fr.acinq.bitcoin.DeterministicWallet;
-import fr.acinq.eclair.crypto.LocalKeyManager;
-import fr.acinq.eclair.wallet.BuildConfig;
-import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 
 public abstract class GoogleDriveBaseActivity extends EclairActivity {
@@ -125,8 +126,69 @@ public abstract class GoogleDriveBaseActivity extends EclairActivity {
     return retrieveEclairBackupTask(appFolderTask, getDriveResourceClient(), WalletUtils.getEclairBackupFileName(app.seedHash.get()));
   }
 
+  @UiThread
+  abstract void applyAccessDenied();
+  @UiThread
+  abstract void applyAccessGranted(final GoogleSignInAccount signIn);
+
+  @Override
+  protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
+    super.onActivityResult(requestCode, resultCode, data);
+    switch (requestCode) {
+      case REQUEST_CODE_SIGN_IN:
+        if (resultCode != RESULT_OK) {
+          Log.i(TAG, "Google Drive sign-in failed with code " + resultCode);
+          applyAccessDenied();
+          return;
+        }
+        final Task<GoogleSignInAccount> getAccountTask = GoogleSignIn.getSignedInAccountFromIntent(data);
+        if (getAccountTask.isSuccessful()) {
+          initializeDriveClient(getAccountTask.getResult());
+        } else {
+          Log.i(TAG, "Google Drive sign-in failed, could not get account");
+          applyAccessDenied();
+        }
+        break;
+    }
+    super.onActivityResult(requestCode, resultCode, data);
+  }
+
+  protected void checkAccess() {
+    new Thread() {
+      @Override
+      public void run() {
+        final GoogleSignInAccount signInAccount = getSigninAccount(getApplicationContext());
+        if (signInAccount != null) {
+          initializeDriveClient(signInAccount);
+        } else {
+          Log.i(TAG, "google drive signin account is null");
+          runOnUiThread(() -> applyAccessDenied());
+        }
+      }
+    }.start();
+  }
+
+  protected void revokeAccess() {
+    new Thread() {
+      @Override
+      public void run() {
+        final GoogleSignInClient googleSignInClient = GoogleSignIn.getClient(getApplicationContext(), getGoogleSigninOptions());
+        // force sign out to display account picker
+        googleSignInClient.revokeAccess()
+          .addOnSuccessListener(aVoid -> runOnUiThread(() -> applyAccessDenied()))
+          .addOnFailureListener(e -> {
+            Log.e(TAG, "could not revoke access to drive", e);
+            checkAccess();
+          });
+      }
+    }.start();
+  }
+
   protected DriveResourceClient getDriveResourceClient() {
     return mDriveResourceClient;
+  }
+  protected DriveClient getDriveClient() {
+    return mDriveClient;
   }
 
   static class NoFilesFound extends RuntimeException {

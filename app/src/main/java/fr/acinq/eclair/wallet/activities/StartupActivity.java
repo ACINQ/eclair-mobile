@@ -299,9 +299,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
     if (connectionResult == ConnectionResult.SUCCESS
       && !prefs.getBoolean(Constants.SETTING_CHANNELS_BACKUP_SEEN_ONCE, false)
       && !prefs.getBoolean(Constants.SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_ENABLED, false)) {
-      final Intent intent = new Intent(getBaseContext(), EnableChannelsBackupActivity.class);
-      intent.putExtra(EnableChannelsBackupActivity.FROM_STARTUP, true);
-      startActivity(intent);
+      startActivity(new Intent(getBaseContext(), SetupChannelsBackupActivity.class));
       return false;
     }
     return true;

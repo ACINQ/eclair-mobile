@@ -132,7 +132,12 @@
       android:parentActivityName=".activities.PreferencesActivity"
       android:screenOrientation="portrait" />
     <activity
-      android:name=".activities.EnableChannelsBackupActivity"
+      android:name=".activities.ChannelsBackupSettingsActivity"
+      android:label="@string/menu_settings_channels_backup"
+      android:parentActivityName=".activities.PreferencesActivity"
+      android:screenOrientation="portrait" />
+    <activity
+      android:name=".activities.SetupChannelsBackupActivity"
       android:label="@string/menu_settings_channels_backup"
       android:parentActivityName=".activities.PreferencesActivity"
       android:screenOrientation="portrait" />

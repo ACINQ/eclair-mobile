@@ -395,7 +395,7 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
   }
 
   public void enableChannelsBackup(final View view) {
-    startActivity(new Intent(this, EnableChannelsBackupActivity.class));
+    startActivity(new Intent(this, ChannelsBackupSettingsActivity.class));
   }
 
   public void pasteSendPaymentRequest(View view) {

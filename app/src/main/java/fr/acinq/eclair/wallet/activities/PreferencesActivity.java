@@ -49,7 +49,7 @@ public class PreferencesActivity extends PreferenceActivity {
         return true;
       });
       findPreference("backup_channel_key").setOnPreferenceClickListener(v -> {
-        startActivity(new Intent(getActivity().getApplicationContext(), EnableChannelsBackupActivity.class));
+        startActivity(new Intent(getActivity().getApplicationContext(), ChannelsBackupSettingsActivity.class));
         return true;
       });
     }

@@ -139,6 +139,8 @@
     <item name="android:layout_height">wrap_content</item>
     <item name="android:gravity">center</item>
     <item name="android:padding">@dimen/space_md</item>
+    <item name="android:clickable">true</item>
+    <item name="android:focusable">true</item>
     <item name="android:orientation">horizontal</item>
     <item name="android:background">@android:color/transparent</item>
     <item name="android:foreground">?android:attr/selectableItemBackground</item>
