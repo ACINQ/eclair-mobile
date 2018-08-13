@@ -168,22 +168,6 @@ public abstract class GoogleDriveBaseActivity extends EclairActivity {
     }.start();
   }
 
-  protected void revokeAccess() {
-    new Thread() {
-      @Override
-      public void run() {
-        final GoogleSignInClient googleSignInClient = GoogleSignIn.getClient(getApplicationContext(), getGoogleSigninOptions());
-        // force sign out to display account picker
-        googleSignInClient.revokeAccess()
-          .addOnSuccessListener(aVoid -> runOnUiThread(() -> applyAccessDenied()))
-          .addOnFailureListener(e -> {
-            Log.e(TAG, "could not revoke access to drive", e);
-            checkAccess();
-          });
-      }
-    }.start();
-  }
-
   protected DriveResourceClient getDriveResourceClient() {
     return mDriveResourceClient;
   }

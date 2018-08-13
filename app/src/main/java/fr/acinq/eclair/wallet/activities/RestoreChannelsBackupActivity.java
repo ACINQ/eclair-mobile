@@ -60,9 +60,7 @@ public class RestoreChannelsBackupActivity extends GoogleDriveBaseActivity {
     } else {
       final GoogleSignInClient googleSignInClient = GoogleSignIn.getClient(getApplicationContext(), getGoogleSigninOptions());
       googleSignInClient.revokeAccess()
-        .addOnSuccessListener(aVoid -> {
-          initOrSignInGoogleDrive();
-        })
+        .addOnSuccessListener(aVoid -> initOrSignInGoogleDrive())
         .addOnFailureListener(e -> {
           Log.e(TAG, "could not revoke access to drive", e);
         });

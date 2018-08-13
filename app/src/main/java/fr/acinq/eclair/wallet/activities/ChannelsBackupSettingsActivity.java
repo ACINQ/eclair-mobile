@@ -29,10 +29,12 @@ import android.text.Html;
 import android.util.Log;
 import android.view.View;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.common.api.CommonStatusCodes;
 
 import java.text.DateFormat;
 
@@ -85,7 +87,20 @@ public class ChannelsBackupSettingsActivity extends GoogleDriveBaseActivity impl
 
   public void switchAccess(final View view) {
     if (mBinding.switchButton.isChecked()) {
-      revokeAccess();
+      final Dialog confirm = new AlertDialog.Builder(this)
+        .setMessage(R.string.backup_drive_revoke_confirm)
+        .setPositiveButton(R.string.btn_ok, (dialog, which) ->
+          new Thread() {
+            @Override
+            public void run() {
+              GoogleSignIn.getClient(getApplicationContext(), getGoogleSigninOptions())
+                .revokeAccess()
+                .addOnSuccessListener(aVoid -> runOnUiThread(() -> applyAccessDenied()));
+            }
+          }.start())
+        .setNegativeButton(R.string.btn_cancel, (dialog, which) -> {
+        }).create();
+      confirm.show();
     } else {
       grantAccess();
     }
@@ -131,13 +146,17 @@ public class ChannelsBackupSettingsActivity extends GoogleDriveBaseActivity impl
           } else {
             mBinding.existingBackupState.setText(DateFormat.getDateTimeInstance().format(metadataBuffer.get(0).getModifiedDate()));
           }
-        })).addOnFailureListener(e -> runOnUiThread(() -> {
+        })).addOnFailureListener(e -> {
           Log.i(TAG, "could not get backup metada", e);
-          mBinding.existingBackupState.setText(getString(R.string.backup_drive_no_backup));
           if (e instanceof ApiException) {
-            applyAccessDenied();
+            if (((ApiException) e).getStatusCode() == CommonStatusCodes.SIGN_IN_REQUIRED) {
+              GoogleSignIn.getClient(getApplicationContext(), getGoogleSigninOptions())
+                .revokeAccess()
+                .addOnSuccessListener(aVoid -> runOnUiThread(() -> applyAccessDenied()));
+            }
           }
-        }));
+          runOnUiThread(() -> mBinding.existingBackupState.setText(getString(R.string.backup_drive_no_backup)));
+        });
       }
     }.start();
   }
