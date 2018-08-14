@@ -21,11 +21,8 @@ import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.widget.Toast;
-
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -37,12 +34,10 @@ import java.text.NumberFormat;
 import java.util.Date;
 
 import fr.acinq.eclair.Globals;
-import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.databinding.ActivityNetworkInfosBinding;
 import fr.acinq.eclair.wallet.events.NetworkChannelsCountEvent;
 import fr.acinq.eclair.wallet.events.XpubEvent;
-import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 
 public class NetworkInfosActivity extends EclairActivity implements SwipeRefreshLayout.OnRefreshListener {
@@ -119,8 +114,7 @@ public class NetworkInfosActivity extends EclairActivity implements SwipeRefresh
   }
 
   private void deleteNetworkDB() {
-    final Dialog confirm = new AlertDialog.Builder(this)
-      .setMessage(R.string.networkinfos_networkdb_confirm)
+    final Dialog confirm = getCustomDialog(R.string.networkinfos_networkdb_confirm)
       .setPositiveButton(R.string.btn_ok, (dialog, which) ->
         new Thread() {
           @Override

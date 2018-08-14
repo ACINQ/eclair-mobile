@@ -20,8 +20,6 @@ import android.app.Dialog;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v7.app.AlertDialog;
-import android.text.Html;
 import android.util.Log;
 import android.view.View;
 
@@ -41,10 +39,7 @@ public class SetupChannelsBackupActivity extends GoogleDriveBaseActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     mBinding = DataBindingUtil.setContentView(this, R.layout.activity_setup_channels_backup);
-
-    final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-    builder.setMessage(Html.fromHtml(getString(R.string.setupbackup_about)));
-    backupAbout = builder.create();
+    backupAbout = getCustomDialog(R.string.setupbackup_about).create();
   }
 
   public void grantAccess(final View view) {

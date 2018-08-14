@@ -23,7 +23,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Html;
+import android.view.View;
+import android.widget.TextView;
 
 import java.io.File;
 import java.security.MessageDigest;
@@ -57,6 +61,15 @@ public abstract class EclairActivity extends AppCompatActivity {
     finishAndRemoveTask();
     finishAffinity();
     Runtime.getRuntime().exit(0);
+  }
+
+  protected AlertDialog.Builder getCustomDialog(final int contentId) {
+    final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+    final View v = getLayoutInflater().inflate(R.layout.custom_alert, null);
+    final TextView content = v.findViewById(R.id.alert_content);
+    content.setText(Html.fromHtml(getString(contentId)));
+    builder.setView(v);
+    return builder;
   }
 
   /**

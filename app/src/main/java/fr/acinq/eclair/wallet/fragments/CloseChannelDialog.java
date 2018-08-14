@@ -43,8 +43,8 @@ public class CloseChannelDialog extends Dialog {
   private Button mCloseButton;
   private CloseChannelDialogCallback mCallback;
 
-  public CloseChannelDialog(final Context context, final CloseChannelDialogCallback callback, final int themeResId, final ActorRef actor, final boolean mutualAllowed, final boolean forceAllowed) {
-    super(context, themeResId);
+  public CloseChannelDialog(final Context context, final CloseChannelDialogCallback callback, final ActorRef actor, final boolean mutualAllowed, final boolean forceAllowed) {
+    super(context, R.style.CustomDialog);
 
     mCallback = callback;
 

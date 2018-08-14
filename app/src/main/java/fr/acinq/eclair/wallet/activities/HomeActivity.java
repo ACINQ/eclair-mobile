@@ -17,7 +17,6 @@
 package fr.acinq.eclair.wallet.activities;
 
 import android.annotation.SuppressLint;
-import android.app.Dialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -34,7 +33,6 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -497,10 +495,7 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
   }
 
   public void popinSyncProgress(final View view) {
-    final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-    builder.setMessage(R.string.home_sync_progress_about);
-    final Dialog syncAbout = builder.create();
-    syncAbout.show();
+    getCustomDialog(R.string.home_sync_progress_about).setPositiveButton(R.string.btn_ok, null).create().show();
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)

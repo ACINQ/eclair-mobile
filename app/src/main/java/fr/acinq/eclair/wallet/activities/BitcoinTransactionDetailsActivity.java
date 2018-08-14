@@ -70,8 +70,7 @@ public class BitcoinTransactionDetailsActivity extends EclairActivity {
 
       final Payment p = app.getDBHelper().getPayment(paymentId);
 
-      final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-      builder.setMessage(getString(R.string.transactiondetails_rebroadcast_dialog));
+      final AlertDialog.Builder builder = getCustomDialog(R.string.transactiondetails_rebroadcast_dialog);
       builder.setPositiveButton(R.string.btn_ok, (dialog, id) -> {
         try {
           app.broadcastTx(p.getTxPayload());

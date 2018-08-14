@@ -23,9 +23,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.view.ContextThemeWrapper;
 import android.support.v7.widget.Toolbar;
-import android.text.Html;
 import android.util.Log;
 import android.view.View;
 
@@ -58,9 +56,7 @@ public class ChannelsBackupSettingsActivity extends GoogleDriveBaseActivity impl
     ActionBar ab = getSupportActionBar();
     ab.setDisplayHomeAsUpEnabled(true);
 
-    final AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(this, R.style.CustomAlertDialog));
-    builder.setMessage(Html.fromHtml(getString(R.string.setupbackup_about)));
-    backupAbout = builder.create();
+    backupAbout = getCustomDialog(R.id.alert_content).setPositiveButton(R.string.btn_ok, null).create();
 
     final int connectionResult = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(getApplicationContext());
     if (connectionResult != ConnectionResult.SUCCESS) {
