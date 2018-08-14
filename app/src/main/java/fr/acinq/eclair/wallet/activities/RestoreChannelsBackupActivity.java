@@ -52,7 +52,6 @@ public class RestoreChannelsBackupActivity extends GoogleDriveBaseActivity {
   }
 
   public void requestAccess(final View view) {
-
     final GoogleSignInAccount signInAccount = getSigninAccount(getApplicationContext());
     if (signInAccount == null) {
       final GoogleSignInClient googleSignInClient = GoogleSignIn.getClient(this, getGoogleSigninOptions());
@@ -65,7 +64,18 @@ public class RestoreChannelsBackupActivity extends GoogleDriveBaseActivity {
           Log.e(TAG, "could not revoke access to drive", e);
         });
     }
+  }
 
+  public void skipRestore(final View view) {
+    getCustomDialog(R.string.restorechannels_skip_backup_confirmation)
+      .setPositiveButton(R.string.btn_ok, (dialog, which) -> {
+        PreferenceManager.getDefaultSharedPreferences(getBaseContext()).edit()
+          .putBoolean(Constants.SETTING_CHANNELS_RESTORE_DONE, true).commit();
+        finish();
+      })
+      .setNegativeButton(R.string.btn_cancel, null)
+      .create()
+      .show();
   }
 
   public void backToInit(final View view) {
