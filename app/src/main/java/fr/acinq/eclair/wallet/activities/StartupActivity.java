@@ -129,11 +129,13 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
       case StartupTask.TIMEOUT_ERROR:
         app.pin.set(null);
         app.seedHash.set(null);
+        app.backupKey.set(null);
         showError(getString(R.string.start_error_timeout), true, true);
         break;
       default:
         app.pin.set(null);
         app.seedHash.set(null);
+        app.backupKey.set(null);
         showError(getString(R.string.start_error_generic), true, true);
         break;
     }
@@ -348,8 +350,10 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
           final BinaryData seed = BinaryData.apply(new String(WalletUtils.readSeedFile(datadir, password)));
           final DeterministicWallet.ExtendedPrivateKey pk = DeterministicWallet.derivePrivateKey(
             DeterministicWallet.generate(seed.data()), LocalKeyManager.nodeKeyBasePath(WalletUtils.getChainHash()));
+          final BinaryData backupKey = WalletUtils.generateBackupKey(pk);
           app.pin.set(password);
           app.seedHash.set(pk.privateKey().publicKey().hash160().toString());
+          app.backupKey.set(backupKey);
 
           if (!prefs.getBoolean(Constants.SETTING_HAS_STARTED_ONCE, false)) {
             // restore channels only if the seed itself was restored
@@ -364,10 +368,12 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
             }
           }
           new StartupTask().execute(app, seed);
+
         } catch (GeneralSecurityException e) {
           Log.w(TAG, "attempted to read seed with wrong password");
           app.pin.set(null);
           app.seedHash.set(null);
+          app.backupKey.set(null);
           runOnUiThread(() -> {
             showError(getString(R.string.start_error_wrong_password));
             new Handler().postDelayed(() -> startNode(datadir, prefs), 1400);
@@ -376,9 +382,8 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
           Log.e(TAG, "seed is unreadable", t);
           app.pin.set(null);
           app.seedHash.set(null);
-          runOnUiThread(() -> {
-            showError(getString(R.string.start_error_unreadable_seed), true, true);
-          });
+          app.backupKey.set(null);
+          runOnUiThread(() -> showError(getString(R.string.start_error_unreadable_seed), true, true));
         }
       }
     }.start();
@@ -448,7 +453,8 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
         final Setup setup = new Setup(datadir, ConfigFactory.empty(), Option.apply(seed), app.system);
 
         // gui updater actor
-        final ActorRef guiUpdater = app.system.actorOf(Props.create(EclairEventService.class, app.getDBHelper(), app.seedHash.get()), "GuiUpdater");
+        final ActorRef guiUpdater = app.system.actorOf(Props.create(
+          EclairEventService.class, app.getDBHelper(), app.seedHash.get(), app.backupKey.get()), "GuiUpdater");
         app.system.eventStream().subscribe(guiUpdater, ChannelEvent.class);
         app.system.eventStream().subscribe(guiUpdater, SyncProgress.class);
         app.system.eventStream().subscribe(guiUpdater, PaymentLifecycle.PaymentResult.class);
@@ -471,13 +477,11 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
 
         publishProgress("done");
         app.appKit = new App.AppKit(electrumWallet, kit, isDBCompatible);
+
         return SUCCESS;
 
       } catch (Throwable t) {
         Log.e(TAG, "Failed to start eclair", t);
-        if (params[0] instanceof App) {
-          ((App) params[0]).system.shutdown();
-        }
         if (t instanceof TimeoutException) {
           return TIMEOUT_ERROR;
         } else {

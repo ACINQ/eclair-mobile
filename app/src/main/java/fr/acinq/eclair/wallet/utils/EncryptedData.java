@@ -21,6 +21,12 @@ import com.tozny.crypto.android.AesCbcWithIntegrity;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+
+import fr.acinq.bitcoin.BinaryData;
+import fr.acinq.bitcoin.package$;
+
 public abstract class EncryptedData {
 
   final int version;
@@ -47,6 +53,22 @@ public abstract class EncryptedData {
   public byte[] decrypt(final String password) throws GeneralSecurityException {
     final AesCbcWithIntegrity.SecretKeys sk = AesCbcWithIntegrity.generateKeyFromPassword(password, salt);
     return AesCbcWithIntegrity.decrypt(civ, sk);
+  }
+
+  public static AesCbcWithIntegrity.SecretKeys secretKeyFromBinaryKey(final BinaryData key) {
+    final byte[] keyBytes = package$.MODULE$.binaryData2array(key);
+    final byte[] confidentialityKeyBytes = new byte[16];
+    System.arraycopy(keyBytes, 0, confidentialityKeyBytes, 0, 16);
+    final byte[] integrityKeyBytes = new byte[16];
+    System.arraycopy(keyBytes, 16, integrityKeyBytes, 0, 16);
+
+    final SecretKey confidentialityKey = new SecretKeySpec(confidentialityKeyBytes, "AES");
+    final SecretKey integrityKey = new SecretKeySpec(integrityKeyBytes, "PBKDF2WithHmacSHA1");
+    return new AesCbcWithIntegrity.SecretKeys(confidentialityKey, integrityKey);
+  }
+
+  public byte[] decrypt(final AesCbcWithIntegrity.SecretKeys key) throws GeneralSecurityException {
+    return AesCbcWithIntegrity.decrypt(civ, key);
   }
 
 }

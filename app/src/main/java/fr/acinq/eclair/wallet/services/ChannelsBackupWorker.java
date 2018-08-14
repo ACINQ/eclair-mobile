@@ -35,6 +35,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
+import com.tozny.crypto.android.AesCbcWithIntegrity;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -42,15 +43,18 @@ import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
 
 import androidx.work.Worker;
+import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.activities.GoogleDriveBaseActivity;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.EncryptedBackup;
+import fr.acinq.eclair.wallet.utils.EncryptedData;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 
 public class ChannelsBackupWorker extends Worker {
 
   public final static String BACKUP_NAME_INPUT = BuildConfig.APPLICATION_ID + ".BACKUP_NAME";
+  public final static String BACKUP_KEY_INPUT = BuildConfig.APPLICATION_ID + ".BACKUP_KEY_INPUT";
   private static final String TAG = ChannelsBackupWorker.class.getSimpleName();
 
   @NonNull
@@ -58,6 +62,7 @@ public class ChannelsBackupWorker extends Worker {
   public Result doWork() {
 
     final String backupFileName = getInputData().getString(BACKUP_NAME_INPUT);
+    final String key = getInputData().getString(BACKUP_KEY_INPUT);
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
     if (!prefs.getBoolean(Constants.SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_ENABLED, false) || backupFileName == null) {
       Log.i(TAG, "ignored channels backup request because feature is disabled.");
@@ -80,10 +85,12 @@ public class ChannelsBackupWorker extends Worker {
     final Task<MetadataBuffer> metadataBufferTask = appFolderTask
       .continueWithTask(t -> GoogleDriveBaseActivity.retrieveEclairBackupTask(appFolderTask, driveResourceClient, backupFileName));
     try {
+
       final MetadataBuffer buffer = Tasks.await(metadataBufferTask, 60, TimeUnit.SECONDS);
+      final AesCbcWithIntegrity.SecretKeys sk = EncryptedData.secretKeyFromBinaryKey(BinaryData.apply(key));
 
       if (buffer.getCount() == 0) {
-        Tasks.await(createBackup(context, driveResourceClient, appFolderTask, backupFileName)
+        Tasks.await(createBackup(context, driveResourceClient, appFolderTask, backupFileName, sk)
           .addOnSuccessListener(aVoid -> {
             Log.i(TAG, "successfully created channels backup");
             Toast.makeText(context, "Backup was created!", Toast.LENGTH_SHORT).show();
@@ -93,7 +100,7 @@ public class ChannelsBackupWorker extends Worker {
             Log.e(TAG, "could not create backup", e);
           }), 60, TimeUnit.SECONDS);
       } else {
-        Tasks.await(updateBackup(context, driveResourceClient, buffer.get(0).getDriveId().asDriveFile())
+        Tasks.await(updateBackup(context, driveResourceClient, buffer.get(0).getDriveId().asDriveFile(), sk)
           .addOnSuccessListener(v -> {
             Log.i(TAG, "successfully updated channels backup");
             Toast.makeText(context, "Backup was updated!", Toast.LENGTH_SHORT).show();
@@ -113,14 +120,15 @@ public class ChannelsBackupWorker extends Worker {
   }
 
   private Task<DriveFile> createBackup(final Context context, final DriveResourceClient driveResourceClient,
-                                       Task<DriveFolder> appFolderTask, final String backupFileName) {
+                                       Task<DriveFolder> appFolderTask, final String backupFileName,
+                                       final AesCbcWithIntegrity.SecretKeys sk) {
     return driveResourceClient.createContents().continueWithTask(contentsTask -> {
       final File eclairDBFile = WalletUtils.getEclairDBFile(context);
       final DriveContents contents = contentsTask.getResult();
 
       // encrypt backup
       final EncryptedBackup backup = EncryptedBackup.encrypt(
-        Files.toByteArray(eclairDBFile), "1234", EncryptedBackup.BACKUP_VERSION_1);
+        Files.toByteArray(eclairDBFile), sk, EncryptedBackup.BACKUP_VERSION_1);
 
       // write encrypted backup as file content
       final InputStream i = new ByteArrayInputStream(backup.write());
@@ -136,14 +144,15 @@ public class ChannelsBackupWorker extends Worker {
     });
   }
 
-  private Task<Void> updateBackup(final Context context, final DriveResourceClient driveResourceClient, final DriveFile driveFile) {
+  private Task<Void> updateBackup(final Context context, final DriveResourceClient driveResourceClient,
+                                  final DriveFile driveFile, final AesCbcWithIntegrity.SecretKeys sk) {
     return driveResourceClient.openFile(driveFile, DriveFile.MODE_WRITE_ONLY).continueWithTask(contentsTask -> {
       final File eclairDBFile = WalletUtils.getEclairDBFile(context);
       final DriveContents contents = contentsTask.getResult();
 
       // encrypt backup
       final EncryptedBackup backup = EncryptedBackup.encrypt(
-        Files.toByteArray(eclairDBFile), "1234", EncryptedBackup.BACKUP_VERSION_1);
+        Files.toByteArray(eclairDBFile), sk, EncryptedBackup.BACKUP_VERSION_1);
 
       // write encrypted backup as file content
       final InputStream i = new ByteArrayInputStream(backup.write());

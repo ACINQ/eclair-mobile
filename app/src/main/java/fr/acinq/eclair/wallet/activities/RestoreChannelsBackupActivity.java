@@ -27,7 +27,6 @@ import android.view.View;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.drive.DriveFile;
 import com.google.android.gms.drive.MetadataBuffer;
 import com.google.common.io.Files;
@@ -36,6 +35,7 @@ import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.databinding.ActivityRestoreChannelsBackupBinding;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.EncryptedBackup;
+import fr.acinq.eclair.wallet.utils.EncryptedData;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 
 public class RestoreChannelsBackupActivity extends GoogleDriveBaseActivity {
@@ -84,12 +84,9 @@ public class RestoreChannelsBackupActivity extends GoogleDriveBaseActivity {
   void onDriveClientReady(final GoogleSignInAccount signInAccount) {
     applyAccessGranted(signInAccount);
 
-
     new Thread() {
       @Override
       public void run() {
-
-
         getDriveClient().requestSync()
           .addOnSuccessListener(aVoid -> {
             retrieveEclairBackupTask().continueWithTask(metadataBufferTask -> {
@@ -107,7 +104,8 @@ public class RestoreChannelsBackupActivity extends GoogleDriveBaseActivity {
                 final EncryptedBackup encryptedContent = EncryptedBackup.read(getBytesFromDriveContents(driveFileContents));
 
                 // decrypt and write backup
-                Files.write(encryptedContent.decrypt("1234"), WalletUtils.getEclairDBFile(getApplicationContext()));
+                Files.write(encryptedContent.decrypt(EncryptedData.secretKeyFromBinaryKey(app.backupKey.get())),
+                  WalletUtils.getEclairDBFile(getApplicationContext()));
 
                 // celebrate
                 runOnUiThread(() -> {

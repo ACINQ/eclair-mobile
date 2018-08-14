@@ -16,17 +16,12 @@
 
 package fr.acinq.eclair.wallet.utils;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.media.MediaScannerConnection;
 import android.net.Uri;
-import android.os.Environment;
 import android.preference.PreferenceManager;
-import android.support.v4.content.ContextCompat;
 import android.text.Html;
 import android.util.Log;
 import android.view.View;
@@ -44,18 +39,16 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
-import java.security.PrivateKey;
 import java.text.NumberFormat;
 import java.util.regex.Pattern;
 
 import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.bitcoin.Block;
-import fr.acinq.bitcoin.Crypto;
+import fr.acinq.bitcoin.DeterministicWallet;
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.CoinUnit;
 import fr.acinq.eclair.CoinUtils;
-import fr.acinq.eclair.NodeParams;
 import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.BuildConfig;
@@ -285,18 +278,14 @@ public class WalletUtils {
     return "eclair_" + BuildConfig.CHAIN + "_" + seedHash + ".bkup";
   }
 
-  public static boolean restoreChannelsBackup(final Context context, final File backup) {
-    boolean restoreSuccess = false;
-    try {
-      final File chainDatadir = getChainDatadir(context);
-      chainDatadir.mkdirs();
-      Files.copy(backup, getEclairDBFile(context));
-      Toast.makeText(context, "restored backup!", Toast.LENGTH_LONG).show();
-      restoreSuccess = true;
-    } catch (Throwable t) {
-      Log.e(TAG, "could not restore eclair database in local", t);
-    }
-    return restoreSuccess;
+  /**
+   * Derives a hardened key from the extended key. This is used to encrypt/decrypt the channels backup files.
+   */
+  public static BinaryData generateBackupKey(final DeterministicWallet.ExtendedPrivateKey pk) {
+    // derive a hardened key for channels backup encryption
+    final DeterministicWallet.ExtendedPrivateKey dpriv = DeterministicWallet.derivePrivateKey(pk,
+      DeterministicWallet.KeyPath$.MODULE$.apply("m/49'"));
+    return dpriv.secretkeybytes();
   }
 
   public static String toAscii(final BinaryData b) {

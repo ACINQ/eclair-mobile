@@ -34,6 +34,7 @@ import androidx.work.Data;
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
+import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.bitcoin.Crypto;
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.Satoshi;
@@ -91,12 +92,13 @@ public class EclairEventService extends UntypedActor {
   private DBHelper dbHelper;
   private OneTimeWorkRequest channelsBackupWork;
 
-  public EclairEventService(final DBHelper dbHelper, final String seedHash) {
+  public EclairEventService(final DBHelper dbHelper, final String seedHash, final BinaryData backupKey) {
     this.dbHelper = dbHelper;
 
     this.channelsBackupWork = new OneTimeWorkRequest.Builder(ChannelsBackupWorker.class)
       .setInputData(new Data.Builder()
         .putString(ChannelsBackupWorker.BACKUP_NAME_INPUT, WalletUtils.getEclairBackupFileName(seedHash))
+        .putString(ChannelsBackupWorker.BACKUP_KEY_INPUT, backupKey.toString())
         .build())
       .setInitialDelay(2, TimeUnit.SECONDS)
       .addTag("ChannelsBackupWork")

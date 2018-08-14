@@ -91,6 +91,7 @@ public class App extends Application {
   public final ActorSystem system = ActorSystem.apply("system");
   public AtomicReference<String> pin = new AtomicReference<>(null);
   public AtomicReference<String> seedHash = new AtomicReference<>(null);
+  public AtomicReference<BinaryData> backupKey = new AtomicReference<>(null);
   public AppKit appKit;
   private AtomicReference<ElectrumState> electrumState = new AtomicReference<>(null);
   private DBHelper dbHelper;
