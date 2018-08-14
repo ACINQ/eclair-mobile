@@ -394,8 +394,10 @@
   <string name="networkinfos_networkchannels_desc">Channels count in network</string>
   <string name="networkinfos_wallet_title">Wallet</string>
   <string name="networkinfos_networkdb_label">Delete Network DB</string>
-  <string name="networkinfos_networkdb_desc">Do not delete unless you know what you\'re doing. Restart the application once the DB has been deleted.</string>
+  <string name="networkinfos_networkdb_desc">This will clear your network routing table.</string>
   <string name="networkinfos_networkdb_action">Delete Network DB</string>
+  <string name="networkinfos_networkdb_confirm">Are you sure you want to delete your network database?\n\n The application will restart.</string>
+  <string name="networkinfos_networkdb_toast">Successfully deleted DB, restarting application…</string>
   <string name="networkinfos_xpub_label">Master Public Key</string>
   <string name="networkinfos_xpub_desc">All your addresses derive from this key.</string>
 

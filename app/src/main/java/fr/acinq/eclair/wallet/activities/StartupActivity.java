@@ -406,7 +406,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
   }
 
   public void restart(View view) {
-    checkup();
+    restart();
   }
 
   @Override

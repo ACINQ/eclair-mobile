@@ -16,12 +16,16 @@
 
 package fr.acinq.eclair.wallet.activities;
 
+import android.app.Dialog;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.widget.Toast;
+
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -115,9 +119,23 @@ public class NetworkInfosActivity extends EclairActivity implements SwipeRefresh
   }
 
   private void deleteNetworkDB() {
-    final File networkDB = WalletUtils.getNetworkDBFile(getApplicationContext());
-    if (networkDB.delete()) {
-      Toast.makeText(getApplicationContext(), "Successfully deleted network DB", Toast.LENGTH_SHORT).show();
-    }
+    final Dialog confirm = new AlertDialog.Builder(this)
+      .setMessage(R.string.networkinfos_networkdb_confirm)
+      .setPositiveButton(R.string.btn_ok, (dialog, which) ->
+        new Thread() {
+          @Override
+          public void run() {
+            final File networkDB = WalletUtils.getNetworkDBFile(getApplicationContext());
+            if (networkDB.delete()) {
+              runOnUiThread(() -> {
+                Toast.makeText(getApplicationContext(), R.string.networkinfos_networkdb_toast, Toast.LENGTH_SHORT).show();
+                restart();
+              });
+            }
+          }
+        }.start())
+      .setNegativeButton(R.string.btn_cancel, (dialog, which) -> {
+      }).create();
+    confirm.show();
   }
 }
