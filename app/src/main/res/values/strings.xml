@@ -40,8 +40,12 @@
   <string name="home_channel_random">Random node</string>
   <string name="home_channel_acinq">ACINQ node</string>
   <string name="home_sync_progress">%1$d%%</string>
-  <string name="home_sync_progress_desc">Progress in downloading the map of the lightning network</string>
-  <string name="home_sync_progress_about">This is a placeholder message describing the network syncing process.\n\nLorem ipsum dolor sit amet.</string>
+  <string name="home_sync_progress_desc">Updating the lightning network map</string>
+  <string name="home_sync_progress_about"><![CDATA[
+  The wallet is currently downloading an up-to-date map of the Lightning Network. Lightning payments might fail until synchronization is complete.
+  <br><br>
+  Note that this wallet computes its payments route on-device to protect your privacy.
+  ]]></string>
   <string name="home_no_backup">NO BACKUP</string>
   <string name="home_backup_disabled_icon_desc">Channels backup is disabled!</string>
 
@@ -485,11 +489,11 @@
   <string name="setupbackup_subtitle_2">To enable this feature, you have to give this app access to Google Drive.</string>
   <string name="setupbackup_about"><![CDATA[
     <p><b>How does it work?</b></p>
-    <p>Channels are encrypted and saved on your Google Drive account. When you restore the seed, you can also restore the last known state of your channels and retrieve funds that may have stayed in these channels.</p>
+    <p>Channels are encrypted and saved to your Google Drive account. When you restore the seed, you can also restore the last known state of your channels and retrieve funds that may have stayed in these channels.</p>
     <p><b>What data are accessed by the app?</b></p>
     <p>The wallet will only access its own data in Google Drive, and will not be able to read or write anything else.</p>
     <p><b>What is saved?</b></p>
-    <p>Only the lightning channels data are saved.</p>
+    <p>Only lightning channels data are saved.</p>
     <p><b>Can I opt out?</b></p>
     <p>Yes, you can revoke access to Google Drive at anytime, which will disable this backup feature. The app will work as usual.</p>
     <p><b>Can I have several backups from different seed on the same account?</b></p>
