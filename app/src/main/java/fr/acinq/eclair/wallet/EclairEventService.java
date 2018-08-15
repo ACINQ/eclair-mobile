@@ -25,12 +25,10 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 
 import akka.actor.ActorRef;
 import akka.actor.Terminated;
 import akka.actor.UntypedActor;
-import androidx.work.Data;
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
@@ -77,7 +75,6 @@ import fr.acinq.eclair.wallet.models.Payment;
 import fr.acinq.eclair.wallet.models.PaymentDirection;
 import fr.acinq.eclair.wallet.models.PaymentStatus;
 import fr.acinq.eclair.wallet.models.PaymentType;
-import fr.acinq.eclair.wallet.services.ChannelsBackupWorker;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 import scala.collection.Iterator;
 import scala.collection.JavaConverters;
@@ -94,15 +91,7 @@ public class EclairEventService extends UntypedActor {
 
   public EclairEventService(final DBHelper dbHelper, final String seedHash, final BinaryData backupKey) {
     this.dbHelper = dbHelper;
-
-    this.channelsBackupWork = new OneTimeWorkRequest.Builder(ChannelsBackupWorker.class)
-      .setInputData(new Data.Builder()
-        .putString(ChannelsBackupWorker.BACKUP_NAME_INPUT, WalletUtils.getEclairBackupFileName(seedHash))
-        .putString(ChannelsBackupWorker.BACKUP_KEY_INPUT, backupKey.toString())
-        .build())
-      .setInitialDelay(2, TimeUnit.SECONDS)
-      .addTag("ChannelsBackupWork")
-      .build();
+    this.channelsBackupWork = WalletUtils.generateBackupRequest(seedHash, backupKey);
   }
 
   private static final String TAG = "EclairEventService";

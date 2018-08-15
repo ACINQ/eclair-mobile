@@ -40,8 +40,11 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.text.NumberFormat;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
+import androidx.work.Data;
+import androidx.work.OneTimeWorkRequest;
 import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.bitcoin.Block;
 import fr.acinq.bitcoin.DeterministicWallet;
@@ -53,6 +56,7 @@ import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.R;
+import fr.acinq.eclair.wallet.services.ChannelsBackupWorker;
 
 public class WalletUtils {
   public final static String ACINQ_NODE = "03933884aaf1d6b108397e5efe5c86bcf2d8ca8d2f700eda99db9214fc2712b134@endurance.acinq.co:9735";
@@ -286,6 +290,17 @@ public class WalletUtils {
     final DeterministicWallet.ExtendedPrivateKey dpriv = DeterministicWallet.derivePrivateKey(pk,
       DeterministicWallet.KeyPath$.MODULE$.apply("m/49'"));
     return dpriv.secretkeybytes();
+  }
+
+  public static OneTimeWorkRequest generateBackupRequest(final String seedHash, final BinaryData backupKey) {
+    return new OneTimeWorkRequest.Builder(ChannelsBackupWorker.class)
+      .setInputData(new Data.Builder()
+        .putString(ChannelsBackupWorker.BACKUP_NAME_INPUT, WalletUtils.getEclairBackupFileName(seedHash))
+        .putString(ChannelsBackupWorker.BACKUP_KEY_INPUT, backupKey.toString())
+        .build())
+      .setInitialDelay(2, TimeUnit.SECONDS)
+      .addTag("ChannelsBackupWork")
+      .build();
   }
 
   public static String toAscii(final BinaryData b) {

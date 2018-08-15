@@ -25,9 +25,12 @@ import android.view.View;
 
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 
+import androidx.work.ExistingWorkPolicy;
+import androidx.work.WorkManager;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.databinding.ActivitySetupChannelsBackupBinding;
 import fr.acinq.eclair.wallet.utils.Constants;
+import fr.acinq.eclair.wallet.utils.WalletUtils;
 
 public class SetupChannelsBackupActivity extends GoogleDriveBaseActivity {
 
@@ -74,6 +77,10 @@ public class SetupChannelsBackupActivity extends GoogleDriveBaseActivity {
     PreferenceManager.getDefaultSharedPreferences(getBaseContext()).edit()
       .putBoolean(Constants.SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_ENABLED, true)
       .putBoolean(Constants.SETTING_CHANNELS_BACKUP_SEEN_ONCE, true).apply();
+    WorkManager.getInstance()
+      .beginUniqueWork("ChannelsBackup", ExistingWorkPolicy.REPLACE,
+        WalletUtils.generateBackupRequest(app.seedHash.get(), app.backupKey.get()))
+      .enqueue();
     finish();
   }
 

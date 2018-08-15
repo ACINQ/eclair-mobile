@@ -17,10 +17,8 @@
 package fr.acinq.eclair.wallet.activities;
 
 import android.app.Dialog;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
-import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
@@ -40,9 +38,12 @@ import com.google.android.gms.common.api.CommonStatusCodes;
 
 import java.text.DateFormat;
 
+import androidx.work.ExistingWorkPolicy;
+import androidx.work.WorkManager;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.databinding.ActivityChannelsBackupSettingsBinding;
 import fr.acinq.eclair.wallet.utils.Constants;
+import fr.acinq.eclair.wallet.utils.WalletUtils;
 
 public class ChannelsBackupSettingsActivity extends GoogleDriveBaseActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
@@ -149,6 +150,10 @@ public class ChannelsBackupSettingsActivity extends GoogleDriveBaseActivity impl
     prefs.edit().putBoolean(Constants.SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_ENABLED, true).apply();
     mBinding.accessAccount.setText(getString(R.string.backup_drive_account, signIn.getEmail()));
     mBinding.setAccessDenied(false);
+    WorkManager.getInstance()
+      .beginUniqueWork("ChannelsBackup", ExistingWorkPolicy.REPLACE,
+        WalletUtils.generateBackupRequest(app.seedHash.get(), app.backupKey.get()))
+      .enqueue();
   }
 
   @Override
