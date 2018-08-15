@@ -17,14 +17,18 @@
 package fr.acinq.eclair.wallet.activities;
 
 import android.app.Dialog;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -79,6 +83,23 @@ public class ChannelsBackupSettingsActivity extends GoogleDriveBaseActivity impl
   public void onPause() {
     super.onPause();
     PreferenceManager.getDefaultSharedPreferences(this).unregisterOnSharedPreferenceChangeListener(this);
+  }
+
+  @Override
+  public boolean onCreateOptionsMenu(Menu menu) {
+    getMenuInflater().inflate(R.menu.menu_backup_settings, menu);
+    return super.onCreateOptionsMenu(menu);
+  }
+
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+    switch (item.getItemId()) {
+      case R.id.menu_channels_backup_about:
+        backupAbout.show();
+        return true;
+      default:
+        return super.onOptionsItemSelected(item);
+    }
   }
 
   public void switchAccess(final View view) {
@@ -140,7 +161,7 @@ public class ChannelsBackupSettingsActivity extends GoogleDriveBaseActivity impl
           if (metadataBuffer.getCount() == 0) {
             mBinding.existingBackupState.setText(getString(R.string.backup_drive_no_backup));
           } else {
-            mBinding.existingBackupState.setText(DateFormat.getDateTimeInstance().format(metadataBuffer.get(0).getModifiedDate()));
+            mBinding.existingBackupState.setText(getString(R.string.backup_drive_last_backup, DateFormat.getDateTimeInstance().format(metadataBuffer.get(0).getModifiedDate())));
           }
         })).addOnFailureListener(e -> {
           Log.i(TAG, "could not get backup metada", e);

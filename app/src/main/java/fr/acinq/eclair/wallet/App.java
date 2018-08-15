@@ -374,7 +374,7 @@ public class App extends Application {
         if (throwable == null && o != null) {
           RES_GETINFO result = (RES_GETINFO) o;
           String json = default$.MODULE$.write(result, 1, JsonSerializers$.MODULE$.cmdResGetinfoReadWriter());
-          EventBus.getDefault().post(json);
+          EventBus.getDefault().post(new ChannelRawDataEvent(json));
         } else {
           EventBus.getDefault().post(new ChannelRawDataEvent(null));
         }
