@@ -155,7 +155,7 @@
   <string name="restorechannels_no_backup">No backup was found.</string>
   <string name="restorechannels_no_backup_try_again">Try again</string>
   <string name="restorechannels_no_backup_and_finish">Abort and proceed</string>
-  <string name="restorechannels_looking_for_backup">Please hold, looking for backup…</string>
+  <string name="restorechannels_looking_for_backup">Please wait, looking for backup…</string>
   <string name="restorechannels_sync_rate_limit">Drive sync rate limit! Try again later</string>
   <string name="restorechannels_skip_backup">Skip Backup Restore</string>
   <string name="restorechannels_skip_backup_confirmation">Are you sure you want to skip Backup Restore?\n\nYou will not be able to restore your channels later.</string>
