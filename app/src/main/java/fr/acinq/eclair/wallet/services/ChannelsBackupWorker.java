@@ -21,7 +21,6 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.drive.Drive;
@@ -91,32 +90,20 @@ public class ChannelsBackupWorker extends Worker {
 
       if (buffer.getCount() == 0) {
         Tasks.await(createBackup(context, driveResourceClient, appFolderTask, backupFileName, sk)
-          .addOnSuccessListener(aVoid -> {
-            Log.i(TAG, "successfully created channels backup");
-            Toast.makeText(context, "Backup was created!", Toast.LENGTH_SHORT).show();
-          })
-          .addOnFailureListener(e -> {
-            Toast.makeText(context, "Could not create backup!", Toast.LENGTH_SHORT).show();
-            Log.e(TAG, "could not create backup", e);
-          }), 60, TimeUnit.SECONDS);
+            .addOnSuccessListener(aVoid -> Log.d(TAG, "successfully created channels backup"))
+            .addOnFailureListener(e -> Log.e(TAG, "could not create backup", e)),
+          60, TimeUnit.SECONDS);
       } else {
         Tasks.await(updateBackup(context, driveResourceClient, buffer.get(0).getDriveId().asDriveFile(), sk)
-          .addOnSuccessListener(v -> {
-            Log.i(TAG, "successfully updated channels backup");
-            Toast.makeText(context, "Backup was updated!", Toast.LENGTH_SHORT).show();
-          })
-          .addOnFailureListener(e -> {
-            Toast.makeText(context, "Could not update backup!", Toast.LENGTH_SHORT).show();
-            Log.e(TAG, "could not update backup", e);
-          }), 60, TimeUnit.SECONDS);
+            .addOnSuccessListener(v -> Log.d(TAG, "successfully updated channels backup"))
+            .addOnFailureListener(e -> Log.e(TAG, "could not update backup", e)),
+          60, TimeUnit.SECONDS);
       }
-
       return Result.SUCCESS;
     } catch (Exception e) {
       Log.e(TAG, "failed to retrieve backup metadata", e);
       return Result.FAILURE;
     }
-
   }
 
   private Task<DriveFile> createBackup(final Context context, final DriveResourceClient driveResourceClient,
