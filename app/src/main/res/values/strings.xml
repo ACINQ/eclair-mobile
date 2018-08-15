@@ -487,7 +487,7 @@
   <string name="setupbackup_title">Lightning Channels Backup</string>
   <string name="setupbackup_subtitle_1">Active channels can be saved in Google Drive. If you lose access to your phone, by restoring the same seed, you will be able to restore your lightning channels.</string>
   <string name="setupbackup_subtitle_2">To enable this feature, you have to give this app access to Google Drive.</string>
-  <string name="setupbackup_about"><![CDATA[
+  <string name="backup_about"><![CDATA[
     <p><b>How does it work?</b></p>
     <p>Channels are encrypted and saved to your Google Drive account. When you restore the seed, you can also restore the last known state of your channels and retrieve funds that may have stayed in these channels.</p>
     <p><b>What data are accessed by the app?</b></p>
@@ -497,7 +497,7 @@
     <p><b>Can I opt out?</b></p>
     <p>Yes, you can revoke access to Google Drive at anytime, which will disable this backup feature. The app will work as usual.</p>
     <p><b>Can I have several backups from different seed on the same account?</b></p>
-    <p>Yes, a backup is linked to a seed with a hash, and several backups can coexist.</p>
+    Yes, a backup is linked to a seed with a hash, and several backups can coexist.
     ]]></string>
 
   <string name="backup_switch_button">Enable Channels Backup</string>

@@ -56,7 +56,7 @@ public class ChannelsBackupSettingsActivity extends GoogleDriveBaseActivity impl
     ActionBar ab = getSupportActionBar();
     ab.setDisplayHomeAsUpEnabled(true);
 
-    backupAbout = getCustomDialog(R.id.alert_content).setPositiveButton(R.string.btn_ok, null).create();
+    backupAbout = getCustomDialog(R.string.backup_about).setPositiveButton(R.string.btn_ok, null).create();
 
     final int connectionResult = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(getApplicationContext());
     if (connectionResult != ConnectionResult.SUCCESS) {

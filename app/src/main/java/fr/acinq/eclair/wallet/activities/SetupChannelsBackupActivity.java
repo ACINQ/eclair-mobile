@@ -39,7 +39,7 @@ public class SetupChannelsBackupActivity extends GoogleDriveBaseActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     mBinding = DataBindingUtil.setContentView(this, R.layout.activity_setup_channels_backup);
-    backupAbout = getCustomDialog(R.string.setupbackup_about).create();
+    backupAbout = getCustomDialog(R.string.backup_about).create();
   }
 
   public void grantAccess(final View view) {
