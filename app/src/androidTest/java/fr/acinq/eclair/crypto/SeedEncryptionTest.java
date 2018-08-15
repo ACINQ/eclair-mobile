@@ -31,7 +31,7 @@ import java.security.SecureRandom;
 import fr.acinq.eclair.blockchain.electrum.ElectrumWallet;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 
-public class EncryptionTest {
+public class SeedEncryptionTest {
 
   private final String password = "123456";
 

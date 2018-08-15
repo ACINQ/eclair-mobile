@@ -28,6 +28,8 @@ import android.text.Html;
 import android.util.Log;
 import android.view.View;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.common.io.Files;
 import com.typesafe.config.ConfigFactory;
 
@@ -45,19 +47,21 @@ import java.util.concurrent.TimeoutException;
 import akka.actor.ActorRef;
 import akka.actor.Props;
 import fr.acinq.bitcoin.BinaryData;
+import fr.acinq.bitcoin.DeterministicWallet;
 import fr.acinq.eclair.DBCompatChecker;
 import fr.acinq.eclair.Kit;
 import fr.acinq.eclair.Setup;
 import fr.acinq.eclair.blockchain.electrum.ElectrumEclairWallet;
 import fr.acinq.eclair.channel.ChannelEvent;
+import fr.acinq.eclair.crypto.LocalKeyManager;
 import fr.acinq.eclair.payment.PaymentLifecycle;
+import fr.acinq.eclair.router.SyncProgress;
 import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.EclairEventService;
 import fr.acinq.eclair.wallet.PaymentSupervisor;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.databinding.ActivityStartupBinding;
-import fr.acinq.eclair.wallet.databinding.StubUsageDisclaimerBinding;
 import fr.acinq.eclair.wallet.fragments.PinDialog;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
@@ -70,8 +74,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
 
   private static final String TAG = "StartupActivity";
   private ActivityStartupBinding mBinding;
-  private StubUsageDisclaimerBinding mDisclaimerBinding;
-  private PinDialog pinDialog;
+  private PinDialog mPinDialog;
   public final static String ORIGIN = BuildConfig.APPLICATION_ID + "ORIGIN";
   public final static String ORIGIN_EXTRA = BuildConfig.APPLICATION_ID + "ORIGIN_EXTRA";
   private static final HashSet<Integer> BREAKING_VERSIONS = new HashSet<>(Arrays.asList(14));
@@ -80,7 +83,6 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     mBinding = DataBindingUtil.setContentView(this, R.layout.activity_startup);
-    mBinding.stubDisclaimer.setOnInflateListener((stub, inflated) -> mDisclaimerBinding = DataBindingUtil.bind(inflated));
   }
 
   @Override
@@ -89,9 +91,15 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
     if (!EventBus.getDefault().isRegistered(this)) {
       EventBus.getDefault().register(this);
     }
-    final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-    final File datadir = new File(app.getFilesDir(), Constants.ECLAIR_DATADIR);
-    startCheckup(datadir, prefs);
+    checkup();
+  }
+
+  @Override
+  protected void onPause() {
+    if (mPinDialog != null) {
+      mPinDialog.dismiss();
+    }
+    super.onPause();
   }
 
   @Override
@@ -102,31 +110,33 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
 
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void processStartupFinish(StartupCompleteEvent event) {
+    final File datadir = new File(app.getFilesDir(), Constants.ECLAIR_DATADIR);
+    final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
     switch (event.status) {
       case StartupTask.SUCCESS:
         if (app.appKit != null) {
-          PreferenceManager.getDefaultSharedPreferences(getBaseContext()).edit()
+          prefs.edit()
+            .putBoolean(Constants.SETTING_HAS_STARTED_ONCE, true)
             .putInt(Constants.SETTING_LAST_USED_VERSION, BuildConfig.VERSION_CODE).apply();
+
           goToHome();
         } else {
           // empty appkit, something went wrong.
           showError(getString(R.string.start_error_improper));
-          new Handler().postDelayed(() -> startNode(new File(app.getFilesDir(), Constants.ECLAIR_DATADIR)), 1400);
+          new Handler().postDelayed(() -> startNode(datadir, prefs), 1400);
         }
         break;
-      case StartupTask.WRONG_PWD:
-        app.pin.set(null);
-        showError(getString(R.string.start_error_wrong_password));
-        new Handler().postDelayed(() -> startNode(new File(app.getFilesDir(), Constants.ECLAIR_DATADIR)), 1400);
-        break;
-      case StartupTask.UNREADABLE:
-        showError(getString(R.string.start_error_unreadable_seed), true);
-        break;
       case StartupTask.TIMEOUT_ERROR:
-        showError(getString(R.string.start_error_timeout), true);
+        app.pin.set(null);
+        app.seedHash.set(null);
+        app.backupKey.set(null);
+        showError(getString(R.string.start_error_timeout), true, true);
         break;
       default:
-        showError(getString(R.string.start_error_generic), true);
+        app.pin.set(null);
+        app.seedHash.set(null);
+        app.backupKey.set(null);
+        showError(getString(R.string.start_error_generic), true, true);
         break;
     }
   }
@@ -141,14 +151,15 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
     mBinding.startupErrorText.setText(Html.fromHtml(getString(R.string.start_error_breaking_changes)));
   }
 
-  private void showError(final String message, final boolean showFAQ) {
+  private void showError(final String message, final boolean showRestart, final boolean showFAQ) {
     mBinding.startupError.setVisibility(View.VISIBLE);
     mBinding.startupErrorFaq.setVisibility(showFAQ ? View.VISIBLE : View.GONE);
+    mBinding.startupRestart.setVisibility(showRestart ? View.VISIBLE : View.GONE);
     mBinding.startupErrorText.setText(message);
   }
 
   private void showError(final String message) {
-    showError(message, false);
+    showError(message, false, false);
   }
 
   private void goToHome() {
@@ -169,25 +180,21 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
     finishAffinity();
   }
 
-  private void startCheckup(final File datadir, final SharedPreferences prefs) {
-    if (prefs.getBoolean(Constants.SETTING_SHOW_DISCLAIMER, true)) {
-      if (!mBinding.stubDisclaimer.isInflated()) {
-        mBinding.stubDisclaimer.getViewStub().inflate();
-        mDisclaimerBinding.disclaimerFinish.setOnClickListener(v -> {
-          mDisclaimerBinding.getRoot().setVisibility(View.GONE);
-          prefs.edit().putBoolean(Constants.SETTING_SHOW_DISCLAIMER, false).apply();
-          checkAppVersion(datadir, prefs);
-        });
-        mDisclaimerBinding.disclaimerText.setText(Html.fromHtml(getString(R.string.disclaimer_1)));
-      }
-    } else {
-      checkAppVersion(datadir, prefs);
-    }
+  private void checkup() {
+    final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+    final File datadir = new File(app.getFilesDir(), Constants.ECLAIR_DATADIR);
+    // check version, apply migration script if required
+    if (!checkAppVersion(datadir, prefs)) return;
+    // check that wallet data are correct
+    if (!checkWalletDatadir(datadir)) return;
+
+    startNode(datadir, prefs);
   }
 
-  private void checkAppVersion(final File datadir, final SharedPreferences prefs) {
+  private boolean checkAppVersion(final File datadir, final SharedPreferences prefs) {
     final int lastUsedVersion = prefs.getInt(Constants.SETTING_LAST_USED_VERSION, 0);
-    final boolean eclairStartedOnce = (datadir.exists() && datadir.isDirectory() && new File(datadir, "eclair.sqlite").exists());
+    final boolean eclairStartedOnce = (datadir.exists() && datadir.isDirectory()
+      && WalletUtils.getEclairDBFile(getApplicationContext()).exists());
     final boolean isFreshInstall = lastUsedVersion == 0 && !eclairStartedOnce;
     Log.d(TAG, "last used version = " + lastUsedVersion);
     Log.d(TAG, "has eclair started once ? " + eclairStartedOnce);
@@ -195,7 +202,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
     if (lastUsedVersion < BuildConfig.VERSION_CODE && !isFreshInstall) {
       if (BREAKING_VERSIONS.contains(BuildConfig.VERSION_CODE)) {
         showBreaking();
-        return;
+        return false;
       }
     }
     if (!isFreshInstall && lastUsedVersion <= 15) {
@@ -203,7 +210,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
         migrateTestnetSqlite(datadir);
       }
     }
-    checkWalletInit(datadir);
+    return true;
   }
 
   private void migrateTestnetSqlite(final File datadir) {
@@ -219,17 +226,18 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
           Files.move(eclairSqlite, eclairSqliteInTestnet);
           Log.i(TAG, "moved eclair.sqlite to testnet dir");
         } catch (IOException e) {
-          showError(getString(R.string.start_error_generic));
+          showError(getString(R.string.start_error_generic), true, false);
         }
       }
     }
   }
 
-  private void checkWalletInit(final File datadir) {
+  private boolean checkWalletDatadir(final File datadir) {
     if (!datadir.exists()) {
       if (!mBinding.stubPickInitWallet.isInflated()) {
         mBinding.stubPickInitWallet.getViewStub().inflate();
       }
+      return false;
     } else {
       final File unencryptedSeedFile = new File(datadir, WalletUtils.UNENCRYPTED_SEED_NAME);
       final File encryptedSeedFile = new File(datadir, WalletUtils.SEED_NAME);
@@ -242,29 +250,54 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
         } catch (IOException e) {
           Log.e(TAG, "Could not encrypt unencrypted seed", e);
         }
+        return false;
       } else if (unencryptedSeedFile.exists() && encryptedSeedFile.exists()) {
         // encrypted seed is the reference
         unencryptedSeedFile.delete();
-        startNode(datadir);
+        return false;
       } else if (encryptedSeedFile.exists()) {
-        startNode(datadir);
+        return true;
       } else {
         if (!mBinding.stubPickInitWallet.isInflated()) {
           mBinding.stubPickInitWallet.getViewStub().inflate();
         }
+        return false;
       }
     }
+  }
+
+  private boolean checkChannelsBackupRestore() {
+    if (!WalletUtils.getEclairDBFile(getApplicationContext()).exists()) {
+      Log.i(TAG, "could not find eclair DB file in datadir, attempting to restore backup");
+      final int connectionResult = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(getApplicationContext());
+      if (connectionResult != ConnectionResult.SUCCESS) {
+        Log.i(TAG, "Google play services are not available (code " + connectionResult + ")");
+        return true;
+      } else {
+        final Intent intent = new Intent(getBaseContext(), RestoreChannelsBackupActivity.class);
+        startActivity(intent);
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private boolean checkChannelsBackup(final SharedPreferences prefs) {
+    final int connectionResult = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(getApplicationContext());
+    if (connectionResult == ConnectionResult.SUCCESS
+      && !prefs.getBoolean(Constants.SETTING_CHANNELS_BACKUP_SEEN_ONCE, false)
+      && !prefs.getBoolean(Constants.SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_ENABLED, false)) {
+      startActivity(new Intent(getBaseContext(), SetupChannelsBackupActivity.class));
+      return false;
+    }
+    return true;
   }
 
   /**
    * Starts up the eclair node if needed
    */
-  private void startNode(final File datadir) {
+  private void startNode(final File datadir, final SharedPreferences prefs) {
     mBinding.startupError.setVisibility(View.GONE);
-
-    if (mBinding.stubDisclaimer.isInflated()) {
-      mBinding.stubDisclaimer.getRoot().setVisibility(View.GONE);
-    }
     if (mBinding.stubPickInitWallet.isInflated()) {
       mBinding.stubPickInitWallet.getRoot().setVisibility(View.GONE);
     }
@@ -272,33 +305,34 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
     if (app.appKit == null) {
       if (datadir.exists() && !datadir.canRead()) {
         Log.e(TAG, "datadir is not readable. Aborting startup");
-        showError(getString(R.string.start_error_datadir_unreadable), true);
+        showError(getString(R.string.start_error_datadir_unreadable), true, true);
       } else if (datadir.exists() && !datadir.isDirectory()) {
         Log.e(TAG, "datadir is not a directory. Aborting startup");
-        showError(getString(R.string.start_error_datadir_not_directory), true);
+        showError(getString(R.string.start_error_datadir_not_directory), true, true);
       } else {
         final String currentPassword = app.pin.get();
         if (currentPassword == null) {
-          if (pinDialog != null) {
-            pinDialog.dismiss();
+          if (mPinDialog != null) {
+            mPinDialog.dismiss();
           }
-          pinDialog = new PinDialog(StartupActivity.this, R.style.FullScreenDialog,
+          mPinDialog = new PinDialog(StartupActivity.this, R.style.FullScreenDialog,
             new PinDialog.PinDialogCallback() {
               @Override
               public void onPinConfirm(final PinDialog dialog, final String pinValue) {
-                new StartupTask(pinValue).execute(app);
+                launchStartupTask(datadir, pinValue, prefs);
                 dialog.dismiss();
               }
 
               @Override
               public void onPinCancel(PinDialog dialog) {
               }
-            }, "Enter password to unlock");
-          pinDialog.setCanceledOnTouchOutside(false);
-          pinDialog.setCancelable(false);
-          pinDialog.show();
+            }, getString(R.string.start_enter_password));
+          mPinDialog.setCanceledOnTouchOutside(false);
+          mPinDialog.setCancelable(false);
+          mPinDialog.show();
         } else {
-          new StartupTask(currentPassword).execute(app);
+          launchStartupTask(datadir, currentPassword, prefs);
+
         }
       }
     } else {
@@ -307,12 +341,53 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
     }
   }
 
-  @Override
-  protected void onPause() {
-    if (pinDialog != null) {
-      pinDialog.dismiss();
-    }
-    super.onPause();
+  private void launchStartupTask(final File datadir, final String password, final SharedPreferences prefs) {
+    mBinding.startupLog.setText(getString(R.string.start_log_reading_seed));
+    new Thread() {
+      @Override
+      public void run() {
+        try {
+          final BinaryData seed = BinaryData.apply(new String(WalletUtils.readSeedFile(datadir, password)));
+          final DeterministicWallet.ExtendedPrivateKey pk = DeterministicWallet.derivePrivateKey(
+            DeterministicWallet.generate(seed.data()), LocalKeyManager.nodeKeyBasePath(WalletUtils.getChainHash()));
+          final BinaryData backupKey = WalletUtils.generateBackupKey(pk);
+          app.pin.set(password);
+          app.seedHash.set(pk.privateKey().publicKey().hash160().toString());
+          app.backupKey.set(backupKey);
+
+          if (!prefs.getBoolean(Constants.SETTING_HAS_STARTED_ONCE, false)) {
+            // restore channels only if the seed itself was restored
+            if (prefs.getInt(Constants.SETTING_WALLET_ORIGIN, 0) == Constants.WALLET_ORIGIN_RESTORED_FROM_SEED
+              && !prefs.getBoolean(Constants.SETTING_CHANNELS_RESTORE_DONE, false)) {
+              if (!checkChannelsBackupRestore()) return;
+            }
+
+            // check that a backup type has been set and required authorizations are granted
+            if (!prefs.getBoolean(Constants.SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_ENABLED, false)) {
+              if (!checkChannelsBackup(prefs)) return;
+            }
+          }
+          new StartupTask().execute(app, seed);
+
+        } catch (GeneralSecurityException e) {
+          Log.w(TAG, "attempted to read seed with wrong password");
+          app.pin.set(null);
+          app.seedHash.set(null);
+          app.backupKey.set(null);
+          runOnUiThread(() -> {
+            showError(getString(R.string.start_error_wrong_password));
+            new Handler().postDelayed(() -> startNode(datadir, prefs), 1400);
+          });
+        } catch (Throwable t) {
+          Log.e(TAG, "seed is unreadable", t);
+          app.pin.set(null);
+          app.seedHash.set(null);
+          app.backupKey.set(null);
+          runOnUiThread(() -> showError(getString(R.string.start_error_unreadable_seed), true, true));
+        }
+      }
+    }.start();
+
   }
 
   public void pickImportExistingWallet(View view) {
@@ -321,7 +396,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
   }
 
   public void pickCreateNewWallet(View view) {
-    Intent intent = new Intent(getBaseContext(), CreateWalletRecoveryActivity.class);
+    Intent intent = new Intent(getBaseContext(), CreateWalletFromScratchActivity.class);
     startActivity(intent);
   }
 
@@ -330,34 +405,31 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
     startActivity(faqIntent);
   }
 
+  public void restart(View view) {
+    restart();
+  }
+
   @Override
   public void onEncryptSeedFailure(String message) {
     showError(message);
-    new Handler().postDelayed(() -> checkWalletInit(new File(app.getFilesDir(), Constants.ECLAIR_DATADIR)), 1400);
+    new Handler().postDelayed(() -> checkWalletDatadir(new File(app.getFilesDir(), Constants.ECLAIR_DATADIR)), 1400);
   }
 
   @Override
   public void onEncryptSeedSuccess() {
-    checkWalletInit(new File(app.getFilesDir(), Constants.ECLAIR_DATADIR));
+    checkWalletDatadir(new File(app.getFilesDir(), Constants.ECLAIR_DATADIR));
   }
 
   /**
    * Starts the eclair node in an asynchronous task.
    * When the task is finished, executes `processStartupFinish` in StartupActivity.
    */
-  private static class StartupTask extends AsyncTask<App, String, Integer> {
+  private static class StartupTask extends AsyncTask<Object, String, Integer> {
     private static final String TAG = "StartupTask";
 
     private final static int SUCCESS = 0;
-    private final static int WRONG_PWD = 1;
-    private final static int UNREADABLE = 2;
     private final static int GENERIC_ERROR = 3;
     private final static int TIMEOUT_ERROR = 4;
-    private final String password;
-
-    private StartupTask(String password) {
-      this.password = password;
-    }
 
     @Override
     protected void onProgressUpdate(String... status) {
@@ -366,15 +438,12 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
     }
 
     @Override
-    protected Integer doInBackground(App... params) {
+    protected Integer doInBackground(Object... params) {
       try {
-        App app = params[0];
+        App app = (App) params[0];
+        final BinaryData seed = (BinaryData) params[1];
         final File datadir = new File(app.getFilesDir(), Constants.ECLAIR_DATADIR);
         Log.d(TAG, "Accessing Eclair Setup with datadir " + datadir.getAbsolutePath());
-
-        publishProgress("reading seed");
-        final BinaryData seed = BinaryData.apply(new String(WalletUtils.readSeedFile(datadir, password)));
-        app.pin.set(password);
 
         publishProgress("initializing system");
         app.checkupInit();
@@ -383,16 +452,21 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
         publishProgress("setting up eclair");
         final Setup setup = new Setup(datadir, ConfigFactory.empty(), Option.apply(seed), app.system);
 
-        // gui and electrum supervisor actors
-        ActorRef guiUpdater = app.system.actorOf(Props.create(EclairEventService.class, app.getDBHelper()));
+        // gui updater actor
+        final ActorRef guiUpdater = app.system.actorOf(Props.create(
+          EclairEventService.class, app.getDBHelper(), app.seedHash.get(), app.backupKey.get()), "GuiUpdater");
         app.system.eventStream().subscribe(guiUpdater, ChannelEvent.class);
+        app.system.eventStream().subscribe(guiUpdater, SyncProgress.class);
         app.system.eventStream().subscribe(guiUpdater, PaymentLifecycle.PaymentResult.class);
+
+        // electrum payment supervisor actor
         app.system.actorOf(Props.create(PaymentSupervisor.class, app.getDBHelper()), "payments");
 
         publishProgress("starting core");
         Future<Kit> fKit = setup.bootstrap();
         Kit kit = Await.result(fKit, Duration.create(60, "seconds"));
         ElectrumEclairWallet electrumWallet = (ElectrumEclairWallet) kit.wallet();
+
         publishProgress("checking compatibility");
         boolean isDBCompatible = true;
         try {
@@ -400,18 +474,19 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
         } catch (Exception e) {
           isDBCompatible = false;
         }
+
         publishProgress("done");
         app.appKit = new App.AppKit(electrumWallet, kit, isDBCompatible);
+
         return SUCCESS;
-      } catch (GeneralSecurityException e) {
-        return WRONG_PWD;
-      } catch (IOException e) {
-        return UNREADABLE;
-      } catch (TimeoutException e) {
-        return TIMEOUT_ERROR;
-      } catch (Exception e) {
-        Log.e(TAG, "Failed to start eclair", e);
-        return GENERIC_ERROR;
+
+      } catch (Throwable t) {
+        Log.e(TAG, "Failed to start eclair", t);
+        if (t instanceof TimeoutException) {
+          return TIMEOUT_ERROR;
+        } else {
+          return GENERIC_ERROR;
+        }
       }
     }
 

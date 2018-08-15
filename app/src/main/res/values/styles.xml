@@ -134,4 +134,25 @@
     <item name="android:background">@drawable/circle_pin</item>
   </style>
 
+  <style name="ClickableLayout">
+    <item name="android:layout_width">match_parent</item>
+    <item name="android:layout_height">wrap_content</item>
+    <item name="android:gravity">center</item>
+    <item name="android:padding">@dimen/space_md</item>
+    <item name="android:clickable">true</item>
+    <item name="android:focusable">true</item>
+    <item name="android:orientation">horizontal</item>
+    <item name="android:background">@android:color/transparent</item>
+    <item name="android:foreground">?android:attr/selectableItemBackground</item>
+  </style>
+
+  <style name="EndButtonStyle" parent="@style/Widget.AppCompat.Button">
+    <item name="android:layout_width">wrap_content</item>
+    <item name="android:layout_height">wrap_content</item>
+    <item name="android:layout_gravity">end</item>
+    <item name="android:padding">@dimen/space_md</item>
+    <item name="android:background">@android:color/transparent</item>
+    <item name="android:foreground">?android:attr/selectableItemBackground</item>
+  </style>
+
 </resources>

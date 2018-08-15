@@ -22,7 +22,7 @@
     android:layout_height="match_parent"
     android:background="@color/primary"
     android:theme="@style/PrimaryBgTheme"
-    tools:context=".activities.CreateWalletRecoveryActivity">
+    tools:context=".activities.CreateWalletFromScratchActivity">
 
     <LinearLayout
       android:layout_width="match_parent"
@@ -48,7 +48,7 @@
           android:drawablePadding="8dp"
           android:drawableStart="@drawable/ic_warning_white"
           android:padding="8dp"
-          android:text="@string/createrecovery_check_failed"
+          android:text="@string/createwallet_check_failed"
           android:textColor="@color/white"
           android:textSize="12sp"
           android:visibility="gone" />
@@ -58,7 +58,7 @@
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:layout_marginBottom="@dimen/space_md"
-          android:text="@string/createrecovery_instructions"
+          android:text="@string/createwallet_instructions"
           android:textSize="12sp" />
 
         <TableLayout
@@ -95,7 +95,7 @@
             android:background="?android:attr/selectableItemBackground"
             android:onClick="initCheckRecovery"
             android:padding="@dimen/space_md"
-            android:text="@string/createrecovery_goto_check" />
+            android:text="@string/createwallet_goto_check" />
         </LinearLayout>
 
         <Button
@@ -108,7 +108,7 @@
           android:enabled="false"
           android:onClick="goStepSuccess"
           android:padding="@dimen/space_md"
-          android:text="@string/createrecovery_skip_check"
+          android:text="@string/createwallet_skip_check"
           android:textColor="@color/yellow"
           android:visibility="gone" />
       </LinearLayout>
@@ -127,13 +127,13 @@
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:layout_marginBottom="16dp"
-          android:text="@string/createrecovery_check_question" />
+          android:text="@string/createwallet_check_question" />
 
         <android.support.design.widget.TextInputLayout
           android:id="@+id/check_input_layout"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:hint="@string/createrecovery_check_input_hint"
+          android:hint="@string/createwallet_check_input_hint"
           android:textColorHint="@color/primary_light_x3">
 
           <EditText
@@ -154,7 +154,7 @@
           android:background="?android:attr/selectableItemBackground"
           android:onClick="checkRecovery"
           android:padding="@dimen/space_md"
-          android:text="@string/createrecovery_check_button" />
+          android:text="@string/createwallet_check_button" />
 
       </LinearLayout>
 
@@ -174,7 +174,7 @@
           android:layout_height="wrap_content"
           android:background="@drawable/rounded_corner_white"
           android:padding="@dimen/space_md"
-          android:text="@string/createrecovery_error_write_seed"
+          android:text="@string/createwallet_error_write_seed"
           android:textAlignment="center"
           android:textColor="@color/grey_4"
           android:visibility="gone" />

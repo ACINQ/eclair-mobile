@@ -107,9 +107,11 @@ public class PaymentsListFragment extends Fragment implements SwipeRefreshLayout
     qb.orderDesc(PaymentDao.Properties.Updated).orderAsc(PaymentDao.Properties.ConfidenceBlocks).limit(150);
     final List<Payment> list = qb.list();
 
-    if (mEmptyLabel != null) {
-      mEmptyLabel.setVisibility(list.isEmpty() ? View.VISIBLE : View.GONE);
-    }
+    getActivity().runOnUiThread(() -> {
+      if (mEmptyLabel != null) {
+        mEmptyLabel.setVisibility(list.isEmpty() ? View.VISIBLE : View.GONE);
+      }
+    });
 
     return list;
   }
@@ -123,12 +125,18 @@ public class PaymentsListFragment extends Fragment implements SwipeRefreshLayout
   }
 
   public void updateList() {
-    if (getContext() != null) {
+    if (getActivity() != null && getContext() != null) {
       final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
       final CoinUnit prefUnit = WalletUtils.getPreferredCoinUnit(prefs);
       final String fiatCode = WalletUtils.getPreferredFiat(prefs);
       final boolean displayBalanceAsFiat = WalletUtils.shouldDisplayInFiat(prefs);
-      mPaymentAdapter.update(getPayments(), fiatCode, prefUnit, displayBalanceAsFiat);
+      new Thread() {
+        @Override
+        public void run() {
+          final List<Payment> payments = getPayments();
+          getActivity().runOnUiThread(() -> mPaymentAdapter.update(payments, fiatCode, prefUnit, displayBalanceAsFiat));
+        }
+      }.start();
     }
   }
 }

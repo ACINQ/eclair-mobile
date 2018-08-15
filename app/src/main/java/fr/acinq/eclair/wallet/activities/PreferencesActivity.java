@@ -48,6 +48,10 @@ public class PreferencesActivity extends PreferenceActivity {
         startActivity(new Intent(getActivity().getApplicationContext(), SecuritySettingsActivity.class));
         return true;
       });
+      findPreference("backup_channel_key").setOnPreferenceClickListener(v -> {
+        startActivity(new Intent(getActivity().getApplicationContext(), ChannelsBackupSettingsActivity.class));
+        return true;
+      });
     }
 
     @Override

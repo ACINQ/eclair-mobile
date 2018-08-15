@@ -18,6 +18,20 @@
   xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools">
 
+  <data>
+
+    <import type="android.view.View" />
+
+    <variable
+      name="channelsBackupEnabled"
+      type="boolean" />
+
+    <variable
+      name="syncProgress"
+      type="int" />
+
+  </data>
+
   <RelativeLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -66,7 +80,7 @@
             <TextView
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
-              android:layout_marginStart="16dp"
+              android:layout_marginStart="@dimen/space_md"
               android:background="@drawable/rounded_corner_green"
               android:paddingBottom="3dp"
               android:paddingLeft="5dp"
@@ -77,6 +91,53 @@
               android:textColor="@color/white"
               android:textSize="10sp"
               android:textStyle="bold" />
+
+            <LinearLayout
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:clickable="true"
+              android:contentDescription="@string/home_sync_progress_desc"
+              android:focusable="true"
+              android:gravity="center"
+              android:onClick="popinSyncProgress"
+              android:padding="@dimen/space_xs"
+              android:visibility="@{syncProgress &gt; 0 &amp;&amp; syncProgress &lt; 100 ? View.VISIBLE : View.GONE}">
+
+              <ImageView
+                android:id="@+id/sync_progress_icon"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:src="@drawable/ic_sync_yellow_24dp" />
+
+              <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/space_xxs"
+                android:text="@{String.format(@string/home_sync_progress, syncProgress)}"
+                android:textAllCaps="true"
+                android:textColor="@color/yellow"
+                android:textSize="10sp" />
+
+            </LinearLayout>
+
+            <Button
+              android:id="@+id/channels_backup_warning"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_marginStart="@dimen/space_xs"
+              android:background="@android:color/transparent"
+              android:contentDescription="@string/home_backup_disabled_icon_desc"
+              android:drawablePadding="@dimen/space_xs"
+              android:drawableStart="@drawable/ic_cloud_off_yellow_24dp"
+              android:ellipsize="end"
+              android:maxLines="1"
+              android:onClick="enableChannelsBackup"
+              android:padding="@dimen/space_xs"
+              android:text="@string/home_no_backup"
+              android:textAllCaps="true"
+              android:textColor="@color/yellow"
+              android:textSize="10sp"
+              android:visibility="@{channelsBackupEnabled ? View.GONE : View.VISIBLE}" />
 
           </LinearLayout>
 

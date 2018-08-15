@@ -25,8 +25,8 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
-import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.util.AsyncExecutor;
 
 import akka.dispatch.OnComplete;
@@ -41,8 +41,6 @@ import fr.acinq.eclair.io.Peer;
 import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.databinding.ActivityOpenChannelBinding;
-import fr.acinq.eclair.wallet.events.LNNewChannelFailureEvent;
-import fr.acinq.eclair.wallet.events.LNNewChannelOpenedEvent;
 import fr.acinq.eclair.wallet.fragments.PinDialog;
 import fr.acinq.eclair.wallet.models.FeeRating;
 import fr.acinq.eclair.wallet.tasks.NodeURIReaderTask;
@@ -317,12 +315,8 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
           OnComplete<Object> onComplete = new OnComplete<Object>() {
             @Override
             public void onComplete(Throwable throwable, Object o) throws Throwable {
-              if (throwable != null && throwable instanceof akka.pattern.AskTimeoutException) {
-                // future timed out, do not display message
-              } else if (throwable != null) {
-                EventBus.getDefault().post(new LNNewChannelFailureEvent(throwable.getMessage()));
-              } else {
-                EventBus.getDefault().post(new LNNewChannelOpenedEvent(remoteNodeURI.nodeId().toString()));
+              if (throwable != null && !(throwable instanceof akka.pattern.AskTimeoutException)) {
+                Toast.makeText(getApplicationContext(), getString(R.string.home_toast_openchannel_failed) + throwable.getMessage(), Toast.LENGTH_LONG).show();
               }
             }
           };

@@ -37,6 +37,7 @@ import com.journeyapps.barcodescanner.DecoratedBarcodeView;
 import java.util.List;
 
 import fr.acinq.eclair.wallet.R;
+import fr.acinq.eclair.wallet.utils.Constants;
 
 public class ScanActivity extends Activity {
 
@@ -45,7 +46,6 @@ public class ScanActivity extends Activity {
   public static final String TYPE_INVOICE = "INVOICE";
   public static final String TYPE_URI = "URI";
   private static final String TAG = ScanActivity.class.getSimpleName();
-  private static int MY_PERMISSIONS_REQUEST_CAMERA = 0;
   private DecoratedBarcodeView mBarcodeView;
   private TextView mScannedValue;
   private TextView mScanTitle;
@@ -110,7 +110,7 @@ public class ScanActivity extends Activity {
     }
 
     if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-      ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, MY_PERMISSIONS_REQUEST_CAMERA);
+      ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, Constants.CAMERA_PERMISSION_REQUEST);
     } else {
       startScanning();
     }
@@ -122,13 +122,12 @@ public class ScanActivity extends Activity {
 
   @Override
   public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-    if (requestCode == MY_PERMISSIONS_REQUEST_CAMERA) {
+    if (requestCode == Constants.CAMERA_PERMISSION_REQUEST) {
       if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
         startScanning();
       } else {
         finish();
       }
-      return;
     }
   }
 

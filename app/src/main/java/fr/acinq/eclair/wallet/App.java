@@ -28,6 +28,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
+import android.widget.Toast;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -67,7 +68,6 @@ import fr.acinq.eclair.wallet.activities.ChannelDetailsActivity;
 import fr.acinq.eclair.wallet.events.BitcoinPaymentFailedEvent;
 import fr.acinq.eclair.wallet.events.ChannelRawDataEvent;
 import fr.acinq.eclair.wallet.events.ClosingChannelNotificationEvent;
-import fr.acinq.eclair.wallet.events.LNNewChannelFailureEvent;
 import fr.acinq.eclair.wallet.events.NetworkChannelsCountEvent;
 import fr.acinq.eclair.wallet.events.XpubEvent;
 import fr.acinq.eclair.wallet.utils.Constants;
@@ -90,6 +90,8 @@ public class App extends Application {
   public final static Map<String, Float> RATES = new HashMap<>();
   public final ActorSystem system = ActorSystem.apply("system");
   public AtomicReference<String> pin = new AtomicReference<>(null);
+  public AtomicReference<String> seedHash = new AtomicReference<>(null);
+  public AtomicReference<BinaryData> backupKey = new AtomicReference<>(null);
   public AppKit appKit;
   private AtomicReference<ElectrumState> electrumState = new AtomicReference<>(null);
   private DBHelper dbHelper;
@@ -104,9 +106,7 @@ public class App extends Application {
   }
 
   /**
-   * Returns true if the wallet is not compatible with the local datas.
-   *
-   * @return
+   * Returns true if the wallet is not compatible with the local data.
    */
   public boolean hasBreakingChanges() {
     return !appKit.isDBCompatible;
@@ -114,8 +114,6 @@ public class App extends Application {
 
   /**
    * Return application's version
-   *
-   * @return
    */
   public String getVersion() {
     try {
@@ -206,7 +204,7 @@ public class App extends Application {
       @Override
       public void onFailure(Throwable failure) throws Throwable {
       }
-    }, system.dispatcher());
+    }, this.system.dispatcher());
   }
 
   /**
@@ -294,17 +292,17 @@ public class App extends Application {
         @Override
         public void onComplete(Throwable throwable, Object result) throws Throwable {
           if (throwable != null) {
-            EventBus.getDefault().post(new LNNewChannelFailureEvent(throwable.getMessage()));
+            Toast.makeText(getApplicationContext(), getString(R.string.home_toast_openchannel_failed) + throwable.getMessage(), Toast.LENGTH_LONG).show();
           } else if ("connected".equals(result.toString()) || "already connected".equals(result.toString())) {
             final Future<Object> openFuture = Patterns.ask(appKit.eclairKit.switchboard(), open, new Timeout(timeout));
             openFuture.onComplete(onComplete, system.dispatcher());
           } else {
-            EventBus.getDefault().post(new LNNewChannelFailureEvent(result.toString()));
+            Toast.makeText(getApplicationContext(), getString(R.string.home_toast_openchannel_failed) + result.toString(), Toast.LENGTH_LONG).show();
           }
         }
       };
       final Future<Object> connectFuture = Patterns.ask(appKit.eclairKit.switchboard(), new Peer.Connect(nodeURI), new Timeout(timeout));
-      connectFuture.onComplete(onConnectComplete, system.dispatcher());
+      connectFuture.onComplete(onConnectComplete, this.system.dispatcher());
     }
   }
 
@@ -361,7 +359,7 @@ public class App extends Application {
           EventBus.getDefault().post(new NetworkChannelsCountEvent(-1));
         }
       }
-    }, system.dispatcher());
+    }, this.system.dispatcher());
   }
 
   /**
@@ -381,7 +379,7 @@ public class App extends Application {
           EventBus.getDefault().post(new ChannelRawDataEvent(null));
         }
       }
-    }, system.dispatcher());
+    }, this.system.dispatcher());
   }
 
   public void getXpubFromWallet() {
@@ -394,7 +392,7 @@ public class App extends Application {
           EventBus.getDefault().post(new XpubEvent(null));
         }
       }
-    }, system.dispatcher());
+    }, this.system.dispatcher());
   }
 
   public void checkupInit() {
@@ -456,10 +454,10 @@ public class App extends Application {
 
   public static class AppKit {
     final private ElectrumEclairWallet electrumWallet;
-    final private Kit eclairKit;
+    final public Kit eclairKit;
     final private boolean isDBCompatible;
 
-    public AppKit(final ElectrumEclairWallet wallet, Kit kit, boolean isDBCompatible) {
+    public AppKit(final ElectrumEclairWallet wallet, final Kit kit, final boolean isDBCompatible) {
       this.electrumWallet = wallet;
       this.eclairKit = kit;
       this.isDBCompatible = isDBCompatible;
