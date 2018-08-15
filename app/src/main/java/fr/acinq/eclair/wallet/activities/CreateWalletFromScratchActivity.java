@@ -37,6 +37,7 @@ import java.util.Collections;
 import java.util.List;
 
 import fr.acinq.bitcoin.MnemonicCode;
+import fr.acinq.eclair.blockchain.electrum.ElectrumWallet;
 import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.databinding.ActivityCreateWalletFromScratchBinding;
@@ -46,7 +47,7 @@ import scala.collection.JavaConverters;
 public class CreateWalletFromScratchActivity extends EclairActivity implements EclairActivity.EncryptSeedCallback {
 
   private static final String TAG = CreateWalletFromScratchActivity.class.getSimpleName();
-  List<Integer> recoveryPositions = Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12); //, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23);
+  List<Integer> recoveryPositions = Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23);
   private List<String> mnemonics = null;
 
   private ActivityCreateWalletFromScratchBinding mBinding;
@@ -60,7 +61,9 @@ public class CreateWalletFromScratchActivity extends EclairActivity implements E
       mBinding.skipCheck.setVisibility(View.VISIBLE);
     }
     try {
-      mnemonics = JavaConverters.seqAsJavaListConverter(MnemonicCode.toMnemonics(fr.acinq.eclair.package$.MODULE$.randomBytes(16).data(), MnemonicCode.englishWordlist())).asJava();
+      mnemonics = JavaConverters.seqAsJavaListConverter(MnemonicCode.toMnemonics(
+        fr.acinq.eclair.package$.MODULE$.randomBytes(ElectrumWallet.SEED_BYTES_LENGTH()).data(),
+        MnemonicCode.englishWordlist())).asJava();
       final int bottomPadding = getResources().getDimensionPixelSize(R.dimen.word_list_padding);
       final int rightPadding = getResources().getDimensionPixelSize(R.dimen.space_lg);
       for (int i = 0; i < mnemonics.size(); i = i + 2) {
