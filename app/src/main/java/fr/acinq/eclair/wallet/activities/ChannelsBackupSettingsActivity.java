@@ -147,13 +147,16 @@ public class ChannelsBackupSettingsActivity extends GoogleDriveBaseActivity impl
   void applyAccessGranted(final GoogleSignInAccount signIn) {
     Log.i(TAG, "google drive access is granted!");
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+    // trigger backup only if it was disabled before, and is now being enabled.
+    if (!prefs.getBoolean(Constants.SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_ENABLED, false)) {
+      WorkManager.getInstance()
+        .beginUniqueWork("ChannelsBackup", ExistingWorkPolicy.REPLACE,
+          WalletUtils.generateBackupRequest(app.seedHash.get(), app.backupKey.get()))
+        .enqueue();
+    }
     prefs.edit().putBoolean(Constants.SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_ENABLED, true).apply();
     mBinding.accessAccount.setText(getString(R.string.backup_drive_account, signIn.getEmail()));
     mBinding.setAccessDenied(false);
-    WorkManager.getInstance()
-      .beginUniqueWork("ChannelsBackup", ExistingWorkPolicy.REPLACE,
-        WalletUtils.generateBackupRequest(app.seedHash.get(), app.backupKey.get()))
-      .enqueue();
   }
 
   @Override
@@ -166,7 +169,8 @@ public class ChannelsBackupSettingsActivity extends GoogleDriveBaseActivity impl
           if (metadataBuffer.getCount() == 0) {
             mBinding.existingBackupState.setText(getString(R.string.backup_drive_no_backup));
           } else {
-            mBinding.existingBackupState.setText(getString(R.string.backup_drive_last_backup, DateFormat.getDateTimeInstance().format(metadataBuffer.get(0).getModifiedDate())));
+            mBinding.existingBackupState.setText(getString(R.string.backup_drive_last_backup,
+              DateFormat.getDateTimeInstance().format(metadataBuffer.get(0).getModifiedDate())));
           }
         })).addOnFailureListener(e -> {
           Log.i(TAG, "could not get backup metada", e);

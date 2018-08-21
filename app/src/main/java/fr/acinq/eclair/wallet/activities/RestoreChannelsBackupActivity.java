@@ -21,6 +21,7 @@ import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.annotation.WorkerThread;
 import android.util.Log;
 import android.view.View;
 
@@ -31,6 +32,8 @@ import com.google.android.gms.drive.DriveFile;
 import com.google.android.gms.drive.MetadataBuffer;
 import com.google.common.io.Files;
 
+import androidx.work.ExistingWorkPolicy;
+import androidx.work.WorkManager;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.databinding.ActivityRestoreChannelsBackupBinding;
 import fr.acinq.eclair.wallet.utils.Constants;
@@ -87,6 +90,10 @@ public class RestoreChannelsBackupActivity extends GoogleDriveBaseActivity {
     prefs.edit()
       .putBoolean(Constants.SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_ENABLED, true)
       .putBoolean(Constants.SETTING_CHANNELS_RESTORE_DONE, true).commit();
+    WorkManager.getInstance()
+      .beginUniqueWork("ChannelsBackup", ExistingWorkPolicy.REPLACE,
+        WalletUtils.generateBackupRequest(app.seedHash.get(), app.backupKey.get()))
+      .enqueue();
     this.finish();
   }
 
