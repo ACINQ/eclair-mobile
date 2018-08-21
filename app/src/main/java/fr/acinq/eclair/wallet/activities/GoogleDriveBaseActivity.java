@@ -174,10 +174,4 @@ public abstract class GoogleDriveBaseActivity extends EclairActivity {
   protected DriveClient getDriveClient() {
     return mDriveClient;
   }
-
-  static class NoFilesFound extends RuntimeException {
-    NoFilesFound(final String message) {
-      super(message);
-    }
-  }
 }

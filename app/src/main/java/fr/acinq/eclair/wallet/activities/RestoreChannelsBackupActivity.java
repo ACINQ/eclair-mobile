@@ -29,7 +29,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.drive.DriveFile;
-import com.google.android.gms.drive.MetadataBuffer;
+import com.google.android.gms.drive.Metadata;
+import com.google.android.gms.drive.metadata.CustomPropertyKey;
 import com.google.common.io.Files;
 
 import androidx.work.ExistingWorkPolicy;
@@ -100,55 +101,27 @@ public class RestoreChannelsBackupActivity extends GoogleDriveBaseActivity {
   @Override
   void onDriveClientReady(final GoogleSignInAccount signInAccount) {
     applyAccessGranted(signInAccount);
-
     new Thread() {
       @Override
       public void run() {
         getDriveClient().requestSync()
-          .addOnSuccessListener(aVoid -> {
-            retrieveEclairBackupTask().continueWithTask(metadataBufferTask -> {
-              final MetadataBuffer metadataBuffer = metadataBufferTask.getResult();
-              if (metadataBuffer.getCount() == 0) {
-                throw new NoFilesFound("0 file found");
+          .continueWithTask(aVoid -> retrieveEclairBackupTask())
+          .addOnSuccessListener(metadataBuffer -> {
+            if (metadataBuffer.getCount() == 0) {
+              Log.e(TAG, "backup file could not be found in drive");
+              runOnUiThread(() -> mBinding.setRestoreStep(Constants.RESTORE_BACKUP_NO_BACKUP_FOUND));
+            } else {
+              final Metadata metadata = metadataBuffer.get(0);
+              final String remoteDeviceId = metadata.getCustomProperties().get(
+                new CustomPropertyKey(Constants.BACKUP_META_DEVICE_ID, CustomPropertyKey.PUBLIC));
+              final String deviceId = WalletUtils.getDeviceId(getApplicationContext());
+              if (remoteDeviceId == null || deviceId.equals(remoteDeviceId)) {
+                restoreBackup(metadata.getDriveId().asDriveFile());
               } else {
-                return getDriveResourceClient().openFile(metadataBuffer.get(0).getDriveId().asDriveFile(), DriveFile.MODE_READ_ONLY);
+                Log.e(TAG, "remote file device id=" + remoteDeviceId + " is different from current device id=" + deviceId);
+                runOnUiThread(() -> mBinding.setRestoreStep(Constants.RESTORE_BACKUP_DEVICE_ORIGIN_CONFLICT));
               }
-            }).addOnSuccessListener(driveFileContents -> {
-              try {
-                WalletUtils.getChainDatadir(getApplicationContext()).mkdirs();
-
-                // decrypt file content
-                final EncryptedBackup encryptedContent = EncryptedBackup.read(getBytesFromDriveContents(driveFileContents));
-
-                // decrypt and write backup
-                Files.write(encryptedContent.decrypt(EncryptedData.secretKeyFromBinaryKey(app.backupKey.get())),
-                  WalletUtils.getEclairDBFile(getApplicationContext()));
-
-                // celebrate
-                runOnUiThread(() -> {
-                  mBinding.setRestoreStep(Constants.RESTORE_BACKUP_SUCCESS);
-                  new Handler().postDelayed(() -> finishRestore(null), 1700);
-                });
-              } catch (Throwable throwable) {
-                Log.e(TAG, "could not copy Drive file backup to datadir", throwable);
-                runOnUiThread(() -> {
-                  mBinding.setRestoreStep(Constants.RESTORE_BACKUP_FAILURE);
-                  new Handler().postDelayed(() -> backToInit(null), 1700);
-                });
-              }
-              getDriveResourceClient().discardContents(driveFileContents);
-            }).addOnFailureListener(e -> {
-              runOnUiThread(() -> {
-                if (e instanceof NoFilesFound) {
-                  Log.e(TAG, "backup file could not be found in drive");
-                  mBinding.setRestoreStep(Constants.RESTORE_BACKUP_NO_BACKUP_FOUND);
-                } else {
-                  Log.e(TAG, "backup file could not be restored from drive", e);
-                  mBinding.setRestoreStep(Constants.RESTORE_BACKUP_FAILURE);
-                  new Handler().postDelayed(() -> backToInit(null), 1700);
-                }
-              });
-            });
+            }
           })
           .addOnFailureListener(e -> {
             Log.e(TAG, "could not sync app folder", e);
@@ -157,7 +130,71 @@ public class RestoreChannelsBackupActivity extends GoogleDriveBaseActivity {
           });
       }
     }.start();
+  }
 
+  @WorkerThread
+  private void restoreBackup(final DriveFile file) {
+    getDriveResourceClient().openFile(file, DriveFile.MODE_READ_ONLY)
+      .addOnSuccessListener(driveFileContents -> {
+        try {
+          WalletUtils.getChainDatadir(getApplicationContext()).mkdirs();
+
+          // decrypt file content
+          final EncryptedBackup encryptedContent = EncryptedBackup.read(getBytesFromDriveContents(driveFileContents));
+
+          // decrypt and write backup
+          Files.write(encryptedContent.decrypt(EncryptedData.secretKeyFromBinaryKey(app.backupKey.get())),
+            WalletUtils.getEclairDBFile(getApplicationContext()));
+
+          // celebrate
+          runOnUiThread(() -> {
+            mBinding.setRestoreStep(Constants.RESTORE_BACKUP_SUCCESS);
+            new Handler().postDelayed(() -> finishRestore(null), 1700);
+          });
+        } catch (Throwable throwable) {
+          Log.e(TAG, "could not copy Drive file backup to datadir", throwable);
+          runOnUiThread(() -> {
+            mBinding.setRestoreStep(Constants.RESTORE_BACKUP_FAILURE);
+            new Handler().postDelayed(() -> backToInit(null), 1700);
+          });
+        }
+        getDriveResourceClient().discardContents(driveFileContents);
+      })
+      .addOnFailureListener(e -> runOnUiThread(() -> {
+        Log.e(TAG, "backup file could not be restored from drive", e);
+        mBinding.setRestoreStep(Constants.RESTORE_BACKUP_FAILURE);
+        new Handler().postDelayed(() -> backToInit(null), 1700);
+      }));
+  }
+
+  public void restoreIfAppIdConflict(final View view) {
+    final GoogleSignInAccount signInAccount = getSigninAccount(getApplicationContext());
+    if (signInAccount == null) {
+      requestAccess(null);
+    } else {
+      mBinding.setRestoreStep(Constants.RESTORE_BACKUP_SEARCHING);
+      new Thread() {
+        @Override
+        public void run() {
+          retrieveEclairBackupTask()
+            .addOnSuccessListener(metadataBuffer -> {
+              if (metadataBuffer.getCount() == 0) {
+                runOnUiThread(() -> {
+                  Log.e(TAG, "backup file could not be found in drive");
+                  mBinding.setRestoreStep(Constants.RESTORE_BACKUP_NO_BACKUP_FOUND);
+                });
+              } else {
+                restoreBackup(metadataBuffer.get(0).getDriveId().asDriveFile());
+              }
+            })
+            .addOnFailureListener(e -> {
+              Log.e(TAG, "could not sync app folder", e);
+              mBinding.setRestoreStep(Constants.RESTORE_BACKUP_SYNC_RATELIMIT);
+              new Handler().postDelayed(() -> backToInit(null), 1700);
+            });
+        }
+      }.start();
+    }
   }
 
   @Override

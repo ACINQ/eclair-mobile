@@ -70,6 +70,7 @@ public interface Constants {
   /* ----------- SETTINGS - CHANNELS BACKUP ------------ */
 
   String SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_ENABLED = "channels_backup_gdrive_enabled";
+  String BACKUP_META_DEVICE_ID = "backup_device_id";
 
   /* ----------- SETTINGS - WALLET ORIGIN ------------ */
 
@@ -99,6 +100,7 @@ public interface Constants {
   int RESTORE_BACKUP_FAILURE = 5;
   int RESTORE_BACKUP_NO_BACKUP_FOUND = 6;
   int RESTORE_BACKUP_SYNC_RATELIMIT = 7;
+  int RESTORE_BACKUP_DEVICE_ORIGIN_CONFLICT = 8;
 
   int IMPORT_WALLET_INIT = 1;
   int IMPORT_WALLET_SUCCESS = 2;

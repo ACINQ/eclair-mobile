@@ -28,8 +28,10 @@ import com.google.android.gms.drive.DriveContents;
 import com.google.android.gms.drive.DriveFile;
 import com.google.android.gms.drive.DriveFolder;
 import com.google.android.gms.drive.DriveResourceClient;
+import com.google.android.gms.drive.Metadata;
 import com.google.android.gms.drive.MetadataBuffer;
 import com.google.android.gms.drive.MetadataChangeSet;
+import com.google.android.gms.drive.metadata.CustomPropertyKey;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.common.io.ByteStreams;
@@ -124,6 +126,8 @@ public class ChannelsBackupWorker extends Worker {
 
       final MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
         .setTitle(backupFileName)
+        .setCustomProperty(new CustomPropertyKey(Constants.BACKUP_META_DEVICE_ID, CustomPropertyKey.PUBLIC),
+          WalletUtils.getDeviceId(getApplicationContext()))
         .setMimeType("application/octet-stream")
         .build();
 
@@ -131,8 +135,8 @@ public class ChannelsBackupWorker extends Worker {
     });
   }
 
-  private Task<Void> updateBackup(final Context context, final DriveResourceClient driveResourceClient,
-                                  final DriveFile driveFile, final AesCbcWithIntegrity.SecretKeys sk) {
+  private Task<Metadata> updateBackup(final Context context, final DriveResourceClient driveResourceClient,
+                                      final DriveFile driveFile, final AesCbcWithIntegrity.SecretKeys sk) {
     return driveResourceClient.openFile(driveFile, DriveFile.MODE_WRITE_ONLY).continueWithTask(contentsTask -> {
       final File eclairDBFile = WalletUtils.getEclairDBFile(context);
       final DriveContents contents = contentsTask.getResult();
@@ -147,6 +151,13 @@ public class ChannelsBackupWorker extends Worker {
       i.close();
 
       return driveResourceClient.commitContents(contents, null);
+    }).continueWithTask(aVoid -> {
+      final MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
+        .setCustomProperty(new CustomPropertyKey(Constants.BACKUP_META_DEVICE_ID, CustomPropertyKey.PUBLIC),
+          WalletUtils.getDeviceId(getApplicationContext()))
+        .build();
+
+      return driveResourceClient.updateMetadata(driveFile, changeSet);
     });
   }
 

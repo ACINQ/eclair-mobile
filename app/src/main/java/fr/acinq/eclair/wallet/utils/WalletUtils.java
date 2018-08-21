@@ -22,6 +22,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.text.Html;
 import android.util.Log;
 import android.view.View;
@@ -286,7 +287,6 @@ public class WalletUtils {
    * Derives a hardened key from the extended key. This is used to encrypt/decrypt the channels backup files.
    */
   public static BinaryData generateBackupKey(final DeterministicWallet.ExtendedPrivateKey pk) {
-    // derive a hardened key for channels backup encryption
     final DeterministicWallet.ExtendedPrivateKey dpriv = DeterministicWallet.derivePrivateKey(pk,
       DeterministicWallet.KeyPath$.MODULE$.apply("m/49'"));
     return dpriv.secretkeybytes();
@@ -308,7 +308,10 @@ public class WalletUtils {
     for (int i = 0; i < b.length(); i++) {
       bytes[i] = (Byte) b.data().apply(i);
     }
-    String s = new String(bytes, StandardCharsets.US_ASCII);
-    return s;
+    return new String(bytes, StandardCharsets.US_ASCII);
+  }
+
+  public static String getDeviceId(final Context context) {
+    return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
   }
 }
