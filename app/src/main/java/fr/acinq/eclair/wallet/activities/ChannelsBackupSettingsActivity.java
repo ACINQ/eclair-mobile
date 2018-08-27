@@ -151,7 +151,7 @@ public class ChannelsBackupSettingsActivity extends GoogleDriveBaseActivity impl
     if (!prefs.getBoolean(Constants.SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_ENABLED, false)) {
       WorkManager.getInstance()
         .beginUniqueWork("ChannelsBackup", ExistingWorkPolicy.REPLACE,
-          WalletUtils.generateBackupRequest(app.seedHash.get(), app.backupKey.get()))
+          WalletUtils.generateBackupRequest(app.seedHash.get(), app.backupKey_v2.get()))
         .enqueue();
     }
     prefs.edit().putBoolean(Constants.SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_ENABLED, true).apply();

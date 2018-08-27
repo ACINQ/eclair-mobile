@@ -91,7 +91,11 @@ public class App extends Application {
   public final ActorSystem system = ActorSystem.apply("system");
   public AtomicReference<String> pin = new AtomicReference<>(null);
   public AtomicReference<String> seedHash = new AtomicReference<>(null);
-  public AtomicReference<BinaryData> backupKey = new AtomicReference<>(null);
+  // version 1 of the backup encryption key uses a m/49' path for derivation, same as BIP49
+  public AtomicReference<BinaryData> backupKey_v1 = new AtomicReference<>(null);
+  // version 2 of the backup encryption key uses a m/42'/0' (mainnet) or m/42'/1' (testnet) path, which is better than m/49'.
+  // version 1 is kept for backward compatibility
+  public AtomicReference<BinaryData> backupKey_v2 = new AtomicReference<>(null);
   public AppKit appKit;
   private AtomicReference<ElectrumState> electrumState = new AtomicReference<>(null);
   private DBHelper dbHelper;

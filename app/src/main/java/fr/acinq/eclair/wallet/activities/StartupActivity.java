@@ -64,6 +64,7 @@ import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.databinding.ActivityStartupBinding;
 import fr.acinq.eclair.wallet.fragments.PinDialog;
 import fr.acinq.eclair.wallet.utils.Constants;
+import fr.acinq.eclair.wallet.utils.EncryptedBackup;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 import scala.Option;
 import scala.concurrent.Await;
@@ -129,13 +130,15 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
       case StartupTask.TIMEOUT_ERROR:
         app.pin.set(null);
         app.seedHash.set(null);
-        app.backupKey.set(null);
+        app.backupKey_v1.set(null);
+        app.backupKey_v2.set(null);
         showError(getString(R.string.start_error_timeout), true, true);
         break;
       default:
         app.pin.set(null);
         app.seedHash.set(null);
-        app.backupKey.set(null);
+        app.backupKey_v1.set(null);
+        app.backupKey_v2.set(null);
         showError(getString(R.string.start_error_generic), true, true);
         break;
     }
@@ -350,10 +353,10 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
           final BinaryData seed = BinaryData.apply(new String(WalletUtils.readSeedFile(datadir, password)));
           final DeterministicWallet.ExtendedPrivateKey pk = DeterministicWallet.derivePrivateKey(
             DeterministicWallet.generate(seed.data()), LocalKeyManager.nodeKeyBasePath(WalletUtils.getChainHash()));
-          final BinaryData backupKey = WalletUtils.generateBackupKey(pk);
           app.pin.set(password);
           app.seedHash.set(pk.privateKey().publicKey().hash160().toString());
-          app.backupKey.set(backupKey);
+          app.backupKey_v1.set(EncryptedBackup.generateBackupKey_v1(pk));
+          app.backupKey_v2.set(EncryptedBackup.generateBackupKey_v2(pk));
 
           if (!prefs.getBoolean(Constants.SETTING_HAS_STARTED_ONCE, false)) {
             // restore channels only if the seed itself was restored
@@ -373,7 +376,8 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
           Log.w(TAG, "attempted to read seed with wrong password");
           app.pin.set(null);
           app.seedHash.set(null);
-          app.backupKey.set(null);
+          app.backupKey_v1.set(null);
+          app.backupKey_v2.set(null);
           runOnUiThread(() -> {
             showError(getString(R.string.start_error_wrong_password));
             new Handler().postDelayed(() -> startNode(datadir, prefs), 1400);
@@ -382,7 +386,8 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
           Log.e(TAG, "seed is unreadable", t);
           app.pin.set(null);
           app.seedHash.set(null);
-          app.backupKey.set(null);
+          app.backupKey_v1.set(null);
+          app.backupKey_v2.set(null);
           runOnUiThread(() -> showError(getString(R.string.start_error_unreadable_seed), true, true));
         }
       }
@@ -454,7 +459,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
 
         // gui updater actor
         final ActorRef guiUpdater = app.system.actorOf(Props.create(
-          EclairEventService.class, app.getDBHelper(), app.seedHash.get(), app.backupKey.get()), "GuiUpdater");
+          EclairEventService.class, app.getDBHelper(), app.seedHash.get(), app.backupKey_v2.get()), "GuiUpdater");
         app.system.eventStream().subscribe(guiUpdater, ChannelEvent.class);
         app.system.eventStream().subscribe(guiUpdater, SyncProgress.class);
         app.system.eventStream().subscribe(guiUpdater, PaymentLifecycle.PaymentResult.class);

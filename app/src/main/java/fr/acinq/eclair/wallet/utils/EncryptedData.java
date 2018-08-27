@@ -71,4 +71,7 @@ public abstract class EncryptedData {
     return AesCbcWithIntegrity.decrypt(civ, key);
   }
 
+  public int getVersion() {
+    return this.version;
+  }
 }

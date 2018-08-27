@@ -93,7 +93,7 @@ public class RestoreChannelsBackupActivity extends GoogleDriveBaseActivity {
       .putBoolean(Constants.SETTING_CHANNELS_RESTORE_DONE, true).commit();
     WorkManager.getInstance()
       .beginUniqueWork("ChannelsBackup", ExistingWorkPolicy.REPLACE,
-        WalletUtils.generateBackupRequest(app.seedHash.get(), app.backupKey.get()))
+        WalletUtils.generateBackupRequest(app.seedHash.get(), app.backupKey_v2.get()))
       .enqueue();
     this.finish();
   }
@@ -143,7 +143,9 @@ public class RestoreChannelsBackupActivity extends GoogleDriveBaseActivity {
           final EncryptedBackup encryptedContent = EncryptedBackup.read(getBytesFromDriveContents(driveFileContents));
 
           // decrypt and write backup
-          Files.write(encryptedContent.decrypt(EncryptedData.secretKeyFromBinaryKey(app.backupKey.get())),
+          Files.write(encryptedContent.decrypt(EncryptedData.secretKeyFromBinaryKey(
+            // backward compatibility code for v0.3.6-TESTNET which uses backup version 1
+            EncryptedBackup.BACKUP_VERSION_1 == encryptedContent.getVersion() ? app.backupKey_v1.get() : app.backupKey_v2.get())),
             WalletUtils.getEclairDBFile(getApplicationContext()));
 
           // celebrate

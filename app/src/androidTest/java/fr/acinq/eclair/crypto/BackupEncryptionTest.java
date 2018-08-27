@@ -33,7 +33,7 @@ import fr.acinq.eclair.wallet.utils.WalletUtils;
 public class BackupEncryptionTest {
 
   @Test
-  public void encryptWithSeed() throws GeneralSecurityException {
+  public void encryptWithSeed_v1() throws GeneralSecurityException {
 
     // create a master key from a random seed
     byte[] seed = new byte[ElectrumWallet.SEED_BYTES_LENGTH()];
@@ -42,7 +42,7 @@ public class BackupEncryptionTest {
 
     // derive a hardened key from xpriv
     // hardened means that, even if the key is compromised, it is not possible to find the parent key
-    final AesCbcWithIntegrity.SecretKeys key = EncryptedData.secretKeyFromBinaryKey(WalletUtils.generateBackupKey(xpriv));
+    final AesCbcWithIntegrity.SecretKeys key = EncryptedData.secretKeyFromBinaryKey(EncryptedBackup.generateBackupKey_v1(xpriv));
 
     // data to encrypt
     byte[] plaintext = new byte[300];
@@ -50,6 +50,29 @@ public class BackupEncryptionTest {
 
     // apply encryption
     EncryptedBackup encrypted = EncryptedBackup.encrypt(plaintext, key, EncryptedBackup.BACKUP_VERSION_1);
+    byte[] decrypted = encrypted.decrypt(key);
+
+    assert (AesCbcWithIntegrity.constantTimeEq(plaintext, decrypted));
+  }
+
+  @Test
+  public void encryptWithSeed_v2() throws GeneralSecurityException {
+
+    // create a master key from a random seed
+    byte[] seed = new byte[ElectrumWallet.SEED_BYTES_LENGTH()];
+    new SecureRandom().nextBytes(seed);
+    final DeterministicWallet.ExtendedPrivateKey xpriv = DeterministicWallet.generate(package$.MODULE$.array2binaryData(seed).data());
+
+    // derive a hardened key from xpriv
+    // hardened means that, even if the key is compromised, it is not possible to find the parent key
+    final AesCbcWithIntegrity.SecretKeys key = EncryptedData.secretKeyFromBinaryKey(EncryptedBackup.generateBackupKey_v2(xpriv));
+
+    // data to encrypt
+    byte[] plaintext = new byte[300];
+    new SecureRandom().nextBytes(plaintext);
+
+    // apply encryption
+    EncryptedBackup encrypted = EncryptedBackup.encrypt(plaintext, key, EncryptedBackup.BACKUP_VERSION_2);
     byte[] decrypted = encrypted.decrypt(key);
 
     assert (AesCbcWithIntegrity.constantTimeEq(plaintext, decrypted));

@@ -23,9 +23,28 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 
+import fr.acinq.bitcoin.BinaryData;
+import fr.acinq.bitcoin.DeterministicWallet;
+import fr.acinq.eclair.wallet.BuildConfig;
+
 public class EncryptedBackup extends EncryptedData {
 
+  /**
+   * Version 1 uses the same derivation path as BIP49 for the encryption key.
+   *
+   * @see #generateBackupKey_v1(DeterministicWallet.ExtendedPrivateKey)
+   * @deprecated should only be used to decrypt older files, not to encrypt new files.
+   */
   public final static byte BACKUP_VERSION_1 = 1;
+
+  /**
+   * Version 2 uses either m/42'/0' (mainnet) or m/42'/1' (testnet) as derivation path for the encryption key.
+   * This is the only difference with version 1.
+   *
+   * @see #generateBackupKey_v2(DeterministicWallet.ExtendedPrivateKey)
+   */
+  public final static byte BACKUP_VERSION_2 = 2;
+
   private static final int IV_LENGTH_V1 = 16;
   private static final int MAC_LENGTH_V1 = 32;
 
@@ -36,9 +55,9 @@ public class EncryptedBackup extends EncryptedData {
   /**
    * Encrypt data with AES CBC and return an EncryptedBackup object containing the encrypted data.
    *
-   * @param data     data to encrypt
-   * @param key      the secret key encrypting the data
-   * @param version  the version describing the serialization to use for the EncryptedBackup object
+   * @param data    data to encrypt
+   * @param key     the secret key encrypting the data
+   * @param version the version describing the serialization to use for the EncryptedBackup object
    * @return a encrypted backup object ready to be serialized
    * @throws GeneralSecurityException
    */
@@ -56,7 +75,7 @@ public class EncryptedBackup extends EncryptedData {
   public static EncryptedBackup read(final byte[] serialized) {
     final ByteArrayInputStream stream = new ByteArrayInputStream(serialized);
     final int version = stream.read();
-    if (version == BACKUP_VERSION_1) {
+    if (version == BACKUP_VERSION_1 || version == BACKUP_VERSION_2) {
       final byte[] iv = new byte[IV_LENGTH_V1];
       stream.read(iv, 0, IV_LENGTH_V1);
       final byte[] mac = new byte[MAC_LENGTH_V1];
@@ -70,11 +89,31 @@ public class EncryptedBackup extends EncryptedData {
   }
 
   /**
+   * Derives a hardened key from the extended key. This is used to encrypt/decrypt the channels backup files.
+   * Path is the same as BIP49.
+   */
+  public static BinaryData generateBackupKey_v1(final DeterministicWallet.ExtendedPrivateKey pk) {
+    final DeterministicWallet.ExtendedPrivateKey dpriv = DeterministicWallet.derivePrivateKey(pk,
+      DeterministicWallet.KeyPath$.MODULE$.apply("m/49'"));
+    return dpriv.secretkeybytes();
+  }
+
+  /**
+   * Derives a hardened key from the extended key. This is used to encrypt/decrypt the channels backup files.
+   * Path depends on the chain used by the wallet, mainnet or testnet.
+   */
+  public static BinaryData generateBackupKey_v2(final DeterministicWallet.ExtendedPrivateKey pk) {
+    final DeterministicWallet.ExtendedPrivateKey dpriv = DeterministicWallet.derivePrivateKey(pk,
+      DeterministicWallet.KeyPath$.MODULE$.apply("mainnet".equals(BuildConfig.CHAIN) ? "m/42'/0'" : "m/42'/1'"));
+    return dpriv.secretkeybytes();
+  }
+
+  /**
    * Serializes an encrypted backup as a byte array, with the result depending on the object version.
    */
   @Override
   public byte[] write() throws IOException {
-    if (version == BACKUP_VERSION_1) {
+    if (version == BACKUP_VERSION_1 || version == BACKUP_VERSION_2) {
       if (civ.getIv().length != IV_LENGTH_V1 || civ.getMac().length != MAC_LENGTH_V1) {
         throw new RuntimeException("could not serialize backup because fields are not of the correct length");
       }
@@ -88,5 +127,4 @@ public class EncryptedBackup extends EncryptedData {
       throw new RuntimeException("unhandled version");
     }
   }
-
 }

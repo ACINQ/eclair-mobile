@@ -48,7 +48,6 @@ import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
 import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.bitcoin.Block;
-import fr.acinq.bitcoin.DeterministicWallet;
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.CoinUnit;
@@ -281,15 +280,6 @@ public class WalletUtils {
 
   public static String getEclairBackupFileName(final String seedHash) {
     return "eclair_" + BuildConfig.CHAIN + "_" + seedHash + ".bkup";
-  }
-
-  /**
-   * Derives a hardened key from the extended key. This is used to encrypt/decrypt the channels backup files.
-   */
-  public static BinaryData generateBackupKey(final DeterministicWallet.ExtendedPrivateKey pk) {
-    final DeterministicWallet.ExtendedPrivateKey dpriv = DeterministicWallet.derivePrivateKey(pk,
-      DeterministicWallet.KeyPath$.MODULE$.apply("m/49'"));
-    return dpriv.secretkeybytes();
   }
 
   public static OneTimeWorkRequest generateBackupRequest(final String seedHash, final BinaryData backupKey) {

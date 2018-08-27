@@ -117,7 +117,7 @@ public class ChannelsBackupWorker extends Worker {
 
       // encrypt backup
       final EncryptedBackup backup = EncryptedBackup.encrypt(
-        Files.toByteArray(eclairDBFile), sk, EncryptedBackup.BACKUP_VERSION_1);
+        Files.toByteArray(eclairDBFile), sk, EncryptedBackup.BACKUP_VERSION_2);
 
       // write encrypted backup as file content
       final InputStream i = new ByteArrayInputStream(backup.write());
@@ -143,7 +143,7 @@ public class ChannelsBackupWorker extends Worker {
 
       // encrypt backup
       final EncryptedBackup backup = EncryptedBackup.encrypt(
-        Files.toByteArray(eclairDBFile), sk, EncryptedBackup.BACKUP_VERSION_1);
+        Files.toByteArray(eclairDBFile), sk, EncryptedBackup.BACKUP_VERSION_2);
 
       // write encrypted backup as file content
       final InputStream i = new ByteArrayInputStream(backup.write());
