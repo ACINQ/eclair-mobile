@@ -85,14 +85,16 @@ public class WalletUtils {
   public static void retrieveRatesFromPrefs(final SharedPreferences prefs) {
     retrieveRateFromPrefs(prefs, "AUD");
     retrieveRateFromPrefs(prefs, "BRL");
+    retrieveRateFromPrefs(prefs, "CAD");
+    retrieveRateFromPrefs(prefs, "CHF");
     retrieveRateFromPrefs(prefs, "CLP");
-    retrieveRateFromPrefs(prefs, "USD");
     retrieveRateFromPrefs(prefs, "CNY");
     retrieveRateFromPrefs(prefs, "DKK");
     retrieveRateFromPrefs(prefs, "EUR");
     retrieveRateFromPrefs(prefs, "GBP");
     retrieveRateFromPrefs(prefs, "HKD");
     retrieveRateFromPrefs(prefs, "INR");
+    retrieveRateFromPrefs(prefs, "ISK");
     retrieveRateFromPrefs(prefs, "JPY");
     retrieveRateFromPrefs(prefs, "KRW");
     retrieveRateFromPrefs(prefs, "NZD");
@@ -111,6 +113,7 @@ public class WalletUtils {
         final SharedPreferences.Editor editor = prefs.edit();
         saveCurrency(editor, response, "AUD"); // australian dollar
         saveCurrency(editor, response, "BRL"); // br real
+        saveCurrency(editor, response, "CAD"); // canadian dollar
         saveCurrency(editor, response, "CHF"); // swiss franc
         saveCurrency(editor, response, "CLP"); // chilean pesos
         saveCurrency(editor, response, "CNY"); // yuan
@@ -119,6 +122,7 @@ public class WalletUtils {
         saveCurrency(editor, response, "GBP"); // pound
         saveCurrency(editor, response, "HKD"); // hong kong dollar
         saveCurrency(editor, response, "INR"); // indian rupee
+        saveCurrency(editor, response, "ISK"); // icelandic kròna
         saveCurrency(editor, response, "JPY"); // yen
         saveCurrency(editor, response, "KRW"); // won
         saveCurrency(editor, response, "NZD"); // nz dollar
