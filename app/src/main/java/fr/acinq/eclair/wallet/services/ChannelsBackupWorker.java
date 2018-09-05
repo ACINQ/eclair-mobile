@@ -24,6 +24,7 @@ import android.util.Log;
 
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.drive.Drive;
+import com.google.android.gms.drive.DriveClient;
 import com.google.android.gms.drive.DriveContents;
 import com.google.android.gms.drive.DriveFile;
 import com.google.android.gms.drive.DriveFolder;
@@ -41,7 +42,6 @@ import com.tozny.crypto.android.AesCbcWithIntegrity;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
-import java.util.concurrent.TimeUnit;
 
 import androidx.work.Worker;
 import fr.acinq.bitcoin.BinaryData;
@@ -79,39 +79,40 @@ public class ChannelsBackupWorker extends Worker {
       return Result.FAILURE;
     }
 
-    Log.i(TAG, "saving backup with file name=" + backupFileName);
     final DriveResourceClient driveResourceClient = Drive.getDriveResourceClient(context, signInAccount);
-
     final Task<DriveFolder> appFolderTask = driveResourceClient.getAppFolder();
     final Task<MetadataBuffer> metadataBufferTask = appFolderTask
       .continueWithTask(t -> GoogleDriveBaseActivity.retrieveEclairBackupTask(appFolderTask, driveResourceClient, backupFileName));
+
     try {
-
-      final MetadataBuffer buffer = Tasks.await(metadataBufferTask, 60, TimeUnit.SECONDS);
+      final MetadataBuffer buffer = Tasks.await(metadataBufferTask);
       final AesCbcWithIntegrity.SecretKeys sk = EncryptedData.secretKeyFromBinaryKey(BinaryData.apply(key));
-
       if (buffer.getCount() == 0) {
-        Tasks.await(createBackup(context, driveResourceClient, appFolderTask, backupFileName, sk)
-            .addOnSuccessListener(aVoid -> Log.d(TAG, "successfully created channels backup"))
-            .addOnFailureListener(e -> Log.e(TAG, "could not create backup", e)),
-          60, TimeUnit.SECONDS);
+        Tasks.await(createBackup(context, driveResourceClient, backupFileName, sk));
       } else {
-        Tasks.await(updateBackup(context, driveResourceClient, buffer.get(0).getDriveId().asDriveFile(), sk)
-            .addOnSuccessListener(v -> Log.d(TAG, "successfully updated channels backup"))
-            .addOnFailureListener(e -> Log.e(TAG, "could not update backup", e)),
-          60, TimeUnit.SECONDS);
+        Tasks.await(updateBackup(context, driveResourceClient, buffer.get(0).getDriveId().asDriveFile(), sk));
       }
+      prefs.edit()
+        .putBoolean(Constants.SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_ENABLED, true)
+        .putBoolean(Constants.SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_HAS_FAILED, false)
+        .apply();
       return Result.SUCCESS;
-    } catch (Exception e) {
-      Log.e(TAG, "failed to retrieve backup metadata", e);
+    } catch (Throwable t) {
+      Log.e(TAG, "failed to save backup", t);
+      prefs.edit()
+        .putBoolean(Constants.SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_ENABLED, false)
+        .putBoolean(Constants.SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_HAS_FAILED, true)
+        .apply();
       return Result.FAILURE;
     }
   }
 
-  private Task<DriveFile> createBackup(final Context context, final DriveResourceClient driveResourceClient,
-                                       Task<DriveFolder> appFolderTask, final String backupFileName,
+  private Task<DriveFile> createBackup(final Context context, final DriveResourceClient driveResourceClient, final String backupFileName,
                                        final AesCbcWithIntegrity.SecretKeys sk) {
-    return driveResourceClient.createContents().continueWithTask(contentsTask -> {
+    final Task<DriveFolder> appFolderTask = driveResourceClient.getAppFolder();
+    final Task<DriveContents> contentsTask = driveResourceClient.createContents();
+
+    return Tasks.whenAll(appFolderTask, contentsTask).continueWithTask(task -> {
       final File eclairDBFile = WalletUtils.getEclairDBFile(context);
       final DriveContents contents = contentsTask.getResult();
 
@@ -160,5 +161,4 @@ public class ChannelsBackupWorker extends Worker {
       return driveResourceClient.updateMetadata(driveFile, changeSet);
     });
   }
-
 }

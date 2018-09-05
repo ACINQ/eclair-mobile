@@ -120,7 +120,6 @@
           android:layout_marginBottom="@dimen/space_md"
           android:paddingEnd="@dimen/space_md"
           android:paddingStart="@dimen/space_md"
-          android:text="@string/backup_drive_account"
           android:textColor="@color/grey_2"
           android:textSize="12sp"
           android:textStyle="italic" />

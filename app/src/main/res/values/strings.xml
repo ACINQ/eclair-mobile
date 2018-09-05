@@ -510,7 +510,7 @@
   <string name="backup_drive_last_backup">Last backup: %1$s</string>
   <string name="backup_drive_no_backup">No backup yet…</string>
   <string name="backup_drive_account_label">Saved in account</string>
-  <string name="backup_drive_account">to account: &lt;%1$s&gt;</string>
+  <string name="backup_drive_account">Account: &lt;%1$s&gt;</string>
   <string name="backup_drive_grant_access">Grant Access</string>
   <string name="backup_drive_revoke_confirm">Are you sure you want to disable the backup feature?\n\nYou will not be able to restore your lightning funds if you lose your phone.</string>
 

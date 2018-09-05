@@ -288,6 +288,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
   private boolean checkChannelsBackup(final SharedPreferences prefs) {
     final int connectionResult = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(getApplicationContext());
     if (connectionResult == ConnectionResult.SUCCESS
+      && !prefs.getBoolean(Constants.SETTING_CHANNELS_RESTORE_DONE, false)
       && !prefs.getBoolean(Constants.SETTING_CHANNELS_BACKUP_SEEN_ONCE, false)
       && !prefs.getBoolean(Constants.SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_ENABLED, false)) {
       startActivity(new Intent(getBaseContext(), SetupChannelsBackupActivity.class));

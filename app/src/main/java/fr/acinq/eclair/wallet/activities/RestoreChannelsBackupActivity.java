@@ -28,6 +28,7 @@ import android.view.View;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.drive.DriveFile;
 import com.google.android.gms.drive.Metadata;
 import com.google.android.gms.drive.metadata.CustomPropertyKey;
@@ -61,7 +62,7 @@ public class RestoreChannelsBackupActivity extends GoogleDriveBaseActivity {
       final GoogleSignInClient googleSignInClient = GoogleSignIn.getClient(this, getGoogleSigninOptions());
       startActivityForResult(googleSignInClient.getSignInIntent(), REQUEST_CODE_SIGN_IN);
     } else {
-      final GoogleSignInClient googleSignInClient = GoogleSignIn.getClient(getApplicationContext(), getGoogleSigninOptions());
+      final GoogleSignInClient googleSignInClient = GoogleSignIn.getClient(this, getGoogleSigninOptions());
       googleSignInClient.revokeAccess()
         .addOnSuccessListener(aVoid -> initOrSignInGoogleDrive())
         .addOnFailureListener(e -> {
@@ -88,8 +89,10 @@ public class RestoreChannelsBackupActivity extends GoogleDriveBaseActivity {
 
   public void finishRestore(final View view) {
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+    final GoogleSignInAccount signInAccount = getSigninAccount(getApplicationContext());
+    final boolean hasDriveAccess = signInAccount != null && !signInAccount.isExpired();
     prefs.edit()
-      .putBoolean(Constants.SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_ENABLED, true)
+      .putBoolean(Constants.SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_ENABLED, hasDriveAccess)
       .putBoolean(Constants.SETTING_CHANNELS_RESTORE_DONE, true).commit();
     WorkManager.getInstance()
       .beginUniqueWork("ChannelsBackup", ExistingWorkPolicy.REPLACE,

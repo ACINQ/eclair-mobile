@@ -70,6 +70,7 @@ public interface Constants {
   /* ----------- SETTINGS - CHANNELS BACKUP ------------ */
 
   String SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_ENABLED = "channels_backup_gdrive_enabled";
+  String SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_HAS_FAILED = "channels_backup_gdrive_has_failed";
   String BACKUP_META_DEVICE_ID = "backup_device_id";
 
   /* ----------- SETTINGS - WALLET ORIGIN ------------ */

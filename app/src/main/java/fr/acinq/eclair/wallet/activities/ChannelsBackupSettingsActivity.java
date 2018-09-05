@@ -155,7 +155,6 @@ public class ChannelsBackupSettingsActivity extends GoogleDriveBaseActivity impl
         .enqueue();
     }
     prefs.edit().putBoolean(Constants.SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_ENABLED, true).apply();
-    mBinding.accessAccount.setText(getString(R.string.backup_drive_account, signIn.getEmail()));
     mBinding.setAccessDenied(false);
   }
 
@@ -164,8 +163,9 @@ public class ChannelsBackupSettingsActivity extends GoogleDriveBaseActivity impl
     new Thread() {
       @Override
       public void run() {
-        runOnUiThread(() -> applyAccessGranted(signInAccount));
         retrieveEclairBackupTask().addOnSuccessListener(metadataBuffer -> runOnUiThread(() -> {
+          applyAccessGranted(signInAccount);
+          mBinding.accessAccount.setText(getString(R.string.backup_drive_account, signInAccount.getEmail()));
           if (metadataBuffer.getCount() == 0) {
             mBinding.existingBackupState.setText(getString(R.string.backup_drive_no_backup));
           } else {
