@@ -31,8 +31,6 @@
     <item name="windowActionBar">false</item>
     <item name="windowNoTitle">true</item>
     <item name="actionBarTheme">@null</item>
-
-    <item name="preferenceTheme">@style/CustomPrefsStyle</item>
   </style>
 
   <!-- theme for activity with primary color background and white text -->
@@ -50,9 +48,13 @@
     <item name="colorPrimary">@color/primary</item>
     <item name="colorPrimaryDark">@color/primary</item>
     <item name="android:statusBarColor">@color/primary</item>
+    <item name="android:windowBackground">@color/white</item>
+    <item name="android:textColor">@color/grey_4</item>
+    <item name="android:textColorSecondary">@color/grey_2</item>
   </style>
 
   <style name="ActionBar" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
+    <item name="android:windowBackground">@color/primary</item>
     <item name="android:background">@color/primary</item>
     <item name="android:displayOptions">showTitle</item>
     <item name="android:height">@dimen/action_bar_height</item>
@@ -108,15 +110,6 @@
   <style name="CustomTabText" parent="TextAppearance.AppCompat.Button">
     <item name="android:textSize">10sp</item>
     <item name="android:textColor">@color/grey_1</item>
-  </style>
-
-  <style name="CustomPrefsStyle" parent="PreferenceThemeOverlay.v14.Material">
-    <item name="android:textSize">14sp</item>
-    <item name="preferenceFragmentCompatStyle">@style/CustomPrefsFragmentStyle</item>
-  </style>
-
-  <style name="CustomPrefsFragmentStyle" parent="@style/PreferenceFragment.Material">
-    <item name="android:divider">@drawable/prefs_divider</item>
   </style>
 
   <style name="PinButtonStyle" parent="@style/Widget.AppCompat.Button.Borderless.Colored">
