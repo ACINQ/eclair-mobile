@@ -20,7 +20,6 @@ import android.util.Log;
 
 import org.greenrobot.eventbus.EventBus;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -30,6 +29,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import akka.actor.ActorRef;
 import akka.actor.Terminated;
 import akka.actor.UntypedActor;
+import androidx.work.ExistingWorkPolicy;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
+import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.bitcoin.Crypto;
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.Satoshi;
@@ -40,6 +43,7 @@ import fr.acinq.eclair.channel.Channel;
 import fr.acinq.eclair.channel.ChannelCreated;
 import fr.acinq.eclair.channel.ChannelFailed;
 import fr.acinq.eclair.channel.ChannelIdAssigned;
+import fr.acinq.eclair.channel.ChannelPersisted;
 import fr.acinq.eclair.channel.ChannelRestored;
 import fr.acinq.eclair.channel.ChannelSignatureReceived;
 import fr.acinq.eclair.channel.ChannelSignatureSent;
@@ -55,6 +59,7 @@ import fr.acinq.eclair.channel.WAIT_FOR_INIT_INTERNAL$;
 import fr.acinq.eclair.channel.WaitingForRevocation;
 import fr.acinq.eclair.payment.PaymentLifecycle;
 import fr.acinq.eclair.router.NORMAL$;
+import fr.acinq.eclair.router.SyncProgress;
 import fr.acinq.eclair.transactions.DirectedHtlc;
 import fr.acinq.eclair.transactions.OUT$;
 import fr.acinq.eclair.wallet.events.ChannelUpdateEvent;
@@ -82,9 +87,11 @@ import scala.util.Either;
 public class EclairEventService extends UntypedActor {
 
   private DBHelper dbHelper;
+  private OneTimeWorkRequest channelsBackupWork;
 
-  public EclairEventService(DBHelper dbHelper) {
+  public EclairEventService(final DBHelper dbHelper, final String seedHash, final BinaryData backupKey) {
     this.dbHelper = dbHelper;
+    this.channelsBackupWork = WalletUtils.generateBackupRequest(seedHash, backupKey);
   }
 
   private static final String TAG = "EclairEventService";
@@ -152,8 +159,7 @@ public class EclairEventService extends UntypedActor {
       final LocalChannel c = getChannel(event.channel());
       c.setChannelId(event.channelId().toString());
       dbHelper.saveLocalChannel(c);
-    }
-    else if (message instanceof ShortChannelIdAssigned && activeChannelsMap.containsKey(((ShortChannelIdAssigned) message).channel())) {
+    } else if (message instanceof ShortChannelIdAssigned && activeChannelsMap.containsKey(((ShortChannelIdAssigned) message).channel())) {
       final ShortChannelIdAssigned event = (ShortChannelIdAssigned) message;
       final LocalChannel c = getChannel(event.channel());
       c.setShortChannelId(event.shortChannelId().toString());
@@ -218,6 +224,19 @@ public class EclairEventService extends UntypedActor {
       c.setCapacityMsat(localCommit.spec().totalFunds());
       EventBus.getDefault().post(new ChannelUpdateEvent());
       postLNBalanceEvent();
+    }
+    // ---- channel must be saved
+    else if (message instanceof ChannelPersisted) {
+
+      WorkManager.getInstance()
+        .beginUniqueWork("ChannelsBackup", ExistingWorkPolicy.REPLACE, channelsBackupWork)
+        .enqueue();
+
+//      backupScheduler.tell(BackupScheduler.DO_BACKUP, null);
+    }
+    // ---- network map syncing
+    else if (message instanceof SyncProgress) {
+      EventBus.getDefault().post(message);
     }
     // ---- channel has been terminated
     else if (message instanceof Terminated) {
@@ -319,8 +338,7 @@ public class EclairEventService extends UntypedActor {
       } else {
         Log.d(TAG, "received and ignored an unknown PaymentFailed event with hash=" + event.paymentHash().toString());
       }
-    }
-    else if (message instanceof PaymentLifecycle.PaymentSucceeded) {
+    } else if (message instanceof PaymentLifecycle.PaymentSucceeded) {
       final PaymentLifecycle.PaymentSucceeded event = (PaymentLifecycle.PaymentSucceeded) message;
       final Payment paymentInDB = dbHelper.getPayment(event.paymentHash().toString(), PaymentType.BTC_LN);
       if (paymentInDB != null) {
@@ -333,7 +351,7 @@ public class EclairEventService extends UntypedActor {
     }
   }
 
-  public static boolean hasActiveChannels () {
+  public static boolean hasActiveChannels() {
     for (LocalChannel c : activeChannelsMap.values()) {
       if (NORMAL$.MODULE$.toString().equals(c.state)) {
         return true;

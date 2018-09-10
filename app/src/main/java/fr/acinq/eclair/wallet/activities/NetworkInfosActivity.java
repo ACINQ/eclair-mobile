@@ -16,6 +16,7 @@
 
 package fr.acinq.eclair.wallet.activities;
 
+import android.app.Dialog;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -33,12 +34,11 @@ import java.text.NumberFormat;
 import java.util.Date;
 
 import fr.acinq.eclair.Globals;
-import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.databinding.ActivityNetworkInfosBinding;
 import fr.acinq.eclair.wallet.events.NetworkChannelsCountEvent;
 import fr.acinq.eclair.wallet.events.XpubEvent;
-import fr.acinq.eclair.wallet.utils.Constants;
+import fr.acinq.eclair.wallet.utils.WalletUtils;
 
 public class NetworkInfosActivity extends EclairActivity implements SwipeRefreshLayout.OnRefreshListener {
 
@@ -114,10 +114,22 @@ public class NetworkInfosActivity extends EclairActivity implements SwipeRefresh
   }
 
   private void deleteNetworkDB() {
-    final File datadir = new File(getFilesDir(), Constants.ECLAIR_DATADIR);
-    final File networkDB = new File(datadir, BuildConfig.CHAIN + "/network.sqlite");
-    if (networkDB.delete()) {
-      Toast.makeText(getApplicationContext(), "Successfully deleted network DB", Toast.LENGTH_SHORT).show();
-    }
+    final Dialog confirm = getCustomDialog(R.string.networkinfos_networkdb_confirm)
+      .setPositiveButton(R.string.btn_ok, (dialog, which) ->
+        new Thread() {
+          @Override
+          public void run() {
+            final File networkDB = WalletUtils.getNetworkDBFile(getApplicationContext());
+            if (networkDB.delete()) {
+              runOnUiThread(() -> {
+                Toast.makeText(getApplicationContext(), R.string.networkinfos_networkdb_toast, Toast.LENGTH_SHORT).show();
+                restart();
+              });
+            }
+          }
+        }.start())
+      .setNegativeButton(R.string.btn_cancel, (dialog, which) -> {
+      }).create();
+    confirm.show();
   }
 }

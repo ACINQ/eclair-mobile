@@ -17,13 +17,17 @@
 package fr.acinq.eclair.wallet.activities;
 
 import android.annotation.SuppressLint;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
-
-import org.greenrobot.greendao.annotation.NotNull;
+import android.text.Html;
+import android.view.View;
+import android.widget.TextView;
 
 import java.io.File;
 import java.security.MessageDigest;
@@ -42,6 +46,30 @@ public abstract class EclairActivity extends AppCompatActivity {
   protected void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     app = ((App) getApplication());
+  }
+
+  protected void restart() {
+    Intent intent = new Intent(getApplicationContext(), StartupActivity.class);
+    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+    PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_ONE_SHOT);
+
+    if (app != null) app.system.shutdown();
+    AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+    if (manager != null) {
+      manager.set(AlarmManager.RTC, System.currentTimeMillis() + 500, pendingIntent);
+    }
+    finishAndRemoveTask();
+    finishAffinity();
+    Runtime.getRuntime().exit(0);
+  }
+
+  protected AlertDialog.Builder getCustomDialog(final int contentId) {
+    final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+    final View v = getLayoutInflater().inflate(R.layout.custom_alert, null);
+    final TextView content = v.findViewById(R.id.alert_content);
+    content.setText(Html.fromHtml(getString(contentId)));
+    builder.setView(v);
+    return builder;
   }
 
   /**
@@ -86,7 +114,7 @@ public abstract class EclairActivity extends AppCompatActivity {
   }
 
   @SuppressLint("ApplySharedPref")
-  protected boolean isPinCorrect (final String pin, @NotNull final PinDialog dialog) {
+  protected boolean isPinCorrect (final String pin, final PinDialog dialog) {
     if (checkInit()) {
       final boolean isCorrect = MessageDigest.isEqual(pin.getBytes(), app.pin.get().getBytes());
       if (isCorrect) {

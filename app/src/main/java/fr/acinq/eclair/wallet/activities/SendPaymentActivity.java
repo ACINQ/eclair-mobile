@@ -65,7 +65,7 @@ import scala.util.Right;
 public class SendPaymentActivity extends EclairActivity
   implements LNInvoiceReaderTask.AsyncInvoiceReaderTaskResponse, BitcoinInvoiceReaderTask.AsyncInvoiceReaderTaskResponse {
 
-  public static final String EXTRA_INVOICE = BuildConfig.APPLICATION_ID + "EXTRA_INVOICE";
+  public static final String EXTRA_INVOICE = BuildConfig.APPLICATION_ID + ".EXTRA_INVOICE";
   private static final String TAG = "SendPayment";
   private final static List<String> LIGHTNING_PREFIXES = Arrays.asList("lightning:", "lightning://");
   public final static int LOADING = 0;
@@ -146,7 +146,7 @@ public class SendPaymentActivity extends EclairActivity
     }
     setFeesToDefault();
     mBinding.recipientValue.setText(bitcoinURI.getAddress());
-    forceFocusAmount();
+    forceFocusAmount(null);
     mBinding.setPaymentStep(ONCHAIN_PAYMENT);
     invoice = Left.apply(bitcoinURI);
   }
@@ -176,7 +176,7 @@ public class SendPaymentActivity extends EclairActivity
       mBinding.recipientValue.setText(paymentRequest.nodeId().toBin().toString());
       Either<String, BinaryData> desc = paymentRequest.description();
       mBinding.descriptionValue.setText(desc.isLeft() ? desc.left().get() : desc.right().get().toString());
-      forceFocusAmount();
+      forceFocusAmount(null);
       mBinding.setPaymentStep(LIGHTNING_PAYMENT);
       invoice = Right.apply(paymentRequest);
     }
@@ -225,7 +225,7 @@ public class SendPaymentActivity extends EclairActivity
     }
   }
 
-  private void forceFocusAmount() {
+  public void forceFocusAmount(final View view) {
     if (!isAmountReadonly) {
       InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
       if (inputMethodManager != null) {

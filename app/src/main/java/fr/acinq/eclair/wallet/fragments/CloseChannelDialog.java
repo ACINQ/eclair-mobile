@@ -27,8 +27,6 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
 
-import org.greenrobot.greendao.annotation.NotNull;
-
 import akka.actor.ActorRef;
 import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.eclair.channel.CMD_CLOSE;
@@ -45,8 +43,8 @@ public class CloseChannelDialog extends Dialog {
   private Button mCloseButton;
   private CloseChannelDialogCallback mCallback;
 
-  public CloseChannelDialog(final Context context, final @NotNull CloseChannelDialogCallback callback, final int themeResId, final ActorRef actor, final boolean mutualAllowed, final boolean forceAllowed) {
-    super(context, themeResId);
+  public CloseChannelDialog(final Context context, final CloseChannelDialogCallback callback, final ActorRef actor, final boolean mutualAllowed, final boolean forceAllowed) {
+    super(context, R.style.CustomDialog);
 
     mCallback = callback;
 
@@ -66,45 +64,29 @@ public class CloseChannelDialog extends Dialog {
       mCloseButton.setTextColor(ContextCompat.getColor(context, R.color.red_faded));
     } else {
       mForceCheckbox.setVisibility(forceAllowed ? View.VISIBLE : View.GONE);
-      mForceCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-        @Override
-        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-          mForceWarningText.setVisibility(isChecked ? View.VISIBLE : View.GONE);
-          if (isChecked) {
-            mCloseButton.setText(context.getString(R.string.dialog_close_channel_forceclose));
-            mCloseButton.setTextColor(ContextCompat.getColor(context, R.color.red_faded));
-          } else {
-            mCloseButton.setText(context.getString(R.string.dialog_close_channel_close));
-            mCloseButton.setTextColor(ContextCompat.getColor(context, R.color.grey_4));
-          }
+      mForceCheckbox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+        mForceWarningText.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+        if (isChecked) {
+          mCloseButton.setText(context.getString(R.string.dialog_close_channel_forceclose));
+          mCloseButton.setTextColor(ContextCompat.getColor(context, R.color.red_faded));
+        } else {
+          mCloseButton.setText(context.getString(R.string.dialog_close_channel_close));
+          mCloseButton.setTextColor(ContextCompat.getColor(context, R.color.grey_4));
         }
       });
     }
 
     final scala.Option<BinaryData> none = scala.Option.apply(null);
-    setOnCancelListener(new OnCancelListener() {
-      @Override
-      public void onCancel(DialogInterface dialogInterface) {
-        dismiss();
+    setOnCancelListener(dialogInterface -> dismiss());
+    mCancelButton.setOnClickListener(view -> dismiss());
+    mCloseButton.setOnClickListener(view -> {
+      if (mForceCheckbox.isChecked()) {
+        actor.tell(CMD_FORCECLOSE$.MODULE$, actor);
+      } else {
+        actor.tell(CMD_CLOSE.apply(none), actor);
       }
-    });
-    mCancelButton.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View view) {
-        dismiss();
-      }
-    });
-    mCloseButton.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View view) {
-        if (mForceCheckbox.isChecked()) {
-          actor.tell(CMD_FORCECLOSE$.MODULE$, actor);
-        } else {
-          actor.tell(CMD_CLOSE.apply(none), actor);
-        }
-        dismiss();
-        mCallback.onCloseConfirm(CloseChannelDialog.this);
-      }
+      dismiss();
+      mCallback.onCloseConfirm(CloseChannelDialog.this);
     });
   }
 

@@ -97,7 +97,7 @@ public class SecuritySettingsActivity extends EclairActivity implements EclairAc
           getApplicationContext().getSharedPreferences(Constants.SETTINGS_SECURITY_FILE, MODE_PRIVATE).edit()
             .putBoolean(Constants.SETTING_ASK_PIN_FOR_SENSITIVE_ACTIONS, false).apply();
         } else {
-          Toast.makeText(getApplicationContext(), "Incorrect password", Toast.LENGTH_SHORT).show();
+          Toast.makeText(getApplicationContext(), getString(R.string.security_password_update_failure), Toast.LENGTH_SHORT).show();
         }
       }
 
@@ -118,7 +118,7 @@ public class SecuritySettingsActivity extends EclairActivity implements EclairAc
           final byte[] seed = WalletUtils.readSeedFile(datadir, pinValue);
           encryptWallet(SecuritySettingsActivity.this, true, datadir, seed);
         } catch (GeneralSecurityException e) {
-          Toast.makeText(getApplicationContext(), "Incorrect password", Toast.LENGTH_SHORT).show();
+          Toast.makeText(getApplicationContext(), getString(R.string.security_password_update_failure), Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
           Log.d(TAG, "failed to read seed ", e);
           Toast.makeText(getApplicationContext(), R.string.seed_read_general_failure, Toast.LENGTH_SHORT).show();
@@ -138,6 +138,6 @@ public class SecuritySettingsActivity extends EclairActivity implements EclairAc
 
   @Override
   public void onEncryptSeedSuccess() {
-    Toast.makeText(getApplicationContext(), "Password updated", Toast.LENGTH_SHORT).show();
+    Toast.makeText(getApplicationContext(), getString(R.string.security_password_update_success), Toast.LENGTH_SHORT).show();
   }
 }

@@ -17,10 +17,12 @@
 package fr.acinq.eclair.wallet.utils;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.text.Html;
 import android.util.Log;
 import android.view.View;
@@ -39,8 +41,11 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.text.NumberFormat;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
+import androidx.work.Data;
+import androidx.work.OneTimeWorkRequest;
 import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.bitcoin.Block;
 import fr.acinq.bitcoin.MilliSatoshi;
@@ -51,6 +56,7 @@ import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.R;
+import fr.acinq.eclair.wallet.services.ChannelsBackupWorker;
 
 public class WalletUtils {
   public final static String ACINQ_NODE = "03864ef025fde8fb587d989186ce6a4a186895ee44a926bfc370e2c366597a3f8f@node.acinq.co:9735";
@@ -75,17 +81,20 @@ public class WalletUtils {
   private static void retrieveRateFromPrefs(final SharedPreferences prefs, final String fiatCode) {
     App.RATES.put(fiatCode, prefs.getFloat(Constants.SETTING_LAST_KNOWN_RATE_BTC_ + fiatCode, -1.0f));
   }
+
   public static void retrieveRatesFromPrefs(final SharedPreferences prefs) {
     retrieveRateFromPrefs(prefs, "AUD");
     retrieveRateFromPrefs(prefs, "BRL");
+    retrieveRateFromPrefs(prefs, "CAD");
+    retrieveRateFromPrefs(prefs, "CHF");
     retrieveRateFromPrefs(prefs, "CLP");
-    retrieveRateFromPrefs(prefs, "USD");
     retrieveRateFromPrefs(prefs, "CNY");
     retrieveRateFromPrefs(prefs, "DKK");
     retrieveRateFromPrefs(prefs, "EUR");
     retrieveRateFromPrefs(prefs, "GBP");
     retrieveRateFromPrefs(prefs, "HKD");
     retrieveRateFromPrefs(prefs, "INR");
+    retrieveRateFromPrefs(prefs, "ISK");
     retrieveRateFromPrefs(prefs, "JPY");
     retrieveRateFromPrefs(prefs, "KRW");
     retrieveRateFromPrefs(prefs, "NZD");
@@ -104,6 +113,7 @@ public class WalletUtils {
         final SharedPreferences.Editor editor = prefs.edit();
         saveCurrency(editor, response, "AUD"); // australian dollar
         saveCurrency(editor, response, "BRL"); // br real
+        saveCurrency(editor, response, "CAD"); // canadian dollar
         saveCurrency(editor, response, "CHF"); // swiss franc
         saveCurrency(editor, response, "CLP"); // chilean pesos
         saveCurrency(editor, response, "CNY"); // yuan
@@ -112,6 +122,7 @@ public class WalletUtils {
         saveCurrency(editor, response, "GBP"); // pound
         saveCurrency(editor, response, "HKD"); // hong kong dollar
         saveCurrency(editor, response, "INR"); // indian rupee
+        saveCurrency(editor, response, "ISK"); // icelandic kròna
         saveCurrency(editor, response, "JPY"); // yen
         saveCurrency(editor, response, "KRW"); // won
         saveCurrency(editor, response, "NZD"); // nz dollar
@@ -207,7 +218,7 @@ public class WalletUtils {
    * Converts bitcoin amount to the fiat currency preferred by the user.
    *
    * @param amountMsat amount in milli satoshis
-   * @param fiatCode fiat currency code (USD, EUR, RUB, JPY, ...)
+   * @param fiatCode   fiat currency code (USD, EUR, RUB, JPY, ...)
    * @return localized formatted string of the converted amount
    */
   public static String convertMsatToFiat(final long amountMsat, final String fiatCode) {
@@ -257,12 +268,43 @@ public class WalletUtils {
     return "mainnet".equals(BuildConfig.CHAIN) ? Block.LivenetGenesisBlock().hash() : Block.TestnetGenesisBlock().hash();
   }
 
+  public static File getChainDatadir(final Context context) {
+    final File datadir = new File(context.getFilesDir(), Constants.ECLAIR_DATADIR);
+    return new File(datadir, BuildConfig.CHAIN);
+  }
+
+  public static File getNetworkDBFile(final Context context) {
+    return new File(getChainDatadir(context), Constants.NETWORK_DB_FILE);
+  }
+
+  public static File getEclairDBFile(final Context context) {
+    return new File(getChainDatadir(context), Constants.ECLAIR_DB_FILE);
+  }
+
+  public static String getEclairBackupFileName(final String seedHash) {
+    return "eclair_" + BuildConfig.CHAIN + "_" + seedHash + ".bkup";
+  }
+
+  public static OneTimeWorkRequest generateBackupRequest(final String seedHash, final BinaryData backupKey) {
+    return new OneTimeWorkRequest.Builder(ChannelsBackupWorker.class)
+      .setInputData(new Data.Builder()
+        .putString(ChannelsBackupWorker.BACKUP_NAME_INPUT, WalletUtils.getEclairBackupFileName(seedHash))
+        .putString(ChannelsBackupWorker.BACKUP_KEY_INPUT, backupKey.toString())
+        .build())
+      .setInitialDelay(2, TimeUnit.SECONDS)
+      .addTag("ChannelsBackupWork")
+      .build();
+  }
+
   public static String toAscii(final BinaryData b) {
     final byte[] bytes = new byte[b.length()];
     for (int i = 0; i < b.length(); i++) {
-      bytes[i] = (Byte)b.data().apply(i);
+      bytes[i] = (Byte) b.data().apply(i);
     }
-    String s = new String(bytes, StandardCharsets.US_ASCII);
-    return s;
+    return new String(bytes, StandardCharsets.US_ASCII);
+  }
+
+  public static String getDeviceId(final Context context) {
+    return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
   }
 }

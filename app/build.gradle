@@ -9,7 +9,7 @@ android {
     minSdkVersion 21
     targetSdkVersion 27
     versionCode 21
-    versionName "0.3.5"
+    versionName "0.3.7-DEV"
     testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     multiDexEnabled true
   }
@@ -44,8 +44,8 @@ android {
     }
   }
   compileOptions {
-    targetCompatibility 1.8
-    sourceCompatibility 1.8
+    sourceCompatibility JavaVersion.VERSION_1_8
+    targetCompatibility JavaVersion.VERSION_1_8
   }
 }
 
@@ -64,11 +64,14 @@ dependencies {
   implementation 'com.android.support:preference-v14:27.1.1'
   implementation 'com.android.support.constraint:constraint-layout:1.1.2'
   implementation 'com.google.code.findbugs:jsr305:3.0.1'
+  implementation 'com.google.android.gms:play-services-drive:15.0.1'
+  implementation 'com.google.android.gms:play-services-auth:15.0.1'
+  implementation 'android.arch.work:work-runtime:1.0.0-alpha08'
   // logging
   implementation 'org.slf4j:slf4j-api:1.7.25'
   implementation 'com.github.tony19:logback-android:1.1.1-12'
   // eclair core
-  implementation 'fr.acinq.eclair:eclair-core_2.11:0.2-android-beta9'
+  implementation 'fr.acinq.eclair:eclair-core_2.11:0.2-android-beta10'
   // database orm
   implementation 'org.greenrobot:greendao:3.2.2'
   // required for greendao encryption, disabled for now

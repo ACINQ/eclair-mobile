@@ -76,16 +76,16 @@
 
           <TextView
             android:id="@+id/terminated_disclaimer"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_md"
             android:text="@string/channeldetails_terminated_disclaimer"
             android:textColor="@color/white"
-            android:layout_marginStart="@dimen/space_md"
+            app:layout_constrainedWidth="true"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0"
             app:layout_constraintStart_toEndOf="@id/terminated_icon"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintWidth_default="wrap" />
+            app:layout_constraintTop_toTopOf="parent" />
 
           <View
             android:id="@+id/terminated_separator"
@@ -98,29 +98,29 @@
 
           <TextView
             android:id="@+id/opened_on"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/space_xs"
             android:textColor="@color/primary_light_x4"
             android:textSize="12sp"
-            app:layout_goneMarginTop="@dimen/space_xs"
+            app:layout_constrainedWidth="true"
             app:layout_constraintHorizontal_bias="0"
             app:layout_constraintStart_toStartOf="@id/terminated_disclaimer"
             app:layout_constraintTop_toBottomOf="@id/terminated_separator"
-            app:layout_constraintWidth_default="wrap" />
+            app:layout_goneMarginTop="@dimen/space_xs" />
 
           <TextView
             android:id="@+id/closed_on"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/space_xxs"
             android:textColor="@color/primary_light_x4"
             android:textSize="12sp"
-            app:layout_goneMarginTop="@dimen/space_xs"
+            app:layout_constrainedWidth="true"
             app:layout_constraintHorizontal_bias="0"
             app:layout_constraintStart_toStartOf="@id/terminated_disclaimer"
             app:layout_constraintTop_toBottomOf="@id/opened_on"
-            app:layout_constraintWidth_default="wrap" />
+            app:layout_goneMarginTop="@dimen/space_xs" />
 
         </android.support.constraint.ConstraintLayout>
 

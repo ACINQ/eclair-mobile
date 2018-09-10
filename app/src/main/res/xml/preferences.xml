@@ -75,11 +75,15 @@
 
   </PreferenceCategory>
 
-  <PreferenceCategory android:title="@string/prefs_cat_security">
+  <PreferenceCategory android:title="@string/prefs_cat_advanced">
 
     <Preference
       android:key="security_key"
       android:title="@string/prefs_security_title" />
+
+    <Preference
+      android:key="backup_channel_key"
+      android:title="@string/prefs_backup_title" />
 
   </PreferenceCategory>
 

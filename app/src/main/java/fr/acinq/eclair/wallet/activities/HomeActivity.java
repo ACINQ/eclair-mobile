@@ -39,6 +39,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewStub;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.LinearInterpolator;
+import android.view.animation.RotateAnimation;
 import android.widget.Toast;
 
 import com.android.volley.RequestQueue;
@@ -58,6 +62,7 @@ import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.blockchain.electrum.ElectrumClient;
 import fr.acinq.eclair.blockchain.electrum.ElectrumWallet;
+import fr.acinq.eclair.router.SyncProgress;
 import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.EclairEventService;
 import fr.acinq.eclair.wallet.R;
@@ -65,8 +70,6 @@ import fr.acinq.eclair.wallet.databinding.ActivityHomeBinding;
 import fr.acinq.eclair.wallet.events.BitcoinPaymentFailedEvent;
 import fr.acinq.eclair.wallet.events.ChannelUpdateEvent;
 import fr.acinq.eclair.wallet.events.LNBalanceUpdateEvent;
-import fr.acinq.eclair.wallet.events.LNNewChannelFailureEvent;
-import fr.acinq.eclair.wallet.events.LNNewChannelOpenedEvent;
 import fr.acinq.eclair.wallet.events.LNPaymentFailedEvent;
 import fr.acinq.eclair.wallet.events.LNPaymentSuccessEvent;
 import fr.acinq.eclair.wallet.events.PaymentEvent;
@@ -78,7 +81,7 @@ import fr.acinq.eclair.wallet.utils.WalletUtils;
 
 import static fr.acinq.eclair.wallet.adapters.LocalChannelItemHolder.EXTRA_CHANNEL_ID;
 
-public class HomeActivity extends EclairActivity {
+public class HomeActivity extends EclairActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
   public static final String EXTRA_PAGE = BuildConfig.APPLICATION_ID + "EXTRA_PAGE";
   public static final String EXTRA_PAYMENT_URI = BuildConfig.APPLICATION_ID + "EXTRA_PAYMENT_URI";
@@ -96,12 +99,14 @@ public class HomeActivity extends EclairActivity {
   private Handler mExchangeRateHandler = new Handler();
   private Runnable mExchangeRateRunnable;
   // debounce for requesting payment list update -- max once per 2 secs
-  private final RateLimiter paymentListUpdateLimiter = RateLimiter.create(.5f);
+  private final RateLimiter paymentListUpdateLimiter = RateLimiter.create(2f);
+  private final Animation mBlinkingAnimation = new AlphaAnimation(0.3f, 1);
+  private final Animation mRotatingAnimation = new RotateAnimation(0, -360, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF,
+    0.5f);
 
   @Override
   protected void onCreate(final Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    setContentView(R.layout.activity_home);
     mBinding = DataBindingUtil.setContentView(this, R.layout.activity_home);
 
     setSupportActionBar(mBinding.toolbar);
@@ -133,6 +138,16 @@ public class HomeActivity extends EclairActivity {
     setUpBalanceInteraction(prefs);
     setUpExchangeRate();
 
+    // --- animations
+    mBlinkingAnimation.setDuration(500);
+    mBlinkingAnimation.setRepeatCount(Animation.INFINITE);
+    mBlinkingAnimation.setRepeatMode(Animation.REVERSE);
+
+    mRotatingAnimation.setDuration(2000);
+    mRotatingAnimation.setRepeatCount(Animation.INFINITE);
+    mRotatingAnimation.setInterpolator(new LinearInterpolator());
+    mBinding.syncProgressIcon.startAnimation(mRotatingAnimation);
+
     final Intent intent = getIntent();
     Log.i(TAG, "intent = " + intent);
     if (intent.hasExtra(StartupActivity.ORIGIN)) {
@@ -147,7 +162,6 @@ public class HomeActivity extends EclairActivity {
       // app may be started with a payment request intent
       readURIIntent(getIntent());
     }
-
   }
 
   private void displayBreakingChanges() {
@@ -216,21 +230,26 @@ public class HomeActivity extends EclairActivity {
   }
 
   @Override
+  public void onStart() {
+    super.onStart();
+    mBinding.balanceTotal.refreshUnits();
+    mBinding.balanceOnchain.refreshUnits();
+    mBinding.balanceLightning.refreshUnits();
+    refreshChannelsBackupWarning(PreferenceManager.getDefaultSharedPreferences(this));
+  }
+
+  @Override
   public void onResume() {
     super.onResume();
     if (checkInit()) {
       if (!EventBus.getDefault().isRegistered(this)) {
         EventBus.getDefault().register(this);
       }
-      // starts refreshing the exchange rate
+      PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
+      // refresh exchange rate
       mExchangeRateHandler.post(mExchangeRateRunnable);
-      // refresh balance after possible prefs change
-      mBinding.balanceTotal.refreshUnits();
-      mBinding.balanceOnchain.refreshUnits();
-      mBinding.balanceLightning.refreshUnits();
-      // ask for LN balance
+      // refresh LN balance
       EclairEventService.postLNBalanceEvent();
-      Log.d(TAG, "Home.onResume done");
     }
   }
 
@@ -260,6 +279,7 @@ public class HomeActivity extends EclairActivity {
   @Override
   public void onPause() {
     super.onPause();
+    PreferenceManager.getDefaultSharedPreferences(this).unregisterOnSharedPreferenceChangeListener(this);
     mExchangeRateHandler.removeCallbacks(mExchangeRateRunnable);
     closeSendPaymentButtons();
     closeOpenChannelButtons();
@@ -313,6 +333,27 @@ public class HomeActivity extends EclairActivity {
     }
   }
 
+  @Override
+  public void onSharedPreferenceChanged(final SharedPreferences prefs, final String key) {
+    if (Constants.SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_ENABLED.equals(key)) {
+      refreshChannelsBackupWarning(prefs);
+    } else if (Constants.SETTING_BTC_UNIT.equals(key) || Constants.SETTING_SELECTED_FIAT_CURRENCY.equals(key)) {
+      mBinding.balanceTotal.refreshUnits();
+      mBinding.balanceOnchain.refreshUnits();
+      mBinding.balanceLightning.refreshUnits();
+    }
+  }
+
+  private void refreshChannelsBackupWarning(SharedPreferences prefs) {
+    final boolean isBackupEnabled = prefs.getBoolean(Constants.SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_ENABLED, false);
+    if (!isBackupEnabled) {
+      mBinding.channelsBackupWarning.startAnimation(mBlinkingAnimation);
+    } else {
+      mBinding.channelsBackupWarning.clearAnimation();
+    }
+    mBinding.setChannelsBackupEnabled(isBackupEnabled);
+  }
+
   private void displayIntro(final SharedPreferences prefs) {
     final View inflatedIntro = mStubIntro.inflate();
     final View introWelcome = findViewById(R.id.home_intro_welcome);
@@ -325,9 +366,7 @@ public class HomeActivity extends EclairActivity {
       introStep++;
       if (introStep > 4) {
         mStubIntro.setVisibility(View.GONE);
-        SharedPreferences.Editor e = prefs.edit();
-        e.putBoolean(Constants.SETTING_SHOW_INTRO, false);
-        e.apply();
+        prefs.edit().putBoolean(Constants.SETTING_SHOW_INTRO, false).apply();
       } else {
         introWelcome.setVisibility(View.GONE);
         introReceive.setVisibility(introStep == 1 ? View.VISIBLE : View.GONE);
@@ -351,6 +390,10 @@ public class HomeActivity extends EclairActivity {
       return clipboard.getPrimaryClip().getItemAt(0).getText().toString();
     }
     return "";
+  }
+
+  public void enableChannelsBackup(final View view) {
+    startActivity(new Intent(this, ChannelsBackupSettingsActivity.class));
   }
 
   public void pasteSendPaymentRequest(View view) {
@@ -451,6 +494,19 @@ public class HomeActivity extends EclairActivity {
     }
   }
 
+  public void popinSyncProgress(final View view) {
+    getCustomDialog(R.string.home_sync_progress_about).setPositiveButton(R.string.btn_ok, null).create().show();
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN)
+  public void handleSyncProgressEvent(SyncProgress progress) {
+    final int p = (int) (progress.progress() * 100);
+    if (p == 100) {
+      mBinding.syncProgressIcon.clearAnimation();
+    }
+    mBinding.setSyncProgress(p);
+  }
+
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void handleLNBalanceEvent(LNBalanceUpdateEvent event) {
     updateBalance();
@@ -506,15 +562,6 @@ public class HomeActivity extends EclairActivity {
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void handleChannelUpdateEvent(ChannelUpdateEvent event) {
     mChannelsListFragment.updateActiveChannelsList();
-  }
-
-  @Subscribe(threadMode = ThreadMode.MAIN)
-  public void handleNewChannelSuccessfullyOpened(LNNewChannelOpenedEvent event) {
-  }
-
-  @Subscribe(threadMode = ThreadMode.MAIN)
-  public void handleNewChannelFailed(LNNewChannelFailureEvent event) {
-    Toast.makeText(this, getString(R.string.home_toast_openchannel_failed) + event.cause, Toast.LENGTH_LONG).show();
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
