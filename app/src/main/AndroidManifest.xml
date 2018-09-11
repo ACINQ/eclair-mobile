@@ -151,6 +151,12 @@
       android:label="@string/channelrawdata_name"
       android:parentActivityName=".activities.ChannelDetailsActivity"
       android:screenOrientation="portrait" />
+    <activity
+      android:name=".activities.LogsSettingsActivity"
+      android:label="@string/menu_settings_logging"
+      android:windowSoftInputMode="stateHidden"
+      android:parentActivityName=".activities.PreferencesActivity"
+      android:screenOrientation="portrait" />
   </application>
 
 </manifest>

@@ -33,6 +33,7 @@ import android.widget.Toast;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.util.HashMap;
@@ -44,6 +45,8 @@ import akka.dispatch.OnComplete;
 import akka.dispatch.OnFailure;
 import akka.pattern.Patterns;
 import akka.util.Timeout;
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.android.BasicLogcatConfigurator;
 import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.Satoshi;
@@ -106,6 +109,9 @@ public class App extends Application {
     if (!EventBus.getDefault().isRegistered(this)) {
       EventBus.getDefault().register(this);
     }
+
+    WalletUtils.setupLogging(getBaseContext());
+
     super.onCreate();
   }
 

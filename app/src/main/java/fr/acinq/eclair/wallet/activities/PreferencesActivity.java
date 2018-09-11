@@ -52,6 +52,10 @@ public class PreferencesActivity extends PreferenceActivity {
         startActivity(new Intent(getActivity().getApplicationContext(), ChannelsBackupSettingsActivity.class));
         return true;
       });
+      findPreference("logging_conf_key").setOnPreferenceClickListener(v -> {
+        startActivity(new Intent(getActivity().getApplicationContext(), LogsSettingsActivity.class));
+        return true;
+      });
     }
 
     @Override

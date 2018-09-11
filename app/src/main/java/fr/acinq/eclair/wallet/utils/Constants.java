@@ -61,6 +61,15 @@ public interface Constants {
   // lightning
   String SETTING_CAP_LIGHTNING_FEES = "cap_lightning_fees";
 
+  // logging
+  String SETTING_LOGS_OUTPUT = "node_logs_output";
+  String LOGS_OUTPUT_NONE = "NONE";
+  String LOGS_OUTPUT_LOCAL = "LOCAL";
+  String LOGS_OUTPUT_PAPERTRAIL = "PAPER_TRAIL_APP";
+  String SETTING_PAPERTRAIL_VISIBLE = "paper_trail_visible";
+  String SETTING_PAPERTRAIL_HOST = "paper_trail_host";
+  String SETTING_PAPERTRAIL_PORT = "paper_trail_port";
+
   /* ----------- SETTINGS - PIN CODE ------------ */
 
   String SETTINGS_SECURITY_FILE = BuildConfig.APPLICATION_ID + ".security_settings";
