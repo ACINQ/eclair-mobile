@@ -44,7 +44,7 @@
   <string name="home_sync_progress_about"><![CDATA[
   The wallet is currently downloading an up-to-date map of the Lightning Network. Lightning payments might fail until synchronization is complete.
   <br><br>
-  Note that this wallet computes its payments route on-device to protect your privacy.
+  Note that this wallet computes payments routes on-device to protect your privacy.
   ]]></string>
   <string name="home_no_backup">NO BACKUP</string>
   <string name="home_backup_disabled_icon_desc">Channels backup is disabled!</string>
