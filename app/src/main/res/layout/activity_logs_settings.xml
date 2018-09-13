@@ -30,7 +30,7 @@
 
     <variable
       name="showPapertrail"
-      type="Boolean" />
+      type="boolean" />
 
   </data>
 
