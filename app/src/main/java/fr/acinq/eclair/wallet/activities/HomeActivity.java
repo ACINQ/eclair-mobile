@@ -501,8 +501,12 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void handleSyncProgressEvent(SyncProgress progress) {
     final int p = (int) (progress.progress() * 100);
-    if (p == 100) {
+    if (p >= 100) {
       mBinding.syncProgressIcon.clearAnimation();
+    } else {
+      if (mBinding.syncProgressIcon.getAnimation() == null || mBinding.syncProgressIcon.getAnimation().hasEnded()) {
+        mBinding.syncProgressIcon.startAnimation(mRotatingAnimation);
+      }
     }
     mBinding.setSyncProgress(p);
   }
