@@ -23,13 +23,15 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.text.Html;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.Arrays;
@@ -46,7 +48,8 @@ import scala.collection.JavaConverters;
 
 public class CreateWalletFromScratchActivity extends EclairActivity implements EclairActivity.EncryptSeedCallback {
 
-  private static final String TAG = CreateWalletFromScratchActivity.class.getSimpleName();
+  private final Logger log = LoggerFactory.getLogger(CreateWalletFromScratchActivity.class);
+
   List<Integer> recoveryPositions = Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23);
   private List<String> mnemonics = null;
 
@@ -84,7 +87,7 @@ public class CreateWalletFromScratchActivity extends EclairActivity implements E
       }
     } catch (Exception e) {
       mnemonics = null;
-      Log.e(TAG, "could not generate recovery phrase", e);
+      log.error("could not generate recovery phrase");
       Toast.makeText(getApplicationContext(), R.string.createwallet_generation_failed, Toast.LENGTH_SHORT).show();
       goToStartup();
     }
@@ -169,7 +172,7 @@ public class CreateWalletFromScratchActivity extends EclairActivity implements E
       }
     } catch (Exception e) {
       mnemonics = null;
-      Log.e(TAG, "could not check the recovery phrase", e);
+      log.debug("could not check the recovery phrase");
     }
     // check fails
     mBinding.checkFailed.setVisibility(View.VISIBLE);

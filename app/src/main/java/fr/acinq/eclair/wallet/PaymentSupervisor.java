@@ -16,9 +16,9 @@
 
 package fr.acinq.eclair.wallet;
 
-import android.util.Log;
-
 import org.greenrobot.eventbus.EventBus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
 
 import java.io.ByteArrayOutputStream;
@@ -40,7 +40,8 @@ import fr.acinq.eclair.wallet.models.PaymentType;
  * This actor handles the various messages received from Electrum Wallet.
  */
 public class PaymentSupervisor extends UntypedActor {
-  public final static String TAG = "PaymentSupervisor";
+
+  private final Logger log = LoggerFactory.getLogger(PaymentSupervisor.class);
   private DBHelper dbHelper;
 
   public PaymentSupervisor(DBHelper dbHelper) {
@@ -58,7 +59,6 @@ public class PaymentSupervisor extends UntypedActor {
   public void onReceive(final Object message) throws Exception {
 
     if (message instanceof ElectrumWallet.TransactionReceived) {
-      Log.d(TAG, "Received TransactionReceived message: " + message);
       ElectrumWallet.TransactionReceived walletTransactionReceive = (ElectrumWallet.TransactionReceived) message;
       final Transaction tx = walletTransactionReceive.tx();
       final PaymentDirection direction = (walletTransactionReceive.received().$greater$eq(walletTransactionReceive.sent()))
@@ -71,9 +71,6 @@ public class PaymentSupervisor extends UntypedActor {
       final Satoshi fee = walletTransactionReceive.feeOpt().isDefined() ? walletTransactionReceive.feeOpt().get() : new Satoshi(0);
       ByteArrayOutputStream bos = new ByteArrayOutputStream();
       Transaction.write(tx, bos, Protocol.PROTOCOL_VERSION());
-      Log.d(TAG, "WalletTransactionReceive tx = [ " + walletTransactionReceive.tx().txid()
-        + ", amt " + amount + ", fee " + fee + ", dir " + direction
-        + ", already known " + (paymentInDB != null) + " ]");
 
       // insert or update received payment in DB
       final Payment paymentReceived = paymentInDB == null ? new Payment() : paymentInDB;
@@ -98,7 +95,6 @@ public class PaymentSupervisor extends UntypedActor {
       EventBus.getDefault().post(new PaymentEvent());
 
     } else if (message instanceof ElectrumWallet.TransactionConfidenceChanged) {
-      Log.d(TAG, "Received TransactionConfidenceChanged message: " + message);
       final ElectrumWallet.TransactionConfidenceChanged walletTransactionConfidenceChanged = (ElectrumWallet.TransactionConfidenceChanged) message;
       final int depth = (int) walletTransactionConfidenceChanged.depth();
       final Payment p = dbHelper.getPayment(walletTransactionConfidenceChanged.txid().toString(), PaymentType.BTC_ONCHAIN);
@@ -112,19 +108,19 @@ public class PaymentSupervisor extends UntypedActor {
 
     } else if (message instanceof ElectrumWallet.WalletReady) {
       final ElectrumWallet.WalletReady ready = (ElectrumWallet.WalletReady) message;
-      Log.i(TAG, "Received WalletReady: " + ready);
+      log.info("received WalletReady {}", ready);
       EventBus.getDefault().post(ready);
 
     } else if (message instanceof ElectrumWallet.NewWalletReceiveAddress) {
-      Log.d(TAG, "Received NewWalletReceiveAddress message=" + message);
+      log.info("received NewWalletReceiveAddress message {}", message);
       EventBus.getDefault().postSticky(message);
 
     } else if (message instanceof ElectrumClient.ElectrumDisconnected$) {
-      Log.d(TAG, "Received ElectrumDisconnected");
+      log.info("received ElectrumDisconnected");
       EventBus.getDefault().post(message);
 
     } else if (message instanceof ElectrumClient.ElectrumReady) {
-      Log.i(TAG, "Received ElectrumReady with server=" + ((ElectrumClient.ElectrumReady) message).serverAddress());
+      log.info("received ElectrumReady with server {}", ((ElectrumClient.ElectrumReady) message).serverAddress());
       EventBus.getDefault().post(message);
 
     } else unhandled(message);

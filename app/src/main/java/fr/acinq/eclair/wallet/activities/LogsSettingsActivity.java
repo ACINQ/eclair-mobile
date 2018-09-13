@@ -41,7 +41,7 @@ import fr.acinq.eclair.wallet.utils.ExternalStorageNotAvailableException;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 
 public class LogsSettingsActivity extends EclairActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
-  final Logger log = LoggerFactory.getLogger(LogsSettingsActivity.class);
+  private final Logger log = LoggerFactory.getLogger(LogsSettingsActivity.class);
   private ActivityLogsSettingsBinding mBinding;
   private int papertrailActivationCount = 0;
 

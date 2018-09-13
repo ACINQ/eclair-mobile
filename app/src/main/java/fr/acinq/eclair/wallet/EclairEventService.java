@@ -16,9 +16,9 @@
 
 package fr.acinq.eclair.wallet;
 
-import android.util.Log;
-
 import org.greenrobot.eventbus.EventBus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -86,6 +86,7 @@ import scala.util.Either;
  */
 public class EclairEventService extends UntypedActor {
 
+  private final Logger log = LoggerFactory.getLogger(EclairEventService.class);
   private DBHelper dbHelper;
   private OneTimeWorkRequest channelsBackupWork;
 
@@ -94,7 +95,6 @@ public class EclairEventService extends UntypedActor {
     this.channelsBackupWork = WalletUtils.generateBackupRequest(seedHash, backupKey);
   }
 
-  private static final String TAG = "EclairEventService";
   private static Map<ActorRef, LocalChannel> activeChannelsMap = new ConcurrentHashMap<>();
 
   public static Map<ActorRef, LocalChannel> getChannelsMap() {
@@ -336,7 +336,7 @@ public class EclairEventService extends UntypedActor {
         EventBus.getDefault().post(new LNPaymentFailedEvent(paymentInDB.getReference(), paymentInDB.getDescription(), false, null, errorList));
         EventBus.getDefault().post(new PaymentEvent());
       } else {
-        Log.d(TAG, "received and ignored an unknown PaymentFailed event with hash=" + event.paymentHash().toString());
+        log.debug("received and ignored an unknown PaymentFailed event with hash={}", event.paymentHash().toString());
       }
     } else if (message instanceof PaymentLifecycle.PaymentSucceeded) {
       final PaymentLifecycle.PaymentSucceeded event = (PaymentLifecycle.PaymentSucceeded) message;
@@ -346,7 +346,7 @@ public class EclairEventService extends UntypedActor {
         EventBus.getDefault().post(new LNPaymentSuccessEvent(paymentInDB));
         EventBus.getDefault().post(new PaymentEvent());
       } else {
-        Log.d(TAG, "received and ignored an unknown PaymentSucceeded event with hash=" + event.paymentHash().toString());
+        log.debug("received and ignored an unknown PaymentSucceeded event with hash={}", event.paymentHash().toString());
       }
     }
   }

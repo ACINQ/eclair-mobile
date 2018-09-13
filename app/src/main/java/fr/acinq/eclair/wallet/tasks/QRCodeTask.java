@@ -19,7 +19,6 @@ package fr.acinq.eclair.wallet.tasks;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.AsyncTask;
-import android.util.Log;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
@@ -28,17 +27,22 @@ import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.HashMap;
 import java.util.Map;
 
+
 public class QRCodeTask extends AsyncTask<String, Integer, Bitmap> {
+
+  private final Logger log = LoggerFactory.getLogger(QRCodeTask.class);
 
   public interface AsyncQRCodeResponse {
     void processFinish(Bitmap output);
   }
   private AsyncQRCodeResponse delegate;
 
-  private static final String TAG = "QRCodeTask";
   private final QRCodeWriter writer = new QRCodeWriter();
   private final int width;
   private final int height;
@@ -69,7 +73,7 @@ public class QRCodeTask extends AsyncTask<String, Integer, Bitmap> {
       }
       return Bitmap.createScaledBitmap(Bitmap.createBitmap(pixels, qrWidth, qrHeight, Bitmap.Config.ARGB_8888), width, height, false);
     } catch (WriterException e) {
-      Log.w(TAG, "Failed to generate QR code for source " + source + " with cause=" + e.getMessage());
+      log.warn("failed to generate QR code image for address {} with cause {}", source, e.getMessage());
       return null;
     }
   }

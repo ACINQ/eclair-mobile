@@ -25,7 +25,6 @@ import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.text.Html;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -73,6 +72,9 @@ import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.services.ChannelsBackupWorker;
 
 public class WalletUtils {
+
+  private final static org.slf4j.Logger log = LoggerFactory.getLogger(WalletUtils.class);
+
   public final static String ACINQ_NODE = "03933884aaf1d6b108397e5efe5c86bcf2d8ca8d2f700eda99db9214fc2712b134@endurance.acinq.co:9735";
   private final static String PRICE_RATE_API = "https://blockchain.info/fr/ticker";
   public final static String UNENCRYPTED_SEED_NAME = "seed.dat";
@@ -86,7 +88,7 @@ public class WalletUtils {
     try {
       rate = (float) o.getJSONObject(fiatCode).getDouble("last");
     } catch (Exception e) {
-      Log.d(TAG, "could not read " + fiatCode + " from price api response");
+      log.debug("could not read {} from price api response", fiatCode);
     }
     App.RATES.put(fiatCode, rate);
     editor.putFloat(Constants.SETTING_LAST_KNOWN_RATE_BTC_ + fiatCode, rate);
@@ -149,7 +151,7 @@ public class WalletUtils {
         saveCurrency(editor, response, "USD"); // usd
         editor.apply();
       }, (error) -> {
-      Log.d(TAG, "error when querying price api api with cause " + error.getMessage());
+      log.error("error when querying price api, with cause {}", error.getMessage());
     });
   }
 
@@ -161,7 +163,7 @@ public class WalletUtils {
         Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri + txId));
         v.getContext().startActivity(browserIntent);
       } catch (Throwable t) {
-        Log.w(WalletUtils.class.getSimpleName(), "Could not open explorer with uri=" + uri + txId);
+        log.warn("could not open explorer with uri={}{}", uri, txId);
         Toast.makeText(v.getContext(), "Could not open explorer", Toast.LENGTH_SHORT).show();
       }
     };
@@ -392,6 +394,7 @@ public class WalletUtils {
     final Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
     root.setLevel(Level.INFO);
     root.addAppender(rollingFileAppender);
+    log.info("now using the local file logging appender");
   }
 
   /**
@@ -432,5 +435,6 @@ public class WalletUtils {
     final Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
     root.setLevel(Level.INFO);
     root.addAppender(asyncAppender);
+    log.info("now using the papertail logging appender");
   }
 }
