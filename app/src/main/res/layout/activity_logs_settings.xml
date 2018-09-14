@@ -96,7 +96,7 @@
       <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@color/grey_0_dark_x1" />
+        android:background="@color/grey_0" />
 
       <LinearLayout
         style="@style/ClickableLayout"
@@ -141,6 +141,15 @@
             android:textColor="@color/grey_1"
             android:visibility="@{Constants.LOGS_OUTPUT_LOCAL.equals(logsOutputMode) ? View.VISIBLE : View.GONE}" />
 
+          <TextView
+            android:id="@+id/local_directory_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_md"
+            android:text="@string/logging_local_directory"
+            android:textColor="@color/grey_1"
+            android:visibility="@{Constants.LOGS_OUTPUT_LOCAL.equals(logsOutputMode) ? View.VISIBLE : View.GONE}" />
+
           <Button
             style="@style/ButtonStyle"
             android:layout_marginTop="@dimen/space_md"
@@ -151,22 +160,13 @@
             android:textSize="12sp"
             android:visibility="@{Constants.LOGS_OUTPUT_LOCAL.equals(logsOutputMode) ? View.VISIBLE : View.GONE}" />
 
-          <TextView
-            android:id="@+id/local_directory_view"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/space_md"
-            android:text="@string/logging_local_directory"
-            android:textColor="@color/grey_1"
-            android:visibility="@{Constants.LOGS_OUTPUT_LOCAL.equals(logsOutputMode) ? View.VISIBLE : View.GONE}" />
-
         </LinearLayout>
       </LinearLayout>
 
       <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@color/grey_0_dark_x1"
+        android:background="@color/grey_0"
         android:visibility="@{showPapertrail ? View.VISIBLE : View.GONE}" />
 
       <LinearLayout
@@ -251,7 +251,7 @@
       <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@color/grey_0_dark_x1" />
+        android:background="@color/grey_0" />
 
       <Button
         style="@style/EndButtonStyle"
