@@ -358,7 +358,7 @@ public class WalletUtils {
     final LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
     lc.reset();
 
-    final File logsDir = new File(context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "eclair-wallet-logs");
+    final File logsDir = context.getExternalFilesDir(Constants.LOGS_DIR);
     if (!logsDir.exists()) logsDir.mkdirs();
 
     final PatternLayoutEncoder encoder = new PatternLayoutEncoder();
@@ -368,14 +368,14 @@ public class WalletUtils {
 
     final RollingFileAppender<ILoggingEvent> rollingFileAppender = new RollingFileAppender<>();
     rollingFileAppender.setContext(lc);
-    rollingFileAppender.setFile(new File(logsDir, "eclair-wallet.log").getAbsolutePath());
+    rollingFileAppender.setFile(new File(logsDir, Constants.CURRENT_LOG_FILE).getAbsolutePath());
 
     final FixedWindowRollingPolicy rollingPolicy = new FixedWindowRollingPolicy();
     rollingPolicy.setContext(lc);
     rollingPolicy.setParent(rollingFileAppender);
     rollingPolicy.setMinIndex(1);
     rollingPolicy.setMaxIndex(2);
-    rollingPolicy.setFileNamePattern(new File(logsDir, "eclair-wallet.%i.log").getAbsolutePath());
+    rollingPolicy.setFileNamePattern(new File(logsDir, Constants.ARCHIVED_LOG_FILE).getAbsolutePath());
     rollingPolicy.start();
 
     final SizeBasedTriggeringPolicy<ILoggingEvent> triggeringPolicy = new SizeBasedTriggeringPolicy<>();

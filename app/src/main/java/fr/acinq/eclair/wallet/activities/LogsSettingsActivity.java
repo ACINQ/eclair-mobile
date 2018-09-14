@@ -24,6 +24,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -34,6 +35,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 
+import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.databinding.ActivityLogsSettingsBinding;
 import fr.acinq.eclair.wallet.utils.Constants;
@@ -73,6 +75,7 @@ public class LogsSettingsActivity extends EclairActivity implements SharedPrefer
     mBinding.papertrailHostInput.setText(prefs.getString(Constants.SETTING_PAPERTRAIL_HOST, ""));
     mBinding.papertrailPortInput.setText(Integer.toString(prefs.getInt(Constants.SETTING_PAPERTRAIL_PORT, 12345)));
     mBinding.setShowPapertrail(prefs.getBoolean(Constants.SETTING_PAPERTRAIL_VISIBLE, false));
+    mBinding.localDirectoryView.setText(getString(R.string.logging_local_directory, getApplicationContext().getExternalFilesDir(Constants.LOGS_DIR)));
     refreshRadioDisplays(prefs);
   }
 
@@ -130,8 +133,8 @@ public class LogsSettingsActivity extends EclairActivity implements SharedPrefer
     // disabled
     mBinding.radioNone.setChecked(Constants.LOGS_OUTPUT_NONE.equals(outputMode));
     mBinding.disabledLabel.setText((Constants.LOGS_OUTPUT_NONE.equals(outputMode)
-        ? getString(R.string.logging_current_label, getString(R.string.logging_disabled_label))
-        : getString(R.string.logging_disabled_label)));
+      ? getString(R.string.logging_current_label, getString(R.string.logging_disabled_label))
+      : getString(R.string.logging_disabled_label)));
     // local
     mBinding.radioLocal.setChecked(Constants.LOGS_OUTPUT_LOCAL.equals(outputMode));
     mBinding.localLabel.setText((Constants.LOGS_OUTPUT_LOCAL.equals(outputMode)
@@ -157,17 +160,17 @@ public class LogsSettingsActivity extends EclairActivity implements SharedPrefer
   }
 
   public void viewLocalLogs(final View view) {
-    final File logsDir = new File(getApplicationContext().getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "eclair-wallet-logs");
+    final File logsDir = getApplicationContext().getExternalFilesDir(Constants.LOGS_DIR);
     if (!logsDir.exists()) logsDir.mkdirs();
-    final File logs = new File(logsDir, "eclair-wallet.log");
+    final File logs = new File(logsDir, Constants.CURRENT_LOG_FILE);
     if (logs.exists()) {
+      final Uri logFileURI = FileProvider.getUriForFile(getApplicationContext(), BuildConfig.APPLICATION_ID + ".provider", logs);
       final Intent viewIntent = new Intent(Intent.ACTION_VIEW);
-      viewIntent.setDataAndType(Uri.fromFile(logs), "text/plain");
+      viewIntent.setDataAndType(logFileURI, "text/plain").addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
       final Intent externalAppIntent = Intent.createChooser(viewIntent, getString(R.string.logging_external_app_intent));
       startActivity(externalAppIntent);
     } else {
       Toast.makeText(this, R.string.logging_toast_error_file_not_found, Toast.LENGTH_SHORT).show();
     }
-
   }
 }

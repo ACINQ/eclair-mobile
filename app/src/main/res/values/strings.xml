@@ -527,7 +527,8 @@
   <string name="logging_disabled_label">Disabled</string>
   <string name="logging_disabled_desc">No logs will be written, which is best for performances.</string>
   <string name="logging_local_label">Local file</string>
-  <string name="logging_local_desc">Logs will be written in a rolling file on your phone</string>
+  <string name="logging_local_desc">Logs will be written in a rolling file on your phone.</string>
+  <string name="logging_local_directory">Files stored in: %1$s</string>
   <string name="logging_local_view_logs">View logs</string>
   <string name="logging_papertrailapp_label">PaperTrail</string>
   <string name="logging_papertrailapp_desc">Logs will be sent over to your Papertrailapp account. Not great for privacy, but real handy for debugging.</string>
