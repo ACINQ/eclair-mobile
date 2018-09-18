@@ -52,6 +52,7 @@ import fr.acinq.eclair.channel.Commitments;
 import fr.acinq.eclair.channel.DATA_CLOSING;
 import fr.acinq.eclair.channel.HasCommitments;
 import fr.acinq.eclair.channel.LocalCommit;
+import fr.acinq.eclair.channel.LocalCommitConfirmed;
 import fr.acinq.eclair.channel.OFFLINE$;
 import fr.acinq.eclair.channel.RemoteCommit;
 import fr.acinq.eclair.channel.ShortChannelIdAssigned;
@@ -148,6 +149,13 @@ public class EclairEventService extends UntypedActor {
       final LocalChannel c = getChannel(event.channel());
       c.setChannelId(event.channelId().toString());
       c.setPeerNodeId(event.remoteNodeId().toString());
+
+      // restore data from DB that were sent only once by the node and may have be persisted
+      final LocalChannel channelInDB = dbHelper.getLocalChannel(c.getChannelId());
+      if (channelInDB != null) {
+        c.setRefundAtBlock(channelInDB.getRefundAtBlock());
+      }
+
       activeChannelsMap.put(event.channel(), c);
       context().watch(event.channel());
       EventBus.getDefault().post(new ChannelUpdateEvent());
@@ -227,12 +235,9 @@ public class EclairEventService extends UntypedActor {
     }
     // ---- channel must be saved
     else if (message instanceof ChannelPersisted) {
-
       WorkManager.getInstance()
         .beginUniqueWork("ChannelsBackup", ExistingWorkPolicy.REPLACE, channelsBackupWork)
         .enqueue();
-
-//      backupScheduler.tell(BackupScheduler.DO_BACKUP, null);
     }
     // ---- network map syncing
     else if (message instanceof SyncProgress) {
@@ -267,6 +272,17 @@ public class EclairEventService extends UntypedActor {
         dbHelper.saveLocalChannel(c);
       }
     }
+    // ---- channel is closing and we know when the main output is refunded
+    else if (message instanceof LocalCommitConfirmed) {
+      final LocalCommitConfirmed event = (LocalCommitConfirmed) message;
+      Log.i(TAG, "received local commit confirmed for channel=" + event.channelId() + ", closing in block #" + event.refundAtBlock());
+      final LocalChannel c = activeChannelsMap.get(event.channel());
+      if (c != null) {
+        c.setRefundAtBlock(event.refundAtBlock());
+        dbHelper.saveLocalChannel(c);
+        EventBus.getDefault().post(new ChannelUpdateEvent());
+      }
+    }
     // ---- channel state changed
     else if (message instanceof ChannelStateChanged) {
       final ChannelStateChanged event = (ChannelStateChanged) message;
@@ -291,7 +307,7 @@ public class EclairEventService extends UntypedActor {
           c.setClosingType(ClosingType.OTHER);
         }
 
-        // Don't show the notification if state goes from straight from WAIT_FOR_INIT_INTERNAL to CLOSING
+        // Don't show the notification if state goes straight from WAIT_FOR_INIT_INTERNAL to CLOSING
         // Otherwise the notification would show up each time the wallet is started and the channel is
         // still closing, even though the user has already been alerted the last time he used the app.
         // Same thing for CLOSING -> CLOSED
@@ -314,6 +330,7 @@ public class EclairEventService extends UntypedActor {
         c.setBalanceMsat(commitments.localCommit().spec().toLocalMsat());
         c.setCapacityMsat(commitments.localCommit().spec().totalFunds());
       }
+
       activeChannelsMap.put(event.channel(), c);
       dbHelper.saveLocalChannel(c);
       EventBus.getDefault().post(new ChannelUpdateEvent());

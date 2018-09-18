@@ -46,6 +46,7 @@ import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.eclair.CoinUnit;
 import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.Features;
+import fr.acinq.eclair.Globals;
 import fr.acinq.eclair.channel.CLOSING$;
 import fr.acinq.eclair.channel.NEGOTIATING$;
 import fr.acinq.eclair.channel.OFFLINE$;
@@ -187,9 +188,17 @@ public class ChannelDetailsActivity extends EclairActivity {
     }
 
     if (CLOSING$.MODULE$.toString().equals(channel.state) || !channel.getIsActive()) {
-      if (!Strings.isNullOrEmpty(channel.getClosingErrorMessage()))
+      if (!Strings.isNullOrEmpty(channel.getClosingErrorMessage())) {
         mBinding.closingCause.setValue(channel.getClosingErrorMessage());
+      }
       mBinding.closingCause.setVisibility(View.VISIBLE);
+    }
+
+    if (CLOSING$.MODULE$.toString().equals(channel.state)) {
+      if (channel.getRefundAtBlock() > 0) {
+        mBinding.closingRefundBlock.setValue(getString(R.string.channeldetails_refund_block_value, channel.getRefundAtBlock(), Globals.blockCount().get()));
+      }
+      mBinding.closingRefundBlock.setVisibility(View.VISIBLE);
     }
 
     mBinding.nodeid.setValue(channel.getPeerNodeId());

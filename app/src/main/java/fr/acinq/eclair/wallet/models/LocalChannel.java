@@ -55,6 +55,7 @@ public class LocalChannel {
   @NotNull
   private long balanceMsat;
 
+  private long refundAtBlock;
 
   private long channelReserveSat;
 
@@ -97,12 +98,12 @@ public class LocalChannel {
     this.created = new Date();
   }
 
-  @Generated(hash = 107395081)
+  @Generated(hash = 1662390408)
 public LocalChannel(Long id, @NotNull String channelId, String shortChannelId,
         String peerNodeId, String peerAddress, long capacityMsat,
-        long balanceMsat, long channelReserveSat, long minimumHtlcAmountMsat,
-        int toSelfDelayBlocks, String fundingTxId, String closingTxId,
-        ClosingType closingType, String closingErrorMessage,
+        long balanceMsat, long refundAtBlock, long channelReserveSat,
+        long minimumHtlcAmountMsat, int toSelfDelayBlocks, String fundingTxId,
+        String closingTxId, ClosingType closingType, String closingErrorMessage,
         String localFeatures, boolean isActive, @NotNull Date created,
         Date updated) {
     this.id = id;
@@ -112,6 +113,7 @@ public LocalChannel(Long id, @NotNull String channelId, String shortChannelId,
     this.peerAddress = peerAddress;
     this.capacityMsat = capacityMsat;
     this.balanceMsat = balanceMsat;
+    this.refundAtBlock = refundAtBlock;
     this.channelReserveSat = channelReserveSat;
     this.minimumHtlcAmountMsat = minimumHtlcAmountMsat;
     this.toSelfDelayBlocks = toSelfDelayBlocks;
@@ -268,5 +270,13 @@ public Long getId() {
   public void setUpdated(Date updated) {
       this.updated = updated;
   }
+
+public long getRefundAtBlock() {
+    return this.refundAtBlock;
+}
+
+public void setRefundAtBlock(long refundAtBlock) {
+    this.refundAtBlock = refundAtBlock;
+}
 
 }

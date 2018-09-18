@@ -245,6 +245,9 @@
   <string name="channeldetails_min_htlc_amount_label">Min. payment amount</string>
   <string name="channeldetails_min_htlc_amount_desc">Minimum amount that can be sent through this channel</string>
   <string name="channeldetails_closing_cause_label">Cause of closing</string>
+  <string name="channeldetails_refund_block_label">Refund Block</string>
+  <string name="channeldetails_refund_block_desc">Block height at which the main output is refunded</string>
+  <string name="channeldetails_refund_block_value">Block #%1$d\n\n(current is %2$d)</string>
   <string name="channeldetails_nodeid_label">Remote node id</string>
   <string name="channeldetails_nodeid_desc">Public key of the remote peer</string>
   <string name="channeldetails_state_label">State</string>
@@ -417,8 +420,9 @@
 
   <!-- //////////////// Local Channel Item //////////////////// -->
 
-  <string name="channelitem_delayed_closing">Your funds will be available in %1$d block(s).</string>
-  <string name="channelitem_delayed_closing_unknown">Your funds will be available after a %1$d blocks delay.</string>
+  <string name="channelitem_delayed_closing">Refund in %1$d block(s)</string>
+  <string name="channelitem_delayed_closing_unknown">Refund in %1$d+ blocks</string>
+  <string name="channelitem_delayed_closing_done">Refunds complete.</string>
   <string name="channelitem_with_node">With %1$s</string>
   <string name="channelitem_inflight_htlcs">%1$d inflight payment(s)</string>
   <string name="channelitem_cooperative">(cooperative)</string>
