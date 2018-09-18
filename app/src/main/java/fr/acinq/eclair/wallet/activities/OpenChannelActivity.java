@@ -71,7 +71,6 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    setContentView(R.layout.activity_open_channel);
     mBinding = DataBindingUtil.setContentView(this, R.layout.activity_open_channel);
 
     final SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);

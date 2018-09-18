@@ -82,16 +82,24 @@ public class ChannelsListFragment extends Fragment {
   }
 
   public void updateInactiveChannelsList() {
-    if (getContext() != null && getActivity() != null && getActivity().getApplication() != null) {
-      final DBHelper dbHelper = ((App) getActivity().getApplication()).getDBHelper();
-      if (dbHelper != null) {
-        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
-        final List<LocalChannel> inactiveChannels = dbHelper.getInactiveChannels();
-        mInactiveChannelsAdapter.update(inactiveChannels,
-          WalletUtils.getPreferredFiat(prefs), WalletUtils.getPreferredCoinUnit(prefs), WalletUtils.shouldDisplayInFiat(prefs));
-        mBinding.setInactiveSize(inactiveChannels.size());
+    new Thread() {
+      @Override
+      public void run() {
+        if (getContext() != null && getActivity() != null && getActivity().getApplication() != null) {
+          final DBHelper dbHelper = ((App) getActivity().getApplication()).getDBHelper();
+          if (dbHelper != null) {
+            final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+            final List<LocalChannel> inactiveChannels = dbHelper.getInactiveChannels();
+            getActivity().runOnUiThread(() -> {
+              mInactiveChannelsAdapter.update(inactiveChannels,
+                WalletUtils.getPreferredFiat(prefs), WalletUtils.getPreferredCoinUnit(prefs), WalletUtils.shouldDisplayInFiat(prefs));
+              mBinding.setInactiveSize(inactiveChannels.size());
+            });
+
+          }
+        }
       }
-    }
+    }.start();
   }
 
   public void updateActiveChannelsList() {
