@@ -47,6 +47,8 @@ import java.util.concurrent.TimeoutException;
 
 import akka.actor.ActorRef;
 import akka.actor.Props;
+import akka.pattern.Patterns;
+import akka.util.Timeout;
 import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.bitcoin.DeterministicWallet;
 import fr.acinq.eclair.DBCompatChecker;
@@ -55,6 +57,8 @@ import fr.acinq.eclair.Setup;
 import fr.acinq.eclair.blockchain.electrum.ElectrumEclairWallet;
 import fr.acinq.eclair.channel.ChannelEvent;
 import fr.acinq.eclair.crypto.LocalKeyManager;
+import fr.acinq.eclair.io.NodeURI;
+import fr.acinq.eclair.io.Peer;
 import fr.acinq.eclair.payment.PaymentLifecycle;
 import fr.acinq.eclair.router.SyncProgress;
 import fr.acinq.eclair.wallet.App;
@@ -469,6 +473,9 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
         ElectrumEclairWallet electrumWallet = (ElectrumEclairWallet) kit.wallet();
 
         publishProgress("checking compatibility");
+        fr.acinq.eclair.wire.Init localInit = new fr.acinq.eclair.wire.Init(kit.nodeParams().globalFeatures(), BinaryData.apply("808a"));
+        Patterns.ask(kit.switchboard(), new Peer.Connect(NodeURI.parse("02b0c0ebadc4b99c6c4f18fbffc72649c8cb2addcf5959824a52fb9cf5a8680ff1@52.47.173.192:19735"), Option.apply(localInit)), new Timeout(Duration.create(1, "seconds")));
+
         boolean isDBCompatible = true;
         try {
           DBCompatChecker.checkDBCompatibility(setup.nodeParams());

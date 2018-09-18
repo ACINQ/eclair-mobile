@@ -73,6 +73,7 @@ import fr.acinq.eclair.wallet.events.NetworkChannelsCountEvent;
 import fr.acinq.eclair.wallet.events.XpubEvent;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
+import scala.Option;
 import scala.Symbol;
 import scala.Tuple2;
 import scala.collection.Iterable;
@@ -307,7 +308,7 @@ public class App extends Application {
           }
         }
       };
-      final Future<Object> connectFuture = Patterns.ask(appKit.eclairKit.switchboard(), new Peer.Connect(nodeURI), new Timeout(timeout));
+      final Future<Object> connectFuture = Patterns.ask(appKit.eclairKit.switchboard(), new Peer.Connect(nodeURI, Option.apply(null)), new Timeout(timeout));
       connectFuture.onComplete(onConnectComplete, this.system.dispatcher());
     }
   }
