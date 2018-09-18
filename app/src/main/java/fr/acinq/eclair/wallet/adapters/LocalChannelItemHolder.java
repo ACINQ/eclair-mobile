@@ -28,6 +28,7 @@ import android.widget.TextView;
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.eclair.CoinUnit;
 import fr.acinq.eclair.CoinUtils;
+import fr.acinq.eclair.Globals;
 import fr.acinq.eclair.channel.CLOSING$;
 import fr.acinq.eclair.channel.NORMAL$;
 import fr.acinq.eclair.channel.OFFLINE$;
@@ -109,7 +110,16 @@ public class LocalChannelItemHolder extends RecyclerView.ViewHolder implements V
       // ---- additional dynamic info, such as delayed closing tx, inflight htlcs...
       if (CLOSING$.MODULE$.toString().equals(item.state) && ClosingType.LOCAL.equals(item.getClosingType())) {
         // TODO: get the exact block at which the closing tx will be broadcast
-        delayedClosing.setText(itemView.getResources().getString(R.string.channelitem_delayed_closing_unknown, item.getToSelfDelayBlocks()));
+        if (item.getRefundAtBlock() > 0 && Globals.blockCount().get() > 0) {
+          final long remainingBlocks = item.getRefundAtBlock() - Globals.blockCount().get();
+          if (remainingBlocks > 0) {
+            delayedClosing.setText(itemView.getResources().getString(R.string.channelitem_delayed_closing, remainingBlocks, remainingBlocks > 1 ? "s" : ""));
+          } else {
+            delayedClosing.setText(itemView.getResources().getString(R.string.channelitem_delayed_closing_claimable));
+          }
+        } else {
+          delayedClosing.setText(itemView.getResources().getString(R.string.channelitem_delayed_closing_unknown, item.getToSelfDelayBlocks()));
+        }
         delayedClosing.setVisibility(View.VISIBLE);
       } else {
         delayedClosing.setVisibility(View.GONE);
