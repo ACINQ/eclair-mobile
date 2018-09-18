@@ -25,11 +25,13 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
-import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
 import com.google.common.base.Strings;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.text.DateFormat;
 import java.util.Arrays;
@@ -72,7 +74,7 @@ import fr.acinq.eclair.wallet.utils.WalletUtils;
 
 public class ChannelDetailsActivity extends EclairActivity {
 
-  private static final String TAG = "ChannelDetailsActivity";
+  private final Logger log = LoggerFactory.getLogger(ChannelDetailsActivity.class);
 
   public static final Set<String> STATE_MUTUAL_CLOSE = new HashSet<>(Arrays.asList(WAIT_FOR_INIT_INTERNAL$.MODULE$.toString(), WAIT_FOR_OPEN_CHANNEL$.MODULE$.toString(), WAIT_FOR_ACCEPT_CHANNEL$.MODULE$.toString(), WAIT_FOR_FUNDING_INTERNAL$.MODULE$.toString(), WAIT_FOR_FUNDING_CREATED$.MODULE$.toString(), WAIT_FOR_FUNDING_SIGNED$.MODULE$.toString(), NORMAL$.MODULE$.toString()));
   public static final Set<String> STATE_FORCE_CLOSE = new HashSet<>(Arrays.asList(WAIT_FOR_FUNDING_CONFIRMED$.MODULE$.toString(), WAIT_FOR_FUNDING_LOCKED$.MODULE$.toString(), NORMAL$.MODULE$.toString(), SHUTDOWN$.MODULE$.toString(), NEGOTIATING$.MODULE$.toString(), OFFLINE$.MODULE$.toString(), SYNCING$.MODULE$.toString()));
@@ -123,18 +125,18 @@ public class ChannelDetailsActivity extends EclairActivity {
       if (activeChannel != null && activeChannel.getValue() != null) {
         setupView(activeChannel.getValue(), activeChannel.getKey());
       } else {
-        Log.d(TAG, "could not find active channel with id=" + mChannelId);
+        log.debug("could not find active channel with id={}", mChannelId);
         final LocalChannel channelDB = app.getDBHelper().getLocalChannel(mChannelId);
         if (channelDB != null) {
           setupView(channelDB, null);
         } else {
-          Log.d(TAG, "could not find channel with id=" + mChannelId + " in DB");
+          log.debug("could not find channel with id={} in database", mChannelId);
           Toast.makeText(this, getString(R.string.channeldetails_unknown), Toast.LENGTH_LONG).show();
           finish();
         }
       }
     } catch (Exception e) {
-      Log.w(TAG, "could not read channel details with cause=" + e.getMessage());
+      log.error("could not read channel details with cause={}", e.getMessage());
       finish();
     }
   }

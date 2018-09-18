@@ -20,7 +20,6 @@ import android.app.Dialog;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.View;
 
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -34,7 +33,6 @@ import fr.acinq.eclair.wallet.utils.WalletUtils;
 
 public class SetupChannelsBackupActivity extends GoogleDriveBaseActivity {
 
-  private static final String TAG = SetupChannelsBackupActivity.class.getSimpleName();
   private ActivitySetupChannelsBackupBinding mBinding;
   private Dialog backupAbout;
 
@@ -66,14 +64,12 @@ public class SetupChannelsBackupActivity extends GoogleDriveBaseActivity {
 
   @Override
   void applyAccessDenied() {
-    Log.i(TAG, "google drive access is denied!");
     PreferenceManager.getDefaultSharedPreferences(getBaseContext()).edit()
       .putBoolean(Constants.SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_ENABLED, false).apply();
   }
 
   @Override
   void applyAccessGranted(final GoogleSignInAccount signIn) {
-    Log.i(TAG, "google drive access is granted!");
     PreferenceManager.getDefaultSharedPreferences(getBaseContext()).edit()
       .putBoolean(Constants.SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_ENABLED, true)
       .putBoolean(Constants.SETTING_CHANNELS_BACKUP_SEEN_ONCE, true).apply();

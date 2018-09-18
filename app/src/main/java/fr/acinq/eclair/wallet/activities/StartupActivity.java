@@ -25,7 +25,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.text.Html;
-import android.util.Log;
 import android.view.View;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -36,6 +35,8 @@ import com.typesafe.config.ConfigFactory;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -73,7 +74,8 @@ import scala.concurrent.duration.Duration;
 
 public class StartupActivity extends EclairActivity implements EclairActivity.EncryptSeedCallback {
 
-  private static final String TAG = "StartupActivity";
+  private final Logger log = LoggerFactory.getLogger(StartupActivity.class);
+
   private ActivityStartupBinding mBinding;
   private PinDialog mPinDialog;
   public final static String ORIGIN = BuildConfig.APPLICATION_ID + "ORIGIN";
@@ -199,9 +201,6 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
     final boolean eclairStartedOnce = (datadir.exists() && datadir.isDirectory()
       && WalletUtils.getEclairDBFile(getApplicationContext()).exists());
     final boolean isFreshInstall = lastUsedVersion == 0 && !eclairStartedOnce;
-    Log.d(TAG, "last used version = " + lastUsedVersion);
-    Log.d(TAG, "has eclair started once ? " + eclairStartedOnce);
-    Log.d(TAG, "fresh install ? " + isFreshInstall);
     if (lastUsedVersion < BuildConfig.VERSION_CODE && !isFreshInstall) {
       if (BREAKING_VERSIONS.contains(BuildConfig.VERSION_CODE)) {
         showBreaking();
@@ -227,7 +226,6 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
       if (!eclairSqliteInTestnet.exists()) {
         try {
           Files.move(eclairSqlite, eclairSqliteInTestnet);
-          Log.i(TAG, "moved eclair.sqlite to testnet dir");
         } catch (IOException e) {
           showError(getString(R.string.start_error_generic), true, false);
         }
@@ -245,13 +243,12 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
       final File unencryptedSeedFile = new File(datadir, WalletUtils.UNENCRYPTED_SEED_NAME);
       final File encryptedSeedFile = new File(datadir, WalletUtils.SEED_NAME);
       if (unencryptedSeedFile.exists() && !encryptedSeedFile.exists()) {
-        Log.i(TAG, "non encrypted seed file found in datadir, encryption is required");
         try {
           final byte[] unencryptedSeed = Files.toByteArray(unencryptedSeedFile);
           showError(getString(R.string.start_error_unencrypted));
           new Handler().postDelayed(() -> encryptWallet(this, false, datadir, unencryptedSeed), 2500);
         } catch (IOException e) {
-          Log.e(TAG, "Could not encrypt unencrypted seed", e);
+          log.error("could not encrypt unencrypted seed", e);
         }
         return false;
       } else if (unencryptedSeedFile.exists() && encryptedSeedFile.exists()) {
@@ -271,10 +268,9 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
 
   private boolean checkChannelsBackupRestore() {
     if (!WalletUtils.getEclairDBFile(getApplicationContext()).exists()) {
-      Log.i(TAG, "could not find eclair DB file in datadir, attempting to restore backup");
+      log.debug("could not find eclair DB file in datadir, attempting to restore backup");
       final int connectionResult = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(getApplicationContext());
       if (connectionResult != ConnectionResult.SUCCESS) {
-        Log.i(TAG, "Google play services are not available (code " + connectionResult + ")");
         return true;
       } else {
         final Intent intent = new Intent(getBaseContext(), RestoreChannelsBackupActivity.class);
@@ -308,10 +304,10 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
 
     if (app.appKit == null) {
       if (datadir.exists() && !datadir.canRead()) {
-        Log.e(TAG, "datadir is not readable. Aborting startup");
+        log.error("datadir is not readable. Aborting startup");
         showError(getString(R.string.start_error_datadir_unreadable), true, true);
       } else if (datadir.exists() && !datadir.isDirectory()) {
-        Log.e(TAG, "datadir is not a directory. Aborting startup");
+        log.error("datadir is not a directory. Aborting startup");
         showError(getString(R.string.start_error_datadir_not_directory), true, true);
       } else {
         final String currentPassword = app.pin.get();
@@ -374,7 +370,6 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
           new StartupTask().execute(app, seed);
 
         } catch (GeneralSecurityException e) {
-          Log.w(TAG, "attempted to read seed with wrong password");
           app.pin.set(null);
           app.seedHash.set(null);
           app.backupKey_v1.set(null);
@@ -384,7 +379,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
             new Handler().postDelayed(() -> startNode(datadir, prefs), 1400);
           });
         } catch (Throwable t) {
-          Log.e(TAG, "seed is unreadable", t);
+          log.error("seed is unreadable", t);
           app.pin.set(null);
           app.seedHash.set(null);
           app.backupKey_v1.set(null);
@@ -431,7 +426,8 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
    * When the task is finished, executes `processStartupFinish` in StartupActivity.
    */
   private static class StartupTask extends AsyncTask<Object, String, Integer> {
-    private static final String TAG = "StartupTask";
+
+    private final Logger log = LoggerFactory.getLogger(StartupTask.class);
 
     private final static int SUCCESS = 0;
     private final static int GENERIC_ERROR = 3;
@@ -449,7 +445,6 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
         App app = (App) params[0];
         final BinaryData seed = (BinaryData) params[1];
         final File datadir = new File(app.getFilesDir(), Constants.ECLAIR_DATADIR);
-        Log.d(TAG, "Accessing Eclair Setup with datadir " + datadir.getAbsolutePath());
 
         publishProgress("initializing system");
         app.checkupInit();
@@ -487,7 +482,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
         return SUCCESS;
 
       } catch (Throwable t) {
-        Log.e(TAG, "Failed to start eclair", t);
+        log.error("failed to start eclair", t);
         if (t instanceof TimeoutException) {
           return TIMEOUT_ERROR;
         } else {

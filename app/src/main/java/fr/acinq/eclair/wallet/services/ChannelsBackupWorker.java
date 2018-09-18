@@ -20,11 +20,9 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.drive.Drive;
-import com.google.android.gms.drive.DriveClient;
 import com.google.android.gms.drive.DriveContents;
 import com.google.android.gms.drive.DriveFile;
 import com.google.android.gms.drive.DriveFolder;
@@ -38,6 +36,9 @@ import com.google.android.gms.tasks.Tasks;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
 import com.tozny.crypto.android.AesCbcWithIntegrity;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -53,7 +54,7 @@ import fr.acinq.eclair.wallet.utils.EncryptedData;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 
 public class ChannelsBackupWorker extends Worker {
-
+  private final Logger log = LoggerFactory.getLogger(ChannelsBackupWorker.class);
   public final static String BACKUP_NAME_INPUT = BuildConfig.APPLICATION_ID + ".BACKUP_NAME";
   public final static String BACKUP_KEY_INPUT = BuildConfig.APPLICATION_ID + ".BACKUP_KEY_INPUT";
   private static final String TAG = ChannelsBackupWorker.class.getSimpleName();
@@ -66,7 +67,6 @@ public class ChannelsBackupWorker extends Worker {
     final String key = getInputData().getString(BACKUP_KEY_INPUT);
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
     if (!prefs.getBoolean(Constants.SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_ENABLED, false) || backupFileName == null) {
-      Log.i(TAG, "ignored channels backup request because feature is disabled.");
       return Result.SUCCESS;
     }
 
@@ -75,7 +75,6 @@ public class ChannelsBackupWorker extends Worker {
 
     // --- check authorization
     if (signInAccount == null) {
-      Log.i(TAG, "account is not signed in");
       return Result.FAILURE;
     }
 
@@ -98,7 +97,7 @@ public class ChannelsBackupWorker extends Worker {
         .apply();
       return Result.SUCCESS;
     } catch (Throwable t) {
-      Log.e(TAG, "failed to save backup", t);
+      log.error(TAG, "failed to save channels backup", t);
       prefs.edit()
         .putBoolean(Constants.SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_ENABLED, false)
         .putBoolean(Constants.SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_HAS_FAILED, true)

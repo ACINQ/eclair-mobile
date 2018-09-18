@@ -17,13 +17,15 @@
 package fr.acinq.eclair.wallet.tasks;
 
 import android.os.AsyncTask;
-import android.util.Log;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import fr.acinq.eclair.io.NodeURI;
 
 public class NodeURIReaderTask extends AsyncTask<String, Integer, NodeURI> {
 
-  private static final String TAG = "NodeURITask";
+  private final Logger log = LoggerFactory.getLogger(NodeURIReaderTask.class);
   private final String nodeURIAsString;
   private final AsyncNodeURIReaderTaskResponse delegate;
 
@@ -38,7 +40,7 @@ public class NodeURIReaderTask extends AsyncTask<String, Integer, NodeURI> {
     try {
       uri = NodeURI.parse(nodeURIAsString);
     } catch (Throwable t) {
-      Log.d(TAG, "Could not read uri=" + nodeURIAsString + " with cause: " + t.getMessage());
+      log.debug("could not read uri {} with cause {}", nodeURIAsString, t.getMessage());
     }
     return uri;
   }

@@ -18,7 +18,6 @@ package fr.acinq.eclair.wallet;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.util.Log;
 
 import org.greenrobot.greendao.DaoException;
 import org.greenrobot.greendao.database.Database;
@@ -27,7 +26,6 @@ import org.greenrobot.greendao.query.QueryBuilder;
 import java.util.Date;
 import java.util.List;
 
-import fr.acinq.eclair.channel.CLOSED$;
 import fr.acinq.eclair.wallet.models.DaoMaster;
 import fr.acinq.eclair.wallet.models.DaoSession;
 import fr.acinq.eclair.wallet.models.LocalChannel;
@@ -40,11 +38,9 @@ import fr.acinq.eclair.wallet.models.PaymentType;
 
 public class DBHelper {
 
-  private final static String TAG = "DBHelper";
   private DaoSession daoSession;
 
   public DBHelper(Context context) {
-
     DBMigrationHelper helper = new DBMigrationHelper(context, "eclair-wallet");
     Database db = helper.getWritableDb();
     daoSession = new DaoMaster(db).newSession();
@@ -128,7 +124,6 @@ public class DBHelper {
   }
 
   void updatePaymentFailed(final Payment p) {
-    Log.i(TAG, "update payment to failed with status=" + p.getStatus());
     if (p.getStatus() != PaymentStatus.PAID) {
       p.setStatus(PaymentStatus.FAILED);
       p.setUpdated(new Date());
@@ -137,7 +132,6 @@ public class DBHelper {
   }
 
   public void updatePaymentPending(final Payment p) {
-    Log.i(TAG, "update payment to pending with status=" + p.getStatus());
     if (p.getStatus() != PaymentStatus.PAID) {
       p.setStatus(PaymentStatus.PENDING);
       p.setUpdated(new Date());

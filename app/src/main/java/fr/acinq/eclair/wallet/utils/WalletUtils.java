@@ -21,10 +21,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.text.Html;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -32,9 +32,12 @@ import android.widget.Toast;
 import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.google.common.io.Files;
+import com.papertrailapp.logback.Syslog4jAppender;
 import com.tozny.crypto.android.AesCbcWithIntegrity;
 
 import org.json.JSONObject;
+import org.productivity.java.syslog4j.impl.net.tcp.ssl.SSLTCPNetSyslogConfig;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,6 +49,16 @@ import java.util.regex.Pattern;
 
 import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
+import ch.qos.logback.classic.AsyncAppender;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.PatternLayout;
+import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.rolling.FixedWindowRollingPolicy;
+import ch.qos.logback.core.rolling.RollingFileAppender;
+import ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy;
 import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.bitcoin.Block;
 import fr.acinq.bitcoin.MilliSatoshi;
@@ -59,6 +72,9 @@ import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.services.ChannelsBackupWorker;
 
 public class WalletUtils {
+
+  private final static org.slf4j.Logger log = LoggerFactory.getLogger(WalletUtils.class);
+
   public final static String ACINQ_NODE = "03933884aaf1d6b108397e5efe5c86bcf2d8ca8d2f700eda99db9214fc2712b134@endurance.acinq.co:9735";
   private final static String PRICE_RATE_API = "https://blockchain.info/fr/ticker";
   public final static String UNENCRYPTED_SEED_NAME = "seed.dat";
@@ -72,7 +88,7 @@ public class WalletUtils {
     try {
       rate = (float) o.getJSONObject(fiatCode).getDouble("last");
     } catch (Exception e) {
-      Log.d(TAG, "could not read " + fiatCode + " from price api response");
+      log.debug("could not read {} from price api response", fiatCode);
     }
     App.RATES.put(fiatCode, rate);
     editor.putFloat(Constants.SETTING_LAST_KNOWN_RATE_BTC_ + fiatCode, rate);
@@ -135,7 +151,7 @@ public class WalletUtils {
         saveCurrency(editor, response, "USD"); // usd
         editor.apply();
       }, (error) -> {
-      Log.d(TAG, "error when querying price api api with cause " + error.getMessage());
+      log.error("error when querying price api, with cause {}", error.getMessage());
     });
   }
 
@@ -147,7 +163,7 @@ public class WalletUtils {
         Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri + txId));
         v.getContext().startActivity(browserIntent);
       } catch (Throwable t) {
-        Log.w(WalletUtils.class.getSimpleName(), "Could not open explorer with uri=" + uri + txId);
+        log.warn("could not open explorer with uri={}{}", uri, txId);
         Toast.makeText(v.getContext(), "Could not open explorer", Toast.LENGTH_SHORT).show();
       }
     };
@@ -307,5 +323,118 @@ public class WalletUtils {
 
   public static String getDeviceId(final Context context) {
     return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+  }
+
+  public static void setupLogging(final Context context) {
+    final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+    switch (prefs.getString(Constants.SETTING_LOGS_OUTPUT, Constants.LOGS_OUTPUT_NONE)) {
+      case Constants.LOGS_OUTPUT_LOCAL:
+        setupLocalLogging(context);
+        break;
+      case Constants.LOGS_OUTPUT_PAPERTRAIL:
+        setupPapertrailLogging(prefs.getString(Constants.SETTING_PAPERTRAIL_HOST, ""),
+          prefs.getInt(Constants.SETTING_PAPERTRAIL_PORT, 12345));
+        break;
+      default:
+        disableLogging();
+        break;
+    }
+  }
+
+  public static void disableLogging() {
+    final LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+    lc.reset();
+    lc.stop();
+  }
+
+  /**
+   * Sets up an index-based rolling policy with a max file size of 4MB.
+   */
+  public static void setupLocalLogging(final Context context) throws ExternalStorageNotAvailableException {
+    if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+      throw new ExternalStorageNotAvailableException();
+    }
+
+    final LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+    lc.reset();
+
+    final File logsDir = context.getExternalFilesDir(Constants.LOGS_DIR);
+    if (!logsDir.exists()) logsDir.mkdirs();
+
+    final PatternLayoutEncoder encoder = new PatternLayoutEncoder();
+    encoder.setContext(lc);
+    encoder.setPattern("%d %-5level %logger{24} %X{nodeId}%X{channelId} - %msg%ex{24}%n");
+    encoder.start();
+
+    final RollingFileAppender<ILoggingEvent> rollingFileAppender = new RollingFileAppender<>();
+    rollingFileAppender.setContext(lc);
+    rollingFileAppender.setFile(new File(logsDir, Constants.CURRENT_LOG_FILE).getAbsolutePath());
+
+    final FixedWindowRollingPolicy rollingPolicy = new FixedWindowRollingPolicy();
+    rollingPolicy.setContext(lc);
+    rollingPolicy.setParent(rollingFileAppender);
+    rollingPolicy.setMinIndex(1);
+    rollingPolicy.setMaxIndex(2);
+    rollingPolicy.setFileNamePattern(new File(logsDir, Constants.ARCHIVED_LOG_FILE).getAbsolutePath());
+    rollingPolicy.start();
+
+    final SizeBasedTriggeringPolicy<ILoggingEvent> triggeringPolicy = new SizeBasedTriggeringPolicy<>();
+    triggeringPolicy.setContext(lc);
+    triggeringPolicy.setMaxFileSize("4mb");
+    triggeringPolicy.start();
+
+    rollingFileAppender.setEncoder(encoder);
+    rollingFileAppender.setRollingPolicy(rollingPolicy);
+    rollingFileAppender.setTriggeringPolicy(triggeringPolicy);
+    rollingFileAppender.start();
+
+    lc.getLogger("com.ning.http.client.providers.netty").setLevel(Level.WARN);
+    lc.getLogger("fr.acinq.eclair.blockchain.electrum").setLevel(Level.WARN);
+
+    final Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+    root.setLevel(Level.INFO);
+    root.addAppender(rollingFileAppender);
+    log.info("now using the local file logging appender");
+  }
+
+  /**
+   * Sets up an index-based rolling policy with a max file size of 4MB.
+   */
+  public static void setupPapertrailLogging(final String host, final int port) {
+    final LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+    lc.reset();
+
+    final PatternLayout patternLayout = new PatternLayout();
+    patternLayout.setContext(lc);
+    patternLayout.setPattern("%d %-5level %logger{24} %X{nodeId}%X{channelId} - %msg%ex{24}%n");
+    patternLayout.start();
+
+    final SSLTCPNetSyslogConfig syslogConfig = new SSLTCPNetSyslogConfig();
+    syslogConfig.setHost("logs7.papertrailapp.com");
+    syslogConfig.setPort(36600);
+    syslogConfig.setIdent("eclair-wallet");
+    syslogConfig.setSendLocalName(false);
+    syslogConfig.setSendLocalTimestamp(false);
+    syslogConfig.setMaxMessageLength(128000);
+
+    final Syslog4jAppender syslogAppender = new Syslog4jAppender();
+    syslogAppender.setContext(lc);
+    syslogAppender.setName("syslog");
+    syslogAppender.setLayout(patternLayout);
+    syslogAppender.setSyslogConfig(syslogConfig);
+    syslogAppender.start();
+
+    final AsyncAppender asyncAppender = new AsyncAppender();
+    asyncAppender.setContext(lc);
+    asyncAppender.addAppender(syslogAppender);
+    asyncAppender.start();
+
+    lc.getLogger("com.ning.http.client.providers.netty").setLevel(Level.WARN);
+    lc.getLogger("fr.acinq.eclair.blockchain.electrum").setLevel(Level.WARN);
+
+    final Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+    root.setLevel(Level.INFO);
+    root.addAppender(asyncAppender);
+    log.info("now using the papertail logging appender");
   }
 }

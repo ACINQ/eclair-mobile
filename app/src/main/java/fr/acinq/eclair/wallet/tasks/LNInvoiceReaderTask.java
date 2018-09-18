@@ -17,13 +17,15 @@
 package fr.acinq.eclair.wallet.tasks;
 
 import android.os.AsyncTask;
-import android.util.Log;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import fr.acinq.eclair.payment.PaymentRequest;
 
 public class LNInvoiceReaderTask extends AsyncTask<String, Integer, PaymentRequest> {
 
-  private static final String TAG = "LNInvoiceReaderTask";
+  private final Logger log = LoggerFactory.getLogger(LNInvoiceReaderTask.class);
   private final String invoiceAsString;
   private final AsyncInvoiceReaderTaskResponse delegate;
 
@@ -38,7 +40,7 @@ public class LNInvoiceReaderTask extends AsyncTask<String, Integer, PaymentReque
     try {
       extract = PaymentRequest.read(invoiceAsString);
     } catch (Throwable t) {
-      Log.d(TAG, "Could not read Lightning invoice " + invoiceAsString + " with cause: " + t.getMessage());
+      log.debug("could not read Lightning invoice {} with cause {}", invoiceAsString, t.getMessage());
     }
     return extract;
   }

@@ -25,9 +25,11 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.text.DateFormat;
 
@@ -43,7 +45,7 @@ import fr.acinq.eclair.wallet.utils.WalletUtils;
 
 public class BitcoinTransactionDetailsActivity extends EclairActivity {
 
-  private static final String TAG = BitcoinTransactionDetailsActivity.class.getSimpleName();
+  private final Logger log = LoggerFactory.getLogger(BitcoinTransactionDetailsActivity.class);
   private AlertDialog mRebroadcastDialog;
   private ActivityBitcoinTransactionDetailsBinding mBinding;
 
@@ -76,7 +78,7 @@ public class BitcoinTransactionDetailsActivity extends EclairActivity {
           app.broadcastTx(p.getTxPayload());
           Toast.makeText(getApplicationContext(), getString(R.string.transactiondetails_rebroadcast_success), Toast.LENGTH_LONG).show();
         } catch (Exception e) {
-          Log.w(TAG, "Could not broadcast tx:" + p.getReference() + "  with cause=" + e.getMessage());
+          log.warn("could not broadcast tx {} with cause {}", p.getReference(), e.getMessage());
           Toast.makeText(getApplicationContext(), getString(R.string.transactiondetails_rebroadcast_failure), Toast.LENGTH_LONG).show();
         }
         mRebroadcastDialog.dismiss();
