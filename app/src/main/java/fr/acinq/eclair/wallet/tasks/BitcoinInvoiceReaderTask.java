@@ -17,14 +17,15 @@
 package fr.acinq.eclair.wallet.tasks;
 
 import android.os.AsyncTask;
-import android.util.Log;
 
 import org.bitcoinj.uri.BitcoinURI;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BitcoinInvoiceReaderTask extends AsyncTask<String, Integer, BitcoinURI> {
 
-  private static final String TAG = "BitcoinInvoiceReader";
+  private final Logger log = LoggerFactory.getLogger(BitcoinInvoiceReaderTask.class);
+
   private final String invoiceAsString;
   private final AsyncInvoiceReaderTaskResponse delegate;
 
@@ -44,7 +45,7 @@ public class BitcoinInvoiceReaderTask extends AsyncTask<String, Integer, Bitcoin
         extract = new BitcoinURI("bitcoin:" + invoiceAsString);
       }
     } catch (Throwable t) {
-      Log.d(TAG, "Could not read Bitcoin invoice " + invoiceAsString + " with cause: " + t.getMessage());
+      log.debug("could not read Bitcoin invoice {} with cause {}", invoiceAsString, t.getMessage());
     }
     return extract;
   }

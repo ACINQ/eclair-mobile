@@ -23,11 +23,12 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
 import org.greenrobot.eventbus.util.AsyncExecutor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import akka.dispatch.OnComplete;
 import fr.acinq.bitcoin.MilliSatoshi;
@@ -50,9 +51,10 @@ import scala.concurrent.duration.Duration;
 
 public class OpenChannelActivity extends EclairActivity implements NodeURIReaderTask.AsyncNodeURIReaderTaskResponse {
 
+  private final Logger log = LoggerFactory.getLogger(OpenChannelActivity.class);
+
   public static final String EXTRA_NEW_HOST_URI = BuildConfig.APPLICATION_ID + "NEW_HOST_URI";
   public static final String EXTRA_USE_DNS_SEED = BuildConfig.APPLICATION_ID + "USE_DNS_SEED";
-  private static final String TAG = "OpenChannelActivity";
   final MilliSatoshi minFunding = new MilliSatoshi(100000000); // 1 mBTC
   final MilliSatoshi maxFunding = package$.MODULE$.satoshi2millisatoshi(new Satoshi(Channel.MAX_FUNDING_SATOSHIS()));
 
@@ -88,7 +90,7 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
         try {
           checkAmount(s.toString());
         } catch (Exception e) {
-          Log.d(TAG, "Could not convert amount to number with cause " + e.getMessage());
+          log.debug("could not convert amount to number with cause {}", e.getMessage());
           mBinding.capacityFiat.setText("");
         }
       }
@@ -125,7 +127,7 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
             mBinding.feesWarning.setVisibility(View.GONE);
           }
         } catch (NumberFormatException e) {
-          Log.w(TAG, "Could not read fees with cause=" + e.getMessage());
+          log.debug("could not read fees with cause {}" + e.getMessage());
         }
       }
 
@@ -265,7 +267,7 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
         return;
       }
     } catch (Exception e) {
-      Log.d(TAG, "Could not convert amount to number with cause " + e.getMessage());
+      log.debug("could not convert amount to number with cause {}", e.getMessage());
       showError(getString(R.string.openchannel_error_capacity_nan));
       return;
     }
@@ -276,7 +278,7 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
         return;
       }
     } catch (Exception e) {
-      Log.w(TAG, "Could not read fees with cause=" + e.getMessage());
+      log.debug("could not read fees with cause {}", e.getMessage());
       showError(getString(R.string.openchannel_error_fees_nan));
       return;
     }

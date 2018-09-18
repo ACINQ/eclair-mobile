@@ -85,6 +85,10 @@
       android:key="backup_channel_key"
       android:title="@string/prefs_backup_title" />
 
+    <Preference
+      android:key="logging_conf_key"
+      android:title="@string/prefs_logging_conf_title" />
+
   </PreferenceCategory>
 
 </PreferenceScreen>

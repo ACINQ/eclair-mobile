@@ -22,17 +22,18 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.WorkerThread;
-import android.util.Log;
 import android.view.View;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.drive.DriveFile;
 import com.google.android.gms.drive.Metadata;
 import com.google.android.gms.drive.metadata.CustomPropertyKey;
 import com.google.common.io.Files;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.WorkManager;
@@ -45,7 +46,7 @@ import fr.acinq.eclair.wallet.utils.WalletUtils;
 
 public class RestoreChannelsBackupActivity extends GoogleDriveBaseActivity {
 
-  private static final String TAG = RestoreChannelsBackupActivity.class.getSimpleName();
+  private final Logger log = LoggerFactory.getLogger(RestoreChannelsBackupActivity.class);
 
   private ActivityRestoreChannelsBackupBinding mBinding;
 
@@ -66,7 +67,7 @@ public class RestoreChannelsBackupActivity extends GoogleDriveBaseActivity {
       googleSignInClient.revokeAccess()
         .addOnSuccessListener(aVoid -> initOrSignInGoogleDrive())
         .addOnFailureListener(e -> {
-          Log.e(TAG, "could not revoke access to drive", e);
+          log.error("could not revoke access to drive", e);
         });
     }
   }
@@ -111,7 +112,7 @@ public class RestoreChannelsBackupActivity extends GoogleDriveBaseActivity {
           .continueWithTask(aVoid -> retrieveEclairBackupTask())
           .addOnSuccessListener(metadataBuffer -> {
             if (metadataBuffer.getCount() == 0) {
-              Log.e(TAG, "backup file could not be found in drive");
+              log.info("backup file could not be found in drive");
               runOnUiThread(() -> mBinding.setRestoreStep(Constants.RESTORE_BACKUP_NO_BACKUP_FOUND));
             } else {
               final Metadata metadata = metadataBuffer.get(0);
@@ -121,13 +122,13 @@ public class RestoreChannelsBackupActivity extends GoogleDriveBaseActivity {
               if (remoteDeviceId == null || deviceId.equals(remoteDeviceId)) {
                 restoreBackup(metadata.getDriveId().asDriveFile());
               } else {
-                Log.e(TAG, "remote file device id=" + remoteDeviceId + " is different from current device id=" + deviceId);
+                log.info("remote backup device id is different from current device id");
                 runOnUiThread(() -> mBinding.setRestoreStep(Constants.RESTORE_BACKUP_DEVICE_ORIGIN_CONFLICT));
               }
             }
           })
           .addOnFailureListener(e -> {
-            Log.e(TAG, "could not sync app folder", e);
+            log.error("could not sync app folder", e);
             mBinding.setRestoreStep(Constants.RESTORE_BACKUP_SYNC_RATELIMIT);
             new Handler().postDelayed(() -> backToInit(null), 1700);
           });
@@ -156,8 +157,8 @@ public class RestoreChannelsBackupActivity extends GoogleDriveBaseActivity {
             mBinding.setRestoreStep(Constants.RESTORE_BACKUP_SUCCESS);
             new Handler().postDelayed(() -> finishRestore(null), 1700);
           });
-        } catch (Throwable throwable) {
-          Log.e(TAG, "could not copy Drive file backup to datadir", throwable);
+        } catch (Throwable t) {
+          log.error("could not copy remote file backup to datadir", t);
           runOnUiThread(() -> {
             mBinding.setRestoreStep(Constants.RESTORE_BACKUP_FAILURE);
             new Handler().postDelayed(() -> backToInit(null), 1700);
@@ -166,7 +167,7 @@ public class RestoreChannelsBackupActivity extends GoogleDriveBaseActivity {
         getDriveResourceClient().discardContents(driveFileContents);
       })
       .addOnFailureListener(e -> runOnUiThread(() -> {
-        Log.e(TAG, "backup file could not be restored from drive", e);
+        log.error("backup file could not be restored from drive", e);
         mBinding.setRestoreStep(Constants.RESTORE_BACKUP_FAILURE);
         new Handler().postDelayed(() -> backToInit(null), 1700);
       }));
@@ -185,7 +186,7 @@ public class RestoreChannelsBackupActivity extends GoogleDriveBaseActivity {
             .addOnSuccessListener(metadataBuffer -> {
               if (metadataBuffer.getCount() == 0) {
                 runOnUiThread(() -> {
-                  Log.e(TAG, "backup file could not be found in drive");
+                  log.info("backup file could not be found in drive");
                   mBinding.setRestoreStep(Constants.RESTORE_BACKUP_NO_BACKUP_FOUND);
                 });
               } else {
@@ -193,7 +194,7 @@ public class RestoreChannelsBackupActivity extends GoogleDriveBaseActivity {
               }
             })
             .addOnFailureListener(e -> {
-              Log.e(TAG, "could not sync app folder", e);
+              log.error("could not sync app folder", e);
               mBinding.setRestoreStep(Constants.RESTORE_BACKUP_SYNC_RATELIMIT);
               new Handler().postDelayed(() -> backToInit(null), 1700);
             });

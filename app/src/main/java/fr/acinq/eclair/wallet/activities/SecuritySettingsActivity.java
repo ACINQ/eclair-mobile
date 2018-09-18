@@ -22,9 +22,11 @@ import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.security.GeneralSecurityException;
@@ -37,8 +39,7 @@ import fr.acinq.eclair.wallet.utils.WalletUtils;
 
 public class SecuritySettingsActivity extends EclairActivity implements EclairActivity.EncryptSeedCallback {
 
-  private static final String TAG = SecuritySettingsActivity.class.getSimpleName();
-
+  private final Logger log = LoggerFactory.getLogger(SecuritySettingsActivity.class);
   private SharedPreferences.OnSharedPreferenceChangeListener securityPrefsListener;
   private ActivitySecuritySettingsBinding mBinding;
 
@@ -120,7 +121,7 @@ public class SecuritySettingsActivity extends EclairActivity implements EclairAc
         } catch (GeneralSecurityException e) {
           Toast.makeText(getApplicationContext(), getString(R.string.security_password_update_failure), Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
-          Log.d(TAG, "failed to read seed ", e);
+          log.error("failed to read seed");
           Toast.makeText(getApplicationContext(), R.string.seed_read_general_failure, Toast.LENGTH_SHORT).show();
         }
       }

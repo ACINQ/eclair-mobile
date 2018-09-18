@@ -27,12 +27,13 @@ import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
-import android.util.Log;
 import android.widget.Toast;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.util.HashMap;
@@ -86,7 +87,8 @@ import static fr.acinq.eclair.wallet.events.ClosingChannelNotificationEvent.NOTI
 
 public class App extends Application {
 
-  public final static String TAG = "App";
+  private final Logger log = LoggerFactory.getLogger(App.class);
+
   public final static Map<String, Float> RATES = new HashMap<>();
   public final ActorSystem system = ActorSystem.apply("system");
   public AtomicReference<String> pin = new AtomicReference<>(null);
@@ -106,6 +108,9 @@ public class App extends Application {
     if (!EventBus.getDefault().isRegistered(this)) {
       EventBus.getDefault().register(this);
     }
+
+    WalletUtils.setupLogging(getBaseContext());
+
     super.onCreate();
   }
 
@@ -224,16 +229,14 @@ public class App extends Application {
       fBitcoinPayment.onComplete(new OnComplete<String>() {
         @Override
         public void onComplete(final Throwable t, final String txId) {
-          if (t == null) {
-            Log.i(TAG, "Successfully sent tx " + txId);
-          } else {
-            Log.w(TAG, "could not send bitcoin tx " + txId + "  with cause=" + t.getMessage());
+          if (t != null) {
+            log.warn("could not send bitcoin tx {} with cause {}", txId, t.getMessage());
             EventBus.getDefault().post(new BitcoinPaymentFailedEvent(t.getLocalizedMessage()));
           }
         }
       }, this.system.dispatcher());
     } catch (Throwable t) {
-      Log.w(TAG, "could not send bitcoin tx with cause=" + t.getMessage());
+      log.warn("could not send bitcoin tx with cause {}", t.getMessage());
       EventBus.getDefault().post(new BitcoinPaymentFailedEvent(t.getLocalizedMessage()));
     }
   }
@@ -253,29 +256,28 @@ public class App extends Application {
         public void onComplete(final Throwable t, final Tuple2<Transaction, Satoshi> res) {
           if (t == null) {
             if (res != null) {
-              Log.i(TAG, "onComplete: commiting spend all tx");
               final Future fSendAll = appKit.electrumWallet.commit(res._1());
               fSendAll.onComplete(new OnComplete<Boolean>() {
                 @Override
                 public void onComplete(Throwable failure, Boolean success) throws Throwable {
                   if (!success) {
-                    Log.w(TAG, "could not send empty wallet tx");
+                    log.warn("could not send empty wallet tx");
                     EventBus.getDefault().post(new BitcoinPaymentFailedEvent("broadcast failed"));
                   }
                 }
               }, system.dispatcher());
             } else {
-              Log.w(TAG, "could not create send all tx");
+              log.warn("could not create send all tx");
               EventBus.getDefault().post(new BitcoinPaymentFailedEvent("tx creation failed"));
             }
           } else {
-            Log.w(TAG, "could not send all balance with cause=" + t.getMessage());
+            log.warn("could not send all balance with cause {}", t.getMessage());
             EventBus.getDefault().post(new BitcoinPaymentFailedEvent(t.getLocalizedMessage()));
           }
         }
       }, this.system.dispatcher());
     } catch (Throwable t) {
-      Log.w(TAG, "could not send send all balance with cause=" + t.getMessage());
+      log.warn("could not send send all balance with cause {}", t.getMessage());
       EventBus.getDefault().post(new BitcoinPaymentFailedEvent(t.getLocalizedMessage()));
     }
   }
@@ -319,18 +321,14 @@ public class App extends Application {
     final Transaction tx = (Transaction) Transaction.read(payload);
     Future<Object> future = appKit.electrumWallet.commit(tx);
     try {
-      Boolean success = (Boolean) Await.result(future, Duration.create(500, "milliseconds"));
-      if (success) Log.i(TAG, "successful broadcast of " + tx.txid());
-      else Log.w(TAG, "cannot broadcast " + tx.txid());
+      Await.result(future, Duration.create(500, "milliseconds"));
     } catch (Exception e) {
-      Log.w(TAG, "failed broadcast of " + tx.txid(), e);
+      log.warn("failed broadcast of tx {}", tx.txid(), e);
     }
   }
 
   /**
    * Returns the eclair node's public key.
-   *
-   * @return
    */
   public String nodePublicKey() {
     return appKit.eclairKit.nodeParams().privateKey().publicKey().toBin().toString();

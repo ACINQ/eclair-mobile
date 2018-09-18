@@ -33,7 +33,6 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -54,6 +53,8 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.greenrobot.eventbus.util.ThrowableFailureEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -83,9 +84,10 @@ import static fr.acinq.eclair.wallet.adapters.LocalChannelItemHolder.EXTRA_CHANN
 
 public class HomeActivity extends EclairActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
+  private final Logger log = LoggerFactory.getLogger(HomeActivity.class);
+
   public static final String EXTRA_PAGE = BuildConfig.APPLICATION_ID + "EXTRA_PAGE";
   public static final String EXTRA_PAYMENT_URI = BuildConfig.APPLICATION_ID + "EXTRA_PAYMENT_URI";
-  private static final String TAG = "Home Activity";
 
   private ActivityHomeBinding mBinding;
 
@@ -149,7 +151,6 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
     mBinding.syncProgressIcon.startAnimation(mRotatingAnimation);
 
     final Intent intent = getIntent();
-    Log.i(TAG, "intent = " + intent);
     if (intent.hasExtra(StartupActivity.ORIGIN)) {
       final String origin = intent.getStringExtra(StartupActivity.ORIGIN);
       final String originParam = intent.getStringExtra(StartupActivity.ORIGIN_EXTRA);
@@ -265,13 +266,12 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
       switch (paymentRequest.getScheme()) {
         case "bitcoin":
         case "lightning":
-          Log.d(TAG, "received intent with payment_request=" + paymentRequest.toString());
           final Intent paymentIntent = new Intent(this, SendPaymentActivity.class);
           paymentIntent.putExtra(SendPaymentActivity.EXTRA_INVOICE, paymentRequest.toString());
           startActivity(paymentIntent);
           break;
         default:
-          Log.d(TAG, "Unhandled payment scheme=" + paymentRequest);
+          log.error("unhandled payment scheme {}", paymentRequest);
       }
     }
   }
@@ -489,7 +489,7 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
       clipboard.setPrimaryClip(ClipData.newPlainText("Bitcoin address", app.getWalletAddress()));
       Toast.makeText(this.getApplicationContext(), "Copied address to clipboard", Toast.LENGTH_SHORT).show();
     } catch (Exception e) {
-      Log.w(TAG, "failed to copy address with cause=" + e.getMessage());
+      log.debug("failed to copy address with cause {}", e.getMessage());
       Toast.makeText(this.getApplicationContext(), "Could not copy address", Toast.LENGTH_SHORT).show();
     }
   }
@@ -570,7 +570,7 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
 
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void handleThrowableEvent(ThrowableFailureEvent event) {
-    Log.w(TAG, "event failed with cause=" + event.getThrowable().getMessage());
+    log.debug("event failed with cause {}", event.getThrowable().getMessage());
   }
 
   @SuppressLint("SetTextI18n")
