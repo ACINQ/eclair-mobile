@@ -410,8 +410,8 @@ public class WalletUtils {
     patternLayout.start();
 
     final SSLTCPNetSyslogConfig syslogConfig = new SSLTCPNetSyslogConfig();
-    syslogConfig.setHost("logs7.papertrailapp.com");
-    syslogConfig.setPort(36600);
+    syslogConfig.setHost(host);
+    syslogConfig.setPort(port);
     syslogConfig.setIdent("eclair-wallet");
     syslogConfig.setSendLocalName(false);
     syslogConfig.setSendLocalTimestamp(false);
