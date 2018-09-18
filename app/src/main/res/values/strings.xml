@@ -421,9 +421,9 @@
 
   <!-- //////////////// Local Channel Item //////////////////// -->
 
-  <string name="channelitem_delayed_closing">Refund in %1$d block(s)</string>
+  <string name="channelitem_delayed_closing">Refund in %1$d block%2$s</string>
   <string name="channelitem_delayed_closing_unknown">Refund in %1$d+ blocks</string>
-  <string name="channelitem_delayed_closing_done">Refunds complete.</string>
+  <string name="channelitem_delayed_closing_claimable">Refund claimable</string>
   <string name="channelitem_with_node">With %1$s</string>
   <string name="channelitem_inflight_htlcs">%1$d inflight payment(s)</string>
   <string name="channelitem_cooperative">(cooperative)</string>

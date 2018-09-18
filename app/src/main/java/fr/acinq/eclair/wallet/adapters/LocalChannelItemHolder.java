@@ -113,9 +113,9 @@ public class LocalChannelItemHolder extends RecyclerView.ViewHolder implements V
         if (item.getRefundAtBlock() > 0 && Globals.blockCount().get() > 0) {
           final long remainingBlocks = item.getRefundAtBlock() - Globals.blockCount().get();
           if (remainingBlocks > 0) {
-            delayedClosing.setText(itemView.getResources().getString(R.string.channelitem_delayed_closing, remainingBlocks));
+            delayedClosing.setText(itemView.getResources().getString(R.string.channelitem_delayed_closing, remainingBlocks, remainingBlocks > 1 ? "s" : ""));
           } else {
-            delayedClosing.setText(itemView.getResources().getString(R.string.channelitem_delayed_closing_done));
+            delayedClosing.setText(itemView.getResources().getString(R.string.channelitem_delayed_closing_claimable));
           }
         } else {
           delayedClosing.setText(itemView.getResources().getString(R.string.channelitem_delayed_closing_unknown, item.getToSelfDelayBlocks()));
