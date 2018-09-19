@@ -16,5 +16,7 @@
 
 package fr.acinq.eclair.wallet.utils;
 
-public class EclairStartException extends RuntimeException {
+public interface EclairException {
+  class NetworkException extends RuntimeException {
+  }
 }

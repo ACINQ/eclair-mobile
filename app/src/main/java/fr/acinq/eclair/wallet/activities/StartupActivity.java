@@ -16,9 +16,12 @@
 
 package fr.acinq.eclair.wallet.activities;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -69,6 +72,7 @@ import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.databinding.ActivityStartupBinding;
 import fr.acinq.eclair.wallet.fragments.PinDialog;
 import fr.acinq.eclair.wallet.utils.Constants;
+import fr.acinq.eclair.wallet.utils.EclairException;
 import fr.acinq.eclair.wallet.utils.EncryptedBackup;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 import scala.Option;
@@ -132,6 +136,13 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
           showError(getString(R.string.start_error_improper));
           new Handler().postDelayed(() -> startNode(datadir, prefs), 1400);
         }
+        break;
+      case StartupTask.NETWORK_ERROR:
+        app.pin.set(null);
+        app.seedHash.set(null);
+        app.backupKey_v1.set(null);
+        app.backupKey_v2.set(null);
+        showError(getString(R.string.start_error_connectivity), true, false);
         break;
       case StartupTask.TIMEOUT_ERROR:
         app.pin.set(null);
@@ -434,6 +445,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
     private final Logger log = LoggerFactory.getLogger(StartupTask.class);
 
     private final static int SUCCESS = 0;
+    private final static int NETWORK_ERROR = 2;
     private final static int GENERIC_ERROR = 3;
     private final static int TIMEOUT_ERROR = 4;
 
@@ -452,6 +464,15 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
 
         publishProgress("initializing system");
         app.checkupInit();
+
+        // bootstrap hangs if network is unavailable.
+        // TODO: The app should be able to handle an offline mode. Remove await from bootstrap and resolve appkit asynchronously.
+        // AppKit should be available from the app without fully bootstrapping the node.
+        final ConnectivityManager cm = (ConnectivityManager) app.getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        final NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        if (activeNetwork == null || !activeNetwork.isConnectedOrConnecting()) {
+          throw new EclairException.NetworkException();
+        }
 
         Class.forName("org.sqlite.JDBC");
         publishProgress("setting up eclair");
@@ -488,6 +509,8 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
 
         return SUCCESS;
 
+      } catch (EclairException.NetworkException t) {
+        return NETWORK_ERROR;
       } catch (Throwable t) {
         log.error("failed to start eclair", t);
         if (t instanceof TimeoutException) {
