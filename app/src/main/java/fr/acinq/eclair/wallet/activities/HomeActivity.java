@@ -91,7 +91,6 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
 
   private ActivityHomeBinding mBinding;
 
-  private ViewStub mStubBreakingChanges;
   private ViewStub mStubIntro;
   private int introStep = 0;
   private boolean canSendPayments = false;
@@ -123,9 +122,7 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
 
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
     // --- check initial app state
-    if (app.hasBreakingChanges()) {
-      displayBreakingChanges();
-    } else if (prefs.getBoolean(Constants.SETTING_SHOW_INTRO, true)) {
+    if (prefs.getBoolean(Constants.SETTING_SHOW_INTRO, true)) {
       mStubIntro = findViewById(R.id.home_stub_intro);
       displayIntro(prefs);
     }
@@ -163,11 +160,6 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
       // app may be started with a payment request intent
       readURIIntent(getIntent());
     }
-  }
-
-  private void displayBreakingChanges() {
-    mStubBreakingChanges = findViewById(R.id.home_stub_breaking);
-    mStubBreakingChanges.inflate();
   }
 
   private void setUpTabs(final Bundle savedInstanceState) {
