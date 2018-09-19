@@ -53,7 +53,6 @@ import fr.acinq.eclair.channel.DATA_CLOSING;
 import fr.acinq.eclair.channel.HasCommitments;
 import fr.acinq.eclair.channel.LocalCommit;
 import fr.acinq.eclair.channel.LocalCommitConfirmed;
-import fr.acinq.eclair.channel.OFFLINE$;
 import fr.acinq.eclair.channel.RemoteCommit;
 import fr.acinq.eclair.channel.ShortChannelIdAssigned;
 import fr.acinq.eclair.channel.WAIT_FOR_INIT_INTERNAL$;
@@ -63,12 +62,9 @@ import fr.acinq.eclair.router.NORMAL$;
 import fr.acinq.eclair.router.SyncProgress;
 import fr.acinq.eclair.transactions.DirectedHtlc;
 import fr.acinq.eclair.transactions.OUT$;
-import fr.acinq.eclair.wallet.events.ChannelUpdateEvent;
 import fr.acinq.eclair.wallet.events.ClosingChannelNotificationEvent;
-import fr.acinq.eclair.wallet.events.LNBalanceUpdateEvent;
 import fr.acinq.eclair.wallet.events.LNPaymentFailedEvent;
 import fr.acinq.eclair.wallet.events.LNPaymentSuccessEvent;
-import fr.acinq.eclair.wallet.events.PaymentEvent;
 import fr.acinq.eclair.wallet.models.ClosingType;
 import fr.acinq.eclair.wallet.models.LightningPaymentError;
 import fr.acinq.eclair.wallet.models.LocalChannel;
@@ -76,6 +72,7 @@ import fr.acinq.eclair.wallet.models.Payment;
 import fr.acinq.eclair.wallet.models.PaymentDirection;
 import fr.acinq.eclair.wallet.models.PaymentStatus;
 import fr.acinq.eclair.wallet.models.PaymentType;
+import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 import scala.collection.Iterator;
 import scala.collection.JavaConverters;
@@ -90,10 +87,17 @@ public class EclairEventService extends UntypedActor {
   private final Logger log = LoggerFactory.getLogger(EclairEventService.class);
   private DBHelper dbHelper;
   private OneTimeWorkRequest channelsBackupWork;
+  private ActorRef paymentRefreshScheduler;
+  private ActorRef channelsRefreshScheduler;
+  private ActorRef balanceRefreshScheduler;
 
-  public EclairEventService(final DBHelper dbHelper, final String seedHash, final BinaryData backupKey) {
+  public EclairEventService(final DBHelper dbHelper, final String seedHash, final BinaryData backupKey,
+                            final ActorRef paymentRefreshScheduler, final ActorRef channelsRefreshScheduler, final ActorRef balanceRefreshScheduler) {
     this.dbHelper = dbHelper;
     this.channelsBackupWork = WalletUtils.generateBackupRequest(seedHash, backupKey);
+    this.paymentRefreshScheduler = paymentRefreshScheduler;
+    this.channelsRefreshScheduler = channelsRefreshScheduler;
+    this.balanceRefreshScheduler = balanceRefreshScheduler;
   }
 
   private static Map<ActorRef, LocalChannel> activeChannelsMap = new ConcurrentHashMap<>();
@@ -102,32 +106,17 @@ public class EclairEventService extends UntypedActor {
     return activeChannelsMap;
   }
 
-  /**
-   * Sends a event containing the new Lightning balance of the channels in the Eclair node.
-   * The balance accounts for the state of its channel and thus can be of various type.
-   */
-  public static void postLNBalanceEvent() {
-    long availableTotal = 0;
-    long pendingTotal = 0;
-    long offlineTotal = 0;
-    long closingTotal = 0;
-    long ignoredBalanceMsat = 0;
-    for (LocalChannel c : activeChannelsMap.values()) {
-      if (NORMAL$.MODULE$.toString().equals(c.state)) {
-        availableTotal += c.getBalanceMsat();
-      } else if (CLOSED$.MODULE$.toString().equals(c.state)) {
-        // closed channel balance is ignored
-      } else if (CLOSING$.MODULE$.toString().equals(c.state)) {
-        closingTotal += c.getBalanceMsat();
-      } else if (OFFLINE$.MODULE$.toString().equals(c.state)) {
-        offlineTotal += c.getBalanceMsat();
-      } else if (c.state == null || c.state.startsWith("ERR_")) {
-        ignoredBalanceMsat += c.getBalanceMsat();
-      } else {
-        pendingTotal += c.getBalanceMsat();
+  public static MilliSatoshi getChannelsBalance() {
+    long total = 0;
+    for (LocalChannel c : EclairEventService.getChannelsMap().values()) {
+      // not closed, not closing, not in error
+      if (c.state != null && !c.state.startsWith("ERR_")
+        && !CLOSING$.MODULE$.toString().equals(c.state)
+        && !CLOSED$.MODULE$.toString().equals(c.state)) {
+        total += c.getBalanceMsat();
       }
     }
-    EventBus.getDefault().postSticky(new LNBalanceUpdateEvent(availableTotal, pendingTotal, offlineTotal, closingTotal, ignoredBalanceMsat));
+    return new MilliSatoshi(total);
   }
 
   private static LocalChannel getChannel(ActorRef ref) {
@@ -143,7 +132,7 @@ public class EclairEventService extends UntypedActor {
       c.setPeerNodeId(event.remoteNodeId().toString());
       activeChannelsMap.put(event.channel(), c);
       context().watch(event.channel());
-      EventBus.getDefault().post(new ChannelUpdateEvent());
+      channelsRefreshScheduler.tell(Constants.REFRESH, null);
     } else if (message instanceof ChannelRestored) {
       final ChannelRestored event = (ChannelRestored) message;
       final LocalChannel c = getChannel(event.channel());
@@ -158,8 +147,8 @@ public class EclairEventService extends UntypedActor {
 
       activeChannelsMap.put(event.channel(), c);
       context().watch(event.channel());
-      EventBus.getDefault().post(new ChannelUpdateEvent());
-      postLNBalanceEvent();
+      balanceRefreshScheduler.tell(Constants.REFRESH, null);
+      channelsRefreshScheduler.tell(Constants.REFRESH, null);
     }
     // ---- channel id assigned
     else if (message instanceof ChannelIdAssigned && activeChannelsMap.containsKey(((ChannelIdAssigned) message).channel())) {
@@ -187,7 +176,7 @@ public class EclairEventService extends UntypedActor {
             // regular case: we know this payment hash
             if (p.getStatus() == PaymentStatus.INIT) {
               dbHelper.updatePaymentPending(p);
-              EventBus.getDefault().post(new PaymentEvent());
+              paymentRefreshScheduler.tell(Constants.REFRESH, null);
             }
           } else {
             // rare case: an htlc is sent without the app knowing its payment hash
@@ -203,7 +192,7 @@ public class EclairEventService extends UntypedActor {
             p.setStatus(PaymentStatus.PENDING);
             p.setUpdated(new Date());
             dbHelper.insertOrUpdatePayment(p);
-            EventBus.getDefault().post(new PaymentEvent());
+            paymentRefreshScheduler.tell(Constants.REFRESH, null);
           }
         }
       }
@@ -230,8 +219,8 @@ public class EclairEventService extends UntypedActor {
       c.htlcsInFlightCount = htlcsCount;
       c.setBalanceMsat(localCommit.spec().toLocalMsat() + outHtlcsAmount);
       c.setCapacityMsat(localCommit.spec().totalFunds());
-      EventBus.getDefault().post(new ChannelUpdateEvent());
-      postLNBalanceEvent();
+      balanceRefreshScheduler.tell(Constants.REFRESH, null);
+      channelsRefreshScheduler.tell(Constants.REFRESH, null);
     }
     // ---- channel must be saved
     else if (message instanceof ChannelPersisted) {
@@ -249,8 +238,8 @@ public class EclairEventService extends UntypedActor {
       final LocalChannel c = activeChannelsMap.get(event.getActor());
       if (c != null) dbHelper.channelTerminated(c.getChannelId());
       activeChannelsMap.remove(event.getActor());
-      EventBus.getDefault().post(new ChannelUpdateEvent());
-      postLNBalanceEvent();
+      balanceRefreshScheduler.tell(Constants.REFRESH, null);
+      channelsRefreshScheduler.tell(Constants.REFRESH, null);
     }
     // ---- channel is in error
     else if (message instanceof ChannelFailed) {
@@ -280,7 +269,7 @@ public class EclairEventService extends UntypedActor {
       if (c != null) {
         c.setRefundAtBlock(event.refundAtBlock());
         dbHelper.saveLocalChannel(c);
-        EventBus.getDefault().post(new ChannelUpdateEvent());
+        channelsRefreshScheduler.tell(Constants.REFRESH, null);
       }
     }
     // ---- channel state changed
@@ -333,8 +322,8 @@ public class EclairEventService extends UntypedActor {
 
       activeChannelsMap.put(event.channel(), c);
       dbHelper.saveLocalChannel(c);
-      EventBus.getDefault().post(new ChannelUpdateEvent());
-      postLNBalanceEvent();
+      balanceRefreshScheduler.tell(Constants.REFRESH, null);
+      channelsRefreshScheduler.tell(Constants.REFRESH, null);
     }
     // ---- events that update payments status
     else if (message instanceof PaymentLifecycle.PaymentFailed) {
@@ -351,7 +340,7 @@ public class EclairEventService extends UntypedActor {
           }
         }
         EventBus.getDefault().post(new LNPaymentFailedEvent(paymentInDB.getReference(), paymentInDB.getDescription(), false, null, errorList));
-        EventBus.getDefault().post(new PaymentEvent());
+        paymentRefreshScheduler.tell(Constants.REFRESH, null);
       } else {
         log.debug("received and ignored an unknown PaymentFailed event with hash={}", event.paymentHash().toString());
       }
@@ -361,7 +350,7 @@ public class EclairEventService extends UntypedActor {
       if (paymentInDB != null) {
         dbHelper.updatePaymentPaid(paymentInDB, event.amountMsat(), event.amountMsat() - paymentInDB.getAmountSentMsat(), event.paymentPreimage().toString());
         EventBus.getDefault().post(new LNPaymentSuccessEvent(paymentInDB));
-        EventBus.getDefault().post(new PaymentEvent());
+        paymentRefreshScheduler.tell(Constants.REFRESH, null);
       } else {
         log.debug("received and ignored an unknown PaymentSucceeded event with hash={}", event.paymentHash().toString());
       }

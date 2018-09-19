@@ -118,4 +118,8 @@ public interface Constants {
   int IMPORT_WALLET_INIT = 1;
   int IMPORT_WALLET_SUCCESS = 2;
 
+  /* --------- REFRESH SCHEDULER ----------- */
+  String WAKE_UP = "wake_up";
+  String REFRESH = "refresh";
+
 }

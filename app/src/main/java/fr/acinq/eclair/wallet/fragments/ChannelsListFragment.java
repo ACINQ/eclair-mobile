@@ -103,11 +103,18 @@ public class ChannelsListFragment extends Fragment {
   }
 
   public void updateActiveChannelsList() {
-    if (mActiveChannelsAdapter != null && getContext() != null) {
-      final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
-      final List<LocalChannel> channels = new ArrayList<>(EclairEventService.getChannelsMap().values());
-      mActiveChannelsAdapter.update(channels, WalletUtils.getPreferredFiat(prefs), WalletUtils.getPreferredCoinUnit(prefs), WalletUtils.shouldDisplayInFiat(prefs));
-      mBinding.setActiveSize(channels.size());
-    }
+    new Thread() {
+      @Override
+      public void run() {
+        if (mActiveChannelsAdapter != null && getContext() != null && getActivity() != null) {
+          final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+          final List<LocalChannel> channels = new ArrayList<>(EclairEventService.getChannelsMap().values());
+          getActivity().runOnUiThread(() -> {
+            mActiveChannelsAdapter.update(channels, WalletUtils.getPreferredFiat(prefs), WalletUtils.getPreferredCoinUnit(prefs), WalletUtils.shouldDisplayInFiat(prefs));
+            mBinding.setActiveSize(channels.size());
+          });
+        }
+      }
+    }.start();
   }
 }

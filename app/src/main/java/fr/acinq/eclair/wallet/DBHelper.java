@@ -82,6 +82,13 @@ public class DBHelper {
     return qb.unique();
   }
 
+  public void updateOnChainTxConfirmations(String txId, int confs) {
+    final String query = "UPDATE " + PaymentDao.TABLENAME +
+      " SET " + PaymentDao.Properties.ConfidenceBlocks.columnName + "=?" +
+      " WHERE " + PaymentDao.Properties.Reference.columnName + "=?";
+    daoSession.getDatabase().execSQL(query, new Object[] { confs, txId });
+  }
+
   private final static String rawQueryOnchainReceived = new StringBuilder("SELECT SUM(").append(PaymentDao.Properties.AmountPaidMsat.columnName)
     .append(") FROM ").append(PaymentDao.TABLENAME)
     .append(" WHERE ").append(PaymentDao.Properties.Type.columnName).append(" = '").append(PaymentType.BTC_ONCHAIN).append("'")
