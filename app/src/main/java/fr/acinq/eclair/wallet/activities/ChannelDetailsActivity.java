@@ -63,7 +63,7 @@ import fr.acinq.eclair.channel.WAIT_FOR_FUNDING_SIGNED$;
 import fr.acinq.eclair.channel.WAIT_FOR_INIT_INTERNAL$;
 import fr.acinq.eclair.channel.WAIT_FOR_OPEN_CHANNEL$;
 import fr.acinq.eclair.router.NORMAL$;
-import fr.acinq.eclair.wallet.EclairEventService;
+import fr.acinq.eclair.wallet.actors.NodeSupervisor;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.adapters.LocalChannelItemHolder;
 import fr.acinq.eclair.wallet.databinding.ActivityChannelDetailsBinding;
@@ -121,7 +121,7 @@ public class ChannelDetailsActivity extends EclairActivity {
 
   private void refreshChannel() {
     try {
-      final Map.Entry<ActorRef, LocalChannel> activeChannel = EclairEventService.getChannelFromId(mChannelId);
+      final Map.Entry<ActorRef, LocalChannel> activeChannel = NodeSupervisor.getChannelFromId(mChannelId);
       if (activeChannel != null && activeChannel.getValue() != null) {
         setupView(activeChannel.getValue(), activeChannel.getKey());
       } else {

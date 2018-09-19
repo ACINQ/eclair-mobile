@@ -63,7 +63,7 @@ import fr.acinq.eclair.blockchain.electrum.ElectrumClient;
 import fr.acinq.eclair.blockchain.electrum.ElectrumWallet;
 import fr.acinq.eclair.router.SyncProgress;
 import fr.acinq.eclair.wallet.BuildConfig;
-import fr.acinq.eclair.wallet.EclairEventService;
+import fr.acinq.eclair.wallet.actors.NodeSupervisor;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.databinding.ActivityHomeBinding;
 import fr.acinq.eclair.wallet.events.BalanceUpdateEvent;
@@ -561,7 +561,7 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
   }
 
   private void updateBalance() {
-    final MilliSatoshi lightningBalance = EclairEventService.getChannelsBalance();
+    final MilliSatoshi lightningBalance = NodeSupervisor.getChannelsBalance();
     final MilliSatoshi walletBalance = app == null ? new MilliSatoshi(0) : package$.MODULE$.satoshi2millisatoshi(app.getOnchainBalance());
     mBinding.balanceTotal.setAmountMsat(new MilliSatoshi(lightningBalance.amount() + walletBalance.amount()));
     mBinding.balanceOnchain.setAmountMsat(walletBalance);

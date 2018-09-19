@@ -121,7 +121,7 @@ public class DBHelper {
     return Math.max(receivedMsat - sentMsat, 0);
   }
 
-  void updatePaymentPaid(final Payment p, final long amountPaidMsat, final long feesMsat, final String preimage) {
+  public void updatePaymentPaid(final Payment p, final long amountPaidMsat, final long feesMsat, final String preimage) {
     p.setPreimage(preimage);
     p.setAmountPaidMsat(amountPaidMsat);
     p.setFeesPaidMsat(feesMsat);
@@ -130,7 +130,7 @@ public class DBHelper {
     insertOrUpdatePayment(p);
   }
 
-  void updatePaymentFailed(final Payment p) {
+  public void updatePaymentFailed(final Payment p) {
     if (p.getStatus() != PaymentStatus.PAID) {
       p.setStatus(PaymentStatus.FAILED);
       p.setUpdated(new Date());

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.acinq.eclair.wallet.services;
+package fr.acinq.eclair.wallet.actors;
 
 import org.greenrobot.eventbus.EventBus;
 import org.slf4j.Logger;
@@ -24,12 +24,19 @@ import java.util.concurrent.TimeUnit;
 
 import akka.actor.UntypedActor;
 import akka.japi.Procedure;
-import fr.acinq.eclair.wallet.events.BalanceUpdateEvent;
+import fr.acinq.eclair.wallet.events.PaymentEvent;
 import fr.acinq.eclair.wallet.utils.Constants;
 import scala.concurrent.duration.Duration;
 
-public class BalanceRefreshScheduler extends UntypedActor {
-  private final Logger log = LoggerFactory.getLogger(BalanceRefreshScheduler.class);
+public class PaymentsRefreshScheduler extends UntypedActor {
+  private final Logger log = LoggerFactory.getLogger(PaymentsRefreshScheduler.class);
+
+  private Procedure<Object> sleep = message -> {
+    if (message.equals(Constants.WAKE_UP)) {
+      EventBus.getDefault().post(new PaymentEvent());
+      getContext().unbecome();
+    }
+  };
 
   public void onReceive(Object message) {
     if (message.equals(Constants.REFRESH)) {
@@ -37,11 +44,4 @@ public class BalanceRefreshScheduler extends UntypedActor {
       getContext().become(sleep);
     }
   }
-
-  private Procedure<Object> sleep = message -> {
-    if (message.equals(Constants.WAKE_UP)) {
-      EventBus.getDefault().post(new BalanceUpdateEvent());
-      getContext().unbecome();
-    }
-  };
 }

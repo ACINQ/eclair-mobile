@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.acinq.eclair.wallet;
+package fr.acinq.eclair.wallet.actors;
 
 import org.greenrobot.eventbus.EventBus;
 import org.slf4j.Logger;
@@ -62,6 +62,7 @@ import fr.acinq.eclair.router.NORMAL$;
 import fr.acinq.eclair.router.SyncProgress;
 import fr.acinq.eclair.transactions.DirectedHtlc;
 import fr.acinq.eclair.transactions.OUT$;
+import fr.acinq.eclair.wallet.DBHelper;
 import fr.acinq.eclair.wallet.events.ClosingChannelNotificationEvent;
 import fr.acinq.eclair.wallet.events.LNPaymentFailedEvent;
 import fr.acinq.eclair.wallet.events.LNPaymentSuccessEvent;
@@ -82,17 +83,17 @@ import scala.util.Either;
 /**
  * This actor handles the messages sent by the Eclair node.
  */
-public class EclairEventService extends UntypedActor {
+public class NodeSupervisor extends UntypedActor {
 
-  private final Logger log = LoggerFactory.getLogger(EclairEventService.class);
+  private final Logger log = LoggerFactory.getLogger(NodeSupervisor.class);
   private DBHelper dbHelper;
   private OneTimeWorkRequest channelsBackupWork;
   private ActorRef paymentRefreshScheduler;
   private ActorRef channelsRefreshScheduler;
   private ActorRef balanceRefreshScheduler;
 
-  public EclairEventService(final DBHelper dbHelper, final String seedHash, final BinaryData backupKey,
-                            final ActorRef paymentRefreshScheduler, final ActorRef channelsRefreshScheduler, final ActorRef balanceRefreshScheduler) {
+  public NodeSupervisor(final DBHelper dbHelper, final String seedHash, final BinaryData backupKey,
+                        final ActorRef paymentRefreshScheduler, final ActorRef channelsRefreshScheduler, final ActorRef balanceRefreshScheduler) {
     this.dbHelper = dbHelper;
     this.channelsBackupWork = WalletUtils.generateBackupRequest(seedHash, backupKey);
     this.paymentRefreshScheduler = paymentRefreshScheduler;
@@ -108,7 +109,7 @@ public class EclairEventService extends UntypedActor {
 
   public static MilliSatoshi getChannelsBalance() {
     long total = 0;
-    for (LocalChannel c : EclairEventService.getChannelsMap().values()) {
+    for (LocalChannel c : NodeSupervisor.getChannelsMap().values()) {
       // not closed, not closing, not in error
       if (c.state != null && !c.state.startsWith("ERR_")
         && !CLOSING$.MODULE$.toString().equals(c.state)
@@ -380,7 +381,7 @@ public class EclairEventService extends UntypedActor {
   }
 
   public static Map.Entry<ActorRef, LocalChannel> getChannelFromId(String channelId) {
-    for (Map.Entry<ActorRef, LocalChannel> c : EclairEventService.getChannelsMap().entrySet()) {
+    for (Map.Entry<ActorRef, LocalChannel> c : NodeSupervisor.getChannelsMap().entrySet()) {
       if (c.getValue().getChannelId().equals(channelId)) {
         return c;
       }

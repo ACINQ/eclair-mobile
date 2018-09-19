@@ -25,7 +25,6 @@ import java.util.List;
 
 import fr.acinq.eclair.CoinUnit;
 import fr.acinq.eclair.CoinUtils;
-import fr.acinq.eclair.wallet.EclairEventService;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.models.LocalChannel;
 import fr.acinq.eclair.wallet.utils.Constants;

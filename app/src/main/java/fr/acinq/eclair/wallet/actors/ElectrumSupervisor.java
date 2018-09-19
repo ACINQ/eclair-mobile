@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.acinq.eclair.wallet;
+package fr.acinq.eclair.wallet.actors;
 
 import org.greenrobot.eventbus.EventBus;
 import org.slf4j.Logger;
@@ -32,6 +32,7 @@ import fr.acinq.bitcoin.Transaction;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.blockchain.electrum.ElectrumClient;
 import fr.acinq.eclair.blockchain.electrum.ElectrumWallet;
+import fr.acinq.eclair.wallet.DBHelper;
 import fr.acinq.eclair.wallet.models.Payment;
 import fr.acinq.eclair.wallet.models.PaymentDirection;
 import fr.acinq.eclair.wallet.models.PaymentType;
@@ -40,14 +41,14 @@ import fr.acinq.eclair.wallet.utils.Constants;
 /**
  * This actor handles the various messages received from Electrum Wallet.
  */
-public class PaymentSupervisor extends UntypedActor {
+public class ElectrumSupervisor extends UntypedActor {
 
-  private final Logger log = LoggerFactory.getLogger(PaymentSupervisor.class);
+  private final Logger log = LoggerFactory.getLogger(ElectrumSupervisor.class);
   private DBHelper dbHelper;
   private ActorRef paymentRefreshScheduler;
   private ActorRef balanceRefreshScheduler;
 
-  public PaymentSupervisor(DBHelper dbHelper, final ActorRef paymentRefreshScheduler, final ActorRef balanceRefreshScheduler) {
+  public ElectrumSupervisor(DBHelper dbHelper, final ActorRef paymentRefreshScheduler, final ActorRef balanceRefreshScheduler) {
     this.dbHelper = dbHelper;
     this.paymentRefreshScheduler = paymentRefreshScheduler;
     this.balanceRefreshScheduler = balanceRefreshScheduler;

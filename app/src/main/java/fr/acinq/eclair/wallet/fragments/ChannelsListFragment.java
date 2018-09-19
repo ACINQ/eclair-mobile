@@ -32,7 +32,7 @@ import java.util.List;
 
 import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.DBHelper;
-import fr.acinq.eclair.wallet.EclairEventService;
+import fr.acinq.eclair.wallet.actors.NodeSupervisor;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.adapters.LocalChannelItemAdapter;
 import fr.acinq.eclair.wallet.databinding.FragmentChannelslistBinding;
@@ -108,7 +108,7 @@ public class ChannelsListFragment extends Fragment {
       public void run() {
         if (mActiveChannelsAdapter != null && getContext() != null && getActivity() != null) {
           final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
-          final List<LocalChannel> channels = new ArrayList<>(EclairEventService.getChannelsMap().values());
+          final List<LocalChannel> channels = new ArrayList<>(NodeSupervisor.getChannelsMap().values());
           getActivity().runOnUiThread(() -> {
             mActiveChannelsAdapter.update(channels, WalletUtils.getPreferredFiat(prefs), WalletUtils.getPreferredCoinUnit(prefs), WalletUtils.shouldDisplayInFiat(prefs));
             mBinding.setActiveSize(channels.size());

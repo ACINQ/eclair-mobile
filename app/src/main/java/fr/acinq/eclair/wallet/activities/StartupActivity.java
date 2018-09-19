@@ -61,14 +61,14 @@ import fr.acinq.eclair.payment.PaymentLifecycle;
 import fr.acinq.eclair.router.SyncProgress;
 import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.BuildConfig;
-import fr.acinq.eclair.wallet.EclairEventService;
-import fr.acinq.eclair.wallet.PaymentSupervisor;
+import fr.acinq.eclair.wallet.actors.NodeSupervisor;
+import fr.acinq.eclair.wallet.actors.ElectrumSupervisor;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.databinding.ActivityStartupBinding;
 import fr.acinq.eclair.wallet.fragments.PinDialog;
-import fr.acinq.eclair.wallet.services.BalanceRefreshScheduler;
-import fr.acinq.eclair.wallet.services.ChannelsRefreshScheduler;
-import fr.acinq.eclair.wallet.services.PaymentsRefreshScheduler;
+import fr.acinq.eclair.wallet.actors.BalanceRefreshScheduler;
+import fr.acinq.eclair.wallet.actors.ChannelsRefreshScheduler;
+import fr.acinq.eclair.wallet.actors.PaymentsRefreshScheduler;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.EclairException;
 import fr.acinq.eclair.wallet.utils.EncryptedBackup;
@@ -481,14 +481,14 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
         final ActorRef balanceRefreshScheduler = app.system.actorOf(Props.create(BalanceRefreshScheduler.class), "BalanceRefreshScheduler");
 
         // gui updater actor
-        final ActorRef guiUpdater = app.system.actorOf(Props.create(EclairEventService.class, app.getDBHelper(),
-          app.seedHash.get(), app.backupKey_v2.get(), paymentsRefreshScheduler, channelsRefreshScheduler, balanceRefreshScheduler), "GuiUpdater");
-        app.system.eventStream().subscribe(guiUpdater, ChannelEvent.class);
-        app.system.eventStream().subscribe(guiUpdater, SyncProgress.class);
-        app.system.eventStream().subscribe(guiUpdater, PaymentLifecycle.PaymentResult.class);
+        final ActorRef nodeSupervisor = app.system.actorOf(Props.create(NodeSupervisor.class, app.getDBHelper(),
+          app.seedHash.get(), app.backupKey_v2.get(), paymentsRefreshScheduler, channelsRefreshScheduler, balanceRefreshScheduler), "NodeSupervisor");
+        app.system.eventStream().subscribe(nodeSupervisor, ChannelEvent.class);
+        app.system.eventStream().subscribe(nodeSupervisor, SyncProgress.class);
+        app.system.eventStream().subscribe(nodeSupervisor, PaymentLifecycle.PaymentResult.class);
 
         // electrum payment supervisor actor
-        app.system.actorOf(Props.create(PaymentSupervisor.class, app.getDBHelper(), paymentsRefreshScheduler, balanceRefreshScheduler), "payments");
+        app.system.actorOf(Props.create(ElectrumSupervisor.class, app.getDBHelper(), paymentsRefreshScheduler, balanceRefreshScheduler), "ElectrumSupervisor");
 
         publishProgress("starting core");
         Future<Kit> fKit = setup.bootstrap();
