@@ -64,6 +64,7 @@ public class ElectrumSupervisor extends UntypedActor {
   public void onReceive(final Object message) {
 
     if (message instanceof ElectrumWallet.TransactionReceived) {
+      log.info("received TransactionReceived {}", message);
       ElectrumWallet.TransactionReceived walletTransactionReceive = (ElectrumWallet.TransactionReceived) message;
       final Transaction tx = walletTransactionReceive.tx();
       final PaymentDirection direction = (walletTransactionReceive.received().$greater$eq(walletTransactionReceive.sent()))
@@ -100,9 +101,14 @@ public class ElectrumSupervisor extends UntypedActor {
       balanceRefreshScheduler.tell(Constants.REFRESH, null);
 
     } else if (message instanceof ElectrumWallet.TransactionConfidenceChanged) {
+      log.info("received TransactionConfidenceChanged {}", message);
       final ElectrumWallet.TransactionConfidenceChanged tx = (ElectrumWallet.TransactionConfidenceChanged) message;
       final int depth = (int) tx.depth();
-      dbHelper.updateOnChainTxConfirmations(tx.txid().toString(), depth);
+      final Payment p = dbHelper.getPayment(tx.txid().toString(), PaymentType.BTC_ONCHAIN);
+      if (p != null) {
+        p.setConfidenceBlocks(depth);
+        dbHelper.updatePayment(p);
+      }
       if (depth <= 6) { // don't update the ui for updates in tx with confidence > 6
         paymentRefreshScheduler.tell(Constants.REFRESH, null);
       }
