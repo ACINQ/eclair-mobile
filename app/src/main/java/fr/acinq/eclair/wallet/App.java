@@ -32,7 +32,6 @@ import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
-import android.widget.Toast;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -88,7 +87,6 @@ import scala.collection.Iterable;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
-import scala.concurrent.duration.FiniteDuration;
 import upickle.default$;
 
 import static fr.acinq.eclair.wallet.adapters.LocalChannelItemHolder.EXTRA_CHANNEL_ID;
@@ -296,36 +294,6 @@ public class App extends Application {
     } catch (Throwable t) {
       log.warn("could not send send all balance with cause {}", t.getMessage());
       EventBus.getDefault().post(new BitcoinPaymentFailedEvent(t.getLocalizedMessage()));
-    }
-  }
-
-  /**
-   * Asks the eclair node to asynchronously open a channel with a node. Completes with a
-   * {@link akka.pattern.AskTimeoutException} after the timeout has expired.
-   *
-   * @param timeout    Connection future timeout
-   * @param onComplete Callback executed once the future completes (with success or failure)
-   * @param nodeURI    Uri of the node to connect to
-   * @param open       channel to create, contains the capacity of the channel, in satoshis
-   */
-  public void openChannel(final FiniteDuration timeout, final OnComplete<Object> onComplete,
-                          final NodeURI nodeURI, final Peer.OpenChannel open) {
-    if (nodeURI.nodeId() != null && nodeURI.address() != null && open != null) {
-      final OnComplete<Object> onConnectComplete = new OnComplete<Object>() {
-        @Override
-        public void onComplete(Throwable throwable, Object result) throws Throwable {
-          if (throwable != null) {
-            Toast.makeText(getApplicationContext(), getString(R.string.home_toast_openchannel_failed) + throwable.getMessage(), Toast.LENGTH_LONG).show();
-          } else if ("connected".equals(result.toString()) || "already connected".equals(result.toString())) {
-            final Future<Object> openFuture = Patterns.ask(appKit.eclairKit.switchboard(), open, new Timeout(timeout));
-            openFuture.onComplete(onComplete, system.dispatcher());
-          } else {
-            Toast.makeText(getApplicationContext(), getString(R.string.home_toast_openchannel_failed) + result.toString(), Toast.LENGTH_LONG).show();
-          }
-        }
-      };
-      final Future<Object> connectFuture = Patterns.ask(appKit.eclairKit.switchboard(), new Peer.Connect(nodeURI, Option.apply(null)), new Timeout(timeout));
-      connectFuture.onComplete(onConnectComplete, this.system.dispatcher());
     }
   }
 

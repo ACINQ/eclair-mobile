@@ -31,6 +31,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import akka.dispatch.OnComplete;
+import akka.pattern.Patterns;
+import akka.util.Timeout;
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.bitcoin.package$;
@@ -47,7 +49,10 @@ import fr.acinq.eclair.wallet.models.FeeRating;
 import fr.acinq.eclair.wallet.tasks.NodeURIReaderTask;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
+import scala.Option;
+import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
+import scala.concurrent.duration.FiniteDuration;
 
 public class OpenChannelActivity extends EclairActivity implements NodeURIReaderTask.AsyncNodeURIReaderTaskResponse {
 
@@ -307,21 +312,35 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
   }
 
   private void doOpenChannel() {
-    final Satoshi fundingSat = CoinUtils.convertStringAmountToSat(mBinding.capacityValue.getText().toString(), preferredBitcoinUnit.code());
-    final Long feesPerKw = fr.acinq.eclair.package$.MODULE$.feerateByte2Kw(Long.parseLong(mBinding.feesValue.getText().toString()));
     try {
-      Peer.OpenChannel o = new Peer.OpenChannel(remoteNodeURI.nodeId(), fundingSat, new MilliSatoshi(0), scala.Option.apply(feesPerKw), scala.Option.apply(null));
+      final Satoshi fundingSat = CoinUtils.convertStringAmountToSat(mBinding.capacityValue.getText().toString(), preferredBitcoinUnit.code());
+      final Long feesPerKw = fr.acinq.eclair.package$.MODULE$.feerateByte2Kw(Long.parseLong(mBinding.feesValue.getText().toString()));
+      final Peer.OpenChannel open = new Peer.OpenChannel(remoteNodeURI.nodeId(), fundingSat, new MilliSatoshi(0), scala.Option.apply(feesPerKw), scala.Option.apply(null));
       AsyncExecutor.create().execute(
         () -> {
-          OnComplete<Object> onComplete = new OnComplete<Object>() {
+          final Timeout timeout = new Timeout(Duration.create(30, "seconds"));
+          final OnComplete<Object> onComplete = new OnComplete<Object>() {
             @Override
-            public void onComplete(Throwable throwable, Object o) throws Throwable {
+            public void onComplete(Throwable throwable, Object o) {
               if (throwable != null && !(throwable instanceof akka.pattern.AskTimeoutException)) {
-                Toast.makeText(getApplicationContext(), getString(R.string.home_toast_openchannel_failed) + throwable.getMessage(), Toast.LENGTH_LONG).show();
+                runOnUiThread(() -> Toast.makeText(getApplicationContext(), getString(R.string.home_toast_openchannel_failed) + throwable.getMessage(), Toast.LENGTH_LONG).show());
               }
             }
           };
-          app.openChannel(Duration.create(30, "seconds"), onComplete, remoteNodeURI, o);
+          final OnComplete<Object> onConnectComplete = new OnComplete<Object>() {
+            @Override
+            public void onComplete(Throwable throwable, Object result) {
+              if (throwable != null) {
+                runOnUiThread(() -> Toast.makeText(getApplicationContext(), getString(R.string.home_toast_openchannel_failed) + throwable.getMessage(), Toast.LENGTH_LONG).show());
+              } else if ("connected".equals(result.toString()) || "already connected".equals(result.toString())) {
+                Patterns.ask(app.appKit.eclairKit.switchboard(), open, timeout).onComplete(onComplete, app.system.dispatcher());
+              } else {
+                runOnUiThread(() -> Toast.makeText(getApplicationContext(), getString(R.string.home_toast_openchannel_failed) + result.toString(), Toast.LENGTH_LONG).show());
+              }
+            }
+          };
+          Patterns.ask(app.appKit.eclairKit.switchboard(), new Peer.Connect(remoteNodeURI, Option.apply(null)), timeout)
+            .onComplete(onConnectComplete, app.system.dispatcher());
         });
       goToHome();
     } catch (Throwable t) {
