@@ -65,6 +65,7 @@ public interface Constants {
   String SETTING_CAP_LIGHTNING_FEES = "cap_lightning_fees";
 
   // logging
+  String ENCODER_PATTERN = "%d %-5level %logger{24} %X{nodeId}%X{channelId} - %msg%ex{24}%n";
   String SETTING_LOGS_OUTPUT = "node_logs_output";
   String LOGS_OUTPUT_NONE = "NONE";
   String LOGS_OUTPUT_LOCAL = "LOCAL";
@@ -119,6 +120,7 @@ public interface Constants {
   int IMPORT_WALLET_SUCCESS = 2;
 
   /* --------- REFRESH SCHEDULER ----------- */
+
   String WAKE_UP = "wake_up";
   String REFRESH = "refresh";
 

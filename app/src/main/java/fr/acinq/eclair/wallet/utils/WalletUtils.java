@@ -54,8 +54,10 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.PatternLayout;
+import ch.qos.logback.classic.android.LogcatAppender;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.rolling.FixedWindowRollingPolicy;
 import ch.qos.logback.core.rolling.RollingFileAppender;
 import ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy;
@@ -336,7 +338,11 @@ public class WalletUtils {
           prefs.getInt(Constants.SETTING_PAPERTRAIL_PORT, 12345));
         break;
       default:
-        disableLogging();
+        if (BuildConfig.DEBUG) {
+          setupLogcatLogging();
+        } else {
+          disableLogging();
+        }
         break;
     }
   }
@@ -345,6 +351,29 @@ public class WalletUtils {
     final LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
     lc.reset();
     lc.stop();
+  }
+
+  private static void setupLogcatLogging() {
+    final LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+    lc.reset();
+
+    final PatternLayoutEncoder tagEncoder = new PatternLayoutEncoder();
+    tagEncoder.setContext(lc);
+    tagEncoder.setPattern("%logger{12}");
+    tagEncoder.start();
+
+    final PatternLayoutEncoder encoder = new PatternLayoutEncoder();
+    encoder.setContext(lc);
+    encoder.setPattern("%X{nodeId}%X{channelId} - %msg%ex{24}%n");
+    encoder.start();
+
+    final LogcatAppender logcatAppender = new LogcatAppender();
+    logcatAppender.setContext(lc);
+    logcatAppender.setEncoder(encoder);
+    logcatAppender.setTagEncoder(tagEncoder);
+    logcatAppender.start();
+
+    useAppender(lc, logcatAppender);
   }
 
   /**
@@ -363,7 +392,7 @@ public class WalletUtils {
 
     final PatternLayoutEncoder encoder = new PatternLayoutEncoder();
     encoder.setContext(lc);
-    encoder.setPattern("%d %-5level %logger{24} %X{nodeId}%X{channelId} - %msg%ex{24}%n");
+    encoder.setPattern(Constants.ENCODER_PATTERN);
     encoder.start();
 
     final RollingFileAppender<ILoggingEvent> rollingFileAppender = new RollingFileAppender<>();
@@ -388,13 +417,7 @@ public class WalletUtils {
     rollingFileAppender.setTriggeringPolicy(triggeringPolicy);
     rollingFileAppender.start();
 
-    lc.getLogger("com.ning.http.client.providers.netty").setLevel(Level.WARN);
-    lc.getLogger("fr.acinq.eclair.blockchain.electrum").setLevel(Level.WARN);
-
-    final Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-    root.setLevel(Level.INFO);
-    root.addAppender(rollingFileAppender);
-    log.info("now using the local file logging appender");
+    useAppender(lc, rollingFileAppender);
   }
 
   /**
@@ -406,7 +429,7 @@ public class WalletUtils {
 
     final PatternLayout patternLayout = new PatternLayout();
     patternLayout.setContext(lc);
-    patternLayout.setPattern("%d %-5level %logger{24} %X{nodeId}%X{channelId} - %msg%ex{24}%n");
+    patternLayout.setPattern(Constants.ENCODER_PATTERN);
     patternLayout.start();
 
     final SSLTCPNetSyslogConfig syslogConfig = new SSLTCPNetSyslogConfig();
@@ -429,12 +452,15 @@ public class WalletUtils {
     asyncAppender.addAppender(syslogAppender);
     asyncAppender.start();
 
+    useAppender(lc, asyncAppender);
+  }
+
+  private static void useAppender(final LoggerContext lc, final Appender<ILoggingEvent> appender) {
     lc.getLogger("com.ning.http.client.providers.netty").setLevel(Level.WARN);
     lc.getLogger("fr.acinq.eclair.blockchain.electrum").setLevel(Level.WARN);
 
     final Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
     root.setLevel(Level.INFO);
-    root.addAppender(asyncAppender);
-    log.info("now using the papertail logging appender");
+    root.addAppender(appender);
   }
 }
