@@ -133,11 +133,6 @@ public class App extends Application {
           scheduleConnectionToNode();
           // TODO: reconnect electrum
         }
-
-        @Override
-        public void onLost(Network n) {
-          //
-        }
       };
       cm.registerNetworkCallback(request, callback);
     }
