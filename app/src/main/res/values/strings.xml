@@ -511,7 +511,7 @@
     ]]></string>
 
   <string name="backup_switch_button">Enable Channels Backup</string>
-  <string name="backup_drive_unavailable">Google Drive is not available on your phone. Channel can not be backed up.</string>
+  <string name="backup_drive_unavailable">Google Drive is not available on your phone. Your lightning channels cannot be backed up.</string>
   <string name="backup_drive_details_more_button">More info</string>
   <string name="backup_drive_retrieving_meta">Retrieving backup details…</string>
   <string name="backup_drive_last_backup">Last backup: %1$s</string>
