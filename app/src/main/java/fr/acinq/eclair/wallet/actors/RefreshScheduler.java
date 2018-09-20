@@ -25,11 +25,13 @@ import java.util.concurrent.TimeUnit;
 import akka.actor.UntypedActor;
 import akka.japi.Procedure;
 import fr.acinq.eclair.wallet.events.BalanceUpdateEvent;
+import fr.acinq.eclair.wallet.events.ChannelUpdateEvent;
+import fr.acinq.eclair.wallet.events.PaymentEvent;
 import fr.acinq.eclair.wallet.utils.Constants;
 import scala.concurrent.duration.Duration;
 
-public class BalanceRefreshScheduler extends UntypedActor {
-  private final Logger log = LoggerFactory.getLogger(BalanceRefreshScheduler.class);
+public abstract class RefreshScheduler extends UntypedActor {
+  private final Logger log = LoggerFactory.getLogger(RefreshScheduler.class);
 
   public void onReceive(Object message) {
     if (message.equals(Constants.REFRESH)) {
@@ -40,8 +42,32 @@ public class BalanceRefreshScheduler extends UntypedActor {
 
   private Procedure<Object> sleep = message -> {
     if (message.equals(Constants.WAKE_UP)) {
-      EventBus.getDefault().post(new BalanceUpdateEvent());
+      handleRefresh();
       getContext().unbecome();
     }
   };
+
+  abstract void handleRefresh();
+
+  public static class PaymentsRefreshScheduler extends RefreshScheduler {
+    @Override
+    void handleRefresh() {
+      EventBus.getDefault().post(new PaymentEvent());
+    }
+  }
+
+  public static class ChannelsRefreshScheduler extends RefreshScheduler {
+    @Override
+    void handleRefresh() {
+      EventBus.getDefault().post(new ChannelUpdateEvent());
+    }
+  }
+
+  public static class BalanceRefreshScheduler extends RefreshScheduler {
+    @Override
+    void handleRefresh() {
+      EventBus.getDefault().post(new BalanceUpdateEvent());
+    }
+  }
 }
+

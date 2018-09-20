@@ -64,11 +64,9 @@ import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.actors.NodeSupervisor;
 import fr.acinq.eclair.wallet.actors.ElectrumSupervisor;
 import fr.acinq.eclair.wallet.R;
+import fr.acinq.eclair.wallet.actors.RefreshScheduler;
 import fr.acinq.eclair.wallet.databinding.ActivityStartupBinding;
 import fr.acinq.eclair.wallet.fragments.PinDialog;
-import fr.acinq.eclair.wallet.actors.BalanceRefreshScheduler;
-import fr.acinq.eclair.wallet.actors.ChannelsRefreshScheduler;
-import fr.acinq.eclair.wallet.actors.PaymentsRefreshScheduler;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.EclairException;
 import fr.acinq.eclair.wallet.utils.EncryptedBackup;
@@ -476,9 +474,9 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
         publishProgress("setting up eclair");
         final Setup setup = new Setup(datadir, ConfigFactory.empty(), Option.apply(seed), app.system);
 
-        final ActorRef paymentsRefreshScheduler = app.system.actorOf(Props.create(PaymentsRefreshScheduler.class), "PaymentsRefreshScheduler");
-        final ActorRef channelsRefreshScheduler = app.system.actorOf(Props.create(ChannelsRefreshScheduler.class), "ChannelsRefreshScheduler");
-        final ActorRef balanceRefreshScheduler = app.system.actorOf(Props.create(BalanceRefreshScheduler.class), "BalanceRefreshScheduler");
+        final ActorRef paymentsRefreshScheduler = app.system.actorOf(Props.create(RefreshScheduler.PaymentsRefreshScheduler.class), "PaymentsRefreshScheduler");
+        final ActorRef channelsRefreshScheduler = app.system.actorOf(Props.create(RefreshScheduler.ChannelsRefreshScheduler.class), "ChannelsRefreshScheduler");
+        final ActorRef balanceRefreshScheduler = app.system.actorOf(Props.create(RefreshScheduler.BalanceRefreshScheduler.class), "BalanceRefreshScheduler");
 
         // gui updater actor
         final ActorRef nodeSupervisor = app.system.actorOf(Props.create(NodeSupervisor.class, app.getDBHelper(),
