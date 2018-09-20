@@ -16,7 +16,6 @@
 
 package fr.acinq.eclair.wallet.activities;
 
-import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -33,7 +32,6 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -48,12 +46,13 @@ import android.widget.Toast;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.google.common.util.concurrent.RateLimiter;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.greenrobot.eventbus.util.ThrowableFailureEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,12 +63,12 @@ import fr.acinq.eclair.blockchain.electrum.ElectrumClient;
 import fr.acinq.eclair.blockchain.electrum.ElectrumWallet;
 import fr.acinq.eclair.router.SyncProgress;
 import fr.acinq.eclair.wallet.BuildConfig;
-import fr.acinq.eclair.wallet.EclairEventService;
+import fr.acinq.eclair.wallet.actors.NodeSupervisor;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.databinding.ActivityHomeBinding;
+import fr.acinq.eclair.wallet.events.BalanceUpdateEvent;
 import fr.acinq.eclair.wallet.events.BitcoinPaymentFailedEvent;
 import fr.acinq.eclair.wallet.events.ChannelUpdateEvent;
-import fr.acinq.eclair.wallet.events.LNBalanceUpdateEvent;
 import fr.acinq.eclair.wallet.events.LNPaymentFailedEvent;
 import fr.acinq.eclair.wallet.events.LNPaymentSuccessEvent;
 import fr.acinq.eclair.wallet.events.PaymentEvent;
@@ -83,13 +82,13 @@ import static fr.acinq.eclair.wallet.adapters.LocalChannelItemHolder.EXTRA_CHANN
 
 public class HomeActivity extends EclairActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
+  private final Logger log = LoggerFactory.getLogger(HomeActivity.class);
+
   public static final String EXTRA_PAGE = BuildConfig.APPLICATION_ID + "EXTRA_PAGE";
   public static final String EXTRA_PAYMENT_URI = BuildConfig.APPLICATION_ID + "EXTRA_PAYMENT_URI";
-  private static final String TAG = "Home Activity";
 
   private ActivityHomeBinding mBinding;
 
-  private ViewStub mStubBreakingChanges;
   private ViewStub mStubIntro;
   private int introStep = 0;
   private boolean canSendPayments = false;
@@ -99,7 +98,6 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
   private Handler mExchangeRateHandler = new Handler();
   private Runnable mExchangeRateRunnable;
   // debounce for requesting payment list update -- max once per 2 secs
-  private final RateLimiter paymentListUpdateLimiter = RateLimiter.create(2f);
   private final Animation mBlinkingAnimation = new AlphaAnimation(0.3f, 1);
   private final Animation mRotatingAnimation = new RotateAnimation(0, -360, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF,
     0.5f);
@@ -121,9 +119,7 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
 
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
     // --- check initial app state
-    if (app.hasBreakingChanges()) {
-      displayBreakingChanges();
-    } else if (prefs.getBoolean(Constants.SETTING_SHOW_INTRO, true)) {
+    if (prefs.getBoolean(Constants.SETTING_SHOW_INTRO, true)) {
       mStubIntro = findViewById(R.id.home_stub_intro);
       displayIntro(prefs);
     }
@@ -149,7 +145,6 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
     mBinding.syncProgressIcon.startAnimation(mRotatingAnimation);
 
     final Intent intent = getIntent();
-    Log.i(TAG, "intent = " + intent);
     if (intent.hasExtra(StartupActivity.ORIGIN)) {
       final String origin = intent.getStringExtra(StartupActivity.ORIGIN);
       final String originParam = intent.getStringExtra(StartupActivity.ORIGIN_EXTRA);
@@ -162,11 +157,6 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
       // app may be started with a payment request intent
       readURIIntent(getIntent());
     }
-  }
-
-  private void displayBreakingChanges() {
-    mStubBreakingChanges = findViewById(R.id.home_stub_breaking);
-    mStubBreakingChanges.inflate();
   }
 
   private void setUpTabs(final Bundle savedInstanceState) {
@@ -249,7 +239,7 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
       // refresh exchange rate
       mExchangeRateHandler.post(mExchangeRateRunnable);
       // refresh LN balance
-      EclairEventService.postLNBalanceEvent();
+      updateBalance();
     }
   }
 
@@ -265,13 +255,12 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
       switch (paymentRequest.getScheme()) {
         case "bitcoin":
         case "lightning":
-          Log.d(TAG, "received intent with payment_request=" + paymentRequest.toString());
           final Intent paymentIntent = new Intent(this, SendPaymentActivity.class);
           paymentIntent.putExtra(SendPaymentActivity.EXTRA_INVOICE, paymentRequest.toString());
           startActivity(paymentIntent);
           break;
         default:
-          Log.d(TAG, "Unhandled payment scheme=" + paymentRequest);
+          log.error("unhandled payment scheme {}", paymentRequest);
       }
     }
   }
@@ -489,7 +478,7 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
       clipboard.setPrimaryClip(ClipData.newPlainText("Bitcoin address", app.getWalletAddress()));
       Toast.makeText(this.getApplicationContext(), "Copied address to clipboard", Toast.LENGTH_SHORT).show();
     } catch (Exception e) {
-      Log.w(TAG, "failed to copy address with cause=" + e.getMessage());
+      log.debug("failed to copy address with cause {}", e.getMessage());
       Toast.makeText(this.getApplicationContext(), "Could not copy address", Toast.LENGTH_SHORT).show();
     }
   }
@@ -512,7 +501,7 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
-  public void handleLNBalanceEvent(LNBalanceUpdateEvent event) {
+  public void handleBalanceEvent(BalanceUpdateEvent event) {
     updateBalance();
   }
 
@@ -545,9 +534,7 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
 
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void handlePaymentEvent(PaymentEvent event) {
-    if (paymentListUpdateLimiter.tryAcquire()) {
-      mPaymentsListFragment.updateList();
-    }
+    mPaymentsListFragment.updateList();
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
@@ -570,17 +557,15 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
 
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void handleThrowableEvent(ThrowableFailureEvent event) {
-    Log.w(TAG, "event failed with cause=" + event.getThrowable().getMessage());
+    log.debug("event failed with cause {}", event.getThrowable().getMessage());
   }
 
-  @SuppressLint("SetTextI18n")
   private void updateBalance() {
-    final LNBalanceUpdateEvent lnBalanceEvent = EventBus.getDefault().getStickyEvent(LNBalanceUpdateEvent.class);
-    final MilliSatoshi lnBalance = lnBalanceEvent == null ? new MilliSatoshi(0) : lnBalanceEvent.total();
+    final MilliSatoshi lightningBalance = NodeSupervisor.getChannelsBalance();
     final MilliSatoshi walletBalance = app == null ? new MilliSatoshi(0) : package$.MODULE$.satoshi2millisatoshi(app.getOnchainBalance());
-    mBinding.balanceTotal.setAmountMsat(new MilliSatoshi(lnBalance.amount() + walletBalance.amount()));
+    mBinding.balanceTotal.setAmountMsat(new MilliSatoshi(lightningBalance.amount() + walletBalance.amount()));
     mBinding.balanceOnchain.setAmountMsat(walletBalance);
-    mBinding.balanceLightning.setAmountMsat(lnBalance);
+    mBinding.balanceLightning.setAmountMsat(lightningBalance);
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)

@@ -29,6 +29,8 @@ import android.widget.TextView;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import fr.acinq.eclair.blockchain.electrum.ElectrumWallet;
 import fr.acinq.eclair.wallet.App;
@@ -36,7 +38,8 @@ import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.tasks.QRCodeTask;
 
 public class ReceivePaymentFragment extends Fragment implements QRCodeTask.AsyncQRCodeResponse {
-  private static final String TAG = "ReceivePayment";
+  private final Logger log = LoggerFactory.getLogger(ReceivePaymentFragment.class);
+
   private View mView;
   private ImageView mQRImageView;
   private TextView mAddressTextView;

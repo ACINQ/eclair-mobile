@@ -30,11 +30,14 @@ public interface Constants {
 
   int CAMERA_PERMISSION_REQUEST = 0;
 
-  /* ----------- FILES NAMES ------------ */
+  /* ----------- DIR & FILES NAMES ------------ */
 
   String ECLAIR_DATADIR = "eclair-wallet-data";
   String ECLAIR_DB_FILE = "eclair.sqlite";
   String NETWORK_DB_FILE = "network.sqlite";
+  String LOGS_DIR = "logs";
+  String CURRENT_LOG_FILE = "eclair-wallet.log";
+  String ARCHIVED_LOG_FILE = "eclair-wallet.archive-%i.log";
 
   /* ----------- SETTINGS ------------ */
 
@@ -60,6 +63,16 @@ public interface Constants {
 
   // lightning
   String SETTING_CAP_LIGHTNING_FEES = "cap_lightning_fees";
+
+  // logging
+  String ENCODER_PATTERN = "%d %-5level %logger{24} %X{nodeId}%X{channelId} - %msg%ex{24}%n";
+  String SETTING_LOGS_OUTPUT = "node_logs_output";
+  String LOGS_OUTPUT_NONE = "NONE";
+  String LOGS_OUTPUT_LOCAL = "LOCAL";
+  String LOGS_OUTPUT_PAPERTRAIL = "PAPER_TRAIL_APP";
+  String SETTING_PAPERTRAIL_VISIBLE = "paper_trail_visible";
+  String SETTING_PAPERTRAIL_HOST = "paper_trail_host";
+  String SETTING_PAPERTRAIL_PORT = "paper_trail_port";
 
   /* ----------- SETTINGS - PIN CODE ------------ */
 
@@ -105,5 +118,10 @@ public interface Constants {
 
   int IMPORT_WALLET_INIT = 1;
   int IMPORT_WALLET_SUCCESS = 2;
+
+  /* --------- REFRESH SCHEDULER ----------- */
+
+  String WAKE_UP = "wake_up";
+  String REFRESH = "refresh";
 
 }

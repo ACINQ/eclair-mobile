@@ -57,19 +57,17 @@
         <android.support.constraint.ConstraintLayout
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:background="@color/primary_light_x1"
+          android:layout_margin="@dimen/space_md"
+          android:background="@drawable/rounded_corner_grey"
           android:orientation="vertical"
-          android:paddingBottom="@dimen/space_lg"
-          android:paddingEnd="@dimen/space_md"
-          android:paddingStart="@dimen/space_md"
-          android:paddingTop="@dimen/space_lg"
+          android:padding="@dimen/space_md"
           android:visibility="@{!isActive ? View.VISIBLE : View.GONE}">
 
           <ImageView
             android:id="@+id/terminated_icon"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:src="@drawable/ic_error_outline_white"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_info_outline_black_24dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -80,7 +78,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/space_md"
             android:text="@string/channeldetails_terminated_disclaimer"
-            android:textColor="@color/white"
+            android:textColor="@color/grey_2"
             app:layout_constrainedWidth="true"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0"
@@ -92,7 +90,7 @@
             android:layout_width="50dp"
             android:layout_height="1dp"
             android:layout_marginTop="@dimen/space_xs"
-            android:background="@color/primary_light_x2"
+            android:background="@color/grey_0_dark_x1"
             app:layout_constraintStart_toStartOf="@id/terminated_disclaimer"
             app:layout_constraintTop_toBottomOf="@id/terminated_disclaimer" />
 
@@ -101,7 +99,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/space_xs"
-            android:textColor="@color/primary_light_x4"
+            android:textColor="@color/grey_1"
             android:textSize="12sp"
             app:layout_constrainedWidth="true"
             app:layout_constraintHorizontal_bias="0"
@@ -114,7 +112,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/space_xxs"
-            android:textColor="@color/primary_light_x4"
+            android:textColor="@color/grey_1"
             android:textSize="12sp"
             app:layout_constrainedWidth="true"
             app:layout_constraintHorizontal_bias="0"
@@ -253,6 +251,16 @@
           android:visibility="gone"
           app:has_border="true"
           app:label="@string/channeldetails_closing_cause_label"
+          app:value="@string/unknown" />
+
+        <fr.acinq.eclair.wallet.customviews.DataRow
+          android:id="@+id/closing_refund_block"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:visibility="gone"
+          app:desc="@string/channeldetails_refund_block_desc"
+          app:has_border="true"
+          app:label="@string/channeldetails_refund_block_label"
           app:value="@string/unknown" />
 
         <fr.acinq.eclair.wallet.customviews.DataRow

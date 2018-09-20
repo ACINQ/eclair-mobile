@@ -20,26 +20,34 @@ import android.app.Application;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
+import android.net.NetworkRequest;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
-import android.util.Log;
 import android.widget.Toast;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
+import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
+import akka.actor.Cancellable;
 import akka.dispatch.OnComplete;
 import akka.dispatch.OnFailure;
 import akka.pattern.Patterns;
@@ -72,6 +80,8 @@ import fr.acinq.eclair.wallet.events.NetworkChannelsCountEvent;
 import fr.acinq.eclair.wallet.events.XpubEvent;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
+import fr.acinq.eclair.wire.Init;
+import scala.Option;
 import scala.Symbol;
 import scala.Tuple2;
 import scala.collection.Iterable;
@@ -86,9 +96,9 @@ import static fr.acinq.eclair.wallet.events.ClosingChannelNotificationEvent.NOTI
 
 public class App extends Application {
 
-  public final static String TAG = "App";
   public final static Map<String, Float> RATES = new HashMap<>();
   public final ActorSystem system = ActorSystem.apply("system");
+  private final Logger log = LoggerFactory.getLogger(App.class);
   public AtomicReference<String> pin = new AtomicReference<>(null);
   public AtomicReference<String> seedHash = new AtomicReference<>(null);
   // version 1 of the backup encryption key uses a m/49' path for derivation, same as BIP49
@@ -97,6 +107,7 @@ public class App extends Application {
   // version 1 is kept for backward compatibility
   public AtomicReference<BinaryData> backupKey_v2 = new AtomicReference<>(null);
   public AppKit appKit;
+  private Cancellable pingNode;
   private AtomicReference<ElectrumState> electrumState = new AtomicReference<>(null);
   private DBHelper dbHelper;
   private String walletAddress = "N/A";
@@ -107,13 +118,24 @@ public class App extends Application {
       EventBus.getDefault().register(this);
     }
     super.onCreate();
+
+    WalletUtils.setupLogging(getBaseContext());
+    monitorConnectivity();
   }
 
-  /**
-   * Returns true if the wallet is not compatible with the local data.
-   */
-  public boolean hasBreakingChanges() {
-    return !appKit.isDBCompatible;
+  private void monitorConnectivity() {
+    final ConnectivityManager cm = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+    final NetworkRequest request = new NetworkRequest.Builder().addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET).build();
+    if (cm != null) {
+      final ConnectivityManager.NetworkCallback callback = new ConnectivityManager.NetworkCallback() {
+        @Override
+        public void onAvailable(Network n) {
+          scheduleConnectionToNode();
+          // TODO: reconnect electrum
+        }
+      };
+      cm.registerNetworkCallback(request, callback);
+    }
   }
 
   /**
@@ -224,16 +246,14 @@ public class App extends Application {
       fBitcoinPayment.onComplete(new OnComplete<String>() {
         @Override
         public void onComplete(final Throwable t, final String txId) {
-          if (t == null) {
-            Log.i(TAG, "Successfully sent tx " + txId);
-          } else {
-            Log.w(TAG, "could not send bitcoin tx " + txId + "  with cause=" + t.getMessage());
+          if (t != null) {
+            log.warn("could not send bitcoin tx {} with cause {}", txId, t.getMessage());
             EventBus.getDefault().post(new BitcoinPaymentFailedEvent(t.getLocalizedMessage()));
           }
         }
       }, this.system.dispatcher());
     } catch (Throwable t) {
-      Log.w(TAG, "could not send bitcoin tx with cause=" + t.getMessage());
+      log.warn("could not send bitcoin tx with cause {}", t.getMessage());
       EventBus.getDefault().post(new BitcoinPaymentFailedEvent(t.getLocalizedMessage()));
     }
   }
@@ -253,29 +273,28 @@ public class App extends Application {
         public void onComplete(final Throwable t, final Tuple2<Transaction, Satoshi> res) {
           if (t == null) {
             if (res != null) {
-              Log.i(TAG, "onComplete: commiting spend all tx");
               final Future fSendAll = appKit.electrumWallet.commit(res._1());
               fSendAll.onComplete(new OnComplete<Boolean>() {
                 @Override
                 public void onComplete(Throwable failure, Boolean success) throws Throwable {
                   if (!success) {
-                    Log.w(TAG, "could not send empty wallet tx");
+                    log.warn("could not send empty wallet tx");
                     EventBus.getDefault().post(new BitcoinPaymentFailedEvent("broadcast failed"));
                   }
                 }
               }, system.dispatcher());
             } else {
-              Log.w(TAG, "could not create send all tx");
+              log.warn("could not create send all tx");
               EventBus.getDefault().post(new BitcoinPaymentFailedEvent("tx creation failed"));
             }
           } else {
-            Log.w(TAG, "could not send all balance with cause=" + t.getMessage());
+            log.warn("could not send all balance with cause {}", t.getMessage());
             EventBus.getDefault().post(new BitcoinPaymentFailedEvent(t.getLocalizedMessage()));
           }
         }
       }, this.system.dispatcher());
     } catch (Throwable t) {
-      Log.w(TAG, "could not send send all balance with cause=" + t.getMessage());
+      log.warn("could not send send all balance with cause {}", t.getMessage());
       EventBus.getDefault().post(new BitcoinPaymentFailedEvent(t.getLocalizedMessage()));
     }
   }
@@ -305,32 +324,36 @@ public class App extends Application {
           }
         }
       };
-      final Future<Object> connectFuture = Patterns.ask(appKit.eclairKit.switchboard(), new Peer.Connect(nodeURI), new Timeout(timeout));
+      final Future<Object> connectFuture = Patterns.ask(appKit.eclairKit.switchboard(), new Peer.Connect(nodeURI, Option.apply(null)), new Timeout(timeout));
       connectFuture.onComplete(onConnectComplete, this.system.dispatcher());
+    }
+  }
+
+  public void scheduleConnectionToNode() {
+    if (pingNode != null) pingNode.cancel();
+    if (system != null && appKit != null && appKit.eclairKit != null && appKit.eclairKit.switchboard() != null) {
+      pingNode = system.scheduler().schedule(Duration.Zero(), Duration.create(60, "seconds"), () -> {
+        final Init localInit = new Init(appKit.eclairKit.nodeParams().globalFeatures(), BinaryData.apply("808a"));
+        appKit.eclairKit.switchboard().tell(new Peer.Connect(NodeURI.parse(WalletUtils.ACINQ_NODE), Option.apply(localInit)), ActorRef.noSender());
+      }, system.dispatcher());
     }
   }
 
   /**
    * Broadcast a transaction using the payload.
-   *
-   * @param payload
    */
   public void broadcastTx(final String payload) {
     final Transaction tx = (Transaction) Transaction.read(payload);
     Future<Object> future = appKit.electrumWallet.commit(tx);
     try {
-      Boolean success = (Boolean) Await.result(future, Duration.create(500, "milliseconds"));
-      if (success) Log.i(TAG, "successful broadcast of " + tx.txid());
-      else Log.w(TAG, "cannot broadcast " + tx.txid());
+      Await.result(future, Duration.create(500, "milliseconds"));
     } catch (Exception e) {
-      Log.w(TAG, "failed broadcast of " + tx.txid(), e);
+      log.warn("failed broadcast of tx {}", tx.txid(), e);
     }
   }
 
   /**
    * Returns the eclair node's public key.
-   *
-   * @return
    */
   public String nodePublicKey() {
     return appKit.eclairKit.nodeParams().privateKey().publicKey().toBin().toString();
@@ -457,14 +480,12 @@ public class App extends Application {
   }
 
   public static class AppKit {
-    final private ElectrumEclairWallet electrumWallet;
     final public Kit eclairKit;
-    final private boolean isDBCompatible;
+    final private ElectrumEclairWallet electrumWallet;
 
-    public AppKit(final ElectrumEclairWallet wallet, final Kit kit, final boolean isDBCompatible) {
+    public AppKit(final ElectrumEclairWallet wallet, final Kit kit) {
       this.electrumWallet = wallet;
       this.eclairKit = kit;
-      this.isDBCompatible = isDBCompatible;
     }
   }
 }

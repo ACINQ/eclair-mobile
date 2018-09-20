@@ -25,12 +25,13 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
 import org.bitcoinj.uri.BitcoinURI;
 import org.greenrobot.eventbus.util.AsyncExecutor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -44,7 +45,7 @@ import fr.acinq.eclair.CoinUnit;
 import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.wallet.BuildConfig;
-import fr.acinq.eclair.wallet.EclairEventService;
+import fr.acinq.eclair.wallet.actors.NodeSupervisor;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.databinding.ActivitySendPaymentBinding;
 import fr.acinq.eclair.wallet.fragments.PinDialog;
@@ -65,8 +66,9 @@ import scala.util.Right;
 public class SendPaymentActivity extends EclairActivity
   implements LNInvoiceReaderTask.AsyncInvoiceReaderTaskResponse, BitcoinInvoiceReaderTask.AsyncInvoiceReaderTaskResponse {
 
+  private final Logger log = LoggerFactory.getLogger(SendPaymentActivity.class);
+
   public static final String EXTRA_INVOICE = BuildConfig.APPLICATION_ID + ".EXTRA_INVOICE";
-  private static final String TAG = "SendPayment";
   private final static List<String> LIGHTNING_PREFIXES = Arrays.asList("lightning:", "lightning://");
   public final static int LOADING = 0;
   public final static int READ_ERROR = 1;
@@ -121,7 +123,7 @@ public class SendPaymentActivity extends EclairActivity
       return Option.apply(getString(R.string.payment_ln_invalid_chain, BuildConfig.CHAIN.toUpperCase()));
     }
     // check lightning channels status
-    if (EclairEventService.getChannelsMap().size() == 0) {
+    if (NodeSupervisor.getChannelsMap().size() == 0) {
       return Option.apply(getString(R.string.payment_error_ln_no_channels));
     } else {
       // check that payment is not already processed
@@ -163,7 +165,7 @@ public class SendPaymentActivity extends EclairActivity
       isAmountReadonly = paymentRequest.amount().isDefined();
       if (isAmountReadonly) {
         final MilliSatoshi amountMsat = WalletUtils.getAmountFromInvoice(paymentRequest);
-        if (!EclairEventService.hasNormalChannelsWithBalance(amountMsat.amount())) {
+        if (!NodeSupervisor.hasNormalChannelsWithBalance(amountMsat.amount())) {
           canNotHandlePayment(R.string.payment_error_ln_insufficient_funds);
           return;
         }
@@ -205,7 +207,7 @@ public class SendPaymentActivity extends EclairActivity
       // bitcoin uri with an embedded lightning invoice => user must choose
       if (bitcoinURI.getLightningPaymentRequest() != null) {
         final PaymentRequest paymentRequest = bitcoinURI.getLightningPaymentRequest();
-        if (EclairEventService.getChannelsMap().isEmpty()) {
+        if (NodeSupervisor.getChannelsMap().isEmpty()) {
           mBinding.pickLightningError.setText(R.string.payment_error_ln_pick_no_channels);
           mBinding.pickLightningError.setVisibility(View.VISIBLE);
           mBinding.pickLightningImage.setAlpha(0.3f);
@@ -276,7 +278,7 @@ public class SendPaymentActivity extends EclairActivity
     try {
       if (isLightningInvoice()) {
         final PaymentRequest paymentRequest = invoice.right().get();
-        if (!EclairEventService.hasActiveChannels()) {
+        if (!NodeSupervisor.hasActiveChannels()) {
           handlePaymentError(R.string.payment_error_ln_no_active_channels);
           return;
         }
@@ -344,7 +346,7 @@ public class SendPaymentActivity extends EclairActivity
     } catch (NumberFormatException e) {
       handlePaymentError(R.string.payment_error_amount);
     } catch (Exception e) {
-      Log.w(TAG, "Could not send payment with cause=" + e.getMessage());
+      log.error("could not send payment with cause {}", e.getMessage());
       handlePaymentError(R.string.payment_error);
     }
   }
@@ -401,7 +403,7 @@ public class SendPaymentActivity extends EclairActivity
 
           // execute payment future, with cltv expiry + 1 to prevent the case where a block is mined just
           // when the payment is made, which would fail the payment.
-          Log.i(TAG, "sending " + amountMsat + " msat for invoice " + prAsString);
+          log.info("(lightning) sending {} msat for invoice {}", amountMsat, prAsString);
           app.sendLNPayment(pr, amountMsat, capLightningFees);
         }
       );
@@ -417,11 +419,11 @@ public class SendPaymentActivity extends EclairActivity
    * @param bitcoinURI contains the bitcoin address
    */
   private void sendBitcoinPayment(final Satoshi amountSat, final Long feesPerKw, final BitcoinURI bitcoinURI, final boolean emptyWallet) {
-    Log.i(TAG, "sending " + amountSat + " sat for invoic=" + bitcoinURI.toString());
     if (emptyWallet) {
-      Log.i(TAG, "sendBitcoinPayment: emptying wallet with special method....");
+      log.info("(on-chain) emptying wallet for {} msat, destination={}", amountSat, bitcoinURI.toString());
       app.sendAllOnchain(bitcoinURI.getAddress(), feesPerKw);
     } else {
+      log.info("(on-chain) sending {} msat for uri {}", amountSat, bitcoinURI.toString());
       app.sendBitcoinPayment(amountSat, bitcoinURI.getAddress(), feesPerKw);
     }
   }
@@ -502,7 +504,7 @@ public class SendPaymentActivity extends EclairActivity
             }
           }
         } catch (Exception e) {
-          Log.w(TAG, "Could not read amount with cause=" + e.getMessage());
+          log.debug("could not read amount with cause {}", e.getMessage());
           mBinding.amountFiat.setText("0 " + preferredFiatCurrency.toUpperCase());
         }
       }
@@ -536,7 +538,7 @@ public class SendPaymentActivity extends EclairActivity
             mBinding.feesWarning.setVisibility(View.GONE);
           }
         } catch (NumberFormatException e) {
-          Log.w(TAG, "Could not read fees with cause=" + e.getMessage());
+          log.debug("could not read fees with cause {}", e.getMessage());
         }
       }
 
@@ -561,7 +563,7 @@ public class SendPaymentActivity extends EclairActivity
     // --- read invoice from intent
     final Intent intent = getIntent();
     invoiceAsString = intent.getStringExtra(EXTRA_INVOICE).trim();
-    Log.d(TAG, "Initializing payment with invoice=" + invoiceAsString);
+    log.info("initializing payment with invoice={}", invoiceAsString);
     if (invoiceAsString != null) {
       for (String prefix : LIGHTNING_PREFIXES) {
         if (invoiceAsString.toLowerCase().startsWith(prefix)) {

@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright 2018 ACINQ SAS
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools">
+
+  <data>
+
+    <import type="android.view.View" />
+
+    <import type="fr.acinq.eclair.wallet.utils.Constants" />
+
+    <variable
+      name="logsOutputMode"
+      type="String" />
+
+    <variable
+      name="showPapertrail"
+      type="boolean" />
+
+  </data>
+
+  <ScrollView
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    tools:context=".activities.LogsSettingsActivity">
+
+    <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:orientation="vertical">
+
+      <!-- Custom toolbar -->
+      <include layout="@layout/toolbar" />
+
+      <LinearLayout
+        style="@style/ClickableLayout"
+        android:gravity="start|center"
+        android:onClick="handleNoneRadioClick"
+        android:padding="@dimen/space_sm">
+
+        <RadioButton
+          android:id="@+id/radio_none"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:buttonTint="@color/primary"
+          android:checked="@{Constants.LOGS_OUTPUT_NONE.equals(logsOutputMode)}"
+          android:clickable="false"
+          android:focusable="false"
+          android:text=""
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toTopOf="parent" />
+
+        <LinearLayout
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginStart="@dimen/space_sm"
+          android:orientation="vertical"
+          app:layout_constrainedWidth="true"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintHorizontal_bias="0"
+          app:layout_constraintStart_toEndOf="@+id/radio_none"
+          app:layout_constraintTop_toTopOf="parent">
+
+          <TextView
+            android:id="@+id/disabled_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/logging_disabled_label"
+            android:textSize="16sp" />
+
+          <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/logging_disabled_desc"
+            android:textColor="@color/grey_2"
+            android:visibility="@{Constants.LOGS_OUTPUT_NONE.equals(logsOutputMode) ? View.VISIBLE : View.GONE}" />
+        </LinearLayout>
+      </LinearLayout>
+
+      <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/grey_0" />
+
+      <LinearLayout
+        style="@style/ClickableLayout"
+        android:gravity="start|center"
+        android:onClick="handleLocalRadioClick"
+        android:padding="@dimen/space_sm">
+
+        <RadioButton
+          android:id="@+id/radio_local"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:buttonTint="@color/primary"
+          android:checked="@{Constants.LOGS_OUTPUT_LOCAL.equals(logsOutputMode)}"
+          android:clickable="false"
+          android:focusable="false"
+          android:text=""
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toTopOf="parent" />
+
+        <LinearLayout
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginStart="@dimen/space_sm"
+          android:orientation="vertical"
+          app:layout_constrainedWidth="true"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintHorizontal_bias="0"
+          app:layout_constraintStart_toEndOf="@+id/radio_local"
+          app:layout_constraintTop_toTopOf="parent">
+
+          <TextView
+            android:id="@+id/local_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/logging_local_label"
+            android:textSize="16sp" />
+
+          <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/logging_local_desc"
+            android:textColor="@color/grey_2"
+            android:visibility="@{Constants.LOGS_OUTPUT_LOCAL.equals(logsOutputMode) ? View.VISIBLE : View.GONE}" />
+
+          <TextView
+            android:id="@+id/local_directory_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_md"
+            android:text="@string/logging_local_directory"
+            android:textColor="@color/grey_2"
+            android:visibility="@{Constants.LOGS_OUTPUT_LOCAL.equals(logsOutputMode) ? View.VISIBLE : View.GONE}" />
+
+          <Button
+            style="@style/ButtonStyle"
+            android:layout_marginTop="@dimen/space_md"
+            android:background="@color/grey_0"
+            android:onClick="viewLocalLogs"
+            android:padding="@dimen/space_sm"
+            android:text="@string/logging_local_view_logs"
+            android:textSize="12sp"
+            android:visibility="@{Constants.LOGS_OUTPUT_LOCAL.equals(logsOutputMode) ? View.VISIBLE : View.GONE}" />
+
+        </LinearLayout>
+      </LinearLayout>
+
+      <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/grey_0"
+        android:visibility="@{showPapertrail ? View.VISIBLE : View.GONE}" />
+
+      <LinearLayout
+        style="@style/ClickableLayout"
+        android:gravity="start|center"
+        android:onClick="handlePapertrailRadioClick"
+        android:padding="@dimen/space_sm"
+        android:visibility="@{showPapertrail ? View.VISIBLE : View.GONE}">
+
+        <RadioButton
+          android:id="@+id/radio_papertrail"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:buttonTint="@color/primary"
+          android:checked="@{Constants.LOGS_OUTPUT_PAPERTRAIL.equals(logsOutputMode)}"
+          android:clickable="false"
+          android:focusable="false"
+          android:text=""
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toTopOf="parent" />
+
+        <LinearLayout
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginStart="@dimen/space_sm"
+          android:orientation="vertical"
+          app:layout_constrainedWidth="true"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintHorizontal_bias="0"
+          app:layout_constraintStart_toEndOf="@+id/radio_papertrail"
+          app:layout_constraintTop_toTopOf="parent">
+
+          <TextView
+            android:id="@+id/papertrail_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/logging_papertrailapp_label"
+            android:textSize="16sp" />
+
+          <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/logging_papertrailapp_desc"
+            android:textColor="@color/grey_2"
+            android:visibility="@{Constants.LOGS_OUTPUT_PAPERTRAIL.equals(logsOutputMode) ? View.VISIBLE : View.GONE}" />
+
+          <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_md"
+            android:hint="@string/logging_papertrailapp_host_hint"
+            android:visibility="@{Constants.LOGS_OUTPUT_PAPERTRAIL.equals(logsOutputMode) ? View.VISIBLE : View.GONE}">
+
+            <android.support.design.widget.TextInputEditText
+              android:id="@+id/papertrail_host_input"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:backgroundTint="@color/primary"
+              android:textSize="14sp" />
+
+          </android.support.design.widget.TextInputLayout>
+
+          <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/logging_papertrailapp_port_hint"
+            android:visibility="@{Constants.LOGS_OUTPUT_PAPERTRAIL.equals(logsOutputMode) ? View.VISIBLE : View.GONE}">
+
+            <android.support.design.widget.TextInputEditText
+              android:id="@+id/papertrail_port_input"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:backgroundTint="@color/primary"
+              android:digits="0123456789"
+              android:inputType="number"
+              android:textSize="14sp" />
+
+          </android.support.design.widget.TextInputLayout>
+        </LinearLayout>
+      </LinearLayout>
+
+      <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/grey_0" />
+
+      <Button
+        style="@style/EndButtonStyle"
+        android:layout_marginEnd="@dimen/space_md"
+        android:layout_marginTop="@dimen/space_md"
+        android:drawablePadding="@dimen/space_xs"
+        android:drawableStart="@drawable/ic_circle_check"
+        android:onClick="saveOutput"
+        android:text="@string/logging_save_output" />
+    </LinearLayout>
+  </ScrollView>
+</layout>

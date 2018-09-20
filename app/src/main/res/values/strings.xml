@@ -110,6 +110,7 @@
   <string name="start_error_restart">Restart</string>
   <string name="start_error_faq_link">Check our FAQ for help.</string>
   <string name="start_error_unreadable_seed">Seed is not readable; eclair can not start.</string>
+  <string name="start_error_connectivity">Your device is not connected to the internet. Please check your network settings.</string>
   <string name="start_error_timeout">Could not start eclair within a reasonable time frame.</string>
   <string name="start_error_wrong_password">Wrong password.</string>
   <string name="start_error_improper">App did not initialize properly, restarting…</string>
@@ -155,7 +156,7 @@
   <string name="restorechannels_no_backup">No backup was found.</string>
   <string name="restorechannels_no_backup_try_again">Try again</string>
   <string name="restorechannels_no_backup_and_finish">Abort and proceed</string>
-  <string name="restorechannels_looking_for_backup">Please wait, looking for backup…</string>
+  <string name="restorechannels_looking_for_backup">Please wait…</string>
   <string name="restorechannels_sync_rate_limit">Drive sync rate limit! Try again later</string>
   <string name="restorechannels_skip_backup">Skip Backup Restore</string>
   <string name="restorechannels_skip_backup_confirmation">Are you sure you want to skip Backup Restore?\n\nYou will not be able to restore your channels later.</string>
@@ -206,6 +207,7 @@
   <string name="menu_settings_channels_backup">Channels Backup</string>
   <string name="menu_settings_channels_backup_about">About Channels Backup</string>
   <string name="menu_settings_channels_restore">Restore Channels</string>
+  <string name="menu_settings_logging">Logging</string>
 
   <string name="open_in_explorer">Open in explorer</string>
   <string name="close_button">Close Channel</string>
@@ -245,6 +247,9 @@
   <string name="channeldetails_min_htlc_amount_label">Min. payment amount</string>
   <string name="channeldetails_min_htlc_amount_desc">Minimum amount that can be sent through this channel</string>
   <string name="channeldetails_closing_cause_label">Cause of closing</string>
+  <string name="channeldetails_refund_block_label">Refund Block</string>
+  <string name="channeldetails_refund_block_desc">Block height at which the main output is refunded</string>
+  <string name="channeldetails_refund_block_value">Block %1$d\n\n(current is %2$d)</string>
   <string name="channeldetails_nodeid_label">Remote node id</string>
   <string name="channeldetails_nodeid_desc">Public key of the remote peer</string>
   <string name="channeldetails_state_label">State</string>
@@ -417,8 +422,9 @@
 
   <!-- //////////////// Local Channel Item //////////////////// -->
 
-  <string name="channelitem_delayed_closing">Your funds will be available in %1$d block(s).</string>
-  <string name="channelitem_delayed_closing_unknown">Your funds will be available after a %1$d blocks delay.</string>
+  <string name="channelitem_delayed_closing">Refund in %1$d block%2$s</string>
+  <string name="channelitem_delayed_closing_unknown">Refund in %1$d+ blocks</string>
+  <string name="channelitem_delayed_closing_claimable">Refund claimable</string>
   <string name="channelitem_with_node">With %1$s</string>
   <string name="channelitem_inflight_htlcs">%1$d inflight payment(s)</string>
   <string name="channelitem_cooperative">(cooperative)</string>
@@ -459,11 +465,12 @@
   <string name="prefs_pin_default_info">Uses the PIN encrypting your wallet</string>
   <string name="prefs_lightning_max_fee">Cap Lightning fees</string>
   <string name="prefs_lightning_max_fee_desc">Abort lightning payments if the fees would exceed 3% of the amount to pay. This prevents overpaying opportunistic nodes in the middle of the route.\n\nDoes not affect on-chain payments.</string>
-  <string name="prefs_backup_title">Channels Backup</string>
   <string name="prefs_onchain_explorer">Preferred onchain explorer</string>
   <string name="prefs_onchain_explorer_dialog">Explore onchain tx with</string>
   <string name="prefs_security_title">Security Settings</string>
   <string name="prefs_haptic_title">Haptic feedback on PIN</string>
+  <string name="prefs_backup_title">Channels Backup</string>
+  <string name="prefs_logging_conf_title">Logging</string>
 
   <!-- //////////////// Security Settings //////////////////// -->
 
@@ -504,7 +511,7 @@
     ]]></string>
 
   <string name="backup_switch_button">Enable Channels Backup</string>
-  <string name="backup_drive_unavailable">Google Drive is not available on your phone. Channel can not be backed up.</string>
+  <string name="backup_drive_unavailable">Google Drive is not available on your phone. Your lightning channels cannot be backed up.</string>
   <string name="backup_drive_details_more_button">More info</string>
   <string name="backup_drive_retrieving_meta">Retrieving backup details…</string>
   <string name="backup_drive_last_backup">Last backup: %1$s</string>
@@ -513,6 +520,26 @@
   <string name="backup_drive_account">Account: &lt;%1$s&gt;</string>
   <string name="backup_drive_grant_access">Grant Access</string>
   <string name="backup_drive_revoke_confirm">Are you sure you want to disable the backup feature?\n\nYou will not be able to restore your lightning funds if you lose your phone.</string>
+
+  <!-- //////////////// Logging configuration //////////////////// -->
+
+  <string name="logging_toast_update_success">Successfully updated logs settings</string>
+  <string name="logging_toast_error_generic">Invalid logs settings</string>
+  <string name="logging_toast_error_external_storage">External storage is not available</string>
+  <string name="logging_toast_error_file_not_found">Logs file not found</string>
+  <string name="logging_external_app_intent">Choose an application to open with:</string>
+  <string name="logging_current_label">%1$s [current]</string>
+  <string name="logging_disabled_label">Disabled</string>
+  <string name="logging_disabled_desc">No logs will be written, which is best for performances.</string>
+  <string name="logging_local_label">Local file</string>
+  <string name="logging_local_desc">Logs will be written in a rolling file on your phone.</string>
+  <string name="logging_local_directory">Files are stored in %1$s</string>
+  <string name="logging_local_view_logs">View logs</string>
+  <string name="logging_papertrailapp_label">PaperTrail</string>
+  <string name="logging_papertrailapp_desc">Logs will be sent over to your Papertrailapp account. Not great for privacy, but real handy for debugging.</string>
+  <string name="logging_papertrailapp_host_hint">Papertrail host</string>
+  <string name="logging_papertrailapp_port_hint">Papertrail port</string>
+  <string name="logging_save_output">Save changes</string>
 
   <!-- //////////////// Wallet //////////////////// -->
 

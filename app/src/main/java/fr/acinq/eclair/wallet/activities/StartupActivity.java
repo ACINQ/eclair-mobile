@@ -16,29 +16,31 @@
 
 package fr.acinq.eclair.wallet.activities;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.text.Html;
-import android.util.Log;
 import android.view.View;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.common.io.Files;
 import com.typesafe.config.ConfigFactory;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -48,7 +50,6 @@ import akka.actor.ActorRef;
 import akka.actor.Props;
 import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.bitcoin.DeterministicWallet;
-import fr.acinq.eclair.DBCompatChecker;
 import fr.acinq.eclair.Kit;
 import fr.acinq.eclair.Setup;
 import fr.acinq.eclair.blockchain.electrum.ElectrumEclairWallet;
@@ -58,12 +59,14 @@ import fr.acinq.eclair.payment.PaymentLifecycle;
 import fr.acinq.eclair.router.SyncProgress;
 import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.BuildConfig;
-import fr.acinq.eclair.wallet.EclairEventService;
-import fr.acinq.eclair.wallet.PaymentSupervisor;
 import fr.acinq.eclair.wallet.R;
+import fr.acinq.eclair.wallet.actors.ElectrumSupervisor;
+import fr.acinq.eclair.wallet.actors.NodeSupervisor;
+import fr.acinq.eclair.wallet.actors.RefreshScheduler;
 import fr.acinq.eclair.wallet.databinding.ActivityStartupBinding;
 import fr.acinq.eclair.wallet.fragments.PinDialog;
 import fr.acinq.eclair.wallet.utils.Constants;
+import fr.acinq.eclair.wallet.utils.EclairException;
 import fr.acinq.eclair.wallet.utils.EncryptedBackup;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 import scala.Option;
@@ -73,7 +76,8 @@ import scala.concurrent.duration.Duration;
 
 public class StartupActivity extends EclairActivity implements EclairActivity.EncryptSeedCallback {
 
-  private static final String TAG = "StartupActivity";
+  private final Logger log = LoggerFactory.getLogger(StartupActivity.class);
+
   private ActivityStartupBinding mBinding;
   private PinDialog mPinDialog;
   public final static String ORIGIN = BuildConfig.APPLICATION_ID + "ORIGIN";
@@ -126,6 +130,13 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
           showError(getString(R.string.start_error_improper));
           new Handler().postDelayed(() -> startNode(datadir, prefs), 1400);
         }
+        break;
+      case StartupTask.NETWORK_ERROR:
+        app.pin.set(null);
+        app.seedHash.set(null);
+        app.backupKey_v1.set(null);
+        app.backupKey_v2.set(null);
+        showError(getString(R.string.start_error_connectivity), true, false);
         break;
       case StartupTask.TIMEOUT_ERROR:
         app.pin.set(null);
@@ -199,9 +210,6 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
     final boolean eclairStartedOnce = (datadir.exists() && datadir.isDirectory()
       && WalletUtils.getEclairDBFile(getApplicationContext()).exists());
     final boolean isFreshInstall = lastUsedVersion == 0 && !eclairStartedOnce;
-    Log.d(TAG, "last used version = " + lastUsedVersion);
-    Log.d(TAG, "has eclair started once ? " + eclairStartedOnce);
-    Log.d(TAG, "fresh install ? " + isFreshInstall);
     if (lastUsedVersion < BuildConfig.VERSION_CODE && !isFreshInstall) {
       if (BREAKING_VERSIONS.contains(BuildConfig.VERSION_CODE)) {
         showBreaking();
@@ -224,10 +232,9 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
 
   private boolean checkChannelsBackupRestore() {
     if (!WalletUtils.getEclairDBFile(getApplicationContext()).exists()) {
-      Log.i(TAG, "could not find eclair DB file in datadir, attempting to restore backup");
+      log.debug("could not find eclair DB file in datadir, attempting to restore backup");
       final int connectionResult = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(getApplicationContext());
       if (connectionResult != ConnectionResult.SUCCESS) {
-        Log.i(TAG, "Google play services are not available (code " + connectionResult + ")");
         return true;
       } else {
         final Intent intent = new Intent(getBaseContext(), RestoreChannelsBackupActivity.class);
@@ -261,10 +268,10 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
 
     if (app.appKit == null) {
       if (datadir.exists() && !datadir.canRead()) {
-        Log.e(TAG, "datadir is not readable. Aborting startup");
+        log.error("datadir is not readable. Aborting startup");
         showError(getString(R.string.start_error_datadir_unreadable), true, true);
       } else if (datadir.exists() && !datadir.isDirectory()) {
-        Log.e(TAG, "datadir is not a directory. Aborting startup");
+        log.error("datadir is not a directory. Aborting startup");
         showError(getString(R.string.start_error_datadir_not_directory), true, true);
       } else {
         final String currentPassword = app.pin.get();
@@ -327,7 +334,6 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
           new StartupTask().execute(app, seed);
 
         } catch (GeneralSecurityException e) {
-          Log.w(TAG, "attempted to read seed with wrong password");
           app.pin.set(null);
           app.seedHash.set(null);
           app.backupKey_v1.set(null);
@@ -337,7 +343,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
             new Handler().postDelayed(() -> startNode(datadir, prefs), 1400);
           });
         } catch (Throwable t) {
-          Log.e(TAG, "seed is unreadable", t);
+          log.error("seed is unreadable", t);
           app.pin.set(null);
           app.seedHash.set(null);
           app.backupKey_v1.set(null);
@@ -384,9 +390,11 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
    * When the task is finished, executes `processStartupFinish` in StartupActivity.
    */
   private static class StartupTask extends AsyncTask<Object, String, Integer> {
-    private static final String TAG = "StartupTask";
+
+    private final Logger log = LoggerFactory.getLogger(StartupTask.class);
 
     private final static int SUCCESS = 0;
+    private final static int NETWORK_ERROR = 2;
     private final static int GENERIC_ERROR = 3;
     private final static int TIMEOUT_ERROR = 4;
 
@@ -402,45 +410,51 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
         App app = (App) params[0];
         final BinaryData seed = (BinaryData) params[1];
         final File datadir = new File(app.getFilesDir(), Constants.ECLAIR_DATADIR);
-        Log.d(TAG, "Accessing Eclair Setup with datadir " + datadir.getAbsolutePath());
 
         publishProgress("initializing system");
         app.checkupInit();
+
+        // bootstrap hangs if network is unavailable.
+        // TODO: The app should be able to handle an offline mode. Remove await from bootstrap and resolve appkit asynchronously.
+        // AppKit should be available from the app without fully bootstrapping the node.
+        final ConnectivityManager cm = (ConnectivityManager) app.getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        final NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        if (activeNetwork == null || !activeNetwork.isConnectedOrConnecting()) {
+          throw new EclairException.NetworkException();
+        }
 
         Class.forName("org.sqlite.JDBC");
         publishProgress("setting up eclair");
         final Setup setup = new Setup(datadir, ConfigFactory.empty(), Option.apply(seed), app.system);
 
+        final ActorRef paymentsRefreshScheduler = app.system.actorOf(Props.create(RefreshScheduler.PaymentsRefreshScheduler.class), "PaymentsRefreshScheduler");
+        final ActorRef channelsRefreshScheduler = app.system.actorOf(Props.create(RefreshScheduler.ChannelsRefreshScheduler.class), "ChannelsRefreshScheduler");
+        final ActorRef balanceRefreshScheduler = app.system.actorOf(Props.create(RefreshScheduler.BalanceRefreshScheduler.class), "BalanceRefreshScheduler");
+
         // gui updater actor
-        final ActorRef guiUpdater = app.system.actorOf(Props.create(
-          EclairEventService.class, app.getDBHelper(), app.seedHash.get(), app.backupKey_v2.get()), "GuiUpdater");
-        app.system.eventStream().subscribe(guiUpdater, ChannelEvent.class);
-        app.system.eventStream().subscribe(guiUpdater, SyncProgress.class);
-        app.system.eventStream().subscribe(guiUpdater, PaymentLifecycle.PaymentResult.class);
+        final ActorRef nodeSupervisor = app.system.actorOf(Props.create(NodeSupervisor.class, app.getDBHelper(),
+          app.seedHash.get(), app.backupKey_v2.get(), paymentsRefreshScheduler, channelsRefreshScheduler, balanceRefreshScheduler), "NodeSupervisor");
+        app.system.eventStream().subscribe(nodeSupervisor, ChannelEvent.class);
+        app.system.eventStream().subscribe(nodeSupervisor, SyncProgress.class);
+        app.system.eventStream().subscribe(nodeSupervisor, PaymentLifecycle.PaymentResult.class);
 
         // electrum payment supervisor actor
-        app.system.actorOf(Props.create(PaymentSupervisor.class, app.getDBHelper()), "payments");
+        app.system.actorOf(Props.create(ElectrumSupervisor.class, app.getDBHelper(), paymentsRefreshScheduler, balanceRefreshScheduler), "ElectrumSupervisor");
 
         publishProgress("starting core");
         Future<Kit> fKit = setup.bootstrap();
         Kit kit = Await.result(fKit, Duration.create(60, "seconds"));
         ElectrumEclairWallet electrumWallet = (ElectrumEclairWallet) kit.wallet();
 
-        publishProgress("checking compatibility");
-        boolean isDBCompatible = true;
-        try {
-          DBCompatChecker.checkDBCompatibility(setup.nodeParams());
-        } catch (Exception e) {
-          isDBCompatible = false;
-        }
-
         publishProgress("done");
-        app.appKit = new App.AppKit(electrumWallet, kit, isDBCompatible);
-
+        app.appKit = new App.AppKit(electrumWallet, kit);
+        app.scheduleConnectionToNode();
         return SUCCESS;
 
+      } catch (EclairException.NetworkException t) {
+        return NETWORK_ERROR;
       } catch (Throwable t) {
-        Log.e(TAG, "Failed to start eclair", t);
+        log.error("failed to start eclair", t);
         if (t instanceof TimeoutException) {
           return TIMEOUT_ERROR;
         } else {

@@ -16,5 +16,5 @@
 
 package fr.acinq.eclair.wallet.utils;
 
-public class EclairStartException extends RuntimeException {
+public class ExternalStorageNotAvailableException extends RuntimeException {
 }

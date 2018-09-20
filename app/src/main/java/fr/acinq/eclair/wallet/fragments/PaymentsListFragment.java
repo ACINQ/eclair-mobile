@@ -29,7 +29,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.greendao.query.QueryBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +41,7 @@ import fr.acinq.eclair.CoinUnit;
 import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.adapters.PaymentListItemAdapter;
+import fr.acinq.eclair.wallet.events.BalanceUpdateEvent;
 import fr.acinq.eclair.wallet.models.Payment;
 import fr.acinq.eclair.wallet.models.PaymentDao;
 import fr.acinq.eclair.wallet.models.PaymentStatus;
@@ -45,8 +49,7 @@ import fr.acinq.eclair.wallet.models.PaymentType;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 
 public class PaymentsListFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
-
-  private static final String TAG = "PaymentListFrag";
+  private final Logger log = LoggerFactory.getLogger(PaymentsListFragment.class);
   private View mView;
   private PaymentListItemAdapter mPaymentAdapter;
   private SwipeRefreshLayout mRefreshLayout;
@@ -55,6 +58,7 @@ public class PaymentsListFragment extends Fragment implements SwipeRefreshLayout
   @Override
   public void onRefresh() {
     updateList();
+    EventBus.getDefault().post(new BalanceUpdateEvent());
     mRefreshLayout.setRefreshing(false);
   }
 
@@ -99,12 +103,11 @@ public class PaymentsListFragment extends Fragment implements SwipeRefreshLayout
     if (getActivity() == null || getActivity().getApplication() == null || ((App) getActivity().getApplication()).getDBHelper() == null) {
       return new ArrayList<>();
     }
-
     final QueryBuilder<Payment> qb = ((App) getActivity().getApplication()).getDBHelper().getDaoSession().getPaymentDao().queryBuilder();
     qb.whereOr(
       PaymentDao.Properties.Type.eq(PaymentType.BTC_ONCHAIN),
       qb.and(PaymentDao.Properties.Type.eq(PaymentType.BTC_LN), PaymentDao.Properties.Status.notEq(PaymentStatus.INIT)));
-    qb.orderDesc(PaymentDao.Properties.Updated).orderAsc(PaymentDao.Properties.ConfidenceBlocks).limit(150);
+    qb.orderDesc(PaymentDao.Properties.Updated).limit(150);
     final List<Payment> list = qb.list();
 
     getActivity().runOnUiThread(() -> {

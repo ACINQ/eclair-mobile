@@ -139,13 +139,17 @@
     <item name="android:foreground">?android:attr/selectableItemBackground</item>
   </style>
 
-  <style name="EndButtonStyle" parent="@style/Widget.AppCompat.Button">
+  <style name="ButtonStyle" parent="@style/Widget.AppCompat.Button.Borderless">
     <item name="android:layout_width">wrap_content</item>
     <item name="android:layout_height">wrap_content</item>
-    <item name="android:layout_gravity">end</item>
+    <item name="android:minHeight">0dp</item>
     <item name="android:padding">@dimen/space_md</item>
     <item name="android:background">@android:color/transparent</item>
     <item name="android:foreground">?android:attr/selectableItemBackground</item>
+  </style>
+
+  <style name="EndButtonStyle" parent="ButtonStyle">
+    <item name="android:layout_gravity">end</item>
   </style>
 
 </resources>

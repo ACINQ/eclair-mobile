@@ -16,9 +16,6 @@
 
 package fr.acinq.eclair.wallet.events;
 
-/**
- * Use this event when the data of a channel have changed and the channels list in the home page
- * must be refreshed.
- */
-public class ChannelUpdateEvent {
+public class BalanceUpdateEvent {
+
 }

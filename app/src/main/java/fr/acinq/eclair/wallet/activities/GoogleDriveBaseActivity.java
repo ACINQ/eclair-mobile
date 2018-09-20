@@ -19,7 +19,6 @@ package fr.acinq.eclair.wallet.activities;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.UiThread;
-import android.util.Log;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -39,6 +38,9 @@ import com.google.android.gms.drive.query.SortOrder;
 import com.google.android.gms.drive.query.SortableField;
 import com.google.android.gms.tasks.Task;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashSet;
@@ -48,7 +50,7 @@ import fr.acinq.eclair.wallet.utils.WalletUtils;
 
 public abstract class GoogleDriveBaseActivity extends EclairActivity {
 
-  static final String TAG = GoogleDriveBaseActivity.class.getSimpleName();
+  private final Logger log = LoggerFactory.getLogger(GoogleDriveBaseActivity.class);
 
   static final int REQUEST_CODE_SIGN_IN = 0;
 
@@ -137,7 +139,7 @@ public abstract class GoogleDriveBaseActivity extends EclairActivity {
     switch (requestCode) {
       case REQUEST_CODE_SIGN_IN:
         if (resultCode != RESULT_OK) {
-          Log.i(TAG, "Google Drive sign-in failed with code " + resultCode);
+          log.info("Google Drive sign-in failed with code {}");
           applyAccessDenied();
           return;
         }
@@ -145,7 +147,7 @@ public abstract class GoogleDriveBaseActivity extends EclairActivity {
         if (getAccountTask.isSuccessful()) {
           initializeDriveClient(getAccountTask.getResult());
         } else {
-          Log.i(TAG, "Google Drive sign-in failed, could not get account");
+          log.info("Google Drive sign-in failed, could not get account");
           applyAccessDenied();
         }
         break;
@@ -161,7 +163,7 @@ public abstract class GoogleDriveBaseActivity extends EclairActivity {
         if (signInAccount != null) {
           initializeDriveClient(signInAccount);
         } else {
-          Log.i(TAG, "google drive signin account is null");
+          log.info("Google Drive signin account is null");
           runOnUiThread(() -> applyAccessDenied());
         }
       }

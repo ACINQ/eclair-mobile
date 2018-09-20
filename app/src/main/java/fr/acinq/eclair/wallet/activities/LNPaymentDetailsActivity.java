@@ -46,7 +46,6 @@ public class LNPaymentDetailsActivity extends EclairActivity {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    setContentView(R.layout.activity_ln_payment_details);
     mBinding = DataBindingUtil.setContentView(this, R.layout.activity_ln_payment_details);
 
     Toolbar toolbar = findViewById(R.id.toolbar);

@@ -64,5 +64,10 @@ public class DBMigrationHelper extends DaoMaster.OpenHelper {
     if (oldVersion < 7) {
       LocalChannelDao.createTable(db, true);
     }
+    if (oldVersion < 8) {
+      // adds the channel id column and the serialized successful route
+      db.execSQL("ALTER TABLE " + LocalChannelDao.TABLENAME +
+        " ADD COLUMN " + LocalChannelDao.Properties.RefundAtBlock.columnName + " INTEGER");
+    }
   }
 }

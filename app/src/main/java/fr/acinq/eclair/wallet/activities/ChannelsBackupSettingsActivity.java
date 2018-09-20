@@ -24,7 +24,6 @@ import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -35,6 +34,9 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.CommonStatusCodes;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.text.DateFormat;
 
@@ -47,7 +49,7 @@ import fr.acinq.eclair.wallet.utils.WalletUtils;
 
 public class ChannelsBackupSettingsActivity extends GoogleDriveBaseActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
-  private static final String TAG = ChannelsBackupSettingsActivity.class.getSimpleName();
+  private final Logger log = LoggerFactory.getLogger(ChannelsBackupSettingsActivity.class);
   private ActivityChannelsBackupSettingsBinding mBinding;
   private Dialog backupAbout;
 
@@ -65,7 +67,7 @@ public class ChannelsBackupSettingsActivity extends GoogleDriveBaseActivity impl
 
     final int connectionResult = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(getApplicationContext());
     if (connectionResult != ConnectionResult.SUCCESS) {
-      Log.i(TAG, "Google play services are not available (code " + connectionResult + ")");
+      log.info("Google play services are not available (code {})", connectionResult);
       mBinding.setGoogleDriveAvailable(false);
     } else {
       mBinding.setGoogleDriveAvailable(true);
@@ -138,14 +140,12 @@ public class ChannelsBackupSettingsActivity extends GoogleDriveBaseActivity impl
   }
 
   void applyAccessDenied() {
-    Log.i(TAG, "google drive access is denied!");
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
     prefs.edit().putBoolean(Constants.SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_ENABLED, false).apply();
     mBinding.setAccessDenied(true);
   }
 
   void applyAccessGranted(final GoogleSignInAccount signIn) {
-    Log.i(TAG, "google drive access is granted!");
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
     // trigger backup only if it was disabled before, and is now being enabled.
     if (!prefs.getBoolean(Constants.SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_ENABLED, false)) {
@@ -173,7 +173,7 @@ public class ChannelsBackupSettingsActivity extends GoogleDriveBaseActivity impl
               DateFormat.getDateTimeInstance().format(metadataBuffer.get(0).getModifiedDate())));
           }
         })).addOnFailureListener(e -> {
-          Log.i(TAG, "could not get backup metada", e);
+          log.info("could not get backup metada with cause {}", e.getLocalizedMessage());
           if (e instanceof ApiException) {
             if (((ApiException) e).getStatusCode() == CommonStatusCodes.SIGN_IN_REQUIRED) {
               GoogleSignIn.getClient(getApplicationContext(), getGoogleSigninOptions())

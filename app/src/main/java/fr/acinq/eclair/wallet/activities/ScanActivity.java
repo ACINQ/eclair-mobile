@@ -24,7 +24,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.TextView;
@@ -34,6 +33,9 @@ import com.journeyapps.barcodescanner.BarcodeCallback;
 import com.journeyapps.barcodescanner.BarcodeResult;
 import com.journeyapps.barcodescanner.DecoratedBarcodeView;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.List;
 
 import fr.acinq.eclair.wallet.R;
@@ -41,11 +43,11 @@ import fr.acinq.eclair.wallet.utils.Constants;
 
 public class ScanActivity extends Activity {
 
-  public static final String EXTRA_SCAN_TYPE = "fr.acinq.eclair.wallet.EXTRA_SCAN_TYPE";
+  private final Logger log = LoggerFactory.getLogger(ScanActivity.class);
 
+  public static final String EXTRA_SCAN_TYPE = "fr.acinq.eclair.wallet.EXTRA_SCAN_TYPE";
   public static final String TYPE_INVOICE = "INVOICE";
   public static final String TYPE_URI = "URI";
-  private static final String TAG = ScanActivity.class.getSimpleName();
   private DecoratedBarcodeView mBarcodeView;
   private TextView mScannedValue;
   private TextView mScanTitle;
@@ -105,7 +107,7 @@ public class ScanActivity extends Activity {
       mScanTitle.setText(R.string.scan_title_ln_uri);
       isInvoice = false;
     } else {
-      Log.w(TAG, "Invalid Requested Type: " + type);
+      log.error("invalid scan requested type {}", type);
       finish();
     }
 
