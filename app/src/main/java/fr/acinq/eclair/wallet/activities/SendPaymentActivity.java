@@ -45,7 +45,7 @@ import fr.acinq.eclair.CoinUnit;
 import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.wallet.BuildConfig;
-import fr.acinq.eclair.wallet.EclairEventService;
+import fr.acinq.eclair.wallet.actors.NodeSupervisor;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.databinding.ActivitySendPaymentBinding;
 import fr.acinq.eclair.wallet.fragments.PinDialog;
@@ -123,7 +123,7 @@ public class SendPaymentActivity extends EclairActivity
       return Option.apply(getString(R.string.payment_ln_invalid_chain, BuildConfig.CHAIN.toUpperCase()));
     }
     // check lightning channels status
-    if (EclairEventService.getChannelsMap().size() == 0) {
+    if (NodeSupervisor.getChannelsMap().size() == 0) {
       return Option.apply(getString(R.string.payment_error_ln_no_channels));
     } else {
       // check that payment is not already processed
@@ -165,7 +165,7 @@ public class SendPaymentActivity extends EclairActivity
       isAmountReadonly = paymentRequest.amount().isDefined();
       if (isAmountReadonly) {
         final MilliSatoshi amountMsat = WalletUtils.getAmountFromInvoice(paymentRequest);
-        if (!EclairEventService.hasNormalChannelsWithBalance(amountMsat.amount())) {
+        if (!NodeSupervisor.hasNormalChannelsWithBalance(amountMsat.amount())) {
           canNotHandlePayment(R.string.payment_error_ln_insufficient_funds);
           return;
         }
@@ -207,7 +207,7 @@ public class SendPaymentActivity extends EclairActivity
       // bitcoin uri with an embedded lightning invoice => user must choose
       if (bitcoinURI.getLightningPaymentRequest() != null) {
         final PaymentRequest paymentRequest = bitcoinURI.getLightningPaymentRequest();
-        if (EclairEventService.getChannelsMap().isEmpty()) {
+        if (NodeSupervisor.getChannelsMap().isEmpty()) {
           mBinding.pickLightningError.setText(R.string.payment_error_ln_pick_no_channels);
           mBinding.pickLightningError.setVisibility(View.VISIBLE);
           mBinding.pickLightningImage.setAlpha(0.3f);
@@ -278,7 +278,7 @@ public class SendPaymentActivity extends EclairActivity
     try {
       if (isLightningInvoice()) {
         final PaymentRequest paymentRequest = invoice.right().get();
-        if (!EclairEventService.hasActiveChannels()) {
+        if (!NodeSupervisor.hasActiveChannels()) {
           handlePaymentError(R.string.payment_error_ln_no_active_channels);
           return;
         }

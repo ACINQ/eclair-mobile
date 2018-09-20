@@ -110,6 +110,7 @@
   <string name="start_error_restart">Restart</string>
   <string name="start_error_faq_link">Check our FAQ for help.</string>
   <string name="start_error_unreadable_seed">Seed is not readable; eclair can not start.</string>
+  <string name="start_error_connectivity">Your device is not connected to the internet. Please check your network settings.</string>
   <string name="start_error_timeout">Could not start eclair within a reasonable time frame.</string>
   <string name="start_error_wrong_password">Wrong password.</string>
   <string name="start_error_improper">App did not initialize properly, restarting…</string>
@@ -510,7 +511,7 @@
     ]]></string>
 
   <string name="backup_switch_button">Enable Channels Backup</string>
-  <string name="backup_drive_unavailable">Google Drive is not available on your phone. Channel can not be backed up.</string>
+  <string name="backup_drive_unavailable">Google Drive is not available on your phone. Your lightning channels cannot be backed up.</string>
   <string name="backup_drive_details_more_button">More info</string>
   <string name="backup_drive_retrieving_meta">Retrieving backup details…</string>
   <string name="backup_drive_last_backup">Last backup: %1$s</string>

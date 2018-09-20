@@ -16,7 +16,6 @@
 
 package fr.acinq.eclair.wallet.activities;
 
-import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -47,7 +46,6 @@ import android.widget.Toast;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.google.common.util.concurrent.RateLimiter;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -65,12 +63,12 @@ import fr.acinq.eclair.blockchain.electrum.ElectrumClient;
 import fr.acinq.eclair.blockchain.electrum.ElectrumWallet;
 import fr.acinq.eclair.router.SyncProgress;
 import fr.acinq.eclair.wallet.BuildConfig;
-import fr.acinq.eclair.wallet.EclairEventService;
+import fr.acinq.eclair.wallet.actors.NodeSupervisor;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.databinding.ActivityHomeBinding;
+import fr.acinq.eclair.wallet.events.BalanceUpdateEvent;
 import fr.acinq.eclair.wallet.events.BitcoinPaymentFailedEvent;
 import fr.acinq.eclair.wallet.events.ChannelUpdateEvent;
-import fr.acinq.eclair.wallet.events.LNBalanceUpdateEvent;
 import fr.acinq.eclair.wallet.events.LNPaymentFailedEvent;
 import fr.acinq.eclair.wallet.events.LNPaymentSuccessEvent;
 import fr.acinq.eclair.wallet.events.PaymentEvent;
@@ -91,7 +89,6 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
 
   private ActivityHomeBinding mBinding;
 
-  private ViewStub mStubBreakingChanges;
   private ViewStub mStubIntro;
   private int introStep = 0;
   private boolean canSendPayments = false;
@@ -101,7 +98,6 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
   private Handler mExchangeRateHandler = new Handler();
   private Runnable mExchangeRateRunnable;
   // debounce for requesting payment list update -- max once per 2 secs
-  private final RateLimiter paymentListUpdateLimiter = RateLimiter.create(2f);
   private final Animation mBlinkingAnimation = new AlphaAnimation(0.3f, 1);
   private final Animation mRotatingAnimation = new RotateAnimation(0, -360, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF,
     0.5f);
@@ -123,9 +119,7 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
 
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
     // --- check initial app state
-    if (app.hasBreakingChanges()) {
-      displayBreakingChanges();
-    } else if (prefs.getBoolean(Constants.SETTING_SHOW_INTRO, true)) {
+    if (prefs.getBoolean(Constants.SETTING_SHOW_INTRO, true)) {
       mStubIntro = findViewById(R.id.home_stub_intro);
       displayIntro(prefs);
     }
@@ -163,11 +157,6 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
       // app may be started with a payment request intent
       readURIIntent(getIntent());
     }
-  }
-
-  private void displayBreakingChanges() {
-    mStubBreakingChanges = findViewById(R.id.home_stub_breaking);
-    mStubBreakingChanges.inflate();
   }
 
   private void setUpTabs(final Bundle savedInstanceState) {
@@ -250,7 +239,7 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
       // refresh exchange rate
       mExchangeRateHandler.post(mExchangeRateRunnable);
       // refresh LN balance
-      EclairEventService.postLNBalanceEvent();
+      updateBalance();
     }
   }
 
@@ -512,7 +501,7 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
-  public void handleLNBalanceEvent(LNBalanceUpdateEvent event) {
+  public void handleBalanceEvent(BalanceUpdateEvent event) {
     updateBalance();
   }
 
@@ -545,9 +534,7 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
 
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void handlePaymentEvent(PaymentEvent event) {
-    if (paymentListUpdateLimiter.tryAcquire()) {
-      mPaymentsListFragment.updateList();
-    }
+    mPaymentsListFragment.updateList();
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
@@ -573,14 +560,12 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
     log.debug("event failed with cause {}", event.getThrowable().getMessage());
   }
 
-  @SuppressLint("SetTextI18n")
   private void updateBalance() {
-    final LNBalanceUpdateEvent lnBalanceEvent = EventBus.getDefault().getStickyEvent(LNBalanceUpdateEvent.class);
-    final MilliSatoshi lnBalance = lnBalanceEvent == null ? new MilliSatoshi(0) : lnBalanceEvent.total();
+    final MilliSatoshi lightningBalance = NodeSupervisor.getChannelsBalance();
     final MilliSatoshi walletBalance = app == null ? new MilliSatoshi(0) : package$.MODULE$.satoshi2millisatoshi(app.getOnchainBalance());
-    mBinding.balanceTotal.setAmountMsat(new MilliSatoshi(lnBalance.amount() + walletBalance.amount()));
+    mBinding.balanceTotal.setAmountMsat(new MilliSatoshi(lightningBalance.amount() + walletBalance.amount()));
     mBinding.balanceOnchain.setAmountMsat(walletBalance);
-    mBinding.balanceLightning.setAmountMsat(lnBalance);
+    mBinding.balanceLightning.setAmountMsat(lightningBalance);
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
