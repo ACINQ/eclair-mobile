@@ -28,7 +28,6 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TableRow;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,8 +38,6 @@ import java.util.Collections;
 import java.util.List;
 
 import fr.acinq.bitcoin.MnemonicCode;
-import fr.acinq.eclair.blockchain.electrum.ElectrumWallet;
-import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.databinding.ActivityCreateWalletFromScratchBinding;
 import fr.acinq.eclair.wallet.utils.Constants;
@@ -50,87 +47,117 @@ public class CreateWalletFromScratchActivity extends EclairActivity implements E
 
   private final Logger log = LoggerFactory.getLogger(CreateWalletFromScratchActivity.class);
 
-  List<Integer> recoveryPositions = Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23);
+  final List<Integer> recoveryPositions = Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11);
   private List<String> mnemonics = null;
-
   private ActivityCreateWalletFromScratchBinding mBinding;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     mBinding = DataBindingUtil.setContentView(this, R.layout.activity_create_wallet_from_scratch);
-    if ("testnet".equals(BuildConfig.CHAIN)) {
-      mBinding.skipCheck.setEnabled(true);
-      mBinding.skipCheck.setVisibility(View.VISIBLE);
-    }
     try {
       mnemonics = JavaConverters.seqAsJavaListConverter(MnemonicCode.toMnemonics(
-        fr.acinq.eclair.package$.MODULE$.randomBytes(ElectrumWallet.SEED_BYTES_LENGTH()).data(),
+        fr.acinq.eclair.package$.MODULE$.randomBytes(16).data(),
         MnemonicCode.englishWordlist())).asJava();
       final int bottomPadding = getResources().getDimensionPixelSize(R.dimen.word_list_padding);
       final int rightPadding = getResources().getDimensionPixelSize(R.dimen.space_lg);
-      for (int i = 0; i < mnemonics.size(); i = i + 2) {
+      for (int i = 0; i < mnemonics.size() / 2; i = i + 1) {
         TableRow tr = new TableRow(this);
         tr.setGravity(Gravity.CENTER);
         tr.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
         TextView t1 = new TextView(this);
         t1.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
-        t1.setText(Html.fromHtml(getString(R.string.createwallet_word_display, i + 1, mnemonics.get(i))));
+        t1.setText(Html.fromHtml(getString(R.string.createwallet_single_word_display, i + 1, mnemonics.get(i))));
         t1.setPadding(0, 0, rightPadding, bottomPadding);
         tr.addView(t1);
         TextView t2 = new TextView(this);
-        t2.setText(Html.fromHtml(getString(R.string.createwallet_word_display, i + 2, mnemonics.get(i + 1))));
+        t2.setText(Html.fromHtml(getString(R.string.createwallet_single_word_display, i + (mnemonics.size() / 2) + 1, mnemonics.get(i + (mnemonics.size() / 2)))));
         t2.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
         t2.setPadding(0, 0, 0, bottomPadding);
         tr.addView(t2);
         mBinding.wordsTable.addView(tr);
       }
+      goToInit();
     } catch (Exception e) {
       mnemonics = null;
-      log.error("could not generate recovery phrase");
-      Toast.makeText(getApplicationContext(), R.string.createwallet_generation_failed, Toast.LENGTH_SHORT).show();
-      goToStartup();
     }
   }
 
-  private void reset() {
-    mBinding.checkInput.setText("");
-    mBinding.displayStep.setVisibility(View.VISIBLE);
-    mBinding.checkStep.setVisibility(View.GONE);
-    mBinding.encryptStep.setVisibility(View.GONE);
-  }
-
-  private void goStepCheck() {
-    mBinding.displayStep.setVisibility(View.GONE);
-    mBinding.checkStep.setVisibility(View.VISIBLE);
-    mBinding.encryptStep.setVisibility(View.GONE);
-  }
-
-  public void goStepSuccess(View v) {
-    mBinding.displayStep.setVisibility(View.GONE);
-    mBinding.checkStep.setVisibility(View.GONE);
-    mBinding.encryptStep.setVisibility(View.VISIBLE);
-    finishCheckRecovery();
-  }
-
   @Override
-  protected void onStart() {
-    super.onStart();
-    reset();
+  protected void onResume() {
+    super.onResume();
+    if (mnemonics == null) {
+      log.error("mnemonics is null");
+      showError(getString(R.string.createwallet_error_seed_generation));
+      new Handler().postDelayed(this::goToStartup, 1400);
+    }
+  }
+
+  private void showError(final String message) {
+    mBinding.setCreationStep(Constants.CREATE_WALLET_STEP_ERROR);
+    mBinding.errorView.setText(message);
+  }
+
+  private void goToInit() {
+    mBinding.setCreationStep(Constants.CREATE_WALLET_STEP_INIT);
+  }
+
+  public void goToVerificationStep(View view) {
+    Collections.shuffle(recoveryPositions);
+    final List<Integer> pos = getFirst3Positions();
+    mBinding.checkQuestion.setText(getString(R.string.createwallet_check_title, pos.get(0) + 1, pos.get(1) + 1, pos.get(2) + 1));
+    mBinding.checkInput1Hint.setHint(getString(R.string.createwallet_check_input_hint, pos.get(0) + 1));
+    mBinding.checkInput1.setText("");
+    mBinding.checkInput2Hint.setHint(getString(R.string.createwallet_check_input_hint, pos.get(1) + 1));
+    mBinding.checkInput2.setText("");
+    mBinding.checkInput3Hint.setHint(getString(R.string.createwallet_check_input_hint, pos.get(2) + 1));
+    mBinding.checkInput3.setText("");
+    mBinding.setCreationStep(Constants.CREATE_WALLET_STEP_VERIFICATION);
+  }
+
+  /**
+   * Check that the user has correctly backed up the mnemonics.
+   */
+  public void verifyUserBackup(View view) {
+    view.clearFocus();
+    final InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+    if (imm != null) {
+      imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+    try {
+      final String userWord1 = mBinding.checkInput1.getText().toString().trim();
+      final String userWord2 = mBinding.checkInput2.getText().toString().trim();
+      final String userWord3 = mBinding.checkInput3.getText().toString().trim();
+      final List<Integer> pos = getFirst3Positions();
+      if (checkWordRecoveryPhrase(pos.get(0), userWord1)
+        && checkWordRecoveryPhrase(pos.get(1), userWord2)
+        && checkWordRecoveryPhrase(pos.get(2), userWord3)) {
+        goToEncryptionStep(view);
+      } else {
+        throw new RuntimeException();
+      }
+    } catch (Exception e) {
+      mBinding.setCreationStep(Constants.CREATE_WALLET_STEP_CHECK_FAILED);
+      new Handler().postDelayed(this::goToInit, 3000);
+    }
+  }
+
+  public void goToEncryptionStep(View view) {
+    if (mnemonics == null) {
+      showError(getString(R.string.createwallet_error_generic));
+      new Handler().postDelayed(this::goToStartup, 1400);
+    } else {
+      mBinding.setCreationStep(Constants.CREATE_WALLET_STEP_ENCRYPTION);
+      new Handler().postDelayed(() -> {
+        final File datadir = new File(getFilesDir(), Constants.ECLAIR_DATADIR);
+        final byte[] seed = MnemonicCode.toSeed(JavaConverters.collectionAsScalaIterableConverter(mnemonics).asScala().toSeq(), "").toString().getBytes();
+        encryptWallet(this, false, datadir, seed);
+      }, 1500);
+    }
   }
 
   public void cancel(View view) {
     goToStartup();
-  }
-
-  /**
-   * Shuffle the words position and initialize the question with the 3 first words in the list of words.
-   */
-  public void initCheckRecovery(View view) {
-    Collections.shuffle(recoveryPositions);
-    final List<Integer> pos = getFirst3Positions();
-    mBinding.checkQuestion.setText(getString(R.string.createwallet_check_question, pos.get(0) + 1, pos.get(1) + 1, pos.get(2) + 1));
-    goStepCheck();
   }
 
   private List<Integer> getFirst3Positions() {
@@ -143,62 +170,17 @@ public class CreateWalletFromScratchActivity extends EclairActivity implements E
    * Checks if the word belongs to the recovery phrase and is at the right position.
    *
    * @param position position of the word in the recovery phrase
-   * @param word     word in the recovery phrase
+   * @param word     word entered by the user
    * @return false if the check fails
    */
-  private boolean checkWordRecoveryPhrase(int position, String word) throws Exception {
-    return mnemonics.get(position).equals(word);
-  }
-
-  /**
-   * Check that the words entered by the user are correct. Proves that the user has made a backup of its list of words.
-   */
-  public void checkRecovery(View view) {
-    mBinding.checkFailed.setVisibility(View.GONE);
-    view.clearFocus();
-    final InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
-    if (imm != null) {
-      imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-    }
-    try {
-      final String[] userWords = mBinding.checkInput.getText().toString().split(" ");
-      final List<Integer> pos = getFirst3Positions();
-      if (userWords.length == 3
-        && checkWordRecoveryPhrase(pos.get(0), userWords[0])
-        && checkWordRecoveryPhrase(pos.get(1), userWords[1])
-        && checkWordRecoveryPhrase(pos.get(2), userWords[2])) {
-        goStepSuccess(view);
-        return;
-      }
-    } catch (Exception e) {
-      mnemonics = null;
-      log.debug("could not check the recovery phrase");
-    }
-    // check fails
-    mBinding.checkFailed.setVisibility(View.VISIBLE);
-    reset();
-  }
-
-  /**
-   * Backup was made. Seed is safe to write to file and can be used by eclair.
-   */
-  public void finishCheckRecovery() {
-    mBinding.writeError.setVisibility(View.GONE);
-    if (mnemonics == null) {
-      Toast.makeText(this, R.string.createwallet_general_failure, Toast.LENGTH_SHORT).show();
-      goToStartup();
-      return;
-    }
-    final File datadir = new File(getFilesDir(), Constants.ECLAIR_DATADIR);
-    final byte[] seed = MnemonicCode.toSeed(JavaConverters.collectionAsScalaIterableConverter(mnemonics).asScala().toSeq(), "").toString().getBytes();
-    encryptWallet(this, false, datadir, seed);
+  private boolean checkWordRecoveryPhrase(final int position, final String word) {
+    return mnemonics.get(position).equalsIgnoreCase(word);
   }
 
   @Override
-  public void onEncryptSeedFailure(String message) {
-    mBinding.writeError.setText(message);
-    mBinding.writeError.setVisibility(View.VISIBLE);
-    new Handler().postDelayed(this::finishCheckRecovery, 1400);
+  public void onEncryptSeedFailure(final String message) {
+    showError(message);
+    new Handler().postDelayed(() -> goToEncryptionStep(null), 1400);
   }
 
   private void goToStartup() {
@@ -212,6 +194,7 @@ public class CreateWalletFromScratchActivity extends EclairActivity implements E
   public void onEncryptSeedSuccess() {
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
     prefs.edit().putInt(Constants.SETTING_WALLET_ORIGIN, Constants.WALLET_ORIGIN_FROM_SCRATCH).apply();
-    goToStartup();
+    mBinding.setCreationStep(Constants.CREATE_WALLET_STEP_COMPLETE);
+    new Handler().postDelayed(this::goToStartup, 900);
   }
 }

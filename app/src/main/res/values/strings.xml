@@ -120,23 +120,21 @@
   <string name="start_error_unencrypted">Your seed is not encrypted. Please enter a password.</string>
   <string name="start_log_reading_seed">reading seed…</string>
 
-  <!-- //////////////// Create Recovery /////////////////// -->
+  <!-- //////////////// Create Seed /////////////////// -->
 
-  <string name="createwallet_instructions">If you lose access to your phone, you will need this list of 24 words to recover your on-chain funds.\n\nPlease backup this phrase in a secure location (not on this phone).</string>
-  <string name="createwallet_word_display"><![CDATA[<small>#%1$d</small> <b>%2$s</b>]]></string>
-  <string name="createwallet_generation_failed">Could not generate the recovery phrase…</string>
-  <string name="createwallet_goto_check">OK, got it</string>
-  <string name="createwallet_skip_check">Skip verification (TESTNET only)</string>
-  <string name="createwallet_check_question">What are the #%1$d, #%2$d and #%3$d words of your recovery phrase?</string>
-  <string name="createwallet_check_input_hint">Type the words here</string>
-  <string name="createwallet_check_button">Check</string>
-  <string name="createwallet_error_write_seed">Could not save the wallet</string>
-  <string name="createwallet_success_prompt_encrypt">You now must set a password to encrypt you wallet.</string>
-  <string name="createwallet_success_finish">Encrypt wallet</string>
-  <string name="createwallet_check_failed">Words are not correct.\nPlease check your recovery phrase.</string>
-  <string name="createwallet_passphrase_hint">Enter a password for the wallet</string>
-  <string name="createwallet_passphrase_failed">This passphrase is not valid (not empty, max 20 chars, no special characters).</string>
-  <string name="createwallet_general_failure">Could not create wallet</string>
+  <string name="createwallet_instructions">Please backup this 12 words list in a secure location (not on this phone).\n\nIf you lose your phone, you will need this list to recover your funds.</string>
+  <string name="createwallet_single_word_display"><![CDATA[<small>#%1$d</small> <b>%2$s</b>]]></string>
+  <string name="createwallet_got_it_button">OK, got it</string>
+  <string name="createwallet_check_skip">Skip verification (TESTNET only)</string>
+  <string name="createwallet_check_input_hint">Word #%1$d</string>
+  <string name="createwallet_check_button">OK, got it</string>
+  <string name="createwallet_check_title">Let\'s check your backup.\n\nWhat are the #%1$d, #%2$d and #%3$d words of the recovery phrase?</string>
+  <string name="createwallet_check_failed">At least one of the words you\'ve entered is not valid.\n\nMake sure that you\'ve correctly saved your recovery phrase.</string>
+  <string name="createwallet_error_write_seed">The seed could not be saved on disk.\n\nCause: %1$s</string>
+  <string name="createwallet_error_seed_generation">Could not generate the recovery phrase…</string>
+  <string name="createwallet_error_generic">Wallet creation error, aborting…</string>
+  <string name="createwallet_encryption">Encrypting the seed with a 6 digits password…</string>
+  <string name="createwallet_success">You wallet has been successfully created!</string>
 
   <!-- //////////////// Import Wallet /////////////////// -->
 
