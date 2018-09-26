@@ -64,7 +64,9 @@ public class DBMigrationHelper extends DaoMaster.OpenHelper {
     if (oldVersion < 7) {
       LocalChannelDao.createTable(db, true);
     }
-    if (oldVersion < 8) {
+    if (6 < oldVersion && oldVersion < 8) {
+      // careful: the alter table is required only if the old version of the DB is 7, and must NOT be
+      // executed if the old version is <= 6
       // adds the channel id column and the serialized successful route
       db.execSQL("ALTER TABLE " + LocalChannelDao.TABLENAME +
         " ADD COLUMN " + LocalChannelDao.Properties.RefundAtBlock.columnName + " INTEGER");
