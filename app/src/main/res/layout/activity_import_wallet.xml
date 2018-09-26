@@ -28,43 +28,37 @@
       type="int" />
   </data>
 
-  <RelativeLayout
+  <ScrollView
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/primary"
+    android:fillViewport="true"
     android:theme="@style/PrimaryBgTheme"
     tools:context=".activities.ImportWalletActivity">
 
-    <ScrollView
+    <RelativeLayout
       android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      android:visibility="@{importStep == Constants.IMPORT_WALLET_INIT ? View.VISIBLE : View.GONE}">
+      android:layout_height="wrap_content"
+      android:padding="@dimen/space_lg">
 
       <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_margin="@dimen/space_lg"
-        android:orientation="vertical">
+        android:layout_centerInParent="true"
+        android:orientation="vertical"
+        android:visibility="@{importStep == Constants.IMPORT_WALLET_STEP_INIT ? View.VISIBLE : View.GONE}">
 
         <TextView
-          android:id="@+id/import_error"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:layout_marginBottom="16dp"
-          android:background="@drawable/rounded_corner_primary_light_x1"
-          android:drawablePadding="8dp"
-          android:drawableStart="@drawable/ic_warning_white"
-          android:padding="8dp"
-          android:textColor="@color/white"
-          android:textSize="12sp"
-          android:visibility="gone" />
+          style="@style/TitleCapsIcon"
+          android:layout_marginBottom="@dimen/space_sm"
+          android:drawableStart="@drawable/ic_key_white_24dp"
+          android:text="@string/importwallet_init_title" />
 
         <TextView
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:layout_marginBottom="16dp"
-          android:text="@string/importwallet_instructions" />
+          android:layout_marginBottom="@dimen/space_md"
+          android:text="@string/importwallet_init_instructions" />
 
         <android.support.design.widget.TextInputLayout
           android:id="@+id/mnemonics_input_layout"
@@ -74,63 +68,128 @@
           android:hint="@string/importwallet_input_hint"
           android:textColorHint="@color/primary_light_x3">
 
-          <EditText
+          <android.support.design.widget.TextInputEditText
             android:id="@+id/mnemonics_input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:backgroundTint="@color/primary_light_x3"
             android:digits="abcdefghijklmnopqrstuvwxyz "
-            android:inputType="text|textNoSuggestions"
+            android:inputType="text"
             android:textColor="@color/white"
             android:textSize="12sp" />
 
         </android.support.design.widget.TextInputLayout>
 
-        <LinearLayout
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:orientation="horizontal">
-
-          <ImageButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="start|center"
-            android:background="?android:attr/selectableItemBackground"
-            android:contentDescription="@string/btn_cancel"
-            android:onClick="cancel"
-            android:padding="@dimen/space_md"
-            android:src="@drawable/ic_arrow_back" />
-
-          <View
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1" />
-
-          <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end|center"
-            android:background="?android:attr/selectableItemBackground"
-            android:onClick="importMnemonics"
-            android:padding="@dimen/space_md"
-            android:text="@string/importwallet_encrypt_button" />
-        </LinearLayout>
+        <Button
+          style="@style/EndButtonStyle"
+          android:onClick="importMnemonics"
+          android:text="@string/importwallet_next_button" />
 
       </LinearLayout>
-    </ScrollView>
 
-    <TextView
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_centerInParent="true"
-      android:layout_margin="@dimen/space_lg"
-      android:background="@drawable/rounded_corner_white"
-      android:drawablePadding="@dimen/space_sm"
-      android:drawableStart="@drawable/ic_circle_check"
-      android:padding="@dimen/space_md"
-      android:text="@string/importwallet_encrypt_success"
-      android:textColor="@color/grey_4"
-      android:visibility="@{importStep == Constants.IMPORT_WALLET_SUCCESS ? View.VISIBLE : View.GONE}" />
+      <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_centerInParent="true"
+        android:visibility="@{importStep == Constants.IMPORT_WALLET_STEP_PASSPHRASE ? View.VISIBLE : View.GONE}">
 
-  </RelativeLayout>
+        <TextView
+          style="@style/TitleCapsIcon"
+          android:layout_marginBottom="@dimen/space_sm"
+          android:drawableStart="@drawable/ic_shield_white_24dp"
+          android:text="@string/wallet_passphrase_title" />
+
+        <TextView
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_marginBottom="@dimen/space_md"
+          android:text="@string/wallet_passphrase_instructions" />
+
+        <android.support.design.widget.TextInputLayout
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_marginBottom="32dp"
+          android:hint="@string/wallet_passphrase_input_hint"
+          android:textColorHint="@color/primary_light_x3">
+
+          <android.support.design.widget.TextInputEditText
+            android:id="@+id/passphrase_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/primary_light_x3"
+            android:digits="abcdefghijklmnopqrstuvwxyz "
+            android:inputType="text"
+            android:textColor="@color/white"
+            android:textSize="12sp" />
+
+        </android.support.design.widget.TextInputLayout>
+
+        <Button
+          style="@style/EndButtonStyle"
+          android:onClick="importPassphrase"
+          android:text="@string/importwallet_next_button" />
+
+      </LinearLayout>
+
+      <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:orientation="vertical"
+        android:visibility="@{importStep == Constants.IMPORT_WALLET_STEP_ENCRYPT ? View.VISIBLE : View.GONE}">
+
+        <TextView
+          style="@style/TitleCapsIcon"
+          android:drawableStart="@drawable/ic_lock_white_24dp"
+          android:text="@string/createwallet_encryption_title" />
+
+        <TextView
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:text="@string/createwallet_encryption_instructions"/>
+
+        <Button
+          style="@style/EndButtonStyle"
+          android:onClick="encryptSeed"
+          android:text="@string/createwallet_encryption_button" />
+      </LinearLayout>
+
+      <TextView
+        style="@style/RoundedWhitePanelIcon"
+        android:drawableStart="@drawable/ic_circle_check"
+        android:text="@string/importwallet_success"
+        android:visibility="@{importStep == Constants.IMPORT_WALLET_STEP_SUCCESS ? View.VISIBLE : View.GONE}" />
+
+      <TextView
+        android:id="@+id/import_error"
+        style="@style/RoundedWhitePanelIcon"
+        android:drawableStart="@drawable/ic_circle_cross_red_24dp"
+        android:text="@string/importwallet_error"
+        android:visibility="@{importStep == Constants.IMPORT_WALLET_STEP_ERROR ? View.VISIBLE : View.GONE}" />
+
+      <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:gravity="center"
+        android:visibility="@{importStep == Constants.IMPORT_WALLET_STEP_SUCCESS ? View.GONE : View.VISIBLE}">
+
+        <TextView
+          style="@style/ProgressIndicator"
+          android:alpha="@{importStep == Constants.IMPORT_WALLET_STEP_INIT ? 1f : .3f}" />
+
+        <TextView
+          style="@style/ProgressIndicator"
+          android:alpha="@{importStep == Constants.IMPORT_WALLET_STEP_PASSPHRASE ? 1f : .3f}" />
+
+        <TextView
+          style="@style/ProgressIndicator"
+          android:alpha="@{importStep == Constants.IMPORT_WALLET_STEP_ENCRYPT ? 1f : .3f}" />
+
+      </LinearLayout>
+
+    </RelativeLayout>
+  </ScrollView>
+
 </layout>

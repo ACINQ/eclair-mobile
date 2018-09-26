@@ -58,6 +58,7 @@
       android:noHistory="true"
       android:parentActivityName=".activities.StartupActivity"
       android:screenOrientation="portrait"
+      android:windowSoftInputMode="stateHidden"
       android:theme="@style/PrimaryBgTheme" />
     <activity
       android:name=".activities.HomeActivity"

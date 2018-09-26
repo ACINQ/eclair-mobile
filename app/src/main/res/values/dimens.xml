@@ -16,6 +16,7 @@
 
 <resources>
 
+  <dimen name="space_xl">64dp</dimen>
   <dimen name="space_lg">32dp</dimen>
   <dimen name="space_md">16dp</dimen>
   <dimen name="space_sm">12dp</dimen>

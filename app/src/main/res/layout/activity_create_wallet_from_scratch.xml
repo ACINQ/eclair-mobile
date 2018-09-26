@@ -15,13 +15,12 @@
   -->
 
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools">
 
   <data>
 
     <import type="android.view.View" />
-
-    <import type="fr.acinq.eclair.wallet.BuildConfig" />
 
     <import type="fr.acinq.eclair.wallet.utils.Constants" />
 
@@ -30,164 +29,93 @@
       type="int" />
   </data>
 
-  <ScrollView
+  <android.support.constraint.ConstraintLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/primary"
-    android:fillViewport="true"
-    android:theme="@style/PrimaryBgTheme"
     tools:context=".activities.CreateWalletFromScratchActivity">
 
-    <RelativeLayout
+    <LinearLayout
+      android:id="@+id/progress"
+      android:layout_width="match_parent"
+      android:layout_height="0dp"
+      android:layout_marginTop="@dimen/space_xs"
+      android:layout_marginBottom="@dimen/space_xs"
+      android:background="@color/primary"
+      android:gravity="center"
+      android:visibility="@{creationStep != Constants.CREATE_WALLET_COMPLETE ? View.VISIBLE : View.GONE}"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent">
+
+      <TextView
+        style="@style/ProgressIndicator"
+        android:alpha="@{creationStep == 0 ? 1f : .3f}" />
+
+      <TextView
+        style="@style/ProgressIndicator"
+        android:alpha="@{creationStep == 1 ? 1f : .3f}" />
+
+      <TextView
+        style="@style/ProgressIndicator"
+        android:alpha="@{creationStep == 2 ? 1f : .3f}" />
+
+      <TextView
+        style="@style/ProgressIndicator"
+        android:alpha="@{creationStep == 3 ? 1f : .3f}" />
+
+      <TextView
+        style="@style/ProgressIndicator"
+        android:alpha="@{creationStep == 4 ? 1f : .3f}" />
+
+    </LinearLayout>
+
+    <fr.acinq.eclair.wallet.customviews.CustomViewPager
+      android:id="@+id/view_pager"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:padding="@dimen/space_lg">
+      android:layout_marginBottom="@dimen/space_md"
+      android:visibility="@{creationStep &lt; Constants.CREATE_WALLET_ENCRYPTING ? View.VISIBLE : View.GONE}"
+      app:layout_constraintBottom_toTopOf="@id/progress"
+      app:layout_constraintTop_toTopOf="parent" />
 
-      <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:orientation="vertical"
-        android:visibility="@{creationStep == Constants.CREATE_WALLET_STEP_INIT ? View.VISIBLE : View.GONE}">
+    <TextView
+      style="@style/TitleCapsIcon"
+      android:layout_width="280dp"
+      android:drawableStart="@drawable/ic_circle_check_green_24dp"
+      android:padding="@dimen/space_lg"
+      android:text="@string/createwallet_success"
+      android:visibility="@{creationStep == Constants.CREATE_WALLET_COMPLETE ? View.VISIBLE : View.GONE}"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintHorizontal_bias="0.5"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
-          android:id="@+id/instructions"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:layout_marginBottom="@dimen/space_lg"
-          android:text="@string/createwallet_instructions" />
+    <TextView
+      android:id="@+id/error"
+      style="@style/TitleCapsIcon"
+      android:textAllCaps="false"
+      android:layout_width="280dp"
+      android:drawableStart="@drawable/ic_circle_cross_white_24dp"
+      android:padding="@dimen/space_lg"
+      android:text="@string/createwallet_error_generic"
+      android:visibility="@{creationStep == Constants.CREATE_WALLET_ERROR ? View.VISIBLE : View.GONE}"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintHorizontal_bias="0.5"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent" />
 
-        <TableLayout
-          android:id="@+id/words_table"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:layout_marginBottom="@dimen/space_lg" />
+    <TextView
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:padding="@dimen/space_lg"
+      android:text="@string/createwallet_please_wait"
+      android:textAlignment="center"
+      android:visibility="@{creationStep == Constants.CREATE_WALLET_ENCRYPTING ? View.VISIBLE : View.GONE}"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintTop_toTopOf="parent" />
 
-        <Button
-          style="@style/EndButtonStyle"
-          android:onClick="goToVerificationStep"
-          android:text="@string/createwallet_got_it_button" />
-
-        <Button
-          style="@style/ButtonStyle"
-          android:layout_width="match_parent"
-          android:layout_marginTop="@dimen/space_md"
-          android:background="@color/primary_light_x1"
-          android:enabled="@{BuildConfig.CHAIN.equals(`testnet`)}"
-          android:onClick="goToEncryptionStep"
-          android:text="@string/createwallet_check_skip"
-          android:textAlignment="center"
-          android:textColor="@color/yellow"
-          android:visibility="@{BuildConfig.CHAIN.equals(`testnet`) ? View.VISIBLE : View.GONE}" />
-      </LinearLayout>
-
-      <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:orientation="vertical"
-        android:visibility="@{creationStep == Constants.CREATE_WALLET_STEP_VERIFICATION ? View.VISIBLE : View.GONE}">
-
-        <TextView
-          android:id="@+id/check_question"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:layout_marginBottom="@dimen/space_md"
-          android:text="@string/createwallet_check_title" />
-
-        <LinearLayout
-          android:layout_width="140dp"
-          android:layout_height="wrap_content"
-          android:layout_gravity="center"
-          android:orientation="vertical">
-
-          <android.support.design.widget.TextInputLayout
-            android:id="@+id/check_input_1_hint"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/createwallet_check_input_hint"
-            android:textColorHint="@color/primary_light_x3">
-
-            <android.support.design.widget.TextInputEditText
-              android:id="@+id/check_input_1"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:layout_marginBottom="@dimen/space_md"
-              android:backgroundTint="@color/primary_light_x3"
-              android:digits="abcdefghijklmnopqrstuvwxyz "
-              android:inputType="text"
-              android:textColor="@color/white"
-              android:textSize="14sp" />
-          </android.support.design.widget.TextInputLayout>
-
-          <android.support.design.widget.TextInputLayout
-            android:id="@+id/check_input_2_hint"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/createwallet_check_input_hint"
-            android:textColorHint="@color/primary_light_x3">
-
-            <android.support.design.widget.TextInputEditText
-              android:id="@+id/check_input_2"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:layout_marginBottom="@dimen/space_md"
-              android:backgroundTint="@color/primary_light_x3"
-              android:digits="abcdefghijklmnopqrstuvwxyz "
-              android:inputType="text"
-              android:textColor="@color/white"
-              android:textSize="14sp" />
-          </android.support.design.widget.TextInputLayout>
-
-          <android.support.design.widget.TextInputLayout
-            android:id="@+id/check_input_3_hint"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/createwallet_check_input_hint"
-            android:textColorHint="@color/primary_light_x3">
-
-            <android.support.design.widget.TextInputEditText
-              android:id="@+id/check_input_3"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:layout_marginBottom="16dp"
-              android:backgroundTint="@color/primary_light_x3"
-              android:digits="abcdefghijklmnopqrstuvwxyz "
-              android:inputType="text"
-              android:textColor="@color/white"
-              android:textSize="14sp" />
-          </android.support.design.widget.TextInputLayout>
-        </LinearLayout>
-
-        <Button
-          style="@style/EndButtonStyle"
-          android:onClick="verifyUserBackup"
-          android:text="@string/createwallet_check_button" />
-      </LinearLayout>
-
-      <TextView
-        style="@style/RoundedWhitePanel"
-        android:text="@string/createwallet_encryption"
-        android:visibility="@{creationStep == Constants.CREATE_WALLET_STEP_ENCRYPTION ? View.VISIBLE : View.GONE}" />
-
-      <TextView
-        android:id="@+id/error_view"
-        style="@style/RoundedWhitePanelIcon"
-        android:drawableStart="@drawable/ic_circle_cross_red"
-        android:text="@string/createwallet_error_write_seed"
-        android:visibility="@{creationStep == Constants.CREATE_WALLET_STEP_ERROR ? View.VISIBLE : View.GONE}" />
-
-      <TextView
-        style="@style/RoundedWhitePanel"
-        android:text="@string/createwallet_check_failed"
-        android:visibility="@{creationStep == Constants.CREATE_WALLET_STEP_CHECK_FAILED ? View.VISIBLE : View.GONE}" />
-
-      <TextView
-        style="@style/RoundedWhitePanelIcon"
-        android:drawableStart="@drawable/ic_circle_check"
-        android:text="@string/createwallet_success"
-        android:visibility="@{creationStep == Constants.CREATE_WALLET_STEP_COMPLETE ? View.VISIBLE : View.GONE}" />
-
-    </RelativeLayout>
-  </ScrollView>
+  </android.support.constraint.ConstraintLayout>
 </layout>

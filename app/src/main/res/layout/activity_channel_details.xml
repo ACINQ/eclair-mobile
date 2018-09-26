@@ -345,7 +345,7 @@
               android:layout_height="wrap_content"
               android:layout_marginBottom="@dimen/space_xs"
               android:drawablePadding="@dimen/space_xxs"
-              android:drawableStart="@{hasAdvancedRoutingSync ? @drawable/ic_circle_check : @drawable/ic_circle_cross}"
+              android:drawableStart="@{hasAdvancedRoutingSync ? @drawable/ic_circle_check : @drawable/ic_circle_cross_red_24dp}"
               android:text="@string/channeldetails_advanced_routing_label"
               android:textSize="10sp" />
 
@@ -353,7 +353,7 @@
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:drawablePadding="@dimen/space_xxs"
-              android:drawableStart="@{hasDataLossProtection ? @drawable/ic_circle_check : @drawable/ic_circle_cross}"
+              android:drawableStart="@{hasDataLossProtection ? @drawable/ic_circle_check : @drawable/ic_circle_cross_red_24dp}"
               android:text="@string/channeldetails_data_loss_protection_label"
               android:textSize="10sp" />
 
