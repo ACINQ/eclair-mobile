@@ -173,8 +173,12 @@
   <string name="restorechannels_no_backup_and_finish">Abort and proceed</string>
   <string name="restorechannels_looking_for_backup">Please wait…</string>
   <string name="restorechannels_sync_rate_limit">Drive sync rate limit! Try again later</string>
-  <string name="restorechannels_skip_backup">Skip Backup Restore</string>
-  <string name="restorechannels_skip_backup_confirmation">Are you sure you want to skip Backup Restore?\n\nYou will not be able to restore your channels later.</string>
+  <string name="restorechannels_skip_backup">I don\'t want to restore any Lightning Backup</string>
+  <string name="restorechannels_skip_backup_confirmation"><![CDATA[
+    Are you sure you want to skip this step?
+    <br><br>
+    Any Lightning backups that would currently exist will be overwritten, and you <strong>will not be able to restore them later</strong>.
+  ]]></string>
   <string name="restorechannels_device_conflict">We found a backup for this seed, but it looks like it was created by another android device (or the same device that you\'ve upgraded to Android 8+).\n\nPlease make sure that you do not simultaneously use the same channels on different devices, otherwise they will conflict and close.</string>
   <string name="restorechannels_device_conflict_confirm">I Understand.</string>
 
@@ -201,6 +205,7 @@
 
   <string name="unknown">N/A</string>
   <string name="unknown_desc">No description available</string>
+  <string name="btn_confirm">Confirm</string>
   <string name="btn_ok">OK</string>
   <string name="btn_cancel">Cancel</string>
   <string name="btn_close">Close</string>
