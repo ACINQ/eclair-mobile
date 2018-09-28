@@ -23,38 +23,94 @@ import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewPager;
+import android.transition.TransitionManager;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import fr.acinq.bitcoin.MnemonicCode;
 import fr.acinq.eclair.wallet.R;
+import fr.acinq.eclair.wallet.adapters.SimplePagerAdapter;
 import fr.acinq.eclair.wallet.databinding.ActivityImportWalletBinding;
+import fr.acinq.eclair.wallet.fragments.WalletEncryptFragment;
+import fr.acinq.eclair.wallet.fragments.WalletImportSeedFragment;
+import fr.acinq.eclair.wallet.fragments.WalletPassphraseFragment;
 import fr.acinq.eclair.wallet.utils.Constants;
 
 public class ImportWalletActivity extends EclairActivity implements EclairActivity.EncryptSeedCallback {
 
   private ActivityImportWalletBinding mBinding;
+  private WalletImportSeedFragment mWalletImportSeedFragment;
+  private WalletPassphraseFragment mWalletPassphraseFragment;
+  private WalletEncryptFragment mWalletEncryptFragment;
+  private Animation mErrorAnimation;
+
+  final Handler seedErrorHandler = new Handler();
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     mBinding = DataBindingUtil.setContentView(this, R.layout.activity_import_wallet);
+
+    final List<Fragment> fragments = new ArrayList<>();
+    mWalletImportSeedFragment = new WalletImportSeedFragment();
+    mWalletPassphraseFragment = new WalletPassphraseFragment();
+    mWalletEncryptFragment = new WalletEncryptFragment();
+    fragments.add(mWalletImportSeedFragment);
+    fragments.add(mWalletPassphraseFragment);
+    fragments.add(mWalletEncryptFragment);
+    final SimplePagerAdapter pagerAdapter = new SimplePagerAdapter(getSupportFragmentManager(), fragments);
+    mBinding.viewPager.setAdapter(pagerAdapter);
+    mBinding.viewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+      @Override
+      public void onPageSelected(int position) {
+        super.onPageSelected(position);
+        mBinding.setImportStep(position);
+      }
+    });
     goToInit();
   }
 
+  @Override
+  public void onBackPressed() {
+    switch (mBinding.viewPager.getCurrentItem()) {
+      case 0: // init -> finish + startup page
+        goToStartup();
+        break;
+      case 1: // passphrase -> init
+        goToInit();
+        break;
+      case 2: // encrypting -> passphrase
+        importMnemonics(null);
+        break;
+      default:
+        break;
+    }
+  }
+
+  @Override
+  protected void onStart() {
+    super.onStart();
+    mErrorAnimation = AnimationUtils.loadAnimation(this, R.anim.shake);
+  }
+
   private void goToInit() {
-    mBinding.setImportStep(Constants.IMPORT_WALLET_STEP_INIT);
+    mBinding.viewPager.setCurrentItem(0);
   }
 
-  private void showError(final String message) {
-    mBinding.setImportStep(Constants.IMPORT_WALLET_STEP_ERROR);
-    mBinding.importError.setText(message);
+  private void goToPassphrase() {
+    mBinding.viewPager.setCurrentItem(1);
   }
 
-  public void cancel(View view) {
-    goToStartup();
+  private void goToEncryption() {
+    mBinding.viewPager.setCurrentItem(2);
   }
 
   private void goToStartup() {
@@ -62,65 +118,91 @@ public class ImportWalletActivity extends EclairActivity implements EclairActivi
     startup.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
     startup.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
     startActivity(startup);
+    finish();
   }
 
   public void importMnemonics(final View view) {
+    mWalletImportSeedFragment.mBinding.mnemonicsInput.clearAnimation();
+    seedErrorHandler.removeCallbacks(null);
     try {
-      final String mnemonics = mBinding.mnemonicsInput.getText().toString().trim();
+      final String mnemonics = mWalletImportSeedFragment.mBinding.mnemonicsInput.getText().toString().trim();
       MnemonicCode.validate(mnemonics);
       final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
       if (imm != null && view != null && view.getWindowToken() != null) {
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
       }
-      mBinding.setImportStep(Constants.IMPORT_WALLET_STEP_PASSPHRASE);
+      goToPassphrase();
     } catch (Exception e) {
-      showError(getString(R.string.importwallet_error, e.getLocalizedMessage()));
-      new Handler().postDelayed(this::goToInit, 2800);
+      handleSeedError(R.string.importwallet_seed_error, e.getLocalizedMessage());
     }
   }
 
-  public void importPassphrase(final View view) {
+  private void handleSeedError(final int errorCode, final String message) {
+    TransitionManager.beginDelayedTransition(mWalletImportSeedFragment.mBinding.transitionsLayout);
+    mWalletImportSeedFragment.mBinding.mnemonicsInputLayout.startAnimation(mErrorAnimation);
+    mWalletImportSeedFragment.mBinding.seedError.setText(getString(errorCode, message));
+    mWalletImportSeedFragment.mBinding.seedError.setVisibility(View.VISIBLE);
+    seedErrorHandler.postDelayed(() -> {
+      TransitionManager.beginDelayedTransition(mWalletImportSeedFragment.mBinding.transitionsLayout);
+      mWalletImportSeedFragment.mBinding.seedError.setVisibility(View.GONE);
+    }, 5000);
+  }
+
+  public void goToPassphraseConfirmStep(final View view) {
     try {
-      final String mnemonics = mBinding.mnemonicsInput.getText().toString().trim();
-      final String passphrase = mBinding.passphraseInput.getText().toString();
+      final String mnemonics = mWalletImportSeedFragment.mBinding.mnemonicsInput.getText().toString().trim();
+      final String passphrase = mWalletPassphraseFragment.mBinding.passphraseInput.getText().toString();
       MnemonicCode.toSeed(mnemonics, passphrase).toString().getBytes();
       final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
       if (imm != null && view != null && view.getWindowToken() != null) {
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
       }
-      mBinding.setImportStep(Constants.IMPORT_WALLET_STEP_ENCRYPT);
+      goToEncryption();
     } catch (Exception e) {
-      showError(getString(R.string.importwallet_error, e.getLocalizedMessage()));
-      new Handler().postDelayed(() -> mBinding.setImportStep(Constants.IMPORT_WALLET_STEP_PASSPHRASE), 2800);
+      goToInit();
+      handleSeedError(R.string.importwallet_error, e.getLocalizedMessage());
     }
   }
 
   public void encryptSeed(final View view) {
-    try {
-      final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-      if (imm != null && view != null && view.getWindowToken() != null) {
-        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    TransitionManager.beginDelayedTransition(mWalletPassphraseFragment.mBinding.transitionsLayout);
+    mWalletEncryptFragment.mBinding.encryptionError.setVisibility(View.GONE);
+    mBinding.setImportStep(Constants.CREATE_WALLET_ENCRYPTING);
+    new Thread() {
+      @Override
+      public void run() {
+        try {
+          final String mnemonics = mWalletImportSeedFragment.mBinding.mnemonicsInput.getText().toString().trim();
+          final String passphrase = mWalletPassphraseFragment.mBinding.passphraseInput.getText().toString();
+          if (mnemonics.equals("")) {
+            // reference was lost -- cannot continue
+            throw new RuntimeException(getString(R.string.createwallet_invalid_seed));
+          }
+          final File datadir = new File(getFilesDir(), Constants.ECLAIR_DATADIR);
+          final byte[] seed = MnemonicCode.toSeed(mnemonics, passphrase).toString().getBytes();
+          runOnUiThread(() -> encryptWallet(ImportWalletActivity.this, false, datadir, seed));
+        } catch (Exception e) {
+          runOnUiThread(() -> {
+            mBinding.error.setText(getString(R.string.createwallet_error_write_seed, e.getLocalizedMessage()));
+            mBinding.setImportStep(Constants.CREATE_WALLET_ERROR);
+            new Handler().postDelayed(() -> goToStartup(), 1500);
+          });
+        }
       }
-      final String mnemonics = mBinding.mnemonicsInput.getText().toString().trim();
-      final String passphrase = mBinding.passphraseInput.getText().toString();
-      final File datadir = new File(getFilesDir(), Constants.ECLAIR_DATADIR);
-      final byte[] seed = MnemonicCode.toSeed(mnemonics, passphrase).toString().getBytes();
-      encryptWallet(this, false, datadir, seed);
-    } catch (Exception e) {
-      showError(getString(R.string.createwallet_error_write_seed, e.getLocalizedMessage()));
-      new Handler().postDelayed(() -> mBinding.setImportStep(Constants.IMPORT_WALLET_STEP_INIT), 2800);
-    }
+    }.start();
   }
 
   @Override
   public void onEncryptSeedFailure(String message) {
-    showError(message);
-    new Handler().postDelayed(() -> mBinding.setImportStep(Constants.IMPORT_WALLET_STEP_ENCRYPT), 2500);
+    goToEncryption();
+    mWalletEncryptFragment.mBinding.encryptionError.setText(message);
+    TransitionManager.beginDelayedTransition(mWalletEncryptFragment.mBinding.transitionsLayout);
+    mWalletEncryptFragment.mBinding.encryptionError.setVisibility(View.VISIBLE);
   }
 
   @Override
   public void onEncryptSeedSuccess() {
-    mBinding.setImportStep(Constants.IMPORT_WALLET_STEP_SUCCESS);
+    mBinding.setImportStep(Constants.CREATE_WALLET_COMPLETE);
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
     prefs.edit().putInt(Constants.SETTING_WALLET_ORIGIN, Constants.WALLET_ORIGIN_RESTORED_FROM_SEED).apply();
     new Handler().postDelayed(this::goToStartup, 1700);

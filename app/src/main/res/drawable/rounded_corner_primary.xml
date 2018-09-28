@@ -14,11 +14,11 @@
   ~ limitations under the License.
   -->
 
-<set xmlns:android="http://schemas.android.com/apk/res/android">
-  <translate
-    android:duration="40"
-    android:fromXDelta="-7"
-    android:repeatCount="5"
-    android:repeatMode="reverse"
-    android:toXDelta="7" />
-</set>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+  <item>
+    <shape android:shape="rectangle">
+      <solid android:color="@color/primary"/>
+      <corners android:radius="3dp" />
+    </shape>
+  </item>
+</selector>

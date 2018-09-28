@@ -154,7 +154,8 @@
   <string name="importwallet_init_title">Enter Wallet Seed</string>
   <string name="importwallet_init_instructions">This is the recovery phrase of your wallet, which should be a list of 12 or 24 words.</string>
   <string name="importwallet_next_button">Next</string>
-  <string name="importwallet_error">Invalid mnemonics: %1$s</string>
+  <string name="importwallet_seed_error">This seed is invalid:\n%1$s</string>
+  <string name="importwallet_error">Could not import this seed/passphrase</string>
   <string name="importwallet_input_hint">Recovery words…</string>
   <string name="importwallet_encrypt_button">Restore</string>
   <string name="importwallet_encrypt">Seed Encryption</string>

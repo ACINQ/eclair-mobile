@@ -45,6 +45,7 @@ import java.util.List;
 
 import fr.acinq.bitcoin.MnemonicCode;
 import fr.acinq.eclair.wallet.R;
+import fr.acinq.eclair.wallet.adapters.SimplePagerAdapter;
 import fr.acinq.eclair.wallet.databinding.ActivityCreateWalletFromScratchBinding;
 import fr.acinq.eclair.wallet.fragments.WalletCheckWordsFragment;
 import fr.acinq.eclair.wallet.fragments.WalletCreateSeedFragment;
@@ -67,14 +68,8 @@ public class CreateWalletFromScratchActivity extends EclairActivity implements E
   private WalletPassphraseConfirmFragment mWalletPassphraseConfirmFragment;
   private WalletEncryptFragment mWalletEncryptFragment;
   private ActivityCreateWalletFromScratchBinding mBinding;
-
-  Animation mErrorAnimation;
+  private Animation mErrorAnimation;
   final Handler verifHandler = new Handler();
-  final Runnable verifRunnable = () -> {
-    setUpCheckWords();
-    TransitionManager.beginDelayedTransition(mWalletCheckWordsFragment.mBinding.transitionsLayout);
-    mWalletCheckWordsFragment.mBinding.verificationError.setVisibility(View.GONE);
-  };
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -100,7 +95,7 @@ public class CreateWalletFromScratchActivity extends EclairActivity implements E
       fragments.add(mWalletPassphraseFragment);
       fragments.add(mWalletPassphraseConfirmFragment);
       fragments.add(mWalletEncryptFragment);
-      final CreateWalletPagerAdapter pagerAdapter = new CreateWalletPagerAdapter(getSupportFragmentManager(), fragments);
+      final SimplePagerAdapter pagerAdapter = new SimplePagerAdapter(getSupportFragmentManager(), fragments);
       mBinding.viewPager.setAdapter(pagerAdapter);
       mBinding.viewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
         @Override
@@ -160,7 +155,7 @@ public class CreateWalletFromScratchActivity extends EclairActivity implements E
   }
 
   public void goToVerificationStep(final View view) {
-    verifHandler.removeCallbacks(verifRunnable);
+    verifHandler.removeCallbacks(null);
     mWalletCheckWordsFragment.mBinding.verificationError.setVisibility(View.GONE);
     mWalletCheckWordsFragment.mBinding.inputGrid.clearAnimation();
     if (mMnemonicsVerified) {
@@ -187,7 +182,7 @@ public class CreateWalletFromScratchActivity extends EclairActivity implements E
    * Check that the user has correctly backed up the mMnemonics.
    */
   public void verifyUserBackup(View view) {
-    verifHandler.removeCallbacks(verifRunnable);
+    verifHandler.removeCallbacks(null);
     mWalletCheckWordsFragment.mBinding.inputGrid.clearAnimation();
     mWalletCheckWordsFragment.mBinding.verificationError.setVisibility(View.GONE);
     view.clearFocus();
@@ -212,7 +207,11 @@ public class CreateWalletFromScratchActivity extends EclairActivity implements E
       TransitionManager.beginDelayedTransition(mWalletCheckWordsFragment.mBinding.transitionsLayout);
       mWalletCheckWordsFragment.mBinding.inputGrid.startAnimation(mErrorAnimation);
       mWalletCheckWordsFragment.mBinding.verificationError.setVisibility(View.VISIBLE);
-      verifHandler.postDelayed(verifRunnable, 2000);
+      verifHandler.postDelayed(() -> {
+        setUpCheckWords();
+        TransitionManager.beginDelayedTransition(mWalletCheckWordsFragment.mBinding.transitionsLayout);
+        mWalletCheckWordsFragment.mBinding.verificationError.setVisibility(View.GONE);
+      }, 2000);
       view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY, HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
       mMnemonicsVerified = false;
     }
@@ -326,24 +325,5 @@ public class CreateWalletFromScratchActivity extends EclairActivity implements E
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
     prefs.edit().putInt(Constants.SETTING_WALLET_ORIGIN, Constants.WALLET_ORIGIN_FROM_SCRATCH).apply();
     new Handler().postDelayed(this::goToStartup, 1700);
-  }
-
-  private class CreateWalletPagerAdapter extends FragmentStatePagerAdapter {
-    private final List<android.support.v4.app.Fragment> mFragmentList;
-
-    CreateWalletPagerAdapter(FragmentManager fm, List<android.support.v4.app.Fragment> fragments) {
-      super(fm);
-      mFragmentList = fragments;
-    }
-
-    @Override
-    public android.support.v4.app.Fragment getItem(int position) {
-      return mFragmentList.get(position);
-    }
-
-    @Override
-    public int getCount() {
-      return mFragmentList.size();
-    }
   }
 }
