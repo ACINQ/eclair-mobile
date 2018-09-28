@@ -173,7 +173,7 @@
   <string name="restorechannels_no_backup_and_finish">Abort and proceed</string>
   <string name="restorechannels_looking_for_backup">Please wait…</string>
   <string name="restorechannels_sync_rate_limit">Drive sync rate limit! Try again later</string>
-  <string name="restorechannels_skip_backup">I don\'t want to restore any Lightning Backup</string>
+  <string name="restorechannels_skip_backup">Ignore (no backup)</string>
   <string name="restorechannels_skip_backup_confirmation"><![CDATA[
     Are you sure you want to skip this step?
     <br><br>

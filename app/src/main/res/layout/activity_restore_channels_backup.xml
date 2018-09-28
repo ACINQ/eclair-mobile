@@ -14,8 +14,7 @@
   ~ limitations under the License.
   -->
 
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:app="http://schemas.android.com/apk/res-auto">
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
 
   <data>
 
@@ -74,13 +73,12 @@
         </LinearLayout>
 
         <Button
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
+          style="@style/ButtonStyle"
           android:layout_gravity="center"
           android:layout_marginTop="@dimen/space_md"
-          android:background="@android:color/transparent"
+          android:drawablePadding="@dimen/space_xs"
+          android:drawableStart="@drawable/ic_alert_triangle_white_24dp"
           android:onClick="skipRestore"
-          android:padding="@dimen/space_md"
           android:text="@string/restorechannels_skip_backup"
           android:textColor="@color/white" />
 
