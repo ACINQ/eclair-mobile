@@ -38,15 +38,15 @@ import java.util.List;
 import fr.acinq.bitcoin.MnemonicCode;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.adapters.SimplePagerAdapter;
-import fr.acinq.eclair.wallet.databinding.ActivityImportWalletBinding;
+import fr.acinq.eclair.wallet.databinding.ActivityRestoreSeedBinding;
 import fr.acinq.eclair.wallet.fragments.WalletEncryptFragment;
 import fr.acinq.eclair.wallet.fragments.WalletImportSeedFragment;
 import fr.acinq.eclair.wallet.fragments.WalletPassphraseFragment;
 import fr.acinq.eclair.wallet.utils.Constants;
 
-public class ImportWalletActivity extends EclairActivity implements EclairActivity.EncryptSeedCallback {
+public class RestoreSeedActivity extends EclairActivity implements EclairActivity.EncryptSeedCallback {
 
-  private ActivityImportWalletBinding mBinding;
+  private ActivityRestoreSeedBinding mBinding;
   private WalletImportSeedFragment mWalletImportSeedFragment;
   private WalletPassphraseFragment mWalletPassphraseFragment;
   private WalletEncryptFragment mWalletEncryptFragment;
@@ -57,7 +57,7 @@ public class ImportWalletActivity extends EclairActivity implements EclairActivi
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    mBinding = DataBindingUtil.setContentView(this, R.layout.activity_import_wallet);
+    mBinding = DataBindingUtil.setContentView(this, R.layout.activity_restore_seed);
 
     final List<Fragment> fragments = new ArrayList<>();
     mWalletImportSeedFragment = new WalletImportSeedFragment();
@@ -167,7 +167,7 @@ public class ImportWalletActivity extends EclairActivity implements EclairActivi
   public void encryptSeed(final View view) {
     TransitionManager.beginDelayedTransition(mWalletPassphraseFragment.mBinding.transitionsLayout);
     mWalletEncryptFragment.mBinding.encryptionError.setVisibility(View.GONE);
-    mBinding.setImportStep(Constants.CREATE_WALLET_ENCRYPTING);
+    mBinding.setImportStep(Constants.SEED_SPAWN_ENCRYPTION);
     new Thread() {
       @Override
       public void run() {
@@ -180,11 +180,11 @@ public class ImportWalletActivity extends EclairActivity implements EclairActivi
           }
           final File datadir = new File(getFilesDir(), Constants.ECLAIR_DATADIR);
           final byte[] seed = MnemonicCode.toSeed(mnemonics, passphrase).toString().getBytes();
-          runOnUiThread(() -> encryptWallet(ImportWalletActivity.this, false, datadir, seed));
+          runOnUiThread(() -> encryptWallet(RestoreSeedActivity.this, false, datadir, seed));
         } catch (Exception e) {
           runOnUiThread(() -> {
             mBinding.error.setText(getString(R.string.createwallet_error_write_seed, e.getLocalizedMessage()));
-            mBinding.setImportStep(Constants.CREATE_WALLET_ERROR);
+            mBinding.setImportStep(Constants.SEED_SPAWN_ERROR);
             new Handler().postDelayed(() -> goToStartup(), 1500);
           });
         }
@@ -202,7 +202,7 @@ public class ImportWalletActivity extends EclairActivity implements EclairActivi
 
   @Override
   public void onEncryptSeedSuccess() {
-    mBinding.setImportStep(Constants.CREATE_WALLET_COMPLETE);
+    mBinding.setImportStep(Constants.SEED_SPAWN_COMPLETE);
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
     prefs.edit().putInt(Constants.SETTING_WALLET_ORIGIN, Constants.WALLET_ORIGIN_RESTORED_FROM_SEED).apply();
     new Handler().postDelayed(this::goToStartup, 1700);

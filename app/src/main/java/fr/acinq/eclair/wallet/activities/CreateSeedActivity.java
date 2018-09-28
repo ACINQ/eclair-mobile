@@ -24,8 +24,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.transition.TransitionManager;
 import android.view.HapticFeedbackConstants;
@@ -46,7 +44,7 @@ import java.util.List;
 import fr.acinq.bitcoin.MnemonicCode;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.adapters.SimplePagerAdapter;
-import fr.acinq.eclair.wallet.databinding.ActivityCreateWalletFromScratchBinding;
+import fr.acinq.eclair.wallet.databinding.ActivityCreateSeedBinding;
 import fr.acinq.eclair.wallet.fragments.WalletCheckWordsFragment;
 import fr.acinq.eclair.wallet.fragments.WalletCreateSeedFragment;
 import fr.acinq.eclair.wallet.fragments.WalletEncryptFragment;
@@ -55,10 +53,10 @@ import fr.acinq.eclair.wallet.fragments.WalletPassphraseFragment;
 import fr.acinq.eclair.wallet.utils.Constants;
 import scala.collection.JavaConverters;
 
-public class CreateWalletFromScratchActivity extends EclairActivity implements EclairActivity.EncryptSeedCallback {
+public class CreateSeedActivity extends EclairActivity implements EclairActivity.EncryptSeedCallback {
 
   final List<Integer> recoveryPositions = Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11);
-  private final Logger log = LoggerFactory.getLogger(CreateWalletFromScratchActivity.class);
+  private final Logger log = LoggerFactory.getLogger(CreateSeedActivity.class);
   private List<String> mMnemonics = null;
   private String mPassphrase = "";
   private boolean mMnemonicsVerified = false;
@@ -67,14 +65,14 @@ public class CreateWalletFromScratchActivity extends EclairActivity implements E
   private WalletPassphraseFragment mWalletPassphraseFragment;
   private WalletPassphraseConfirmFragment mWalletPassphraseConfirmFragment;
   private WalletEncryptFragment mWalletEncryptFragment;
-  private ActivityCreateWalletFromScratchBinding mBinding;
+  private ActivityCreateSeedBinding mBinding;
   private Animation mErrorAnimation;
   final Handler verifHandler = new Handler();
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    mBinding = DataBindingUtil.setContentView(this, R.layout.activity_create_wallet_from_scratch);
+    mBinding = DataBindingUtil.setContentView(this, R.layout.activity_create_seed);
 
     try {
       mMnemonics = JavaConverters.seqAsJavaListConverter(MnemonicCode.toMnemonics(
@@ -122,7 +120,7 @@ public class CreateWalletFromScratchActivity extends EclairActivity implements E
     if (mMnemonics == null) {
       log.error("mnemonics is null");
       mBinding.error.setText(R.string.createwallet_error_seed_generation);
-      mBinding.setCreationStep(Constants.CREATE_WALLET_ERROR);
+      mBinding.setCreationStep(Constants.SEED_SPAWN_ERROR);
       new Handler().postDelayed(() -> goToStartup(), 1500);
     }
   }
@@ -257,7 +255,7 @@ public class CreateWalletFromScratchActivity extends EclairActivity implements E
   public void encryptSeed(final View view) {
     TransitionManager.beginDelayedTransition(mWalletPassphraseFragment.mBinding.transitionsLayout);
     mWalletEncryptFragment.mBinding.encryptionError.setVisibility(View.GONE);
-    mBinding.setCreationStep(Constants.CREATE_WALLET_ENCRYPTING);
+    mBinding.setCreationStep(Constants.SEED_SPAWN_ENCRYPTION);
     new Thread() {
       @Override
       public void run() {
@@ -269,11 +267,11 @@ public class CreateWalletFromScratchActivity extends EclairActivity implements E
           final String passphrase = mPassphrase;
           final File datadir = new File(getFilesDir(), Constants.ECLAIR_DATADIR);
           final byte[] seed = MnemonicCode.toSeed(JavaConverters.collectionAsScalaIterableConverter(mMnemonics).asScala().toSeq(), passphrase).toString().getBytes();
-          runOnUiThread(() -> encryptWallet(CreateWalletFromScratchActivity.this, false, datadir, seed));
+          runOnUiThread(() -> encryptWallet(CreateSeedActivity.this, false, datadir, seed));
         } catch (Exception e) {
           runOnUiThread(() -> {
             mBinding.error.setText(getString(R.string.createwallet_error_write_seed, e.getLocalizedMessage()));
-            mBinding.setCreationStep(Constants.CREATE_WALLET_ERROR);
+            mBinding.setCreationStep(Constants.SEED_SPAWN_ERROR);
             new Handler().postDelayed(() -> goToStartup(), 1500);
           });
         }
@@ -321,7 +319,7 @@ public class CreateWalletFromScratchActivity extends EclairActivity implements E
 
   @Override
   public void onEncryptSeedSuccess() {
-    mBinding.setCreationStep(Constants.CREATE_WALLET_COMPLETE);
+    mBinding.setCreationStep(Constants.SEED_SPAWN_COMPLETE);
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
     prefs.edit().putInt(Constants.SETTING_WALLET_ORIGIN, Constants.WALLET_ORIGIN_FROM_SCRATCH).apply();
     new Handler().postDelayed(this::goToStartup, 1700);
