@@ -120,31 +120,46 @@
   <string name="start_error_unencrypted">Your seed is not encrypted. Please enter a password.</string>
   <string name="start_log_reading_seed">reading seed…</string>
 
-  <!-- //////////////// Create Recovery /////////////////// -->
+  <!-- //////////////// Create Seed /////////////////// -->
 
-  <string name="createwallet_instructions">If you lose access to your phone, you will need this list of 24 words to recover your on-chain funds.\n\nPlease backup this phrase in a secure location (not on this phone).</string>
-  <string name="createwallet_word_display"><![CDATA[<small>#%1$d</small> <b>%2$s</b>]]></string>
-  <string name="createwallet_generation_failed">Could not generate the recovery phrase…</string>
-  <string name="createwallet_goto_check">OK, got it</string>
-  <string name="createwallet_skip_check">Skip verification (TESTNET only)</string>
-  <string name="createwallet_check_question">What are the #%1$d, #%2$d and #%3$d words of your recovery phrase?</string>
-  <string name="createwallet_check_input_hint">Type the words here</string>
-  <string name="createwallet_check_button">Check</string>
-  <string name="createwallet_error_write_seed">Could not save the wallet</string>
-  <string name="createwallet_success_prompt_encrypt">You now must set a password to encrypt you wallet.</string>
-  <string name="createwallet_success_finish">Encrypt wallet</string>
-  <string name="createwallet_check_failed">Words are not correct.\nPlease check your recovery phrase.</string>
-  <string name="createwallet_passphrase_hint">Enter a password for the wallet</string>
-  <string name="createwallet_passphrase_failed">This passphrase is not valid (not empty, max 20 chars, no special characters).</string>
-  <string name="createwallet_general_failure">Could not create wallet</string>
+  <string name="createwallet_init_title">Recovery Words</string>
+  <string name="createwallet_init_instructions">Please backup this 12 words list in a secure location (not on this phone).\n\nIf you lose your device, this list is the only way to recover your funds.</string>
+  <string name="createwallet_single_word_display"><![CDATA[<small>#%1$d</small> <b>%2$s</b>]]></string>
+  <string name="createwallet_check_skip">Skip this step</string>
+  <string name="createwallet_check_input_hint">Word #%1$d</string>
+  <string name="createwallet_check_title">Backup verification</string>
+  <string name="createwallet_check_instructions">What are the #%1$d, #%2$d and #%3$d words of the recovery phrase?</string>
+  <string name="createwallet_check_failed">Wrong words!\nCheck the seed again.</string>
+  <string name="createwallet_check_failed_button">Check seed</string>
+  <string name="createwallet_error_write_seed">The seed could not be saved on disk.\n\nCause: %1$s</string>
+  <string name="createwallet_invalid_seed">Error in wallet creation, aborting…</string>
+  <string name="createwallet_error_seed_generation">Could not generate the recovery phrase…</string>
+  <string name="createwallet_error_generic">Wallet creation error, aborting…</string>
+  <string name="createwallet_encryption_title">Seed Encryption</string>
+  <string name="createwallet_encryption_instructions">The seed must now be encrypted with a 6 digits PIN.</string>
+  <string name="createwallet_encryption_button">Set pin</string>
+  <string name="createwallet_please_wait">Please wait…</string>
+  <string name="createwallet_success">Your wallet has been successfully created!</string>
+
+  <string name="wallet_passphrase_title">Passphrase</string>
+  <string name="wallet_passphrase_instructions">Eclair supports passphrase. If you don\'t know what this is, or if you wallet does not have a passphrase, leave this field blank, and click Next.</string>
+  <string name="wallet_passphrase_confirm_title">Confirm Passphrase</string>
+  <string name="wallet_passphrase_error">Invalid passphrase: %1$s</string>
+  <string name="wallet_passphrase_input_hint">Passphrase…</string>
+  <string name="wallet_passphrase_confirm_input_hint">Confirm Passphrase…</string>
+  <string name="wallet_passphrase_error_do_not_match">Passphrases do not match</string>
 
   <!-- //////////////// Import Wallet /////////////////// -->
 
-  <string name="importwallet_instructions">Enter the recovery phrase of your wallet.\nPassphrase are not supported yet.</string>
-  <string name="importwallet_error">This phrase is not valid: %1$s</string>
-  <string name="importwallet_input_hint">Type the recovery phrase here</string>
+  <string name="importwallet_init_title">Enter Wallet Seed</string>
+  <string name="importwallet_init_instructions">This is the recovery phrase of your wallet, which should be a list of 12 or 24 words.</string>
+  <string name="importwallet_next_button">Next</string>
+  <string name="importwallet_seed_error">This seed is invalid:\n%1$s</string>
+  <string name="importwallet_error">Could not import this seed/passphrase</string>
+  <string name="importwallet_input_hint">Recovery words…</string>
   <string name="importwallet_encrypt_button">Restore</string>
-  <string name="importwallet_encrypt_success">Seed has been restored and encrypted.</string>
+  <string name="importwallet_encrypt">Seed Encryption</string>
+  <string name="importwallet_success">Seed has been restored and encrypted.</string>
 
   <!-- //////////////// Restore Channels /////////////////// -->
 
@@ -158,8 +173,12 @@
   <string name="restorechannels_no_backup_and_finish">Abort and proceed</string>
   <string name="restorechannels_looking_for_backup">Please wait…</string>
   <string name="restorechannels_sync_rate_limit">Drive sync rate limit! Try again later</string>
-  <string name="restorechannels_skip_backup">Skip Backup Restore</string>
-  <string name="restorechannels_skip_backup_confirmation">Are you sure you want to skip Backup Restore?\n\nYou will not be able to restore your channels later.</string>
+  <string name="restorechannels_skip_backup">Ignore (no backup)</string>
+  <string name="restorechannels_skip_backup_confirmation"><![CDATA[
+    Are you sure you want to skip this step?
+    <br><br>
+    Any Lightning backups that would currently exist will be overwritten, and you <strong>will not be able to restore them later</strong>.
+  ]]></string>
   <string name="restorechannels_device_conflict">We found a backup for this seed, but it looks like it was created by another android device (or the same device that you\'ve upgraded to Android 8+).\n\nPlease make sure that you do not simultaneously use the same channels on different devices, otherwise they will conflict and close.</string>
   <string name="restorechannels_device_conflict_confirm">I Understand.</string>
 
@@ -186,15 +205,19 @@
 
   <string name="unknown">N/A</string>
   <string name="unknown_desc">No description available</string>
+  <string name="btn_confirm">Confirm</string>
   <string name="btn_ok">OK</string>
   <string name="btn_cancel">Cancel</string>
   <string name="btn_close">Close</string>
+  <string name="btn_next">Next</string>
+  <string name="btn_back">Back</string>
   <string name="pending">Fetching Data…</string>
   <string name="cancelled">Cancelled</string>
   <string name="generic_error">Action failed</string>
   <string name="error_icon">Error Icon</string>
   <string name="error_generic">Internal Error</string>
   <string name="pretty_amount_value"><![CDATA[%1$s<small>%2$s<small>]]></string>
+  <string name="commons_progress_indicator">●</string>
 
   <!-- /////////////// Menus /////////////// -->
 
@@ -445,8 +468,8 @@
   <string name="pindialog_title_createnew">Define a 6 digits PIN code</string>
   <string name="pindialog_title_confirmnew">Confirm PIN code</string>
   <string name="pindialog_pwd_placeholder">●●●●●●</string>
-  <string name="pindialog_error">Password must be a 6 digits number.</string>
-  <string name="pindialog_error_donotmatch">Passwords do not match.</string>
+  <string name="pindialog_error">PIN code must be a 6 digits number.</string>
+  <string name="pindialog_error_donotmatch">PIN codes do not match.</string>
 
   <!-- //////////////// Preferences //////////////////// -->
 

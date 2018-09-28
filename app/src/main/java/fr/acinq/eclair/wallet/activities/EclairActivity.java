@@ -64,10 +64,14 @@ public abstract class EclairActivity extends AppCompatActivity {
   }
 
   protected AlertDialog.Builder getCustomDialog(final int contentId) {
-    final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+    return getCustomDialog(getString(contentId));
+  }
+
+  protected AlertDialog.Builder getCustomDialog(final String message) {
+    final AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.CustomAlertDialog);
     final View v = getLayoutInflater().inflate(R.layout.custom_alert, null);
     final TextView content = v.findViewById(R.id.alert_content);
-    content.setText(Html.fromHtml(getString(contentId)));
+    content.setText(Html.fromHtml(message));
     builder.setView(v);
     return builder;
   }

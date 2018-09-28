@@ -48,16 +48,17 @@
       </intent-filter>
     </activity>
     <activity
-      android:name=".activities.CreateWalletFromScratchActivity"
+      android:name=".activities.CreateSeedActivity"
       android:launchMode="singleTop"
       android:parentActivityName=".activities.StartupActivity"
       android:screenOrientation="portrait"
       android:theme="@style/PrimaryBgTheme" />
     <activity
-      android:name=".activities.ImportWalletActivity"
+      android:name=".activities.RestoreSeedActivity"
       android:noHistory="true"
       android:parentActivityName=".activities.StartupActivity"
       android:screenOrientation="portrait"
+      android:windowSoftInputMode="stateHidden"
       android:theme="@style/PrimaryBgTheme" />
     <activity
       android:name=".activities.HomeActivity"

@@ -403,12 +403,12 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
   }
 
   public void pickImportExistingWallet(View view) {
-    Intent intent = new Intent(getBaseContext(), ImportWalletActivity.class);
+    Intent intent = new Intent(getBaseContext(), RestoreSeedActivity.class);
     startActivity(intent);
   }
 
   public void pickCreateNewWallet(View view) {
-    Intent intent = new Intent(getBaseContext(), CreateWalletFromScratchActivity.class);
+    Intent intent = new Intent(getBaseContext(), CreateSeedActivity.class);
     startActivity(intent);
   }
 

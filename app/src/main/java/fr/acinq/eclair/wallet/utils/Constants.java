@@ -116,8 +116,11 @@ public interface Constants {
   int RESTORE_BACKUP_SYNC_RATELIMIT = 7;
   int RESTORE_BACKUP_DEVICE_ORIGIN_CONFLICT = 8;
 
-  int IMPORT_WALLET_INIT = 1;
-  int IMPORT_WALLET_SUCCESS = 2;
+  /* ----------- WALLET SEED SPAWN PROCESS ------------ */
+
+  int SEED_SPAWN_ENCRYPTION = 8;
+  int SEED_SPAWN_COMPLETE = 9;
+  int SEED_SPAWN_ERROR = 10;
 
   /* --------- REFRESH SCHEDULER ----------- */
 
