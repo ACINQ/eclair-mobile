@@ -30,6 +30,10 @@ public interface Constants {
 
   int CAMERA_PERMISSION_REQUEST = 0;
 
+  /* ----------- STARTUP OPTION ----------- */
+
+  String CUSTOM_ELECTRUM_SERVER = "custom_electrum_server";
+
   /* ----------- DIR & FILES NAMES ------------ */
 
   String ECLAIR_DATADIR = "eclair-wallet-data";

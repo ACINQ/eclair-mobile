@@ -32,7 +32,9 @@ import android.view.View;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.common.base.Strings;
 import com.google.common.io.Files;
+import com.google.common.net.HostAndPort;
 import com.typesafe.config.ConfigFactory;
 
 import org.greenrobot.eventbus.EventBus;
@@ -43,6 +45,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.security.GeneralSecurityException;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -472,8 +475,11 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
 
         Class.forName("org.sqlite.JDBC");
         publishProgress("setting up eclair");
-        final Setup setup = new Setup(datadir, ConfigFactory.empty(), Option.apply(seed), app.system);
 
+        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(app.getBaseContext());
+        final Setup setup = new Setup(datadir, ConfigFactory.empty(), Option.apply(seed), getOptionalElectrumServer(prefs), app.system);
+
+        // ui refresh schedulers
         final ActorRef paymentsRefreshScheduler = app.system.actorOf(Props.create(RefreshScheduler.PaymentsRefreshScheduler.class), "PaymentsRefreshScheduler");
         final ActorRef channelsRefreshScheduler = app.system.actorOf(Props.create(RefreshScheduler.ChannelsRefreshScheduler.class), "ChannelsRefreshScheduler");
         final ActorRef balanceRefreshScheduler = app.system.actorOf(Props.create(RefreshScheduler.BalanceRefreshScheduler.class), "BalanceRefreshScheduler");
@@ -513,6 +519,20 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
     @Override
     protected void onPostExecute(Integer status) {
       EventBus.getDefault().post(new StartupCompleteEvent(status));
+    }
+  }
+
+  /**
+   * Retrieve an electrum server from the user's preferences. If no electrum server was set by the user
+   * (default case), returns None.
+   */
+  private static Option<InetSocketAddress> getOptionalElectrumServer(final SharedPreferences prefs) {
+    final String serverString = prefs.getString(Constants.CUSTOM_ELECTRUM_SERVER, "");
+    if (!Strings.isNullOrEmpty(serverString)) {
+      final HostAndPort server = HostAndPort.fromString(serverString).withDefaultPort(50002);
+      return Option.apply(new InetSocketAddress(server.getHost(), server.getPort()));
+    } else {
+      return Option.apply(null);
     }
   }
 

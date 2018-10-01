@@ -68,7 +68,9 @@
             android:id="@+id/electrum_address"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            app:action_label="@string/networkinfos_electrum_address_action"
             app:desc="@string/networkinfos_electrum_address_desc"
+            app:has_action="true"
             app:has_border="true"
             app:label="@string/networkinfos_electrum_address_label"
             app:value="@string/unknown" />

@@ -425,6 +425,7 @@
   <string name="networkinfos_feerate_desc">Current fee rate</string>
   <string name="networkinfos_electrum_address_label">Electrum server</string>
   <string name="networkinfos_electrum_address_desc">Server you\'re connected to for access to the blockchain</string>
+  <string name="networkinfos_electrum_address_action">Set server…</string>
   <string name="networkinfos_block_timestamp_label">Block timestamp</string>
   <string name="networkinfos_block_timestamp_desc">Last block timestamp</string>
   <string name="networkinfos_networkchannels_label">Known channels</string>
