@@ -66,7 +66,9 @@ dependencies {
   implementation 'com.google.code.findbugs:jsr305:3.0.1'
   implementation 'com.google.android.gms:play-services-drive:15.0.1'
   implementation 'com.google.android.gms:play-services-auth:16.0.0'
-  implementation 'android.arch.work:work-runtime:1.0.0-alpha08'
+  implementation ('android.arch.work:work-runtime:1.0.0-alpha09') {
+    exclude group: 'com.google.guava', module: 'listenablefuture'
+  }
   // logging
   implementation 'org.slf4j:slf4j-api:1.7.25'
   implementation 'com.github.tony19:logback-android:1.1.1-12'
