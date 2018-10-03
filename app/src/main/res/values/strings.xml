@@ -322,6 +322,8 @@
   <string name="payment_amount_to_send">Amount in </string>
   <string name="payment_toast_sentbtc">Payment sent</string>
   <string name="payment_toast_balance">Insufficient balance</string>
+  <string name="payment_tx_creation_error">Transaction is invalid</string>
+  <string name="payment_tx_failed">Transaction failed</string>
   <string name="payment_toast_failure">Could not send transaction: %1$s</string>
 
   <string name="payment_error">This payment is not valid.</string>
