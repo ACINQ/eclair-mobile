@@ -1,0 +1,25 @@
+<!--
+  ~ Copyright 2018 ACINQ SAS
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+  android:width="24dp"
+  android:height="24dp"
+  android:viewportHeight="768"
+  android:viewportWidth="768">
+  <path
+    android:fillColor="@color/red_faded"
+    android:pathData="M384,32q71.75,0 136.875,27.875t112.25,75 75,112.25T736,384t-27.875,136.875 -75,112.25 -112.25,75T384,736t-136.875,-27.875 -112.25,-75 -75,-112.25T32,384t27.875,-136.875 75,-112.25 112.25,-75T384,32zM384,96q-58.5,0 -111.875,22.875T180.25,180.25t-61.375,91.875T96,384t22.875,111.875 61.375,91.875 91.875,61.375T384,672t111.875,-22.875 91.875,-61.375 61.375,-91.875T672,384t-22.875,-111.875 -61.375,-91.875 -91.875,-61.375T384,96zM474.5,261.25q13.25,0 22.75,9.375t9.5,22.625 -9.5,22.75l-68,68 68,67.75q9.5,9.5 9.5,22.5 0,13.25 -9.5,22.625t-22.75,9.375T452,497l-68,-67.75L316.25,497q-9.25,9.25 -22.75,9.25 -13.25,0 -22.625,-9.25t-9.375,-22.5q0,-13.5 9.25,-22.75l68,-67.75 -68,-68q-9.25,-9.25 -9.25,-22.5t9.375,-22.75 22.625,-9.5 22.75,9.5l67.75,68 68,-68q9.5,-9.5 22.5,-9.5z" />
+</vector>

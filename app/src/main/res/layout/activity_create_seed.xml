@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright 2018 ACINQ SAS
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools">
+
+  <data>
+
+    <import type="android.view.View" />
+
+    <import type="fr.acinq.eclair.wallet.utils.Constants" />
+
+    <variable
+      name="creationStep"
+      type="int" />
+  </data>
+
+  <android.support.constraint.ConstraintLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/primary"
+    tools:context=".activities.CreateSeedActivity">
+
+    <fr.acinq.eclair.wallet.customviews.CustomViewPager
+      android:id="@+id/view_pager"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:visibility="@{creationStep &lt; Constants.SEED_SPAWN_ENCRYPTION ? View.VISIBLE : View.GONE}"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+      android:id="@+id/progress"
+      android:layout_width="wrap_content"
+      android:layout_height="0dp"
+      android:layout_marginBottom="@dimen/space_xs"
+      android:layout_marginTop="@dimen/space_xs"
+      android:background="@drawable/rounded_corner_primary"
+      android:gravity="center"
+      android:paddingEnd="@dimen/space_xs"
+      android:paddingStart="@dimen/space_xs"
+      android:visibility="@{creationStep &lt; Constants.SEED_SPAWN_COMPLETE ? View.VISIBLE : View.GONE}"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent">
+
+      <TextView
+        style="@style/ProgressIndicator"
+        android:alpha="@{creationStep == 0 ? 1f : .3f}" />
+
+      <TextView
+        style="@style/ProgressIndicator"
+        android:alpha="@{creationStep == 1 ? 1f : .3f}" />
+
+      <TextView
+        style="@style/ProgressIndicator"
+        android:alpha="@{creationStep == 2 ? 1f : .3f}" />
+
+      <TextView
+        style="@style/ProgressIndicator"
+        android:alpha="@{creationStep == 3 ? 1f : .3f}" />
+
+      <TextView
+        style="@style/ProgressIndicator"
+        android:alpha="@{creationStep == 4 ? 1f : .3f}" />
+
+    </LinearLayout>
+
+    <TextView
+      style="@style/TitleCapsIcon"
+      android:layout_width="280dp"
+      android:drawableStart="@drawable/ic_circle_check_green_24dp"
+      android:padding="@dimen/space_lg"
+      android:text="@string/createwallet_success"
+      android:visibility="@{creationStep == Constants.SEED_SPAWN_COMPLETE ? View.VISIBLE : View.GONE}"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintHorizontal_bias="0.5"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+      android:id="@+id/error"
+      style="@style/TitleCapsIcon"
+      android:layout_width="280dp"
+      android:drawableStart="@drawable/ic_circle_cross_white_24dp"
+      android:padding="@dimen/space_lg"
+      android:text="@string/createwallet_error_generic"
+      android:textAllCaps="false"
+      android:visibility="@{creationStep == Constants.SEED_SPAWN_ERROR ? View.VISIBLE : View.GONE}"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintHorizontal_bias="0.5"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:padding="@dimen/space_lg"
+      android:text="@string/createwallet_please_wait"
+      android:textAlignment="center"
+      android:visibility="@{creationStep == Constants.SEED_SPAWN_ENCRYPTION ? View.VISIBLE : View.GONE}"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintTop_toTopOf="parent" />
+
+  </android.support.constraint.ConstraintLayout>
+</layout>

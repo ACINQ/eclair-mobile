@@ -67,6 +67,7 @@
   </style>
 
   <style name="CustomDialog" parent="@style/Theme.AppCompat.Light.Dialog">
+    <item name="colorPrimary">@color/primary</item>
     <item name="android:textColor">@color/grey_4</item>
     <item name="android:windowMinWidthMajor">85%</item>
     <item name="android:windowMinWidthMinor">85%</item>
@@ -150,6 +151,38 @@
 
   <style name="EndButtonStyle" parent="ButtonStyle">
     <item name="android:layout_gravity">end</item>
+  </style>
+
+  <style name="TitleCapsIcon" parent="Base.TextAppearance.AppCompat">
+    <item name="android:layout_width">wrap_content</item>
+    <item name="android:layout_height">wrap_content</item>
+    <item name="android:drawablePadding">@dimen/space_sm</item>
+    <item name="android:gravity">start|center</item>
+    <item name="android:textAllCaps">true</item>
+    <item name="android:textColor">@color/white</item>
+    <item name="android:textStyle">bold</item>
+  </style>
+
+  <style name="RoundedWhitePanel">
+    <item name="android:layout_width">wrap_content</item>
+    <item name="android:layout_height">wrap_content</item>
+    <item name="android:layout_centerInParent">true</item>
+    <item name="android:padding">@dimen/space_lg</item>
+    <item name="android:background">@drawable/rounded_corner_white</item>
+    <item name="android:textColor">@color/grey_4</item>
+  </style>
+
+  <style name="RoundedWhitePanelIcon" parent="RoundedWhitePanel">
+    <item name="android:drawablePadding">@dimen/space_md</item>
+  </style>
+
+  <style name="ProgressIndicator" parent="Base.TextAppearance.AppCompat">
+    <item name="android:layout_width">wrap_content</item>
+    <item name="android:layout_height">wrap_content</item>
+    <item name="android:layout_margin">@dimen/space_xxs</item>
+    <item name="android:text">@string/commons_progress_indicator</item>
+    <item name="android:textColor">@color/white</item>
+    <item name="android:textSize">18sp</item>
   </style>
 
 </resources>

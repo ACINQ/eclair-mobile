@@ -74,7 +74,7 @@ public class RestoreChannelsBackupActivity extends GoogleDriveBaseActivity {
 
   public void skipRestore(final View view) {
     getCustomDialog(R.string.restorechannels_skip_backup_confirmation)
-      .setPositiveButton(R.string.btn_ok, (dialog, which) -> {
+      .setPositiveButton(R.string.btn_confirm, (dialog, which) -> {
         PreferenceManager.getDefaultSharedPreferences(getBaseContext()).edit()
           .putBoolean(Constants.SETTING_CHANNELS_RESTORE_DONE, true).commit();
         finish();

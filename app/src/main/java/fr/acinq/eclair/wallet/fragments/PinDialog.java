@@ -18,7 +18,6 @@ package fr.acinq.eclair.wallet.fragments;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.text.Editable;
@@ -61,12 +60,7 @@ public class PinDialog extends Dialog {
     // layout
     setContentView(R.layout.dialog_pin);
 
-    setOnCancelListener(new OnCancelListener() {
-      @Override
-      public void onCancel(DialogInterface dialogInterface) {
-        mPinCallback.onPinCancel(PinDialog.this);
-      }
-    });
+    setOnCancelListener(dialogInterface -> mPinCallback.onPinCancel(PinDialog.this));
 
     // set up pin numpad
     mPinTitle = findViewById(R.id.pin_title);

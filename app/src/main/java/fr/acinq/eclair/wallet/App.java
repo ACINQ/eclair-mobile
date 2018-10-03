@@ -274,16 +274,19 @@ public class App extends Application {
               final Future fSendAll = appKit.electrumWallet.commit(res._1());
               fSendAll.onComplete(new OnComplete<Boolean>() {
                 @Override
-                public void onComplete(Throwable failure, Boolean success) throws Throwable {
-                  if (!success) {
-                    log.warn("could not send empty wallet tx");
-                    EventBus.getDefault().post(new BitcoinPaymentFailedEvent("broadcast failed"));
+                public void onComplete(Throwable failure, Boolean success) {
+                  if (failure != null) {
+                    log.warn("error in send_all tx", failure);
+                    EventBus.getDefault().post(new BitcoinPaymentFailedEvent(failure.getLocalizedMessage()));
+                  } else if (success == null || !success) {
+                    log.warn("send_all tx has failed");
+                    EventBus.getDefault().post(new BitcoinPaymentFailedEvent(getString(R.string.payment_tx_failed)));
                   }
                 }
               }, system.dispatcher());
             } else {
               log.warn("could not create send all tx");
-              EventBus.getDefault().post(new BitcoinPaymentFailedEvent("tx creation failed"));
+              EventBus.getDefault().post(new BitcoinPaymentFailedEvent(getString(R.string.payment_tx_creation_error)));
             }
           } else {
             log.warn("could not send all balance with cause {}", t.getMessage());

@@ -7,7 +7,8 @@
     android:id="@+id/alert_content"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_marginBottom="@dimen/space_md"
     android:padding="@dimen/space_lg"
-    android:layout_marginBottom="@dimen/space_md"/>
+    android:textColor="@color/grey_4" />
 
 </ScrollView>
