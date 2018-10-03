@@ -54,7 +54,6 @@
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:backgroundTint="@color/primary_light_x3"
-          android:digits="abcdefghijklmnopqrstuvwxyz "
           android:inputType="text"
           android:maxLength="256"
           android:textColor="@color/white"
