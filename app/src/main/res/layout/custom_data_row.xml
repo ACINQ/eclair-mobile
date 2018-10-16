@@ -14,66 +14,74 @@
   ~ limitations under the License.
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
   android:layout_width="match_parent"
-  android:layout_height="match_parent"
-  android:baselineAligned="false"
-  android:orientation="horizontal"
-  android:paddingBottom="8dp"
+  android:layout_height="wrap_content"
+  android:paddingBottom="@dimen/space_sm"
   android:paddingEnd="@dimen/space_md"
   android:paddingStart="@dimen/space_md"
-  android:paddingTop="8dp">
+  android:paddingTop="@dimen/space_sm">
 
-  <LinearLayout
-    android:layout_width="0dp"
+  <android.support.constraint.Guideline
+    android:id="@+id/guideline"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_weight="0.5"
-    android:orientation="vertical">
-
-    <TextView
-      android:id="@+id/view_label"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:maxLines="1"
-      android:textStyle="bold" />
-
-    <TextView
-      android:id="@+id/view_desc"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:textColor="@color/grey_1"
-      android:textSize="12sp" />
-  </LinearLayout>
-
-  <RelativeLayout
-    android:layout_width="0.0dp"
-    android:layout_height="wrap_content"
+    android:layout_marginEnd="@dimen/space_md"
     android:layout_marginStart="@dimen/space_md"
-    android:layout_weight="0.5">
+    android:orientation="vertical"
+    app:layout_constraintGuide_percent="0.5" />
 
-    <TextView
-      android:id="@+id/view_value"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:fontFamily="monospace"
-      android:textIsSelectable="true"
-      android:gravity="start|center_vertical"
-      android:textSize="10sp" />
+  <TextView
+    android:id="@+id/data_label"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:maxLines="1"
+    android:textStyle="bold"
+    app:layout_constrainedWidth="true"
+    app:layout_constraintEnd_toStartOf="@id/guideline"
+    app:layout_constraintHorizontal_bias="0"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
-      android:id="@+id/view_action"
-      style="@style/Base.Widget.AppCompat.Button.Borderless"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_below="@id/view_value"
-      android:layout_gravity="center"
-      android:layout_marginTop="8dp"
-      android:background="@color/grey_0_light_x1"
-      android:elevation="0dp"
-      android:foreground="?android:attr/selectableItemBackground"
-      android:minHeight="0dp"
-      android:padding="12dp"
-      android:textSize="10sp"
-      android:visibility="gone" />
-  </RelativeLayout>
-</LinearLayout>
+  <TextView
+    android:id="@+id/data_desc"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:textColor="@color/grey_1"
+    android:textSize="12sp"
+    app:layout_constrainedWidth="true"
+    app:layout_constraintEnd_toStartOf="@id/guideline"
+    app:layout_constraintHorizontal_bias="0"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@id/data_label" />
+
+  <TextView
+    android:id="@+id/data_value"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:gravity="start|center_vertical"
+    android:textIsSelectable="true"
+    android:textSize="12sp"
+    app:layout_constrainedWidth="true"
+    app:layout_constraintBaseline_toBaselineOf="@id/data_label"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintHorizontal_bias="0"
+    app:layout_constraintStart_toStartOf="@id/guideline" />
+
+  <Button
+    android:id="@+id/data_action"
+    style="@style/ButtonStyle"
+    android:layout_below="@id/data_value"
+    android:layout_gravity="center"
+    android:layout_marginTop="@dimen/space_md"
+    android:background="@color/grey_0_light_x1"
+    android:padding="@dimen/space_xs"
+    android:textSize="10sp"
+    android:visibility="gone"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintHorizontal_bias="0"
+    app:layout_constraintStart_toStartOf="@id/guideline"
+    app:layout_constraintTop_toBottomOf="@id/data_value" />
+
+</android.support.constraint.ConstraintLayout>
