@@ -34,7 +34,6 @@
   </declare-styleable>
   <declare-styleable name="DataRow">
     <attr name="label" />
-    <attr name="desc" format="string" />
     <attr name="value" format="string" />
     <attr name="has_border" format="boolean" />
     <attr name="has_action" format="boolean" />

@@ -41,16 +41,15 @@
           android:layout_height="wrap_content"
           android:orientation="vertical">
 
-          <fr.acinq.eclair.wallet.customviews.TitleBar
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+          <TextView
+            style="@style/TitleBar"
+            android:drawableStart="@drawable/ic_chain_grey_14dp"
             android:text="@string/networkinfos_title_bitcoin" />
 
           <fr.acinq.eclair.wallet.customviews.DataRow
             android:id="@+id/block_count"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:desc="@string/networkinfos_blockcount_desc"
             app:has_border="true"
             app:label="@string/networkinfos_blockcount_label"
             app:value="@string/unknown" />
@@ -59,7 +58,6 @@
             android:id="@+id/block_timestamp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:desc="@string/networkinfos_block_timestamp_desc"
             app:has_border="true"
             app:label="@string/networkinfos_block_timestamp_label"
             app:value="@string/unknown" />
@@ -69,7 +67,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:action_label="@string/networkinfos_electrum_address_action"
-            app:desc="@string/networkinfos_electrum_address_desc"
             app:has_action="true"
             app:has_border="true"
             app:label="@string/networkinfos_electrum_address_label"
@@ -79,20 +76,18 @@
             android:id="@+id/fee_rate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:desc="@string/networkinfos_feerate_desc"
             app:label="@string/networkinfos_feerate_label"
             app:value="@string/unknown" />
 
-          <fr.acinq.eclair.wallet.customviews.TitleBar
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+          <TextView
+            style="@style/TitleBar"
+            android:drawableStart="@drawable/ic_bolt_grey_14dp"
             android:text="@string/networkinfos_title_lightning" />
 
           <fr.acinq.eclair.wallet.customviews.DataRow
             android:id="@+id/node_id"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:desc="@string/networkinfos_nodeid_desc"
             app:has_border="true"
             app:label="@string/networkinfos_nodeid_label"
             app:value="@string/unknown" />
@@ -101,7 +96,6 @@
             android:id="@+id/network_channels_count"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:desc="@string/networkinfos_networkchannels_desc"
             app:has_border="true"
             app:label="@string/networkinfos_networkchannels_label"
             app:value="@string/unknown" />
@@ -112,21 +106,18 @@
             android:layout_height="wrap_content"
             app:action_label="@string/networkinfos_networkdb_action"
             app:action_text_color="@color/red_faded"
-            app:desc="@string/networkinfos_networkdb_desc"
             app:has_action="true"
-            app:has_border="true"
             app:label="@string/networkinfos_networkdb_label" />
 
-          <fr.acinq.eclair.wallet.customviews.TitleBar
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+          <TextView
+            style="@style/TitleBar"
+            android:drawableStart="@drawable/ic_box_grey_14dp"
             android:text="@string/networkinfos_wallet_title" />
 
           <fr.acinq.eclair.wallet.customviews.DataRow
             android:id="@+id/xpub"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:desc="@string/networkinfos_xpub_desc"
             app:label="@string/networkinfos_xpub_label"
             app:value="@string/unknown" />
 

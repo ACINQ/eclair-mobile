@@ -117,7 +117,6 @@
           android:id="@+id/recipient"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          app:desc="@string/paymentdetails_recipient_desc"
           app:has_border="true"
           app:label="@string/paymentdetails_recipient_label"
           app:value="@string/unknown" />
@@ -126,13 +125,12 @@
           android:id="@+id/desc"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          app:desc="@string/paymentdetails_desc_desc"
           app:label="@string/paymentdetails_desc_label"
           app:value="@string/unknown" />
 
-        <fr.acinq.eclair.wallet.customviews.TitleBar
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
+        <TextView
+          style="@style/TitleBar"
+          android:drawableStart="@drawable/ic_hammer_grey_14dp"
           android:text="@string/paymentdetails_technicals_title" />
 
         <fr.acinq.eclair.wallet.customviews.DataRow
@@ -147,7 +145,6 @@
           android:id="@+id/amount_sent"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          app:desc="@string/paymentdetails_amount_sent_desc"
           app:has_border="true"
           app:label="@string/paymentdetails_amount_sent_label"
           app:value="@string/unknown" />
@@ -156,7 +153,6 @@
           android:id="@+id/paymenthash"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          app:desc="@string/paymentdetails_paymenthash_desc"
           app:has_border="true"
           app:label="@string/paymentdetails_paymenthash_label"
           app:value="@string/unknown" />
@@ -165,7 +161,6 @@
           android:id="@+id/preimage"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          app:desc="@string/paymentdetails_preimage_desc"
           app:has_border="true"
           app:label="@string/paymentdetails_preimage_label"
           app:value="@string/unknown" />
@@ -174,7 +169,6 @@
           android:id="@+id/paymentrequest"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          app:desc="@string/paymentdetails_paymentrequest_desc"
           app:has_border="true"
           app:label="@string/paymentdetails_paymentrequest_label"
           app:value="@string/unknown" />
@@ -183,7 +177,6 @@
           android:id="@+id/created"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          app:desc="@string/paymentdetails_created_desc"
           app:has_border="true"
           app:label="@string/paymentdetails_created_label"
           app:value="@string/unknown" />
@@ -192,7 +185,6 @@
           android:id="@+id/updated"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          app:desc="@string/paymentdetails_updated_desc"
           app:label="@string/paymentdetails_updated_label"
           app:value="@string/unknown" />
       </LinearLayout>

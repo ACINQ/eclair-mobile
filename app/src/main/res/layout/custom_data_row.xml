@@ -14,74 +14,48 @@
   ~ limitations under the License.
   -->
 
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="match_parent"
   android:layout_height="wrap_content"
+  android:orientation="vertical"
   android:paddingBottom="@dimen/space_sm"
   android:paddingEnd="@dimen/space_md"
   android:paddingStart="@dimen/space_md"
   android:paddingTop="@dimen/space_sm">
 
-  <android.support.constraint.Guideline
-    android:id="@+id/guideline"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_marginEnd="@dimen/space_md"
-    android:layout_marginStart="@dimen/space_md"
-    android:orientation="vertical"
-    app:layout_constraintGuide_percent="0.5" />
-
   <TextView
     android:id="@+id/data_label"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:maxLines="1"
-    android:textStyle="bold"
-    app:layout_constrainedWidth="true"
-    app:layout_constraintEnd_toStartOf="@id/guideline"
-    app:layout_constraintHorizontal_bias="0"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toTopOf="parent" />
-
-  <TextView
-    android:id="@+id/data_desc"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
+    android:textAllCaps="true"
     android:textColor="@color/grey_1"
-    android:textSize="12sp"
-    app:layout_constrainedWidth="true"
-    app:layout_constraintEnd_toStartOf="@id/guideline"
-    app:layout_constraintHorizontal_bias="0"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@id/data_label" />
+    android:textSize="@dimen/text_xs" />
 
   <TextView
     android:id="@+id/data_value"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:gravity="start|center_vertical"
+    android:layout_marginTop="@dimen/space_xxxs"
+    android:letterSpacing="0.01"
+    android:lineSpacingMultiplier="1.1"
     android:textIsSelectable="true"
-    android:textSize="12sp"
-    app:layout_constrainedWidth="true"
-    app:layout_constraintBaseline_toBaselineOf="@id/data_label"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintHorizontal_bias="0"
-    app:layout_constraintStart_toStartOf="@id/guideline" />
+    android:textSize="@dimen/text_md" />
+
+  <View
+    android:id="@+id/separator"
+    style="@style/HSeparator"
+    android:layout_marginTop="@dimen/space_xs"
+    android:visibility="gone" />
 
   <Button
     android:id="@+id/data_action"
     style="@style/ButtonStyle"
-    android:layout_below="@id/data_value"
-    android:layout_gravity="center"
-    android:layout_marginTop="@dimen/space_md"
-    android:background="@color/grey_0_light_x1"
-    android:padding="@dimen/space_xs"
-    android:textSize="10sp"
-    android:visibility="gone"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintHorizontal_bias="0"
-    app:layout_constraintStart_toStartOf="@id/guideline"
-    app:layout_constraintTop_toBottomOf="@id/data_value" />
+    android:layout_marginTop="10dp"
+    android:background="@color/grey_0_light_x2"
+    android:textColor="@color/grey_3"
+    android:padding="@dimen/space_sm"
+    android:textSize="@dimen/text_xs"
+    android:visibility="gone" />
 
-</android.support.constraint.ConstraintLayout>
+</LinearLayout>

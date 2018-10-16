@@ -350,7 +350,7 @@
             android:background="?android:attr/selectableItemBackground"
             android:onClick="cancelOpenChannel"
             android:text="@string/btn_cancel"
-            android:textColor="@color/grey_0_dark_x1" />
+            android:textColor="@color/grey_0_dark_x2" />
 
           <Button
             android:id="@+id/open_button"

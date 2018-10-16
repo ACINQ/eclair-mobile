@@ -18,7 +18,6 @@ package fr.acinq.eclair.wallet.customviews;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.support.constraint.ConstraintLayout;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -29,10 +28,8 @@ import android.widget.TextView;
 
 import fr.acinq.eclair.wallet.R;
 
-public class DataRow extends ConstraintLayout {
+public class DataRow extends LinearLayout {
 
-  private TextView labelTextView;
-  private TextView descTextView;
   private TextView valueTextView;
   public Button actionButton;
 
@@ -57,13 +54,9 @@ public class DataRow extends ConstraintLayout {
       final String service = Context.LAYOUT_INFLATER_SERVICE;
       final LayoutInflater li = (LayoutInflater) getContext().getSystemService(service);
       final View layout = li.inflate(R.layout.custom_data_row, this, true);
-      // label & desc
-      labelTextView = layout.findViewById(R.id.data_label);
+      // label
+      final TextView labelTextView = layout.findViewById(R.id.data_label);
       labelTextView.setText(arr.getString(R.styleable.DataRow_label));
-      descTextView = layout.findViewById(R.id.data_desc);
-      if (arr.hasValue(R.styleable.DataRow_desc)) {
-        descTextView.setText(arr.getString(R.styleable.DataRow_desc));
-      }
       // value
       valueTextView = layout.findViewById(R.id.data_value);
       if (arr.hasValue(R.styleable.DataRow_value)) {
@@ -74,11 +67,14 @@ public class DataRow extends ConstraintLayout {
       // border
       final boolean hasBorder = arr.getBoolean(R.styleable.DataRow_has_border, false);
       if (hasBorder) {
-        layout.setBackground(getResources().getDrawable(R.drawable.transparent_bottom_border));
+        layout.setBackground(getResources().getDrawable(R.drawable.white_with_bottom_border));
+      } else {
+        layout.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.almost_white));
       }
       // button
       final boolean hasAction = arr.getBoolean(R.styleable.DataRow_has_action, false);
       if (hasAction) {
+        findViewById(R.id.separator).setVisibility(VISIBLE);
         actionButton = findViewById(R.id.data_action);
         actionButton.setVisibility(VISIBLE);
         actionButton.setText(arr.getString(R.styleable.DataRow_action_label));
@@ -93,14 +89,5 @@ public class DataRow extends ConstraintLayout {
   public void setValue(final String value) {
     valueTextView.setVisibility(VISIBLE);
     valueTextView.setText(value);
-  }
-
-  public TextView getValueView() {
-    return this.valueTextView;
-  }
-
-  public void setDescription(final String description) {
-    descTextView.setVisibility(VISIBLE);
-    descTextView.setText(description);
   }
 }
