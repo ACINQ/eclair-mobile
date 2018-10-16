@@ -394,15 +394,15 @@
   <string name="networkinfos_title_lightning">Lightning Network</string>
   <string name="networkinfos_title_debug">Diagnostics</string>
   <string name="networkinfos_nodeid_label">Your Node id</string>
-  <string name="networkinfos_blockcount_label">Block count</string>
+  <string name="networkinfos_blockcount_label">Block height</string>
   <string name="networkinfos_feerate_label">Current fee rate</string>
-  <string name="networkinfos_electrum_address_label">Electrum server (access to the blockchain)</string>
-  <string name="networkinfos_electrum_address_action">Set server…</string>
-  <string name="networkinfos_block_timestamp_label">Last block timestamp</string>
+  <string name="networkinfos_electrum_address_label">Current Electrum server</string>
+  <string name="networkinfos_electrum_address_action">Set custom server…</string>
+  <string name="networkinfos_block"><![CDATA[%1$s&nbsp;&nbsp;<font color="#888888"><small>//&nbsp;&nbsp;%2$s</small></font>]]></string>
   <string name="networkinfos_networkchannels_label">Known channels in network</string>
   <string name="networkinfos_wallet_title">Wallet</string>
   <string name="networkinfos_networkdb_label">Network Database</string>
-  <string name="networkinfos_networkdb_action">Delete Network DB…</string>
+  <string name="networkinfos_networkdb_action">Reset Network Database…</string>
   <string name="networkinfos_networkdb_confirm"><![CDATA[Are you sure you want to delete your network database?<br/><br/>The application will restart automatically.]]></string>
   <string name="networkinfos_networkdb_toast">Successfully deleted DB, restarting application…</string>
   <string name="networkinfos_xpub_label">Master Public Key</string>

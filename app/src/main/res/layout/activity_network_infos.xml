@@ -55,14 +55,6 @@
             app:value="@string/unknown" />
 
           <fr.acinq.eclair.wallet.customviews.DataRow
-            android:id="@+id/block_timestamp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:has_border="true"
-            app:label="@string/networkinfos_block_timestamp_label"
-            app:value="@string/unknown" />
-
-          <fr.acinq.eclair.wallet.customviews.DataRow
             android:id="@+id/electrum_address"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

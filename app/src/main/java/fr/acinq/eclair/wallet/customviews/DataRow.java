@@ -19,6 +19,7 @@ package fr.acinq.eclair.wallet.customviews;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.support.v4.content.ContextCompat;
+import android.text.Html;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -84,6 +85,11 @@ public class DataRow extends LinearLayout {
     } finally {
       arr.recycle();
     }
+  }
+
+  public void setHtmlValue(final String value) {
+    valueTextView.setVisibility(VISIBLE);
+    valueTextView.setText(Html.fromHtml(value));
   }
 
   public void setValue(final String value) {
