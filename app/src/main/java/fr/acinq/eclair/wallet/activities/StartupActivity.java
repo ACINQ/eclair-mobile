@@ -35,6 +35,7 @@ import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.common.base.Strings;
 import com.google.common.io.Files;
 import com.google.common.net.HostAndPort;
+import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
 import org.greenrobot.eventbus.EventBus;
@@ -45,10 +46,11 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.security.GeneralSecurityException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
 import akka.actor.ActorRef;
@@ -64,9 +66,9 @@ import fr.acinq.eclair.payment.PaymentLifecycle;
 import fr.acinq.eclair.router.SyncProgress;
 import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.BuildConfig;
-import fr.acinq.eclair.wallet.actors.NodeSupervisor;
-import fr.acinq.eclair.wallet.actors.ElectrumSupervisor;
 import fr.acinq.eclair.wallet.R;
+import fr.acinq.eclair.wallet.actors.ElectrumSupervisor;
+import fr.acinq.eclair.wallet.actors.NodeSupervisor;
 import fr.acinq.eclair.wallet.actors.RefreshScheduler;
 import fr.acinq.eclair.wallet.databinding.ActivityStartupBinding;
 import fr.acinq.eclair.wallet.fragments.PinDialog;
@@ -477,7 +479,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
         publishProgress("setting up eclair");
 
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(app.getBaseContext());
-        final Setup setup = new Setup(datadir, ConfigFactory.empty(), Option.apply(seed), getOptionalElectrumServer(prefs), app.system);
+        final Setup setup = new Setup(datadir, getOverrideConfig(prefs), Option.apply(seed), app.system);
 
         // ui refresh schedulers
         final ActorRef paymentsRefreshScheduler = app.system.actorOf(Props.create(RefreshScheduler.PaymentsRefreshScheduler.class), "PaymentsRefreshScheduler");
@@ -523,16 +525,20 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
   }
 
   /**
-   * Retrieve an electrum server from the user's preferences. If no electrum server was set by the user
-   * (default case), returns None.
+   * Builds a TypeSafe configuration to override the default conf of the node setup. Returns an empty config if no configuration entry must be overridden.
+   * <p>
+   * If the user has set a preferred electrum server, retrieves it from the prefs and adds it to the configuration.
    */
-  private static Option<InetSocketAddress> getOptionalElectrumServer(final SharedPreferences prefs) {
-    final String serverString = prefs.getString(Constants.CUSTOM_ELECTRUM_SERVER, "").trim();
-    if (!Strings.isNullOrEmpty(serverString)) {
-      final HostAndPort server = HostAndPort.fromString(serverString).withDefaultPort(50002);
-      return Option.apply(new InetSocketAddress(server.getHost(), server.getPort()));
+  private static Config getOverrideConfig(final SharedPreferences prefs) {
+    final String prefsElectrumAddress = prefs.getString(Constants.CUSTOM_ELECTRUM_SERVER, "").trim();
+    if (!Strings.isNullOrEmpty(prefsElectrumAddress)) {
+      final HostAndPort address = HostAndPort.fromString(prefsElectrumAddress);
+      final Map<String, Object> conf = new HashMap<>();
+      conf.put("eclair.electrum.host", address.getHost());
+      conf.put("eclair.electrum.port", address.getPort());
+      return ConfigFactory.parseMap(conf);
     } else {
-      return Option.apply(null);
+      return ConfigFactory.empty();
     }
   }
 
