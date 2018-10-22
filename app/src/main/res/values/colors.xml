@@ -33,6 +33,7 @@
   <color name="grey_0_dark_x2">#dedede</color>
   <!-- light grey for text that should be almost invisible to the user -->
   <color name="grey_1">#bbbbbb</color>
+  <color name="grey_1_dark_x1">#acacac</color>
   <!-- light grey, ok for non important text -->
   <color name="grey_2">#888888</color>
   <!-- standard grey -->

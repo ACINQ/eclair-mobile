@@ -29,7 +29,7 @@
     android:layout_height="wrap_content"
     android:maxLines="1"
     android:textAllCaps="true"
-    android:textColor="@color/grey_1"
+    android:textColor="@color/grey_1_dark_x1"
     android:textSize="@dimen/text_xs" />
 
   <TextView
@@ -37,7 +37,6 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginTop="@dimen/space_xxxs"
-    android:letterSpacing="0.01"
     android:lineSpacingMultiplier="1.1"
     android:textIsSelectable="true"
     android:textSize="@dimen/text_md" />
@@ -52,8 +51,8 @@
     android:id="@+id/data_action"
     style="@style/ButtonStyle"
     android:layout_marginTop="10dp"
-    android:background="@color/grey_0_light_x2"
-    android:textColor="@color/grey_3"
+    android:background="@drawable/rounded_corner_grey"
+    android:layout_marginBottom="@dimen/space_xxs"
     android:padding="@dimen/space_sm"
     android:textSize="@dimen/text_xs"
     android:visibility="gone" />

@@ -54,10 +54,15 @@ public class DataRow extends LinearLayout {
     try {
       final String service = Context.LAYOUT_INFLATER_SERVICE;
       final LayoutInflater li = (LayoutInflater) getContext().getSystemService(service);
-      final View layout = li.inflate(R.layout.custom_data_row, this, true);
+      final boolean isTechnical = arr.getBoolean(R.styleable.DataRow_is_technical, false);
+      final View layout = li.inflate(isTechnical ? R.layout.custom_data_row_technical : R.layout.custom_data_row, this, true);
       // label
       final TextView labelTextView = layout.findViewById(R.id.data_label);
-      labelTextView.setText(arr.getString(R.styleable.DataRow_label));
+      if (arr.hasValue(R.styleable.DataRow_label)) {
+        labelTextView.setText(arr.getString(R.styleable.DataRow_label));
+      } else {
+        labelTextView.setVisibility(GONE);
+      }
       // value
       valueTextView = layout.findViewById(R.id.data_value);
       if (arr.hasValue(R.styleable.DataRow_value)) {
@@ -67,8 +72,11 @@ public class DataRow extends LinearLayout {
       }
       // border
       final boolean hasBorder = arr.getBoolean(R.styleable.DataRow_has_border, false);
+      final boolean isBottomRounded = arr.getBoolean(R.styleable.DataRow_is_bottom_rounded, false);
       if (hasBorder) {
         layout.setBackground(getResources().getDrawable(R.drawable.white_with_bottom_border));
+      } else if (isBottomRounded) {
+        layout.setBackground(getResources().getDrawable(R.drawable.rounded_corner_white_bottom_sm));
       } else {
         layout.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.almost_white));
       }
@@ -79,8 +87,7 @@ public class DataRow extends LinearLayout {
         actionButton = findViewById(R.id.data_action);
         actionButton.setVisibility(VISIBLE);
         actionButton.setText(arr.getString(R.styleable.DataRow_action_label));
-        actionButton.setBackgroundColor(arr.getColor(R.styleable.DataRow_action_bg, ContextCompat.getColor(getContext(), R.color.grey_0_light_x1)));
-        actionButton.setTextColor(arr.getColor(R.styleable.DataRow_action_text_color, ContextCompat.getColor(getContext(), R.color.grey_4)));
+        actionButton.setTextColor(arr.getColor(R.styleable.DataRow_action_text_color, ContextCompat.getColor(getContext(), R.color.grey_3)));
       }
     } finally {
       arr.recycle();
@@ -95,5 +102,11 @@ public class DataRow extends LinearLayout {
   public void setValue(final String value) {
     valueTextView.setVisibility(VISIBLE);
     valueTextView.setText(value);
+  }
+
+
+  public void setActionLabel(final String label) {
+    actionButton.setVisibility(VISIBLE);
+    actionButton.setText(label);
   }
 }

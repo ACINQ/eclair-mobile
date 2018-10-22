@@ -34,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.text.DateFormat;
+import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
@@ -148,6 +149,7 @@ public class ChannelDetailsActivity extends EclairActivity {
 
     if (channel.getIsActive()) {
       mBinding.balance.setAmountMsat(new MilliSatoshi(channel.getBalanceMsat()));
+      mBinding.balanceFiat.setText(getString(R.string.paymentdetails_amount_fiat, WalletUtils.convertMsatToFiatWithUnit(channel.getBalanceMsat(), WalletUtils.getPreferredFiat(prefs))));
       mBinding.state.setText(channel.state);
       if (NORMAL$.MODULE$.toString().equals(channel.state)) {
         mBinding.state.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.green));
@@ -182,6 +184,7 @@ public class ChannelDetailsActivity extends EclairActivity {
       mBinding.channelId.actionButton.setVisibility(View.GONE);
       final String closedBalance = CoinUtils.formatAmountInUnit(new MilliSatoshi(channel.getBalanceMsat()), prefUnit, true);
       mBinding.balanceClosed.setValue(closedBalance);
+      mBinding.balanceClosed.setVisibility(View.VISIBLE);
       mBinding.terminatedDisclaimer.setText(getString(R.string.channeldetails_terminated_disclaimer));
       mBinding.openedOn.setText(Html.fromHtml(getString(R.string.channeldetails_opened_on,
         DateFormat.getDateTimeInstance().format(channel.getCreated()))));
@@ -194,11 +197,14 @@ public class ChannelDetailsActivity extends EclairActivity {
         mBinding.closingCause.setValue(channel.getClosingErrorMessage());
       }
       mBinding.closingCause.setVisibility(View.VISIBLE);
+      mBinding.closingSection.setVisibility(View.VISIBLE);
     }
 
     if (CLOSING$.MODULE$.toString().equals(channel.state)) {
       if (channel.getRefundAtBlock() > 0) {
-        mBinding.closingRefundBlock.setValue(getString(R.string.channeldetails_refund_block_value, channel.getRefundAtBlock(), Globals.blockCount().get()));
+        mBinding.closingRefundBlock.setValue(getString(R.string.channeldetails_refund_block_value,
+          NumberFormat.getInstance().format(channel.getRefundAtBlock()),
+          NumberFormat.getInstance().format(Globals.blockCount().get())));
       }
       mBinding.closingRefundBlock.setVisibility(View.VISIBLE);
     }
