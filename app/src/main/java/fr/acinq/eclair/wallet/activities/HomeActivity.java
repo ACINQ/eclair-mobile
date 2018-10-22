@@ -311,9 +311,6 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
       case R.id.menu_home_about:
         startActivity(new Intent(this, AboutActivity.class));
         return true;
-      case R.id.menu_home_faq:
-        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/ACINQ/eclair-wallet/wiki/FAQ")));
-        return true;
       case R.id.menu_home_preferences:
         startActivity(new Intent(this, PreferencesActivity.class));
         return true;
