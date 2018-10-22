@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright 2018 ACINQ SAS
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto">
+
+  <android.support.constraint.ConstraintLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <ScrollView
+      android:id="@+id/content_scrollview"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:scrollbars="vertical"
+      app:layout_constraintBottom_toTopOf="@+id/buttons_layout"
+      app:layout_constraintTop_toTopOf="parent">
+
+      <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="top|start"
+        android:orientation="vertical"
+        android:padding="@dimen/space_md">
+
+        <CheckBox
+          android:id="@+id/custom_checkbox"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:buttonTint="@color/primary"
+          android:text="@string/dialog_electrum_checkbox" />
+
+        <android.support.design.widget.TextInputLayout
+          android:id="@+id/address_input_layout"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:alpha="0.3"
+          android:layout_marginTop="@dimen/space_md"
+          android:hint="@string/dialog_electrum_hint"
+          app:errorEnabled="true"
+          app:hintAnimationEnabled="false">
+
+          <android.support.design.widget.TextInputEditText
+            android:id="@+id/address_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/primary"
+            android:inputType="textNoSuggestions"
+            android:enabled="false"
+            android:textSize="14sp" />
+
+        </android.support.design.widget.TextInputLayout>
+      </LinearLayout>
+    </ScrollView>
+
+    <LinearLayout
+      android:id="@+id/buttons_layout"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:gravity="center|end"
+      android:orientation="horizontal"
+      app:layout_constraintBottom_toBottomOf="parent">
+
+      <Button
+        android:id="@+id/cancel"
+        style="@style/ButtonStyle"
+        android:text="@string/btn_cancel" />
+
+      <Button
+        android:id="@+id/submit"
+        style="@style/ButtonStyle"
+        android:text="@string/btn_ok" />
+    </LinearLayout>
+  </android.support.constraint.ConstraintLayout>
+</layout>

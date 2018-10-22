@@ -527,7 +527,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
    * (default case), returns None.
    */
   private static Option<InetSocketAddress> getOptionalElectrumServer(final SharedPreferences prefs) {
-    final String serverString = prefs.getString(Constants.CUSTOM_ELECTRUM_SERVER, "");
+    final String serverString = prefs.getString(Constants.CUSTOM_ELECTRUM_SERVER, "").trim();
     if (!Strings.isNullOrEmpty(serverString)) {
       final HostAndPort server = HostAndPort.fromString(serverString).withDefaultPort(50002);
       return Option.apply(new InetSocketAddress(server.getHost(), server.getPort()));

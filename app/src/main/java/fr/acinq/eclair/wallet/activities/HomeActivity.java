@@ -46,6 +46,7 @@ import android.widget.Toast;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.common.util.Strings;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -62,9 +63,10 @@ import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.blockchain.electrum.ElectrumClient;
 import fr.acinq.eclair.blockchain.electrum.ElectrumWallet;
 import fr.acinq.eclair.router.SyncProgress;
+import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.BuildConfig;
-import fr.acinq.eclair.wallet.actors.NodeSupervisor;
 import fr.acinq.eclair.wallet.R;
+import fr.acinq.eclair.wallet.actors.NodeSupervisor;
 import fr.acinq.eclair.wallet.databinding.ActivityHomeBinding;
 import fr.acinq.eclair.wallet.events.BalanceUpdateEvent;
 import fr.acinq.eclair.wallet.events.BitcoinPaymentFailedEvent;
@@ -97,7 +99,6 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
   private ChannelsListFragment mChannelsListFragment;
   private Handler mExchangeRateHandler = new Handler();
   private Runnable mExchangeRateRunnable;
-  // debounce for requesting payment list update -- max once per 2 secs
   private final Animation mBlinkingAnimation = new AlphaAnimation(0.3f, 1);
   private final Animation mRotatingAnimation = new RotateAnimation(0, -360, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF,
     0.5f);
@@ -122,12 +123,6 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
     if (prefs.getBoolean(Constants.SETTING_SHOW_INTRO, true)) {
       mStubIntro = findViewById(R.id.home_stub_intro);
       displayIntro(prefs);
-    }
-    // setup content
-    if (app.isWalletConnected()) {
-      enableSendPaymentButtons();
-    } else {
-      disableSendPaymentButtons();
     }
 
     setUpTabs(savedInstanceState);
@@ -160,19 +155,10 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
   }
 
   private void setUpTabs(final Bundle savedInstanceState) {
-    mBinding.viewpager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-      @Override
-      public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-      }
-
+    mBinding.viewpager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
       @Override
       public void onPageSelected(int position) {
-        mBinding.openchannelButtons.setVisibility(position == 2 ? View.VISIBLE : View.GONE);
-        mBinding.sendpaymentButtons.setVisibility(position == 1 ? View.VISIBLE : View.GONE);
-      }
-
-      @Override
-      public void onPageScrollStateChanged(int state) {
+        mBinding.setCurrentPage(position);
       }
     });
 
@@ -192,6 +178,7 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
     } else {
       Intent intent = getIntent();
       mBinding.viewpager.setCurrentItem(intent.getIntExtra(EXTRA_PAGE, 1));
+      mBinding.setCurrentPage(1);
     }
   }
 
@@ -239,6 +226,7 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
       // refresh exchange rate
       mExchangeRateHandler.post(mExchangeRateRunnable);
       // refresh LN balance
+      updateElectrumState();
       updateBalance();
     }
   }
@@ -405,26 +393,6 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
     mBinding.sendpaymentActionsList.setVisibility(isVisible ? View.GONE : View.VISIBLE);
   }
 
-  private void enableSendPaymentButtons() {
-    canSendPayments = true;
-    closeSendPaymentButtons();
-    closeOpenChannelButtons();
-    mBinding.sendpaymentToggler.setEnabled(true);
-    mBinding.homeOpenchannelToggler.setEnabled(true);
-    mBinding.sendpaymentToggler.setAlpha(1f);
-    mBinding.homeOpenchannelToggler.setAlpha(1f);
-  }
-
-  private void disableSendPaymentButtons() {
-    canSendPayments = false;
-    closeSendPaymentButtons();
-    closeOpenChannelButtons();
-    mBinding.sendpaymentToggler.setEnabled(false);
-    mBinding.homeOpenchannelToggler.setEnabled(false);
-    mBinding.sendpaymentToggler.setAlpha(0.4f);
-    mBinding.homeOpenchannelToggler.setAlpha(0.4f);
-  }
-
   public void closeSendPaymentButtons() {
     mBinding.sendpaymentToggler.animate().rotation(0).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(150).start();
     mBinding.sendpaymentToggler.setBackgroundTintList(ContextCompat.getColorStateList(this, R.color.primary));
@@ -503,22 +471,6 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
-  public void handleElectrumStateEvent(ElectrumWallet.WalletReady event) {
-    enableSendPaymentButtons();
-    mBinding.homeConnectionStatus.setVisibility(View.GONE);
-
-    final Long diffTimestamp = Math.abs(System.currentTimeMillis() / 1000L - event.timestamp());
-    if (diffTimestamp < Constants.DESYNC_DIFF_TIMESTAMP_SEC) {
-      mBinding.homeConnectionStatus.setVisibility(View.GONE);
-    } else {
-      mBinding.homeConnectionStatusTitle.setText(getString(R.string.chain_late));
-      mBinding.homeConnectionStatusDesc.setText(getString(R.string.chain_late_desc));
-      mBinding.homeConnectionStatus.setVisibility(View.VISIBLE);
-    }
-    updateBalance();
-  }
-
-  @Subscribe(threadMode = ThreadMode.MAIN)
   public void handleLNPaymentFailedEvent(LNPaymentFailedEvent event) {
     Intent intent = new Intent(this, PaymentFailureActivity.class);
     intent.putExtra(PaymentFailureActivity.EXTRA_PAYMENT_HASH, event.paymentHash);
@@ -565,12 +517,45 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
     mBinding.balanceLightning.setAmountMsat(lightningBalance);
   }
 
+  private void updateElectrumState() {
+    final App.ElectrumState state = app.getElectrumState();
+    if (state == null || (!state.isConnected && state.address == null)) {
+      canSendPayments = false;
+      mBinding.setElectrumReady(false);
+      final String customElectrumServer = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString(Constants.CUSTOM_ELECTRUM_SERVER, "");
+      if (Strings.isEmptyOrWhitespace(customElectrumServer)) {
+        mBinding.electrumState.setText(R.string.home_electrum_establishing);
+      } else {
+        mBinding.electrumState.setText(getString(R.string.home_electrum_establishing_custom, customElectrumServer));
+      }
+    } else if (!state.isConnected) {
+      canSendPayments = false;
+      mBinding.setElectrumReady(false);
+      mBinding.electrumState.setText(getString(R.string.home_electrum_syncing, state.address.toString()));
+    } else if (Math.abs(System.currentTimeMillis() / 1000L - state.blockTimestamp) > Constants.DESYNC_DIFF_TIMESTAMP_SEC) { // electrum server is late
+      canSendPayments = false;
+      mBinding.setElectrumReady(false);
+      mBinding.electrumState.setText(getString(R.string.home_electrum_syncing, state.address.toString()));
+    } else {
+      canSendPayments = true;
+      mBinding.setElectrumReady(true);
+      updateBalance();
+    }
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN)
+  public void handleElectrumReadyEvent(ElectrumWallet.WalletReady event) {
+    updateElectrumState();
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN)
+  public void handleElectrumReadyEvent(ElectrumClient.ElectrumReady event) {
+    updateElectrumState();
+  }
+
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void handleDisconnectionEvent(ElectrumClient.ElectrumDisconnected$ event) {
-    disableSendPaymentButtons();
-    mBinding.homeConnectionStatusTitle.setText(getString(R.string.chain_disconnected));
-    mBinding.homeConnectionStatusDesc.setText(getString(R.string.chain_disconnected_desc));
-    mBinding.homeConnectionStatus.setVisibility(View.VISIBLE);
+    updateElectrumState();
   }
 
   private class HomePagerAdapter extends FragmentStatePagerAdapter {

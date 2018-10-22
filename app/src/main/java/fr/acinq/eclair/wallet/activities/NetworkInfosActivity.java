@@ -19,16 +19,21 @@ package fr.acinq.eclair.wallet.activities;
 import android.app.Dialog;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.widget.Toast;
+
+import com.google.common.base.Strings;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.File;
+import java.net.InetSocketAddress;
 import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.util.Date;
@@ -38,11 +43,14 @@ import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.databinding.ActivityNetworkInfosBinding;
 import fr.acinq.eclair.wallet.events.NetworkChannelsCountEvent;
 import fr.acinq.eclair.wallet.events.XpubEvent;
+import fr.acinq.eclair.wallet.fragments.CustomElectrumServerDialog;
+import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 
 public class NetworkInfosActivity extends EclairActivity implements SwipeRefreshLayout.OnRefreshListener {
 
   private ActivityNetworkInfosBinding mBinding;
+  private CustomElectrumServerDialog mElectrumDialog;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -58,7 +66,8 @@ public class NetworkInfosActivity extends EclairActivity implements SwipeRefresh
     mBinding.swipeRefresh.setColorSchemeResources(R.color.primary, R.color.green, R.color.accent);
     mBinding.swipeRefresh.setOnRefreshListener(this);
     // delete db
-    mBinding.deleteNetworkDB.actionButton.setOnClickListener(v -> deleteNetworkDB());
+    mBinding.networkChannelsCount.actionButton.setOnClickListener(v -> deleteNetworkDB());
+    mBinding.electrumAddress.actionButton.setOnClickListener(v -> setCustomElectrum());
   }
 
   @Override
@@ -67,7 +76,6 @@ public class NetworkInfosActivity extends EclairActivity implements SwipeRefresh
   }
 
   private void refreshData() {
-
     if (app.getBlockTimestamp() == 0) {
       mBinding.blockCount.setValue(NumberFormat.getInstance().format(Globals.blockCount().get()));
     } else {
@@ -75,7 +83,26 @@ public class NetworkInfosActivity extends EclairActivity implements SwipeRefresh
         NumberFormat.getInstance().format(Globals.blockCount().get()), // block height
         DateFormat.getDateTimeInstance().format(new Date(app.getBlockTimestamp() * 1000)))); // block timestamp
     }
-    mBinding.electrumAddress.setValue(app.getElectrumServerAddress());
+
+    final String customElectrumServer = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString(Constants.CUSTOM_ELECTRUM_SERVER, "");
+    final InetSocketAddress currentElectrumServer = app.getElectrumServerAddress();
+    if (currentElectrumServer == null || Strings.isNullOrEmpty(currentElectrumServer.toString())) {
+      // not yet connected...
+      if (Strings.isNullOrEmpty(customElectrumServer)) {
+        mBinding.electrumAddress.setValue(getString(R.string.networkinfos_electrum_address_connecting));
+      } else {
+        mBinding.electrumAddress.setValue(getString(R.string.networkinfos_electrum_address_connecting_to_custom, customElectrumServer));
+      }
+    } else {
+      mBinding.electrumAddress.setValue(currentElectrumServer.toString());
+    }
+
+    if (Strings.isNullOrEmpty(customElectrumServer)) {
+      mBinding.electrumAddress.setActionLabel(getString(R.string.networkinfos_electrum_address_set_custom));
+    } else {
+      mBinding.electrumAddress.setActionLabel(getString(R.string.networkinfos_electrum_address_change_custom));
+    }
+
     mBinding.feeRate.setValue(NumberFormat.getInstance().format(Globals.feeratesPerKw().get().block_1()) + " sat/kw");
     app.getNetworkChannelsCount();
     mBinding.swipeRefresh.setRefreshing(false);
@@ -96,8 +123,11 @@ public class NetworkInfosActivity extends EclairActivity implements SwipeRefresh
 
   @Override
   protected void onPause() {
-    super.onPause();
+    if (mElectrumDialog != null) {
+      mElectrumDialog.dismiss();
+    }
     EventBus.getDefault().unregister(this);
+    super.onPause();
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
@@ -136,5 +166,21 @@ public class NetworkInfosActivity extends EclairActivity implements SwipeRefresh
       .setNegativeButton(R.string.btn_cancel, (dialog, which) -> {
       }).create();
     confirm.show();
+  }
+
+  private void setCustomElectrum() {
+    mElectrumDialog = new CustomElectrumServerDialog(NetworkInfosActivity.this, this::handleCustomElectrumSubmit);
+    mElectrumDialog.show();
+  }
+
+  /**
+   * Displays a message to the user and restart the app after 3s.
+   */
+  private void handleCustomElectrumSubmit(final String serverAddress) {
+    final String message = Strings.isNullOrEmpty(serverAddress)
+      ? getString(R.string.networkinfos_electrum_confirm_message_default)
+      : getString(R.string.networkinfos_electrum_confirm_message, serverAddress);
+    getCustomDialog(message).setCancelable(false).show();
+    new Handler().postDelayed(this::restart, 3000);
   }
 }

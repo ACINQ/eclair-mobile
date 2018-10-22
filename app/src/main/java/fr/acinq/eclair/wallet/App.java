@@ -206,10 +206,6 @@ public class App extends Application {
     return this.walletAddress;
   }
 
-  public boolean isWalletConnected() {
-    return this.electrumState.get() != null && this.electrumState.get().isConnected;
-  }
-
   /**
    * Asks the eclair node to asynchronously execute a Lightning payment. Future failure is silent.
    *
@@ -430,9 +426,11 @@ public class App extends Application {
     return this.electrumState.get() == null ? 0 : this.electrumState.get().blockTimestamp;
   }
 
-  public String getElectrumServerAddress() {
-    final InetSocketAddress address = this.electrumState.get() == null ? null : this.electrumState.get().address;
-    return address == null ? getString(R.string.unknown) : address.toString();
+  public ElectrumState getElectrumState() {
+    return this.electrumState.get();
+  }
+  public InetSocketAddress getElectrumServerAddress() {
+    return this.electrumState.get() == null ? null : this.electrumState.get().address;
   }
 
   public DBHelper getDBHelper() {
@@ -440,11 +438,11 @@ public class App extends Application {
   }
 
   public static class ElectrumState {
-    private Satoshi confirmedBalance;
-    private Satoshi unconfirmedBalance;
-    private long blockTimestamp;
-    private InetSocketAddress address;
-    private boolean isConnected = false;
+    public Satoshi confirmedBalance;
+    public Satoshi unconfirmedBalance;
+    public long blockTimestamp;
+    public InetSocketAddress address;
+    public boolean isConnected = false;
   }
 
   public static class AppKit {
