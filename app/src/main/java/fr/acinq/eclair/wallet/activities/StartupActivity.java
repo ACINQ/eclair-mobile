@@ -196,11 +196,6 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
     startActivity(homeIntent);
   }
 
-  public void closeApp(View view) {
-    finishAndRemoveTask();
-    finishAffinity();
-  }
-
   private void checkup() {
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
     final File datadir = new File(app.getFilesDir(), Constants.ECLAIR_DATADIR);
