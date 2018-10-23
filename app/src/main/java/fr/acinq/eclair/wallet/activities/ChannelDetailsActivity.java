@@ -218,8 +218,12 @@ public class ChannelDetailsActivity extends EclairActivity {
     mBinding.reserve.setValue(CoinUtils.formatAmountInUnit(new Satoshi(channel.getChannelReserveSat()), prefUnit, true));
     mBinding.countHtlcsInflight.setValue(String.valueOf(channel.htlcsInFlightCount));
     mBinding.minimumHtlcAmount.setValue(CoinUtils.formatAmountInUnit(new MilliSatoshi(channel.getMinimumHtlcAmountMsat()), prefUnit, true));
-    mBinding.transactionId.setValue(channel.getFundingTxId());
-    mBinding.transactionId.actionButton.setOnClickListener(WalletUtils.getOpenTxListener(channel.getFundingTxId()));
+    if (Strings.isNullOrEmpty(channel.getFundingTxId())) {
+      mBinding.transactionId.setVisibility(View.GONE);
+    } else {
+      mBinding.transactionId.setValue(channel.getFundingTxId());
+      mBinding.transactionId.actionButton.setOnClickListener(WalletUtils.getOpenTxListener(channel.getFundingTxId()));
+    }
   }
 
   private void openRawDataWindow() {
