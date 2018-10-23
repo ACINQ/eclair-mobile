@@ -26,6 +26,7 @@ import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 
 import org.bitcoinj.uri.BitcoinURI;
@@ -229,11 +230,19 @@ public class SendPaymentActivity extends EclairActivity
 
   public void forceFocusAmount(final View view) {
     if (!isAmountReadonly) {
-      InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-      if (inputMethodManager != null) {
-        inputMethodManager.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, 0);
-        mBinding.amountEditableValue.requestFocus();
+      mBinding.amountEditableValue.requestFocus();
+      final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+      if (imm != null) {
+        imm.showSoftInput(mBinding.amountEditableValue, 0);
       }
+    }
+  }
+
+  public void forceFocusFees(final View view) {
+    mBinding.feesValue.requestFocus();
+    final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+    if (imm != null) {
+      imm.showSoftInput(mBinding.feesValue, 0);
     }
   }
 
@@ -359,7 +368,7 @@ public class SendPaymentActivity extends EclairActivity
   private void handlePaymentError(final int messageId) {
     isProcessingPayment = false;
     toggleForm();
-    mBinding.paymentErrorText.setText(getString(messageId));
+    mBinding.paymentError.setText(getString(messageId));
     mBinding.paymentError.setVisibility(View.VISIBLE);
   }
 

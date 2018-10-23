@@ -18,6 +18,8 @@
 
   <data>
 
+    <import type="fr.acinq.eclair.wallet.utils.Constants" />
+
     <import type="android.view.View" />
 
     <import type="fr.acinq.eclair.wallet.activities.SendPaymentActivity" />
@@ -141,13 +143,15 @@
     <ScrollView
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:layout_centerInParent="true"
+      android:fadeScrollbars="false"
+      android:fillViewport="true"
+      android:scrollbars="vertical"
+      android:isScrollContainer="true"
       android:visibility="@{paymentStep == SendPaymentActivity.ONCHAIN_PAYMENT || paymentStep == SendPaymentActivity.LIGHTNING_PAYMENT ? View.VISIBLE : View.GONE}">
 
       <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="top|center"
         android:orientation="vertical">
 
         <LinearLayout
@@ -169,10 +173,10 @@
             android:background="@drawable/rounded_corner_grey_bottom"
             android:gravity="center"
             android:orientation="horizontal"
-            android:paddingBottom="3dp"
             android:paddingLeft="6dp"
+            android:paddingTop="2dp"
             android:paddingRight="6dp"
-            android:paddingTop="2dp">
+            android:paddingBottom="3dp">
 
             <ImageView
               android:layout_width="16dp"
@@ -193,10 +197,10 @@
             android:id="@+id/amount_editable"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="4dp"
-            android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="16dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="4dp"
             android:gravity="center">
 
             <EditText
@@ -236,8 +240,8 @@
               android:layout_alignParentEnd="true"
               android:fontFamily="sans-serif-light"
               android:maxLines="1"
-              android:paddingEnd="0dp"
-              android:paddingStart="6dp" />
+              android:paddingStart="6dp"
+              android:paddingEnd="0dp" />
           </RelativeLayout>
 
           <TextView
@@ -317,10 +321,10 @@
           android:layout_height="wrap_content"
           android:gravity="start|center"
           android:orientation="horizontal"
-          android:paddingBottom="4dp"
           android:paddingLeft="12dp"
-          android:paddingRight="12dp"
           android:paddingTop="4dp"
+          android:paddingRight="12dp"
+          android:paddingBottom="4dp"
           android:visibility="@{paymentStep == SendPaymentActivity.ONCHAIN_PAYMENT ? View.VISIBLE : View.GONE}">
 
           <TextView
@@ -337,21 +341,23 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:focusable="true"
+            android:clickable="true"
+            android:onClick="forceFocusFees"
             android:orientation="horizontal">
 
             <EditText
               android:id="@+id/fees_value"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
-              android:backgroundTint="@android:color/transparent"
+              android:layout_marginEnd="@dimen/space_xxs"
+              android:background="@drawable/bottom_dotted_border"
               android:digits="0123456789"
-              android:hint="..."
               android:inputType="number"
               android:maxLength="6"
               android:maxLines="1"
-              android:minWidth="6dp"
-              android:paddingRight="4dp"
-              android:textColorHint="@color/grey_1"
+              android:minWidth="12dp"
+              android:textAlignment="center"
               android:textSize="12sp" />
 
             <TextView
@@ -367,16 +373,16 @@
             style="?android:attr/borderlessButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/rounded_corner_green"
-            android:minHeight="0dp"
+            android:background="@{feeRatingState == Constants.FEE_RATING_CUSTOM ? @drawable/rounded_corner_grey : @drawable/rounded_corner_green}"
             android:minWidth="64dp"
+            android:minHeight="0dp"
             android:onClick="pickFees"
-            android:paddingBottom="4dp"
             android:paddingLeft="6dp"
-            android:paddingRight="6dp"
             android:paddingTop="4dp"
+            android:paddingRight="6dp"
+            android:paddingBottom="4dp"
             android:text="@{feeRatingState.label}"
-            android:textColor="@color/white"
+            android:textColor="@{feeRatingState == Constants.FEE_RATING_CUSTOM ? @color/grey_2 : @color/white}"
             android:textSize="12sp" />
         </LinearLayout>
 
@@ -386,8 +392,8 @@
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:layout_gravity="start"
-          android:layout_marginEnd="@dimen/space_md"
           android:layout_marginStart="36dp"
+          android:layout_marginEnd="@dimen/space_md"
           android:buttonTint="@color/primary_light_x1"
           android:maxLines="1"
           android:text="@string/payment_empty_wallet"
@@ -400,8 +406,8 @@
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:layout_marginTop="-8dp"
-          android:paddingEnd="@dimen/space_md"
           android:paddingStart="68dp"
+          android:paddingEnd="@dimen/space_md"
           android:text="@string/payment_empty_wallet_disclaimer"
           android:textColor="@color/grey_2"
           android:textSize="10sp"
@@ -412,39 +418,29 @@
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:layout_marginLeft="32dp"
-          android:layout_marginRight="32dp"
           android:layout_marginTop="8dp"
-          android:drawablePadding="6dp"
+          android:layout_marginRight="32dp"
           android:drawableStart="@drawable/ic_warning"
+          android:drawablePadding="6dp"
           android:gravity="start|center"
           android:textColor="@color/grey_3"
-          android:textSize="10sp"
+          android:textSize="12sp"
           android:visibility="gone" />
 
-        <!-- error message if input by user is not valid -->
-        <LinearLayout
+        <TextView
           android:id="@+id/payment_error"
           android:layout_width="wrap_content"
+          android:visibility="gone"
           android:layout_height="wrap_content"
           android:layout_marginTop="8dp"
-          android:orientation="vertical"
-          android:visibility="gone">
-
-          <TextView
-            android:id="@+id/payment_error_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="32dp"
-            android:layout_marginRight="32dp"
-            android:drawablePadding="6dp"
-            android:drawableStart="@drawable/ic_error"
-            android:gravity="start|center"
-            android:text="@string/payment_error"
-            android:textAlignment="center"
-            android:textColor="@color/red_faded"
-            android:textSize="12sp" />
-
-        </LinearLayout>
+          android:layout_marginLeft="32dp"
+          android:layout_marginRight="32dp"
+          android:drawableStart="@drawable/ic_error"
+          android:drawablePadding="6dp"
+          android:gravity="start|center"
+          android:text="@string/payment_error"
+          android:textColor="@color/red_faded"
+          android:textSize="12sp" />
 
         <!-- buttons -->
         <LinearLayout
@@ -472,12 +468,12 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="?android:attr/selectableItemBackground"
-            android:drawablePadding="6dp"
             android:drawableStart="@drawable/ic_check"
+            android:drawablePadding="6dp"
             android:gravity="start|center"
             android:onClick="confirmPayment"
-            android:paddingEnd="16dp"
             android:paddingStart="48dp"
+            android:paddingEnd="16dp"
             android:text="@string/payment_do_send"
             android:textColor="@color/green" />
         </LinearLayout>

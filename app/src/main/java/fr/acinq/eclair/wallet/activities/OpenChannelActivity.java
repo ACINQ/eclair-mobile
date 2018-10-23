@@ -16,6 +16,7 @@
 
 package fr.acinq.eclair.wallet.activities;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
@@ -24,6 +25,7 @@ import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import org.greenrobot.eventbus.util.AsyncExecutor;
@@ -112,14 +114,9 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
       public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
         try {
           final Long feesSatPerByte = Long.parseLong(s.toString());
-          if (feesSatPerByte == app.estimateSlowFees()) {
-            mBinding.feesRating.setText(R.string.payment_fees_slow);
-          } else if (feesSatPerByte == app.estimateMediumFees()) {
-            mBinding.feesRating.setText(R.string.payment_fees_medium);
-          } else if (feesSatPerByte == app.estimateFastFees()) {
-            mBinding.feesRating.setText(R.string.payment_fees_fast);
-          } else {
-            mBinding.feesRating.setText(R.string.payment_fees_custom);
+          if (feesSatPerByte != app.estimateSlowFees() && feesSatPerByte != app.estimateMediumFees() && feesSatPerByte != app.estimateFastFees()) {
+            feeRatingState = Constants.FEE_RATING_CUSTOM;
+            mBinding.setFeeRatingState(feeRatingState);
           }
           if (feesSatPerByte <= app.estimateSlowFees() / 2) {
             mBinding.feesWarning.setText(R.string.payment_fees_verylow);
@@ -164,6 +161,18 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
 
   public void focusAmount(final View view) {
     mBinding.capacityValue.requestFocus();
+    final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+    if (imm != null) {
+      imm.showSoftInput(mBinding.capacityValue, 0);
+    }
+  }
+
+  public void forceFocusFees(final View view) {
+    mBinding.feesValue.requestFocus();
+    final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+    if (imm != null) {
+      imm.showSoftInput(mBinding.feesValue, 0);
+    }
   }
 
   @Override
