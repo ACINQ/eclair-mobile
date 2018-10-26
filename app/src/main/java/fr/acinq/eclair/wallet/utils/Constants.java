@@ -100,10 +100,10 @@ public interface Constants {
 
   /* ----------- FEE RATING ------------ */
 
-  FeeRating FEE_RATING_SLOW = new FeeRating(0, "Slow (12h)");
-  FeeRating FEE_RATING_MEDIUM = new FeeRating(1, "Medium (2h)");
-  FeeRating FEE_RATING_FAST = new FeeRating(2, "Fast (20min)");
-  FeeRating FEE_RATING_CUSTOM = new FeeRating(3, "Custom");
+  int FEE_RATING_SLOW = 0;
+  int FEE_RATING_MEDIUM = 1;
+  int FEE_RATING_FAST = 2;
+  int FEE_RATING_CUSTOM = 3;
 
   /* ----------- RESTORE BACKUP LAYOUT STEPS ------------ */
 

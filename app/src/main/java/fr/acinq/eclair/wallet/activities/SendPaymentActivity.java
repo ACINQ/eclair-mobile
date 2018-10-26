@@ -87,7 +87,7 @@ public class SendPaymentActivity extends EclairActivity
   private CoinUnit preferredBitcoinUnit = CoinUtils.getUnitFromString("btc");
   private String preferredFiatCurrency = Constants.FIAT_USD;
   // state of the fees, used with data binding
-  private FeeRating feeRatingState = Constants.FEE_RATING_FAST;
+  private int feeRatingState = Constants.FEE_RATING_FAST;
   private boolean capLightningFees = true;
   private PinDialog pinDialog;
 
@@ -247,18 +247,21 @@ public class SendPaymentActivity extends EclairActivity
   }
 
   public void pickFees(final View view) {
-    if (feeRatingState.rating == Constants.FEE_RATING_SLOW.rating) {
+    if (feeRatingState == Constants.FEE_RATING_SLOW) {
       feeRatingState = Constants.FEE_RATING_MEDIUM;
       mBinding.feesValue.setText(String.valueOf(app.estimateMediumFees()));
       mBinding.setFeeRatingState(feeRatingState);
-    } else if (feeRatingState.rating == Constants.FEE_RATING_MEDIUM.rating) {
+      mBinding.feesRating.setText(R.string.payment_fees_medium);
+    } else if (feeRatingState == Constants.FEE_RATING_MEDIUM) {
       feeRatingState = Constants.FEE_RATING_FAST;
       mBinding.feesValue.setText(String.valueOf(app.estimateFastFees()));
       mBinding.setFeeRatingState(feeRatingState);
-    } else if (feeRatingState.rating == Constants.FEE_RATING_FAST.rating) {
+      mBinding.feesRating.setText(R.string.payment_fees_fast);
+    } else if (feeRatingState == Constants.FEE_RATING_FAST) {
       feeRatingState = Constants.FEE_RATING_SLOW;
       mBinding.feesValue.setText(String.valueOf(app.estimateSlowFees()));
       mBinding.setFeeRatingState(feeRatingState);
+      mBinding.feesRating.setText(R.string.payment_fees_slow);
     } else {
       setFeesToDefault();
     }
@@ -268,6 +271,7 @@ public class SendPaymentActivity extends EclairActivity
     feeRatingState = Constants.FEE_RATING_FAST;
     mBinding.feesValue.setText(String.valueOf(app.estimateFastFees()));
     mBinding.setFeeRatingState(feeRatingState);
+    mBinding.feesRating.setText(R.string.payment_fees_fast);
   }
 
   /**
@@ -483,7 +487,7 @@ public class SendPaymentActivity extends EclairActivity
   protected void onCreate(final Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     mBinding = DataBindingUtil.setContentView(this, R.layout.activity_send_payment);
-    mBinding.setFeeRatingState(feeRatingState);
+    setFeesToDefault();
     mBinding.setPaymentStep(LOADING);
 
     final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
@@ -536,6 +540,7 @@ public class SendPaymentActivity extends EclairActivity
           if (feesSatPerByte != app.estimateSlowFees() && feesSatPerByte != app.estimateMediumFees() && feesSatPerByte != app.estimateFastFees()) {
             feeRatingState = Constants.FEE_RATING_CUSTOM;
             mBinding.setFeeRatingState(feeRatingState);
+            mBinding.feesRating.setText(R.string.payment_fees_custom);
           }
           if (feesSatPerByte <= app.estimateSlowFees() / 2) {
             mBinding.feesWarning.setText(R.string.payment_fees_verylow);

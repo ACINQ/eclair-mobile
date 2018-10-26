@@ -81,8 +81,7 @@
       android:layout_height="wrap_content"
       android:ellipsize="end"
       android:singleLine="true"
-      android:text="@string/unknown"
-      android:textSize="12sp" />
+      android:text="@string/unknown" />
 
     <TextView
       android:id="@+id/channelitem_state"

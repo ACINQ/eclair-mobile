@@ -47,24 +47,19 @@ import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.databinding.ActivityOpenChannelBinding;
 import fr.acinq.eclair.wallet.fragments.PinDialog;
-import fr.acinq.eclair.wallet.models.FeeRating;
 import fr.acinq.eclair.wallet.tasks.NodeURIReaderTask;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 import scala.Option;
-import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
-import scala.concurrent.duration.FiniteDuration;
 
 public class OpenChannelActivity extends EclairActivity implements NodeURIReaderTask.AsyncNodeURIReaderTaskResponse {
-
-  private final Logger log = LoggerFactory.getLogger(OpenChannelActivity.class);
 
   public static final String EXTRA_NEW_HOST_URI = BuildConfig.APPLICATION_ID + "NEW_HOST_URI";
   public static final String EXTRA_USE_DNS_SEED = BuildConfig.APPLICATION_ID + "USE_DNS_SEED";
   final MilliSatoshi minFunding = new MilliSatoshi(100000000); // 1 mBTC
   final MilliSatoshi maxFunding = package$.MODULE$.satoshi2millisatoshi(new Satoshi(Channel.MAX_FUNDING_SATOSHIS()));
-
+  private final Logger log = LoggerFactory.getLogger(OpenChannelActivity.class);
   private ActivityOpenChannelBinding mBinding;
 
   private String remoteNodeURIAsString = "";
@@ -72,7 +67,7 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
   private String preferredFiatCurrency = Constants.FIAT_USD;
   private CoinUnit preferredBitcoinUnit = CoinUtils.getUnitFromString(Constants.BTC_CODE);
   // state of the fees, used with data binding
-  private FeeRating feeRatingState = Constants.FEE_RATING_FAST;
+  private int feeRatingState = Constants.FEE_RATING_FAST;
   private PinDialog pinDialog;
 
   @Override
@@ -83,6 +78,37 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
     final SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
     preferredFiatCurrency = WalletUtils.getPreferredFiat(sharedPrefs);
     preferredBitcoinUnit = WalletUtils.getPreferredCoinUnit(sharedPrefs);
+
+    setFeesToDefault();
+
+    mBinding.useAllFundsCheckbox.setOnCheckedChangeListener((v, isChecked) -> {
+      if (isChecked) {
+        mBinding.useAllFundsCheckbox.setEnabled(false);
+        mBinding.useAllFundsCheckbox.setText(R.string.openchannel_max_funds_pleasewait);
+        new Thread() {
+          @Override
+          public void run() {
+            try {
+              final Long feesPerKw = fr.acinq.eclair.package$.MODULE$.feerateByte2Kw(Long.parseLong(mBinding.feesValue.getText().toString()));
+              final long capacitySat = Math.min(app.getAvailableFundsAfterFees(feesPerKw).amount(), Channel.MAX_FUNDING_SATOSHIS());
+              runOnUiThread(() -> {
+                mBinding.capacityValue.setText(CoinUtils.rawAmountInUnit(new Satoshi(capacitySat), preferredBitcoinUnit).bigDecimal().toPlainString());
+                mBinding.capacityValue.setEnabled(false);
+              });
+            } catch (Exception e) {
+              log.error("could not retrieve max funds from wallet", e);
+            } finally {
+              runOnUiThread(() -> {
+                mBinding.useAllFundsCheckbox.setEnabled(true);
+                mBinding.useAllFundsCheckbox.setText(R.string.openchannel_max_funds);
+              });
+            }
+          }
+        }.start();
+      } else {
+        mBinding.capacityValue.setEnabled(true);
+      }
+    });
 
     mBinding.capacityValue.addTextChangedListener(new TextWatcher() {
       @Override
@@ -97,7 +123,7 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
           checkAmount(s.toString());
         } catch (Exception e) {
           log.debug("could not convert amount to number with cause {}", e.getMessage());
-          mBinding.capacityFiat.setText("");
+          mBinding.capacityFiat.setText(getString(R.string.amount_to_fiat, getString(R.string.unknown)));
         }
       }
 
@@ -117,6 +143,7 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
           if (feesSatPerByte != app.estimateSlowFees() && feesSatPerByte != app.estimateMediumFees() && feesSatPerByte != app.estimateFastFees()) {
             feeRatingState = Constants.FEE_RATING_CUSTOM;
             mBinding.setFeeRatingState(feeRatingState);
+            mBinding.feesRating.setText(R.string.payment_fees_custom);
           }
           if (feesSatPerByte <= app.estimateSlowFees() / 2) {
             mBinding.feesWarning.setText(R.string.payment_fees_verylow);
@@ -127,6 +154,9 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
           } else {
             mBinding.feesWarning.setVisibility(View.GONE);
           }
+          // fee value changes must invalidate the 'set all available funds' checkbox, since this amount
+          // would probably not be correct anymore
+          mBinding.useAllFundsCheckbox.setChecked(false);
         } catch (NumberFormatException e) {
           log.debug("could not read fees with cause {}" + e.getMessage());
         }
@@ -185,18 +215,21 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
   }
 
   public void pickFees(final View view) {
-    if (feeRatingState.rating == Constants.FEE_RATING_SLOW.rating) {
+    if (feeRatingState == Constants.FEE_RATING_SLOW) {
       feeRatingState = Constants.FEE_RATING_MEDIUM;
       mBinding.feesValue.setText(String.valueOf(app.estimateMediumFees()));
       mBinding.setFeeRatingState(feeRatingState);
-    } else if (feeRatingState.rating == Constants.FEE_RATING_MEDIUM.rating) {
+      mBinding.feesRating.setText(R.string.payment_fees_medium);
+    } else if (feeRatingState == Constants.FEE_RATING_MEDIUM) {
       feeRatingState = Constants.FEE_RATING_FAST;
       mBinding.feesValue.setText(String.valueOf(app.estimateFastFees()));
       mBinding.setFeeRatingState(feeRatingState);
-    } else if (feeRatingState.rating == Constants.FEE_RATING_FAST.rating) {
+      mBinding.feesRating.setText(R.string.payment_fees_fast);
+    } else if (feeRatingState == Constants.FEE_RATING_FAST) {
       feeRatingState = Constants.FEE_RATING_SLOW;
       mBinding.feesValue.setText(String.valueOf(app.estimateSlowFees()));
       mBinding.setFeeRatingState(feeRatingState);
+      mBinding.feesRating.setText(R.string.payment_fees_slow);
     } else {
       setFeesToDefault();
     }
@@ -206,6 +239,7 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
     feeRatingState = Constants.FEE_RATING_FAST;
     mBinding.feesValue.setText(String.valueOf(app.estimateFastFees()));
     mBinding.setFeeRatingState(feeRatingState);
+    mBinding.feesRating.setText(R.string.payment_fees_fast);
   }
 
   /**
@@ -225,7 +259,7 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
    */
   private boolean checkAmount(final String amount) throws IllegalArgumentException, NullPointerException {
     final MilliSatoshi amountMsat = CoinUtils.convertStringAmountToMsat(amount, preferredBitcoinUnit.code());
-    mBinding.capacityFiat.setText(WalletUtils.convertMsatToFiatWithUnit(amountMsat.amount(), preferredFiatCurrency));
+    mBinding.capacityFiat.setText(getString(R.string.amount_to_fiat, WalletUtils.convertMsatToFiatWithUnit(amountMsat.amount(), preferredFiatCurrency)));
     if (amountMsat.amount() < minFunding.amount() || amountMsat.amount() >= maxFunding.amount()) {
       showError(getString(R.string.openchannel_capacity_invalid, CoinUtils.formatAmountInUnit(minFunding, preferredBitcoinUnit, false),
         CoinUtils.formatAmountInUnit(maxFunding, preferredBitcoinUnit, true)));

@@ -187,7 +187,6 @@
   <string name="openchannel_loading_pleasewait">Reading node address, please wait…</string>
   <string name="openchannel_dns_seed">Node discovery is based on a DNS seed mechanism (see BOLT 10).\n\nThis feature is not available yet.</string>
   <string name="openchannel_title">Open a new Lightning Channel</string>
-  <string name="openchannel_capacity">CAPACITY</string>
   <string name="openchannel_capacity_hint">Channel capacity in</string>
   <string name="openchannel_capacity_invalid">Channel capacity must be between %1$s and %2$s</string>
   <string name="openchannel_capacity_notenoughfunds">Not enough funds</string>
@@ -199,6 +198,8 @@
   <string name="openchannel_pubkey">Node id</string>
   <string name="openchannel_ip">Node ip</string>
   <string name="openchannel_port">Port</string>
+  <string name="openchannel_max_funds_pleasewait">Hold on, calculating available funds…</string>
+  <string name="openchannel_max_funds">Use all available funds</string>
   <string name="openchannel_fees">Funding tx fees</string>
 
   <!-- //////////////// Commons /////////////////// -->
@@ -218,6 +219,7 @@
   <string name="error_generic">Internal Error</string>
   <string name="pretty_amount_value"><![CDATA[%1$s<small>%2$s<small>]]></string>
   <string name="commons_progress_indicator">●</string>
+  <string name="amount_to_fiat">≈ %1$s</string>
 
   <!-- /////////////// Menus /////////////// -->
 

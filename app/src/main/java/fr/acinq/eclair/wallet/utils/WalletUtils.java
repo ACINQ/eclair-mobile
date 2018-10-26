@@ -81,7 +81,6 @@ public class WalletUtils {
   private final static String PRICE_RATE_API = "https://blockchain.info/fr/ticker";
   public final static String UNENCRYPTED_SEED_NAME = "seed.dat";
   public final static String SEED_NAME = "enc_seed.dat";
-  private static final String TAG = "WalletUtils";
   private final static String SEED_NAME_TEMP = "enc_seed_temp.dat";
   private static NumberFormat fiatFormat;
 
