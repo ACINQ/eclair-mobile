@@ -29,6 +29,7 @@ import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.eclair.CoinUnit;
 import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.Globals;
+import fr.acinq.eclair.channel.CLOSED$;
 import fr.acinq.eclair.channel.CLOSING$;
 import fr.acinq.eclair.channel.NORMAL$;
 import fr.acinq.eclair.channel.OFFLINE$;
@@ -99,6 +100,8 @@ public class LocalChannelItemHolder extends RecyclerView.ViewHolder implements V
         state.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.green));
       } else if (OFFLINE$.MODULE$.toString().equals(item.state) || item.state.startsWith("ERR_")) {
         state.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.red_faded));
+      } else if (CLOSED$.MODULE$.toString().equals(item.state)) {
+        state.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.grey_1));
       } else {
         if (CLOSING$.MODULE$.toString().equals(item.state)) {
           state.setText(item.state.toUpperCase() + " " + itemView.getResources().getString(

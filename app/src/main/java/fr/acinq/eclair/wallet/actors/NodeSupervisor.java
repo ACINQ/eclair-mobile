@@ -55,6 +55,7 @@ import fr.acinq.eclair.channel.LocalCommit;
 import fr.acinq.eclair.channel.LocalCommitConfirmed;
 import fr.acinq.eclair.channel.RemoteCommit;
 import fr.acinq.eclair.channel.ShortChannelIdAssigned;
+import fr.acinq.eclair.channel.WAIT_FOR_ACCEPT_CHANNEL$;
 import fr.acinq.eclair.channel.WAIT_FOR_INIT_INTERNAL$;
 import fr.acinq.eclair.channel.WaitingForRevocation;
 import fr.acinq.eclair.payment.PaymentLifecycle;
@@ -112,6 +113,8 @@ public class NodeSupervisor extends UntypedActor {
     for (LocalChannel c : NodeSupervisor.getChannelsMap().values()) {
       // not closed, not closing, not in error
       if (c.state != null && !c.state.startsWith("ERR_")
+        && !WAIT_FOR_INIT_INTERNAL$.MODULE$.toString().equals(c.state)
+        && !WAIT_FOR_ACCEPT_CHANNEL$.MODULE$.toString().equals(c.state)
         && !CLOSING$.MODULE$.toString().equals(c.state)
         && !CLOSED$.MODULE$.toString().equals(c.state)) {
         total += c.getBalanceMsat();
