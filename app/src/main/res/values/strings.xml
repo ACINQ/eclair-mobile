@@ -190,7 +190,6 @@
   <string name="openchannel_loading_pleasewait">Reading node address, please wait…</string>
   <string name="openchannel_dns_seed">Node discovery is based on a DNS seed mechanism (see BOLT 10).\n\nThis feature is not available yet.</string>
   <string name="openchannel_title">Open a new Lightning Channel</string>
-  <string name="openchannel_capacity">CAPACITY</string>
   <string name="openchannel_capacity_hint">Channel capacity in</string>
   <string name="openchannel_capacity_invalid">Channel capacity must be between %1$s and %2$s</string>
   <string name="openchannel_capacity_notenoughfunds">Not enough funds</string>
@@ -202,6 +201,8 @@
   <string name="openchannel_pubkey">Node id</string>
   <string name="openchannel_ip">Node ip</string>
   <string name="openchannel_port">Port</string>
+  <string name="openchannel_max_funds_pleasewait">Hold on, calculating available funds…</string>
+  <string name="openchannel_max_funds">Use all available funds</string>
   <string name="openchannel_fees">Funding tx fees</string>
 
   <!-- //////////////// Commons /////////////////// -->
@@ -221,6 +222,7 @@
   <string name="error_generic">Internal Error</string>
   <string name="pretty_amount_value"><![CDATA[%1$s<small>%2$s<small>]]></string>
   <string name="commons_progress_indicator">●</string>
+  <string name="amount_to_fiat">≈ %1$s</string>
 
   <!-- /////////////// Menus /////////////// -->
 
@@ -305,19 +307,21 @@
   <string name="payment_description">Desc.</string>
   <string name="payment_destination_address">To</string>
   <string name="payment_fees">Fees</string>
-  <string name="payment_fees_not_capped">Uncapped routing fee ; check the application\'s preferences.</string>
-  <string name="payment_fees_verylow">Fees are very low and your transaction could take a very long time to confirm.</string>
-  <string name="payment_fees_veryhigh">Fees seem very high. Please make sure that this amount is correct.</string>
+  <string name="payment_fees_not_capped">Uncapped routing fee ; check the application\'s settings.</string>
+  <string name="payment_fees_verylow">The fees are very low, your transaction may need a very long time to confirm.</string>
+  <string name="payment_fees_veryhigh">The fees seem very high, you may be overpaying.</string>
   <string name="payment_loading_pleasewait">Reading invoice, please wait…</string>
   <string name="payment_amount_to_send">Amount in </string>
   <string name="payment_toast_sentbtc">Payment sent</string>
   <string name="payment_toast_balance">Insufficient balance</string>
+  <string name="payment_tx_creation_error">Transaction is invalid</string>
+  <string name="payment_tx_failed">Transaction failed</string>
   <string name="payment_toast_failure">Could not send transaction: %1$s</string>
 
   <string name="payment_error">This payment is not valid.</string>
   <string name="payment_error_fees_onchain">The fees value is not valid.</string>
-  <string name="payment_error_amount_onchain_insufficient_funds">The amount exceeds your balance.</string>
-  <string name="payment_error_amount">The amount is not valid.</string>
+  <string name="payment_error_amount_onchain_insufficient_funds">Payment amount exceeds your balance.</string>
+  <string name="payment_error_amount">Payment amount is not valid.</string>
   <string name="payment_error_ln_pick_no_channels">You need lightning channels for this option.</string>
   <string name="payment_error_ln_no_channels">You first need to open a Lightning channel to execute this payment.\n\nDo this by swiping right to left from the home view, and tapping the green "+" button.</string>
   <string name="payment_error_ln_no_active_channels">None of your Lightning channels is ready to send payments.</string>

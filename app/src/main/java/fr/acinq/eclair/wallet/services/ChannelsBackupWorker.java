@@ -45,6 +45,7 @@ import java.io.File;
 import java.io.InputStream;
 
 import androidx.work.Worker;
+import androidx.work.WorkerParameters;
 import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.activities.GoogleDriveBaseActivity;
@@ -58,6 +59,10 @@ public class ChannelsBackupWorker extends Worker {
   public final static String BACKUP_NAME_INPUT = BuildConfig.APPLICATION_ID + ".BACKUP_NAME";
   public final static String BACKUP_KEY_INPUT = BuildConfig.APPLICATION_ID + ".BACKUP_KEY_INPUT";
   private static final String TAG = ChannelsBackupWorker.class.getSimpleName();
+
+  public ChannelsBackupWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
+    super(context, workerParams);
+  }
 
   @NonNull
   @Override

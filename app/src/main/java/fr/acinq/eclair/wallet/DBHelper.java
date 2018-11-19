@@ -165,11 +165,13 @@ public class DBHelper {
   }
 
   /**
-   * shorthand to save local channel in DB
+   * Shorthand to save local channel in DB. Channels with 0 capacity are ignored.
    */
   public void saveLocalChannel(final LocalChannel channel) {
-    channel.setUpdated(new Date());
-    daoSession.getLocalChannelDao().insertOrReplace(channel);
+    if (channel.getCapacityMsat() > 0) {
+      channel.setUpdated(new Date());
+      daoSession.getLocalChannelDao().insertOrReplace(channel);
+    }
   }
 
   public void channelTerminated(final String channelId) {

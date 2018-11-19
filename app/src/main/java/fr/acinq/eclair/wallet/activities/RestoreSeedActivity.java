@@ -194,9 +194,10 @@ public class RestoreSeedActivity extends EclairActivity implements EclairActivit
 
   @Override
   public void onEncryptSeedFailure(String message) {
+    mBinding.setImportStep(2);
+    TransitionManager.beginDelayedTransition(mWalletEncryptFragment.mBinding.transitionsLayout);
     goToEncryption();
     mWalletEncryptFragment.mBinding.encryptionError.setText(message);
-    TransitionManager.beginDelayedTransition(mWalletEncryptFragment.mBinding.transitionsLayout);
     mWalletEncryptFragment.mBinding.encryptionError.setVisibility(View.VISIBLE);
   }
 

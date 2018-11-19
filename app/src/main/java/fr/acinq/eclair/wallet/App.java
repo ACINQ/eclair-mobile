@@ -38,6 +38,7 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.spongycastle.crypto.digests.SHA256Digest;
 
 import java.net.InetSocketAddress;
 import java.util.HashMap;
@@ -51,10 +52,14 @@ import akka.dispatch.OnComplete;
 import akka.dispatch.OnFailure;
 import akka.pattern.Patterns;
 import akka.util.Timeout;
+import fr.acinq.bitcoin.Bech32;
 import fr.acinq.bitcoin.BinaryData;
+import fr.acinq.bitcoin.Crypto;
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.Satoshi;
+import fr.acinq.bitcoin.Script;
 import fr.acinq.bitcoin.Transaction;
+import fr.acinq.bitcoin.TxOut;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.Globals;
@@ -71,6 +76,7 @@ import fr.acinq.eclair.io.NodeURI;
 import fr.acinq.eclair.io.Peer;
 import fr.acinq.eclair.payment.PaymentLifecycle;
 import fr.acinq.eclair.payment.PaymentRequest;
+import fr.acinq.eclair.transactions.Scripts;
 import fr.acinq.eclair.wallet.activities.ChannelDetailsActivity;
 import fr.acinq.eclair.wallet.events.BitcoinPaymentFailedEvent;
 import fr.acinq.eclair.wallet.events.ChannelRawDataEvent;
@@ -84,6 +90,7 @@ import scala.Option;
 import scala.Symbol;
 import scala.Tuple2;
 import scala.collection.Iterable;
+import scala.collection.Iterator;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
@@ -270,16 +277,19 @@ public class App extends Application {
               final Future fSendAll = appKit.electrumWallet.commit(res._1());
               fSendAll.onComplete(new OnComplete<Boolean>() {
                 @Override
-                public void onComplete(Throwable failure, Boolean success) throws Throwable {
-                  if (!success) {
-                    log.warn("could not send empty wallet tx");
-                    EventBus.getDefault().post(new BitcoinPaymentFailedEvent("broadcast failed"));
+                public void onComplete(Throwable failure, Boolean success) {
+                  if (failure != null) {
+                    log.warn("error in send_all tx", failure);
+                    EventBus.getDefault().post(new BitcoinPaymentFailedEvent(failure.getLocalizedMessage()));
+                  } else if (success == null || !success) {
+                    log.warn("send_all tx has failed");
+                    EventBus.getDefault().post(new BitcoinPaymentFailedEvent(getString(R.string.payment_tx_failed)));
                   }
                 }
               }, system.dispatcher());
             } else {
               log.warn("could not create send all tx");
-              EventBus.getDefault().post(new BitcoinPaymentFailedEvent("tx creation failed"));
+              EventBus.getDefault().post(new BitcoinPaymentFailedEvent(getString(R.string.payment_tx_creation_error)));
             }
           } else {
             log.warn("could not send all balance with cause {}", t.getMessage());
@@ -290,6 +300,29 @@ public class App extends Application {
     } catch (Throwable t) {
       log.warn("could not send send all balance with cause {}", t.getMessage());
       EventBus.getDefault().post(new BitcoinPaymentFailedEvent(t.getLocalizedMessage()));
+    }
+  }
+
+  /**
+   * Retrieve all the available on-chain funds after a given network fees for a multisig tx.
+   */
+  public Satoshi getAvailableFundsAfterFees(final long feesPerKw) {
+    try {
+      // simulate multisig transaction to our self to retrieve outputs total amount
+      final Crypto.PublicKey pubkey = appKit.eclairKit.nodeParams().privateKey().publicKey();
+      final BinaryData placeholderScript = Script.write(Script.pay2wsh(Scripts.multiSig2of2(pubkey, pubkey)));
+      final String placeholderAddress = Bech32.encodeWitnessAddress("mainnet".equals(BuildConfig.CHAIN) ? "bc" : "tb", (byte) 0, Crypto.hash(new SHA256Digest(), package$.MODULE$.binaryData2Seq(placeholderScript)));
+      final Tuple2<Transaction, Satoshi> tx_fee = Await.result(appKit.electrumWallet.sendAll(placeholderAddress, feesPerKw), Duration.create(20, "seconds"));
+      long available = 0;
+      Iterator<TxOut> it = tx_fee._1.txOut().iterator();
+      while(it.hasNext()) {
+        available += it.next().amount().amount();
+      }
+      available -= tx_fee._2.amount();
+      return new Satoshi(Math.max(0, available));
+    } catch (Exception e) {
+      log.error("could not retrieve max available funds after fees", e);
+      return new Satoshi(0);
     }
   }
 
