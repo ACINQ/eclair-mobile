@@ -456,7 +456,7 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
 
   public void scanNodeURI(View view) {
     Intent intent = new Intent(this, ScanActivity.class);
-    intent.putExtra(ScanActivity.EXTRA_SCAN_TYPE, ScanActivity.TYPE_URI);
+    intent.putExtra(ScanActivity.EXTRA_SCAN_TYPE, ScanActivity.TYPE_URI_OPEN);
     startActivity(intent);
   }
 

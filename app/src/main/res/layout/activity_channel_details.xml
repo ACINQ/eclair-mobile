@@ -126,10 +126,10 @@
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:orientation="vertical"
-          android:paddingBottom="8dp"
-          android:paddingEnd="@dimen/space_md"
           android:paddingStart="@dimen/space_md"
           android:paddingTop="@dimen/space_md"
+          android:paddingEnd="@dimen/space_md"
+          android:paddingBottom="8dp"
           android:visibility="@{isActive ? View.VISIBLE : View.GONE}">
 
           <TextView
@@ -180,6 +180,26 @@
                 android:maxLines="1"
                 android:textAllCaps="true"
                 android:textSize="12sp" />
+
+              <View
+                android:id="@+id/update_node_address_separator"
+                android:layout_width="50dp"
+                android:layout_height="1dp"
+                android:layout_marginTop="@dimen/space_xs"
+                android:background="@color/grey_0_light_x1"
+                android:visibility="gone" />
+
+              <Button
+                android:id="@+id/update_node_address_button"
+                style="@style/ButtonStyle"
+                android:layout_marginTop="@dimen/space_xs"
+                android:background="@drawable/rounded_corner_grey"
+                android:padding="@dimen/space_xs"
+                android:text="@string/channeldetails_open_connection_button"
+                android:textAlignment="viewStart"
+                android:textSize="10sp"
+                android:visibility="gone" />
+
             </LinearLayout>
 
             <LinearLayout
@@ -320,10 +340,10 @@
           android:layout_width="match_parent"
           android:layout_height="match_parent"
           android:orientation="horizontal"
-          android:paddingBottom="@dimen/space_xs"
-          android:paddingEnd="@dimen/space_md"
           android:paddingStart="@dimen/space_md"
           android:paddingTop="@dimen/space_xs"
+          android:paddingEnd="@dimen/space_md"
+          android:paddingBottom="@dimen/space_xs"
           android:visibility="gone">
 
           <TextView
@@ -344,16 +364,16 @@
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:layout_marginBottom="@dimen/space_xs"
-              android:drawablePadding="@dimen/space_xxs"
               android:drawableStart="@{hasAdvancedRoutingSync ? @drawable/ic_circle_check : @drawable/ic_circle_cross_red_24dp}"
+              android:drawablePadding="@dimen/space_xxs"
               android:text="@string/channeldetails_advanced_routing_label"
               android:textSize="10sp" />
 
             <TextView
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
-              android:drawablePadding="@dimen/space_xxs"
               android:drawableStart="@{hasDataLossProtection ? @drawable/ic_circle_check : @drawable/ic_circle_cross_red_24dp}"
+              android:drawablePadding="@dimen/space_xxs"
               android:text="@string/channeldetails_data_loss_protection_label"
               android:textSize="10sp" />
 

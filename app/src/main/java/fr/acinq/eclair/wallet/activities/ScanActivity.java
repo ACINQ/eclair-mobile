@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
+import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.utils.Constants;
 
@@ -45,33 +46,36 @@ public class ScanActivity extends Activity {
 
   private final Logger log = LoggerFactory.getLogger(ScanActivity.class);
 
-  public static final String EXTRA_SCAN_TYPE = "fr.acinq.eclair.wallet.EXTRA_SCAN_TYPE";
+  public static final String EXTRA_SCAN_TYPE = BuildConfig.APPLICATION_ID + ".EXTRA_SCAN_TYPE";
   public static final String TYPE_INVOICE = "INVOICE";
-  public static final String TYPE_URI = "URI";
+  public static final String TYPE_URI_OPEN = "URI_OPEN";
+  public static final String TYPE_URI_CONNECT = "URI_CONNECT";
   private DecoratedBarcodeView mBarcodeView;
   private TextView mScannedValue;
   private TextView mScanTitle;
-  private boolean isInvoice = false;
+  String scanType = "";
 
   private BarcodeCallback callback = new BarcodeCallback() {
     @Override
     public void barcodeResult(BarcodeResult result) {
-      final String scan = result.getText();
-      if (scan != null) {
+      final String scannedText = result.getText();
+      if (scannedText != null) {
         mBarcodeView.pause();
         mScannedValue.setVisibility(View.VISIBLE);
-        mScannedValue.setText(scan);
+        mScannedValue.setText(scannedText);
 
         final Handler dismissHandler = new Handler();
         dismissHandler.postDelayed(() -> {
-          if (isInvoice) {
+          if (TYPE_INVOICE.equals(scanType)) {
             Intent intent = new Intent(getBaseContext(), SendPaymentActivity.class);
-            intent.putExtra(SendPaymentActivity.EXTRA_INVOICE, scan);
+            intent.putExtra(SendPaymentActivity.EXTRA_INVOICE, scannedText);
             startActivity(intent);
-          } else {
+          } else if (TYPE_URI_OPEN.equals(scanType)) {
             Intent intent = new Intent(getBaseContext(), OpenChannelActivity.class);
-            intent.putExtra(OpenChannelActivity.EXTRA_NEW_HOST_URI, scan);
+            intent.putExtra(OpenChannelActivity.EXTRA_NEW_HOST_URI, scannedText);
             startActivity(intent);
+          } else if (TYPE_URI_CONNECT.equals(scanType)) {
+            setResult(RESULT_OK, new Intent().putExtra(OpenChannelActivity.EXTRA_NEW_HOST_URI, scannedText));
           }
           finish();
         }, 500);
@@ -99,15 +103,13 @@ public class ScanActivity extends Activity {
     mScanTitle = findViewById(R.id.scan_title);
 
     final Intent intent = getIntent();
-    final String type = intent.getStringExtra(EXTRA_SCAN_TYPE);
-    if (TYPE_INVOICE.equals(type)) {
-      isInvoice = true;
+    scanType = intent.getStringExtra(EXTRA_SCAN_TYPE);
+    if (TYPE_INVOICE.equals(scanType)) {
       mScanTitle.setText(R.string.scan_title_invoice);
-    } else if (TYPE_URI.equals(type)) {
+    } else if (TYPE_URI_OPEN.equals(scanType) || TYPE_URI_CONNECT.equals(scanType)) {
       mScanTitle.setText(R.string.scan_title_ln_uri);
-      isInvoice = false;
     } else {
-      log.error("invalid scan requested type {}", type);
+      log.error("invalid scan requested scanType {}", scanType);
       finish();
     }
 

@@ -149,6 +149,7 @@ public class ChannelDetailsActivity extends EclairActivity {
     if (channel.getIsActive()) {
       mBinding.balance.setAmountMsat(new MilliSatoshi(channel.getBalanceMsat()));
       mBinding.state.setText(channel.state);
+
       if (NORMAL$.MODULE$.toString().equals(channel.state)) {
         mBinding.state.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.green));
       } else if (OFFLINE$.MODULE$.toString().equals(channel.state) || channel.state.startsWith("ERR_")) {
@@ -168,6 +169,17 @@ public class ChannelDetailsActivity extends EclairActivity {
         } else {
           mBinding.closingType.setText(getString(R.string.channeldetails_closingtype_other));
         }
+      }
+
+      // show reconnect buttons if offline
+      if (OFFLINE$.MODULE$.toString().equals(channel.state)) {
+        mBinding.updateNodeAddressSeparator.setVisibility(View.VISIBLE);
+        mBinding.updateNodeAddressButton.setVisibility(View.VISIBLE);
+        mBinding.updateNodeAddressButton.setOnClickListener((v) -> {
+          final Intent intent = new Intent(getBaseContext(), OpenConnectionActivity.class);
+          intent.putExtra(OpenConnectionActivity.EXTRA_CONN_NODE_ID, channel.getPeerNodeId());
+          startActivity(intent);
+        });
       }
 
       mCloseChannelDialog = new CloseChannelDialog(ChannelDetailsActivity.this, dialog -> finish(), actorRef,

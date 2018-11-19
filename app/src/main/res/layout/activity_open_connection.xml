@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  ~ Copyright 2018 ACINQ SAS
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto">
+
+  <data>
+    <import type="android.view.View" />
+    <import type="fr.acinq.eclair.wallet.utils.Constants" />
+
+    <variable
+      name="connectionStep"
+      type="int" />
+
+  </data>
+
+  <RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <android.support.constraint.ConstraintLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_centerInParent="true"
+      android:visibility="@{connectionStep == Constants.NODE_CONNECT_SUCCESS ? View.GONE : View.VISIBLE}">
+
+      <android.support.design.widget.TextInputLayout
+        android:id="@+id/node_address_layout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/space_md"
+        android:layout_marginTop="@dimen/space_md"
+        android:layout_marginEnd="@dimen/space_sm"
+        android:hint="@string/openconn_address_hint"
+        android:textColorHint="@color/primary"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintEnd_toStartOf="@id/scan_button"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/node_id_layout">
+
+        <android.support.design.widget.TextInputEditText
+          android:id="@+id/node_address"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:backgroundTint="@color/primary"
+          android:maxLines="2"
+          android:textSize="14sp" />
+      </android.support.design.widget.TextInputLayout>
+
+      <LinearLayout
+        android:id="@+id/node_id_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/grey_0_light_x2"
+        android:orientation="vertical"
+        android:padding="@dimen/space_md"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+          android:id="@+id/node_id_title"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:ellipsize="end"
+          android:maxLines="1"
+          android:text="@string/openconn_node_id_hint"
+          android:textColor="@color/primary"
+          android:textSize="12sp" />
+
+        <TextView
+          android:id="@+id/node_id"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_marginTop="@dimen/space_xxs"
+          android:ellipsize="middle"
+          android:singleLine="true"
+          android:textSize="14sp" />
+
+      </LinearLayout>
+
+      <ImageButton
+        android:id="@+id/scan_button"
+        style="@style/ButtonStyle"
+        android:layout_marginEnd="@dimen/space_md"
+        android:background="@drawable/rounded_corner_grey"
+        android:contentDescription="@string/openconn_scan_description"
+        android:minWidth="0dp"
+        android:padding="@dimen/space_xs"
+        android:src="@drawable/ic_scan_black_24dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/node_address_layout" />
+
+      <Button
+        android:id="@+id/connect_button"
+        style="@style/ButtonStyle"
+        android:layout_marginTop="20dp"
+        android:drawableStart="@{connectionStep == Constants.NODE_CONNECT_READY ? @drawable/ic_circle_check_green_24dp : @drawable/ic_exchange_grey_24dp}"
+        android:drawablePadding="@dimen/space_xs"
+        android:enabled="@{connectionStep == Constants.NODE_CONNECT_READY}"
+        android:text="@{connectionStep == Constants.NODE_CONNECT_READY ? @string/openconn_connect : @string/openconn_connecting}"
+        android:textColor="@{connectionStep == Constants.NODE_CONNECT_READY ? @color/green : @color/grey_1}"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/node_address_layout" />
+    </android.support.constraint.ConstraintLayout>
+
+    <TextView
+      style="@style/RoundedWhitePanelIcon"
+      android:drawableStart="@drawable/ic_circle_check"
+      android:text="@string/openconn_success"
+      android:visibility="@{connectionStep == Constants.NODE_CONNECT_SUCCESS ? View.VISIBLE : View.GONE}" />
+  </RelativeLayout>
+</layout>
