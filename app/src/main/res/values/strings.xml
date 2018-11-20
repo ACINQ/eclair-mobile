@@ -187,7 +187,6 @@
   <string name="openconn_connect">Connect</string>
   <string name="openconn_connecting">Connecting…</string>
   <string name="openconn_success">Successfully connected!</string>
-  <string name="openconn_title">Update connection with node:</string>
   <string name="openconn_node_id_hint">Open connection with node</string>
   <string name="openconn_address_hint">New IP address</string>
   <string name="openconn_scan_description">Scan address</string>
