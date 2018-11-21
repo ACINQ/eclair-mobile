@@ -82,7 +82,7 @@ dependencies {
   // required for greendao encryption, disabled for now
   implementation 'net.zetetic:android-database-sqlcipher:3.5.6'
   // qr codes
-  implementation 'com.journeyapps:zxing-android-embedded:3.5.0'
+  implementation 'com.journeyapps:zxing-android-embedded:3.6.0'
   // events
   implementation 'org.greenrobot:eventbus:3.0.0'
   // http client

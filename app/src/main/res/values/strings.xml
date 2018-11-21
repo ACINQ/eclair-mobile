@@ -506,8 +506,8 @@
 
   <!-- //////////////// Scanner messages //////////////////// -->
 
-  <string name="scan_title_invoice">Please scan a QR code containing a Bitcoin address or a Lightning payment request.</string>
-  <string name="scan_title_ln_uri">Please scan the address of a Lightning Network node.</string>
+  <string name="scan_title_invoice">Scan a QR code containing a Bitcoin address or a Lightning payment request.</string>
+  <string name="scan_title_ln_uri">Scan the address of a Lightning Network node.</string>
 
   <!-- //////////////// Close Channel Dialog /////////////////// -->
 
