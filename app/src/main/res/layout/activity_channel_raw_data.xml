@@ -55,7 +55,7 @@
     <View xmlns:android="http://schemas.android.com/apk/res/android"
       android:layout_width="match_parent"
       android:layout_height="1dp"
-      android:background="@color/grey_0_dark_x1" />
+      android:background="@color/grey_0_dark_x2" />
 
     <TextView
       android:id="@+id/raw_json"

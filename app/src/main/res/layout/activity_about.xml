@@ -33,9 +33,8 @@
       android:layout_height="wrap_content"
       android:orientation="vertical">
 
-      <fr.acinq.eclair.wallet.customviews.TitleBar
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+      <TextView
+        style="@style/TitleBar"
         android:text="@string/about_general_title"/>
 
       <TextView
@@ -47,9 +46,8 @@
         android:autoLink="web"
         android:padding="@dimen/space_md" />
 
-      <fr.acinq.eclair.wallet.customviews.TitleBar
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+      <TextView
+        style="@style/TitleBar"
         android:text="@string/about_limitations_title"/>
 
       <TextView
@@ -60,9 +58,8 @@
         android:textSize="12sp"
         android:padding="@dimen/space_md" />
 
-      <fr.acinq.eclair.wallet.customviews.TitleBar
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+      <TextView
+        style="@style/TitleBar"
         android:text="@string/about_acinq_title" />
 
       <TextView

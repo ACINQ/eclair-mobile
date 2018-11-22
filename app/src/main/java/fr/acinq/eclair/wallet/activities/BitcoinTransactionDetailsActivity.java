@@ -90,6 +90,7 @@ public class BitcoinTransactionDetailsActivity extends EclairActivity {
 
       mBinding.setIsTxReceived(PaymentDirection.RECEIVED.equals(p.getDirection()));
       mBinding.txAmount.setAmountMsat(new MilliSatoshi(p.getAmountPaidMsat()));
+      mBinding.amountPaidFiat.setText(getString(R.string.paymentdetails_amount_fiat, WalletUtils.convertMsatToFiatWithUnit(p.getAmountPaidMsat(), WalletUtils.getPreferredFiat(prefs))));
       mBinding.fees.setText(CoinUtils.formatAmountInUnit(new MilliSatoshi(p.getFeesPaidMsat()), prefUnit, true));
       if (Strings.isNullOrEmpty(p.getReference())) {
         mBinding.txId.setVisibility(View.GONE);
@@ -103,7 +104,7 @@ public class BitcoinTransactionDetailsActivity extends EclairActivity {
       mBinding.confsType.setValue(Integer.toString(p.getConfidenceType()));
       if (p.getConfidenceBlocks() == 0) {
         mBinding.rebroadcast.setVisibility(View.VISIBLE);
-        mBinding.rebroadcast.setOnClickListener(v -> mRebroadcastDialog.show());
+        mBinding.rebroadcast.actionButton.setOnClickListener(v -> mRebroadcastDialog.show());
       }
     } catch (Exception e) {
       Toast.makeText(this, "Transaction not found", Toast.LENGTH_SHORT).show();

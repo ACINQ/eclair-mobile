@@ -42,7 +42,6 @@ import fr.acinq.eclair.wallet.utils.WalletUtils;
 
 public class NetworkInfosActivity extends EclairActivity implements SwipeRefreshLayout.OnRefreshListener {
 
-  private static final String TAG = NetworkInfosActivity.class.getSimpleName();
   private ActivityNetworkInfosBinding mBinding;
 
   @Override
@@ -59,7 +58,7 @@ public class NetworkInfosActivity extends EclairActivity implements SwipeRefresh
     mBinding.swipeRefresh.setColorSchemeResources(R.color.primary, R.color.green, R.color.accent);
     mBinding.swipeRefresh.setOnRefreshListener(this);
     // delete db
-    mBinding.deleteNetworkDB.actionButton.setOnClickListener(v -> deleteNetworkDB());
+    mBinding.networkChannelsCount.actionButton.setOnClickListener(v -> deleteNetworkDB());
   }
 
   @Override
@@ -68,8 +67,14 @@ public class NetworkInfosActivity extends EclairActivity implements SwipeRefresh
   }
 
   private void refreshData() {
-    mBinding.blockCount.setValue(String.valueOf(Globals.blockCount().get()));
-    mBinding.blockTimestamp.setValue(DateFormat.getDateTimeInstance().format(new Date(app.getBlockTimestamp() * 1000)));
+
+    if (app.getBlockTimestamp() == 0) {
+      mBinding.blockCount.setValue(NumberFormat.getInstance().format(Globals.blockCount().get()));
+    } else {
+      mBinding.blockCount.setHtmlValue(getString(R.string.networkinfos_block,
+        NumberFormat.getInstance().format(Globals.blockCount().get()), // block height
+        DateFormat.getDateTimeInstance().format(new Date(app.getBlockTimestamp() * 1000)))); // block timestamp
+    }
     mBinding.electrumAddress.setValue(app.getElectrumServerAddress());
     mBinding.feeRate.setValue(NumberFormat.getInstance().format(Globals.feeratesPerKw().get().block_1()) + " sat/kw");
     app.getNetworkChannelsCount();
@@ -96,9 +101,9 @@ public class NetworkInfosActivity extends EclairActivity implements SwipeRefresh
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
-  public void handleRawDataEvent(XpubEvent event) {
+  public void handleXpubEvent(XpubEvent event) {
     if (event == null || event.xpub == null) {
-      mBinding.xpub.setValue("Could not get wallet xpub.");
+      mBinding.xpub.setValue(getString(R.string.unknown));
     } else {
       mBinding.xpub.setValue(event.xpub.xpub() + "\n\n" + event.xpub.path());
     }

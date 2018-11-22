@@ -217,7 +217,7 @@
               android:overScrollMode="always"
               android:textAlignment="viewEnd"
               android:textColor="@color/grey_4"
-              android:textColorHint="@color/grey_0_dark_x1"
+              android:textColorHint="@color/grey_0_dark_x2"
               android:textCursorDrawable="@drawable/cursor_grey"
               android:textSize="40sp" />
 
@@ -459,7 +459,7 @@
             android:onClick="cancelPayment"
             android:padding="16dp"
             android:text="@string/btn_cancel"
-            android:textColor="@color/grey_0_dark_x1" />
+            android:textColor="@color/grey_0_dark_x2" />
 
           <Button
             android:id="@+id/btn_send"
