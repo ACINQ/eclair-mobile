@@ -85,7 +85,7 @@ public class ScanActivity extends Activity {
 
     final Intent barcodeIntent = new Intent();
     barcodeIntent.putExtra(Intents.Scan.SCAN_TYPE, Intents.Scan.MIXED_SCAN);
-    barcodeIntent.putExtra(Intents.Scan.FORMATS, BarcodeFormat.QR_CODE);
+    barcodeIntent.putExtra(Intents.Scan.FORMATS, BarcodeFormat.QR_CODE.toString());
     mBinding.scanView.getStatusView().setVisibility(View.GONE);
     mBinding.scanView.initializeFromIntent(barcodeIntent);
 
