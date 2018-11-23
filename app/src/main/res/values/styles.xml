@@ -197,6 +197,7 @@
     <item name="android:paddingEnd">@dimen/space_md</item>
     <item name="android:paddingStart">@dimen/space_md</item>
     <item name="android:paddingTop">@dimen/space_sm</item>
+    <item name="android:gravity">start|center</item>
     <item name="android:drawablePadding">6dp</item>
   </style>
 
