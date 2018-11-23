@@ -193,7 +193,7 @@
     <item name="android:textSize">@dimen/text_sm</item>
     <item name="android:textColor">@color/grey_2</item>
     <item name="android:background">@color/grey_0_light_x1</item>
-    <item name="android:paddingBottom">@dimen/space_sm</item>
+    <item name="android:paddingBottom">10dp</item>
     <item name="android:paddingEnd">@dimen/space_md</item>
     <item name="android:paddingStart">@dimen/space_md</item>
     <item name="android:paddingTop">@dimen/space_sm</item>
@@ -220,6 +220,15 @@
     <item name="android:textColor">@color/grey_1</item>
     <item name="android:textSize">@dimen/text_xs</item>
     <item name="android:layout_marginBottom">@dimen/space_xxs</item>
+  </style>
+
+  <style name="DataRowText">
+    <item name="android:layout_width">match_parent</item>
+    <item name="android:layout_height">wrap_content</item>
+    <item name="android:letterSpacing">0.01</item>
+    <item name="android:lineSpacingMultiplier">1.1</item>
+    <item name="android:textIsSelectable">true</item>
+    <item name="android:textSize">@dimen/text_sm</item>
   </style>
 
 </resources>

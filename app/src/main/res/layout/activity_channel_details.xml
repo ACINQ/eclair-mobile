@@ -284,6 +284,32 @@
           app:value="@string/unknown" />
 
         <fr.acinq.eclair.wallet.customviews.DataRow
+          android:id="@+id/features"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          app:has_border="true"
+          app:label="@string/channeldetails_features_label">
+
+          <TextView
+            style="@style/DataRowText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableStart="@{hasAdvancedRoutingSync ? @drawable/ic_circle_check_green_14dp : @drawable/ic_circle_cross_grey_14dp}"
+            android:drawablePadding="@dimen/space_xxs"
+            android:paddingBottom="@dimen/space_xxs"
+            android:text="@string/channeldetails_advanced_routing_label" />
+
+          <TextView
+            style="@style/DataRowText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableStart="@{hasDataLossProtection ? @drawable/ic_circle_check_green_14dp : @drawable/ic_circle_cross_grey_14dp}"
+            android:drawablePadding="@dimen/space_xxs"
+            android:text="@string/channeldetails_data_loss_protection_label" />
+
+        </fr.acinq.eclair.wallet.customviews.DataRow>
+
+        <fr.acinq.eclair.wallet.customviews.DataRow
           android:id="@+id/to_self_delay"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"

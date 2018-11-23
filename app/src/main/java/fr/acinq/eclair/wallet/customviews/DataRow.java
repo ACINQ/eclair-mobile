@@ -18,21 +18,24 @@ package fr.acinq.eclair.wallet.customviews;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.content.ContextCompat;
 import android.text.Html;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import fr.acinq.eclair.wallet.R;
 
-public class DataRow extends LinearLayout {
+public class DataRow extends ConstraintLayout {
 
-  private TextView valueTextView;
+  public LinearLayout contentLayout;
   public Button actionButton;
+  private TextView valueTextView;
 
   public DataRow(Context context) {
     super(context);
@@ -52,18 +55,20 @@ public class DataRow extends LinearLayout {
   private void init(AttributeSet attrs, int defStyle) {
     final TypedArray arr = getContext().obtainStyledAttributes(attrs, R.styleable.DataRow, defStyle, 0);
     try {
-      final String service = Context.LAYOUT_INFLATER_SERVICE;
-      final LayoutInflater li = (LayoutInflater) getContext().getSystemService(service);
-      final View layout = li.inflate(R.layout.custom_data_row, this, true);
+      final View root = LayoutInflater.from(getContext()).inflate(R.layout.custom_data_row, this);
+      final int vPadding = getResources().getDimensionPixelSize(R.dimen.space_sm);
+      final int hPadding = getResources().getDimensionPixelSize(R.dimen.space_md);
+      root.setPadding(hPadding, vPadding, hPadding, vPadding);
       // label
-      final TextView labelTextView = layout.findViewById(R.id.data_label);
+      final TextView labelTextView = findViewById(R.id.data_label);
       if (arr.hasValue(R.styleable.DataRow_label)) {
         labelTextView.setText(arr.getString(R.styleable.DataRow_label));
       } else {
         labelTextView.setVisibility(GONE);
       }
       // value
-      valueTextView = layout.findViewById(R.id.data_value);
+      contentLayout = findViewById(R.id.data_content);
+      valueTextView = findViewById(R.id.data_value);
       if (arr.hasValue(R.styleable.DataRow_value)) {
         valueTextView.setText(arr.getString(R.styleable.DataRow_value));
       } else {
@@ -73,11 +78,11 @@ public class DataRow extends LinearLayout {
       final boolean hasBorder = arr.getBoolean(R.styleable.DataRow_has_border, false);
       final boolean isBottomRounded = arr.getBoolean(R.styleable.DataRow_is_bottom_rounded, false);
       if (hasBorder) {
-        layout.setBackground(getResources().getDrawable(R.drawable.white_with_bottom_border));
+        setBackground(getResources().getDrawable(R.drawable.white_with_bottom_border));
       } else if (isBottomRounded) {
-        layout.setBackground(getResources().getDrawable(R.drawable.rounded_corner_white_bottom_sm));
+        setBackground(getResources().getDrawable(R.drawable.rounded_corner_white_bottom_sm));
       } else {
-        layout.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.almost_white));
+        setBackgroundColor(ContextCompat.getColor(getContext(), R.color.almost_white));
       }
       // button
       final boolean hasAction = arr.getBoolean(R.styleable.DataRow_has_action, false);
@@ -90,6 +95,15 @@ public class DataRow extends LinearLayout {
       }
     } finally {
       arr.recycle();
+    }
+  }
+
+  @Override
+  public void addView(View child, int index, ViewGroup.LayoutParams params) {
+    if (contentLayout == null) {
+      super.addView(child, index, params);
+    } else {
+      contentLayout.addView(child);
     }
   }
 

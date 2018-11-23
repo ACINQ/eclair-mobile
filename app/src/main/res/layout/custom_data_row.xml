@@ -14,14 +14,8 @@
   ~ limitations under the License.
   -->
 
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:app="http://schemas.android.com/apk/res-auto"
-  android:layout_width="match_parent"
-  android:layout_height="wrap_content"
-  android:paddingStart="@dimen/space_md"
-  android:paddingTop="10dp"
-  android:paddingEnd="@dimen/space_md"
-  android:paddingBottom="@dimen/space_sm">
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto">
 
   <android.support.constraint.Guideline
     android:id="@+id/guideline"
@@ -35,28 +29,30 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_marginEnd="@dimen/space_md"
+    android:fontFamily="sans-serif-medium"
     android:lineSpacingMultiplier="1.15"
     android:textSize="@dimen/text_sm"
-    android:fontFamily="sans-serif-medium"
     app:layout_constrainedWidth="true"
     app:layout_constraintEnd_toStartOf="@+id/guideline"
     app:layout_constraintHorizontal_bias="0"
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toTopOf="parent" />
 
-  <TextView
-    android:id="@+id/data_value"
+  <LinearLayout
+    android:id="@+id/data_content"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:letterSpacing="0.01"
-    android:lineSpacingMultiplier="1.1"
-    android:textIsSelectable="true"
-    android:textSize="@dimen/text_sm"
+    android:orientation="vertical"
     app:layout_constrainedWidth="true"
-    app:layout_constraintBaseline_toBaselineOf="@id/data_label"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintHorizontal_bias="0"
-    app:layout_constraintStart_toEndOf="@+id/guideline" />
+    app:layout_constraintStart_toEndOf="@+id/guideline"
+    app:layout_constraintTop_toTopOf="parent">
+
+    <TextView
+      android:id="@+id/data_value"
+      style="@style/DataRowText" />
+  </LinearLayout>
 
   <View
     android:id="@+id/separator"
@@ -66,7 +62,7 @@
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintHorizontal_bias="0"
     app:layout_constraintStart_toEndOf="@+id/guideline"
-    app:layout_constraintTop_toBottomOf="@+id/data_value" />
+    app:layout_constraintTop_toBottomOf="@+id/data_content" />
 
   <Button
     android:id="@+id/data_action"
@@ -74,8 +70,8 @@
     android:layout_marginTop="10dp"
     android:layout_marginBottom="@dimen/space_xxs"
     android:background="@drawable/rounded_corner_grey"
-    android:textAlignment="viewStart"
     android:padding="@dimen/space_sm"
+    android:textAlignment="viewStart"
     android:textColor="@color/grey_3"
     android:textSize="@dimen/text_xs"
     android:visibility="gone"
@@ -85,4 +81,4 @@
     app:layout_constraintStart_toEndOf="@+id/guideline"
     app:layout_constraintTop_toBottomOf="@+id/separator" />
 
-</android.support.constraint.ConstraintLayout>
+</merge>
