@@ -61,6 +61,7 @@ import fr.acinq.eclair.payment.PaymentLifecycle;
 import fr.acinq.eclair.router.SyncProgress;
 import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.BuildConfig;
+import fr.acinq.eclair.wallet.DBHelper;
 import fr.acinq.eclair.wallet.actors.NodeSupervisor;
 import fr.acinq.eclair.wallet.actors.ElectrumSupervisor;
 import fr.acinq.eclair.wallet.R;
