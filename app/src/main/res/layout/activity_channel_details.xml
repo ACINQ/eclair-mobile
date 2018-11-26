@@ -141,6 +141,26 @@
                 android:maxLines="1"
                 android:textAllCaps="true"
                 android:textSize="12sp" />
+
+              <View
+                android:id="@+id/update_node_address_separator"
+                android:layout_width="50dp"
+                android:layout_height="1dp"
+                android:layout_marginTop="@dimen/space_xs"
+                android:background="@color/grey_0_light_x1"
+                android:visibility="gone" />
+
+              <Button
+                android:id="@+id/update_node_address_button"
+                style="@style/ButtonStyle"
+                android:layout_marginTop="@dimen/space_xs"
+                android:background="@drawable/rounded_corner_grey"
+                android:padding="@dimen/space_xs"
+                android:text="@string/channeldetails_open_connection_button"
+                android:textAlignment="viewStart"
+                android:textSize="10sp"
+                android:visibility="gone" />
+
             </LinearLayout>
 
             <LinearLayout

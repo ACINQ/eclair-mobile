@@ -249,7 +249,7 @@
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:onClick="scanSendPaymentRequest"
-          app:icon="@mipmap/ic_scan"
+          app:icon="@drawable/ic_scan_white_24dp"
           app:label="Scan a payment request" />
 
       </LinearLayout>
@@ -302,7 +302,7 @@
           android:layout_height="wrap_content"
           android:onClick="scanNodeURI"
           app:bgcolor="@color/green"
-          app:icon="@mipmap/ic_scan"
+          app:icon="@drawable/ic_scan_white_24dp"
           app:label="@string/home_channel_scan_uri" />
 
         <fr.acinq.eclair.wallet.customviews.FabText

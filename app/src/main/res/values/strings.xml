@@ -182,6 +182,19 @@
   <string name="restorechannels_device_conflict">We found a backup for this seed, but it looks like it was created by another android device (or the same device that you\'ve upgraded to Android 8+).\n\nPlease make sure that you do not simultaneously use the same channels on different devices, otherwise they will conflict and close.</string>
   <string name="restorechannels_device_conflict_confirm">I Understand.</string>
 
+  <!-- //////////////// Open Connection /////////////////// -->
+
+  <string name="openconn_connect">Connect</string>
+  <string name="openconn_connecting">Connecting…</string>
+  <string name="openconn_success">Successfully connected!</string>
+  <string name="openconn_node_id_hint">Open connection with node</string>
+  <string name="openconn_address_hint">New IP address</string>
+  <string name="openconn_scan_description">Scan address</string>
+  <string name="openconn_error_fatal_connection">Could not connect to the node: %1$s</string>
+  <string name="openconn_error">This address is not valid</string>
+  <string name="openconn_error_timeout">Connection attempt has timeout… Please check the address and try again.</string>
+  <string name="openconn_error_unexpected_node_id">Please connect to the same node</string>
+
   <!-- //////////////// Open Channel /////////////////// -->
 
   <string name="openchannel_loading_pleasewait">Reading node address, please wait…</string>
@@ -282,6 +295,7 @@
   <string name="channeldetails_closingtype_other">OTHER</string>
   <string name="channeldetails_raw_data">Show raw channel data…</string>
   <string name="channeldetails_unknown">Unknown channel</string>
+  <string name="channeldetails_open_connection_button">Update Node Address…</string>
 
   <!-- //////////////// Local Channel Raw Data //////////////////// -->
 
@@ -419,6 +433,7 @@
 
   <!-- //////////////// Local Channel Item //////////////////// -->
 
+  <string name="channelitem_offline_hint">%1$s (click to reconnect)</string>
   <string name="channelitem_delayed_closing">Refund in %1$d block%2$s</string>
   <string name="channelitem_delayed_closing_unknown">Refund in %1$d+ blocks</string>
   <string name="channelitem_delayed_closing_claimable">Refund claimable</string>

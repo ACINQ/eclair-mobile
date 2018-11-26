@@ -63,8 +63,8 @@ import fr.acinq.eclair.blockchain.electrum.ElectrumClient;
 import fr.acinq.eclair.blockchain.electrum.ElectrumWallet;
 import fr.acinq.eclair.router.SyncProgress;
 import fr.acinq.eclair.wallet.BuildConfig;
-import fr.acinq.eclair.wallet.actors.NodeSupervisor;
 import fr.acinq.eclair.wallet.R;
+import fr.acinq.eclair.wallet.actors.NodeSupervisor;
 import fr.acinq.eclair.wallet.databinding.ActivityHomeBinding;
 import fr.acinq.eclair.wallet.events.BalanceUpdateEvent;
 import fr.acinq.eclair.wallet.events.BitcoinPaymentFailedEvent;
@@ -456,7 +456,7 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
 
   public void scanNodeURI(View view) {
     Intent intent = new Intent(this, ScanActivity.class);
-    intent.putExtra(ScanActivity.EXTRA_SCAN_TYPE, ScanActivity.TYPE_URI);
+    intent.putExtra(ScanActivity.EXTRA_SCAN_TYPE, ScanActivity.TYPE_URI_OPEN);
     startActivity(intent);
   }
 

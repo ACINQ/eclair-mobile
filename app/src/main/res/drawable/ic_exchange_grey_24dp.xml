@@ -1,0 +1,25 @@
+<!--
+  ~ Copyright 2018 ACINQ SAS
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+  android:width="24dp"
+  android:height="24dp"
+  android:viewportWidth="24"
+  android:viewportHeight="24">
+  <path
+    android:fillColor="@color/grey_1"
+    android:pathData="M19.094,15.391v2.571c-0.006,0.234 -0.194,0.423 -0.429,0.429H7.643v2.571c-0.001,0.236 -0.192,0.428 -0.429,0.429c-0.12,-0.004 -0.234,-0.051 -0.322,-0.133L2.62,16.971c-0.077,-0.078 -0.121,-0.185 -0.12,-0.295c0,-0.12 0.04,-0.227 0.12,-0.308l4.286,-4.286c0.08,-0.08 0.201,-0.12 0.308,-0.12c0.229,0 0.429,0.188 0.429,0.429v2.571h11.022C18.893,14.962 19.094,15.149 19.094,15.391L19.094,15.391zM21.5,7.324c0,0.105 -0.04,0.227 -0.12,0.308l-4.286,4.286c-0.083,0.078 -0.193,0.121 -0.308,0.12c-0.234,-0.006 -0.423,-0.194 -0.429,-0.429V9.038H5.46C5.226,9.032 5.037,8.844 5.031,8.609V6.038c0,-0.229 0.2,-0.429 0.429,-0.429h10.897V3.038c0,-0.241 0.188,-0.429 0.429,-0.429c0.121,0 0.228,0.053 0.322,0.133l4.271,4.272C21.46,7.096 21.5,7.217 21.5,7.324L21.5,7.324z" />
+</vector>

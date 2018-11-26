@@ -64,8 +64,8 @@ import fr.acinq.eclair.channel.WAIT_FOR_FUNDING_SIGNED$;
 import fr.acinq.eclair.channel.WAIT_FOR_INIT_INTERNAL$;
 import fr.acinq.eclair.channel.WAIT_FOR_OPEN_CHANNEL$;
 import fr.acinq.eclair.router.NORMAL$;
-import fr.acinq.eclair.wallet.actors.NodeSupervisor;
 import fr.acinq.eclair.wallet.R;
+import fr.acinq.eclair.wallet.actors.NodeSupervisor;
 import fr.acinq.eclair.wallet.adapters.LocalChannelItemHolder;
 import fr.acinq.eclair.wallet.databinding.ActivityChannelDetailsBinding;
 import fr.acinq.eclair.wallet.fragments.CloseChannelDialog;
@@ -151,6 +151,7 @@ public class ChannelDetailsActivity extends EclairActivity {
       mBinding.balance.setAmountMsat(new MilliSatoshi(channel.getBalanceMsat()));
       mBinding.balanceFiat.setText(getString(R.string.paymentdetails_amount_fiat, WalletUtils.convertMsatToFiatWithUnit(channel.getBalanceMsat(), WalletUtils.getPreferredFiat(prefs))));
       mBinding.state.setText(channel.state);
+
       if (NORMAL$.MODULE$.toString().equals(channel.state)) {
         mBinding.state.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.green));
       } else if (OFFLINE$.MODULE$.toString().equals(channel.state) || channel.state.startsWith("ERR_")) {
@@ -170,6 +171,17 @@ public class ChannelDetailsActivity extends EclairActivity {
         } else {
           mBinding.closingType.setText(getString(R.string.channeldetails_closingtype_other));
         }
+      }
+
+      // show reconnect buttons if offline
+      if (OFFLINE$.MODULE$.toString().equals(channel.state)) {
+        mBinding.updateNodeAddressSeparator.setVisibility(View.VISIBLE);
+        mBinding.updateNodeAddressButton.setVisibility(View.VISIBLE);
+        mBinding.updateNodeAddressButton.setOnClickListener((v) -> {
+          final Intent intent = new Intent(getBaseContext(), OpenConnectionActivity.class);
+          intent.putExtra(OpenConnectionActivity.EXTRA_CONN_NODE_ID, channel.getPeerNodeId());
+          startActivity(intent);
+        });
       }
 
       mCloseChannelDialog = new CloseChannelDialog(ChannelDetailsActivity.this, dialog -> finish(), actorRef,
