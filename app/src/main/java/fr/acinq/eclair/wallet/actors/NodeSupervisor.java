@@ -22,7 +22,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -59,9 +58,11 @@ import fr.acinq.eclair.channel.WAIT_FOR_ACCEPT_CHANNEL$;
 import fr.acinq.eclair.channel.WAIT_FOR_INIT_INTERNAL$;
 import fr.acinq.eclair.channel.WaitingForRevocation;
 import fr.acinq.eclair.payment.PaymentLifecycle;
+import fr.acinq.eclair.payment.PaymentReceived;
 import fr.acinq.eclair.router.NORMAL$;
 import fr.acinq.eclair.router.SyncProgress;
 import fr.acinq.eclair.transactions.DirectedHtlc;
+import fr.acinq.eclair.transactions.IN$;
 import fr.acinq.eclair.transactions.OUT$;
 import fr.acinq.eclair.wallet.DBHelper;
 import fr.acinq.eclair.wallet.events.ClosingChannelNotificationEvent;
@@ -170,33 +171,19 @@ public class NodeSupervisor extends UntypedActor {
       final ChannelSignatureSent sigSent = (ChannelSignatureSent) message;
       final Either<WaitingForRevocation, Crypto.Point> nextCommitInfo = sigSent.commitments().remoteNextCommitInfo();
       if (nextCommitInfo.isLeft()) {
-        RemoteCommit commit = nextCommitInfo.left().get().nextRemoteCommit();
-        Iterator<DirectedHtlc> htlcsIterator = commit.spec().htlcs().iterator();
+        final RemoteCommit commit = nextCommitInfo.left().get().nextRemoteCommit();
+        final Iterator<DirectedHtlc> htlcsIterator = commit.spec().htlcs().iterator();
         while (htlcsIterator.hasNext()) {
-          DirectedHtlc h = htlcsIterator.next();
-          String htlcPaymentHash = h.add().paymentHash().toString();
-          Payment p = dbHelper.getPayment(htlcPaymentHash, PaymentType.BTC_LN);
-          if (p != null) {
-            // regular case: we know this payment hash
-            if (p.getStatus() == PaymentStatus.INIT) {
+          final DirectedHtlc h = htlcsIterator.next();
+          log.info("sig sent for htlc={}", h);
+          // if htlc is outbound, move payment to PENDING (IN from remote commit means that payment is sent)
+          if (h.direction() instanceof IN$) {
+            final String htlcPaymentHash = h.add().paymentHash().toString();
+            final Payment p = dbHelper.getPayment(htlcPaymentHash, PaymentType.BTC_LN);
+            if (p != null && p.getStatus() == PaymentStatus.INIT) {
               dbHelper.updatePaymentPending(p);
               paymentRefreshScheduler.tell(Constants.REFRESH, null);
             }
-          } else {
-            // rare case: an htlc is sent without the app knowing its payment hash
-            // this can happen if the app could not save the payment into its own payments DB
-            // we don't know much about this htlc, except that it was sent and will affects the channel's balance
-            p = new Payment();
-            p.setType(PaymentType.BTC_LN);
-            p.setDirection(PaymentDirection.SENT);
-            p.setReference(htlcPaymentHash);
-            p.setAmountPaidMsat(h.add().amountMsat());
-            p.setRecipient("unknown recipient");
-            p.setPaymentRequest("unknown invoice");
-            p.setStatus(PaymentStatus.PENDING);
-            p.setUpdated(new Date());
-            dbHelper.insertOrUpdatePayment(p);
-            paymentRefreshScheduler.tell(Constants.REFRESH, null);
           }
         }
       }
@@ -329,7 +316,7 @@ public class NodeSupervisor extends UntypedActor {
       balanceRefreshScheduler.tell(Constants.REFRESH, null);
       channelsRefreshScheduler.tell(Constants.REFRESH, null);
     }
-    // ---- events that update payments status
+    // ---- failed outbound payment
     else if (message instanceof PaymentLifecycle.PaymentFailed) {
       final PaymentLifecycle.PaymentFailed event = (PaymentLifecycle.PaymentFailed) message;
       final Payment paymentInDB = dbHelper.getPayment(event.paymentHash().toString(), PaymentType.BTC_LN);
@@ -348,7 +335,9 @@ public class NodeSupervisor extends UntypedActor {
       } else {
         log.debug("received and ignored an unknown PaymentFailed event with hash={}", event.paymentHash().toString());
       }
-    } else if (message instanceof PaymentLifecycle.PaymentSucceeded) {
+    }
+    // ---- successful outbound payment
+    else if (message instanceof PaymentLifecycle.PaymentSucceeded) {
       final PaymentLifecycle.PaymentSucceeded event = (PaymentLifecycle.PaymentSucceeded) message;
       final Payment paymentInDB = dbHelper.getPayment(event.paymentHash().toString(), PaymentType.BTC_LN);
       if (paymentInDB != null) {
@@ -358,6 +347,22 @@ public class NodeSupervisor extends UntypedActor {
       } else {
         log.debug("received and ignored an unknown PaymentSucceeded event with hash={}", event.paymentHash().toString());
       }
+    }
+    // ---- successful inbound payment
+    else if (message instanceof fr.acinq.eclair.payment.PaymentReceived) {
+      final PaymentReceived pr = (PaymentReceived) message;
+      final Payment paymentInDB = dbHelper.getPayment(pr.paymentHash().toString(), PaymentType.BTC_LN);
+      log.debug("received an payment with hash={}", pr.paymentHash().toString());
+      if (paymentInDB != null) {
+        dbHelper.updatePaymentReceived(paymentInDB, pr.amount().amount());
+      } else {
+        final Payment p = new Payment();
+        p.setType(PaymentType.BTC_LN);
+        p.setDirection(PaymentDirection.RECEIVED);
+        p.setReference(pr.paymentHash().toString());
+        dbHelper.insertOrUpdatePayment(p);
+      }
+      paymentRefreshScheduler.tell(Constants.REFRESH, null);
     }
   }
 

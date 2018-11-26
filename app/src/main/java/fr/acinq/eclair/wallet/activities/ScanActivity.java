@@ -20,18 +20,18 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.view.KeyEvent;
 import android.view.View;
-import android.widget.TextView;
 
+import com.google.zxing.BarcodeFormat;
 import com.google.zxing.ResultPoint;
+import com.google.zxing.client.android.Intents;
 import com.journeyapps.barcodescanner.BarcodeCallback;
 import com.journeyapps.barcodescanner.BarcodeResult;
-import com.journeyapps.barcodescanner.DecoratedBarcodeView;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,47 +40,36 @@ import java.util.List;
 
 import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.R;
+import fr.acinq.eclair.wallet.databinding.ActivityScanBinding;
 import fr.acinq.eclair.wallet.utils.Constants;
 
 public class ScanActivity extends Activity {
-
-  private final Logger log = LoggerFactory.getLogger(ScanActivity.class);
 
   public static final String EXTRA_SCAN_TYPE = BuildConfig.APPLICATION_ID + ".EXTRA_SCAN_TYPE";
   public static final String TYPE_INVOICE = "INVOICE";
   public static final String TYPE_URI_OPEN = "URI_OPEN";
   public static final String TYPE_URI_CONNECT = "URI_CONNECT";
-  private DecoratedBarcodeView mBarcodeView;
-  private TextView mScannedValue;
-  private TextView mScanTitle;
-  String scanType = "";
+  private final Logger log = LoggerFactory.getLogger(ScanActivity.class);
+  private ActivityScanBinding mBinding;
+  private String scanType = "";
 
   private BarcodeCallback callback = new BarcodeCallback() {
     @Override
     public void barcodeResult(BarcodeResult result) {
       final String scannedText = result.getText();
       if (scannedText != null) {
-        mBarcodeView.pause();
-        mScannedValue.setVisibility(View.VISIBLE);
-        mScannedValue.setText(scannedText);
-
-        final Handler dismissHandler = new Handler();
-        dismissHandler.postDelayed(() -> {
-          if (TYPE_INVOICE.equals(scanType)) {
-            Intent intent = new Intent(getBaseContext(), SendPaymentActivity.class);
-            intent.putExtra(SendPaymentActivity.EXTRA_INVOICE, scannedText);
-            startActivity(intent);
-          } else if (TYPE_URI_OPEN.equals(scanType)) {
-            Intent intent = new Intent(getBaseContext(), OpenChannelActivity.class);
-            intent.putExtra(OpenChannelActivity.EXTRA_NEW_HOST_URI, scannedText);
-            startActivity(intent);
-          } else if (TYPE_URI_CONNECT.equals(scanType)) {
-            setResult(RESULT_OK, new Intent().putExtra(OpenChannelActivity.EXTRA_NEW_HOST_URI, scannedText));
-          }
-          finish();
-        }, 500);
-
-        return;
+        if (TYPE_INVOICE.equals(scanType)) {
+          Intent intent = new Intent(getBaseContext(), SendPaymentActivity.class);
+          intent.putExtra(SendPaymentActivity.EXTRA_INVOICE, scannedText);
+          startActivity(intent);
+        } else if (TYPE_URI_OPEN.equals(scanType)) {
+          Intent intent = new Intent(getBaseContext(), OpenChannelActivity.class);
+          intent.putExtra(OpenChannelActivity.EXTRA_NEW_HOST_URI, scannedText);
+          startActivity(intent);
+        } else if (TYPE_URI_CONNECT.equals(scanType)) {
+          setResult(RESULT_OK, new Intent().putExtra(OpenChannelActivity.EXTRA_NEW_HOST_URI, scannedText));
+        }
+        finish();
       }
     }
 
@@ -96,18 +85,19 @@ public class ScanActivity extends Activity {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    setContentView(R.layout.activity_scan);
-    mBarcodeView = findViewById(R.id.scan_view);
-    mBarcodeView.getStatusView().setVisibility(View.GONE);
-    mScannedValue = findViewById(R.id.scan_value);
-    mScanTitle = findViewById(R.id.scan_title);
+    mBinding = DataBindingUtil.setContentView(this, R.layout.activity_scan);
 
-    final Intent intent = getIntent();
-    scanType = intent.getStringExtra(EXTRA_SCAN_TYPE);
+    final Intent barcodeIntent = new Intent();
+    barcodeIntent.putExtra(Intents.Scan.SCAN_TYPE, Intents.Scan.MIXED_SCAN);
+    barcodeIntent.putExtra(Intents.Scan.FORMATS, BarcodeFormat.QR_CODE.toString());
+    mBinding.scanView.getStatusView().setVisibility(View.GONE);
+    mBinding.scanView.initializeFromIntent(barcodeIntent);
+
+    scanType = getIntent().getStringExtra(EXTRA_SCAN_TYPE);
     if (TYPE_INVOICE.equals(scanType)) {
-      mScanTitle.setText(R.string.scan_title_invoice);
+      mBinding.scanTitle.setText(R.string.scan_title_invoice);
     } else if (TYPE_URI_OPEN.equals(scanType) || TYPE_URI_CONNECT.equals(scanType)) {
-      mScanTitle.setText(R.string.scan_title_ln_uri);
+      mBinding.scanTitle.setText(R.string.scan_title_ln_uri);
     } else {
       log.error("invalid scan requested scanType {}", scanType);
       finish();
@@ -121,7 +111,7 @@ public class ScanActivity extends Activity {
   }
 
   private void startScanning() {
-    mBarcodeView.decodeContinuous(callback);
+    mBinding.scanView.decodeContinuous(callback);
   }
 
   @Override
@@ -138,17 +128,17 @@ public class ScanActivity extends Activity {
   @Override
   protected void onResume() {
     super.onResume();
-    mBarcodeView.resume();
+    mBinding.scanView.resume();
   }
 
   @Override
   protected void onPause() {
     super.onPause();
-    mBarcodeView.pause();
+    mBinding.scanView.pause();
   }
 
   @Override
   public boolean onKeyDown(int keyCode, KeyEvent event) {
-    return mBarcodeView.onKeyDown(keyCode, event) || super.onKeyDown(keyCode, event);
+    return mBinding.scanView.onKeyDown(keyCode, event) || super.onKeyDown(keyCode, event);
   }
 }

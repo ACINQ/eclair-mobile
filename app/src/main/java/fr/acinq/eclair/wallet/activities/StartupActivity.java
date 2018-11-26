@@ -61,6 +61,7 @@ import fr.acinq.eclair.payment.PaymentLifecycle;
 import fr.acinq.eclair.router.SyncProgress;
 import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.BuildConfig;
+import fr.acinq.eclair.wallet.DBHelper;
 import fr.acinq.eclair.wallet.actors.NodeSupervisor;
 import fr.acinq.eclair.wallet.actors.ElectrumSupervisor;
 import fr.acinq.eclair.wallet.R;
@@ -218,9 +219,17 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
         return false;
       }
     }
-    if (!isFreshInstall && lastUsedVersion <= 15) {
-      if ("testnet".equals(BuildConfig.CHAIN)) {
+    // migration scripts based on last used version, only if the application has already been started
+    if (!isFreshInstall) {
+      if (lastUsedVersion <= 15 && "testnet".equals(BuildConfig.CHAIN)) {
+        // version 16 breaks the application's data folder structure
         migrateTestnetSqlite(datadir);
+      }
+      if (lastUsedVersion <= 28) {
+        // if last used version is 28 or earlier, we need to reset the network DB due to changes in DB structure
+        // see https://github.com/ACINQ/eclair/pull/738
+        // note that only the android branch breaks compatibility, due to the absence of a blob 'data' column
+        WalletUtils.getNetworkDBFile(getApplicationContext()).delete();
       }
     }
     return true;

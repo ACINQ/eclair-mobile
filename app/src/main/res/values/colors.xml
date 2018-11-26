@@ -29,9 +29,11 @@
   <color name="grey_0_light_x3">#f9f9f9</color>
   <color name="grey_0_light_x2">#f6f6f6</color>
   <color name="grey_0_light_x1">#f2f2f2</color>
-  <color name="grey_0_dark_x1">#dedede</color>
+  <color name="grey_0_dark_x1">#e8e9eb</color>
+  <color name="grey_0_dark_x2">#dedede</color>
   <!-- light grey for text that should be almost invisible to the user -->
   <color name="grey_1">#bbbbbb</color>
+  <color name="grey_1_dark_x1">#acacac</color>
   <!-- light grey, ok for non important text -->
   <color name="grey_2">#888888</color>
   <!-- standard grey -->

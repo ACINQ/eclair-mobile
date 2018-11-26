@@ -123,8 +123,9 @@
     </android.support.constraint.ConstraintLayout>
 
     <TextView
-      style="@style/RoundedWhitePanelIcon"
-      android:drawableStart="@drawable/ic_circle_check"
+      style="@style/RoundedWhitePanel"
+      android:drawablePadding="@dimen/space_xs"
+      android:drawableStart="@drawable/ic_circle_check_green_24dp"
       android:text="@string/openconn_success"
       android:visibility="@{connectionStep == Constants.NODE_CONNECT_SUCCESS ? View.VISIBLE : View.GONE}" />
   </RelativeLayout>
