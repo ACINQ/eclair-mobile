@@ -59,4 +59,5 @@
   <color name="white_low_alpha">#11ffffff</color>
   <color name="almost_white">#fbfbfb</color>
   <color name="intro">#ffe785</color>
+  <color name="black_overlay">#10000000</color>
 </resources>
