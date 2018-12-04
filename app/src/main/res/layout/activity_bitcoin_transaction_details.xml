@@ -130,6 +130,7 @@
           android:layout_height="wrap_content"
           app:action_label="@string/open_in_explorer"
           app:has_action="true"
+          app:has_border="true"
           app:label="@string/transactiondetails_txid_label"
           app:value="@string/unknown" />
 

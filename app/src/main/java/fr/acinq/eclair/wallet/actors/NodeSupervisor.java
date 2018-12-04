@@ -16,6 +16,7 @@
 
 package fr.acinq.eclair.wallet.actors;
 
+import fr.acinq.eclair.channel.*;
 import org.greenrobot.eventbus.EventBus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,27 +37,6 @@ import fr.acinq.bitcoin.Crypto;
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.bitcoin.package$;
-import fr.acinq.eclair.channel.CLOSED$;
-import fr.acinq.eclair.channel.CLOSING$;
-import fr.acinq.eclair.channel.Channel;
-import fr.acinq.eclair.channel.ChannelCreated;
-import fr.acinq.eclair.channel.ChannelFailed;
-import fr.acinq.eclair.channel.ChannelIdAssigned;
-import fr.acinq.eclair.channel.ChannelPersisted;
-import fr.acinq.eclair.channel.ChannelRestored;
-import fr.acinq.eclair.channel.ChannelSignatureReceived;
-import fr.acinq.eclair.channel.ChannelSignatureSent;
-import fr.acinq.eclair.channel.ChannelStateChanged;
-import fr.acinq.eclair.channel.Commitments;
-import fr.acinq.eclair.channel.DATA_CLOSING;
-import fr.acinq.eclair.channel.HasCommitments;
-import fr.acinq.eclair.channel.LocalCommit;
-import fr.acinq.eclair.channel.LocalCommitConfirmed;
-import fr.acinq.eclair.channel.RemoteCommit;
-import fr.acinq.eclair.channel.ShortChannelIdAssigned;
-import fr.acinq.eclair.channel.WAIT_FOR_ACCEPT_CHANNEL$;
-import fr.acinq.eclair.channel.WAIT_FOR_INIT_INTERNAL$;
-import fr.acinq.eclair.channel.WaitingForRevocation;
 import fr.acinq.eclair.payment.PaymentLifecycle;
 import fr.acinq.eclair.payment.PaymentReceived;
 import fr.acinq.eclair.router.NORMAL$;
@@ -380,12 +360,25 @@ public class NodeSupervisor extends UntypedActor {
    */
   public static boolean hasNormalChannelsWithBalance(final long requiredBalanceMsat) {
     for (LocalChannel d : activeChannelsMap.values()) {
-      if (NORMAL$.MODULE$.toString().equals(d.state)
+      if ((NORMAL$.MODULE$.toString().equals(d.state) || OFFLINE$.MODULE$.toString().equals(d.state))
         & d.getBalanceMsat() > requiredBalanceMsat + package$.MODULE$.satoshi2millisatoshi(new Satoshi(d.getChannelReserveSat())).amount()) {
         return true;
       }
     }
     return false;
+  }
+
+  /**
+   * Return true if all the active channels are offline. If there are no active channels, return false.
+   */
+  public static boolean areAllChannelsOffline() {
+    if (activeChannelsMap.isEmpty()) return false;
+    for (LocalChannel d : activeChannelsMap.values()) {
+      if (!OFFLINE$.MODULE$.toString().equals(d.state)) {
+        return false;
+      }
+    }
+    return true;
   }
 
   public static Map.Entry<ActorRef, LocalChannel> getChannelFromId(String channelId) {

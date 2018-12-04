@@ -22,6 +22,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -67,11 +68,14 @@ public class SendPaymentActivity extends EclairActivity
 
   public static final String EXTRA_INVOICE = BuildConfig.APPLICATION_ID + ".EXTRA_INVOICE";
   private final static List<String> LIGHTNING_PREFIXES = Arrays.asList("lightning:", "lightning://");
-  public final static int LOADING = 0;
-  public final static int READ_ERROR = 1;
-  public final static int PICK_PAYMENT_TYPE = 2;
-  public final static int ONCHAIN_PAYMENT = 3;
-  public final static int LIGHTNING_PAYMENT = 4;
+
+  public enum Steps {
+    LOADING,
+    INVOICE_READING_ERROR,
+    PICK_PAYMENT_SETTLEMENT_TYPE,
+    ON_CHAIN_PAYMENT,
+    LIGHTNING_PAYMENT,
+  }
 
   private boolean isProcessingPayment = false;
   private Either<BitcoinURI, PaymentRequest> invoice;
@@ -107,38 +111,49 @@ public class SendPaymentActivity extends EclairActivity
   }
 
   /**
-   * Checks if a payment request is correct, and returns a string with an error message if not.
+   * Checks if a payment request is correct; if not, display a message.
    *
-   * @param paymentRequest
-   * @return Option.None if no problem was found, string message otherwise
+   * @return true if the payment can be handled, false otherwise
    */
-  private Option<String> checkPaymentRequest(final PaymentRequest paymentRequest) {
-    final Option<String> acceptedPrefix = PaymentRequest.prefixes().get(WalletUtils.getChainHash());
+  private boolean checkPaymentRequestValid(final PaymentRequest paymentRequest) {
     // check payment request chain
+    final Option<String> acceptedPrefix = PaymentRequest.prefixes().get(WalletUtils.getChainHash());
     if (acceptedPrefix.isEmpty() || !acceptedPrefix.get().equals(paymentRequest.prefix())) {
-      return Option.apply(getString(R.string.payment_ln_invalid_chain, BuildConfig.CHAIN.toUpperCase()));
-    }
-    // check lightning channels status
-    if (NodeSupervisor.getChannelsMap().size() == 0) {
-      return Option.apply(getString(R.string.payment_error_ln_no_channels));
-    }
-    // check channels balance is enough
-    if (paymentRequest.amount().isDefined() && !NodeSupervisor.hasNormalChannelsWithBalance(WalletUtils.getAmountFromInvoice(paymentRequest).amount())) {
-      return Option.apply(getString(R.string.payment_error_ln_insufficient_funds));
+      canNotHandlePayment(getString(R.string.payment_ln_invalid_chain, BuildConfig.CHAIN.toUpperCase()));
+      return false;
     }
     // check that payment is not already processed
     final Payment paymentInDB = app.getDBHelper().getPayment(paymentRequest.paymentHash().toString(), PaymentType.BTC_LN);
     if (paymentInDB != null && paymentInDB.getStatus() == PaymentStatus.PENDING) {
-      return Option.apply(getString(R.string.payment_error_pending));
+      canNotHandlePayment(R.string.payment_error_pending);
+      return false;
     } else if (paymentInDB != null && paymentInDB.getStatus() == PaymentStatus.PAID) {
-      return Option.apply(getString(R.string.payment_error_paid));
+      canNotHandlePayment(R.string.payment_error_paid);
+      return false;
     }
     // check that the payment has not expired
     long expirySecs = paymentRequest.expiry().isDefined() ? (Long) paymentRequest.expiry().get() : 60 * 60; // default expiry is 1 hour = 3600 seconds
     if (paymentRequest.timestamp() + expirySecs < System.currentTimeMillis() / 1000) {
-      return Option.apply(getString(R.string.payment_ln_expiry_outdated));
+      canNotHandlePayment(R.string.payment_ln_expiry_outdated);
+      return false;
     }
-    return Option.apply(null);
+    // check lightning channels status
+    if (NodeSupervisor.getChannelsMap().size() == 0) {
+      canNotHandlePayment(R.string.payment_error_ln_no_channels);
+      return false;
+    }
+    // check channels balance is sufficient
+    if (paymentRequest.amount().isDefined() && !NodeSupervisor.hasNormalChannelsWithBalance(WalletUtils.getAmountFromInvoice(paymentRequest).amount())) {
+      canNotHandlePayment(getString(R.string.payment_error_ln_insufficient_funds));
+      return false;
+    }
+    return true;
+  }
+
+  private void checkLightningChannelsReady() {
+    // special case if all the channels are offline: we may simply have to wait for the connection to be established.
+    mBinding.setEnableSendButton(!NodeSupervisor.areAllChannelsOffline());
+    new Handler().postDelayed(this::checkLightningChannelsReady, 1000);
   }
 
   private void setupOnchainPaymentForm(final BitcoinURI bitcoinURI) {
@@ -147,19 +162,19 @@ public class SendPaymentActivity extends EclairActivity
       mBinding.amountEditableHint.setVisibility(View.GONE);
       mBinding.amountEditableValue.setText(CoinUtils.formatAmountInUnit(amountMsat, preferredBitcoinUnit, false));
       mBinding.amountFiat.setText(WalletUtils.convertMsatToFiatWithUnit(amountMsat.amount(), preferredFiatCurrency));
+    } else {
+      // only open the keyboard forcibly if no amount was set in the URI. This makes for a cleaner initial display.
+      forceFocusAmount(null);
     }
     setFeesToDefault();
     mBinding.recipientValue.setText(bitcoinURI.getAddress());
-    forceFocusAmount(null);
-    mBinding.setPaymentStep(ONCHAIN_PAYMENT);
+    mBinding.setPaymentStep(Steps.ON_CHAIN_PAYMENT);
     invoice = Left.apply(bitcoinURI);
   }
 
   private void setupLightningPaymentForm(final PaymentRequest paymentRequest) {
-    final Option<String> error_opt = checkPaymentRequest(paymentRequest);
-    if (error_opt.isDefined()) {
-      canNotHandlePayment(error_opt.get());
-    } else {
+    if (checkPaymentRequestValid(paymentRequest)) {
+      checkLightningChannelsReady();
       if (!capLightningFees) {
         mBinding.feesWarning.setText(R.string.payment_fees_not_capped);
         mBinding.feesWarning.setVisibility(View.VISIBLE);
@@ -172,8 +187,12 @@ public class SendPaymentActivity extends EclairActivity
       mBinding.recipientValue.setText(paymentRequest.nodeId().toBin().toString());
       final Either<String, BinaryData> desc = paymentRequest.description();
       mBinding.descriptionValue.setText(desc.isLeft() ? desc.left().get() : desc.right().get().toString());
-      forceFocusAmount(null);
-      mBinding.setPaymentStep(LIGHTNING_PAYMENT);
+      if (paymentRequest.amount().isEmpty()) {
+        // only open the keyboard forcibly if no amount was set in the payment request. This makes for a cleaner initial
+        // display in the regular cases (that is, payment request has a predefined amount).
+        forceFocusAmount(null);
+      }
+      mBinding.setPaymentStep(Steps.LIGHTNING_PAYMENT);
       invoice = Right.apply(paymentRequest);
     }
   }
@@ -184,7 +203,7 @@ public class SendPaymentActivity extends EclairActivity
 
   private void canNotHandlePayment(final String message) {
     mBinding.readError.setText(message);
-    mBinding.setPaymentStep(READ_ERROR);
+    mBinding.setPaymentStep(Steps.INVOICE_READING_ERROR);
   }
 
   /**
@@ -205,7 +224,7 @@ public class SendPaymentActivity extends EclairActivity
           mBinding.pickLightning.setOnClickListener(v -> setupLightningPaymentForm(paymentRequest));
         }
         mBinding.pickOnchain.setOnClickListener(v -> setupOnchainPaymentForm(bitcoinURI));
-        mBinding.setPaymentStep(PICK_PAYMENT_TYPE);
+        mBinding.setPaymentStep(Steps.PICK_PAYMENT_SETTLEMENT_TYPE);
       } else {
         setupOnchainPaymentForm(bitcoinURI);
       }
@@ -265,6 +284,10 @@ public class SendPaymentActivity extends EclairActivity
    * Opens a PIN dialog to confirm the payment. If the PIN is correct the payment is executed.
    */
   public void confirmPayment(final View view) {
+
+    if (!mBinding.getEnableSendButton()) {
+      return;
+    }
 
     // Stop if a payment is already being processed
     if (isProcessingPayment) return;
@@ -445,7 +468,7 @@ public class SendPaymentActivity extends EclairActivity
       mBinding.feesRating.setEnabled(false);
       mBinding.btnSend.setEnabled(false);
       mBinding.btnCancel.setEnabled(false);
-      mBinding.layoutButtons.setAlpha(0.3f);
+      mBinding.btnSend.setAlpha(0.3f);
       mBinding.paymentError.setVisibility(View.GONE);
     } else {
       mBinding.amountEditableValue.setEnabled(true);
@@ -453,7 +476,7 @@ public class SendPaymentActivity extends EclairActivity
       mBinding.feesRating.setEnabled(true);
       mBinding.btnSend.setEnabled(true);
       mBinding.btnCancel.setEnabled(true);
-      mBinding.layoutButtons.setAlpha(1);
+      mBinding.btnSend.setAlpha(1);
     }
   }
 
@@ -470,8 +493,8 @@ public class SendPaymentActivity extends EclairActivity
     super.onCreate(savedInstanceState);
     mBinding = DataBindingUtil.setContentView(this, R.layout.activity_send_payment);
     setFeesToDefault();
-    mBinding.setPaymentStep(LOADING);
-
+    mBinding.setPaymentStep(Steps.LOADING);
+    mBinding.setEnableSendButton(true);
     final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
     preferredBitcoinUnit = WalletUtils.getPreferredCoinUnit(sharedPref);
     preferredFiatCurrency = WalletUtils.getPreferredFiat(sharedPref);

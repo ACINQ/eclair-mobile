@@ -49,8 +49,6 @@
   <string name="home_no_backup">NO BACKUP</string>
   <string name="home_backup_disabled_icon_desc">Channels backup is disabled!</string>
 
-  <string name="payment_do_send">Pay</string>
-
   <string name="payments_title">Transaction history</string>
   <string name="payments_empty">No transactions yet…</string>
   <string name="localchannels_title">Lightning Channels</string>
@@ -330,6 +328,8 @@
   <string name="payment_tx_creation_error">Transaction is invalid</string>
   <string name="payment_tx_failed">Transaction failed</string>
   <string name="payment_toast_failure">Could not send transaction: %1$s</string>
+  <string name="payment_do_send">Pay</string>
+  <string name="payment_do_send_wait">Channels not ready…</string>
 
   <string name="payment_error">This payment is not valid.</string>
   <string name="payment_error_fees_onchain">The fees value is not valid.</string>
