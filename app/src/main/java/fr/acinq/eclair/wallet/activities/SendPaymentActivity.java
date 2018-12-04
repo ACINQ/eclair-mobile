@@ -26,18 +26,7 @@ import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
-
-import org.bitcoinj.uri.BitcoinURI;
-import org.greenrobot.eventbus.util.AsyncExecutor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-
 import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.Satoshi;
@@ -46,11 +35,10 @@ import fr.acinq.eclair.CoinUnit;
 import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.wallet.BuildConfig;
-import fr.acinq.eclair.wallet.actors.NodeSupervisor;
 import fr.acinq.eclair.wallet.R;
+import fr.acinq.eclair.wallet.actors.NodeSupervisor;
 import fr.acinq.eclair.wallet.databinding.ActivitySendPaymentBinding;
 import fr.acinq.eclair.wallet.fragments.PinDialog;
-import fr.acinq.eclair.wallet.models.FeeRating;
 import fr.acinq.eclair.wallet.models.Payment;
 import fr.acinq.eclair.wallet.models.PaymentDirection;
 import fr.acinq.eclair.wallet.models.PaymentStatus;
@@ -59,13 +47,21 @@ import fr.acinq.eclair.wallet.tasks.BitcoinInvoiceReaderTask;
 import fr.acinq.eclair.wallet.tasks.LNInvoiceReaderTask;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
+import org.bitcoinj.uri.BitcoinURI;
+import org.greenrobot.eventbus.util.AsyncExecutor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import scala.Option;
 import scala.util.Either;
 import scala.util.Left;
 import scala.util.Right;
 
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+
 public class SendPaymentActivity extends EclairActivity
-  implements LNInvoiceReaderTask.AsyncInvoiceReaderTaskResponse, BitcoinInvoiceReaderTask.AsyncInvoiceReaderTaskResponse {
+    implements LNInvoiceReaderTask.AsyncInvoiceReaderTaskResponse, BitcoinInvoiceReaderTask.AsyncInvoiceReaderTaskResponse {
 
   private final Logger log = LoggerFactory.getLogger(SendPaymentActivity.class);
 
@@ -80,7 +76,6 @@ public class SendPaymentActivity extends EclairActivity
   private boolean isProcessingPayment = false;
   private Either<BitcoinURI, PaymentRequest> invoice;
   private String invoiceAsString = null;
-  private boolean isAmountReadonly = true;
 
   private ActivitySendPaymentBinding mBinding;
 
@@ -117,7 +112,7 @@ public class SendPaymentActivity extends EclairActivity
    * @param paymentRequest
    * @return Option.None if no problem was found, string message otherwise
    */
-  private Option<String> checkPaymentRequestError(final PaymentRequest paymentRequest) {
+  private Option<String> checkPaymentRequest(final PaymentRequest paymentRequest) {
     final Option<String> acceptedPrefix = PaymentRequest.prefixes().get(WalletUtils.getChainHash());
     // check payment request chain
     if (acceptedPrefix.isEmpty() || !acceptedPrefix.get().equals(paymentRequest.prefix())) {
@@ -126,26 +121,32 @@ public class SendPaymentActivity extends EclairActivity
     // check lightning channels status
     if (NodeSupervisor.getChannelsMap().size() == 0) {
       return Option.apply(getString(R.string.payment_error_ln_no_channels));
-    } else {
-      // check that payment is not already processed
-      final Payment paymentInDB = app.getDBHelper().getPayment(paymentRequest.paymentHash().toString(), PaymentType.BTC_LN);
-      if (paymentInDB != null && paymentInDB.getStatus() == PaymentStatus.PENDING) {
-        return Option.apply(getString(R.string.payment_error_pending));
-      } else if (paymentInDB != null && paymentInDB.getStatus() == PaymentStatus.PAID) {
-        return Option.apply(getString(R.string.payment_error_paid));
-      }
+    }
+    // check channels balance is enough
+    if (paymentRequest.amount().isDefined() && !NodeSupervisor.hasNormalChannelsWithBalance(WalletUtils.getAmountFromInvoice(paymentRequest).amount())) {
+      return Option.apply(getString(R.string.payment_error_ln_insufficient_funds));
+    }
+    // check that payment is not already processed
+    final Payment paymentInDB = app.getDBHelper().getPayment(paymentRequest.paymentHash().toString(), PaymentType.BTC_LN);
+    if (paymentInDB != null && paymentInDB.getStatus() == PaymentStatus.PENDING) {
+      return Option.apply(getString(R.string.payment_error_pending));
+    } else if (paymentInDB != null && paymentInDB.getStatus() == PaymentStatus.PAID) {
+      return Option.apply(getString(R.string.payment_error_paid));
+    }
+    // check that the payment has not expired
+    long expirySecs = paymentRequest.expiry().isDefined() ? (Long) paymentRequest.expiry().get() : 60 * 60; // default expiry is 1 hour = 3600 seconds
+    if (paymentRequest.timestamp() + expirySecs < System.currentTimeMillis() / 1000) {
+      return Option.apply(getString(R.string.payment_ln_expiry_outdated));
     }
     return Option.apply(null);
   }
 
   private void setupOnchainPaymentForm(final BitcoinURI bitcoinURI) {
-    isAmountReadonly = bitcoinURI.getAmount() != null;
-    if (isAmountReadonly) {
+    if (bitcoinURI.getAmount() != null) {
       final MilliSatoshi amountMsat = package$.MODULE$.satoshi2millisatoshi(bitcoinURI.getAmount());
       mBinding.amountEditableHint.setVisibility(View.GONE);
       mBinding.amountEditableValue.setText(CoinUtils.formatAmountInUnit(amountMsat, preferredBitcoinUnit, false));
       mBinding.amountFiat.setText(WalletUtils.convertMsatToFiatWithUnit(amountMsat.amount(), preferredFiatCurrency));
-      disableAmountInteractions();
     }
     setFeesToDefault();
     mBinding.recipientValue.setText(bitcoinURI.getAddress());
@@ -155,7 +156,7 @@ public class SendPaymentActivity extends EclairActivity
   }
 
   private void setupLightningPaymentForm(final PaymentRequest paymentRequest) {
-    final Option<String> error_opt = checkPaymentRequestError(paymentRequest);
+    final Option<String> error_opt = checkPaymentRequest(paymentRequest);
     if (error_opt.isDefined()) {
       canNotHandlePayment(error_opt.get());
     } else {
@@ -163,31 +164,18 @@ public class SendPaymentActivity extends EclairActivity
         mBinding.feesWarning.setText(R.string.payment_fees_not_capped);
         mBinding.feesWarning.setVisibility(View.VISIBLE);
       }
-      isAmountReadonly = paymentRequest.amount().isDefined();
-      if (isAmountReadonly) {
+      if (paymentRequest.amount().isDefined()) {
         final MilliSatoshi amountMsat = WalletUtils.getAmountFromInvoice(paymentRequest);
-        if (!NodeSupervisor.hasNormalChannelsWithBalance(amountMsat.amount())) {
-          canNotHandlePayment(R.string.payment_error_ln_insufficient_funds);
-          return;
-        }
         mBinding.amountEditableValue.setText(CoinUtils.rawAmountInUnit(amountMsat, preferredBitcoinUnit).bigDecimal().toPlainString());
         mBinding.amountFiat.setText(WalletUtils.convertMsatToFiatWithUnit(amountMsat.amount(), preferredFiatCurrency));
-        // the amount can be overridden by the user to reduce information leakage, lightning allows payments to be overpaid
-        // see https://github.com/lightningnetwork/lightning-rfc/blob/master/04-onion-routing.md#requirements-2
-        // as such, the amount field stays editable.
       }
       mBinding.recipientValue.setText(paymentRequest.nodeId().toBin().toString());
-      Either<String, BinaryData> desc = paymentRequest.description();
+      final Either<String, BinaryData> desc = paymentRequest.description();
       mBinding.descriptionValue.setText(desc.isLeft() ? desc.left().get() : desc.right().get().toString());
       forceFocusAmount(null);
       mBinding.setPaymentStep(LIGHTNING_PAYMENT);
       invoice = Right.apply(paymentRequest);
     }
-  }
-
-  private void disableAmountInteractions() {
-    mBinding.amountEditableValue.setEnabled(false);
-    mBinding.amountEditableValue.setOnClickListener(null);
   }
 
   private void canNotHandlePayment(final int messageId) {
@@ -229,12 +217,10 @@ public class SendPaymentActivity extends EclairActivity
   }
 
   public void forceFocusAmount(final View view) {
-    if (!isAmountReadonly) {
-      mBinding.amountEditableValue.requestFocus();
-      final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-      if (imm != null) {
-        imm.showSoftInput(mBinding.amountEditableValue, 0);
-      }
+    mBinding.amountEditableValue.requestFocus();
+    final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+    if (imm != null) {
+      imm.showSoftInput(mBinding.amountEditableValue, 0);
     }
   }
 
@@ -320,9 +306,7 @@ public class SendPaymentActivity extends EclairActivity
         }
       } else if (isOnchainInvoice()) {
         final BitcoinURI bitcoinURI = invoice.left().get();
-        final Satoshi amountSat = isAmountReadonly
-          ? bitcoinURI.getAmount()
-          : CoinUtils.convertStringAmountToSat(mBinding.amountEditableValue.getText().toString(), preferredBitcoinUnit.code());
+        final Satoshi amountSat = CoinUtils.convertStringAmountToSat(mBinding.amountEditableValue.getText().toString(), preferredBitcoinUnit.code());
         if (amountSat.$greater(app.getOnchainBalance())) {
           handlePaymentError(R.string.payment_error_amount_onchain_insufficient_funds);
           return;
@@ -391,35 +375,33 @@ public class SendPaymentActivity extends EclairActivity
     } else if (p != null && p.getStatus() == PaymentStatus.PENDING) {
       canNotHandlePayment(R.string.payment_error_pending);
     } else {
-      AsyncExecutor.create().execute(
-        () -> {
-          // payment attempt is processed if it does not already exist or is not failed/init
-          if (p == null) {
-            final String paymentDescription = pr.description().isLeft() ? pr.description().left().get() : pr.description().right().get().toString();
-            final Payment newPayment = new Payment();
-            newPayment.setType(PaymentType.BTC_LN);
-            newPayment.setDirection(PaymentDirection.SENT);
-            newPayment.setReference(paymentHash);
-            newPayment.setAmountRequestedMsat(WalletUtils.getLongAmountFromInvoice(pr));
-            newPayment.setAmountSentMsat(amountMsat);
-            newPayment.setRecipient(pr.nodeId().toString());
-            newPayment.setPaymentRequest(prAsString.toLowerCase());
-            newPayment.setStatus(PaymentStatus.INIT);
-            newPayment.setDescription(paymentDescription);
-            newPayment.setUpdated(new Date());
-            app.getDBHelper().insertOrUpdatePayment(newPayment);
-          } else {
-            p.setAmountSentMsat(amountMsat);
-            p.setUpdated(new Date());
-            app.getDBHelper().insertOrUpdatePayment(p);
-          }
-
-          // execute payment future, with cltv expiry + 1 to prevent the case where a block is mined just
-          // when the payment is made, which would fail the payment.
-          log.info("(lightning) sending {} msat for invoice {}", amountMsat, prAsString);
-          app.sendLNPayment(pr, amountMsat, capLightningFees);
+      AsyncExecutor.create().execute(() -> {
+        // payment attempt is processed if it does not already exist or is not failed/init
+        if (p == null) {
+          final String paymentDescription = pr.description().isLeft() ? pr.description().left().get() : pr.description().right().get().toString();
+          final Payment newPayment = new Payment();
+          newPayment.setType(PaymentType.BTC_LN);
+          newPayment.setDirection(PaymentDirection.SENT);
+          newPayment.setReference(paymentHash);
+          newPayment.setAmountRequestedMsat(WalletUtils.getLongAmountFromInvoice(pr));
+          newPayment.setAmountSentMsat(amountMsat);
+          newPayment.setRecipient(pr.nodeId().toString());
+          newPayment.setPaymentRequest(prAsString.toLowerCase());
+          newPayment.setStatus(PaymentStatus.INIT);
+          newPayment.setDescription(paymentDescription);
+          newPayment.setUpdated(new Date());
+          app.getDBHelper().insertOrUpdatePayment(newPayment);
+        } else {
+          p.setAmountSentMsat(amountMsat);
+          p.setUpdated(new Date());
+          app.getDBHelper().insertOrUpdatePayment(p);
         }
-      );
+
+        // execute payment future, with cltv expiry + 1 to prevent the case where a block is mined just
+        // when the payment is made, which would fail the payment.
+        log.info("(lightning) sending {} msat for invoice {}", amountMsat, prAsString);
+        app.sendLNPayment(pr, amountMsat, capLightningFees);
+      });
       closeAndGoHome();
     }
   }

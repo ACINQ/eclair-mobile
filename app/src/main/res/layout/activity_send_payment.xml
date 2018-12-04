@@ -38,29 +38,43 @@
     android:layout_height="match_parent">
 
     <!-- loading message displayed when the invoice is being read -->
-    <TextView
-      android:layout_width="match_parent"
+    <LinearLayout
+      android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_centerInParent="true"
       android:layout_margin="@dimen/space_md"
       android:elevation="4dp"
+      android:gravity="start|center"
+      android:orientation="horizontal"
       android:padding="@dimen/space_md"
-      android:text="@string/payment_loading_pleasewait"
-      android:textAlignment="center"
-      android:textColor="@color/grey_3"
-      android:visibility="@{paymentStep == SendPaymentActivity.LOADING ? View.VISIBLE : View.GONE}" />
+      android:visibility="@{paymentStep == SendPaymentActivity.LOADING ? View.VISIBLE : View.GONE}">
+
+      <ProgressBar
+        style="?android:attr/progressBarStyleSmall"
+        android:layout_width="24dp"
+        android:layout_height="24dp" />
+
+      <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/space_sm"
+        android:text="@string/payment_loading_pleasewait"
+        android:textColor="@color/grey_3" />
+    </LinearLayout>
 
     <!-- error when reading invoice -->
     <TextView
       android:id="@+id/read_error"
-      android:layout_width="match_parent"
+      android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_centerInParent="true"
       android:layout_margin="@dimen/space_md"
+      android:drawableStart="@drawable/ic_circle_cross_red_18dp"
+      android:drawablePadding="@dimen/space_sm"
       android:elevation="4dp"
+      android:gravity="start|center"
       android:padding="@dimen/space_md"
       android:text="@string/payment_invalid_address"
-      android:textAlignment="center"
       android:textColor="@color/grey_4"
       android:textIsSelectable="true"
       android:visibility="@{paymentStep == SendPaymentActivity.READ_ERROR ? View.VISIBLE : View.GONE}" />
@@ -145,8 +159,8 @@
       android:layout_height="wrap_content"
       android:fadeScrollbars="false"
       android:fillViewport="true"
-      android:scrollbars="vertical"
       android:isScrollContainer="true"
+      android:scrollbars="vertical"
       android:visibility="@{paymentStep == SendPaymentActivity.ONCHAIN_PAYMENT || paymentStep == SendPaymentActivity.LIGHTNING_PAYMENT ? View.VISIBLE : View.GONE}">
 
       <LinearLayout
@@ -341,8 +355,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:focusable="true"
             android:clickable="true"
+            android:focusable="true"
             android:onClick="forceFocusFees"
             android:orientation="horizontal">
 
@@ -429,17 +443,17 @@
         <TextView
           android:id="@+id/payment_error"
           android:layout_width="wrap_content"
-          android:visibility="gone"
           android:layout_height="wrap_content"
-          android:layout_marginTop="8dp"
           android:layout_marginLeft="32dp"
+          android:layout_marginTop="8dp"
           android:layout_marginRight="32dp"
           android:drawableStart="@drawable/ic_error"
           android:drawablePadding="6dp"
           android:gravity="start|center"
           android:text="@string/payment_error"
           android:textColor="@color/red_faded"
-          android:textSize="12sp" />
+          android:textSize="12sp"
+          android:visibility="gone" />
 
         <!-- buttons -->
         <LinearLayout
