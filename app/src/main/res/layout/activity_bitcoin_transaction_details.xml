@@ -49,7 +49,6 @@
         <LinearLayout
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:background="@drawable/rounded_corner_grey_top"
           android:orientation="vertical"
           android:padding="@dimen/space_md">
 
@@ -131,13 +130,9 @@
           android:layout_height="wrap_content"
           app:action_label="@string/open_in_explorer"
           app:has_action="true"
+          app:has_border="true"
           app:label="@string/transactiondetails_txid_label"
           app:value="@string/unknown" />
-
-        <TextView
-          style="@style/RoundedTitleBar"
-          android:drawableStart="@drawable/ic_hammer_grey_14dp"
-          android:text="@string/paymentdetails_technicals_title" />
 
         <fr.acinq.eclair.wallet.customviews.DataRow
           android:id="@+id/confs_type"
@@ -161,6 +156,7 @@
           android:id="@+id/date"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
+          app:is_bottom_rounded="true"
           app:label="@string/transactiondetails_date_label"
           app:value="@string/unknown" />
 
