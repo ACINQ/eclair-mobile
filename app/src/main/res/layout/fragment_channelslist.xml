@@ -15,8 +15,7 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:app="http://schemas.android.com/apk/res-auto">
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
 
   <data>
 
@@ -62,34 +61,23 @@
         android:id="@+id/active_channels_list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/space_md"
+        android:layout_marginTop="@dimen/space_sm"
         android:nestedScrollingEnabled="false"
         android:visibility="@{activeSize > 0 ? View.VISIBLE : View.GONE}" />
 
-      <LinearLayout
+      <Button
         android:id="@+id/toggle_inactive"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:clickable="true"
-        android:focusable="true"
-        android:gravity="center"
+        style="@style/ButtonStyle"
+        android:layout_gravity="center"
+        android:drawableStart="@{showInactive ? @drawable/ic_expand_less_grey_24dp : @drawable/ic_expand_more_grey_24dp}"
+        android:drawablePadding="@dimen/space_xxs"
+        android:foreground="@android:color/transparent"
         android:padding="@dimen/space_sm"
-        android:visibility="@{inactiveSize > 0 ? View.VISIBLE : View.GONE}">
-
-        <ImageView
-          android:layout_width="20dp"
-          android:layout_height="20dp"
-          android:src="@{showInactive ? @drawable/ic_expand_less : @drawable/ic_expand_more}" />
-
-        <TextView
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:layout_marginStart="@dimen/space_xxs"
-          android:text="@{showInactive ? @string/localchannels_hide_inactive : @string/localchannels_show_inactive}"
-          android:textAllCaps="true"
-          android:textColor="@color/grey_1"
-          android:textSize="10sp" />
-      </LinearLayout>
+        android:text="@{showInactive ? @string/localchannels_hide_inactive : @string/localchannels_show_inactive}"
+        android:textColor="@color/grey_1"
+        android:textSize="10sp"
+        android:fontFamily="sans-serif"
+        android:visibility="@{inactiveSize > 0 ? View.VISIBLE : View.GONE}" />
 
       <android.support.v7.widget.RecyclerView
         android:id="@+id/inactive_channels_list"

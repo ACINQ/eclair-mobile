@@ -21,7 +21,6 @@
   <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/primary"
     android:orientation="vertical"
     tools:context="fr.acinq.eclair.wallet.activities.LNPaymentDetailsActivity">
 
@@ -39,26 +38,21 @@
         <LinearLayout
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:background="@drawable/rounded_corner_grey_top"
           android:orientation="vertical"
           android:padding="@dimen/space_md">
 
           <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/paymentdetails_amount_paid_label"
-            android:textAllCaps="true"
-            android:textColor="@color/grey_1"
-            android:textSize="@dimen/text_xs" />
+            style="@style/TitleCapsGrey"
+            android:text="@string/paymentdetails_amount_paid_label" />
 
           <fr.acinq.eclair.wallet.customviews.CoinAmountView
             android:id="@+id/amount_paid"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:force_btc="true"
             app:alignment="left"
             app:amount_color="@color/grey_4"
             app:amount_size="36sp"
+            app:force_btc="true"
             app:unit="mBTC"
             app:unit_color="@color/grey_4"
             app:unit_size="12sp" />
@@ -68,7 +62,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif-light"
-            android:text="@string/paymentdetails_amount_fiat"/>
+            android:text="@string/paymentdetails_amount_fiat" />
 
           <LinearLayout
             android:layout_width="match_parent"
@@ -84,12 +78,8 @@
               android:orientation="vertical">
 
               <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/paymentdetails_status_label"
-                android:textAllCaps="true"
-                android:textColor="@color/grey_1"
-                android:textSize="@dimen/text_xs" />
+                style="@style/TitleCapsGrey"
+                android:text="@string/paymentdetails_status_label" />
 
               <TextView
                 android:id="@+id/status"
@@ -105,12 +95,8 @@
               android:orientation="vertical">
 
               <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/paymentdetails_fees_label"
-                android:textAllCaps="true"
-                android:textColor="@color/grey_1"
-                android:textSize="@dimen/text_xs" />
+                style="@style/TitleCapsGrey"
+                android:text="@string/paymentdetails_fees_label" />
 
               <TextView
                 android:id="@+id/fees"
@@ -118,36 +104,37 @@
                 android:layout_height="wrap_content" />
             </LinearLayout>
           </LinearLayout>
+
+          <TextView
+            style="@style/TitleCapsGrey"
+            android:layout_marginTop="@dimen/space_md"
+            android:text="@string/paymentdetails_desc_label" />
+
+          <TextView
+            android:id="@+id/desc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/unknown" />
         </LinearLayout>
 
-        <fr.acinq.eclair.wallet.customviews.DataRow
-          android:id="@+id/desc"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          app:has_border="true"
-          app:label="@string/paymentdetails_desc_label"
-          app:value="@string/unknown" />
+        <TextView
+          style="@style/TitleBar"
+          android:drawableStart="@drawable/ic_hammer_grey_14dp"
+          android:text="@string/paymentdetails_technicals_title" />
 
         <fr.acinq.eclair.wallet.customviews.DataRow
           android:id="@+id/recipient"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:layout_marginBottom="@dimen/space_md"
-          app:is_bottom_rounded="true"
+          app:has_border="true"
           app:label="@string/paymentdetails_recipient_label"
           app:value="@string/unknown" />
-
-        <TextView
-          style="@style/RoundedTitleBar"
-          android:drawableStart="@drawable/ic_hammer_grey_14dp"
-          android:text="@string/paymentdetails_technicals_title" />
 
         <fr.acinq.eclair.wallet.customviews.DataRow
           android:id="@+id/amount_requested"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           app:has_border="true"
-          app:is_technical="true"
           app:label="@string/paymentdetails_amount_requested_label"
           app:value="@string/unknown" />
 
@@ -156,7 +143,6 @@
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           app:has_border="true"
-          app:is_technical="true"
           app:label="@string/paymentdetails_amount_sent_label"
           app:value="@string/unknown" />
 
@@ -165,7 +151,6 @@
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           app:has_border="true"
-          app:is_technical="true"
           app:label="@string/paymentdetails_paymenthash_label"
           app:value="@string/unknown" />
 
@@ -174,7 +159,6 @@
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           app:has_border="true"
-          app:is_technical="true"
           app:label="@string/paymentdetails_preimage_label"
           app:value="@string/unknown" />
 
@@ -183,7 +167,6 @@
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           app:has_border="true"
-          app:is_technical="true"
           app:label="@string/paymentdetails_paymentrequest_label"
           app:value="@string/unknown" />
 
@@ -192,7 +175,6 @@
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           app:has_border="true"
-          app:is_technical="true"
           app:label="@string/paymentdetails_created_label"
           app:value="@string/unknown" />
 
@@ -201,7 +183,6 @@
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           app:is_bottom_rounded="true"
-          app:is_technical="true"
           app:label="@string/paymentdetails_updated_label"
           app:value="@string/unknown" />
 

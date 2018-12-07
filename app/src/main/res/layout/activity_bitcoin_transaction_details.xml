@@ -55,12 +55,8 @@
           android:padding="@dimen/space_md">
 
           <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@{isTxReceived ? @string/transactiondetails_amount_received_label : @string/transactiondetails_amount_sent_label}"
-            android:textAllCaps="true"
-            android:textColor="@color/grey_1"
-            android:textSize="@dimen/text_xs" />
+            style="@style/TitleCapsGrey"
+            android:text="@{isTxReceived ? @string/transactiondetails_amount_received_label : @string/transactiondetails_amount_sent_label}" />
 
           <fr.acinq.eclair.wallet.customviews.CoinAmountView
             android:id="@+id/tx_amount"
@@ -84,6 +80,7 @@
           <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_sm"
             android:orientation="horizontal">
 
             <LinearLayout
@@ -93,13 +90,8 @@
               android:orientation="vertical">
 
               <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_sm"
-                android:text="@string/transactiondetails_confs_label"
-                android:textAllCaps="true"
-                android:textColor="@color/grey_1"
-                android:textSize="@dimen/text_xs" />
+                style="@style/TitleCapsGrey"
+                android:text="@string/transactiondetails_confs_label" />
 
               <TextView
                 android:id="@+id/confs"
@@ -117,13 +109,8 @@
               android:visibility="@{isTxReceived ? View.GONE : View.VISIBLE}">
 
               <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_sm"
-                android:text="@string/transactiondetails_fees_label"
-                android:textAllCaps="true"
-                android:textColor="@color/grey_1"
-                android:textSize="@dimen/text_xs" />
+                style="@style/TitleCapsGrey"
+                android:text="@string/transactiondetails_fees_label" />
 
               <TextView
                 android:id="@+id/fees"
@@ -134,14 +121,17 @@
           </LinearLayout>
         </LinearLayout>
 
+        <TextView
+          style="@style/TitleBar"
+          android:drawableStart="@drawable/ic_hammer_grey_14dp"
+          android:text="@string/paymentdetails_technicals_title" />
+
         <fr.acinq.eclair.wallet.customviews.DataRow
           android:id="@+id/tx_id"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:layout_marginBottom="@dimen/space_md"
           app:action_label="@string/open_in_explorer"
           app:has_action="true"
-          app:is_bottom_rounded="true"
           app:label="@string/transactiondetails_txid_label"
           app:value="@string/unknown" />
 
@@ -155,7 +145,6 @@
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           app:has_border="true"
-          app:is_technical="true"
           app:label="@string/transactiondetails_confs_type_label"
           app:value="@string/unknown" />
 
@@ -167,15 +156,12 @@
           app:action_label="@string/transactiondetails_rebroadcast"
           app:has_action="true"
           app:has_border="true"
-          app:is_technical="true"
           app:label="@string/transactiondetails_rebroadcast" />
 
         <fr.acinq.eclair.wallet.customviews.DataRow
           android:id="@+id/date"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          app:is_bottom_rounded="true"
-          app:is_technical="true"
           app:label="@string/transactiondetails_date_label"
           app:value="@string/unknown" />
 

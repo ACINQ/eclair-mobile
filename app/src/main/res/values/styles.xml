@@ -164,12 +164,12 @@
   </style>
 
   <style name="RoundedWhitePanel">
-    <item name="android:layout_width">match_parent</item>
+    <item name="android:layout_width">wrap_content</item>
     <item name="android:layout_height">wrap_content</item>
-    <item name="android:layout_marginStart">@dimen/space_md</item>
-    <item name="android:layout_marginEnd">@dimen/space_md</item>
-    <item name="android:layout_marginBottom">@dimen/space_md</item>
-    <item name="android:background">@drawable/rounded_corner_white_bottom</item>
+    <item name="android:layout_centerInParent">true</item>
+    <item name="android:padding">@dimen/space_lg</item>
+    <item name="android:background">@drawable/rounded_corner_white</item>
+    <item name="android:textColor">@color/grey_4</item>
   </style>
 
   <style name="ProgressIndicator" parent="Base.TextAppearance.AppCompat">
@@ -191,12 +191,13 @@
     <item name="android:layout_width">match_parent</item>
     <item name="android:layout_height">wrap_content</item>
     <item name="android:textSize">@dimen/text_sm</item>
-    <item name="android:textColor">@color/grey_3</item>
+    <item name="android:textColor">@color/grey_2</item>
     <item name="android:background">@color/grey_0_light_x1</item>
-    <item name="android:paddingBottom">@dimen/space_sm</item>
+    <item name="android:paddingBottom">10dp</item>
     <item name="android:paddingEnd">@dimen/space_md</item>
     <item name="android:paddingStart">@dimen/space_md</item>
     <item name="android:paddingTop">@dimen/space_sm</item>
+    <item name="android:gravity">start|center</item>
     <item name="android:drawablePadding">6dp</item>
   </style>
 
@@ -208,10 +209,26 @@
     <item name="android:layout_width">match_parent</item>
     <item name="android:layout_height">wrap_content</item>
     <item name="android:orientation">vertical</item>
-    <item name="android:paddingStart">@dimen/space_sm</item>
-    <item name="android:paddingEnd">@dimen/space_sm</item>
-    <item name="android:paddingTop">@dimen/space_md</item>
-    <item name="android:paddingBottom">@dimen/space_md</item>
+    <!--<item name="android:paddingEnd">@dimen/space_xxs</item>-->
+    <!--<item name="android:paddingStart">@dimen/space_xxs</item>-->
+  </style>
+
+  <style name="TitleCapsGrey">
+    <item name="android:layout_width">match_parent</item>
+    <item name="android:layout_height">wrap_content</item>
+    <item name="android:textAllCaps">true</item>
+    <item name="android:textColor">@color/grey_1</item>
+    <item name="android:textSize">@dimen/text_xs</item>
+    <item name="android:layout_marginBottom">@dimen/space_xxs</item>
+  </style>
+
+  <style name="DataRowText">
+    <item name="android:layout_width">match_parent</item>
+    <item name="android:layout_height">wrap_content</item>
+    <item name="android:letterSpacing">0.01</item>
+    <item name="android:lineSpacingMultiplier">1.1</item>
+    <item name="android:textIsSelectable">true</item>
+    <item name="android:textSize">@dimen/text_sm</item>
   </style>
 
 </resources>

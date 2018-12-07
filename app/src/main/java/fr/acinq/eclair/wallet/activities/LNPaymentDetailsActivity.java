@@ -77,7 +77,7 @@ public class LNPaymentDetailsActivity extends EclairActivity {
         mBinding.status.setTextColor(ContextCompat.getColor(this, R.color.orange));
       }
       mBinding.recipient.setValue(p.getRecipient());
-      mBinding.desc.setValue(p.getDescription());
+      mBinding.desc.setText(p.getDescription());
       if (p.getAmountRequestedMsat() == 0) {
         // this is a donation
         mBinding.amountRequested.setValue(getString(R.string.paymentdetails_amount_requested_donation));

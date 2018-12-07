@@ -52,8 +52,6 @@
   <string name="home_electrum_establishing_custom">Establishing connection with %1$s…</string>
   <string name="home_electrum_syncing">Syncing from %1$s…</string>
 
-  <string name="payment_do_send">Pay</string>
-
   <string name="payments_title">Transaction history</string>
   <string name="payments_empty">No transactions yet…</string>
   <string name="localchannels_title">Lightning Channels</string>
@@ -185,6 +183,19 @@
   <string name="restorechannels_device_conflict">We found a backup for this seed, but it looks like it was created by another android device (or the same device that you\'ve upgraded to Android 8+).\n\nPlease make sure that you do not simultaneously use the same channels on different devices, otherwise they will conflict and close.</string>
   <string name="restorechannels_device_conflict_confirm">I Understand.</string>
 
+  <!-- //////////////// Open Connection /////////////////// -->
+
+  <string name="openconn_connect">Connect</string>
+  <string name="openconn_connecting">Connecting…</string>
+  <string name="openconn_success">Successfully connected!</string>
+  <string name="openconn_node_id_hint">Open connection with node</string>
+  <string name="openconn_address_hint">New IP address</string>
+  <string name="openconn_scan_description">Scan address</string>
+  <string name="openconn_error_fatal_connection">Could not connect to the node: %1$s</string>
+  <string name="openconn_error">This address is not valid</string>
+  <string name="openconn_error_timeout">Connection attempt has timeout… Please check the address and try again.</string>
+  <string name="openconn_error_unexpected_node_id">Please connect to the same node</string>
+
   <!-- //////////////// Open Channel /////////////////// -->
 
   <string name="openchannel_loading_pleasewait">Reading node address, please wait…</string>
@@ -284,6 +295,7 @@
   <string name="channeldetails_closingtype_other">OTHER</string>
   <string name="channeldetails_raw_data">Show raw channel data…</string>
   <string name="channeldetails_unknown">Unknown channel</string>
+  <string name="channeldetails_open_connection_button">Update Node Address…</string>
 
   <!-- //////////////// Local Channel Raw Data //////////////////// -->
 
@@ -294,6 +306,7 @@
 
   <string name="payment_invalid_address">This is not a valid payment address.\n\nPlease use a %1$s Bitcoin address or Lightning payment request to initiate a payment.</string>
   <string name="payment_ln_invalid_chain">This payment request is not valid for %1$s.\n\nPlease make sure that you are on the correct blockchain.</string>
+  <string name="payment_ln_expiry_outdated">This payment has expired.</string>
   <string name="payment_pick_onchain">Pay on-chain</string>
   <string name="payment_pick_lightning">Pay with Lightning</string>
   <string name="payment_type_onchain">On-Chain Payment</string>
@@ -317,15 +330,17 @@
   <string name="payment_tx_creation_error">Transaction is invalid</string>
   <string name="payment_tx_failed">Transaction failed</string>
   <string name="payment_toast_failure">Could not send transaction: %1$s</string>
+  <string name="payment_do_send">Pay</string>
+  <string name="payment_do_send_wait">Channels not ready…</string>
 
   <string name="payment_error">This payment is not valid.</string>
   <string name="payment_error_fees_onchain">The fees value is not valid.</string>
   <string name="payment_error_amount_onchain_insufficient_funds">Payment amount exceeds your balance.</string>
   <string name="payment_error_amount">Payment amount is not valid.</string>
-  <string name="payment_error_ln_pick_no_channels">You need lightning channels for this option.</string>
-  <string name="payment_error_ln_no_channels">You first need to open a Lightning channel to execute this payment.\n\nDo this by swiping right to left from the home view, and tapping the green "+" button.</string>
-  <string name="payment_error_ln_no_active_channels">None of your Lightning channels is ready to send payments.</string>
-  <string name="payment_error_ln_insufficient_funds">None of your Lightning channels has enough balance to send this payment.</string>
+  <string name="payment_error_ln_pick_no_channels">You need Lightning channels for this option.</string>
+  <string name="payment_error_ln_no_channels">You first need to open a Lightning channel to process this payment.\n\nDo this by swiping right to left from the home view, and tapping the green "+" button.</string>
+  <string name="payment_error_ln_no_active_channels">Your Lightning channels are not ready to process this payment.</string>
+  <string name="payment_error_ln_insufficient_funds">Your Lightning channels do not have enough balance to process this payment.</string>
   <string name="payment_error_pending">This payment is already processing.</string>
   <string name="payment_error_paid">This payment has already been paid.</string>
   <string name="payment_error_incorrect_pin">PIN is incorrect.</string>
@@ -338,7 +353,7 @@
   <string name="paymentdetails_amount_fiat">≈ %1$s</string>
   <string name="paymentdetails_recipient_label">Recipient node</string>
   <string name="paymentdetails_status_label">Status</string>
-  <string name="paymentdetails_desc_label">Description of the payment</string>
+  <string name="paymentdetails_desc_label">Payment description</string>
   <string name="paymentdetails_amount_requested_label">Amount requested</string>
   <string name="paymentdetails_amount_requested_donation">Not set</string>
   <string name="paymentdetails_amount_sent_label">Amount sent (without fees)</string>
@@ -378,7 +393,7 @@
   <string name="about_faq">Any questions?</string>
   <string name="about_faq_button">Check our FAQ</string>
   <string name="about_limitations_title">Software Limitations</string>
-  <string name="about_limitations_text">Lightning channels are outbound only: you can pay with LN, but not receive/forward payments.\n\nBeing able to receive Lightning payments means that you have to constantly monitor the blockchain, which is tricky on a mobile device.</string>
+  <string name="about_limitations_text">Lightning channels are outbound only: you can pay with LN, but not receive/forward payments.</string>
   <string name="about_acinq_title">About ACINQ</string>
   <string name="about_acinq_text"><![CDATA[
     <p>ACINQ is a Bitcoin technology company, and a proud member of the Lightning development community.</p>
@@ -393,7 +408,7 @@
   <string name="networkinfos_title_bitcoin">Bitcoin Network</string>
   <string name="networkinfos_title_lightning">Lightning Network</string>
   <string name="networkinfos_title_debug">Diagnostics</string>
-  <string name="networkinfos_nodeid_label">Your node Id</string>
+  <string name="networkinfos_nodeid_label">Your node id</string>
   <string name="networkinfos_blockcount_label">Block height</string>
   <string name="networkinfos_feerate_label">Current fee rate</string>
   <string name="networkinfos_electrum_address_label">Current Electrum server</string>
@@ -402,14 +417,15 @@
   <string name="networkinfos_electrum_address_set_custom">Set custom server…</string>
   <string name="networkinfos_electrum_address_change_custom">Change custom server…</string>
   <string name="networkinfos_electrum_confirm_message"><![CDATA[You will now connect to <b>%1$s</b><br/><br/>Restarting…]]></string>
-  <string name="networkinfos_electrum_confirm_message_default"><![CDATA[Restarting with default servers…]]></string>
-  <string name="networkinfos_block"><![CDATA[%1$s&nbsp;<font color="#bbbbbb"><small>(%2$s)</small></font>]]></string>
+  <string name="networkinfos_electrum_confirm_message_default"><![CDATA[Restarting with preset electrum…]]></string>
+  <string name="networkinfos_block"><![CDATA[%1$s&nbsp;&nbsp;<font color="#888888"><small>//&nbsp;&nbsp;%2$s</small></font>]]></string>
   <string name="networkinfos_networkchannels_label">Known channels in network</string>
   <string name="networkinfos_wallet_title">Wallet</string>
+  <string name="networkinfos_networkdb_label">Network Database</string>
   <string name="networkinfos_networkdb_action">Reset Network Database…</string>
   <string name="networkinfos_networkdb_confirm"><![CDATA[Are you sure you want to delete your network database?<br/><br/>The application will restart automatically.]]></string>
   <string name="networkinfos_networkdb_toast">Successfully deleted DB, restarting application…</string>
-  <string name="networkinfos_xpub_label">Master public key</string>
+  <string name="networkinfos_xpub_label">Master Public Key</string>
 
   <!-- //////////////// Payment Item //////////////////// -->
 
@@ -471,8 +487,8 @@
 
   <!-- //////////////// Scanner messages //////////////////// -->
 
-  <string name="scan_title_invoice">Please scan a QR code containing a Bitcoin address or a Lightning payment request.</string>
-  <string name="scan_title_ln_uri">Please scan the address of a Lightning Network node.</string>
+  <string name="scan_title_invoice">Scan a QR code containing a Bitcoin address or a Lightning payment request.</string>
+  <string name="scan_title_ln_uri">Scan the address of a Lightning Network node.</string>
 
   <!-- //////////////// Close Channel Dialog /////////////////// -->
 

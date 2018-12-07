@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright 2018 ACINQ SAS
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,28 +14,28 @@
   ~ limitations under the License.
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools"
-  android:layout_width="match_parent"
-  android:layout_height="match_parent"
-  android:orientation="vertical"
-  android:weightSum="1"
   tools:context="fr.acinq.eclair.wallet.activities.ScanActivity">
 
-  <RelativeLayout
+  <android.support.constraint.ConstraintLayout
     android:layout_width="match_parent"
-    android:layout_height="0dp"
-    android:layout_weight="0.6">
+    android:layout_height="match_parent">
+
+    <android.support.constraint.Guideline
+      android:id="@+id/guideline"
+      android:layout_width="wrap_content"
+      android:layout_height="1dp"
+      android:orientation="horizontal"
+      app:layout_constraintGuide_percent="0.6" />
 
     <com.journeyapps.barcodescanner.DecoratedBarcodeView
       android:id="@+id/scan_view"
       android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      android:layout_alignParentBottom="true"
-      android:layout_alignParentLeft="true"
-      android:layout_alignParentRight="true"
-      android:layout_alignParentTop="true"
+      android:layout_height="0dp"
+      app:layout_constraintBottom_toTopOf="@id/guideline"
+      app:layout_constraintTop_toTopOf="parent"
       app:zxing_preview_scaling_strategy="fitXY"
       app:zxing_scanner_layout="@layout/custom_barcode_scanner"
       app:zxing_use_texture_view="true"
@@ -46,62 +45,41 @@
       android:layout_width="250dp"
       android:layout_height="250dp"
       android:layout_centerInParent="true"
-      android:background="@drawable/scan_view_background" />
-
-  </RelativeLayout>
-
-  <RelativeLayout
-    android:layout_width="match_parent"
-    android:layout_height="0dp"
-    android:layout_weight="0.3"
-    android:background="@color/almost_white"
-    android:padding="24dp">
+      android:background="@drawable/scan_view_background"
+      app:layout_constraintBottom_toBottomOf="@id/scan_view"
+      app:layout_constraintEnd_toEndOf="@id/scan_view"
+      app:layout_constraintStart_toStartOf="@id/scan_view"
+      app:layout_constraintTop_toTopOf="@id/scan_view" />
 
     <LinearLayout
-      android:id="@+id/scan_title_view"
       android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:layout_marginBottom="16dp"
-      android:gravity="start|center"
-      android:orientation="horizontal">
-
-      <ImageView
-        android:id="@+id/scan_icon"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:src="@drawable/icon_qrcode" />
+      android:layout_height="0dp"
+      android:background="@color/white"
+      android:orientation="vertical"
+      android:padding="@dimen/space_lg"
+      app:layout_constraintBottom_toTopOf="@+id/cancel_button"
+      app:layout_constraintTop_toBottomOf="@id/guideline">
 
       <TextView
         android:id="@+id/scan_title"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
+        android:drawableStart="@drawable/ic_qrcode_black_24dp"
+        android:drawablePadding="@dimen/space_sm"
         android:text="@string/zxing_msg_default_status"
         android:textStyle="bold" />
     </LinearLayout>
 
-    <TextView
-      android:id="@+id/scan_value"
+    <Button
+      android:id="@+id/cancel_button"
+      style="@style/ButtonStyle"
       android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:layout_below="@id/scan_title_view"
-      android:background="@drawable/rounded_corner_grey"
-      android:ellipsize="middle"
-      android:maxLines="3"
-      android:padding="8dp"
+      android:background="@color/grey_0_light_x1"
+      android:onClick="scanCancel"
+      android:text="@string/btn_cancel"
       android:textColor="@color/grey_2"
-      android:textSize="12sp"
-      android:visibility="gone" />
+      android:textSize="14sp"
+      app:layout_constraintBottom_toBottomOf="parent" />
 
-  </RelativeLayout>
-
-  <Button
-    android:layout_width="match_parent"
-    android:layout_height="0dp"
-    android:layout_weight="0.1"
-    android:background="@color/grey_0"
-    android:onClick="scanCancel"
-    android:text="@string/btn_cancel"
-    android:textColor="@color/grey_2" />
-
-</LinearLayout>
+  </android.support.constraint.ConstraintLayout>
+</layout>

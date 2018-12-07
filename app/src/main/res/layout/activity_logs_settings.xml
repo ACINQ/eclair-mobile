@@ -258,7 +258,7 @@
         android:layout_marginEnd="@dimen/space_md"
         android:layout_marginTop="@dimen/space_md"
         android:drawablePadding="@dimen/space_xs"
-        android:drawableStart="@drawable/ic_circle_check"
+        android:drawableStart="@drawable/ic_circle_check_green_14dp"
         android:onClick="saveOutput"
         android:text="@string/logging_save_output" />
     </LinearLayout>

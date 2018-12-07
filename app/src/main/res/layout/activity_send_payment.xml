@@ -14,7 +14,8 @@
   ~ limitations under the License.
   -->
 
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto">
 
   <data>
 
@@ -22,11 +23,15 @@
 
     <import type="android.view.View" />
 
-    <import type="fr.acinq.eclair.wallet.activities.SendPaymentActivity" />
+    <import type="fr.acinq.eclair.wallet.activities.SendPaymentActivity.Steps" />
 
     <variable
       name="paymentStep"
-      type="int" />
+      type="fr.acinq.eclair.wallet.activities.SendPaymentActivity.Steps" />
+
+    <variable
+      name="enableSendButton"
+      type="boolean" />
 
     <variable
       name="feeRatingState"
@@ -38,39 +43,53 @@
     android:layout_height="match_parent">
 
     <!-- loading message displayed when the invoice is being read -->
-    <TextView
-      android:layout_width="match_parent"
+    <LinearLayout
+      android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_centerInParent="true"
       android:layout_margin="@dimen/space_md"
       android:elevation="4dp"
+      android:gravity="start|center"
+      android:orientation="horizontal"
       android:padding="@dimen/space_md"
-      android:text="@string/payment_loading_pleasewait"
-      android:textAlignment="center"
-      android:textColor="@color/grey_3"
-      android:visibility="@{paymentStep == SendPaymentActivity.LOADING ? View.VISIBLE : View.GONE}" />
+      android:visibility="@{paymentStep == Steps.LOADING ? View.VISIBLE : View.GONE}">
+
+      <ProgressBar
+        style="?android:attr/progressBarStyleSmall"
+        android:layout_width="24dp"
+        android:layout_height="24dp" />
+
+      <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/space_sm"
+        android:text="@string/payment_loading_pleasewait"
+        android:textColor="@color/grey_3" />
+    </LinearLayout>
 
     <!-- error when reading invoice -->
     <TextView
       android:id="@+id/read_error"
-      android:layout_width="match_parent"
+      android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_centerInParent="true"
       android:layout_margin="@dimen/space_md"
+      android:drawableStart="@drawable/ic_circle_cross_red_18dp"
+      android:drawablePadding="@dimen/space_sm"
       android:elevation="4dp"
+      android:gravity="start|center"
       android:padding="@dimen/space_md"
       android:text="@string/payment_invalid_address"
-      android:textAlignment="center"
       android:textColor="@color/grey_4"
       android:textIsSelectable="true"
-      android:visibility="@{paymentStep == SendPaymentActivity.READ_ERROR ? View.VISIBLE : View.GONE}" />
+      android:visibility="@{paymentStep == Steps.INVOICE_READING_ERROR ? View.VISIBLE : View.GONE}" />
 
     <LinearLayout
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:layout_centerInParent="true"
       android:orientation="horizontal"
-      android:visibility="@{paymentStep == SendPaymentActivity.PICK_PAYMENT_TYPE ? View.VISIBLE : View.GONE}">
+      android:visibility="@{paymentStep == Steps.PICK_PAYMENT_SETTLEMENT_TYPE ? View.VISIBLE : View.GONE}">
 
       <LinearLayout
         android:id="@+id/pick_onchain"
@@ -145,9 +164,9 @@
       android:layout_height="wrap_content"
       android:fadeScrollbars="false"
       android:fillViewport="true"
-      android:scrollbars="vertical"
       android:isScrollContainer="true"
-      android:visibility="@{paymentStep == SendPaymentActivity.ONCHAIN_PAYMENT || paymentStep == SendPaymentActivity.LIGHTNING_PAYMENT ? View.VISIBLE : View.GONE}">
+      android:scrollbars="vertical"
+      android:visibility="@{paymentStep == Steps.ON_CHAIN_PAYMENT || paymentStep == Steps.LIGHTNING_PAYMENT ? View.VISIBLE : View.GONE}">
 
       <LinearLayout
         android:layout_width="match_parent"
@@ -182,12 +201,12 @@
               android:layout_width="16dp"
               android:layout_height="16dp"
               android:layout_marginEnd="4dp"
-              android:src="@{paymentStep == SendPaymentActivity.ONCHAIN_PAYMENT ? @drawable/ic_bitcoin_circle : @drawable/ic_bolt_circle}" />
+              android:src="@{paymentStep == Steps.ON_CHAIN_PAYMENT ? @drawable/ic_bitcoin_circle : @drawable/ic_bolt_circle}" />
 
             <TextView
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
-              android:text="@{paymentStep == SendPaymentActivity.ONCHAIN_PAYMENT ? @string/payment_type_onchain :  @string/payment_type_lightning}"
+              android:text="@{paymentStep == Steps.ON_CHAIN_PAYMENT ? @string/payment_type_onchain :  @string/payment_type_lightning}"
               android:textColor="@color/grey_2"
               android:textSize="10sp" />
           </LinearLayout>
@@ -292,7 +311,7 @@
           android:layout_height="wrap_content"
           android:orientation="horizontal"
           android:padding="12dp"
-          android:visibility="@{paymentStep == SendPaymentActivity.LIGHTNING_PAYMENT ? View.VISIBLE : View.GONE}">
+          android:visibility="@{paymentStep == Steps.LIGHTNING_PAYMENT ? View.VISIBLE : View.GONE}">
 
           <TextView
             android:layout_width="@dimen/payment_title_width"
@@ -325,7 +344,7 @@
           android:paddingTop="4dp"
           android:paddingRight="12dp"
           android:paddingBottom="4dp"
-          android:visibility="@{paymentStep == SendPaymentActivity.ONCHAIN_PAYMENT ? View.VISIBLE : View.GONE}">
+          android:visibility="@{paymentStep == Steps.ON_CHAIN_PAYMENT ? View.VISIBLE : View.GONE}">
 
           <TextView
             android:layout_width="@dimen/payment_title_width"
@@ -341,8 +360,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:focusable="true"
             android:clickable="true"
+            android:focusable="true"
             android:onClick="forceFocusFees"
             android:orientation="horizontal">
 
@@ -398,7 +417,7 @@
           android:text="@string/payment_empty_wallet"
           android:textColor="@color/grey_4"
           android:textSize="12sp"
-          android:visibility="@{paymentStep == SendPaymentActivity.ONCHAIN_PAYMENT ? View.VISIBLE : View.GONE}" />
+          android:visibility="@{paymentStep == Steps.ON_CHAIN_PAYMENT ? View.VISIBLE : View.GONE}" />
 
         <TextView
           android:id="@+id/empty_wallet_disclaimer"
@@ -429,53 +448,80 @@
         <TextView
           android:id="@+id/payment_error"
           android:layout_width="wrap_content"
-          android:visibility="gone"
           android:layout_height="wrap_content"
-          android:layout_marginTop="8dp"
           android:layout_marginLeft="32dp"
+          android:layout_marginTop="8dp"
           android:layout_marginRight="32dp"
           android:drawableStart="@drawable/ic_error"
           android:drawablePadding="6dp"
           android:gravity="start|center"
           android:text="@string/payment_error"
           android:textColor="@color/red_faded"
-          android:textSize="12sp" />
+          android:textSize="12sp"
+          android:visibility="gone" />
 
         <!-- buttons -->
-        <LinearLayout
-          android:id="@+id/layout_buttons"
+        <android.support.constraint.ConstraintLayout
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:layout_marginTop="@dimen/space_md"
-          android:gravity="center"
-          android:orientation="horizontal">
+          android:layout_marginTop="@dimen/space_md">
+
+          <android.support.constraint.Guideline
+            android:id="@+id/guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.45" />
 
           <Button
             android:id="@+id/btn_cancel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="?android:attr/selectableItemBackground"
+            style="@style/ButtonStyle"
+            android:layout_width="0dp"
             android:onClick="cancelPayment"
-            android:padding="16dp"
             android:text="@string/btn_cancel"
-            android:textColor="@color/grey_0_dark_x2" />
+            android:textColor="@color/grey_0_dark_x2"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/guideline"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-          <Button
+          <LinearLayout
             android:id="@+id/btn_send"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="?android:attr/selectableItemBackground"
-            android:drawableStart="@drawable/ic_check"
-            android:drawablePadding="6dp"
-            android:gravity="start|center"
+            style="@style/ButtonStyle"
+            android:layout_width="0dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
             android:onClick="confirmPayment"
-            android:paddingStart="48dp"
-            android:paddingEnd="16dp"
-            android:text="@string/payment_do_send"
-            android:textColor="@color/green" />
-        </LinearLayout>
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@id/guideline"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ProgressBar
+              android:layout_width="24dp"
+              android:layout_height="24dp"
+              android:indeterminateTint="@color/green"
+              android:visibility="@{enableSendButton ? View.GONE : View.VISIBLE}" />
+
+            <ImageView
+              android:layout_width="24dp"
+              android:layout_height="24dp"
+              android:src="@drawable/ic_circle_check_green_24dp"
+              android:visibility="@{enableSendButton ? View.VISIBLE : View.GONE}" />
+
+            <TextView
+              style="@style/Base.TextAppearance.AppCompat.Button"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_marginStart="@dimen/space_sm"
+              android:text="@{enableSendButton ? @string/payment_do_send : @string/payment_do_send_wait}"
+              android:textColor="@color/green"
+              android:textSize="@{enableSendButton ? @dimen/text_md : @dimen/text_xs}" />
+
+          </LinearLayout>
+        </android.support.constraint.ConstraintLayout>
       </LinearLayout>
     </ScrollView>
   </RelativeLayout>

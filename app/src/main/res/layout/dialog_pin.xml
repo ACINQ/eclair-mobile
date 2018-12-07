@@ -13,77 +13,76 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools">
 
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-  android:layout_width="match_parent"
-  android:layout_height="match_parent"
-  android:scrollbars="vertical">
-
-  <LinearLayout
+  <ScrollView
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_gravity="center"
-    android:paddingBottom="@dimen/space_md"
-    android:paddingTop="@dimen/space_md"
-    android:orientation="vertical">
+    android:layout_height="match_parent"
+    android:background="@color/primary">
 
-    <TextView
-      android:id="@+id/pin_title"
+    <LinearLayout
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:paddingEnd="8dp"
-      android:paddingStart="8dp"
-      android:text="@string/pindialog_title_default"
-      android:textAlignment="center"
-      android:textColor="@color/almost_white"
-      android:textSize="14sp" />
-
-    <RelativeLayout
-      android:layout_width="match_parent"
-      android:layout_marginBottom="@dimen/space_md"
-      android:layout_marginTop="@dimen/space_md"
-      android:paddingTop="@dimen/space_md"
+      android:layout_gravity="center"
       android:paddingBottom="@dimen/space_md"
-      android:background="@color/primary_dark_x1"
-      android:layout_height="wrap_content">
+      android:paddingTop="@dimen/space_md"
+      android:orientation="vertical">
 
       <TextView
-        android:id="@+id/pin_display_placeholder"
-        android:layout_width="wrap_content"
+        android:id="@+id/pin_title"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:alpha="0.5"
-        android:background="@android:color/transparent"
-        android:gravity="center"
-        android:letterSpacing="0.2"
-        android:text="@string/pindialog_pwd_placeholder"
-        android:textColor="@color/primary_light_x1"
-        android:textSize="18sp" />
+        android:paddingEnd="8dp"
+        android:paddingStart="8dp"
+        android:text="@string/pindialog_title_default"
+        android:textAlignment="center"
+        android:textColor="@color/almost_white"
+        android:textSize="14sp" />
 
-      <TextView
-        android:id="@+id/pin_display"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/pin_display_placeholder"
-        android:layout_alignStart="@+id/pin_display_placeholder"
-        android:background="@android:color/transparent"
-        android:enabled="false"
-        android:letterSpacing="0.2"
-        android:lines="1"
-        android:maxLines="1"
-        android:textColor="@color/primary_light_x3"
-        android:textSize="18sp" />
+      <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_marginBottom="@dimen/space_md"
+        android:layout_marginTop="@dimen/space_md"
+        android:paddingTop="@dimen/space_md"
+        android:paddingBottom="@dimen/space_md"
+        android:background="@color/black_overlay"
+        android:layout_height="wrap_content">
 
-    </RelativeLayout>
+        <TextView
+          android:id="@+id/pin_display_placeholder"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_centerHorizontal="true"
+          android:alpha="0.5"
+          android:background="@android:color/transparent"
+          android:gravity="center"
+          android:letterSpacing="0.2"
+          android:text="@string/pindialog_pwd_placeholder"
+          android:textColor="@color/primary_light_x1"
+          android:textSize="18sp" />
 
-    <RelativeLayout
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content">
+        <TextView
+          android:id="@+id/pin_display"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_alignBaseline="@+id/pin_display_placeholder"
+          android:layout_alignStart="@+id/pin_display_placeholder"
+          android:background="@android:color/transparent"
+          android:enabled="false"
+          android:letterSpacing="0.2"
+          android:lines="1"
+          android:maxLines="1"
+          android:textColor="@color/primary_light_x3"
+          android:textSize="18sp" />
+
+      </RelativeLayout>
 
       <GridLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
+        android:layout_gravity="center"
         android:columnCount="3">
 
         <Button
@@ -135,7 +134,7 @@
           android:id="@+id/pin_num_clear"
           style="@style/PinButtonStyle"
           android:alpha="0.8"
-          android:src="@drawable/ic_delete" />
+          android:src="@drawable/ic_delete_primary_light_24dp" />
 
         <Button
           android:id="@+id/pin_num_0"
@@ -146,9 +145,9 @@
           android:id="@+id/pin_backspace"
           style="@style/PinButtonStyle"
           android:alpha="0.8"
-          android:src="@drawable/ic_backspace" />
+          android:src="@drawable/ic_backspace_primary_light_24dp" />
 
       </GridLayout>
-    </RelativeLayout>
-  </LinearLayout>
-</ScrollView>
+    </LinearLayout>
+  </ScrollView>
+</layout>

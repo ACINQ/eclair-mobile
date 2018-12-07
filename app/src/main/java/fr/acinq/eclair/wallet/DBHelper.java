@@ -139,6 +139,22 @@ public class DBHelper {
     }
   }
 
+  public void updatePaymentReceived(final Payment p, final long amountReceivedMsat) {
+    p.setAmountPaidMsat(amountReceivedMsat);
+    p.setStatus(PaymentStatus.PAID);
+    p.setUpdated(new Date());
+    insertOrUpdatePayment(p);
+  }
+
+  public void cleanUpUnknownPayments() {
+    daoSession.getPaymentDao().queryBuilder()
+      .where(PaymentDao.Properties.PaymentRequest.eq("unknown invoice"),
+        PaymentDao.Properties.Recipient.eq("unknown recipient"),
+        PaymentDao.Properties.Status.eq(PaymentStatus.PENDING))
+      .buildDelete().executeDeleteWithoutDetachingEntities();
+    daoSession.clear();
+  }
+
   public void insertOrUpdatePayment(Payment p) {
     daoSession.getPaymentDao().insertOrReplace(p);
   }

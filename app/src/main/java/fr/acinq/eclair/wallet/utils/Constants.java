@@ -26,9 +26,10 @@ public interface Constants {
    */
   long DESYNC_DIFF_TIMESTAMP_SEC = 6 * 60 * 60L;
 
-  /* ----------- PERMISSIONS ------------ */
+  /* ----------- PERMISSIONS & REQUEST CODES ------------ */
 
   int CAMERA_PERMISSION_REQUEST = 0;
+  int OPEN_CONNECTION_REQUEST_CODE = 42;
 
   /* ----------- STARTUP OPTION ----------- */
 
@@ -125,6 +126,12 @@ public interface Constants {
   int SEED_SPAWN_ENCRYPTION = 8;
   int SEED_SPAWN_COMPLETE = 9;
   int SEED_SPAWN_ERROR = 10;
+
+  /* ----------- NODE CONNECTION STEPS ------------ */
+
+  int NODE_CONNECT_READY = 0;
+  int NODE_CONNECT_CONNECTING = 1;
+  int NODE_CONNECT_SUCCESS = 2;
 
   /* --------- REFRESH SCHEDULER ----------- */
 

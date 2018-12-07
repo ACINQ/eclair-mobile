@@ -36,7 +36,7 @@
       <LinearLayout style="@style/DataRowContainer">
 
         <TextView
-          style="@style/RoundedTitleBar"
+          style="@style/TitleBar"
           android:text="@string/about_general_title" />
 
         <fr.acinq.eclair.wallet.customviews.DataRow
@@ -63,7 +63,7 @@
           app:label="@string/about_faq" />
 
         <TextView
-          style="@style/RoundedTitleBar"
+          style="@style/TitleBar"
           android:text="@string/about_limitations_title" />
 
         <TextView
@@ -74,9 +74,9 @@
           android:padding="@dimen/space_md"
           android:text="@string/about_limitations_text" />
 
-        <TextView
-          style="@style/RoundedTitleBar"
-          android:text="@string/about_acinq_title" />
+      <TextView
+        style="@style/TitleBar"
+        android:text="@string/about_acinq_title" />
 
         <TextView
           android:id="@+id/about"

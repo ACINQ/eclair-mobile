@@ -14,47 +14,71 @@
   ~ limitations under the License.
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-  android:layout_width="match_parent"
-  android:layout_height="wrap_content"
-  android:orientation="vertical"
-  android:paddingBottom="@dimen/space_sm"
-  android:paddingEnd="@dimen/space_md"
-  android:paddingStart="@dimen/space_md"
-  android:paddingTop="@dimen/space_sm">
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto">
+
+  <android.support.constraint.Guideline
+    android:id="@+id/guideline"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    app:layout_constraintGuide_percent="0.4" />
 
   <TextView
     android:id="@+id/data_label"
-    android:layout_width="match_parent"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:maxLines="1"
-    android:textAllCaps="true"
-    android:textColor="@color/grey_1_dark_x1"
-    android:textSize="@dimen/text_xs" />
+    android:layout_marginEnd="@dimen/space_md"
+    android:fontFamily="sans-serif-medium"
+    android:lineSpacingMultiplier="1.15"
+    android:textSize="@dimen/text_sm"
+    app:layout_constrainedWidth="true"
+    app:layout_constraintEnd_toStartOf="@+id/guideline"
+    app:layout_constraintHorizontal_bias="0"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent" />
 
-  <TextView
-    android:id="@+id/data_value"
-    android:layout_width="match_parent"
+  <LinearLayout
+    android:id="@+id/data_content"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_marginTop="@dimen/space_xxxs"
-    android:lineSpacingMultiplier="1.1"
-    android:textIsSelectable="true"
-    android:textSize="@dimen/text_md" />
+    android:orientation="vertical"
+    app:layout_constrainedWidth="true"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintHorizontal_bias="0"
+    app:layout_constraintStart_toEndOf="@+id/guideline"
+    app:layout_constraintTop_toTopOf="parent">
+
+    <TextView
+      android:id="@+id/data_value"
+      style="@style/DataRowText" />
+  </LinearLayout>
 
   <View
     android:id="@+id/separator"
     style="@style/HSeparator"
     android:layout_marginTop="@dimen/space_xs"
-    android:visibility="gone" />
+    android:visibility="gone"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintHorizontal_bias="0"
+    app:layout_constraintStart_toEndOf="@+id/guideline"
+    app:layout_constraintTop_toBottomOf="@+id/data_content" />
 
   <Button
     android:id="@+id/data_action"
     style="@style/ButtonStyle"
     android:layout_marginTop="10dp"
-    android:background="@drawable/rounded_corner_grey"
     android:layout_marginBottom="@dimen/space_xxs"
+    android:background="@drawable/rounded_corner_grey"
     android:padding="@dimen/space_sm"
+    android:textAlignment="viewStart"
+    android:textColor="@color/grey_3"
     android:textSize="@dimen/text_xs"
-    android:visibility="gone" />
+    android:visibility="gone"
+    app:layout_constrainedWidth="true"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintHorizontal_bias="0"
+    app:layout_constraintStart_toEndOf="@+id/guideline"
+    app:layout_constraintTop_toBottomOf="@+id/separator" />
 
-</LinearLayout>
+</merge>

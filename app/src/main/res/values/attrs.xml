@@ -37,7 +37,6 @@
     <attr name="label" />
     <attr name="value" format="string" />
     <attr name="is_bottom_rounded" format="boolean" />
-    <attr name="is_technical" format="boolean" />
     <attr name="has_border" format="boolean" />
     <attr name="has_action" format="boolean" />
     <attr name="action_label" format="string" />

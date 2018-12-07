@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<!--
   ~ Copyright 2018 ACINQ SAS
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,18 +13,13 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-  <item>
-    <shape android:shape="rectangle">
-      <stroke
-        android:width="1dp"
-        android:color="@color/grey_0_light_x1" />
-      <solid android:color="@color/almost_white" />
-    </shape>
-  </item>
-  <item android:bottom="1dp">
-    <shape android:shape="rectangle">
-      <solid android:color="@color/almost_white" />
-    </shape>
-  </item>
-</layer-list>
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+  android:width="24dp"
+  android:height="24dp"
+  android:viewportWidth="64"
+  android:viewportHeight="64">
+  <path
+    android:fillColor="@color/grey_4"
+    android:pathData="M11,14v11h5v-9h9v-5H14a3,3 0,0 0,-3 3zM14,53h11v-5h-9v-9h-5v11a3,3 0,0 0,3 3zM53,49.998V39h-5v9h-9v5h11c1.657,0 3,-1.345 3,-3.002zM49.997,11H39v5h9v9h5V14c0,-1.657 -1.346,-3 -3.003,-3z" />
+</vector>

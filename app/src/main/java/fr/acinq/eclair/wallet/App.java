@@ -424,6 +424,9 @@ public class App extends Application {
       this.dbHelper = new DBHelper(getApplicationContext());
     }
 
+    // delete instances of payments with an unknown description/recipient and a PENDING state
+    dbHelper.cleanUpUnknownPayments();
+
     // rates & coin patterns
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
     WalletUtils.retrieveRatesFromPrefs(prefs);
@@ -440,7 +443,6 @@ public class App extends Application {
       final NotificationManager notificationManager = getSystemService(NotificationManager.class);
       if (notificationManager != null) notificationManager.createNotificationChannel(channel);
     }
-
   }
 
   public Satoshi getOnchainBalance() {
