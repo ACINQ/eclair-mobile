@@ -42,12 +42,26 @@
           android:buttonTint="@color/primary"
           android:text="@string/dialog_electrum_checkbox" />
 
+        <TextView
+          android:id="@+id/certif_warning"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_marginTop="@dimen/space_sm"
+          android:background="@drawable/rounded_corner_grey"
+          android:drawableStart="@drawable/ic_info_outline_black_24dp"
+          android:drawablePadding="@dimen/space_xs"
+          android:gravity="start|center"
+          android:padding="@dimen/space_sm"
+          android:text="@string/dialog_electrum_warning"
+          android:textSize="@dimen/text_sm"
+          android:visibility="gone" />
+
         <android.support.design.widget.TextInputLayout
           android:id="@+id/address_input_layout"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:alpha="0.3"
           android:layout_marginTop="@dimen/space_md"
+          android:alpha="0.3"
           android:hint="@string/dialog_electrum_hint"
           app:errorEnabled="true"
           app:hintAnimationEnabled="false">
@@ -57,8 +71,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:backgroundTint="@color/primary"
-            android:inputType="textNoSuggestions"
             android:enabled="false"
+            android:inputType="textNoSuggestions"
             android:textSize="14sp" />
 
         </android.support.design.widget.TextInputLayout>

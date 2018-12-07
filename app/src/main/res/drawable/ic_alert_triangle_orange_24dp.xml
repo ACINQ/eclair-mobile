@@ -19,7 +19,7 @@
     android:strokeWidth="2" />
   <path
     android:fillColor="#00000000"
-    android:pathData="M12,17L12,18"
+    android:pathData="M12,17L12,17"
     android:strokeColor="@color/orange"
     android:strokeLineCap="round"
     android:strokeLineJoin="round"

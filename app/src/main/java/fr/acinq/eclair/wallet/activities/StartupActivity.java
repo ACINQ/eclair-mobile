@@ -526,25 +526,26 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
     protected void onPostExecute(Integer status) {
       EventBus.getDefault().post(new StartupCompleteEvent(status));
     }
-  }
 
-  /**
-   * Builds a TypeSafe configuration to override the default conf of the node setup. Returns an empty config if no configuration entry must be overridden.
-   * <p>
-   * If the user has set a preferred electrum server, retrieves it from the prefs and adds it to the configuration.
-   */
-  private static Config getOverrideConfig(final SharedPreferences prefs) {
-    final String prefsElectrumAddress = prefs.getString(Constants.CUSTOM_ELECTRUM_SERVER, "").trim();
-    if (!Strings.isNullOrEmpty(prefsElectrumAddress)) {
-      final HostAndPort address = HostAndPort.fromString(prefsElectrumAddress);
-      final Map<String, Object> conf = new HashMap<>();
-      conf.put("eclair.electrum.host", address.getHost());
-      conf.put("eclair.electrum.port", address.getPort());
-      // custom server certificate must be valid
-      conf.put("eclair.electrum.ssl", "strict");
-      return ConfigFactory.parseMap(conf);
-    } else {
-      return ConfigFactory.empty();
+    /**
+     * Builds a TypeSafe configuration to override the default conf of the node setup. Returns an empty config if no configuration entry must be overridden.
+     * <p>
+     * If the user has set a preferred electrum server, retrieves it from the prefs and adds it to the configuration.
+     */
+    private Config getOverrideConfig(final SharedPreferences prefs) {
+      final String prefsElectrumAddress = prefs.getString(Constants.CUSTOM_ELECTRUM_SERVER, "").trim();
+      if (!Strings.isNullOrEmpty(prefsElectrumAddress)) {
+        final HostAndPort address = HostAndPort.fromString(prefsElectrumAddress);
+        final Map<String, Object> conf = new HashMap<>();
+        conf.put("eclair.electrum.host", address.getHost());
+        conf.put("eclair.electrum.port", address.getPort());
+        // custom server certificate must be valid
+        conf.put("eclair.electrum.ssl", "strict");
+        return ConfigFactory.parseMap(conf);
+      } else {
+        log.info("using preset electrum servers");
+        return ConfigFactory.empty();
+      }
     }
   }
 

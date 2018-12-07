@@ -544,7 +544,7 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
-  public void handleElectrumReadyEvent(ElectrumWallet.WalletReady event) {
+  public void handleWalletReadyEvent(ElectrumWallet.WalletReady event) {
     updateElectrumState();
   }
 

@@ -24,6 +24,7 @@ import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
 import com.google.common.base.Strings;
@@ -50,9 +51,11 @@ public class CustomElectrumServerDialog extends Dialog {
       if (isChecked) {
         binding.addressInputLayout.setAlpha(1f);
         binding.addressInput.setEnabled(true);
+        binding.certifWarning.setVisibility(View.VISIBLE);
       } else {
         binding.addressInputLayout.setAlpha(0.3f);
         binding.addressInput.setEnabled(false);
+        binding.certifWarning.setVisibility(View.GONE);
       }
     });
     binding.customCheckbox.setChecked(!Strings.isNullOrEmpty(serverString));
