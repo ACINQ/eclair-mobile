@@ -456,7 +456,7 @@ public class WalletUtils {
 
   private static void useAppender(final LoggerContext lc, final Appender<ILoggingEvent> appender) {
     lc.getLogger("com.ning.http.client.providers.netty").setLevel(Level.WARN);
-    lc.getLogger("fr.acinq.eclair.blockchain.electrum").setLevel(Level.WARN);
+    lc.getLogger("fr.acinq.eclair.blockchain.electrum").setLevel(Level.INFO);
 
     final Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
     root.setLevel(Level.INFO);

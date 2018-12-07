@@ -531,6 +531,8 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
       final Map<String, Object> conf = new HashMap<>();
       conf.put("eclair.electrum.host", address.getHost());
       conf.put("eclair.electrum.port", address.getPort());
+      // custom server certificate must be valid
+      conf.put("eclair.electrum.ssl", "strict");
       return ConfigFactory.parseMap(conf);
     } else {
       return ConfigFactory.empty();
