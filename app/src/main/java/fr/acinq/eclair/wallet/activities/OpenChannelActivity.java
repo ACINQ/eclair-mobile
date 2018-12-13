@@ -382,7 +382,7 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
               }
             }
           };
-          Patterns.ask(app.appKit.eclairKit.switchboard(), new Peer.Connect(remoteNodeURI, Option.apply(null)), timeout)
+          Patterns.ask(app.appKit.eclairKit.switchboard(), new Peer.Connect(remoteNodeURI), timeout)
             .onComplete(onConnectComplete, app.system.dispatcher());
         });
       goToHome();

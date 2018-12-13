@@ -330,8 +330,7 @@ public class App extends Application {
     if (pingNode != null) pingNode.cancel();
     if (system != null && appKit != null && appKit.eclairKit != null && appKit.eclairKit.switchboard() != null) {
       pingNode = system.scheduler().schedule(Duration.Zero(), Duration.create(60, "seconds"), () -> {
-        final Init localInit = new Init(appKit.eclairKit.nodeParams().globalFeatures(), BinaryData.apply("808a"));
-        appKit.eclairKit.switchboard().tell(new Peer.Connect(NodeURI.parse(WalletUtils.ACINQ_NODE), Option.apply(localInit)), ActorRef.noSender());
+        appKit.eclairKit.switchboard().tell(new Peer.Connect(NodeURI.parse(WalletUtils.ACINQ_NODE)), ActorRef.noSender());
       }, system.dispatcher());
     }
   }
