@@ -32,7 +32,10 @@ import android.view.View;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.common.base.Strings;
 import com.google.common.io.Files;
+import com.google.common.net.HostAndPort;
+import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
 import org.greenrobot.eventbus.EventBus;
@@ -45,7 +48,9 @@ import java.io.File;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
 import akka.actor.ActorRef;
@@ -190,11 +195,6 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
     homeIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
     homeIntent.putExtra(HomeActivity.EXTRA_PAYMENT_URI, getIntent().getData());
     startActivity(homeIntent);
-  }
-
-  public void closeApp(View view) {
-    finishAndRemoveTask();
-    finishAffinity();
   }
 
   private void checkup() {
@@ -481,8 +481,11 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
 
         Class.forName("org.sqlite.JDBC");
         publishProgress("setting up eclair");
-        final Setup setup = new Setup(datadir, ConfigFactory.empty(), Option.apply(seed), app.system);
 
+        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(app.getBaseContext());
+        final Setup setup = new Setup(datadir, getOverrideConfig(prefs), Option.apply(seed), app.system);
+
+        // ui refresh schedulers
         final ActorRef paymentsRefreshScheduler = app.system.actorOf(Props.create(RefreshScheduler.PaymentsRefreshScheduler.class), "PaymentsRefreshScheduler");
         final ActorRef channelsRefreshScheduler = app.system.actorOf(Props.create(RefreshScheduler.ChannelsRefreshScheduler.class), "ChannelsRefreshScheduler");
         final ActorRef balanceRefreshScheduler = app.system.actorOf(Props.create(RefreshScheduler.BalanceRefreshScheduler.class), "BalanceRefreshScheduler");
@@ -522,6 +525,27 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
     @Override
     protected void onPostExecute(Integer status) {
       EventBus.getDefault().post(new StartupCompleteEvent(status));
+    }
+
+    /**
+     * Builds a TypeSafe configuration to override the default conf of the node setup. Returns an empty config if no configuration entry must be overridden.
+     * <p>
+     * If the user has set a preferred electrum server, retrieves it from the prefs and adds it to the configuration.
+     */
+    private Config getOverrideConfig(final SharedPreferences prefs) {
+      final String prefsElectrumAddress = prefs.getString(Constants.CUSTOM_ELECTRUM_SERVER, "").trim();
+      if (!Strings.isNullOrEmpty(prefsElectrumAddress)) {
+        final HostAndPort address = HostAndPort.fromString(prefsElectrumAddress);
+        final Map<String, Object> conf = new HashMap<>();
+        conf.put("eclair.electrum.host", address.getHost());
+        conf.put("eclair.electrum.port", address.getPort());
+        // custom server certificate must be valid
+        conf.put("eclair.electrum.ssl", "strict");
+        return ConfigFactory.parseMap(conf);
+      } else {
+        log.info("using preset electrum servers");
+        return ConfigFactory.empty();
+      }
     }
   }
 

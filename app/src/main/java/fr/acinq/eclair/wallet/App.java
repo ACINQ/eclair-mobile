@@ -213,10 +213,6 @@ public class App extends Application {
     return this.walletAddress;
   }
 
-  public boolean isWalletConnected() {
-    return this.electrumState.get() != null && this.electrumState.get().isConnected;
-  }
-
   /**
    * Asks the eclair node to asynchronously execute a Lightning payment. Future failure is silent.
    *
@@ -334,8 +330,7 @@ public class App extends Application {
     if (pingNode != null) pingNode.cancel();
     if (system != null && appKit != null && appKit.eclairKit != null && appKit.eclairKit.switchboard() != null) {
       pingNode = system.scheduler().schedule(Duration.Zero(), Duration.create(60, "seconds"), () -> {
-        final Init localInit = new Init(appKit.eclairKit.nodeParams().globalFeatures(), BinaryData.apply("808a"));
-        appKit.eclairKit.switchboard().tell(new Peer.Connect(NodeURI.parse(WalletUtils.ACINQ_NODE), Option.apply(localInit)), ActorRef.noSender());
+        appKit.eclairKit.switchboard().tell(new Peer.Connect(NodeURI.parse(WalletUtils.ACINQ_NODE)), ActorRef.noSender());
       }, system.dispatcher());
     }
   }
@@ -465,9 +460,11 @@ public class App extends Application {
     return this.electrumState.get() == null ? 0 : this.electrumState.get().blockTimestamp;
   }
 
-  public String getElectrumServerAddress() {
-    final InetSocketAddress address = this.electrumState.get() == null ? null : this.electrumState.get().address;
-    return address == null ? getString(R.string.unknown) : address.toString();
+  public ElectrumState getElectrumState() {
+    return this.electrumState.get();
+  }
+  public InetSocketAddress getElectrumServerAddress() {
+    return this.electrumState.get() == null ? null : this.electrumState.get().address;
   }
 
   public DBHelper getDBHelper() {
@@ -475,11 +472,11 @@ public class App extends Application {
   }
 
   public static class ElectrumState {
-    private Satoshi confirmedBalance;
-    private Satoshi unconfirmedBalance;
-    private long blockTimestamp;
-    private InetSocketAddress address;
-    private boolean isConnected = false;
+    public Satoshi confirmedBalance;
+    public Satoshi unconfirmedBalance;
+    public long blockTimestamp;
+    public InetSocketAddress address;
+    public boolean isConnected = false;
   }
 
   public static class AppKit {

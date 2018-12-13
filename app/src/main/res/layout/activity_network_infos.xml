@@ -36,10 +36,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <LinearLayout
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:orientation="vertical">
+        <LinearLayout style="@style/DataRowContainer">
 
           <TextView
             style="@style/TitleBar"
@@ -58,9 +55,10 @@
             android:id="@+id/electrum_address"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            app:has_action="true"
             app:has_border="true"
             app:label="@string/networkinfos_electrum_address_label"
-            app:value="@string/unknown" />
+            app:value="@string/networkinfos_electrum_address_connecting" />
 
           <fr.acinq.eclair.wallet.customviews.DataRow
             android:id="@+id/fee_rate"
