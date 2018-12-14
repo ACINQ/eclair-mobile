@@ -55,9 +55,9 @@
       android:visibility="@{paymentStep == Steps.LOADING ? View.VISIBLE : View.GONE}">
 
       <ProgressBar
-        style="?android:attr/progressBarStyleSmall"
         android:layout_width="24dp"
-        android:layout_height="24dp" />
+        android:layout_height="24dp"
+        android:indeterminateTint="@color/primary" />
 
       <TextView
         android:layout_width="match_parent"
