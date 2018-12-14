@@ -16,14 +16,12 @@
 
 package fr.acinq.eclair.wallet.activities;
 
-import android.content.Intent;
 import android.databinding.DataBindingUtil;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
-
+import android.text.method.LinkMovementMethod;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.databinding.ActivityAboutBinding;
 
@@ -39,8 +37,8 @@ public class AboutActivity extends EclairActivity {
     ab.setDisplayHomeAsUpEnabled(true);
 
     binding.version.setValue(app.getVersion());
-    binding.faq.actionButton.setOnClickListener(v ->
-      startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/ACINQ/eclair-wallet/wiki/FAQ"))));
+    binding.faq.setText(Html.fromHtml(getString(R.string.about_faq)));
+    binding.faq.setMovementMethod(LinkMovementMethod.getInstance());
     binding.about.setText(Html.fromHtml(getString(R.string.about_acinq_text)));
   }
 }

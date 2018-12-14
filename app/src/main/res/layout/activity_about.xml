@@ -19,19 +19,19 @@
   xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools">
 
-  <ScrollView
+
+  <LinearLayout
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/primary"
-    android:fillViewport="true"
-    tools:context="fr.acinq.eclair.wallet.activities.AboutActivity">
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
 
-    <LinearLayout
+    <include layout="@layout/toolbar" />
+
+    <ScrollView
       android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:orientation="vertical">
-
-      <include layout="@layout/toolbar" />
+      android:layout_height="match_parent"
+      android:fillViewport="true"
+      tools:context="fr.acinq.eclair.wallet.activities.AboutActivity">
 
       <LinearLayout style="@style/DataRowContainer">
 
@@ -39,28 +39,31 @@
           style="@style/TitleBar"
           android:text="@string/about_general_title" />
 
-        <fr.acinq.eclair.wallet.customviews.DataRow
+        <TextView
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          app:has_border="true"
-          app:value="@string/about_general_text" />
+          android:padding="@dimen/space_md"
+          android:text="@string/about_general_text" />
+
+        <View
+          style="@style/HSeparator"
+          android:layout_marginStart="@dimen/space_md" />
+
+        <TextView
+          android:id="@+id/faq"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:padding="@dimen/space_md" />
+
+        <View
+          style="@style/HSeparator"
+          android:layout_width="match_parent" />
 
         <fr.acinq.eclair.wallet.customviews.DataRow
           android:id="@+id/version"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          app:has_border="true"
           app:label="@string/about_version" />
-
-        <fr.acinq.eclair.wallet.customviews.DataRow
-          android:id="@+id/faq"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:layout_marginBottom="@dimen/space_md"
-          app:action_label="@string/about_faq_button"
-          app:has_action="true"
-          app:is_bottom_rounded="true"
-          app:label="@string/about_faq" />
 
         <TextView
           style="@style/TitleBar"
@@ -69,24 +72,22 @@
         <TextView
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:layout_marginBottom="@dimen/space_md"
           android:background="@drawable/rounded_corner_white_bottom"
           android:padding="@dimen/space_md"
           android:text="@string/about_limitations_text" />
 
-      <TextView
-        style="@style/TitleBar"
-        android:text="@string/about_acinq_title" />
+        <TextView
+          style="@style/TitleBar"
+          android:text="@string/about_acinq_title" />
 
         <TextView
           android:id="@+id/about"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:autoLink="web"
-          android:background="@drawable/rounded_corner_white_bottom"
           android:padding="@dimen/space_md" />
 
       </LinearLayout>
-    </LinearLayout>
-  </ScrollView>
+    </ScrollView>
+  </LinearLayout>
 </layout>
