@@ -16,6 +16,8 @@
 
 package fr.acinq.eclair.wallet.activities;
 
+import akka.actor.ActorRef;
+import akka.actor.Props;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -29,25 +31,15 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.text.Html;
 import android.view.View;
-
+import androidx.work.WorkInfo;
+import androidx.work.WorkManager;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.common.base.Strings;
+import com.google.common.io.Files;
+import com.google.common.net.HostAndPort;
+import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.security.GeneralSecurityException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.concurrent.TimeoutException;
-
-import akka.actor.ActorRef;
-import akka.actor.Props;
 import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.bitcoin.DeterministicWallet;
 import fr.acinq.eclair.Kit;
@@ -65,14 +57,26 @@ import fr.acinq.eclair.wallet.actors.NodeSupervisor;
 import fr.acinq.eclair.wallet.actors.RefreshScheduler;
 import fr.acinq.eclair.wallet.databinding.ActivityStartupBinding;
 import fr.acinq.eclair.wallet.fragments.PinDialog;
+import fr.acinq.eclair.wallet.services.NetworkSyncReceiver;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.EclairException;
 import fr.acinq.eclair.wallet.utils.EncryptedBackup;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import scala.Option;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
+
+import java.io.File;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.util.*;
+import java.util.concurrent.TimeoutException;
 
 public class StartupActivity extends EclairActivity implements EclairActivity.EncryptSeedCallback {
 
@@ -189,11 +193,6 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
     startActivity(homeIntent);
   }
 
-  public void closeApp(View view) {
-    finishAndRemoveTask();
-    finishAffinity();
-  }
-
   private void checkup() {
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
     final File datadir = new File(app.getFilesDir(), Constants.ECLAIR_DATADIR);
@@ -214,6 +213,19 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
       if (BREAKING_VERSIONS.contains(BuildConfig.VERSION_CODE)) {
         showBreaking();
         return false;
+      }
+    }
+    // migration scripts based on last used version, only if the application has already been started
+    if (!isFreshInstall) {
+//      if (lastUsedVersion <= 15 && "testnet".equals(BuildConfig.CHAIN)) {
+//        // version 16 breaks the application's data folder structure
+//        migrateTestnetSqlite(datadir);
+//      }
+      if (lastUsedVersion <= 28) {
+        // if last used version is 28 or earlier, we need to reset the network DB due to changes in DB structure
+        // see https://github.com/ACINQ/eclair/pull/738
+        // note that only the android branch breaks compatibility, due to the absence of a blob 'data' column
+        WalletUtils.getNetworkDBFile(getApplicationContext()).delete();
       }
     }
     return true;
@@ -412,8 +424,6 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
         final File datadir = new File(app.getFilesDir(), Constants.ECLAIR_DATADIR);
 
         publishProgress("initializing system");
-        app.checkupInit();
-
         // bootstrap hangs if network is unavailable.
         // TODO: The app should be able to handle an offline mode. Remove await from bootstrap and resolve appkit asynchronously.
         // AppKit should be available from the app without fully bootstrapping the node.
@@ -423,10 +433,16 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
           throw new EclairException.NetworkException();
         }
 
+        app.checkupInit();
+        cancelSyncWork();
+
         Class.forName("org.sqlite.JDBC");
         publishProgress("setting up eclair");
-        final Setup setup = new Setup(datadir, ConfigFactory.empty(), Option.apply(seed), app.system);
 
+        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(app.getBaseContext());
+        final Setup setup = new Setup(datadir, getOverrideConfig(prefs), Option.apply(seed), app.system);
+
+        // ui refresh schedulers
         final ActorRef paymentsRefreshScheduler = app.system.actorOf(Props.create(RefreshScheduler.PaymentsRefreshScheduler.class), "PaymentsRefreshScheduler");
         final ActorRef channelsRefreshScheduler = app.system.actorOf(Props.create(RefreshScheduler.ChannelsRefreshScheduler.class), "ChannelsRefreshScheduler");
         final ActorRef balanceRefreshScheduler = app.system.actorOf(Props.create(RefreshScheduler.BalanceRefreshScheduler.class), "BalanceRefreshScheduler");
@@ -446,9 +462,10 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
         Kit kit = Await.result(fKit, Duration.create(60, "seconds"));
         ElectrumEclairWallet electrumWallet = (ElectrumEclairWallet) kit.wallet();
 
-        publishProgress("done");
         app.appKit = new App.AppKit(electrumWallet, kit);
         app.scheduleConnectionToNode();
+        app.monitorConnectivity();
+        publishProgress("done");
         return SUCCESS;
 
       } catch (EclairException.NetworkException t) {
@@ -466,6 +483,48 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
     @Override
     protected void onPostExecute(Integer status) {
       EventBus.getDefault().post(new StartupCompleteEvent(status));
+    }
+
+    /**
+     * Builds a TypeSafe configuration to override the default conf of the node setup. Returns an empty config if no configuration entry must be overridden.
+     * <p>
+     * If the user has set a preferred electrum server, retrieves it from the prefs and adds it to the configuration.
+     */
+    private Config getOverrideConfig(final SharedPreferences prefs) {
+      final String prefsElectrumAddress = prefs.getString(Constants.CUSTOM_ELECTRUM_SERVER, "").trim();
+      if (!Strings.isNullOrEmpty(prefsElectrumAddress)) {
+        final HostAndPort address = HostAndPort.fromString(prefsElectrumAddress);
+        final Map<String, Object> conf = new HashMap<>();
+        conf.put("eclair.electrum.host", address.getHost());
+        conf.put("eclair.electrum.port", address.getPort());
+        // custom server certificate must be valid
+        conf.put("eclair.electrum.ssl", "strict");
+        return ConfigFactory.parseMap(conf);
+      } else {
+        log.info("using preset electrum servers");
+        return ConfigFactory.empty();
+      }
+    }
+
+    private void cancelSyncWork() {
+      final WorkManager workManager = WorkManager.getInstance();
+      try {
+        final List<WorkInfo> works = workManager.getWorkInfosByTag(NetworkSyncReceiver.NETWORK_SYNC_TAG).get();
+        if (works == null || works.isEmpty()) {
+          log.info("no sync work found");
+        } else {
+          for (WorkInfo work : works) {
+            log.debug("found a sync work in state {}, full data={}", work.getState(), work);
+            if (work.getState() == WorkInfo.State.RUNNING) {
+              log.info("found a running sync work, cancelling work...");
+              workManager.cancelWorkById(work.getId()).getResult().get();
+            }
+          }
+        }
+      } catch (Exception e) {
+        log.error("failed to retrieve or cancel sync works", e);
+        throw new RuntimeException("could not cancel sync works");
+      }
     }
   }
 

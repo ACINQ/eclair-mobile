@@ -48,8 +48,9 @@
   ]]></string>
   <string name="home_no_backup">NO BACKUP</string>
   <string name="home_backup_disabled_icon_desc">Channels backup is disabled!</string>
-
-  <string name="payment_do_send">Pay</string>
+  <string name="home_electrum_establishing">Establishing connection with a default electrum server…</string>
+  <string name="home_electrum_establishing_custom">Establishing connection with %1$s…</string>
+  <string name="home_electrum_syncing">Syncing from %1$s…</string>
 
   <string name="payments_title">Transaction history</string>
   <string name="payments_empty">No transactions yet…</string>
@@ -182,12 +183,24 @@
   <string name="restorechannels_device_conflict">We found a backup for this seed, but it looks like it was created by another android device (or the same device that you\'ve upgraded to Android 8+).\n\nPlease make sure that you do not simultaneously use the same channels on different devices, otherwise they will conflict and close.</string>
   <string name="restorechannels_device_conflict_confirm">I Understand.</string>
 
+  <!-- //////////////// Open Connection /////////////////// -->
+
+  <string name="openconn_connect">Connect</string>
+  <string name="openconn_connecting">Connecting…</string>
+  <string name="openconn_success">Successfully connected!</string>
+  <string name="openconn_node_id_hint">Open connection with node</string>
+  <string name="openconn_address_hint">New IP address</string>
+  <string name="openconn_scan_description">Scan address</string>
+  <string name="openconn_error_fatal_connection">Could not connect to the node: %1$s</string>
+  <string name="openconn_error">This address is not valid</string>
+  <string name="openconn_error_timeout">Connection attempt has timeout… Please check the address and try again.</string>
+  <string name="openconn_error_unexpected_node_id">Please connect to the same node</string>
+
   <!-- //////////////// Open Channel /////////////////// -->
 
   <string name="openchannel_loading_pleasewait">Reading node address, please wait…</string>
   <string name="openchannel_dns_seed">Node discovery is based on a DNS seed mechanism (see BOLT 10).\n\nThis feature is not available yet.</string>
   <string name="openchannel_title">Open a new Lightning Channel</string>
-  <string name="openchannel_capacity">CAPACITY</string>
   <string name="openchannel_capacity_hint">Channel capacity in</string>
   <string name="openchannel_capacity_invalid">Channel capacity must be between %1$s and %2$s</string>
   <string name="openchannel_capacity_notenoughfunds">Not enough funds</string>
@@ -199,6 +212,8 @@
   <string name="openchannel_pubkey">Node id</string>
   <string name="openchannel_ip">Node ip</string>
   <string name="openchannel_port">Port</string>
+  <string name="openchannel_max_funds_pleasewait">Hold on, calculating available funds…</string>
+  <string name="openchannel_max_funds">Use all available funds</string>
   <string name="openchannel_fees">Funding tx fees</string>
 
   <!-- //////////////// Commons /////////////////// -->
@@ -218,13 +233,13 @@
   <string name="error_generic">Internal Error</string>
   <string name="pretty_amount_value"><![CDATA[%1$s<small>%2$s<small>]]></string>
   <string name="commons_progress_indicator">●</string>
+  <string name="amount_to_fiat">≈ %1$s</string>
 
   <!-- /////////////// Menus /////////////// -->
 
   <string name="menu_home">Home</string>
   <string name="menu_networkinfos">Network Info</string>
-  <string name="menu_about">About</string>
-  <string name="menu_faq">FAQ</string>
+  <string name="menu_about">About / Help</string>
   <string name="menu_settings">Settings</string>
   <string name="menu_settings_security">Security</string>
   <string name="menu_settings_channels_backup">Channels Backup</string>
@@ -232,7 +247,7 @@
   <string name="menu_settings_channels_restore">Restore Channels</string>
   <string name="menu_settings_logging">Logging</string>
 
-  <string name="open_in_explorer">Open in explorer</string>
+  <string name="open_in_explorer">Open transaction in explorer…</string>
   <string name="close_button">Close Channel</string>
 
   <!-- //////////////// Bitcoin Transaction Details //////////////////// -->
@@ -241,7 +256,6 @@
   <string name="transactiondetails_amount_received_label">Amount received</string>
   <string name="transactiondetails_fees_label">Mining Fees</string>
   <string name="transactiondetails_txid_label">Transaction Id</string>
-  <string name="transactiondetails_txid_desc">Unique identifier of this transaction</string>
   <string name="transactiondetails_date_label">Local timestamp</string>
   <string name="transactiondetails_confs_label">Confirmations</string>
   <string name="transactiondetails_confs_type_label">Confidence type</string>
@@ -255,43 +269,33 @@
   <string name="channeldetails_terminated_disclaimer">This channel has been terminated.</string>
   <string name="channeldetails_opened_on"><![CDATA[Opened <b>%1$s</b>]]></string>
   <string name="channeldetails_closed_on"><![CDATA[Closed <b>%1$s</b>]]></string>
-  <string name="channeldetails_id_label">Id</string>
-  <string name="channeldetails_id_desc">Channel unique identifier</string>
+  <string name="channeldetails_id_label">Channel Id</string>
   <string name="channeldetails_short_id_label">Short Channel Id</string>
   <string name="channeldetails_features_label">Features support</string>
   <string name="channeldetails_advanced_routing_label">Advanced routing sync</string>
   <string name="channeldetails_data_loss_protection_label">Dataloss protection</string>
-  <string name="channeldetails_to_self_delay_label">To Self Delay</string>
-  <string name="channeldetails_to_self_delay_desc">Refund delay for uncooperative close</string>
-  <string name="channeldetails_reserve_label">Reserve</string>
-  <string name="channeldetails_reserve_desc">Minimum balance that this channel must maintain</string>
+  <string name="channeldetails_to_self_delay_label">Refund delay (uncooperative close)</string>
+  <string name="channeldetails_reserve_label">Minimum Channel Reserve</string>
   <string name="channeldetails_htlcs_count_label">Inflight HTLCs</string>
-  <string name="channeldetails_htlcs_count_desc">Current number of HTLCs in the commitment tx</string>
-  <string name="channeldetails_min_htlc_amount_label">Min. payment amount</string>
-  <string name="channeldetails_min_htlc_amount_desc">Minimum amount that can be sent through this channel</string>
+  <string name="channeldetails_min_htlc_amount_label">Minimum payment amount</string>
+  <string name="channeldetails_closing_section">Closing information</string>
   <string name="channeldetails_closing_cause_label">Cause of closing</string>
-  <string name="channeldetails_refund_block_label">Refund Block</string>
-  <string name="channeldetails_refund_block_desc">Block height at which the main output is refunded</string>
-  <string name="channeldetails_refund_block_value">Block %1$d\n\n(current is %2$d)</string>
-  <string name="channeldetails_nodeid_label">Remote node id</string>
-  <string name="channeldetails_nodeid_desc">Public key of the remote peer</string>
+  <string name="channeldetails_refund_block_label">Refund block height</string>
+  <string name="channeldetails_refund_block_value">%1$s (current is %2$s)</string>
+  <string name="channeldetails_nodeid_label">Peer Node Id</string>
   <string name="channeldetails_state_label">State</string>
-  <string name="channeldetails_state_desc">State of the channel</string>
   <string name="channeldetails_state_closing_type_label">Closing type</string>
-  <string name="channeldetails_balance_closed_label">Balance</string>
-  <string name="channeldetails_balance_closed_desc">Balance when the channel was closed</string>
+  <string name="channeldetails_balance_closed_label">Balance when channel was closed</string>
   <string name="channeldetails_capacity_label">Capacity</string>
-  <string name="channeldetails_capacity_desc">Funds locked in the channel</string>
-  <string name="channeldetails_balance_label">Balance</string>
-  <string name="channeldetails_balance_desc">Your current balance"</string>
-  <string name="channeldetails_transactionid_label">Transaction Id</string>
-  <string name="channeldetails_transactionid_desc">Id of the onchain transaction that funded the channel</string>
+  <string name="channeldetails_balance_label">Current Balance</string>
+  <string name="channeldetails_transactionid_label">Funding Transaction Id</string>
   <string name="channeldetails_closingtype_mutual">MUTUAL (cooperative)</string>
   <string name="channeldetails_closingtype_local">LOCAL (initiated by your node)</string>
   <string name="channeldetails_closingtype_remote">REMOTE (initiated by the peer)</string>
   <string name="channeldetails_closingtype_other">OTHER</string>
-  <string name="channeldetails_raw_data">Raw channel data</string>
+  <string name="channeldetails_raw_data">Show raw channel data…</string>
   <string name="channeldetails_unknown">Unknown channel</string>
+  <string name="channeldetails_open_connection_button">Update Node Address…</string>
 
   <!-- //////////////// Local Channel Raw Data //////////////////// -->
 
@@ -302,6 +306,7 @@
 
   <string name="payment_invalid_address">This is not a valid payment address.\n\nPlease use a %1$s Bitcoin address or Lightning payment request to initiate a payment.</string>
   <string name="payment_ln_invalid_chain">This payment request is not valid for %1$s.\n\nPlease make sure that you are on the correct blockchain.</string>
+  <string name="payment_ln_expiry_outdated">This payment has expired.</string>
   <string name="payment_pick_onchain">Pay on-chain</string>
   <string name="payment_pick_lightning">Pay with Lightning</string>
   <string name="payment_type_onchain">On-Chain Payment</string>
@@ -315,9 +320,9 @@
   <string name="payment_description">Desc.</string>
   <string name="payment_destination_address">To</string>
   <string name="payment_fees">Fees</string>
-  <string name="payment_fees_not_capped">Uncapped routing fee ; check the application\'s preferences.</string>
-  <string name="payment_fees_verylow">Fees are very low and your transaction could take a very long time to confirm.</string>
-  <string name="payment_fees_veryhigh">Fees seem very high. Please make sure that this amount is correct.</string>
+  <string name="payment_fees_not_capped">Uncapped routing fee ; check the application\'s settings.</string>
+  <string name="payment_fees_verylow">The fees are very low, your transaction may need a very long time to confirm.</string>
+  <string name="payment_fees_veryhigh">The fees seem very high, you may be overpaying.</string>
   <string name="payment_loading_pleasewait">Reading invoice, please wait…</string>
   <string name="payment_amount_to_send">Amount in </string>
   <string name="payment_toast_sentbtc">Payment sent</string>
@@ -325,44 +330,38 @@
   <string name="payment_tx_creation_error">Transaction is invalid</string>
   <string name="payment_tx_failed">Transaction failed</string>
   <string name="payment_toast_failure">Could not send transaction: %1$s</string>
+  <string name="payment_do_send">Pay</string>
+  <string name="payment_do_send_wait">Channels not ready…</string>
 
   <string name="payment_error">This payment is not valid.</string>
   <string name="payment_error_fees_onchain">The fees value is not valid.</string>
-  <string name="payment_error_amount_onchain_insufficient_funds">The amount exceeds your balance.</string>
-  <string name="payment_error_amount">The amount is not valid.</string>
-  <string name="payment_error_ln_pick_no_channels">You need lightning channels for this option.</string>
-  <string name="payment_error_ln_no_channels">You first need to open a Lightning channel to execute this payment.\n\nDo this by swiping right to left from the home view, and tapping the green "+" button.</string>
-  <string name="payment_error_ln_no_active_channels">None of your Lightning channels is ready to send payments.</string>
-  <string name="payment_error_ln_insufficient_funds">None of your Lightning channels has enough balance to send this payment.</string>
+  <string name="payment_error_amount_onchain_insufficient_funds">Payment amount exceeds your balance.</string>
+  <string name="payment_error_amount">Payment amount is not valid.</string>
+  <string name="payment_error_ln_pick_no_channels">You need Lightning channels for this option.</string>
+  <string name="payment_error_ln_no_channels">You first need to open a Lightning channel to process this payment.\n\nDo this by swiping right to left from the home view, and tapping the green "+" button.</string>
+  <string name="payment_error_ln_no_active_channels">Your Lightning channels are not ready to process this payment.</string>
+  <string name="payment_error_ln_insufficient_funds">Your Lightning channels do not have enough balance to process this payment.</string>
   <string name="payment_error_pending">This payment is already processing.</string>
   <string name="payment_error_paid">This payment has already been paid.</string>
   <string name="payment_error_incorrect_pin">PIN is incorrect.</string>
 
   <!-- //////////////// LN payment details //////////////////// -->
 
-  <string name="paymentdetails_technicals_title">TECHNICAL INFORMATION</string>
+  <string name="paymentdetails_technicals_title">Technical Information</string>
   <string name="paymentdetails_amount_paid_label">Amount paid (incl. fees)</string>
   <string name="paymentdetails_fees_label">Routing fees</string>
-  <string name="paymentdetails_recipient_label">Paid to</string>
-  <string name="paymentdetails_recipient_desc">Id of the node receiving the payment.</string>
+  <string name="paymentdetails_amount_fiat">≈ %1$s</string>
+  <string name="paymentdetails_recipient_label">Recipient node</string>
   <string name="paymentdetails_status_label">Status</string>
-  <string name="paymentdetails_desc_label">Description</string>
-  <string name="paymentdetails_desc_desc">Description of the payment</string>
+  <string name="paymentdetails_desc_label">Payment description</string>
   <string name="paymentdetails_amount_requested_label">Amount requested</string>
-  <string name="paymentdetails_amount_requested_desc">Requested by the payee</string>
   <string name="paymentdetails_amount_requested_donation">Not set</string>
-  <string name="paymentdetails_amount_sent_label">Amount sent</string>
-  <string name="paymentdetails_amount_sent_desc">Amount that you really sent (without fees)</string>
+  <string name="paymentdetails_amount_sent_label">Amount sent (without fees)</string>
   <string name="paymentdetails_paymenthash_label">Payment hash</string>
-  <string name="paymentdetails_paymenthash_desc"></string>
   <string name="paymentdetails_preimage_label">Payment preimage</string>
-  <string name="paymentdetails_preimage_desc">Proof of the payment success</string>
   <string name="paymentdetails_paymentrequest_label">Payment request</string>
-  <string name="paymentdetails_paymentrequest_desc">Serialized LN payment request</string>
   <string name="paymentdetails_created_label">Creation date</string>
-  <string name="paymentdetails_created_desc">When the payment was initiated</string>
   <string name="paymentdetails_updated_label">Last update</string>
-  <string name="paymentdetails_updated_desc">Last time the payment was updated</string>
 
   <!-- //////////////// Successful / Failed Payment Splash //////////////////// -->
 
@@ -389,26 +388,20 @@
   <!-- //////////////// About //////////////////// -->
 
   <string name="about_general_title">About Eclair Wallet</string>
-  <string name="about_general_text"><![CDATA[
-    <p>An advanced Lightning/Bitcoin mobile wallet by ACINQ. It relies on Electrum servers for access to the Bitcoin network.</p>
-    <p>Fees are retrieved from the BitGo API. Exchange rates are retrieved from the Blockchain.info api. Note that this conversion to fiat may not be accurate.</b></p>
-    <p>This software is compliant with the BOLT specifications (Lightning Network standard).</p>
-    <p><b>Installed version: %1$s</b></p>
-    ]]>
-  </string>
+  <string name="about_general_text">An advanced Lightning/Bitcoin mobile wallet by ACINQ. It relies on Electrum servers for access to the Bitcoin network.\n\nFees are retrieved from the BitGo API. Exchange rates are retrieved from the Blockchain.info api. Note that this conversion to fiat may not be accurate.\n\nThis software is compliant with the BOLT specifications (Lightning Network standard).</string>
+  <string name="about_version">Current version</string>
+  <string name="about_faq"><![CDATA[
+    <p>Any questions? Check <a href="https://github.com/ACINQ/eclair-wallet/wiki/FAQ">the FAQ</a></p>
+    You can also join <a href="https://gitter.im/ACINQ/eclair">our Gitter chat</a>.
+  ]]></string>
   <string name="about_limitations_title">Software Limitations</string>
-  <string name="about_limitations_text"><![CDATA[
-    <p>Main limitations:
-    <br/>
-    - Lightning channels are outbound only: you can pay with LN, but not receive/forward payments.
-    </p>
-    ]]>
-  </string>
+  <string name="about_limitations_text">Lightning channels are outbound only: you can pay with LN, but not receive/forward payments.</string>
   <string name="about_acinq_title">About ACINQ</string>
   <string name="about_acinq_text"><![CDATA[
-    <p>ACINQ is a bitcoin technology company, and a proud member of the Lightning development community.</p>
-    <p>https://acinq.co</p>
-    <p>https://github.com/ACINQ/eclair-wallet</p>
+    <p>ACINQ is a Bitcoin technology company, and a proud member of the Lightning development community.</p>
+    https://acinq.co
+    <br /><br />
+    https://github.com/ACINQ/eclair-wallet
     ]]>
   </string>
 
@@ -417,28 +410,24 @@
   <string name="networkinfos_title_bitcoin">Bitcoin Network</string>
   <string name="networkinfos_title_lightning">Lightning Network</string>
   <string name="networkinfos_title_debug">Diagnostics</string>
-  <string name="networkinfos_nodeid_label">Node id</string>
-  <string name="networkinfos_nodeid_desc">Lightning Network public identifier</string>
-  <string name="networkinfos_nodealias_label">Alias</string>
-  <string name="networkinfos_nodealias_desc">Name of the node</string>
-  <string name="networkinfos_blockcount_label">Block count</string>
-  <string name="networkinfos_blockcount_desc">Current blockchain height</string>
-  <string name="networkinfos_feerate_label">Fee rate</string>
-  <string name="networkinfos_feerate_desc">Current fee rate</string>
-  <string name="networkinfos_electrum_address_label">Electrum server</string>
-  <string name="networkinfos_electrum_address_desc">Server you\'re connected to for access to the blockchain</string>
-  <string name="networkinfos_block_timestamp_label">Block timestamp</string>
-  <string name="networkinfos_block_timestamp_desc">Last block timestamp</string>
-  <string name="networkinfos_networkchannels_label">Known channels</string>
-  <string name="networkinfos_networkchannels_desc">Channels count in network</string>
+  <string name="networkinfos_nodeid_label">Your node id</string>
+  <string name="networkinfos_blockcount_label">Block height</string>
+  <string name="networkinfos_feerate_label">Current fee rate</string>
+  <string name="networkinfos_electrum_address_label">Current Electrum server</string>
+  <string name="networkinfos_electrum_address_connecting">Establishing connection…</string>
+  <string name="networkinfos_electrum_address_connecting_to_custom">Attempting connection to %1$s…</string>
+  <string name="networkinfos_electrum_address_set_custom">Set custom server…</string>
+  <string name="networkinfos_electrum_address_change_custom">Change custom server…</string>
+  <string name="networkinfos_electrum_confirm_message"><![CDATA[You will now connect to <b>%1$s</b><br/><br/>Restarting…]]></string>
+  <string name="networkinfos_electrum_confirm_message_default"><![CDATA[Restarting with preset electrum…]]></string>
+  <string name="networkinfos_block"><![CDATA[%1$s&nbsp;&nbsp;<font color="#888888"><small>//&nbsp;&nbsp;%2$s</small></font>]]></string>
+  <string name="networkinfos_networkchannels_label">Known channels in network</string>
   <string name="networkinfos_wallet_title">Wallet</string>
-  <string name="networkinfos_networkdb_label">Delete Network DB</string>
-  <string name="networkinfos_networkdb_desc">This will clear your network routing table.</string>
-  <string name="networkinfos_networkdb_action">Delete Network DB</string>
-  <string name="networkinfos_networkdb_confirm">Are you sure you want to delete your network database?\n\n The application will restart.</string>
+  <string name="networkinfos_networkdb_label">Network Database</string>
+  <string name="networkinfos_networkdb_action">Reset Network Database…</string>
+  <string name="networkinfos_networkdb_confirm"><![CDATA[Are you sure you want to delete your network database?<br/><br/>The application will restart automatically.]]></string>
   <string name="networkinfos_networkdb_toast">Successfully deleted DB, restarting application…</string>
   <string name="networkinfos_xpub_label">Master Public Key</string>
-  <string name="networkinfos_xpub_desc">All your addresses derive from this key.</string>
 
   <!-- //////////////// Payment Item //////////////////// -->
 
@@ -459,10 +448,6 @@
   <!-- //////////////// General //////////////////// -->
 
   <string name="btc_fee_unit">sat/byte</string>
-  <string name="chain_disconnected">Connection to electrum server lost</string>
-  <string name="chain_disconnected_desc">Sending funds is disabled.</string>
-  <string name="chain_late">Electrum server not synchronized</string>
-  <string name="chain_late_desc">Attention, your wallet\'s block height looks stale. Sending lightning payments may trigger unilateral closing of your channels!</string>
 
   <!-- //////////////// Pin dialogs //////////////////// -->
 
@@ -504,8 +489,8 @@
 
   <!-- //////////////// Scanner messages //////////////////// -->
 
-  <string name="scan_title_invoice">Please scan a QR code containing a Bitcoin address or a Lightning payment request.</string>
-  <string name="scan_title_ln_uri">Please scan the address of a Lightning Network node.</string>
+  <string name="scan_title_invoice">Scan a QR code containing a Bitcoin address or a Lightning payment request.</string>
+  <string name="scan_title_ln_uri">Scan the address of a Lightning Network node.</string>
 
   <!-- //////////////// Close Channel Dialog /////////////////// -->
 
@@ -515,6 +500,13 @@
   <string name="dialog_close_channel_close">Close channel</string>
   <string name="dialog_close_channel_forceclose">Force-close</string>
   <string name="dialog_close_channel_cancel">Cancel</string>
+
+  <!-- //////////////// Custom Electrum Server Dialog /////////////////// -->
+
+  <string name="dialog_electrum_checkbox">Use a custom Electrum server</string>
+  <string name="dialog_electrum_warning">Server must have a valid certificate.</string>
+  <string name="dialog_electrum_hint">Server address (host:port)</string>
+  <string name="dialog_electrum_error">Invalid address</string>
 
   <!-- //////////////// Setup Channels Backup /////////////////// -->
 

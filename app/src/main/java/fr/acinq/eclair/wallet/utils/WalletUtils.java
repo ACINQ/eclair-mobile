@@ -28,13 +28,32 @@ import android.text.Html;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import androidx.work.Data;
+import androidx.work.OneTimeWorkRequest;
+import ch.qos.logback.classic.*;
+import ch.qos.logback.classic.android.LogcatAppender;
+import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.Appender;
+import ch.qos.logback.core.rolling.FixedWindowRollingPolicy;
+import ch.qos.logback.core.rolling.RollingFileAppender;
+import ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy;
 import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.google.common.io.Files;
 import com.papertrailapp.logback.Syslog4jAppender;
 import com.tozny.crypto.android.AesCbcWithIntegrity;
-
+import fr.acinq.bitcoin.BinaryData;
+import fr.acinq.bitcoin.Block;
+import fr.acinq.bitcoin.MilliSatoshi;
+import fr.acinq.bitcoin.package$;
+import fr.acinq.eclair.CoinUnit;
+import fr.acinq.eclair.CoinUtils;
+import fr.acinq.eclair.payment.PaymentRequest;
+import fr.acinq.eclair.wallet.App;
+import fr.acinq.eclair.wallet.BuildConfig;
+import fr.acinq.eclair.wallet.R;
+import fr.acinq.eclair.wallet.services.ChannelsBackupWorker;
 import org.json.JSONObject;
 import org.productivity.java.syslog4j.impl.net.tcp.ssl.SSLTCPNetSyslogConfig;
 import org.slf4j.LoggerFactory;
@@ -47,32 +66,6 @@ import java.text.NumberFormat;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
-import androidx.work.Data;
-import androidx.work.OneTimeWorkRequest;
-import ch.qos.logback.classic.AsyncAppender;
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.PatternLayout;
-import ch.qos.logback.classic.android.LogcatAppender;
-import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.Appender;
-import ch.qos.logback.core.rolling.FixedWindowRollingPolicy;
-import ch.qos.logback.core.rolling.RollingFileAppender;
-import ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy;
-import fr.acinq.bitcoin.BinaryData;
-import fr.acinq.bitcoin.Block;
-import fr.acinq.bitcoin.MilliSatoshi;
-import fr.acinq.bitcoin.package$;
-import fr.acinq.eclair.CoinUnit;
-import fr.acinq.eclair.CoinUtils;
-import fr.acinq.eclair.payment.PaymentRequest;
-import fr.acinq.eclair.wallet.App;
-import fr.acinq.eclair.wallet.BuildConfig;
-import fr.acinq.eclair.wallet.R;
-import fr.acinq.eclair.wallet.services.ChannelsBackupWorker;
-
 public class WalletUtils {
   private final static org.slf4j.Logger log = LoggerFactory.getLogger(WalletUtils.class);
 
@@ -80,7 +73,6 @@ public class WalletUtils {
   private final static String PRICE_RATE_API = "https://blockchain.info/fr/ticker";
   public final static String UNENCRYPTED_SEED_NAME = "seed.dat";
   public final static String SEED_NAME = "enc_seed.dat";
-  private static final String TAG = "WalletUtils";
   private final static String SEED_NAME_TEMP = "enc_seed_temp.dat";
   private static NumberFormat fiatFormat;
 
@@ -455,9 +447,12 @@ public class WalletUtils {
   }
 
   private static void useAppender(final LoggerContext lc, final Appender<ILoggingEvent> appender) {
-    lc.getLogger("com.ning.http.client.providers.netty").setLevel(Level.WARN);
-    lc.getLogger("fr.acinq.eclair.blockchain.electrum").setLevel(Level.WARN);
-
+    if (BuildConfig.DEBUG) {
+      lc.getLogger("io.netty").setLevel(Level.DEBUG);
+    } else {
+      lc.getLogger("io.netty").setLevel(Level.WARN);
+      lc.getLogger("fr.acinq.eclair.blockchain.electrum").setLevel(Level.WARN);
+    }
     final Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
     root.setLevel(Level.INFO);
     root.addAppender(appender);

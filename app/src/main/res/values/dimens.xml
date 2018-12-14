@@ -16,6 +16,11 @@
 
 <resources>
 
+  <dimen name="text_lg">16sp</dimen>
+  <dimen name="text_md">14sp</dimen>
+  <dimen name="text_sm">12sp</dimen>
+  <dimen name="text_xs">10sp</dimen>
+
   <dimen name="space_xl">64dp</dimen>
   <dimen name="space_lg">32dp</dimen>
   <dimen name="space_md">16dp</dimen>
@@ -37,6 +42,6 @@
 
   <dimen name="payment_title_width">45dp</dimen>
 
-  <dimen name="pin_button_size">70dp</dimen>
+  <dimen name="pin_button_size">64dp</dimen>
 
 </resources>

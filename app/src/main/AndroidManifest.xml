@@ -6,6 +6,7 @@
   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
   <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
   <uses-permission android:name="android.permission.CAMERA" />
+  <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
   <supports-screens
     android:anyDensity="true"
@@ -58,8 +59,8 @@
       android:noHistory="true"
       android:parentActivityName=".activities.StartupActivity"
       android:screenOrientation="portrait"
-      android:windowSoftInputMode="stateHidden"
-      android:theme="@style/PrimaryBgTheme" />
+      android:theme="@style/PrimaryBgTheme"
+      android:windowSoftInputMode="stateHidden" />
     <activity
       android:name=".activities.HomeActivity"
       android:label="@string/app_name"
@@ -71,7 +72,8 @@
       android:launchMode="singleTop"
       android:parentActivityName=".activities.HomeActivity"
       android:stateNotNeeded="true"
-      android:theme="@style/CustomDialog" />
+      android:theme="@style/CustomDialog"
+      android:windowSoftInputMode="adjustResize" />
     <activity
       android:name=".activities.ScanActivity"
       android:noHistory="true"
@@ -155,9 +157,16 @@
     <activity
       android:name=".activities.LogsSettingsActivity"
       android:label="@string/menu_settings_logging"
-      android:windowSoftInputMode="stateHidden"
       android:parentActivityName=".activities.PreferencesActivity"
-      android:screenOrientation="portrait" />
+      android:screenOrientation="portrait"
+      android:windowSoftInputMode="stateHidden" />
+    <activity
+      android:name=".activities.OpenConnectionActivity"
+      android:label=""
+      android:launchMode="singleTop"
+      android:parentActivityName=".activities.OpenChannelActivity"
+      android:stateNotNeeded="true"
+      android:theme="@style/CustomDialog" />
 
     <!-- providers -->
     <provider
@@ -167,8 +176,18 @@
       android:grantUriPermissions="true">
       <meta-data
         android:name="android.support.FILE_PROVIDER_PATHS"
-        android:resource="@xml/provider_paths"/>
+        android:resource="@xml/provider_paths" />
     </provider>
+
+    <!-- broadcast receivers -->
+    <receiver
+      android:name=".services.NetworkSyncReceiver"
+      android:enabled="true"
+      android:exported="false">
+      <intent-filter>
+        <action android:name="android.intent.action.BOOT_COMPLETED" />
+      </intent-filter>
+    </receiver>
 
   </application>
 

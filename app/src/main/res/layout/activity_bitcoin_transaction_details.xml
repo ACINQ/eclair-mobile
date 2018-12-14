@@ -40,12 +40,11 @@
 
     <ScrollView
       android:layout_width="match_parent"
-      android:layout_height="wrap_content">
+      android:layout_height="wrap_content"
+      android:fillViewport="true"
+      android:scrollbars="none">
 
-      <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+      <LinearLayout style="@style/DataRowContainer">
 
         <LinearLayout
           android:layout_width="match_parent"
@@ -54,12 +53,8 @@
           android:padding="@dimen/space_md">
 
           <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@{isTxReceived ? @string/transactiondetails_amount_received_label : @string/transactiondetails_amount_sent_label}"
-            android:textAllCaps="true"
-            android:textColor="@color/grey_1"
-            android:textSize="10sp" />
+            style="@style/TitleCapsGrey"
+            android:text="@{isTxReceived ? @string/transactiondetails_amount_received_label : @string/transactiondetails_amount_sent_label}" />
 
           <fr.acinq.eclair.wallet.customviews.CoinAmountView
             android:id="@+id/tx_amount"
@@ -68,13 +63,22 @@
             app:alignment="left"
             app:amount_color="@color/grey_4"
             app:amount_size="36sp"
+            app:force_btc="true"
             app:unit="mBTC"
-            app:unit_color="@color/grey_3"
+            app:unit_color="@color/grey_4"
             app:unit_size="12sp" />
+
+          <TextView
+            android:id="@+id/amount_paid_fiat"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-light"
+            android:text="@string/paymentdetails_amount_fiat" />
 
           <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_sm"
             android:orientation="horizontal">
 
             <LinearLayout
@@ -84,13 +88,8 @@
               android:orientation="vertical">
 
               <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_sm"
-                android:text="@string/transactiondetails_confs_label"
-                android:textAllCaps="true"
-                android:textColor="@color/grey_1"
-                android:textSize="10sp" />
+                style="@style/TitleCapsGrey"
+                android:text="@string/transactiondetails_confs_label" />
 
               <TextView
                 android:id="@+id/confs"
@@ -108,13 +107,8 @@
               android:visibility="@{isTxReceived ? View.GONE : View.VISIBLE}">
 
               <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_sm"
-                android:text="@string/transactiondetails_fees_label"
-                android:textAllCaps="true"
-                android:textColor="@color/grey_1"
-                android:textSize="10sp" />
+                style="@style/TitleCapsGrey"
+                android:text="@string/transactiondetails_fees_label" />
 
               <TextView
                 android:id="@+id/fees"
@@ -122,20 +116,19 @@
                 android:layout_height="wrap_content" />
 
             </LinearLayout>
-
           </LinearLayout>
-
         </LinearLayout>
 
-        <include layout="@layout/include_separator" />
+        <TextView
+          style="@style/TitleBar"
+          android:drawableStart="@drawable/ic_hammer_grey_14dp"
+          android:text="@string/paymentdetails_technicals_title" />
 
         <fr.acinq.eclair.wallet.customviews.DataRow
           android:id="@+id/tx_id"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          app:action_bg="@color/yellow"
           app:action_label="@string/open_in_explorer"
-          app:desc="@string/transactiondetails_txid_desc"
           app:has_action="true"
           app:has_border="true"
           app:label="@string/transactiondetails_txid_label"
@@ -150,39 +143,23 @@
           app:value="@string/unknown" />
 
         <fr.acinq.eclair.wallet.customviews.DataRow
-          android:id="@+id/date"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          app:label="@string/transactiondetails_date_label"
-          app:value="@string/unknown" />
-
-        <LinearLayout
           android:id="@+id/rebroadcast"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:layout_marginTop="8dp"
-          android:background="@color/grey_4"
-          android:clickable="true"
-          android:focusable="true"
-          android:gravity="center"
-          android:orientation="horizontal"
-          android:padding="12dp"
-          android:visibility="gone">
+          android:visibility="gone"
+          app:action_label="@string/transactiondetails_rebroadcast"
+          app:has_action="true"
+          app:has_border="true"
+          app:label="@string/transactiondetails_rebroadcast" />
 
-          <ImageView
-            android:layout_width="18dp"
-            android:layout_height="18dp"
-            android:layout_marginEnd="8dp"
-            android:src="@mipmap/ic_broadcast" />
+        <fr.acinq.eclair.wallet.customviews.DataRow
+          android:id="@+id/date"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          app:is_bottom_rounded="true"
+          app:label="@string/transactiondetails_date_label"
+          app:value="@string/unknown" />
 
-          <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/transactiondetails_rebroadcast"
-            android:textAllCaps="true"
-            android:textColor="@color/white"
-            android:textSize="12sp" />
-        </LinearLayout>
       </LinearLayout>
     </ScrollView>
   </LinearLayout>

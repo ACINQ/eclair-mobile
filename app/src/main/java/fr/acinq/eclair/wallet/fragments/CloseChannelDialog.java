@@ -35,8 +35,6 @@ import fr.acinq.eclair.wallet.R;
 
 public class CloseChannelDialog extends Dialog {
 
-  private static final String TAG = "CloseChannelDialog";
-
   private CheckBox mForceCheckbox;
   private TextView mForceWarningText;
   private Button mCancelButton;

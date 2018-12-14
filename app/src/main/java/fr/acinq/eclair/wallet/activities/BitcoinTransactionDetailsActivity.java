@@ -28,6 +28,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Toast;
 
+import com.google.common.base.Strings;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,16 +90,21 @@ public class BitcoinTransactionDetailsActivity extends EclairActivity {
 
       mBinding.setIsTxReceived(PaymentDirection.RECEIVED.equals(p.getDirection()));
       mBinding.txAmount.setAmountMsat(new MilliSatoshi(p.getAmountPaidMsat()));
+      mBinding.amountPaidFiat.setText(getString(R.string.paymentdetails_amount_fiat, WalletUtils.convertMsatToFiatWithUnit(p.getAmountPaidMsat(), WalletUtils.getPreferredFiat(prefs))));
       mBinding.fees.setText(CoinUtils.formatAmountInUnit(new MilliSatoshi(p.getFeesPaidMsat()), prefUnit, true));
-      mBinding.txId.setValue(p.getReference());
-      mBinding.txId.actionButton.setOnClickListener(WalletUtils.getOpenTxListener(p.getReference()));
+      if (Strings.isNullOrEmpty(p.getReference())) {
+        mBinding.txId.setVisibility(View.GONE);
+      } else {
+        mBinding.txId.setValue(p.getReference());
+        mBinding.txId.actionButton.setOnClickListener(WalletUtils.getOpenTxListener(p.getReference()));
+      }
       mBinding.date.setValue(DateFormat.getDateTimeInstance().format(p.getUpdated()));
       mBinding.confs.setText(Integer.toString(p.getConfidenceBlocks()));
       mBinding.confs.setTextColor(p.getConfidenceBlocks() >= 6 ? ContextCompat.getColor(getApplicationContext(), R.color.green) : ContextCompat.getColor(getApplicationContext(), R.color.grey_4));
       mBinding.confsType.setValue(Integer.toString(p.getConfidenceType()));
       if (p.getConfidenceBlocks() == 0) {
         mBinding.rebroadcast.setVisibility(View.VISIBLE);
-        mBinding.rebroadcast.setOnClickListener(v -> mRebroadcastDialog.show());
+        mBinding.rebroadcast.actionButton.setOnClickListener(v -> mRebroadcastDialog.show());
       }
     } catch (Exception e) {
       Toast.makeText(this, "Transaction not found", Toast.LENGTH_SHORT).show();

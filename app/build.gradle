@@ -2,14 +2,14 @@ apply plugin: 'com.android.application'
 apply plugin: 'org.greenrobot.greendao'
 
 android {
-  compileSdkVersion 27
-  buildToolsVersion "27.0.3"
+  compileSdkVersion 28
+  buildToolsVersion '28.0.3'
   defaultConfig {
     applicationId "fr.acinq.eclair.wallet.mainnet2"
     minSdkVersion 21
-    targetSdkVersion 27
+    targetSdkVersion 28
     versionCode 28
-    versionName "0.3.12"
+    versionName "0.3.13-DEV"
     testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     multiDexEnabled true
   }
@@ -59,14 +59,16 @@ dependencies {
   androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
     exclude group: 'com.android.support', module: 'support-annotations'
   })
-  implementation 'com.android.support:design:27.1.1'
-  implementation 'com.android.support:preference-v7:27.1.1'
-  implementation 'com.android.support:preference-v14:27.1.1'
+  implementation 'com.android.support:design:28.0.0'
+  implementation 'com.android.support:preference-v7:28.0.0'
+  implementation 'com.android.support:preference-v14:28.0.0'
+  implementation 'com.android.support:support-media-compat:28.0.0'
+  implementation 'com.android.support:support-v4:28.0.0'
   implementation 'com.android.support.constraint:constraint-layout:1.1.3'
   implementation 'com.google.code.findbugs:jsr305:3.0.1'
-  implementation 'com.google.android.gms:play-services-drive:15.0.1'
-  implementation 'com.google.android.gms:play-services-auth:16.0.0'
-  implementation ('android.arch.work:work-runtime:1.0.0-alpha09') {
+  implementation 'com.google.android.gms:play-services-drive:16.0.0'
+  implementation 'com.google.android.gms:play-services-auth:16.0.1'
+  implementation ('android.arch.work:work-runtime:1.0.0-alpha11') {
     exclude group: 'com.google.guava', module: 'listenablefuture'
   }
   // logging
@@ -76,13 +78,13 @@ dependencies {
     exclude group: 'ch.qos.logback'
   }
   // eclair core
-  implementation 'fr.acinq.eclair:eclair-core_2.11:0.2-android-beta12'
+  implementation 'fr.acinq.eclair:eclair-core_2.11:0.2-android-beta13'
   // database orm
   implementation 'org.greenrobot:greendao:3.2.2'
   // required for greendao encryption, disabled for now
   implementation 'net.zetetic:android-database-sqlcipher:3.5.6'
   // qr codes
-  implementation 'com.journeyapps:zxing-android-embedded:3.5.0'
+  implementation 'com.journeyapps:zxing-android-embedded:3.6.0'
   // events
   implementation 'org.greenrobot:eventbus:3.0.0'
   // http client

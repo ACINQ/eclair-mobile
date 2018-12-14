@@ -23,6 +23,14 @@
     <import type="android.view.View" />
 
     <variable
+      name="electrumReady"
+      type="boolean" />
+
+    <variable
+      name="currentPage"
+      type="int" />
+
+    <variable
       name="channelsBackupEnabled"
       type="boolean" />
 
@@ -76,10 +84,10 @@
               android:layout_height="wrap_content"
               android:layout_marginStart="@dimen/space_md"
               android:background="@drawable/rounded_corner_green"
-              android:paddingBottom="3dp"
               android:paddingLeft="5dp"
-              android:paddingRight="5dp"
               android:paddingTop="3dp"
+              android:paddingRight="5dp"
+              android:paddingBottom="3dp"
               android:text="@string/CHAIN"
               android:textAllCaps="true"
               android:textColor="@color/white"
@@ -122,8 +130,8 @@
               android:layout_marginStart="@dimen/space_xs"
               android:background="@android:color/transparent"
               android:contentDescription="@string/home_backup_disabled_icon_desc"
-              android:drawablePadding="@dimen/space_xs"
               android:drawableStart="@drawable/ic_cloud_off_yellow_24dp"
+              android:drawablePadding="@dimen/space_xs"
               android:ellipsize="end"
               android:maxLines="1"
               android:onClick="enableChannelsBackup"
@@ -150,10 +158,10 @@
         <RelativeLayout
           android:layout_width="match_parent"
           android:layout_height="match_parent"
-          android:paddingBottom="14dp"
           android:paddingLeft="24dp"
+          android:paddingTop="4dp"
           android:paddingRight="24dp"
-          android:paddingTop="4dp">
+          android:paddingBottom="14dp">
 
           <fr.acinq.eclair.wallet.customviews.CoinAmountView
             android:id="@+id/balance_total"
@@ -218,6 +226,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
     </LinearLayout>
 
     <!-- toggleable floating buttons -->
@@ -225,10 +234,11 @@
       android:id="@+id/sendpayment_buttons"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:layout_alignParentBottom="true"
       android:layout_alignParentEnd="true"
+      android:layout_alignParentBottom="true"
       android:gravity="end"
-      android:orientation="vertical">
+      android:orientation="vertical"
+      android:visibility="@{electrumReady &amp;&amp; currentPage == 1 ? View.VISIBLE : View.GONE}">
 
       <LinearLayout
         android:id="@+id/sendpayment_actions_list"
@@ -250,7 +260,7 @@
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:onClick="scanSendPaymentRequest"
-          app:icon="@mipmap/ic_scan"
+          app:icon="@drawable/ic_scan_white_24dp"
           app:label="Scan a payment request" />
 
       </LinearLayout>
@@ -259,10 +269,10 @@
         android:id="@+id/sendpayment_toggler"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/space_md"
-        android:layout_marginEnd="@dimen/space_md"
         android:layout_marginStart="@dimen/space_md"
         android:layout_marginTop="8dp"
+        android:layout_marginEnd="@dimen/space_md"
+        android:layout_marginBottom="@dimen/space_md"
         android:onClick="toggleSendPaymentButtons"
         android:src="@mipmap/ic_send"
         android:visibility="visible"
@@ -275,11 +285,12 @@
       android:id="@+id/openchannel_buttons"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:layout_alignParentBottom="true"
       android:layout_alignParentEnd="true"
+      android:layout_alignParentBottom="true"
       android:gravity="end"
       android:orientation="vertical"
-      android:visibility="gone">
+      android:visibility="@{electrumReady &amp;&amp; currentPage == 2 ? View.VISIBLE : View.GONE}"
+      tools:ignore="RelativeOverlap">
 
       <LinearLayout
         android:id="@+id/openchannel_actions_list"
@@ -303,7 +314,7 @@
           android:layout_height="wrap_content"
           android:onClick="scanNodeURI"
           app:bgcolor="@color/green"
-          app:icon="@mipmap/ic_scan"
+          app:icon="@drawable/ic_scan_white_24dp"
           app:label="@string/home_channel_scan_uri" />
 
         <fr.acinq.eclair.wallet.customviews.FabText
@@ -330,10 +341,10 @@
         android:id="@+id/home_openchannel_toggler"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/space_md"
-        android:layout_marginEnd="@dimen/space_md"
         android:layout_marginStart="@dimen/space_md"
         android:layout_marginTop="8dp"
+        android:layout_marginEnd="@dimen/space_md"
+        android:layout_marginBottom="@dimen/space_md"
         android:onClick="toggleOpenChannelButtons"
         android:src="@mipmap/ic_plus"
         app:backgroundTint="@color/green"
@@ -341,55 +352,21 @@
 
     </LinearLayout>
 
-    <LinearLayout
-      android:id="@+id/home_connection_status"
-      android:layout_width="wrap_content"
+    <TextView
+      android:id="@+id/electrum_state"
+      android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:layout_alignParentBottom="true"
-      android:layout_centerHorizontal="true"
-      android:layout_marginBottom="16dp"
-      android:alpha="0.95"
-      android:background="@drawable/rounded_corner_dark"
-      android:elevation="10dp"
-      android:orientation="vertical"
-      android:padding="10dp"
-      android:visibility="gone">
+      android:background="@color/primary"
+      android:clickable="true"
+      android:ellipsize="end"
+      android:focusable="true"
+      android:maxLines="1"
+      android:padding="@dimen/space_md"
+      android:textAlignment="center"
+      android:textColor="@color/white"
+      android:textSize="@dimen/text_sm"
+      android:visibility="@{electrumReady ? View.GONE : View.VISIBLE}" />
 
-      <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="horizontal">
-
-        <ImageView
-          android:layout_width="14dp"
-          android:layout_height="14dp"
-          android:layout_marginEnd="4dp"
-          android:src="@drawable/ic_warning_tri" />
-
-        <TextView
-          android:id="@+id/home_connection_status_title"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:layout_marginStart="2dp"
-          android:drawablePadding="4dp"
-          android:maxWidth="180dp"
-          android:textAlignment="center"
-          android:textAllCaps="true"
-          android:textColor="@color/grey_1"
-          android:textSize="10sp"
-          android:textStyle="bold" />
-      </LinearLayout>
-
-      <TextView
-        android:id="@+id/home_connection_status_desc"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:maxWidth="180dp"
-        android:textAlignment="center"
-        android:textColor="@color/grey_2"
-        android:textSize="10sp" />
-    </LinearLayout>
   </RelativeLayout>
 </layout>

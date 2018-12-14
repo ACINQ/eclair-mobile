@@ -139,6 +139,22 @@ public class DBHelper {
     }
   }
 
+  public void updatePaymentReceived(final Payment p, final long amountReceivedMsat) {
+    p.setAmountPaidMsat(amountReceivedMsat);
+    p.setStatus(PaymentStatus.PAID);
+    p.setUpdated(new Date());
+    insertOrUpdatePayment(p);
+  }
+
+  public void cleanUpUnknownPayments() {
+    daoSession.getPaymentDao().queryBuilder()
+      .where(PaymentDao.Properties.PaymentRequest.eq("unknown invoice"),
+        PaymentDao.Properties.Recipient.eq("unknown recipient"),
+        PaymentDao.Properties.Status.eq(PaymentStatus.PENDING))
+      .buildDelete().executeDeleteWithoutDetachingEntities();
+    daoSession.clear();
+  }
+
   public void insertOrUpdatePayment(Payment p) {
     daoSession.getPaymentDao().insertOrReplace(p);
   }
@@ -165,11 +181,13 @@ public class DBHelper {
   }
 
   /**
-   * shorthand to save local channel in DB
+   * Shorthand to save local channel in DB. Channels with 0 capacity are ignored.
    */
   public void saveLocalChannel(final LocalChannel channel) {
-    channel.setUpdated(new Date());
-    daoSession.getLocalChannelDao().insertOrReplace(channel);
+    if (channel.getCapacityMsat() > 0) {
+      channel.setUpdated(new Date());
+      daoSession.getLocalChannelDao().insertOrReplace(channel);
+    }
   }
 
   public void channelTerminated(final String channelId) {
