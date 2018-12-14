@@ -6,6 +6,7 @@
   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
   <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
   <uses-permission android:name="android.permission.CAMERA" />
+  <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
   <supports-screens
     android:anyDensity="true"
@@ -159,7 +160,8 @@
       android:parentActivityName=".activities.PreferencesActivity"
       android:screenOrientation="portrait"
       android:windowSoftInputMode="stateHidden" />
-    <activity android:name=".activities.OpenConnectionActivity"
+    <activity
+      android:name=".activities.OpenConnectionActivity"
       android:label=""
       android:launchMode="singleTop"
       android:parentActivityName=".activities.OpenChannelActivity"
@@ -176,6 +178,16 @@
         android:name="android.support.FILE_PROVIDER_PATHS"
         android:resource="@xml/provider_paths" />
     </provider>
+
+    <!-- broadcast receivers -->
+    <receiver
+      android:name=".services.NetworkSyncReceiver"
+      android:enabled="true"
+      android:exported="false">
+      <intent-filter>
+        <action android:name="android.intent.action.BOOT_COMPLETED" />
+      </intent-filter>
+    </receiver>
 
   </application>
 

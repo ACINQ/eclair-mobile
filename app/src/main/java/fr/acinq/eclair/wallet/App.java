@@ -16,6 +16,13 @@
 
 package fr.acinq.eclair.wallet;
 
+import akka.actor.ActorRef;
+import akka.actor.ActorSystem;
+import akka.actor.Cancellable;
+import akka.dispatch.OnComplete;
+import akka.dispatch.OnFailure;
+import akka.pattern.Patterns;
+import akka.util.Timeout;
 import android.app.Application;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -32,35 +39,7 @@ import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
-
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.spongycastle.crypto.digests.SHA256Digest;
-
-import java.net.InetSocketAddress;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
-
-import akka.actor.ActorRef;
-import akka.actor.ActorSystem;
-import akka.actor.Cancellable;
-import akka.dispatch.OnComplete;
-import akka.dispatch.OnFailure;
-import akka.pattern.Patterns;
-import akka.util.Timeout;
-import fr.acinq.bitcoin.Bech32;
-import fr.acinq.bitcoin.BinaryData;
-import fr.acinq.bitcoin.Crypto;
-import fr.acinq.bitcoin.MilliSatoshi;
-import fr.acinq.bitcoin.Satoshi;
-import fr.acinq.bitcoin.Script;
-import fr.acinq.bitcoin.Transaction;
-import fr.acinq.bitcoin.TxOut;
-import fr.acinq.bitcoin.package$;
+import fr.acinq.bitcoin.*;
 import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.Globals;
 import fr.acinq.eclair.JsonSerializers$;
@@ -78,15 +57,16 @@ import fr.acinq.eclair.payment.PaymentLifecycle;
 import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.transactions.Scripts;
 import fr.acinq.eclair.wallet.activities.ChannelDetailsActivity;
-import fr.acinq.eclair.wallet.events.BitcoinPaymentFailedEvent;
-import fr.acinq.eclair.wallet.events.ChannelRawDataEvent;
-import fr.acinq.eclair.wallet.events.ClosingChannelNotificationEvent;
-import fr.acinq.eclair.wallet.events.NetworkChannelsCountEvent;
-import fr.acinq.eclair.wallet.events.XpubEvent;
+import fr.acinq.eclair.wallet.events.*;
+import fr.acinq.eclair.wallet.services.NetworkSyncReceiver;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
-import fr.acinq.eclair.wire.Init;
-import scala.Option;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.spongycastle.crypto.digests.SHA256Digest;
 import scala.Symbol;
 import scala.Tuple2;
 import scala.collection.Iterable;
@@ -95,6 +75,12 @@ import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
 import upickle.default$;
+import fr.acinq.bitcoin.package$;
+
+import java.net.InetSocketAddress;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static fr.acinq.eclair.wallet.adapters.LocalChannelItemHolder.EXTRA_CHANNEL_ID;
 import static fr.acinq.eclair.wallet.events.ClosingChannelNotificationEvent.NOTIF_CHANNEL_CLOSED_ID;
@@ -123,12 +109,11 @@ public class App extends Application {
       EventBus.getDefault().register(this);
     }
     super.onCreate();
-
     WalletUtils.setupLogging(getBaseContext());
-    monitorConnectivity();
+    NetworkSyncReceiver.scheduleSync();
   }
 
-  private void monitorConnectivity() {
+  public void monitorConnectivity() {
     final ConnectivityManager cm = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
     final NetworkRequest request = new NetworkRequest.Builder().addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET).build();
     if (cm != null) {
@@ -315,7 +300,7 @@ public class App extends Application {
       final Tuple2<Transaction, Satoshi> tx_fee = Await.result(appKit.electrumWallet.sendAll(placeholderAddress, feesPerKw), Duration.create(20, "seconds"));
       long available = 0;
       Iterator<TxOut> it = tx_fee._1.txOut().iterator();
-      while(it.hasNext()) {
+      while (it.hasNext()) {
         available += it.next().amount().amount();
       }
       available -= tx_fee._2.amount();
@@ -329,9 +314,10 @@ public class App extends Application {
   public void scheduleConnectionToNode() {
     if (pingNode != null) pingNode.cancel();
     if (system != null && appKit != null && appKit.eclairKit != null && appKit.eclairKit.switchboard() != null) {
-      pingNode = system.scheduler().schedule(Duration.Zero(), Duration.create(60, "seconds"), () -> {
-        appKit.eclairKit.switchboard().tell(new Peer.Connect(NodeURI.parse(WalletUtils.ACINQ_NODE)), ActorRef.noSender());
-      }, system.dispatcher());
+      pingNode = system.scheduler().schedule(
+        Duration.Zero(), Duration.create(60, "seconds"),
+        () -> appKit.eclairKit.switchboard().tell(new Peer.Connect(NodeURI.parse(WalletUtils.ACINQ_NODE)), ActorRef.noSender()),
+        system.dispatcher());
     }
   }
 
@@ -463,6 +449,7 @@ public class App extends Application {
   public ElectrumState getElectrumState() {
     return this.electrumState.get();
   }
+
   public InetSocketAddress getElectrumServerAddress() {
     return this.electrumState.get() == null ? null : this.electrumState.get().address;
   }
