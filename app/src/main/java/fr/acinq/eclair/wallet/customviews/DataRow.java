@@ -69,7 +69,8 @@ public class DataRow extends ConstraintLayout {
       // value
       contentLayout = findViewById(R.id.data_content);
       valueTextView = findViewById(R.id.data_value);
-      if (arr.hasValue(R.styleable.DataRow_value)) {
+      final boolean hasValue = arr.hasValue(R.styleable.DataRow_value);
+      if (hasValue) {
         valueTextView.setText(arr.getString(R.styleable.DataRow_value));
       } else {
         valueTextView.setVisibility(GONE);
@@ -85,10 +86,12 @@ public class DataRow extends ConstraintLayout {
         setBackgroundColor(ContextCompat.getColor(getContext(), R.color.almost_white));
       }
       // button
+      actionButton = findViewById(R.id.data_action);
       final boolean hasAction = arr.getBoolean(R.styleable.DataRow_has_action, false);
       if (hasAction) {
-        findViewById(R.id.separator).setVisibility(VISIBLE);
-        actionButton = findViewById(R.id.data_action);
+        if (hasValue) {
+          findViewById(R.id.separator).setVisibility(VISIBLE);
+        }
         actionButton.setVisibility(VISIBLE);
         actionButton.setText(arr.getString(R.styleable.DataRow_action_label));
         actionButton.setTextColor(arr.getColor(R.styleable.DataRow_action_text_color, ContextCompat.getColor(getContext(), R.color.grey_3)));
@@ -110,11 +113,17 @@ public class DataRow extends ConstraintLayout {
   public void setHtmlValue(final String value) {
     valueTextView.setVisibility(VISIBLE);
     valueTextView.setText(Html.fromHtml(value));
+    if (actionButton.getVisibility() == View.VISIBLE) {
+      findViewById(R.id.separator).setVisibility(VISIBLE);
+    }
   }
 
   public void setValue(final String value) {
     valueTextView.setVisibility(VISIBLE);
     valueTextView.setText(value);
+    if (actionButton.getVisibility() == View.VISIBLE) {
+      findViewById(R.id.separator).setVisibility(VISIBLE);
+    }
   }
 
 
