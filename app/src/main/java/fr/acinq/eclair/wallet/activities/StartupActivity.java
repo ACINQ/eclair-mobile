@@ -198,6 +198,8 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
     final File datadir = new File(app.getFilesDir(), Constants.ECLAIR_DATADIR);
     // check version, apply migration script if required
     if (!checkAppVersion(datadir, prefs)) return;
+    // schedule sync after migration scripts
+    NetworkSyncReceiver.scheduleSync();
     // check that wallet data are correct
     if (!checkWalletDatadir(datadir)) return;
 
@@ -225,7 +227,14 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
         // if last used version is 28 or earlier, we need to reset the network DB due to changes in DB structure
         // see https://github.com/ACINQ/eclair/pull/738
         // note that only the android branch breaks compatibility, due to the absence of a blob 'data' column
-        WalletUtils.getNetworkDBFile(getApplicationContext()).delete();
+        try {
+          if (!WalletUtils.getNetworkDBFile(getApplicationContext()).delete()) {
+            return false;
+          }
+        } catch (Throwable t) {
+          log.error("could not clear network DB for version 29", t);
+          return false;
+        }
       }
     }
     return true;

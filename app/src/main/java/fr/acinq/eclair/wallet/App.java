@@ -110,7 +110,6 @@ public class App extends Application {
     }
     super.onCreate();
     WalletUtils.setupLogging(getBaseContext());
-    NetworkSyncReceiver.scheduleSync();
   }
 
   public void monitorConnectivity() {
