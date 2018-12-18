@@ -485,10 +485,9 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
         app.checkupInit();
         cancelSyncWork();
 
-        Class.forName("org.sqlite.JDBC");
         publishProgress("setting up eclair");
-
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(app.getBaseContext());
+        Class.forName("org.sqlite.JDBC");
         final Setup setup = new Setup(datadir, getOverrideConfig(prefs), Option.apply(seed), app.system);
 
         // ui refresh schedulers
