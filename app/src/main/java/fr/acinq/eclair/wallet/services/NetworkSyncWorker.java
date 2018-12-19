@@ -74,6 +74,7 @@ public class NetworkSyncWorker extends Worker {
       return Result.FAILURE;
     } else {
       try {
+        Class.forName("org.sqlite.JDBC");
         final SyncLiteSetup setup = new SyncLiteSetup(new File(context.getFilesDir(), Constants.ECLAIR_DATADIR), ConfigFactory.empty(), NodeURI.parse(WalletUtils.ACINQ_NODE), system);
         Await.result(setup.sync(), Duration.Inf());
         log.info("sync has completed");
