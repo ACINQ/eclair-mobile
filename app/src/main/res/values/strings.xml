@@ -164,7 +164,7 @@
 
   <!-- //////////////// Restore Channels /////////////////// -->
 
-  <string name="restorechannels_title">If you already used Eclair Wallet with this seed, you may have a backup on Google Drive.\n\nDo you want to attempt to restore these channels?</string>
+  <string name="restorechannels_title">If you already used Eclair Mobile with this seed, you may have a backup on Google Drive.\n\nDo you want to attempt to restore these channels?</string>
   <string name="restorechannels_check_button">Check for backup</string>
   <string name="restorechannels_permissions_error">Permission was not granted.</string>
   <string name="restorechannels_failure">There was an error when restoring backup. Please try again.</string>
@@ -375,19 +375,9 @@
   <string name="paymentfailure_error_origin_label">Origin:</string>
   <string name="paymentfailure_error_origin_channel_label">Channel:</string>
 
-  <!-- //////////////// Breaking changes //////////////////// -->
-
-  <string name="breaking_changes_text"><![CDATA[
-    <p><b>Breaking changes!</b></p>
-    <p>Eclair Wallet is still in alpha, and is under heavy development.</p>
-    <p>Last update was not backward compatible.</p>
-    Please reinstall the application, or just clear the app data.
-    ]]>
-  </string>
-
   <!-- //////////////// About //////////////////// -->
 
-  <string name="about_general_title">About Eclair Wallet</string>
+  <string name="about_general_title">About Eclair Mobile</string>
   <string name="about_general_text">An advanced Lightning/Bitcoin mobile wallet by ACINQ. It relies on Electrum servers for access to the Bitcoin network.\n\nFees are retrieved from the BitGo API. Exchange rates are retrieved from the Blockchain.info api. Note that this conversion to fiat may not be accurate.\n\nThis software is compliant with the BOLT specifications (Lightning Network standard).</string>
   <string name="about_version">Current version</string>
   <string name="about_faq"><![CDATA[
