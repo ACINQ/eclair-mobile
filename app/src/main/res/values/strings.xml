@@ -19,7 +19,7 @@
   <!-- //////////////// Application Strings //////////////////// -->
 
   <string name="lang">eng</string>
-  <string name="app_name">Eclair Wallet</string>
+  <string name="app_name">Eclair Mobile</string>
   <string name="notification_channel_closing_ln_channel_name">Channel Closing</string>
   <string name="notification_channel_closing_ln_channel_desc">Notification displayed when a channel is closing, be it cooperative or not.</string>
 
