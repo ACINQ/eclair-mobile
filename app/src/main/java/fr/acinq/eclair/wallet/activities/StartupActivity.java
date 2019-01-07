@@ -541,17 +541,21 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
     private Config getOverrideConfig(final SharedPreferences prefs) {
       final String prefsElectrumAddress = prefs.getString(Constants.CUSTOM_ELECTRUM_SERVER, "").trim();
       if (!Strings.isNullOrEmpty(prefsElectrumAddress)) {
-        final HostAndPort address = HostAndPort.fromString(prefsElectrumAddress);
-        final Map<String, Object> conf = new HashMap<>();
-        conf.put("eclair.electrum.host", address.getHost());
-        conf.put("eclair.electrum.port", address.getPort());
-        // custom server certificate must be valid
-        conf.put("eclair.electrum.ssl", "strict");
-        return ConfigFactory.parseMap(conf);
-      } else {
-        log.info("using preset electrum servers");
-        return ConfigFactory.empty();
+        try {
+          final HostAndPort address = HostAndPort.fromString(prefsElectrumAddress).withDefaultPort(50002);
+          final Map<String, Object> conf = new HashMap<>();
+          if (!Strings.isNullOrEmpty(address.getHost())) {
+            conf.put("eclair.electrum.host", address.getHost());
+            conf.put("eclair.electrum.port", address.getPort());
+            // custom server certificate must be valid
+            conf.put("eclair.electrum.ssl", "strict");
+            return ConfigFactory.parseMap(conf);
+          }
+        } catch (Exception e) {
+          log.error("could not read custom electrum address=" + prefsElectrumAddress, e);
+        }
       }
+      return ConfigFactory.empty();
     }
 
     private void cancelSyncWork() {
