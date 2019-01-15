@@ -148,7 +148,7 @@ public class ChannelsBackupSettingsActivity extends GoogleDriveBaseActivity impl
   void applyAccessGranted(final GoogleSignInAccount signIn) {
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
     // trigger backup only if it was disabled before, and is now being enabled.
-    if (!prefs.getBoolean(Constants.SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_ENABLED, false)) {
+    if (!prefs.getBoolean(Constants.SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_ENABLED, false) && app.seedHash.get() != null) {
       WorkManager.getInstance()
         .beginUniqueWork("ChannelsBackup", ExistingWorkPolicy.REPLACE,
           WalletUtils.generateBackupRequest(app.seedHash.get(), app.backupKey_v2.get()))

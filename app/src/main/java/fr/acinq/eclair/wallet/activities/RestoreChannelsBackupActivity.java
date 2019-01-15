@@ -95,10 +95,12 @@ public class RestoreChannelsBackupActivity extends GoogleDriveBaseActivity {
     prefs.edit()
       .putBoolean(Constants.SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_ENABLED, hasDriveAccess)
       .putBoolean(Constants.SETTING_CHANNELS_RESTORE_DONE, true).commit();
-    WorkManager.getInstance()
-      .beginUniqueWork("ChannelsBackup", ExistingWorkPolicy.REPLACE,
-        WalletUtils.generateBackupRequest(app.seedHash.get(), app.backupKey_v2.get()))
-      .enqueue();
+    if (app.seedHash.get() != null) {
+      WorkManager.getInstance()
+        .beginUniqueWork("ChannelsBackup", ExistingWorkPolicy.REPLACE,
+          WalletUtils.generateBackupRequest(app.seedHash.get(), app.backupKey_v2.get()))
+        .enqueue();
+    }
     this.finish();
   }
 
