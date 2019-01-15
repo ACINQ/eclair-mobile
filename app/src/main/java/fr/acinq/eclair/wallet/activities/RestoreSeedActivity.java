@@ -122,7 +122,9 @@ public class RestoreSeedActivity extends EclairActivity implements EclairActivit
   }
 
   public void importMnemonics(final View view) {
-    mWalletImportSeedFragment.mBinding.mnemonicsInput.clearAnimation();
+    if (mWalletImportSeedFragment != null && mWalletEncryptFragment.mBinding != null) {
+      mWalletImportSeedFragment.mBinding.mnemonicsInput.clearAnimation();
+    }
     seedErrorHandler.removeCallbacks(null);
     try {
       final String mnemonics = mWalletImportSeedFragment.mBinding.mnemonicsInput.getText().toString().trim();
@@ -138,14 +140,18 @@ public class RestoreSeedActivity extends EclairActivity implements EclairActivit
   }
 
   private void handleSeedError(final int errorCode, final String message) {
-    TransitionManager.beginDelayedTransition(mWalletImportSeedFragment.mBinding.transitionsLayout);
-    mWalletImportSeedFragment.mBinding.mnemonicsInputLayout.startAnimation(mErrorAnimation);
-    mWalletImportSeedFragment.mBinding.seedError.setText(getString(errorCode, message));
-    mWalletImportSeedFragment.mBinding.seedError.setVisibility(View.VISIBLE);
-    seedErrorHandler.postDelayed(() -> {
+    if (mWalletImportSeedFragment != null && mWalletImportSeedFragment.mBinding != null) {
       TransitionManager.beginDelayedTransition(mWalletImportSeedFragment.mBinding.transitionsLayout);
-      mWalletImportSeedFragment.mBinding.seedError.setVisibility(View.GONE);
-    }, 5000);
+      mWalletImportSeedFragment.mBinding.mnemonicsInputLayout.startAnimation(mErrorAnimation);
+      mWalletImportSeedFragment.mBinding.seedError.setText(getString(errorCode, message));
+      mWalletImportSeedFragment.mBinding.seedError.setVisibility(View.VISIBLE);
+      seedErrorHandler.postDelayed(() -> {
+        TransitionManager.beginDelayedTransition(mWalletImportSeedFragment.mBinding.transitionsLayout);
+        mWalletImportSeedFragment.mBinding.seedError.setVisibility(View.GONE);
+      }, 5000);
+    } else {
+      goToStartup();
+    }
   }
 
   public void goToPassphraseConfirmStep(final View view) {
@@ -165,8 +171,12 @@ public class RestoreSeedActivity extends EclairActivity implements EclairActivit
   }
 
   public void encryptSeed(final View view) {
-    TransitionManager.beginDelayedTransition(mWalletPassphraseFragment.mBinding.transitionsLayout);
-    mWalletEncryptFragment.mBinding.encryptionError.setVisibility(View.GONE);
+    if (mWalletPassphraseFragment != null && mWalletPassphraseFragment.mBinding != null) {
+      TransitionManager.beginDelayedTransition(mWalletPassphraseFragment.mBinding.transitionsLayout);
+    }
+    if (mWalletEncryptFragment != null && mWalletEncryptFragment.mBinding != null) {
+      mWalletEncryptFragment.mBinding.encryptionError.setVisibility(View.GONE);
+    }
     mBinding.setImportStep(Constants.SEED_SPAWN_ENCRYPTION);
     new Thread() {
       @Override
@@ -194,11 +204,15 @@ public class RestoreSeedActivity extends EclairActivity implements EclairActivit
 
   @Override
   public void onEncryptSeedFailure(String message) {
-    mBinding.setImportStep(2);
-    TransitionManager.beginDelayedTransition(mWalletEncryptFragment.mBinding.transitionsLayout);
-    goToEncryption();
-    mWalletEncryptFragment.mBinding.encryptionError.setText(message);
-    mWalletEncryptFragment.mBinding.encryptionError.setVisibility(View.VISIBLE);
+    if (mWalletEncryptFragment != null && mWalletEncryptFragment.mBinding != null) {
+      mBinding.setImportStep(2);
+      TransitionManager.beginDelayedTransition(mWalletEncryptFragment.mBinding.transitionsLayout);
+      goToEncryption();
+      mWalletEncryptFragment.mBinding.encryptionError.setText(message);
+      mWalletEncryptFragment.mBinding.encryptionError.setVisibility(View.VISIBLE);
+    } else {
+      goToStartup();
+    }
   }
 
   @Override

@@ -154,26 +154,34 @@ public class CreateSeedActivity extends EclairActivity implements EclairActivity
 
   public void goToVerificationStep(final View view) {
     verifHandler.removeCallbacks(null);
-    mWalletCheckWordsFragment.mBinding.verificationError.setVisibility(View.GONE);
-    mWalletCheckWordsFragment.mBinding.inputGrid.clearAnimation();
-    if (mMnemonicsVerified) {
-      goToPassphraseStep(null);
+    if (mWalletCheckWordsFragment != null && mWalletCheckWordsFragment.mBinding != null) {
+      mWalletCheckWordsFragment.mBinding.verificationError.setVisibility(View.GONE);
+      mWalletCheckWordsFragment.mBinding.inputGrid.clearAnimation();
+      if (mMnemonicsVerified) {
+        goToPassphraseStep(null);
+      } else {
+        setUpCheckWords();
+        mBinding.viewPager.setCurrentItem(1);
+      }
     } else {
-      setUpCheckWords();
-      mBinding.viewPager.setCurrentItem(1);
+      goToInit(view);
     }
   }
 
   private void setUpCheckWords() {
-    Collections.shuffle(recoveryPositions);
-    final List<Integer> pos = getFirst3Positions();
-    mWalletCheckWordsFragment.mBinding.checkQuestion.setText(getString(R.string.createwallet_check_instructions, pos.get(0) + 1, pos.get(1) + 1, pos.get(2) + 1));
-    mWalletCheckWordsFragment.mBinding.checkInput1Hint.setText(getString(R.string.createwallet_check_input_hint, pos.get(0) + 1));
-    mWalletCheckWordsFragment.mBinding.checkInput1.setText("");
-    mWalletCheckWordsFragment.mBinding.checkInput2Hint.setText(getString(R.string.createwallet_check_input_hint, pos.get(1) + 1));
-    mWalletCheckWordsFragment.mBinding.checkInput2.setText("");
-    mWalletCheckWordsFragment.mBinding.checkInput3Hint.setText(getString(R.string.createwallet_check_input_hint, pos.get(2) + 1));
-    mWalletCheckWordsFragment.mBinding.checkInput3.setText("");
+    try {
+      Collections.shuffle(recoveryPositions);
+      final List<Integer> pos = getFirst3Positions();
+      mWalletCheckWordsFragment.mBinding.checkQuestion.setText(getString(R.string.createwallet_check_instructions, pos.get(0) + 1, pos.get(1) + 1, pos.get(2) + 1));
+      mWalletCheckWordsFragment.mBinding.checkInput1Hint.setText(getString(R.string.createwallet_check_input_hint, pos.get(0) + 1));
+      mWalletCheckWordsFragment.mBinding.checkInput1.setText("");
+      mWalletCheckWordsFragment.mBinding.checkInput2Hint.setText(getString(R.string.createwallet_check_input_hint, pos.get(1) + 1));
+      mWalletCheckWordsFragment.mBinding.checkInput2.setText("");
+      mWalletCheckWordsFragment.mBinding.checkInput3Hint.setText(getString(R.string.createwallet_check_input_hint, pos.get(2) + 1));
+      mWalletCheckWordsFragment.mBinding.checkInput3.setText("");
+    } catch (Exception e) {
+      goToInit(null);
+    }
   }
 
   /**
@@ -181,8 +189,10 @@ public class CreateSeedActivity extends EclairActivity implements EclairActivity
    */
   public void verifyUserBackup(View view) {
     verifHandler.removeCallbacks(null);
-    mWalletCheckWordsFragment.mBinding.inputGrid.clearAnimation();
-    mWalletCheckWordsFragment.mBinding.verificationError.setVisibility(View.GONE);
+    if (mWalletCheckWordsFragment != null && mWalletCheckWordsFragment.mBinding != null) {
+      mWalletCheckWordsFragment.mBinding.inputGrid.clearAnimation();
+      mWalletCheckWordsFragment.mBinding.verificationError.setVisibility(View.GONE);
+    }
     view.clearFocus();
     final InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
     if (imm != null) {
@@ -202,13 +212,17 @@ public class CreateSeedActivity extends EclairActivity implements EclairActivity
         throw new RuntimeException();
       }
     } catch (Exception e) {
-      TransitionManager.beginDelayedTransition(mWalletCheckWordsFragment.mBinding.transitionsLayout);
-      mWalletCheckWordsFragment.mBinding.inputGrid.startAnimation(mErrorAnimation);
-      mWalletCheckWordsFragment.mBinding.verificationError.setVisibility(View.VISIBLE);
+      if (mWalletCheckWordsFragment != null && mWalletCheckWordsFragment.mBinding != null) {
+        TransitionManager.beginDelayedTransition(mWalletCheckWordsFragment.mBinding.transitionsLayout);
+        mWalletCheckWordsFragment.mBinding.inputGrid.startAnimation(mErrorAnimation);
+        mWalletCheckWordsFragment.mBinding.verificationError.setVisibility(View.VISIBLE);
+      }
       verifHandler.postDelayed(() -> {
         setUpCheckWords();
-        TransitionManager.beginDelayedTransition(mWalletCheckWordsFragment.mBinding.transitionsLayout);
-        mWalletCheckWordsFragment.mBinding.verificationError.setVisibility(View.GONE);
+        if (mWalletCheckWordsFragment != null && mWalletCheckWordsFragment.mBinding != null) {
+          TransitionManager.beginDelayedTransition(mWalletCheckWordsFragment.mBinding.transitionsLayout);
+          mWalletCheckWordsFragment.mBinding.verificationError.setVisibility(View.GONE);
+        }
       }, 2000);
       view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY, HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
       mMnemonicsVerified = false;
@@ -220,17 +234,23 @@ public class CreateSeedActivity extends EclairActivity implements EclairActivity
   }
 
   public void goToPassphraseConfirmStep(final View view) {
-    TransitionManager.beginDelayedTransition(mWalletPassphraseFragment.mBinding.transitionsLayout);
-    mWalletPassphraseFragment.mBinding.passphraseError.setVisibility(View.GONE);
-    mWalletPassphraseConfirmFragment.mBinding.passphraseConfirmInput.setText("");
+    if (mWalletPassphraseFragment != null && mWalletPassphraseFragment.mBinding != null) {
+      TransitionManager.beginDelayedTransition(mWalletPassphraseFragment.mBinding.transitionsLayout);
+      mWalletPassphraseFragment.mBinding.passphraseError.setVisibility(View.GONE);
+    }
+    if (mWalletPassphraseConfirmFragment != null && mWalletPassphraseConfirmFragment.mBinding != null) {
+      mWalletPassphraseConfirmFragment.mBinding.passphraseConfirmInput.setText("");
+    }
     final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
     if (imm != null && view != null && view.getWindowToken() != null) {
       imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
-    if ("".equals(mWalletPassphraseFragment.mBinding.passphraseInput.getText().toString())) {
-      goToEncryptionStep(null);
-    } else {
-      mBinding.viewPager.setCurrentItem(3);
+    if (mWalletPassphraseFragment != null && mWalletPassphraseFragment.mBinding != null) {
+      if ("".equals(mWalletPassphraseFragment.mBinding.passphraseInput.getText().toString())) {
+        goToEncryptionStep(null);
+      } else {
+        mBinding.viewPager.setCurrentItem(3);
+      }
     }
   }
 
@@ -239,22 +259,32 @@ public class CreateSeedActivity extends EclairActivity implements EclairActivity
     if (imm != null && view != null && view.getWindowToken() != null) {
       imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
-    final String passphrase = mWalletPassphraseFragment.mBinding.passphraseInput.getText().toString();
-    final String passphraseConfirm = mWalletPassphraseConfirmFragment.mBinding.passphraseConfirmInput.getText().toString();
-    if (passphrase.equals(passphraseConfirm)) {
-      mBinding.viewPager.setCurrentItem(4);
-      mPassphrase = passphrase;
-    } else {
-      goToPassphraseStep(view);
-      TransitionManager.beginDelayedTransition(mWalletPassphraseFragment.mBinding.transitionsLayout);
-      mWalletPassphraseFragment.mBinding.passphraseError.setVisibility(View.VISIBLE);
-      mWalletPassphraseFragment.mBinding.passphraseInput.startAnimation(mErrorAnimation);
+    try {
+      final String passphrase = mWalletPassphraseFragment.mBinding.passphraseInput.getText().toString();
+      final String passphraseConfirm = mWalletPassphraseConfirmFragment.mBinding.passphraseConfirmInput.getText().toString();
+      if (passphrase.equals(passphraseConfirm)) {
+        mBinding.viewPager.setCurrentItem(4);
+        mPassphrase = passphrase;
+      } else {
+        goToPassphraseStep(view);
+        if (mWalletPassphraseFragment != null && mWalletPassphraseFragment.mBinding != null) {
+          TransitionManager.beginDelayedTransition(mWalletPassphraseFragment.mBinding.transitionsLayout);
+          mWalletPassphraseFragment.mBinding.passphraseError.setVisibility(View.VISIBLE);
+          mWalletPassphraseFragment.mBinding.passphraseInput.startAnimation(mErrorAnimation);
+        }
+      }
+    } catch (Exception e) {
+      goToInit(view);
     }
   }
 
   public void encryptSeed(final View view) {
-    TransitionManager.beginDelayedTransition(mWalletPassphraseFragment.mBinding.transitionsLayout);
-    mWalletEncryptFragment.mBinding.encryptionError.setVisibility(View.GONE);
+    if (mWalletPassphraseFragment != null && mWalletPassphraseFragment.mBinding != null) {
+      TransitionManager.beginDelayedTransition(mWalletPassphraseFragment.mBinding.transitionsLayout);
+    }
+    if (mWalletEncryptFragment != null && mWalletEncryptFragment.mBinding != null) {
+      mWalletEncryptFragment.mBinding.encryptionError.setVisibility(View.GONE);
+    }
     mBinding.setCreationStep(Constants.SEED_SPAWN_ENCRYPTION);
     new Thread() {
       @Override
@@ -302,9 +332,11 @@ public class CreateSeedActivity extends EclairActivity implements EclairActivity
 
   @Override
   public void onEncryptSeedFailure(final String message) {
-    mWalletEncryptFragment.mBinding.encryptionError.setText(message);
-    TransitionManager.beginDelayedTransition(mWalletEncryptFragment.mBinding.transitionsLayout);
-    mWalletEncryptFragment.mBinding.encryptionError.setVisibility(View.VISIBLE);
+    if (mWalletEncryptFragment != null && mWalletEncryptFragment.mBinding != null) {
+      mWalletEncryptFragment.mBinding.encryptionError.setVisibility(View.VISIBLE);
+      mWalletEncryptFragment.mBinding.encryptionError.setText(message);
+      TransitionManager.beginDelayedTransition(mWalletEncryptFragment.mBinding.transitionsLayout);
+    }
     mBinding.setCreationStep(4);
     goToEncryptionStep(null);
   }
