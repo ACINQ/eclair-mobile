@@ -160,7 +160,7 @@ public class SendPaymentActivity extends EclairActivity
     if (bitcoinURI.getAmount() != null) {
       final MilliSatoshi amountMsat = package$.MODULE$.satoshi2millisatoshi(bitcoinURI.getAmount());
       mBinding.amountEditableHint.setVisibility(View.GONE);
-      mBinding.amountEditableValue.setText(CoinUtils.formatAmountInUnit(amountMsat, preferredBitcoinUnit, false));
+      mBinding.amountEditableValue.setText(CoinUtils.rawAmountInUnit(amountMsat, preferredBitcoinUnit).bigDecimal().toPlainString());
       mBinding.amountFiat.setText(WalletUtils.convertMsatToFiatWithUnit(amountMsat.amount(), preferredFiatCurrency));
     } else {
       // only open the keyboard forcibly if no amount was set in the URI. This makes for a cleaner initial display.
