@@ -127,7 +127,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
           prefs.edit()
             .putBoolean(Constants.SETTING_HAS_STARTED_ONCE, true)
             .putInt(Constants.SETTING_LAST_USED_VERSION, BuildConfig.VERSION_CODE).apply();
-
+          NetworkSyncReceiver.scheduleSync();
           goToHome();
         } else {
           // empty appkit, something went wrong.
@@ -198,8 +198,6 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
     final File datadir = new File(app.getFilesDir(), Constants.ECLAIR_DATADIR);
     // check version, apply migration script if required
     if (!checkAppVersion(datadir, prefs)) return;
-    // schedule sync after migration scripts
-    NetworkSyncReceiver.scheduleSync();
     // check that wallet data are correct
     if (!checkWalletDatadir(datadir)) return;
 
