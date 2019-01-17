@@ -18,124 +18,93 @@ package fr.acinq.eclair.wallet.fragments;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
+import android.databinding.DataBindingUtil;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.HapticFeedbackConstants;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.TextView;
-
 import com.google.common.base.Strings;
-
-import org.greenrobot.greendao.annotation.NotNull;
+import fr.acinq.eclair.wallet.R;
+import fr.acinq.eclair.wallet.databinding.DialogPinBinding;
+import fr.acinq.eclair.wallet.utils.Constants;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import fr.acinq.eclair.wallet.R;
-import fr.acinq.eclair.wallet.utils.Constants;
-
 public class PinDialog extends Dialog {
 
-  private static final String TAG = "PinDialog";
   private static final String PIN_PLACEHOLDER = "\u25CF";
-  private TextView mPinTitle;
+  private DialogPinBinding mBinding;
   private String mPinValue = "";
-  private TextView mPinDisplay;
-  private ImageButton mBackspaceButton;
-  private List<View> mButtonsList = new ArrayList<>();
   private PinDialogCallback mPinCallback;
 
-  public PinDialog(final Context context, final int themeResId, final @NotNull PinDialogCallback pinCallback) {
+  public PinDialog(final Context context, final int themeResId, final PinDialogCallback pinCallback) {
     this(context, themeResId, pinCallback, context.getString(R.string.pindialog_title_default));
   }
 
-  public PinDialog(final Context context, final int themeResId, final @NotNull PinDialogCallback pinCallback, final String title) {
+  public PinDialog(final Context context, final int themeResId, final PinDialogCallback pinCallback, final String title) {
     super(context, themeResId);
 
-    // callback must be defined
     mPinCallback = pinCallback;
+    mBinding = DataBindingUtil.inflate(LayoutInflater.from(getContext()), R.layout.dialog_pin, null, false);
+    setContentView(mBinding.getRoot());
+    setOnCancelListener(dialogInterface -> mPinCallback.onPinCancel(PinDialog.this));
+    mBinding.pinTitle.setText(title);
 
-    // layout
-    setContentView(R.layout.dialog_pin);
+    final List<View> mButtonsList = new ArrayList<>();
+    mButtonsList.add(mBinding.pinNum1);
+    mButtonsList.add(mBinding.pinNum2);
+    mButtonsList.add(mBinding.pinNum3);
+    mButtonsList.add(mBinding.pinNum4);
+    mButtonsList.add(mBinding.pinNum5);
+    mButtonsList.add(mBinding.pinNum6);
+    mButtonsList.add(mBinding.pinNum7);
+    mButtonsList.add(mBinding.pinNum8);
+    mButtonsList.add(mBinding.pinNum9);
+    mButtonsList.add(mBinding.pinNum0);
 
-    setOnCancelListener(new OnCancelListener() {
-      @Override
-      public void onCancel(DialogInterface dialogInterface) {
-        mPinCallback.onPinCancel(PinDialog.this);
-      }
-    });
-
-    // set up pin numpad
-    mPinTitle = findViewById(R.id.pin_title);
-    mPinTitle.setText(title);
-    mPinDisplay = findViewById(R.id.pin_display);
-    mBackspaceButton = findViewById(R.id.pin_backspace);
-
-    mButtonsList.add(findViewById(R.id.pin_num_1));
-    mButtonsList.add(findViewById(R.id.pin_num_2));
-    mButtonsList.add(findViewById(R.id.pin_num_3));
-    mButtonsList.add(findViewById(R.id.pin_num_4));
-    mButtonsList.add(findViewById(R.id.pin_num_5));
-    mButtonsList.add(findViewById(R.id.pin_num_6));
-    mButtonsList.add(findViewById(R.id.pin_num_7));
-    mButtonsList.add(findViewById(R.id.pin_num_8));
-    mButtonsList.add(findViewById(R.id.pin_num_9));
-    mButtonsList.add(findViewById(R.id.pin_num_0));
-
-    mPinDisplay.addTextChangedListener(new TextWatcher() {
+    mBinding.pinDisplay.addTextChangedListener(new TextWatcher() {
       @Override
       public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
       @Override
       public void onTextChanged(CharSequence s, int start, int before, int count) {
         if (s != null && s.length() == Constants.PIN_LENGTH) {
           // automatically confirm pin when pin is 6 chars long
-          new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-              mPinCallback.onPinConfirm(PinDialog.this, mPinValue);
-            }
-          }, 300);
+          new Handler().postDelayed(() -> mPinCallback.onPinConfirm(PinDialog.this, mPinValue), 300);
         }
       }
       @Override
       public void afterTextChanged(Editable s) {}
     });
+
     for (View v : mButtonsList) {
-      v.setOnClickListener(new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-          if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean(Constants.SETTING_HAPTIC_FEEDBACK, true)) {
-            view.setHapticFeedbackEnabled(true);
-            view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY, HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
-          }
-          if (mPinValue == null) mPinValue = "";
-          if (mPinValue.equals("") || mPinValue.length() != Constants.PIN_LENGTH) {
-            final String val = ((Button) view).getText().toString();
-            mPinValue = mPinValue.concat(val);
-            mPinDisplay.setText(Strings.repeat(PIN_PLACEHOLDER, mPinValue.length()));
-          }
+      v.setOnClickListener(view -> {
+        if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean(Constants.SETTING_HAPTIC_FEEDBACK, true)) {
+          view.setHapticFeedbackEnabled(true);
+          view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY, HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
+        }
+        if (mPinValue == null) mPinValue = "";
+        if (mPinValue.equals("") || mPinValue.length() != Constants.PIN_LENGTH) {
+          final String val = ((Button) view).getText().toString();
+          mPinValue = mPinValue.concat(val);
+          mBinding.pinDisplay.setText(Strings.repeat(PIN_PLACEHOLDER, mPinValue.length()));
         }
       });
     }
-    findViewById(R.id.pin_num_clear).setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View view) {
-        mPinValue = "";
-        mPinDisplay.setText("");
-      }
+
+    mBinding.pinNumClear.setOnClickListener(view -> {
+      mPinValue = "";
+      mBinding.pinDisplay.setText("");
     });
-    mBackspaceButton.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View view) {
-        if (mPinValue != null && mPinValue.length() > 0) {
-          mPinValue = mPinValue.substring(0, mPinValue.length() - 1);
-          mPinDisplay.setText(Strings.repeat(PIN_PLACEHOLDER, mPinValue.length()));
-        }
+
+    mBinding.pinBackspace.setOnClickListener(view -> {
+      if (mPinValue != null && mPinValue.length() > 0) {
+        mPinValue = mPinValue.substring(0, mPinValue.length() - 1);
+        mBinding.pinDisplay.setText(Strings.repeat(PIN_PLACEHOLDER, mPinValue.length()));
       }
     });
   }

@@ -16,6 +16,7 @@
 
 package fr.acinq.eclair.wallet.activities;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
@@ -23,13 +24,17 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.Toast;
 
-import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.util.AsyncExecutor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import akka.dispatch.OnComplete;
+import akka.pattern.Patterns;
+import akka.util.Timeout;
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.bitcoin.package$;
@@ -41,23 +46,20 @@ import fr.acinq.eclair.io.Peer;
 import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.databinding.ActivityOpenChannelBinding;
-import fr.acinq.eclair.wallet.events.LNNewChannelFailureEvent;
-import fr.acinq.eclair.wallet.events.LNNewChannelOpenedEvent;
 import fr.acinq.eclair.wallet.fragments.PinDialog;
-import fr.acinq.eclair.wallet.models.FeeRating;
 import fr.acinq.eclair.wallet.tasks.NodeURIReaderTask;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
+import scala.Option;
 import scala.concurrent.duration.Duration;
 
 public class OpenChannelActivity extends EclairActivity implements NodeURIReaderTask.AsyncNodeURIReaderTaskResponse {
 
   public static final String EXTRA_NEW_HOST_URI = BuildConfig.APPLICATION_ID + "NEW_HOST_URI";
   public static final String EXTRA_USE_DNS_SEED = BuildConfig.APPLICATION_ID + "USE_DNS_SEED";
-  private static final String TAG = "OpenChannelActivity";
   final MilliSatoshi minFunding = new MilliSatoshi(100000000); // 1 mBTC
   final MilliSatoshi maxFunding = package$.MODULE$.satoshi2millisatoshi(new Satoshi(Channel.MAX_FUNDING_SATOSHIS()));
-
+  private final Logger log = LoggerFactory.getLogger(OpenChannelActivity.class);
   private ActivityOpenChannelBinding mBinding;
 
   private String remoteNodeURIAsString = "";
@@ -65,18 +67,48 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
   private String preferredFiatCurrency = Constants.FIAT_USD;
   private CoinUnit preferredBitcoinUnit = CoinUtils.getUnitFromString(Constants.BTC_CODE);
   // state of the fees, used with data binding
-  private FeeRating feeRatingState = Constants.FEE_RATING_FAST;
+  private int feeRatingState = Constants.FEE_RATING_FAST;
   private PinDialog pinDialog;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    setContentView(R.layout.activity_open_channel);
     mBinding = DataBindingUtil.setContentView(this, R.layout.activity_open_channel);
 
     final SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
     preferredFiatCurrency = WalletUtils.getPreferredFiat(sharedPrefs);
     preferredBitcoinUnit = WalletUtils.getPreferredCoinUnit(sharedPrefs);
+
+    setFeesToDefault();
+
+    mBinding.useAllFundsCheckbox.setOnCheckedChangeListener((v, isChecked) -> {
+      if (isChecked) {
+        mBinding.useAllFundsCheckbox.setEnabled(false);
+        mBinding.useAllFundsCheckbox.setText(R.string.openchannel_max_funds_pleasewait);
+        new Thread() {
+          @Override
+          public void run() {
+            try {
+              final Long feesPerKw = fr.acinq.eclair.package$.MODULE$.feerateByte2Kw(Long.parseLong(mBinding.feesValue.getText().toString()));
+              final long capacitySat = Math.min(app.getAvailableFundsAfterFees(feesPerKw).amount(), Channel.MAX_FUNDING_SATOSHIS());
+              runOnUiThread(() -> {
+                mBinding.capacityValue.setText(CoinUtils.rawAmountInUnit(new Satoshi(capacitySat), preferredBitcoinUnit).bigDecimal().toPlainString());
+                mBinding.capacityValue.setEnabled(false);
+              });
+            } catch (Exception e) {
+              log.error("could not retrieve max funds from wallet", e);
+            } finally {
+              runOnUiThread(() -> {
+                mBinding.useAllFundsCheckbox.setEnabled(true);
+                mBinding.useAllFundsCheckbox.setText(R.string.openchannel_max_funds);
+              });
+            }
+          }
+        }.start();
+      } else {
+        mBinding.capacityValue.setEnabled(true);
+      }
+    });
 
     mBinding.capacityValue.addTextChangedListener(new TextWatcher() {
       @Override
@@ -90,8 +122,8 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
         try {
           checkAmount(s.toString());
         } catch (Exception e) {
-          Log.d(TAG, "Could not convert amount to number with cause " + e.getMessage());
-          mBinding.capacityFiat.setText("");
+          log.debug("could not convert amount to number with cause {}", e.getMessage());
+          mBinding.capacityFiat.setText(getString(R.string.amount_to_fiat, getString(R.string.unknown)));
         }
       }
 
@@ -108,13 +140,9 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
       public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
         try {
           final Long feesSatPerByte = Long.parseLong(s.toString());
-          if (feesSatPerByte == app.estimateSlowFees()) {
-            mBinding.feesRating.setText(R.string.payment_fees_slow);
-          } else if (feesSatPerByte == app.estimateMediumFees()) {
-            mBinding.feesRating.setText(R.string.payment_fees_medium);
-          } else if (feesSatPerByte == app.estimateFastFees()) {
-            mBinding.feesRating.setText(R.string.payment_fees_fast);
-          } else {
+          if (feesSatPerByte != app.estimateSlowFees() && feesSatPerByte != app.estimateMediumFees() && feesSatPerByte != app.estimateFastFees()) {
+            feeRatingState = Constants.FEE_RATING_CUSTOM;
+            mBinding.setFeeRatingState(feeRatingState);
             mBinding.feesRating.setText(R.string.payment_fees_custom);
           }
           if (feesSatPerByte <= app.estimateSlowFees() / 2) {
@@ -126,8 +154,11 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
           } else {
             mBinding.feesWarning.setVisibility(View.GONE);
           }
+          // fee value changes must invalidate the 'set all available funds' checkbox, since this amount
+          // would probably not be correct anymore
+          mBinding.useAllFundsCheckbox.setChecked(false);
         } catch (NumberFormatException e) {
-          Log.w(TAG, "Could not read fees with cause=" + e.getMessage());
+          log.debug("could not read fees with cause {}" + e.getMessage());
         }
       }
 
@@ -160,6 +191,18 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
 
   public void focusAmount(final View view) {
     mBinding.capacityValue.requestFocus();
+    final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+    if (imm != null) {
+      imm.showSoftInput(mBinding.capacityValue, 0);
+    }
+  }
+
+  public void forceFocusFees(final View view) {
+    mBinding.feesValue.requestFocus();
+    final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+    if (imm != null) {
+      imm.showSoftInput(mBinding.feesValue, 0);
+    }
   }
 
   @Override
@@ -172,18 +215,21 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
   }
 
   public void pickFees(final View view) {
-    if (feeRatingState.rating == Constants.FEE_RATING_SLOW.rating) {
+    if (feeRatingState == Constants.FEE_RATING_SLOW) {
       feeRatingState = Constants.FEE_RATING_MEDIUM;
       mBinding.feesValue.setText(String.valueOf(app.estimateMediumFees()));
       mBinding.setFeeRatingState(feeRatingState);
-    } else if (feeRatingState.rating == Constants.FEE_RATING_MEDIUM.rating) {
+      mBinding.feesRating.setText(R.string.payment_fees_medium);
+    } else if (feeRatingState == Constants.FEE_RATING_MEDIUM) {
       feeRatingState = Constants.FEE_RATING_FAST;
       mBinding.feesValue.setText(String.valueOf(app.estimateFastFees()));
       mBinding.setFeeRatingState(feeRatingState);
-    } else if (feeRatingState.rating == Constants.FEE_RATING_FAST.rating) {
+      mBinding.feesRating.setText(R.string.payment_fees_fast);
+    } else if (feeRatingState == Constants.FEE_RATING_FAST) {
       feeRatingState = Constants.FEE_RATING_SLOW;
       mBinding.feesValue.setText(String.valueOf(app.estimateSlowFees()));
       mBinding.setFeeRatingState(feeRatingState);
+      mBinding.feesRating.setText(R.string.payment_fees_slow);
     } else {
       setFeesToDefault();
     }
@@ -193,6 +239,7 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
     feeRatingState = Constants.FEE_RATING_FAST;
     mBinding.feesValue.setText(String.valueOf(app.estimateFastFees()));
     mBinding.setFeeRatingState(feeRatingState);
+    mBinding.feesRating.setText(R.string.payment_fees_fast);
   }
 
   /**
@@ -212,7 +259,7 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
    */
   private boolean checkAmount(final String amount) throws IllegalArgumentException, NullPointerException {
     final MilliSatoshi amountMsat = CoinUtils.convertStringAmountToMsat(amount, preferredBitcoinUnit.code());
-    mBinding.capacityFiat.setText(WalletUtils.convertMsatToFiatWithUnit(amountMsat.amount(), preferredFiatCurrency));
+    mBinding.capacityFiat.setText(getString(R.string.amount_to_fiat, WalletUtils.convertMsatToFiatWithUnit(amountMsat.amount(), preferredFiatCurrency)));
     if (amountMsat.amount() < minFunding.amount() || amountMsat.amount() >= maxFunding.amount()) {
       showError(getString(R.string.openchannel_capacity_invalid, CoinUtils.formatAmountInUnit(minFunding, preferredBitcoinUnit, false),
         CoinUtils.formatAmountInUnit(maxFunding, preferredBitcoinUnit, true)));
@@ -267,7 +314,7 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
         return;
       }
     } catch (Exception e) {
-      Log.d(TAG, "Could not convert amount to number with cause " + e.getMessage());
+      log.debug("could not convert amount to number with cause {}", e.getMessage());
       showError(getString(R.string.openchannel_error_capacity_nan));
       return;
     }
@@ -278,7 +325,7 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
         return;
       }
     } catch (Exception e) {
-      Log.w(TAG, "Could not read fees with cause=" + e.getMessage());
+      log.debug("could not read fees with cause {}", e.getMessage());
       showError(getString(R.string.openchannel_error_fees_nan));
       return;
     }
@@ -308,25 +355,35 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
   }
 
   private void doOpenChannel() {
-    final Satoshi fundingSat = CoinUtils.convertStringAmountToSat(mBinding.capacityValue.getText().toString(), preferredBitcoinUnit.code());
-    final Long feesPerKw = fr.acinq.eclair.package$.MODULE$.feerateByte2Kw(Long.parseLong(mBinding.feesValue.getText().toString()));
     try {
-      Peer.OpenChannel o = new Peer.OpenChannel(remoteNodeURI.nodeId(), fundingSat, new MilliSatoshi(0), scala.Option.apply(feesPerKw), scala.Option.apply(null));
+      final Satoshi fundingSat = CoinUtils.convertStringAmountToSat(mBinding.capacityValue.getText().toString(), preferredBitcoinUnit.code());
+      final Long feesPerKw = fr.acinq.eclair.package$.MODULE$.feerateByte2Kw(Long.parseLong(mBinding.feesValue.getText().toString()));
+      final Peer.OpenChannel open = new Peer.OpenChannel(remoteNodeURI.nodeId(), fundingSat, new MilliSatoshi(0), scala.Option.apply(feesPerKw), scala.Option.apply(null));
       AsyncExecutor.create().execute(
         () -> {
-          OnComplete<Object> onComplete = new OnComplete<Object>() {
+          final Timeout timeout = new Timeout(Duration.create(30, "seconds"));
+          final OnComplete<Object> onComplete = new OnComplete<Object>() {
             @Override
-            public void onComplete(Throwable throwable, Object o) throws Throwable {
-              if (throwable != null && throwable instanceof akka.pattern.AskTimeoutException) {
-                // future timed out, do not display message
-              } else if (throwable != null) {
-                EventBus.getDefault().post(new LNNewChannelFailureEvent(throwable.getMessage()));
-              } else {
-                EventBus.getDefault().post(new LNNewChannelOpenedEvent(remoteNodeURI.nodeId().toString()));
+            public void onComplete(Throwable throwable, Object o) {
+              if (throwable != null && !(throwable instanceof akka.pattern.AskTimeoutException)) {
+                runOnUiThread(() -> Toast.makeText(getApplicationContext(), getString(R.string.home_toast_openchannel_failed) + throwable.getMessage(), Toast.LENGTH_LONG).show());
               }
             }
           };
-          app.openChannel(Duration.create(30, "seconds"), onComplete, remoteNodeURI, o);
+          final OnComplete<Object> onConnectComplete = new OnComplete<Object>() {
+            @Override
+            public void onComplete(Throwable throwable, Object result) {
+              if (throwable != null) {
+                runOnUiThread(() -> Toast.makeText(getApplicationContext(), getString(R.string.home_toast_openchannel_failed) + throwable.getMessage(), Toast.LENGTH_LONG).show());
+              } else if ("connected".equals(result.toString()) || "already connected".equals(result.toString())) {
+                Patterns.ask(app.appKit.eclairKit.switchboard(), open, timeout).onComplete(onComplete, app.system.dispatcher());
+              } else {
+                runOnUiThread(() -> Toast.makeText(getApplicationContext(), getString(R.string.home_toast_openchannel_failed) + result.toString(), Toast.LENGTH_LONG).show());
+              }
+            }
+          };
+          Patterns.ask(app.appKit.eclairKit.switchboard(), new Peer.Connect(remoteNodeURI), timeout)
+            .onComplete(onConnectComplete, app.system.dispatcher());
         });
       goToHome();
     } catch (Throwable t) {

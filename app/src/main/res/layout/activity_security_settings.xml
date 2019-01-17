@@ -79,13 +79,13 @@
           android:layout_marginEnd="@dimen/space_md"
           android:layout_toStartOf="@id/pin_switch"
           android:text="@string/prefs_pin_default_info"
-          android:textColor="@color/grey_1" />
+          android:textColor="@color/grey_2" />
       </RelativeLayout>
 
       <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@color/grey_0_dark_x1" />
+        android:background="@color/grey_0_dark_x2" />
 
       <LinearLayout
         android:layout_width="match_parent"
@@ -111,7 +111,7 @@
           android:layout_height="wrap_content"
           android:layout_marginEnd="@dimen/space_md"
           android:text="@string/prefs_change_password_desc"
-          android:textColor="@color/grey_1" />
+          android:textColor="@color/grey_2" />
       </LinearLayout>
 
     </LinearLayout>

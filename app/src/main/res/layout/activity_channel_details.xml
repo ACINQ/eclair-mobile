@@ -18,6 +18,24 @@
   xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools">
 
+  <data>
+
+    <import type="android.view.View" />
+
+    <variable
+      name="isActive"
+      type="boolean" />
+
+    <variable
+      name="hasAdvancedRoutingSync"
+      type="boolean" />
+
+    <variable
+      name="hasDataLossProtection"
+      type="boolean" />
+
+  </data>
+
   <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -27,31 +45,57 @@
     <!-- Custom toolbar -->
     <include layout="@layout/toolbar" />
 
-    <android.support.v4.widget.NestedScrollView
+    <ScrollView
       android:layout_width="match_parent"
-      android:layout_height="wrap_content">
+      android:layout_height="match_parent"
+      android:fillViewport="true"
+      android:scrollbars="none">
 
-      <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+      <LinearLayout style="@style/DataRowContainer">
+
+        <LinearLayout
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:background="@color/grey_0_light_x2"
+          android:orientation="vertical"
+          android:padding="@dimen/space_md"
+          android:visibility="@{!isActive ? View.VISIBLE : View.GONE}">
+
+          <TextView
+            android:id="@+id/terminated_disclaimer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/channeldetails_terminated_disclaimer"
+            android:textColor="@color/grey_3" />
+
+          <TextView
+            android:id="@+id/opened_on"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_xs"
+            android:textColor="@color/grey_2"
+            android:textSize="12sp" />
+
+          <TextView
+            android:id="@+id/closed_on"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_xxs"
+            android:textColor="@color/grey_2"
+            android:textSize="12sp" />
+
+        </LinearLayout>
 
         <LinearLayout
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:orientation="vertical"
-          android:paddingBottom="8dp"
-          android:paddingEnd="@dimen/space_md"
-          android:paddingStart="@dimen/space_md"
-          android:paddingTop="@dimen/space_md">
+          android:padding="@dimen/space_md"
+          android:visibility="@{isActive ? View.VISIBLE : View.GONE}">
 
           <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/channeldetails_balance_label"
-            android:textAllCaps="true"
-            android:textColor="@color/grey_1"
-            android:textSize="10sp" />
+            style="@style/TitleCapsGrey"
+            android:text="@string/channeldetails_balance_label" />
 
           <fr.acinq.eclair.wallet.customviews.CoinAmountView
             android:id="@+id/balance"
@@ -59,10 +103,18 @@
             android:layout_height="wrap_content"
             app:alignment="left"
             app:amount_color="@color/grey_4"
-            app:amount_size="32sp"
+            app:amount_size="36sp"
+            app:force_btc="true"
             app:unit="mBTC"
             app:unit_color="@color/grey_3"
             app:unit_size="12sp" />
+
+          <TextView
+            android:id="@+id/balance_fiat"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-light"
+            android:text="@string/paymentdetails_amount_fiat" />
 
           <LinearLayout
             android:layout_width="match_parent"
@@ -78,12 +130,8 @@
               android:orientation="vertical">
 
               <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/channeldetails_state_label"
-                android:textAllCaps="true"
-                android:textColor="@color/grey_1"
-                android:textSize="10sp" />
+                style="@style/TitleCapsGrey"
+                android:text="@string/channeldetails_state_label" />
 
               <TextView
                 android:id="@+id/state"
@@ -93,6 +141,26 @@
                 android:maxLines="1"
                 android:textAllCaps="true"
                 android:textSize="12sp" />
+
+              <View
+                android:id="@+id/update_node_address_separator"
+                android:layout_width="50dp"
+                android:layout_height="1dp"
+                android:layout_marginTop="@dimen/space_xs"
+                android:background="@color/grey_0_light_x1"
+                android:visibility="gone" />
+
+              <Button
+                android:id="@+id/update_node_address_button"
+                style="@style/ButtonStyle"
+                android:layout_marginTop="@dimen/space_xs"
+                android:background="@drawable/rounded_corner_grey"
+                android:padding="@dimen/space_xs"
+                android:text="@string/channeldetails_open_connection_button"
+                android:textAlignment="viewStart"
+                android:textSize="10sp"
+                android:visibility="gone" />
+
             </LinearLayout>
 
             <LinearLayout
@@ -110,18 +178,13 @@
                 android:visibility="gone">
 
                 <TextView
-                  android:layout_width="match_parent"
-                  android:layout_height="wrap_content"
-                  android:text="@string/channeldetails_state_closing_type_label"
-                  android:textAllCaps="true"
-                  android:textColor="@color/grey_1"
-                  android:textSize="10sp" />
+                  style="@style/TitleCapsGrey"
+                  android:text="@string/channeldetails_state_closing_type_label" />
 
                 <TextView
                   android:id="@+id/closing_type"
                   android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
-                  android:textAllCaps="true"
                   android:textSize="12sp" />
               </LinearLayout>
 
@@ -156,14 +219,50 @@
           </LinearLayout>
         </LinearLayout>
 
-        <include layout="@layout/include_separator" />
+        <TextView
+          android:id="@+id/closing_section"
+          style="@style/TitleBar"
+          android:drawableStart="@drawable/ic_circle_cross_grey_14dp"
+          android:text="@string/channeldetails_closing_section"
+          android:visibility="gone" />
 
         <fr.acinq.eclair.wallet.customviews.DataRow
-          android:id="@+id/nodeid"
+          android:id="@+id/closing_cause"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:visibility="gone"
+          app:has_border="true"
+          app:label="@string/channeldetails_closing_cause_label"
+          app:value="@string/unknown" />
+
+        <fr.acinq.eclair.wallet.customviews.DataRow
+          android:id="@+id/closing_refund_block"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:visibility="gone"
+          app:has_border="true"
+          app:label="@string/channeldetails_refund_block_label"
+          app:value="@string/unknown" />
+
+        <fr.acinq.eclair.wallet.customviews.DataRow
+          android:id="@+id/balance_closed"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:visibility="gone"
+          app:has_border="true"
+          app:label="@string/channeldetails_balance_closed_label"
+          app:value="@string/unknown" />
+
+        <TextView
+          style="@style/TitleBar"
+          android:drawableStart="@drawable/ic_hammer_grey_14dp"
+          android:text="@string/paymentdetails_technicals_title" />
+
+        <fr.acinq.eclair.wallet.customviews.DataRow
+          android:id="@+id/node_id"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           app:has_border="true"
-          app:desc="@string/channeldetails_nodeid_desc"
           app:label="@string/channeldetails_nodeid_label"
           app:value="@string/unknown" />
 
@@ -172,23 +271,16 @@
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           app:has_border="true"
-          app:desc="@string/channeldetails_capacity_desc"
           app:label="@string/channeldetails_capacity_label"
           app:value="@string/unknown" />
-
-        <fr.acinq.eclair.wallet.customviews.TitleBar
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:text="@string/paymentdetails_technicals_title" />
 
         <fr.acinq.eclair.wallet.customviews.DataRow
           android:id="@+id/channel_id"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          app:has_border="true"
           app:action_label="@string/channeldetails_raw_data"
-          app:desc="@string/channeldetails_id_desc"
           app:has_action="true"
+          app:has_border="true"
           app:label="@string/channeldetails_id_label"
           app:value="@string/unknown" />
 
@@ -196,37 +288,52 @@
           android:id="@+id/short_channel_id"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
+          android:visibility="@{isActive ? View.VISIBLE : View.GONE}"
+          app:has_border="true"
           app:label="@string/channeldetails_short_id_label"
           app:value="@string/unknown" />
 
-        <include layout="@layout/include_separator" />
-
         <fr.acinq.eclair.wallet.customviews.DataRow
-          android:id="@+id/advanced_routing_sync"
+          android:id="@+id/transaction_id"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          app:desc="@string/channeldetails_advanced_routing_desc"
-          app:label="@string/channeldetails_advanced_routing_label"
+          app:action_label="@string/open_in_explorer"
+          app:has_action="true"
+          app:has_border="true"
+          app:label="@string/channeldetails_transactionid_label"
           app:value="@string/unknown" />
-
-        <include layout="@layout/include_separator" />
 
         <fr.acinq.eclair.wallet.customviews.DataRow
-          android:id="@+id/data_loss_protection"
+          android:id="@+id/features"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          app:desc="@string/channeldetails_data_loss_protection_desc"
-          app:label="@string/channeldetails_data_loss_protection_label"
-          app:value="@string/unknown" />
+          app:has_border="true"
+          app:label="@string/channeldetails_features_label">
 
-        <include layout="@layout/include_separator" />
+          <TextView
+            style="@style/DataRowText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableStart="@{hasAdvancedRoutingSync ? @drawable/ic_circle_check_green_14dp : @drawable/ic_circle_cross_grey_14dp}"
+            android:drawablePadding="@dimen/space_xxs"
+            android:paddingBottom="@dimen/space_xxs"
+            android:text="@string/channeldetails_advanced_routing_label" />
+
+          <TextView
+            style="@style/DataRowText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableStart="@{hasDataLossProtection ? @drawable/ic_circle_check_green_14dp : @drawable/ic_circle_cross_grey_14dp}"
+            android:drawablePadding="@dimen/space_xxs"
+            android:text="@string/channeldetails_data_loss_protection_label" />
+
+        </fr.acinq.eclair.wallet.customviews.DataRow>
 
         <fr.acinq.eclair.wallet.customviews.DataRow
           android:id="@+id/to_self_delay"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           app:has_border="true"
-          app:desc="@string/channeldetails_to_self_delay_desc"
           app:label="@string/channeldetails_to_self_delay_label"
           app:value="@string/unknown" />
 
@@ -235,7 +342,6 @@
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           app:has_border="true"
-          app:desc="@string/channeldetails_reserve_desc"
           app:label="@string/channeldetails_reserve_label"
           app:value="@string/unknown" />
 
@@ -243,8 +349,8 @@
           android:id="@+id/count_htlcs_inflight"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
+          android:visibility="@{isActive ? View.VISIBLE : View.GONE}"
           app:has_border="true"
-          app:desc="@string/channeldetails_htlcs_count_desc"
           app:label="@string/channeldetails_htlcs_count_label"
           app:value="@string/unknown" />
 
@@ -252,23 +358,10 @@
           android:id="@+id/minimum_htlc_amount"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          app:has_border="true"
-          app:desc="@string/channeldetails_min_htlc_amount_desc"
           app:label="@string/channeldetails_min_htlc_amount_label"
           app:value="@string/unknown" />
 
-        <fr.acinq.eclair.wallet.customviews.DataRow
-          android:id="@+id/transaction_id"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          app:action_bg="@color/yellow"
-          app:action_label="@string/open_in_explorer"
-          app:desc="@string/channeldetails_transactionid_desc"
-          app:has_action="true"
-          app:label="@string/channeldetails_transactionid_label"
-          app:value="@string/unknown" />
-
       </LinearLayout>
-    </android.support.v4.widget.NestedScrollView>
+    </ScrollView>
   </LinearLayout>
 </layout>

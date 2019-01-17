@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  ~ Copyright 2018 ACINQ SAS
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+  <data>
+
+    <import type="android.view.View" />
+
+  </data>
+
+  <ScrollView
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clipToPadding="false"
+    android:fillViewport="true">
+
+    <LinearLayout
+      android:id="@+id/transitions_layout"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:gravity="start|center"
+      android:orientation="vertical"
+      android:paddingBottom="@dimen/space_xl"
+      android:paddingEnd="@dimen/space_lg"
+      android:paddingStart="@dimen/space_lg"
+      android:paddingTop="@dimen/space_xl">
+
+      <TextView
+        style="@style/TitleCapsIcon"
+        android:layout_marginBottom="@dimen/space_sm"
+        android:drawableStart="@drawable/ic_key_white_24dp"
+        android:text="@string/importwallet_init_title" />
+
+      <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/space_md"
+        android:text="@string/importwallet_init_instructions" />
+
+      <android.support.design.widget.TextInputLayout
+        android:id="@+id/mnemonics_input_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="32dp"
+        android:hint="@string/importwallet_input_hint"
+        android:textColorHint="@color/primary_light_x3">
+
+        <android.support.design.widget.TextInputEditText
+          android:id="@+id/mnemonics_input"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:backgroundTint="@color/primary_light_x3"
+          android:digits="abcdefghijklmnopqrstuvwxyz "
+          android:inputType="text"
+          android:textColor="@color/white"
+          android:textSize="12sp" />
+
+      </android.support.design.widget.TextInputLayout>
+
+      <TextView
+        android:id="@+id/seed_error"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/space_md"
+        android:background="@drawable/rounded_corner_primary_light_x1"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="start|center"
+        android:onClick="goToInit"
+        android:padding="@dimen/space_md"
+        android:text="@string/importwallet_seed_error"
+        android:visibility="gone" />
+
+      <Button
+        style="@style/EndButtonStyle"
+        android:onClick="importMnemonics"
+        android:text="@string/importwallet_next_button" />
+
+    </LinearLayout>
+  </ScrollView>
+</layout>

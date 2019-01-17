@@ -10,7 +10,7 @@
     android:height="220dp">
     <bitmap
       android:gravity="fill_horizontal|fill_vertical"
-      android:src="@drawable/splash_image"/>
+      android:src="@drawable/splash_image_x1024"/>
   </item>
 
 </layer-list>

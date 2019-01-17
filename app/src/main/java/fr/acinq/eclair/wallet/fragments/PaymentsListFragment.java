@@ -29,7 +29,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.greendao.query.QueryBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +41,7 @@ import fr.acinq.eclair.CoinUnit;
 import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.adapters.PaymentListItemAdapter;
+import fr.acinq.eclair.wallet.events.BalanceUpdateEvent;
 import fr.acinq.eclair.wallet.models.Payment;
 import fr.acinq.eclair.wallet.models.PaymentDao;
 import fr.acinq.eclair.wallet.models.PaymentStatus;
@@ -45,17 +49,16 @@ import fr.acinq.eclair.wallet.models.PaymentType;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 
 public class PaymentsListFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
-
-  private static final String TAG = "PaymentListFrag";
+  private final Logger log = LoggerFactory.getLogger(PaymentsListFragment.class);
   private View mView;
   private PaymentListItemAdapter mPaymentAdapter;
   private SwipeRefreshLayout mRefreshLayout;
   private TextView mEmptyLabel;
-  private SharedPreferences.OnSharedPreferenceChangeListener prefListener;
 
   @Override
   public void onRefresh() {
     updateList();
+    EventBus.getDefault().post(new BalanceUpdateEvent());
     mRefreshLayout.setRefreshing(false);
   }
 
@@ -69,18 +72,7 @@ public class PaymentsListFragment extends Fragment implements SwipeRefreshLayout
   @Override
   public void onResume() {
     super.onResume();
-    if (getActivity() != null && prefListener != null) {
-      PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext()).registerOnSharedPreferenceChangeListener(prefListener);
-    }
     updateList();
-  }
-
-  @Override
-  public void onPause() {
-    super.onPause();
-    if (getActivity() != null && prefListener != null) {
-      PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext()).unregisterOnSharedPreferenceChangeListener(prefListener);
-    }
   }
 
   @Override
@@ -101,29 +93,29 @@ public class PaymentsListFragment extends Fragment implements SwipeRefreshLayout
   }
 
   /**
-   * Fetches the last 100 payments from DB, ordered by update date (desc).
+   * Fetches the last 150 payments from DB, ordered by update date (desc).
    * <p>
    * TODO seek + infinite scroll
    *
    * @return list of payments
    */
   private List<Payment> getPayments() {
-
-    if (getActivity() == null || getActivity().getApplication() == null || ((App) getActivity().getApplication()).getDBHelper() == null) return new ArrayList<>();
+    if (getActivity() == null || getActivity().getApplication() == null || ((App) getActivity().getApplication()).getDBHelper() == null) {
+      return new ArrayList<>();
+    }
     final QueryBuilder<Payment> qb = ((App) getActivity().getApplication()).getDBHelper().getDaoSession().getPaymentDao().queryBuilder();
     qb.whereOr(
       PaymentDao.Properties.Type.eq(PaymentType.BTC_ONCHAIN),
       qb.and(PaymentDao.Properties.Type.eq(PaymentType.BTC_LN), PaymentDao.Properties.Status.notEq(PaymentStatus.INIT)));
-    qb.orderDesc(PaymentDao.Properties.Updated).orderAsc(PaymentDao.Properties.ConfidenceBlocks).limit(100);
+    qb.orderDesc(PaymentDao.Properties.Updated).limit(150);
     final List<Payment> list = qb.list();
 
-    if (mEmptyLabel != null) {
-      if (list.isEmpty()) {
-        mEmptyLabel.setVisibility(View.VISIBLE);
-      } else {
-        mEmptyLabel.setVisibility(View.GONE);
+    getActivity().runOnUiThread(() -> {
+      if (mEmptyLabel != null) {
+        mEmptyLabel.setVisibility(list.isEmpty() ? View.VISIBLE : View.GONE);
       }
-    }
+    });
+
     return list;
   }
 
@@ -136,12 +128,18 @@ public class PaymentsListFragment extends Fragment implements SwipeRefreshLayout
   }
 
   public void updateList() {
-    if (getContext() != null) {
+    if (getActivity() != null && getContext() != null) {
       final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
       final CoinUnit prefUnit = WalletUtils.getPreferredCoinUnit(prefs);
       final String fiatCode = WalletUtils.getPreferredFiat(prefs);
       final boolean displayBalanceAsFiat = WalletUtils.shouldDisplayInFiat(prefs);
-      mPaymentAdapter.update(getPayments(), fiatCode, prefUnit, displayBalanceAsFiat);
+      new Thread() {
+        @Override
+        public void run() {
+          final List<Payment> payments = getPayments();
+          getActivity().runOnUiThread(() -> mPaymentAdapter.update(payments, fiatCode, prefUnit, displayBalanceAsFiat));
+        }
+      }.start();
     }
   }
 }

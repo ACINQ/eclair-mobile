@@ -10,10 +10,6 @@
     android:title="@string/menu_settings"
     app:showAsAction="never" />
   <item
-    android:id="@+id/menu_home_faq"
-    android:title="@string/menu_faq"
-    app:showAsAction="never" />
-  <item
     android:id="@+id/menu_home_about"
     android:title="@string/menu_about"
     app:showAsAction="never" />

@@ -23,20 +23,15 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 
-public class EncryptedSeed {
+public class EncryptedSeed extends EncryptedData {
 
   public final static byte SEED_FILE_VERSION_1 = 1;
   private static final int SALT_LENGTH_V1 = 128;
   private static final int IV_LENGTH_V1 = 16;
   private static final int MAC_LENGTH_V1 = 32;
-  private final int version;
-  private final byte[] salt;
-  private final AesCbcWithIntegrity.CipherTextIvMac civ;
 
   private EncryptedSeed(int version, byte[] salt, AesCbcWithIntegrity.CipherTextIvMac civ) {
-    this.version = version;
-    this.salt = salt;
-    this.civ = civ;
+    super(version, salt, civ);
   }
 
   /**
@@ -48,7 +43,7 @@ public class EncryptedSeed {
    * @return a encrypted seed ready to be serialized
    * @throws GeneralSecurityException
    */
-  static EncryptedSeed encrypt(final byte[] seed, final String password, final int version) throws GeneralSecurityException {
+  public static EncryptedSeed encrypt(final byte[] seed, final String password, final int version) throws GeneralSecurityException {
     final byte[] salt = AesCbcWithIntegrity.generateSalt();
     final AesCbcWithIntegrity.SecretKeys sk = AesCbcWithIntegrity.generateKeyFromPassword(password, salt);
     final AesCbcWithIntegrity.CipherTextIvMac civ = AesCbcWithIntegrity.encrypt(seed, sk);
@@ -82,6 +77,7 @@ public class EncryptedSeed {
   /**
    * Serializes an encrypted seed as a byte array.
    */
+  @Override
   public byte[] write() throws IOException {
     if (version == SEED_FILE_VERSION_1) {
       if (salt.length != SALT_LENGTH_V1 || civ.getIv().length != IV_LENGTH_V1 || civ.getMac().length != MAC_LENGTH_V1) {
@@ -97,18 +93,6 @@ public class EncryptedSeed {
     } else {
       throw new RuntimeException("unhandled version");
     }
-  }
-
-  /**
-   * Decrypt an encrypted seed with a password and returns a byte array
-   *
-   * @param password password protecting the seed
-   * @return a byte array containing the decrypted seed
-   * @throws GeneralSecurityException if the password is not correct
-   */
-  byte[] decrypt(final String password) throws GeneralSecurityException {
-    final AesCbcWithIntegrity.SecretKeys sk = AesCbcWithIntegrity.generateKeyFromPassword(password, salt);
-    return AesCbcWithIntegrity.decrypt(civ, sk);
   }
 
 }

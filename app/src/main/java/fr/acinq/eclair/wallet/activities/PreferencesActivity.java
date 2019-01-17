@@ -16,71 +16,41 @@
 
 package fr.acinq.eclair.wallet.activities;
 
-import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
-import android.support.annotation.Nullable;
-import android.support.v7.preference.PreferenceManager;
-import android.util.Log;
-import android.view.View;
-
-import java.util.List;
-
 import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.utils.Constants;
 
 public class PreferencesActivity extends PreferenceActivity {
 
-  private static final String TAG = PreferencesActivity.class.getSimpleName();
-  private SharedPreferences.OnSharedPreferenceChangeListener defaultPrefsListener;
-
   @Override
-  public void onBuildHeaders(List<Header> target) {
-    loadHeadersFromResource(R.xml.preference_headers, target);
-  }
-
-  @Override
-  protected boolean isValidFragment(String fragmentName) {
-    return LightningSettingsFragment.class.getName().equals(fragmentName)
-      || GeneralSettingsFragment.class.getName().equals(fragmentName);
-  }
-
-  @Override
-  public void onCreate(@Nullable Bundle savedInstanceState, @Nullable PersistableBundle persistentState) {
-    super.onCreate(savedInstanceState, persistentState);
-    defaultPrefsListener = (prefs, key) -> {
-      Log.i(TAG, "change in default prefs, key=" + key);
-      if (Constants.SETTING_BTC_PATTERN.equals(key)) {
-        CoinUtils.setCoinPattern(prefs.getString(Constants.SETTING_BTC_PATTERN, getResources().getStringArray(R.array.btc_pattern_values)[3]));
-      }
-    };
-  }
-
-  @Override
-  public void onResume() {
-    super.onResume();
-    Log.i(TAG, "on resume!!!!");
-    PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).registerOnSharedPreferenceChangeListener(defaultPrefsListener);
-  }
-
-  @Override
-  protected void onPause() {
-    super.onPause();
-    PreferenceManager.getDefaultSharedPreferences(getBaseContext()).unregisterOnSharedPreferenceChangeListener(defaultPrefsListener);
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    getFragmentManager().beginTransaction().replace(android.R.id.content, new GeneralSettingsFragment()).commit();
   }
 
   public static class GeneralSettingsFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
 
-    private static final String TAG = GeneralSettingsFragment.class.getSimpleName();
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
-      addPreferencesFromResource(R.xml.preference_general);
+      addPreferencesFromResource(R.xml.preferences);
+      findPreference("security_key").setOnPreferenceClickListener(v -> {
+        startActivity(new Intent(getActivity().getApplicationContext(), SecuritySettingsActivity.class));
+        return true;
+      });
+      findPreference("backup_channel_key").setOnPreferenceClickListener(v -> {
+        startActivity(new Intent(getActivity().getApplicationContext(), ChannelsBackupSettingsActivity.class));
+        return true;
+      });
+      findPreference("logging_conf_key").setOnPreferenceClickListener(v -> {
+        startActivity(new Intent(getActivity().getApplicationContext(), LogsSettingsActivity.class));
+        return true;
+      });
     }
 
     @Override
@@ -97,18 +67,9 @@ public class PreferencesActivity extends PreferenceActivity {
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
-      Log.i(TAG, "change in default prefs, key=" + key);
       if (Constants.SETTING_BTC_PATTERN.equals(key)) {
         CoinUtils.setCoinPattern(prefs.getString(Constants.SETTING_BTC_PATTERN, getResources().getStringArray(R.array.btc_pattern_values)[3]));
       }
-    }
-  }
-
-  public static class LightningSettingsFragment extends PreferenceFragment {
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-      super.onCreate(savedInstanceState);
-      addPreferencesFromResource(R.xml.preference_lightning);
     }
   }
 }

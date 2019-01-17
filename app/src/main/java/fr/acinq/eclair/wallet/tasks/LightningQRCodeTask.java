@@ -27,18 +27,20 @@ import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class LightningQRCodeTask extends AsyncTask<String, Integer, Bitmap> {
 
+  private final Logger log = LoggerFactory.getLogger(LightningQRCodeTask.class);
+
   public interface AsyncQRCodeResponse {
     void processLightningQRCodeFinish(Bitmap output);
   }
   private AsyncQRCodeResponse delegate;
-
-  private static final String TAG = LightningQRCodeTask.class.getSimpleName();
   private final QRCodeWriter writer = new QRCodeWriter();
   private final int width;
   private final int height;
@@ -53,7 +55,12 @@ public class LightningQRCodeTask extends AsyncTask<String, Integer, Bitmap> {
 
   @Override
   protected Bitmap doInBackground(String... params) {
-    return QRCodeTask.generateBitmap(this.writer, this.source, this.width, this.height);
+    try {
+      return QRCodeTask.generateBitmap(this.writer, this.source, this.width, this.height);
+    } catch (Exception e) {
+      log.warn("failed to generate QR code image for address {} with cause {}", source, e.getMessage());
+      return null;
+    }
   }
 
   protected void onPostExecute(Bitmap result) {

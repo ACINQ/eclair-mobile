@@ -33,12 +33,11 @@ import android.widget.TextView;
 
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.eclair.CoinUnit;
-import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.CoinUtils;
+import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 
 public class CoinAmountView extends RelativeLayout {
-  private static final String TAG = "CoinAmtView";
   private final SharedPreferences prefs;
   private TextView amountTextView;
   private TextView unitTextView;
@@ -46,6 +45,7 @@ public class CoinAmountView extends RelativeLayout {
   private MilliSatoshi amountMsat = new MilliSatoshi(0);
   private CoinUnit prefBtcUnit;
   private String prefFiatCurrency;
+  private boolean forceBtcUnit;
 
   public CoinAmountView(final Context context) {
     super(context);
@@ -68,12 +68,11 @@ public class CoinAmountView extends RelativeLayout {
   public void refreshUnits() {
     this.prefBtcUnit = WalletUtils.getPreferredCoinUnit(prefs);
     this.prefFiatCurrency = WalletUtils.getPreferredFiat(prefs);
-    final boolean displayAmountAsFiat = WalletUtils.shouldDisplayInFiat(prefs);
-    if (displayAmountAsFiat) {
-      amountTextView.setText(WalletUtils.convertMsatToFiat(amountMsat.amount(), prefFiatCurrency));
+    if (WalletUtils.shouldDisplayInFiat(prefs) && !forceBtcUnit) {
+      WalletUtils.printAmountInView(amountTextView, WalletUtils.convertMsatToFiat(amountMsat.amount(), prefFiatCurrency));
       unitTextView.setText(prefFiatCurrency.toUpperCase());
     } else {
-      amountTextView.setText(CoinUtils.formatAmountInUnit(amountMsat, prefBtcUnit, false));
+      WalletUtils.printAmountInView(amountTextView, CoinUtils.formatAmountInUnit(amountMsat, prefBtcUnit, false));
       unitTextView.setText(prefBtcUnit.shortLabel());
     }
     refreshView();
@@ -128,6 +127,7 @@ public class CoinAmountView extends RelativeLayout {
       unitTextView.setTextSize(TypedValue.COMPLEX_UNIT_PX, unitSize);
       unitTextView.setTextColor(unitColor);
 
+      forceBtcUnit = arr.getBoolean(R.styleable.CoinAmountView_force_btc, false);
       refreshUnits();
     } finally {
       arr.recycle();

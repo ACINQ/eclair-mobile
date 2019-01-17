@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  ~ Copyright 2018 ACINQ SAS
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+  <data>
+
+    <import type="android.view.View" />
+
+  </data>
+
+  <ScrollView
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clipToPadding="false"
+    android:fillViewport="true">
+
+    <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:gravity="start|center"
+      android:orientation="vertical"
+      android:padding="@dimen/space_lg">
+
+      <TextView
+        style="@style/TitleCapsIcon"
+        android:layout_marginBottom="@dimen/space_sm"
+        android:drawableStart="@drawable/ic_shield_white_24dp"
+        android:text="@string/wallet_passphrase_confirm_title" />
+
+      <android.support.design.widget.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/space_lg"
+        android:hint="@string/wallet_passphrase_confirm_input_hint"
+        android:textColorHint="@color/primary_light_x3">
+
+        <android.support.design.widget.TextInputEditText
+          android:id="@+id/passphrase_confirm_input"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:backgroundTint="@color/primary_light_x3"
+          android:inputType="text"
+          android:maxLength="256"
+          android:textColor="@color/white"
+          android:textSize="12sp" />
+
+      </android.support.design.widget.TextInputLayout>
+
+      <Button
+        style="@style/EndButtonStyle"
+        android:onClick="goToEncryptionStep"
+        android:text="@string/btn_next" />
+
+    </LinearLayout>
+  </ScrollView>
+</layout>

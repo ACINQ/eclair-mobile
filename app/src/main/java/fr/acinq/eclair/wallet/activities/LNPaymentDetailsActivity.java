@@ -41,12 +41,10 @@ import fr.acinq.eclair.wallet.utils.WalletUtils;
 public class LNPaymentDetailsActivity extends EclairActivity {
 
   private ActivityLnPaymentDetailsBinding mBinding;
-  private static final String TAG = "LNPaymentDetails";
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    setContentView(R.layout.activity_ln_payment_details);
     mBinding = DataBindingUtil.setContentView(this, R.layout.activity_ln_payment_details);
 
     Toolbar toolbar = findViewById(R.id.toolbar);
@@ -69,6 +67,8 @@ public class LNPaymentDetailsActivity extends EclairActivity {
       final CoinUnit prefUnit = WalletUtils.getPreferredCoinUnit(prefs);
 
       mBinding.amountPaid.setAmountMsat(new MilliSatoshi(p.getAmountPaidMsat()));
+      mBinding.amountPaidFiat.setText(getString(R.string.paymentdetails_amount_fiat, WalletUtils.convertMsatToFiatWithUnit(p.getAmountPaidMsat(), WalletUtils.getPreferredFiat(prefs))));
+
       mBinding.fees.setText(CoinUtils.formatAmountInUnit(new MilliSatoshi(p.getFeesPaidMsat()), prefUnit, true));
       mBinding.status.setText(p.getStatus().toString());
       if (PaymentStatus.PAID == p.getStatus()) {
@@ -79,17 +79,12 @@ public class LNPaymentDetailsActivity extends EclairActivity {
         mBinding.status.setTextColor(ContextCompat.getColor(this, R.color.orange));
       }
       mBinding.recipient.setValue(p.getRecipient());
-      mBinding.desc.setValue(p.getDescription());
+      mBinding.desc.setText(p.getDescription());
       if (p.getAmountRequestedMsat() == 0) {
         // this is a donation
         mBinding.amountRequested.setValue(getString(R.string.paymentdetails_amount_requested_donation));
       } else {
         mBinding.amountRequested.setValue(CoinUtils.formatAmountInUnit(new MilliSatoshi(p.getAmountRequestedMsat()), prefUnit, true));
-      }
-      if (isPaymentReceived) {
-        mBinding.amountRequested.setDescription(getString(R.string.paymentdetails_amount_requested_inbound_desc));
-      } else {
-        mBinding.amountRequested.setDescription(getString(R.string.paymentdetails_amount_requested_desc));
       }
 
       mBinding.amountSent.setValue(CoinUtils.formatAmountInUnit(new MilliSatoshi(p.getAmountSentMsat()), prefUnit, true));

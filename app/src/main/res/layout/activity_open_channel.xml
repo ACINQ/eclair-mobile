@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright 2018 ACINQ SAS
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,14 +14,15 @@
   ~ limitations under the License.
   -->
 
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:tools="http://schemas.android.com/tools">
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
 
   <data>
 
+    <import type="fr.acinq.eclair.wallet.utils.Constants" />
+
     <variable
       name="feeRatingState"
-      type="fr.acinq.eclair.wallet.models.FeeRating" />
+      type="int" />
   </data>
 
   <RelativeLayout
@@ -37,7 +37,7 @@
       android:layout_centerInParent="true"
       android:layout_margin="16dp"
       android:elevation="4dp"
-      android:padding="16dp"
+      android:padding="@dimen/space_md"
       android:text="@string/openchannel_loading_pleasewait"
       android:textAlignment="center"
       android:textColor="@color/grey_3"
@@ -47,6 +47,9 @@
       android:id="@+id/form"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
+      android:fadeScrollbars="false"
+      android:fillViewport="true"
+      android:scrollbars="vertical"
       android:visibility="gone">
 
       <LinearLayout
@@ -57,49 +60,29 @@
         <LinearLayout
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:background="@color/blue_light_x1"
+          android:background="@color/blue_light_x2"
           android:clickable="true"
           android:focusable="true"
           android:gravity="center|top"
           android:onClick="focusAmount"
-          android:orientation="vertical"
-          android:paddingBottom="16dp"
-          android:paddingLeft="24dp"
-          android:paddingRight="24dp">
+          android:orientation="vertical">
 
-          <LinearLayout
-            android:id="@+id/title"
+          <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
             android:background="@drawable/rounded_corner_blue_bottom"
-            android:gravity="center"
-            android:orientation="horizontal"
+            android:text="@string/openchannel_title"
+            android:textSize="10sp"
+            android:paddingLeft="6dp"
+            android:paddingTop="2dp"
+            android:paddingRight="6dp"
             android:paddingBottom="3dp"
-            android:paddingStart="4dp"
-            android:paddingEnd="6dp"
-            android:paddingTop="3dp">
-
-            <ImageView
-              android:layout_width="14dp"
-              android:layout_height="14dp"
-              android:layout_marginEnd="4dp"
-              android:src="@drawable/icon_bolt_shape_white" />
-
-            <TextView
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:text="@string/openchannel_title"
-              android:textColor="@color/white"
-              android:textSize="10sp" />
-          </LinearLayout>
+            android:textColor="@color/blue_dark" />
 
           <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="4dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
+            android:paddingTop="24dp"
             android:gravity="center">
 
             <EditText
@@ -110,9 +93,9 @@
               android:background="@android:color/transparent"
               android:fontFamily="sans-serif-light"
               android:inputType="numberDecimal"
-              android:overScrollMode="always"
               android:maxLines="1"
               android:minWidth="48dp"
+              android:overScrollMode="always"
               android:textAlignment="viewEnd"
               android:textColor="@color/grey_4"
               android:textCursorDrawable="@drawable/cursor_grey"
@@ -125,9 +108,9 @@
               android:layout_alignBaseline="@+id/capacity_unit"
               android:layout_marginEnd="8dp"
               android:layout_toStartOf="@+id/capacity_unit"
+              android:alpha=".5"
               android:fontFamily="sans-serif-light"
-              android:text="@string/openchannel_capacity_hint"
-              android:textColor="@color/primary_light_x3" />
+              android:text="@string/openchannel_capacity_hint" />
 
             <TextView
               android:id="@+id/capacity_unit"
@@ -137,8 +120,8 @@
               android:layout_alignParentEnd="true"
               android:fontFamily="sans-serif-light"
               android:maxLines="1"
-              android:paddingEnd="0dp"
-              android:paddingStart="6dp" />
+              android:paddingStart="6dp"
+              android:paddingEnd="0dp" />
 
           </RelativeLayout>
 
@@ -146,9 +129,10 @@
             android:id="@+id/capacity_fiat"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_xxxs"
+            android:layout_marginBottom="@dimen/space_md"
             android:fontFamily="sans-serif-light"
             android:maxLines="1"
-            android:textColor="@color/primary_light_x3"
             android:textSize="12sp" />
 
         </LinearLayout>
@@ -159,8 +143,8 @@
           android:layout_height="wrap_content"
           android:orientation="horizontal"
           android:paddingLeft="12dp"
-          android:paddingRight="12dp"
-          android:paddingTop="8dp">
+          android:paddingTop="8dp"
+          android:paddingRight="12dp">
 
           <TextView
             android:id="@+id/pubkey_label"
@@ -188,8 +172,8 @@
           android:layout_height="wrap_content"
           android:orientation="horizontal"
           android:paddingLeft="12dp"
-          android:paddingRight="12dp"
-          android:paddingTop="8dp">
+          android:paddingTop="8dp"
+          android:paddingRight="12dp">
 
           <TextView
             android:id="@+id/ip_label"
@@ -216,8 +200,8 @@
           android:layout_height="wrap_content"
           android:orientation="horizontal"
           android:paddingLeft="12dp"
-          android:paddingRight="12dp"
-          android:paddingTop="8dp">
+          android:paddingTop="8dp"
+          android:paddingRight="12dp">
 
           <TextView
             android:layout_width="64dp"
@@ -242,9 +226,9 @@
           android:id="@+id/fees"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
+          android:layout_marginTop="4dp"
           android:gravity="start|center"
           android:orientation="horizontal"
-          android:layout_marginTop="4dp"
           android:paddingLeft="12dp"
           android:paddingRight="12dp">
 
@@ -261,21 +245,23 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:clickable="true"
+            android:focusable="true"
+            android:onClick="forceFocusFees"
             android:orientation="horizontal">
 
             <EditText
               android:id="@+id/fees_value"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
-              android:backgroundTint="@android:color/transparent"
-              android:hint="..."
+              android:layout_marginEnd="@dimen/space_xxs"
+              android:background="@drawable/bottom_dotted_border"
               android:digits="0123456789"
               android:inputType="number"
               android:maxLength="6"
               android:maxLines="1"
-              android:minWidth="6dp"
-              android:paddingRight="4dp"
-              android:textColorHint="@color/grey_1"
+              android:minWidth="12dp"
+              android:textAlignment="center"
               android:textSize="12sp" />
 
             <TextView
@@ -292,29 +278,40 @@
             style="?android:attr/borderlessButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/rounded_corner_green"
-            android:minHeight="0dp"
+            android:background="@{feeRatingState == Constants.FEE_RATING_CUSTOM ? @drawable/rounded_corner_grey : @drawable/rounded_corner_green}"
             android:minWidth="64dp"
+            android:minHeight="0dp"
             android:onClick="pickFees"
-            android:paddingBottom="4dp"
             android:paddingLeft="6dp"
-            android:paddingRight="6dp"
             android:paddingTop="4dp"
-            android:text="@{feeRatingState.label}"
-            android:textColor="@color/white"
+            android:paddingRight="6dp"
+            android:paddingBottom="4dp"
+            android:text="@string/unknown"
+            android:textColor="@{feeRatingState == Constants.FEE_RATING_CUSTOM ? @color/grey_2 : @color/white}"
             android:textSize="12sp" />
 
         </LinearLayout>
+
+        <CheckBox
+          android:id="@+id/use_all_funds_checkbox"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_marginStart="52dp"
+          android:layout_marginTop="@dimen/space_xs"
+          android:layout_marginEnd="@dimen/space_lg"
+          android:buttonTint="@color/primary"
+          android:text="@string/openchannel_max_funds"
+          android:textSize="12sp" />
 
         <TextView
           android:id="@+id/fees_warning"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
-          android:layout_marginTop="12dp"
           android:layout_marginLeft="32dp"
+          android:layout_marginTop="12dp"
           android:layout_marginRight="32dp"
-          android:drawablePadding="6dp"
           android:drawableStart="@drawable/ic_warning"
+          android:drawablePadding="6dp"
           android:gravity="start|center"
           android:paddingBottom="12dp"
           android:textColor="@color/grey_3"
@@ -325,11 +322,11 @@
           android:id="@+id/error"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
-          android:layout_marginTop="12dp"
           android:layout_marginLeft="32dp"
+          android:layout_marginTop="12dp"
           android:layout_marginRight="32dp"
-          android:drawablePadding="6dp"
           android:drawableStart="@drawable/ic_error"
+          android:drawablePadding="6dp"
           android:gravity="start|center"
           android:paddingBottom="12dp"
           android:text="@string/openchannel_capacity_invalid"
@@ -350,7 +347,7 @@
             android:background="?android:attr/selectableItemBackground"
             android:onClick="cancelOpenChannel"
             android:text="@string/btn_cancel"
-            android:textColor="@color/grey_0_dark_x1" />
+            android:textColor="@color/grey_0_dark_x2" />
 
           <Button
             android:id="@+id/open_button"
@@ -358,12 +355,12 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="?android:attr/selectableItemBackground"
-            android:drawablePadding="6dp"
             android:drawableStart="@drawable/ic_check"
+            android:drawablePadding="6dp"
             android:gravity="start|center"
             android:onClick="confirmOpenChannel"
-            android:paddingEnd="16dp"
             android:paddingStart="30dp"
+            android:paddingEnd="16dp"
             android:text="@string/openchannel_do_open"
             android:textColor="@color/green" />
         </LinearLayout>

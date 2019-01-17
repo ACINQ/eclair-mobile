@@ -6,7 +6,7 @@
   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
   <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
   <uses-permission android:name="android.permission.CAMERA" />
-  <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+  <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
   <supports-screens
     android:anyDensity="true"
@@ -18,8 +18,8 @@
 
   <application
     android:name=".App"
-    android:allowBackup="true"
-    android:fullBackupContent="true"
+    android:allowBackup="false"
+    android:fullBackupContent="false"
     android:icon="@mipmap/ic_launcher_testnet"
     android:label="@string/app_name"
     android:supportsRtl="true"
@@ -49,17 +49,18 @@
       </intent-filter>
     </activity>
     <activity
-      android:name=".activities.CreateWalletRecoveryActivity"
+      android:name=".activities.CreateSeedActivity"
       android:launchMode="singleTop"
       android:parentActivityName=".activities.StartupActivity"
       android:screenOrientation="portrait"
       android:theme="@style/PrimaryBgTheme" />
     <activity
-      android:name=".activities.ImportWalletActivity"
+      android:name=".activities.RestoreSeedActivity"
       android:noHistory="true"
       android:parentActivityName=".activities.StartupActivity"
       android:screenOrientation="portrait"
-      android:theme="@style/PrimaryBgTheme" />
+      android:theme="@style/PrimaryBgTheme"
+      android:windowSoftInputMode="stateHidden" />
     <activity
       android:name=".activities.HomeActivity"
       android:label="@string/app_name"
@@ -71,7 +72,8 @@
       android:launchMode="singleTop"
       android:parentActivityName=".activities.HomeActivity"
       android:stateNotNeeded="true"
-      android:theme="@style/CustomDialog" />
+      android:theme="@style/CustomDialog"
+      android:windowSoftInputMode="adjustResize" />
     <activity
       android:name=".activities.ScanActivity"
       android:noHistory="true"
@@ -131,22 +133,67 @@
       android:name=".activities.SecuritySettingsActivity"
       android:label="@string/menu_settings_security"
       android:parentActivityName=".activities.PreferencesActivity"
-      android:screenOrientation="portrait">
-      <intent-filter>
-        <action android:name="fr.acinq.eclair.wallet.activities.SecuritySettingsActivity" />
-        <category android:name="android.intent.category.DEFAULT" />
-      </intent-filter>
-    </activity>
+      android:screenOrientation="portrait" />
+    <activity
+      android:name=".activities.ChannelsBackupSettingsActivity"
+      android:label="@string/menu_settings_channels_backup"
+      android:parentActivityName=".activities.PreferencesActivity"
+      android:screenOrientation="portrait" />
+    <activity
+      android:name=".activities.SetupChannelsBackupActivity"
+      android:label="@string/menu_settings_channels_backup"
+      android:parentActivityName=".activities.PreferencesActivity"
+      android:screenOrientation="portrait" />
+    <activity
+      android:name=".activities.RestoreChannelsBackupActivity"
+      android:label="@string/menu_settings_channels_restore"
+      android:parentActivityName=".activities.StartupActivity"
+      android:screenOrientation="portrait" />
     <activity
       android:name=".activities.ChannelRawDataActivity"
       android:label="@string/channelrawdata_name"
       android:parentActivityName=".activities.ChannelDetailsActivity"
       android:screenOrientation="portrait" />
+    <activity
+      android:name=".activities.LogsSettingsActivity"
+      android:label="@string/menu_settings_logging"
+      android:parentActivityName=".activities.PreferencesActivity"
+      android:screenOrientation="portrait"
+      android:windowSoftInputMode="stateHidden" />
+    <activity
+      android:name=".activities.OpenConnectionActivity"
+      android:label=""
+      android:launchMode="singleTop"
+      android:parentActivityName=".activities.OpenChannelActivity"
+      android:stateNotNeeded="true"
+      android:theme="@style/CustomDialog" />
+
+    <!-- providers -->
+    <provider
+      android:name="android.support.v4.content.FileProvider"
+      android:authorities="${applicationId}.provider"
+      android:exported="false"
+      android:grantUriPermissions="true">
+      <meta-data
+        android:name="android.support.FILE_PROVIDER_PATHS"
+        android:resource="@xml/provider_paths" />
+    </provider>
+
+    <!-- broadcast receivers -->
+    <receiver
+      android:name=".services.NetworkSyncReceiver"
+      android:enabled="true"
+      android:exported="false">
+      <intent-filter>
+        <action android:name="android.intent.action.BOOT_COMPLETED" />
+      </intent-filter>
+    </receiver>
     <receiver android:name=".utils.StartNotificationReminder">
       <intent-filter>
         <action android:name="android.intent.action.BOOT_COMPLETED"/>
       </intent-filter>
     </receiver>
+
   </application>
 
 </manifest>

@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  ~ Copyright 2018 ACINQ SAS
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+  <data>
+
+    <import type="android.view.View" />
+
+    <import type="fr.acinq.eclair.wallet.BuildConfig" />
+
+  </data>
+
+  <ScrollView
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/primary"
+    android:clipToPadding="false"
+    android:fillViewport="true">
+
+    <LinearLayout
+      android:id="@+id/transitions_layout"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:gravity="start|center"
+      android:orientation="vertical"
+      android:paddingBottom="@dimen/space_xl"
+      android:paddingEnd="@dimen/space_lg"
+      android:paddingStart="@dimen/space_lg"
+      android:paddingTop="@dimen/space_xl">
+
+      <TextView
+        android:id="@+id/title"
+        style="@style/TitleCapsIcon"
+        android:layout_marginBottom="@dimen/space_sm"
+        android:drawableStart="@drawable/ic_key_white_24dp"
+        android:text="@string/createwallet_check_title" />
+
+      <TextView
+        android:id="@+id/check_question"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/space_lg"
+        android:text="@string/createwallet_check_instructions" />
+
+      <GridLayout
+        android:id="@+id/input_grid"
+        android:layout_width="180dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:columnCount="2">
+
+        <TextView
+          android:id="@+id/check_input_1_hint"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:drawableEnd="@drawable/ic_arrow_right_primary_light_16dp"
+          android:drawablePadding="@dimen/space_xxs"
+          android:gravity="start|center"
+          android:text="@string/createwallet_check_input_hint"
+          android:textAllCaps="true"
+          android:textColor="@color/primary_light_x3"
+          android:textSize="12sp" />
+
+        <android.support.design.widget.TextInputEditText
+          android:id="@+id/check_input_1"
+          android:layout_width="0dp"
+          android:layout_height="wrap_content"
+          android:layout_gravity="fill_horizontal"
+          android:layout_marginBottom="@dimen/space_md"
+          android:backgroundTint="@color/primary_light_x3"
+          android:digits="abcdefghijklmnopqrstuvwxyz "
+          android:inputType="text"
+          android:textColor="@color/white"
+          android:textSize="14sp" />
+
+        <TextView
+          android:id="@+id/check_input_2_hint"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:drawableEnd="@drawable/ic_arrow_right_primary_light_16dp"
+          android:drawablePadding="@dimen/space_xxs"
+          android:gravity="start|center"
+          android:text="@string/createwallet_check_input_hint"
+          android:textAllCaps="true"
+          android:textColor="@color/primary_light_x3"
+          android:textSize="12sp" />
+
+        <android.support.design.widget.TextInputEditText
+          android:id="@+id/check_input_2"
+          android:layout_width="0dp"
+          android:layout_height="wrap_content"
+          android:layout_gravity="fill_horizontal"
+          android:layout_marginBottom="@dimen/space_md"
+          android:backgroundTint="@color/primary_light_x3"
+          android:digits="abcdefghijklmnopqrstuvwxyz "
+          android:inputType="text"
+          android:textColor="@color/white"
+          android:textSize="14sp" />
+
+        <TextView
+          android:id="@+id/check_input_3_hint"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:drawableEnd="@drawable/ic_arrow_right_primary_light_16dp"
+          android:drawablePadding="@dimen/space_xxs"
+          android:gravity="start|center"
+          android:text="@string/createwallet_check_input_hint"
+          android:textAllCaps="true"
+          android:textColor="@color/primary_light_x3"
+          android:textSize="12sp" />
+
+        <android.support.design.widget.TextInputEditText
+          android:id="@+id/check_input_3"
+          android:layout_width="0dp"
+          android:layout_height="wrap_content"
+          android:layout_gravity="fill_horizontal"
+          android:backgroundTint="@color/primary_light_x3"
+          android:digits="abcdefghijklmnopqrstuvwxyz "
+          android:inputType="text"
+          android:textColor="@color/white"
+          android:textSize="14sp" />
+      </GridLayout>
+
+      <TextView
+        android:id="@+id/verification_error"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_lg"
+        android:background="@drawable/rounded_corner_primary_light_x1"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="start|center"
+        android:onClick="goToInit"
+        android:padding="@dimen/space_md"
+        android:text="@string/createwallet_check_failed"
+        android:visibility="gone" />
+
+      <Button
+        android:id="@+id/next"
+        style="@style/EndButtonStyle"
+        android:layout_marginTop="@dimen/space_lg"
+        android:onClick="verifyUserBackup"
+        android:text="@string/btn_next" />
+
+      <Button
+        style="@style/EndButtonStyle"
+        android:enabled="@{BuildConfig.CHAIN.equals(`testnet`)}"
+        android:onClick="goToPassphraseStep"
+        android:text="@string/createwallet_check_skip"
+        android:textColor="@color/yellow"
+        android:visibility="@{BuildConfig.CHAIN.equals(`testnet`) ? View.VISIBLE : View.GONE}" />
+
+    </LinearLayout>
+  </ScrollView>
+</layout>

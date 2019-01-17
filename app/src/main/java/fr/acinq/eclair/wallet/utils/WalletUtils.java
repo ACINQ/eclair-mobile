@@ -16,41 +16,65 @@
 
 package fr.acinq.eclair.wallet.utils;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.Environment;
 import android.preference.PreferenceManager;
-import android.util.Log;
+import android.provider.Settings;
+import android.text.Html;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
-
+import androidx.work.Data;
+import androidx.work.OneTimeWorkRequest;
+import ch.qos.logback.classic.*;
+import ch.qos.logback.classic.android.LogcatAppender;
+import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.Appender;
+import ch.qos.logback.core.rolling.FixedWindowRollingPolicy;
+import ch.qos.logback.core.rolling.RollingFileAppender;
+import ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy;
 import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.google.common.io.Files;
+import com.papertrailapp.logback.Syslog4jAppender;
 import com.tozny.crypto.android.AesCbcWithIntegrity;
-
-import org.json.JSONObject;
-
-import java.io.File;
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.text.NumberFormat;
-
 import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.bitcoin.Block;
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.CoinUnit;
+import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.BuildConfig;
+import fr.acinq.eclair.wallet.R;
+import fr.acinq.eclair.wallet.services.ChannelsBackupWorker;
+import org.json.JSONObject;
+import org.productivity.java.syslog4j.impl.net.tcp.ssl.SSLTCPNetSyslogConfig;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.security.GeneralSecurityException;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 public class WalletUtils {
+
+  private final static org.slf4j.Logger log = LoggerFactory.getLogger(WalletUtils.class);
+
   public final static String ACINQ_NODE = "03933884aaf1d6b108397e5efe5c86bcf2d8ca8d2f700eda99db9214fc2712b134@endurance.acinq.co:9735";
   private final static String PRICE_RATE_API = "https://blockchain.info/fr/ticker";
   public final static String UNENCRYPTED_SEED_NAME = "seed.dat";
   public final static String SEED_NAME = "enc_seed.dat";
-  private static final String TAG = "WalletUtils";
   private final static String SEED_NAME_TEMP = "enc_seed_temp.dat";
   private static NumberFormat fiatFormat;
 
@@ -59,7 +83,7 @@ public class WalletUtils {
     try {
       rate = (float) o.getJSONObject(fiatCode).getDouble("last");
     } catch (Exception e) {
-      Log.d(TAG, "could not read " + fiatCode + " from price api response");
+      log.debug("could not read {} from price api response", fiatCode);
     }
     App.RATES.put(fiatCode, rate);
     editor.putFloat(Constants.SETTING_LAST_KNOWN_RATE_BTC_ + fiatCode, rate);
@@ -68,17 +92,20 @@ public class WalletUtils {
   private static void retrieveRateFromPrefs(final SharedPreferences prefs, final String fiatCode) {
     App.RATES.put(fiatCode, prefs.getFloat(Constants.SETTING_LAST_KNOWN_RATE_BTC_ + fiatCode, -1.0f));
   }
+
   public static void retrieveRatesFromPrefs(final SharedPreferences prefs) {
     retrieveRateFromPrefs(prefs, "AUD");
     retrieveRateFromPrefs(prefs, "BRL");
+    retrieveRateFromPrefs(prefs, "CAD");
+    retrieveRateFromPrefs(prefs, "CHF");
     retrieveRateFromPrefs(prefs, "CLP");
-    retrieveRateFromPrefs(prefs, "USD");
     retrieveRateFromPrefs(prefs, "CNY");
     retrieveRateFromPrefs(prefs, "DKK");
     retrieveRateFromPrefs(prefs, "EUR");
     retrieveRateFromPrefs(prefs, "GBP");
     retrieveRateFromPrefs(prefs, "HKD");
     retrieveRateFromPrefs(prefs, "INR");
+    retrieveRateFromPrefs(prefs, "ISK");
     retrieveRateFromPrefs(prefs, "JPY");
     retrieveRateFromPrefs(prefs, "KRW");
     retrieveRateFromPrefs(prefs, "NZD");
@@ -97,6 +124,7 @@ public class WalletUtils {
         final SharedPreferences.Editor editor = prefs.edit();
         saveCurrency(editor, response, "AUD"); // australian dollar
         saveCurrency(editor, response, "BRL"); // br real
+        saveCurrency(editor, response, "CAD"); // canadian dollar
         saveCurrency(editor, response, "CHF"); // swiss franc
         saveCurrency(editor, response, "CLP"); // chilean pesos
         saveCurrency(editor, response, "CNY"); // yuan
@@ -105,6 +133,7 @@ public class WalletUtils {
         saveCurrency(editor, response, "GBP"); // pound
         saveCurrency(editor, response, "HKD"); // hong kong dollar
         saveCurrency(editor, response, "INR"); // indian rupee
+        saveCurrency(editor, response, "ISK"); // icelandic kròna
         saveCurrency(editor, response, "JPY"); // yen
         saveCurrency(editor, response, "KRW"); // won
         saveCurrency(editor, response, "NZD"); // nz dollar
@@ -117,7 +146,7 @@ public class WalletUtils {
         saveCurrency(editor, response, "USD"); // usd
         editor.apply();
       }, (error) -> {
-      Log.d(TAG, "error when querying price api api with cause " + error.getMessage());
+      log.error("error when querying price api, with cause {}", error.getMessage());
     });
   }
 
@@ -129,7 +158,7 @@ public class WalletUtils {
         Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri + txId));
         v.getContext().startActivity(browserIntent);
       } catch (Throwable t) {
-        Log.w(WalletUtils.class.getSimpleName(), "Could not open explorer with uri=" + uri + txId);
+        log.warn("could not open explorer with uri={}{}", uri, txId);
         Toast.makeText(v.getContext(), "Could not open explorer", Toast.LENGTH_SHORT).show();
       }
     };
@@ -201,7 +230,7 @@ public class WalletUtils {
    * Converts bitcoin amount to the fiat currency preferred by the user.
    *
    * @param amountMsat amount in milli satoshis
-   * @param fiatCode fiat currency code (USD, EUR, RUB, JPY, ...)
+   * @param fiatCode   fiat currency code (USD, EUR, RUB, JPY, ...)
    * @return localized formatted string of the converted amount
    */
   public static String convertMsatToFiat(final long amountMsat, final String fiatCode) {
@@ -218,6 +247,25 @@ public class WalletUtils {
     return fr.acinq.eclair.CoinUtils.getUnitFromString(prefs.getString(Constants.SETTING_BTC_UNIT, Constants.BTC_CODE));
   }
 
+  private final static String decSep = String.valueOf(new DecimalFormat().getDecimalFormatSymbols().getDecimalSeparator());
+
+  /**
+   * Prints a stringified amount in a text view. Decimal part if present is smaller than int part.
+   */
+  @SuppressLint("SetTextI18n")
+  public static void printAmountInView(final TextView view, final String amount, final String direction) {
+    final String[] amountParts = amount.split(Pattern.quote(decSep));
+    if (amountParts.length == 2) {
+      view.setText(Html.fromHtml(view.getContext().getString(R.string.pretty_amount_value, direction + amountParts[0] + decSep, amountParts[1])));
+    } else {
+      view.setText(direction + amount);
+    }
+  }
+
+  public static void printAmountInView(final TextView view, final String amount) {
+    printAmountInView(view, amount, "");
+  }
+
   /**
    * Return amount as Long, in millisatoshi
    */
@@ -231,5 +279,185 @@ public class WalletUtils {
 
   public static BinaryData getChainHash() {
     return "mainnet".equals(BuildConfig.CHAIN) ? Block.LivenetGenesisBlock().hash() : Block.TestnetGenesisBlock().hash();
+  }
+
+  public static File getChainDatadir(final Context context) {
+    final File datadir = new File(context.getFilesDir(), Constants.ECLAIR_DATADIR);
+    return new File(datadir, BuildConfig.CHAIN);
+  }
+
+  public static File getNetworkDBFile(final Context context) {
+    return new File(getChainDatadir(context), Constants.NETWORK_DB_FILE);
+  }
+
+  public static File getEclairDBFile(final Context context) {
+    return new File(getChainDatadir(context), Constants.ECLAIR_DB_FILE);
+  }
+
+  public static String getEclairBackupFileName(final String seedHash) {
+    return "eclair_" + BuildConfig.CHAIN + "_" + seedHash + ".bkup";
+  }
+
+  public static OneTimeWorkRequest generateBackupRequest(final String seedHash, final BinaryData backupKey) {
+    return new OneTimeWorkRequest.Builder(ChannelsBackupWorker.class)
+      .setInputData(new Data.Builder()
+        .putString(ChannelsBackupWorker.BACKUP_NAME_INPUT, WalletUtils.getEclairBackupFileName(seedHash))
+        .putString(ChannelsBackupWorker.BACKUP_KEY_INPUT, backupKey.toString())
+        .build())
+      .setInitialDelay(2, TimeUnit.SECONDS)
+      .addTag("ChannelsBackupWork")
+      .build();
+  }
+
+  public static String toAscii(final BinaryData b) {
+    final byte[] bytes = new byte[b.length()];
+    for (int i = 0; i < b.length(); i++) {
+      bytes[i] = (Byte) b.data().apply(i);
+    }
+    return new String(bytes, StandardCharsets.US_ASCII);
+  }
+
+  public static String getDeviceId(final Context context) {
+    return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+  }
+
+  public static void setupLogging(final Context context) {
+    final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+    switch (prefs.getString(Constants.SETTING_LOGS_OUTPUT, Constants.LOGS_OUTPUT_NONE)) {
+      case Constants.LOGS_OUTPUT_LOCAL:
+        setupLocalLogging(context);
+        break;
+      case Constants.LOGS_OUTPUT_PAPERTRAIL:
+        setupPapertrailLogging(prefs.getString(Constants.SETTING_PAPERTRAIL_HOST, ""),
+          prefs.getInt(Constants.SETTING_PAPERTRAIL_PORT, 12345));
+        break;
+      default:
+        if (BuildConfig.DEBUG) {
+          setupLogcatLogging();
+        } else {
+          disableLogging();
+        }
+        break;
+    }
+  }
+
+  public static void disableLogging() {
+    final LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+    lc.reset();
+    lc.stop();
+  }
+
+  private static void setupLogcatLogging() {
+    final LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+    lc.reset();
+
+    final PatternLayoutEncoder tagEncoder = new PatternLayoutEncoder();
+    tagEncoder.setContext(lc);
+    tagEncoder.setPattern("%logger{12}");
+    tagEncoder.start();
+
+    final PatternLayoutEncoder encoder = new PatternLayoutEncoder();
+    encoder.setContext(lc);
+    encoder.setPattern("%X{nodeId}%X{channelId} - %msg%ex{24}%n");
+    encoder.start();
+
+    final LogcatAppender logcatAppender = new LogcatAppender();
+    logcatAppender.setContext(lc);
+    logcatAppender.setEncoder(encoder);
+    logcatAppender.setTagEncoder(tagEncoder);
+    logcatAppender.start();
+
+    useAppender(lc, logcatAppender);
+  }
+
+  /**
+   * Sets up an index-based rolling policy with a max file size of 4MB.
+   */
+  public static void setupLocalLogging(final Context context) throws ExternalStorageNotAvailableException {
+    if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+      throw new ExternalStorageNotAvailableException();
+    }
+
+    final LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+    lc.reset();
+
+    final File logsDir = context.getExternalFilesDir(Constants.LOGS_DIR);
+    if (!logsDir.exists()) logsDir.mkdirs();
+
+    final PatternLayoutEncoder encoder = new PatternLayoutEncoder();
+    encoder.setContext(lc);
+    encoder.setPattern(Constants.ENCODER_PATTERN);
+    encoder.start();
+
+    final RollingFileAppender<ILoggingEvent> rollingFileAppender = new RollingFileAppender<>();
+    rollingFileAppender.setContext(lc);
+    rollingFileAppender.setFile(new File(logsDir, Constants.CURRENT_LOG_FILE).getAbsolutePath());
+
+    final FixedWindowRollingPolicy rollingPolicy = new FixedWindowRollingPolicy();
+    rollingPolicy.setContext(lc);
+    rollingPolicy.setParent(rollingFileAppender);
+    rollingPolicy.setMinIndex(1);
+    rollingPolicy.setMaxIndex(2);
+    rollingPolicy.setFileNamePattern(new File(logsDir, Constants.ARCHIVED_LOG_FILE).getAbsolutePath());
+    rollingPolicy.start();
+
+    final SizeBasedTriggeringPolicy<ILoggingEvent> triggeringPolicy = new SizeBasedTriggeringPolicy<>();
+    triggeringPolicy.setContext(lc);
+    triggeringPolicy.setMaxFileSize("4mb");
+    triggeringPolicy.start();
+
+    rollingFileAppender.setEncoder(encoder);
+    rollingFileAppender.setRollingPolicy(rollingPolicy);
+    rollingFileAppender.setTriggeringPolicy(triggeringPolicy);
+    rollingFileAppender.start();
+
+    useAppender(lc, rollingFileAppender);
+  }
+
+  /**
+   * Sets up an index-based rolling policy with a max file size of 4MB.
+   */
+  public static void setupPapertrailLogging(final String host, final int port) {
+    final LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+    lc.reset();
+
+    final PatternLayout patternLayout = new PatternLayout();
+    patternLayout.setContext(lc);
+    patternLayout.setPattern(Constants.ENCODER_PATTERN);
+    patternLayout.start();
+
+    final SSLTCPNetSyslogConfig syslogConfig = new SSLTCPNetSyslogConfig();
+    syslogConfig.setHost(host);
+    syslogConfig.setPort(port);
+    syslogConfig.setIdent("eclair-wallet");
+    syslogConfig.setSendLocalName(false);
+    syslogConfig.setSendLocalTimestamp(false);
+    syslogConfig.setMaxMessageLength(128000);
+
+    final Syslog4jAppender syslogAppender = new Syslog4jAppender();
+    syslogAppender.setContext(lc);
+    syslogAppender.setName("syslog");
+    syslogAppender.setLayout(patternLayout);
+    syslogAppender.setSyslogConfig(syslogConfig);
+    syslogAppender.start();
+
+    final AsyncAppender asyncAppender = new AsyncAppender();
+    asyncAppender.setContext(lc);
+    asyncAppender.addAppender(syslogAppender);
+    asyncAppender.start();
+
+    useAppender(lc, asyncAppender);
+  }
+
+  private static void useAppender(final LoggerContext lc, final Appender<ILoggingEvent> appender) {
+    if (BuildConfig.DEBUG) {
+      lc.getLogger("io.netty").setLevel(Level.DEBUG);
+    } else {
+      lc.getLogger("io.netty").setLevel(Level.WARN);
+      lc.getLogger("fr.acinq.eclair.blockchain.electrum").setLevel(Level.WARN);
+    }
+    final Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+    root.setLevel(Level.INFO);
+    root.addAppender(appender);
   }
 }

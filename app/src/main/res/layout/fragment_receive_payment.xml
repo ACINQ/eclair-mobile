@@ -92,7 +92,7 @@
         android:id="@+id/onchain_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/space_xxxl"
+        android:layout_marginBottom="@dimen/space_xxl"
         android:background="@color/white"
         android:orientation="vertical"
         android:paddingBottom="@dimen/space_lg"
@@ -113,14 +113,14 @@
           android:visibility="visible" />
 
         <TextView
-          style="@style/LabelTextViewStyle"
+          style="@style/TitleCapsGrey"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:text="@string/receivepayment_onchain_address_title" />
 
         <TextView
           android:id="@+id/onchain_address"
-          style="@style/ValueTextViewStyle"
+          style="@style/DataRowText"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:clickable="true"
@@ -131,7 +131,7 @@
       <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/space_xxxl"
+        android:layout_marginBottom="@dimen/space_xxl"
         android:background="@color/white"
         android:orientation="vertical"
         android:visibility="@{paymentType == 1 &amp;&amp; !isLightningInboundEnabled ? View.VISIBLE : View.GONE}">
@@ -147,7 +147,7 @@
       <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/space_xxxl"
+        android:layout_marginBottom="@dimen/space_xxl"
         android:background="@color/white"
         android:orientation="vertical"
         android:visibility="@{paymentType == 1 &amp;&amp; isLightningInboundEnabled &amp;&amp; !hasNormalChannels ? View.VISIBLE : View.GONE}">
@@ -164,7 +164,7 @@
         android:id="@+id/lightning_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/space_xxxl"
+        android:layout_marginBottom="@dimen/space_xxl"
         android:background="@color/white"
         android:orientation="vertical"
         android:visibility="@{paymentType == 1 &amp;&amp; isLightningInboundEnabled &amp;&amp; hasNormalChannels ? View.VISIBLE : View.GONE}">
@@ -184,14 +184,14 @@
           android:visibility="visible" />
 
         <TextView
-          style="@style/LabelTextViewStyle"
+          style="@style/TitleCapsGrey"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:text="@string/receivepayment_lightning_pr_title" />
 
         <TextView
           android:id="@+id/lightning_pr"
-          style="@style/ValueTextViewStyle"
+          style="@style/DataRowText"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:layout_marginBottom="@dimen/space_md"
@@ -219,14 +219,14 @@
           android:paddingTop="@dimen/space_md">
 
           <TextView
-            style="@style/LabelTextViewStyle"
+            style="@style/TitleCapsGrey"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/receivepayment_lightning_description_title" />
 
           <TextView
             android:id="@+id/lightning_description"
-            style="@style/NormalTextViewStyle"
+            style="@style/DataRowText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/space_md"
@@ -235,14 +235,14 @@
             android:text="@string/receivepayment_lightning_description_notset" />
 
           <TextView
-            style="@style/LabelTextViewStyle"
+            style="@style/TitleCapsGrey"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/receivepayment_lightning_amount_title" />
 
           <TextView
             android:id="@+id/lightning_amount"
-            style="@style/NormalTextViewStyle"
+            style="@style/DataRowText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/receivepayment_lightning_amount_notset" />

@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright 2018 ACINQ SAS
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools">
+
+  <data>
+
+    <import type="android.view.View" />
+
+    <variable
+      name="googleDriveAvailable"
+      type="boolean" />
+
+    <variable
+      name="accessDenied"
+      type="boolean" />
+
+  </data>
+
+  <ScrollView
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    tools:context=".activities.ChannelsBackupSettingsActivity">
+
+    <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:orientation="vertical">
+
+      <!-- Custom toolbar -->
+      <include layout="@layout/toolbar" />
+
+      <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:drawablePadding="@dimen/space_sm"
+        android:drawableStart="@drawable/ic_warning_tri"
+        android:padding="@dimen/space_md"
+        android:text="@string/backup_drive_unavailable"
+        android:visibility="@{!googleDriveAvailable ? View.VISIBLE : View.GONE}" />
+
+      <RelativeLayout
+        style="@style/ClickableLayout"
+        android:onClick="switchAccess"
+        android:padding="@dimen/space_md"
+        android:visibility="@{googleDriveAvailable ? View.VISIBLE : View.GONE}">
+
+        <LinearLayout
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_alignParentStart="true"
+          android:layout_marginEnd="@dimen/space_md"
+          android:layout_toStartOf="@+id/switch_button"
+          android:orientation="vertical">
+
+          <TextView
+            android:id="@+id/switch_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/backup_switch_button"
+            android:textSize="16sp" />
+
+          <TextView
+            android:id="@+id/switch_desc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/setupbackup_subtitle_1"
+            android:textColor="@color/grey_2" />
+
+        </LinearLayout>
+
+        <Switch
+          android:id="@+id/switch_button"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_alignParentEnd="true"
+          android:clickable="false"
+          android:focusable="false" />
+
+      </RelativeLayout>
+
+      <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="@{!googleDriveAvailable || accessDenied ? View.GONE : View.VISIBLE}">
+
+        <TextView
+          android:id="@+id/existing_backup_state"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_marginBottom="@dimen/space_xxs"
+          android:paddingEnd="@dimen/space_md"
+          android:paddingStart="@dimen/space_md"
+          android:text="@string/backup_drive_retrieving_meta"
+          android:textColor="@color/grey_2"
+          android:textSize="12sp"
+          android:textStyle="italic" />
+
+        <TextView
+          android:id="@+id/access_account"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_marginBottom="@dimen/space_md"
+          android:paddingEnd="@dimen/space_md"
+          android:paddingStart="@dimen/space_md"
+          android:textColor="@color/grey_2"
+          android:textSize="12sp"
+          android:textStyle="italic" />
+
+      </LinearLayout>
+
+      <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/grey_0" />
+
+    </LinearLayout>
+  </ScrollView>
+</layout>

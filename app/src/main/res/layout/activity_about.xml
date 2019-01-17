@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright 2018 ACINQ SAS
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,67 +14,80 @@
   ~ limitations under the License.
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:tools="http://schemas.android.com/tools"
-  android:layout_width="match_parent"
-  android:layout_height="match_parent"
-  android:orientation="vertical"
-  tools:context="fr.acinq.eclair.wallet.activities.AboutActivity">
 
-  <include layout="@layout/toolbar" />
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools">
 
-  <ScrollView
+
+  <LinearLayout
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
 
-    <LinearLayout
+    <include layout="@layout/toolbar" />
+
+    <ScrollView
       android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:orientation="vertical">
+      android:layout_height="match_parent"
+      android:fillViewport="true"
+      tools:context="fr.acinq.eclair.wallet.activities.AboutActivity">
 
-      <fr.acinq.eclair.wallet.customviews.TitleBar
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/about_general_title"/>
+      <LinearLayout style="@style/DataRowContainer">
 
-      <TextView
-        android:id="@+id/about_general"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/about_general_text"
-        android:textSize="12sp"
-        android:autoLink="web"
-        android:padding="@dimen/space_md" />
+        <TextView
+          style="@style/TitleBar"
+          android:text="@string/about_general_title" />
 
-      <fr.acinq.eclair.wallet.customviews.TitleBar
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/about_limitations_title"/>
+        <TextView
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:padding="@dimen/space_md"
+          android:text="@string/about_general_text" />
 
-      <TextView
-        android:id="@+id/about_limitations"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/about_limitations_text"
-        android:textSize="12sp"
-        android:padding="@dimen/space_md" />
+        <View
+          style="@style/HSeparator"
+          android:layout_marginStart="@dimen/space_md" />
 
-      <fr.acinq.eclair.wallet.customviews.TitleBar
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/about_acinq_title" />
+        <TextView
+          android:id="@+id/faq"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:padding="@dimen/space_md" />
 
-      <TextView
-        android:id="@+id/about_acinq"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/about_acinq_text"
-        android:textSize="12sp"
-        android:autoLink="web"
-        android:padding="@dimen/space_md" />
+        <View
+          style="@style/HSeparator"
+          android:layout_width="match_parent" />
 
-    </LinearLayout>
+        <fr.acinq.eclair.wallet.customviews.DataRow
+          android:id="@+id/version"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          app:label="@string/about_version" />
 
-  </ScrollView>
+        <TextView
+          style="@style/TitleBar"
+          android:text="@string/about_limitations_title" />
 
-</LinearLayout>
+        <TextView
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:background="@drawable/rounded_corner_white_bottom"
+          android:padding="@dimen/space_md"
+          android:text="@string/about_limitations_text" />
+
+        <TextView
+          style="@style/TitleBar"
+          android:text="@string/about_acinq_title" />
+
+        <TextView
+          android:id="@+id/about"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:autoLink="web"
+          android:padding="@dimen/space_md" />
+
+      </LinearLayout>
+    </ScrollView>
+  </LinearLayout>
+</layout>

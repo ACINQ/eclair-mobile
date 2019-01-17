@@ -29,12 +29,10 @@ import java.util.Map;
 
 import javax.annotation.Nullable;
 
-import fr.acinq.bitcoin.BinaryData;
-import fr.acinq.bitcoin.Block;
 import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.package$;
-import fr.acinq.eclair.wallet.BuildConfig;
+import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.wallet.utils.BitcoinURIParseException;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
@@ -44,9 +42,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 /**
  * This file is a modified version of the BitcoinURI.java file written by the bitcoinj developers.
  * See: https://github.com/bitcoinj/bitcoinj/blob/master/core/src/main/java/org/bitcoinj/uri/BitcoinURI.java
- *
+ * <p>
  * ----
- *
+ * <p>
  * <p>Provides a standard implementation of a Bitcoin URI with support for the following:</p>
  * <p>
  * <ul>
@@ -91,6 +89,7 @@ public class BitcoinURI {
   public static final String FIELD_LABEL = "label";
   public static final String FIELD_AMOUNT = "amount";
   public static final String FIELD_ADDRESS = "address";
+  public static final String FIELD_LIGHTNING = "lightning";
   public static final String FIELD_PAYMENT_REQUEST_URL = "r";
 
   /**
@@ -134,9 +133,9 @@ public class BitcoinURI {
     String blockchainInfoScheme = scheme + "://";
     String correctScheme = scheme + ":";
     String schemeSpecificPart;
-    if (input.startsWith(blockchainInfoScheme)) {
+    if (input.toLowerCase().startsWith(blockchainInfoScheme)) {
       schemeSpecificPart = input.substring(blockchainInfoScheme.length());
-    } else if (input.startsWith(correctScheme)) {
+    } else if (input.toLowerCase().startsWith(correctScheme)) {
       schemeSpecificPart = input.substring(correctScheme.length());
     } else {
       throw new BitcoinURIParseException("Unsupported URI scheme: " + uri.getScheme());
@@ -195,6 +194,8 @@ public class BitcoinURI {
         if (amount.toLong() < 0)
           throw new ArithmeticException("Negative coins specified");
         putWithValidation(FIELD_AMOUNT, amount);
+      } else if (FIELD_LIGHTNING.equals(nameToken)) {
+        putWithValidation(FIELD_LIGHTNING, PaymentRequest.read(valueToken));
       } else {
         if (nameToken.startsWith("req-")) {
           // A required parameter that we do not know about.
@@ -259,6 +260,13 @@ public class BitcoinURI {
    */
   public String getMessage() {
     return (String) parameterMap.get(FIELD_MESSAGE);
+  }
+
+  /**
+   * @return The lightning invoice from the URI
+   */
+  public PaymentRequest getLightningPaymentRequest() {
+    return (PaymentRequest) parameterMap.get(FIELD_LIGHTNING);
   }
 
   /**

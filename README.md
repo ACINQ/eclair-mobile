@@ -1,8 +1,8 @@
-# Eclair Wallet
+# Eclair Mobile
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Gitter chat](https://img.shields.io/badge/chat-on%20gitter-rose.svg)](https://gitter.im/ACINQ/eclair)
 
-Eclair Wallet is a next generation, Lightning-ready Bitcoin wallet. It can be used as a regular Bitcoin wallet, and can also connect to the Lightning Network for cheap and instant payments.
+Eclair Mobile is a next generation, Lightning-ready Bitcoin wallet. It can be used as a regular Bitcoin wallet, and can also connect to the Lightning Network for cheap and instant payments.
 
 This software is based upon [eclair](https://github.com/ACINQ/eclair), and follows the Lightning Network standard.
 
@@ -69,4 +69,4 @@ The wallet is available on [Google Play](https://play.google.com/store/apps/deta
 
    Follow the steps [here](https://github.com/ACINQ/eclair/blob/android/BUILD.md) to build the eclair-core library.
 
-3. Open the Eclair Wallet project with Android studio. You should now be able to install it on your phone/on an emulator.
+3. Open the Eclair Mobile project with Android studio. You should now be able to install it on your phone/on an emulator.

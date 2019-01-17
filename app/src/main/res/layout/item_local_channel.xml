@@ -16,92 +16,100 @@
   ~ limitations under the License.
   -->
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
   android:layout_width="match_parent"
   android:layout_height="wrap_content"
-  android:background="?android:attr/selectableItemBackground"
-  android:minHeight="@dimen/item_height">
-
-  <LinearLayout
-    android:id="@+id/amount_view"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_alignParentStart="true"
-    android:layout_centerVertical="true"
-    android:orientation="horizontal">
-
-    <TextView
-      android:id="@+id/channelitem_balance_value"
-      android:layout_width="100dp"
-      android:layout_height="wrap_content"
-      android:layout_marginStart="10dp"
-      android:ellipsize="end"
-      android:maxLines="1"
-      android:text="@string/unknown"
-      android:textAlignment="viewEnd"
-      android:textSize="16sp" />
-
-    <TextView
-      android:id="@+id/channelitem_balance_unit"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_marginStart="4dp"
-      android:text="@string/unknown"
-      android:textColor="@color/grey_2"
-      android:textSize="10sp" />
-
-  </LinearLayout>
+  android:layout_marginStart="@dimen/space_sm"
+  android:layout_marginEnd="@dimen/space_sm"
+  android:layout_marginBottom="@dimen/space_xxs"
+  android:background="@drawable/channel_item_bg"
+  android:foreground="?android:attr/selectableItemBackground"
+  android:minHeight="@dimen/channel_height"
+  android:padding="@dimen/space_sm">
 
   <TextView
-    android:id="@+id/channelitem_node"
-    android:layout_width="wrap_content"
+    android:id="@+id/channelitem_balance_value"
+    android:layout_width="100dp"
     android:layout_height="wrap_content"
-    android:layout_alignParentEnd="true"
-    android:layout_alignParentTop="true"
-    android:layout_marginEnd="8dp"
-    android:layout_marginStart="16dp"
-    android:layout_marginTop="8dp"
-    android:layout_toEndOf="@+id/amount_view"
-    android:ellipsize="end"
-    android:singleLine="true"
-    android:text="@string/unknown"
-    android:textSize="12sp" />
-
-  <TextView
-    android:id="@+id/channelitem_state"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_alignStart="@+id/channelitem_node"
-    android:layout_below="@+id/channelitem_node"
-    android:layout_marginEnd="8dp"
     android:ellipsize="end"
     android:maxLines="1"
     android:text="@string/unknown"
-    android:textColor="@color/red_faded"
-    android:textSize="10sp" />
+    android:textAlignment="viewEnd"
+    android:textSize="16sp"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent" />
 
-  <LinearLayout
-    android:id="@+id/additional_info"
+  <TextView
+    android:id="@+id/channelitem_balance_unit"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_alignStart="@+id/channelitem_node"
-    android:layout_below="@+id/channelitem_state"
-    android:orientation="vertical"
-    android:visibility="gone">
+    android:layout_marginStart="4dp"
+    android:text="@string/unknown"
+    android:textColor="@color/grey_1"
+    android:textSize="10sp"
+    app:layout_constraintBaseline_toBaselineOf="@id/channelitem_balance_value"
+    app:layout_constraintStart_toEndOf="@id/channelitem_balance_value" />
 
-    <View
-      android:layout_width="50dp"
-      android:layout_height="1dp"
-      android:layout_marginBottom="4dp"
-      android:layout_marginTop="8dp"
-      android:background="@color/grey_0" />
+  <View
+    android:id="@+id/amount_separator"
+    android:layout_width="1dp"
+    android:layout_height="0dp"
+    android:layout_marginStart="@dimen/space_sm"
+    android:background="@color/grey_0_light_x2"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintStart_toEndOf="@+id/channelitem_balance_unit"
+    app:layout_constraintTop_toTopOf="parent" />
+
+  <LinearLayout
+    android:id="@+id/channelitem_content"
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="@dimen/space_sm"
+    android:orientation="vertical"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintHorizontal_bias="0"
+    app:layout_constraintStart_toEndOf="@+id/amount_separator"
+    app:layout_constraintTop_toTopOf="parent"
+    app:layout_constraintWidth_default="spread">
+
+    <TextView
+      android:id="@+id/channelitem_node"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:ellipsize="end"
+      android:singleLine="true"
+      android:text="@string/unknown" />
+
+    <TextView
+      android:id="@+id/channelitem_state"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="@dimen/space_xxxs"
+      android:ellipsize="end"
+      android:maxLines="1"
+      android:text="@string/unknown"
+      android:textColor="@color/red_faded"
+      android:textSize="10sp" />
+
+    <ProgressBar
+      android:id="@+id/balance_progress"
+      style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
+      android:layout_width="match_parent"
+      android:layout_height="2dp"
+      android:layout_marginTop="@dimen/space_xs"
+      android:max="100"
+      android:progress="50"
+      android:progressBackgroundTint="@color/grey_1"
+      android:progressTint="@color/blue_light_x1" />
 
     <TextView
       android:id="@+id/delayed_closing"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:layout_marginBottom="10dp"
-      android:layout_marginEnd="8dp"
+      android:layout_marginTop="@dimen/space_xxs"
       android:textColor="@color/grey_2"
       android:textSize="10sp"
       android:visibility="gone" />
@@ -110,19 +118,13 @@
       android:id="@+id/inflight_htlcs"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:layout_marginBottom="10dp"
-      android:layout_marginEnd="8dp"
+      android:layout_marginTop="@dimen/space_xxs"
       android:textColor="@color/grey_2"
       android:textSize="10sp"
       android:visibility="gone" />
+
   </LinearLayout>
 
-  <View
-    android:layout_width="match_parent"
-    android:layout_height="1dp"
-    android:layout_alignParentBottom="true"
-    android:background="@color/grey_0" />
-
-</RelativeLayout>
+</android.support.constraint.ConstraintLayout>
 
 

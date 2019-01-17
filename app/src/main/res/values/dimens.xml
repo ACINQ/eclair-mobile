@@ -16,18 +16,24 @@
 
 <resources>
 
-  <dimen name="space_xxxl">96dp</dimen>
-  <dimen name="space_xxl">64dp</dimen>
-  <dimen name="space_xl">48dp</dimen>
+  <dimen name="text_lg">16sp</dimen>
+  <dimen name="text_md">14sp</dimen>
+  <dimen name="text_sm">12sp</dimen>
+  <dimen name="text_xs">10sp</dimen>
+
+  <dimen name="space_xxl">96dp</dimen>
+  <dimen name="space_xl">64dp</dimen>
   <dimen name="space_lg">32dp</dimen>
   <dimen name="space_md">16dp</dimen>
   <dimen name="space_sm">12dp</dimen>
   <dimen name="space_xs">8dp</dimen>
   <dimen name="space_xxs">4dp</dimen>
+  <dimen name="space_xxxs">2dp</dimen>
 
   <dimen name="app_bar_height">180dp</dimen>
   <dimen name="action_bar_height">58dp</dimen>
   <dimen name="item_height">50dp</dimen>
+  <dimen name="channel_height">58dp</dimen>
 
   <dimen name="word_list_padding">4dp</dimen>
   <dimen name="title_bar_padding_sm">8dp</dimen>
@@ -37,6 +43,6 @@
 
   <dimen name="payment_title_width">45dp</dimen>
 
-  <dimen name="pin_button_size">70dp</dimen>
+  <dimen name="pin_button_size">64dp</dimen>
 
 </resources>

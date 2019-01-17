@@ -18,7 +18,6 @@ package fr.acinq.eclair.wallet;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.util.Log;
 
 import org.greenrobot.greendao.DaoException;
 import org.greenrobot.greendao.database.Database;
@@ -26,9 +25,12 @@ import org.greenrobot.greendao.query.DeleteQuery;
 import org.greenrobot.greendao.query.QueryBuilder;
 
 import java.util.Date;
+import java.util.List;
 
 import fr.acinq.eclair.wallet.models.DaoMaster;
 import fr.acinq.eclair.wallet.models.DaoSession;
+import fr.acinq.eclair.wallet.models.LocalChannel;
+import fr.acinq.eclair.wallet.models.LocalChannelDao;
 import fr.acinq.eclair.wallet.models.Payment;
 import fr.acinq.eclair.wallet.models.PaymentDao;
 import fr.acinq.eclair.wallet.models.PaymentDirection;
@@ -37,11 +39,9 @@ import fr.acinq.eclair.wallet.models.PaymentType;
 
 public class DBHelper {
 
-  private final static String TAG = "DBHelper";
   private DaoSession daoSession;
 
   public DBHelper(Context context) {
-
     DBMigrationHelper helper = new DBMigrationHelper(context, "eclair-wallet");
     Database db = helper.getWritableDb();
     daoSession = new DaoMaster(db).newSession();
@@ -115,7 +115,7 @@ public class DBHelper {
     return Math.max(receivedMsat - sentMsat, 0);
   }
 
-  void updatePaymentPaid(final Payment p, final long amountPaidMsat, final long feesMsat, final String preimage) {
+  public void updatePaymentPaid(final Payment p, final long amountPaidMsat, final long feesMsat, final String preimage) {
     p.setPreimage(preimage);
     p.setAmountPaidMsat(amountPaidMsat);
     p.setFeesPaidMsat(feesMsat);
@@ -124,15 +124,7 @@ public class DBHelper {
     insertOrUpdatePayment(p);
   }
 
-  void updatePaymentReceived(final Payment p, final long amountReceivedMsat) {
-    p.setAmountPaidMsat(amountReceivedMsat);
-    p.setStatus(PaymentStatus.PAID);
-    p.setUpdated(new Date());
-    insertOrUpdatePayment(p);
-  }
-
-  void updatePaymentFailed(final Payment p) {
-    Log.i(TAG, "update payment to failed with status=" + p.getStatus());
+  public void updatePaymentFailed(final Payment p) {
     if (p.getStatus() != PaymentStatus.PAID) {
       p.setStatus(PaymentStatus.FAILED);
       p.setUpdated(new Date());
@@ -141,12 +133,27 @@ public class DBHelper {
   }
 
   public void updatePaymentPending(final Payment p) {
-    Log.i(TAG, "update payment to pending with status=" + p.getStatus());
     if (p.getStatus() != PaymentStatus.PAID) {
       p.setStatus(PaymentStatus.PENDING);
       p.setUpdated(new Date());
       insertOrUpdatePayment(p);
     }
+  }
+
+  public void updatePaymentReceived(final Payment p, final long amountReceivedMsat) {
+    p.setAmountPaidMsat(amountReceivedMsat);
+    p.setStatus(PaymentStatus.PAID);
+    p.setUpdated(new Date());
+    insertOrUpdatePayment(p);
+  }
+
+  public void cleanUpUnknownPayments() {
+    daoSession.getPaymentDao().queryBuilder()
+      .where(PaymentDao.Properties.PaymentRequest.eq("unknown invoice"),
+        PaymentDao.Properties.Recipient.eq("unknown recipient"),
+        PaymentDao.Properties.Status.eq(PaymentStatus.PENDING))
+      .buildDelete().executeDeleteWithoutDetachingEntities();
+    daoSession.clear();
   }
 
   public void insertOrUpdatePayment(Payment p) {
@@ -173,5 +180,36 @@ public class DBHelper {
 
   public Payment getPayment(Long id) {
     return daoSession.getPaymentDao().load(id);
+  }
+
+  public LocalChannel getLocalChannel(final String channelId) {
+    QueryBuilder<LocalChannel> qb = daoSession.getLocalChannelDao().queryBuilder();
+    qb.where(LocalChannelDao.Properties.ChannelId.eq(channelId));
+    return qb.unique();
+  }
+
+  public List<LocalChannel> getInactiveChannels() {
+    final QueryBuilder<LocalChannel> qb = daoSession.getLocalChannelDao().queryBuilder();
+    qb.where(LocalChannelDao.Properties.IsActive.eq(false));
+    qb.orderDesc(LocalChannelDao.Properties.Updated);
+    return qb.list();
+  }
+
+  /**
+   * Shorthand to save local channel in DB. Channels with 0 capacity are ignored.
+   */
+  public void saveLocalChannel(final LocalChannel channel) {
+    if (channel.getCapacityMsat() > 0) {
+      channel.setUpdated(new Date());
+      daoSession.getLocalChannelDao().insertOrReplace(channel);
+    }
+  }
+
+  public void channelTerminated(final String channelId) {
+    final LocalChannel channel = getLocalChannel(channelId);
+    if (channel != null) {
+      channel.setIsActive(false);
+      saveLocalChannel(channel);
+    }
   }
 }

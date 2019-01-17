@@ -31,8 +31,6 @@
     <item name="windowActionBar">false</item>
     <item name="windowNoTitle">true</item>
     <item name="actionBarTheme">@null</item>
-
-    <item name="preferenceTheme">@style/CustomPrefsStyle</item>
   </style>
 
   <!-- theme for activity with primary color background and white text -->
@@ -50,9 +48,13 @@
     <item name="colorPrimary">@color/primary</item>
     <item name="colorPrimaryDark">@color/primary</item>
     <item name="android:statusBarColor">@color/primary</item>
+    <item name="android:windowBackground">@color/white</item>
+    <item name="android:textColor">@color/grey_4</item>
+    <item name="android:textColorSecondary">@color/grey_2</item>
   </style>
 
   <style name="ActionBar" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
+    <item name="android:windowBackground">@color/primary</item>
     <item name="android:background">@color/primary</item>
     <item name="android:displayOptions">showTitle</item>
     <item name="android:height">@dimen/action_bar_height</item>
@@ -65,6 +67,7 @@
   </style>
 
   <style name="CustomDialog" parent="@style/Theme.AppCompat.Light.Dialog">
+    <item name="colorPrimary">@color/primary</item>
     <item name="android:textColor">@color/grey_4</item>
     <item name="android:windowMinWidthMajor">85%</item>
     <item name="android:windowMinWidthMinor">85%</item>
@@ -110,40 +113,6 @@
     <item name="android:textColor">@color/grey_1</item>
   </style>
 
-  <style name="CustomPrefsStyle" parent="PreferenceThemeOverlay.v14.Material">
-    <item name="android:textSize">14sp</item>
-    <item name="preferenceFragmentCompatStyle">@style/CustomPrefsFragmentStyle</item>
-  </style>
-
-  <style name="CustomPrefsFragmentStyle" parent="@style/PreferenceFragment.Material">
-    <item name="android:divider">@drawable/prefs_divider</item>
-  </style>
-
-  <style name="LabelTextViewStyle" parent="TextAppearance.AppCompat">
-    <item name="android:textColor">@color/grey_1</item>
-    <item name="android:textSize">10sp</item>
-    <item name="android:textAllCaps">true</item>
-    <item name="android:layout_marginStart">@dimen/space_md</item>
-    <item name="android:layout_marginEnd">@dimen/space_md</item>
-    <item name="android:layout_marginBottom">@dimen/space_xxs</item>
-  </style>
-
-  <style name="NormalTextViewStyle" parent="TextAppearance.AppCompat">
-    <item name="android:textColor">@color/grey_4</item>
-    <item name="android:textSize">12sp</item>
-    <item name="android:layout_marginStart">@dimen/space_md</item>
-    <item name="android:layout_marginEnd">@dimen/space_md</item>
-  </style>
-
-  <style name="ValueTextViewStyle" parent="TextAppearance.AppCompat">
-    <item name="android:textColor">@color/grey_4</item>
-    <item name="android:textSize">12sp</item>
-    <item name="android:layout_marginStart">@dimen/space_md</item>
-    <item name="android:layout_marginEnd">@dimen/space_md</item>
-    <item name="android:fontFamily">monospace</item>
-    <item name="android:textIsSelectable">true</item>
-  </style>
-
   <style name="PinButtonStyle" parent="@style/Widget.AppCompat.Button.Borderless.Colored">
     <item name="android:fontFamily">sans-serif-light</item>
     <item name="android:layout_width">@dimen/pin_button_size</item>
@@ -157,6 +126,109 @@
 
   <style name="PinButtonCircleStyle" parent="@style/PinButtonStyle">
     <item name="android:background">@drawable/circle_pin</item>
+  </style>
+
+  <style name="ClickableLayout">
+    <item name="android:layout_width">match_parent</item>
+    <item name="android:layout_height">wrap_content</item>
+    <item name="android:gravity">center</item>
+    <item name="android:padding">@dimen/space_md</item>
+    <item name="android:clickable">true</item>
+    <item name="android:focusable">true</item>
+    <item name="android:orientation">horizontal</item>
+    <item name="android:background">@android:color/transparent</item>
+    <item name="android:foreground">?android:attr/selectableItemBackground</item>
+  </style>
+
+  <style name="ButtonStyle" parent="@style/Widget.AppCompat.Button.Borderless">
+    <item name="android:layout_width">wrap_content</item>
+    <item name="android:layout_height">wrap_content</item>
+    <item name="android:minHeight">0dp</item>
+    <item name="android:padding">@dimen/space_md</item>
+    <item name="android:background">@android:color/transparent</item>
+    <item name="android:foreground">?android:attr/selectableItemBackground</item>
+  </style>
+
+  <style name="EndButtonStyle" parent="ButtonStyle">
+    <item name="android:layout_gravity">end</item>
+  </style>
+
+  <style name="TitleCapsIcon" parent="Base.TextAppearance.AppCompat">
+    <item name="android:layout_width">wrap_content</item>
+    <item name="android:layout_height">wrap_content</item>
+    <item name="android:drawablePadding">@dimen/space_sm</item>
+    <item name="android:gravity">start|center</item>
+    <item name="android:textAllCaps">true</item>
+    <item name="android:textColor">@color/white</item>
+    <item name="android:textStyle">bold</item>
+  </style>
+
+  <style name="RoundedWhitePanel">
+    <item name="android:layout_width">wrap_content</item>
+    <item name="android:layout_height">wrap_content</item>
+    <item name="android:layout_centerInParent">true</item>
+    <item name="android:padding">@dimen/space_lg</item>
+    <item name="android:background">@drawable/rounded_corner_white</item>
+    <item name="android:textColor">@color/grey_4</item>
+  </style>
+
+  <style name="ProgressIndicator" parent="Base.TextAppearance.AppCompat">
+    <item name="android:layout_width">wrap_content</item>
+    <item name="android:layout_height">wrap_content</item>
+    <item name="android:layout_margin">@dimen/space_xxs</item>
+    <item name="android:text">@string/commons_progress_indicator</item>
+    <item name="android:textColor">@color/white</item>
+    <item name="android:textSize">18sp</item>
+  </style>
+
+  <style name="HSeparator">
+    <item name="android:layout_width">50dp</item>
+    <item name="android:layout_height">1dp</item>
+    <item name="android:background">@color/grey_0</item>
+  </style>
+
+  <style name="TitleBar" parent="TextAppearance.AppCompat">
+    <item name="android:layout_width">match_parent</item>
+    <item name="android:layout_height">wrap_content</item>
+    <item name="android:textSize">@dimen/text_sm</item>
+    <item name="android:textColor">@color/grey_2</item>
+    <item name="android:background">@color/grey_0_light_x1</item>
+    <item name="android:paddingBottom">10dp</item>
+    <item name="android:paddingEnd">@dimen/space_md</item>
+    <item name="android:paddingStart">@dimen/space_md</item>
+    <item name="android:paddingTop">@dimen/space_sm</item>
+    <item name="android:gravity">start|center</item>
+    <item name="android:drawablePadding">6dp</item>
+  </style>
+
+  <style name="RoundedTitleBar" parent="TitleBar">
+    <item name="android:background">@drawable/rounded_corner_grey_top</item>
+  </style>
+
+  <style name="DataRowContainer">
+    <item name="android:layout_width">match_parent</item>
+    <item name="android:layout_height">wrap_content</item>
+    <item name="android:orientation">vertical</item>
+    <!--<item name="android:paddingEnd">@dimen/space_xxs</item>-->
+    <!--<item name="android:paddingStart">@dimen/space_xxs</item>-->
+  </style>
+
+  <style name="TitleCapsGrey">
+    <item name="android:layout_width">match_parent</item>
+    <item name="android:layout_height">wrap_content</item>
+    <item name="android:textAllCaps">true</item>
+    <item name="android:textColor">@color/grey_1</item>
+    <item name="android:textSize">@dimen/text_xs</item>
+    <item name="android:layout_marginBottom">@dimen/space_xxs</item>
+  </style>
+
+  <style name="DataRowText">
+    <item name="android:layout_width">match_parent</item>
+    <item name="android:layout_height">wrap_content</item>
+    <item name="android:letterSpacing">0.01</item>
+    <item name="android:lineSpacingMultiplier">1.1</item>
+    <item name="android:textIsSelectable">true</item>
+    <item name="android:textSize">@dimen/text_sm</item>
   </style>
 
 </resources>

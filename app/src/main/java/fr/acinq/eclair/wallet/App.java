@@ -16,38 +16,30 @@
 
 package fr.acinq.eclair.wallet;
 
-import android.app.Application;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.os.Build;
-import android.preference.PreferenceManager;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationManagerCompat;
-import android.util.Log;
-
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
-
-import java.net.InetSocketAddress;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
-
+import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
+import akka.actor.Cancellable;
 import akka.dispatch.OnComplete;
 import akka.dispatch.OnFailure;
 import akka.pattern.Patterns;
 import akka.util.Timeout;
-import fr.acinq.bitcoin.BinaryData;
-import fr.acinq.bitcoin.MilliSatoshi;
-import fr.acinq.bitcoin.Satoshi;
-import fr.acinq.bitcoin.Transaction;
-import fr.acinq.bitcoin.package$;
+import android.app.Application;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
+import android.net.NetworkRequest;
+import android.os.Build;
+import android.preference.PreferenceManager;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
+import fr.acinq.bitcoin.*;
 import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.Globals;
 import fr.acinq.eclair.JsonSerializers$;
@@ -63,34 +55,51 @@ import fr.acinq.eclair.io.NodeURI;
 import fr.acinq.eclair.io.Peer;
 import fr.acinq.eclair.payment.PaymentLifecycle;
 import fr.acinq.eclair.payment.PaymentRequest;
+import fr.acinq.eclair.transactions.Scripts;
 import fr.acinq.eclair.wallet.activities.ChannelDetailsActivity;
-import fr.acinq.eclair.wallet.events.BitcoinPaymentFailedEvent;
-import fr.acinq.eclair.wallet.events.ChannelRawDataEvent;
-import fr.acinq.eclair.wallet.events.ClosingChannelNotificationEvent;
-import fr.acinq.eclair.wallet.events.LNNewChannelFailureEvent;
-import fr.acinq.eclair.wallet.events.NetworkChannelsCountEvent;
-import fr.acinq.eclair.wallet.events.XpubEvent;
+import fr.acinq.eclair.wallet.actors.NodeSupervisor;
+import fr.acinq.eclair.wallet.events.*;
+import fr.acinq.eclair.wallet.services.NetworkSyncReceiver;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.spongycastle.crypto.digests.SHA256Digest;
 import scala.Option;
 import scala.Symbol;
 import scala.Tuple2;
 import scala.collection.Iterable;
+import scala.collection.Iterator;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
-import scala.concurrent.duration.FiniteDuration;
 import upickle.default$;
+import fr.acinq.bitcoin.package$;
+
+import java.net.InetSocketAddress;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static fr.acinq.eclair.wallet.adapters.LocalChannelItemHolder.EXTRA_CHANNEL_ID;
 
 public class App extends Application {
 
-  public final static String TAG = "App";
   public final static Map<String, Float> RATES = new HashMap<>();
   public final ActorSystem system = ActorSystem.apply("system");
+  private final Logger log = LoggerFactory.getLogger(App.class);
   public AtomicReference<String> pin = new AtomicReference<>(null);
+  public AtomicReference<String> seedHash = new AtomicReference<>(null);
+  // version 1 of the backup encryption key uses a m/49' path for derivation, same as BIP49
+  public AtomicReference<BinaryData> backupKey_v1 = new AtomicReference<>(null);
+  // version 2 of the backup encryption key uses a m/42'/0' (mainnet) or m/42'/1' (testnet) path, which is better than m/49'.
+  // version 1 is kept for backward compatibility
+  public AtomicReference<BinaryData> backupKey_v2 = new AtomicReference<>(null);
   public AppKit appKit;
+  private Cancellable pingNode;
   private AtomicReference<ElectrumState> electrumState = new AtomicReference<>(null);
   private DBHelper dbHelper;
   private String walletAddress = "N/A";
@@ -101,21 +110,26 @@ public class App extends Application {
       EventBus.getDefault().register(this);
     }
     super.onCreate();
+    WalletUtils.setupLogging(getBaseContext());
   }
 
-  /**
-   * Returns true if the wallet is not compatible with the local datas.
-   *
-   * @return
-   */
-  public boolean hasBreakingChanges() {
-    return !appKit.isDBCompatible;
+  public void monitorConnectivity() {
+    final ConnectivityManager cm = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+    final NetworkRequest request = new NetworkRequest.Builder().addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET).build();
+    if (cm != null) {
+      final ConnectivityManager.NetworkCallback callback = new ConnectivityManager.NetworkCallback() {
+        @Override
+        public void onAvailable(Network n) {
+          scheduleConnectionToNode();
+          // TODO: reconnect electrum
+        }
+      };
+      cm.registerNetworkCallback(request, callback);
+    }
   }
 
   /**
    * Return application's version
-   *
-   * @return
    */
   public String getVersion() {
     try {
@@ -184,23 +198,14 @@ public class App extends Application {
     return this.walletAddress;
   }
 
-  public boolean isWalletConnected() {
-    return this.electrumState.get() != null && this.electrumState.get().isConnected;
-  }
-
   /**
    * Generates a payment request. Uses a blocking await so must *not* be called from an UI thread. Fails after 5 secs.
    */
-  public PaymentRequest generatePaymentRequest(final String description, final Option<MilliSatoshi> amountMsat_opt, final long expiry) {
+  public PaymentRequest generatePaymentRequest(final String description, final Option<MilliSatoshi> amountMsat_opt, final long expiry) throws Exception {
     Future<Object> f = Patterns.ask(appKit.eclairKit.paymentHandler(),
-      new PaymentLifecycle.ReceivePayment(amountMsat_opt, description, Option.apply(expiry), EclairEventService.getRoutes()),
+      new PaymentLifecycle.ReceivePayment(amountMsat_opt, description, Option.apply(expiry), NodeSupervisor.getRoutes()),
       new Timeout(Duration.create(10, "seconds")));
-    try {
-      return (PaymentRequest) Await.result(f, Duration.create(5, "seconds"));
-    } catch (Exception e) {
-      Log.e(TAG, "failed to generate payment request", e);
-      return null;
-    }
+    return (PaymentRequest) Await.result(f, Duration.create(5, "seconds"));
   }
 
   /**
@@ -221,7 +226,7 @@ public class App extends Application {
       @Override
       public void onFailure(Throwable failure) throws Throwable {
       }
-    }, system.dispatcher());
+    }, this.system.dispatcher());
   }
 
   /**
@@ -237,16 +242,14 @@ public class App extends Application {
       fBitcoinPayment.onComplete(new OnComplete<String>() {
         @Override
         public void onComplete(final Throwable t, final String txId) {
-          if (t == null) {
-            Log.i(TAG, "Successfully sent tx " + txId);
-          } else {
-            Log.w(TAG, "could not send bitcoin tx " + txId + "  with cause=" + t.getMessage());
+          if (t != null) {
+            log.warn("could not send bitcoin tx {} with cause {}", txId, t.getMessage());
             EventBus.getDefault().post(new BitcoinPaymentFailedEvent(t.getLocalizedMessage()));
           }
         }
       }, this.system.dispatcher());
     } catch (Throwable t) {
-      Log.w(TAG, "could not send bitcoin tx with cause=" + t.getMessage());
+      log.warn("could not send bitcoin tx with cause {}", t.getMessage());
       EventBus.getDefault().post(new BitcoinPaymentFailedEvent(t.getLocalizedMessage()));
     }
   }
@@ -266,84 +269,83 @@ public class App extends Application {
         public void onComplete(final Throwable t, final Tuple2<Transaction, Satoshi> res) {
           if (t == null) {
             if (res != null) {
-              Log.i(TAG, "onComplete: commiting spend all tx");
               final Future fSendAll = appKit.electrumWallet.commit(res._1());
               fSendAll.onComplete(new OnComplete<Boolean>() {
                 @Override
-                public void onComplete(Throwable failure, Boolean success) throws Throwable {
-                  if (!success) {
-                    Log.w(TAG, "could not send empty wallet tx");
-                    EventBus.getDefault().post(new BitcoinPaymentFailedEvent("broadcast failed"));
+                public void onComplete(Throwable failure, Boolean success) {
+                  if (failure != null) {
+                    log.warn("error in send_all tx", failure);
+                    EventBus.getDefault().post(new BitcoinPaymentFailedEvent(failure.getLocalizedMessage()));
+                  } else if (success == null || !success) {
+                    log.warn("send_all tx has failed");
+                    EventBus.getDefault().post(new BitcoinPaymentFailedEvent(getString(R.string.payment_tx_failed)));
                   }
                 }
               }, system.dispatcher());
             } else {
-              Log.w(TAG, "could not create send all tx");
-              EventBus.getDefault().post(new BitcoinPaymentFailedEvent("tx creation failed"));
+              log.warn("could not create send all tx");
+              EventBus.getDefault().post(new BitcoinPaymentFailedEvent(getString(R.string.payment_tx_creation_error)));
             }
           } else {
-            Log.w(TAG, "could not send all balance with cause=" + t.getMessage());
+            log.warn("could not send all balance with cause {}", t.getMessage());
             EventBus.getDefault().post(new BitcoinPaymentFailedEvent(t.getLocalizedMessage()));
           }
         }
       }, this.system.dispatcher());
     } catch (Throwable t) {
-      Log.w(TAG, "could not send send all balance with cause=" + t.getMessage());
+      log.warn("could not send send all balance with cause {}", t.getMessage());
       EventBus.getDefault().post(new BitcoinPaymentFailedEvent(t.getLocalizedMessage()));
     }
   }
 
   /**
-   * Asks the eclair node to asynchronously open a channel with a node. Completes with a
-   * {@link akka.pattern.AskTimeoutException} after the timeout has expired.
-   *
-   * @param timeout    Connection future timeout
-   * @param onComplete Callback executed once the future completes (with success or failure)
-   * @param nodeURI    Uri of the node to connect to
-   * @param open       channel to create, contains the capacity of the channel, in satoshis
+   * Retrieve all the available on-chain funds after a given network fees for a multisig tx.
    */
-  public void openChannel(final FiniteDuration timeout, final OnComplete<Object> onComplete,
-                          final NodeURI nodeURI, final Peer.OpenChannel open) {
-    if (nodeURI.nodeId() != null && nodeURI.address() != null && open != null) {
-      final OnComplete<Object> onConnectComplete = new OnComplete<Object>() {
-        @Override
-        public void onComplete(Throwable throwable, Object result) throws Throwable {
-          if (throwable != null) {
-            EventBus.getDefault().post(new LNNewChannelFailureEvent(throwable.getMessage()));
-          } else if ("connected".equals(result.toString()) || "already connected".equals(result.toString())) {
-            final Future<Object> openFuture = Patterns.ask(appKit.eclairKit.switchboard(), open, new Timeout(timeout));
-            openFuture.onComplete(onComplete, system.dispatcher());
-          } else {
-            EventBus.getDefault().post(new LNNewChannelFailureEvent(result.toString()));
-          }
-        }
-      };
-      final Future<Object> connectFuture = Patterns.ask(appKit.eclairKit.switchboard(), new Peer.Connect(nodeURI), new Timeout(timeout));
-      connectFuture.onComplete(onConnectComplete, system.dispatcher());
+  public Satoshi getAvailableFundsAfterFees(final long feesPerKw) {
+    try {
+      // simulate multisig transaction to our self to retrieve outputs total amount
+      final Crypto.PublicKey pubkey = appKit.eclairKit.nodeParams().privateKey().publicKey();
+      final BinaryData placeholderScript = Script.write(Script.pay2wsh(Scripts.multiSig2of2(pubkey, pubkey)));
+      final String placeholderAddress = Bech32.encodeWitnessAddress("mainnet".equals(BuildConfig.CHAIN) ? "bc" : "tb", (byte) 0, Crypto.hash(new SHA256Digest(), package$.MODULE$.binaryData2Seq(placeholderScript)));
+      final Tuple2<Transaction, Satoshi> tx_fee = Await.result(appKit.electrumWallet.sendAll(placeholderAddress, feesPerKw), Duration.create(20, "seconds"));
+      long available = 0;
+      Iterator<TxOut> it = tx_fee._1.txOut().iterator();
+      while (it.hasNext()) {
+        available += it.next().amount().amount();
+      }
+      available -= tx_fee._2.amount();
+      return new Satoshi(Math.max(0, available));
+    } catch (Exception e) {
+      log.error("could not retrieve max available funds after fees", e);
+      return new Satoshi(0);
+    }
+  }
+
+  public void scheduleConnectionToNode() {
+    if (pingNode != null) pingNode.cancel();
+    if (system != null && appKit != null && appKit.eclairKit != null && appKit.eclairKit.switchboard() != null) {
+      pingNode = system.scheduler().schedule(
+        Duration.Zero(), Duration.create(60, "seconds"),
+        () -> appKit.eclairKit.switchboard().tell(new Peer.Connect(NodeURI.parse(WalletUtils.ACINQ_NODE)), ActorRef.noSender()),
+        system.dispatcher());
     }
   }
 
   /**
    * Broadcast a transaction using the payload.
-   *
-   * @param payload
    */
   public void broadcastTx(final String payload) {
     final Transaction tx = (Transaction) Transaction.read(payload);
     Future<Object> future = appKit.electrumWallet.commit(tx);
     try {
-      Boolean success = (Boolean) Await.result(future, Duration.create(500, "milliseconds"));
-      if (success) Log.i(TAG, "successful broadcast of " + tx.txid());
-      else Log.w(TAG, "cannot broadcast " + tx.txid());
+      Await.result(future, Duration.create(500, "milliseconds"));
     } catch (Exception e) {
-      Log.w(TAG, "failed broadcast of " + tx.txid(), e);
+      log.warn("failed broadcast of tx {}", tx.txid(), e);
     }
   }
 
   /**
    * Returns the eclair node's public key.
-   *
-   * @return
    */
   public String nodePublicKey() {
     return appKit.eclairKit.nodeParams().privateKey().publicKey().toBin().toString();
@@ -376,7 +378,7 @@ public class App extends Application {
           EventBus.getDefault().post(new NetworkChannelsCountEvent(-1));
         }
       }
-    }, system.dispatcher());
+    }, this.system.dispatcher());
   }
 
   /**
@@ -396,7 +398,7 @@ public class App extends Application {
           EventBus.getDefault().post(new ChannelRawDataEvent(null));
         }
       }
-    }, system.dispatcher());
+    }, this.system.dispatcher());
   }
 
   public void getXpubFromWallet() {
@@ -409,7 +411,7 @@ public class App extends Application {
           EventBus.getDefault().post(new XpubEvent(null));
         }
       }
-    }, system.dispatcher());
+    }, this.system.dispatcher());
   }
 
   public void checkupInit() {
@@ -417,6 +419,9 @@ public class App extends Application {
       this.dbHelper = new DBHelper(getApplicationContext());
       this.dbHelper.cleanLightningPayments();
     }
+
+    // delete instances of payments with an unknown description/recipient and a PENDING state
+    dbHelper.cleanUpUnknownPayments();
 
     // rates & coin patterns
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
@@ -456,9 +461,12 @@ public class App extends Application {
     return this.electrumState.get() == null ? 0 : this.electrumState.get().blockTimestamp;
   }
 
-  public String getElectrumServerAddress() {
-    final InetSocketAddress address = this.electrumState.get() == null ? null : this.electrumState.get().address;
-    return address == null ? getString(R.string.unknown) : address.toString();
+  public ElectrumState getElectrumState() {
+    return this.electrumState.get();
+  }
+
+  public InetSocketAddress getElectrumServerAddress() {
+    return this.electrumState.get() == null ? null : this.electrumState.get().address;
   }
 
   public DBHelper getDBHelper() {
@@ -466,22 +474,20 @@ public class App extends Application {
   }
 
   public static class ElectrumState {
-    private Satoshi confirmedBalance;
-    private Satoshi unconfirmedBalance;
-    private long blockTimestamp;
-    private InetSocketAddress address;
-    private boolean isConnected = false;
+    public Satoshi confirmedBalance;
+    public Satoshi unconfirmedBalance;
+    public long blockTimestamp;
+    public InetSocketAddress address;
+    public boolean isConnected = false;
   }
 
   public static class AppKit {
+    final public Kit eclairKit;
     final private ElectrumEclairWallet electrumWallet;
-    final private Kit eclairKit;
-    final private boolean isDBCompatible;
 
-    public AppKit(final ElectrumEclairWallet wallet, Kit kit, boolean isDBCompatible) {
+    public AppKit(final ElectrumEclairWallet wallet, final Kit kit) {
       this.electrumWallet = wallet;
       this.eclairKit = kit;
-      this.isDBCompatible = isDBCompatible;
     }
   }
 }

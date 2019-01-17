@@ -26,11 +26,14 @@
   <color name="accent">#ba3259</color>
   <!-- very light greys for backgrounds -->
   <color name="grey_0">#ecedef</color>
+  <color name="grey_0_light_x3">#f9f9f9</color>
   <color name="grey_0_light_x2">#f6f6f6</color>
   <color name="grey_0_light_x1">#f2f2f2</color>
-  <color name="grey_0_dark_x1">#dedede</color>
+  <color name="grey_0_dark_x1">#e8e9eb</color>
+  <color name="grey_0_dark_x2">#dedede</color>
   <!-- light grey for text that should be almost invisible to the user -->
   <color name="grey_1">#bbbbbb</color>
+  <color name="grey_1_dark_x1">#acacac</color>
   <!-- light grey, ok for non important text -->
   <color name="grey_2">#888888</color>
   <!-- standard grey -->
@@ -47,9 +50,14 @@
   <color name="red_faded_light_x1">#ff6c6c</color>
   <color name="red_faded_dark_x1">#be4141</color>
   <color name="red_faded_dark_x2">#b13a3a</color>
+  <color name="blue_dark">#539dc2</color>
   <color name="blue">#67ccf2</color>
-  <color name="blue_light_x1">#c8eefc</color>
+  <color name="blue_light_x1">#91e2ff</color>
+  <color name="blue_light_x2">#c8eefc</color>
+  <color name="blue_light_x3">#ebfaff</color>
   <color name="white">#ffffff</color>
+  <color name="white_low_alpha">#11ffffff</color>
   <color name="almost_white">#fbfbfb</color>
   <color name="intro">#ffe785</color>
+  <color name="black_overlay">#10000000</color>
 </resources>
