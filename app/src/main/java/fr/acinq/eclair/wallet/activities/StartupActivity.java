@@ -194,23 +194,31 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
   }
 
   private void checkup() {
+    log.debug("starting checkup");
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
     final File datadir = new File(app.getFilesDir(), Constants.ECLAIR_DATADIR);
     // check version, apply migration script if required
-    if (!checkAppVersion(datadir, prefs)) return;
+    if (!checkAppVersion(datadir, prefs)) {
+      log.info("check version failed");
+      return;
+    }
     // check that wallet data are correct
-    if (!checkWalletDatadir(datadir)) return;
+    if (!checkWalletDatadir(datadir)) {
+      log.info("check wallet datadir failed");
+      return;
+    }
+
 
     startNode(datadir, prefs);
   }
 
   private boolean checkAppVersion(final File datadir, final SharedPreferences prefs) {
     final int lastUsedVersion = prefs.getInt(Constants.SETTING_LAST_USED_VERSION, 0);
-    final boolean eclairStartedOnce = (datadir.exists() && datadir.isDirectory()
-      && WalletUtils.getEclairDBFile(getApplicationContext()).exists());
+    final boolean eclairStartedOnce = datadir.exists() && datadir.isDirectory() && WalletUtils.getEclairDBFile(getApplicationContext()).exists();
     final boolean isFreshInstall = lastUsedVersion == 0 && !eclairStartedOnce;
     if (lastUsedVersion < BuildConfig.VERSION_CODE && !isFreshInstall) {
       if (BREAKING_VERSIONS.contains(BuildConfig.VERSION_CODE)) {
+        log.error("version {} cannot migrate from {}", BuildConfig.VERSION_CODE, lastUsedVersion);
         showBreaking();
         return false;
       }
@@ -222,16 +230,16 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
         migrateTestnetSqlite(datadir);
       }
       if (lastUsedVersion <= 28) {
+        log.debug("migrating network database from version {} <= 28", lastUsedVersion);
         // if last used version is 28 or earlier, we need to reset the network DB due to changes in DB structure
         // see https://github.com/ACINQ/eclair/pull/738
         // note that only the android branch breaks compatibility, due to the absence of a blob 'data' column
         try {
-          if (!WalletUtils.getNetworkDBFile(getApplicationContext()).delete()) {
-            return false;
+          if (WalletUtils.getNetworkDBFile(getApplicationContext()).exists() && !WalletUtils.getNetworkDBFile(getApplicationContext()).delete()) {
+            log.warn("failed to clear network database for <v28 migration");
           }
         } catch (Throwable t) {
-          log.error("could not clear network DB for version 29", t);
-          return false;
+          log.error("could not clear network database for <v28 migration", t);
         }
       }
     }
