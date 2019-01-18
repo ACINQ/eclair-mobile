@@ -23,7 +23,7 @@
   android:layout_marginStart="@dimen/space_sm"
   android:layout_marginEnd="@dimen/space_sm"
   android:layout_marginBottom="@dimen/space_xxs"
-  android:background="@drawable/channel_item_bg"
+  android:background="@drawable/rounded_white_grey_border"
   android:foreground="?android:attr/selectableItemBackground"
   android:minHeight="@dimen/channel_height"
   android:padding="@dimen/space_sm">

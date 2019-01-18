@@ -23,10 +23,10 @@ import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
 import android.graphics.Typeface;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
-import android.support.annotation.WorkerThread;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.text.Html;
@@ -63,6 +63,7 @@ import java.util.Objects;
 public class ReceivePaymentFragment extends Fragment implements QRCodeTask.AsyncQRCodeResponse, LightningQRCodeTask.AsyncQRCodeResponse, PaymentRequestParametersDialog.PaymentRequestParametersDialogCallback {
   private final Logger log = LoggerFactory.getLogger(ReceivePaymentFragment.class);
   private FragmentReceivePaymentBinding mBinding;
+
   private boolean isGeneratingPaymentRequest = false;
 
   private PaymentRequestParametersDialog mPRParamsDialog;
@@ -80,7 +81,6 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
 
   @Override
   public View onCreateView(final LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState) {
-    final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
     mBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_receive_payment, container, false);
     mBinding.setPaymentType(0);
     mBinding.pickOnchainButton.setOnClickListener(v -> mBinding.setPaymentType(0));
@@ -131,59 +131,60 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
     if (prefs.getBoolean(Constants.SETTING_ENABLE_LIGHTNING_INBOUND_PAYMENTS, false) && !isGeneratingPaymentRequest) {
       isGeneratingPaymentRequest = true;
+      mBinding.setIsGeneratingLightningPR(isGeneratingPaymentRequest);
       mBinding.setHasNormalChannels(NodeSupervisor.hasActiveChannels());
       if (lightningUseDefaultDescription) {
         lightningDescription = prefs.getString(Constants.SETTING_PAYMENT_REQUEST_DEFAULT_DESCRIPTION, "");
       }
       loadingPaymentRequestFields();
-      log.info("starting to generate payment request...");
-      new Thread(() -> {
+      log.debug("starting to generate payment request...");
+      AsyncTask.execute(() -> {
         try {
-          final PaymentRequest pr = Objects.requireNonNull(getApp())
+          final PaymentRequest paymentRequest = Objects.requireNonNull(getApp())
             .generatePaymentRequest(lightningDescription, lightningAmount, Long.parseLong(Objects.requireNonNull(prefs.getString(Constants.SETTING_PAYMENT_REQUEST_EXPIRY, "3600"))));
-          log.info("successfully generated payment_request, starting processing");
-          processLightningPaymentRequest(pr);
+          log.debug("successfully generated payment_request, starting processing");
+          final String paymentRequestStr = PaymentRequest.write(paymentRequest);
+          final String description = paymentRequest.description().isLeft() ? paymentRequest.description().left().get() : paymentRequest.description().right().get().toString();
+          log.debug("payment request serialized to=" + paymentRequestStr);
+
+          if (getApp() != null && getApp().getDBHelper() != null) {
+            final Payment newPayment = new Payment();
+            newPayment.setType(PaymentType.BTC_LN);
+            newPayment.setDirection(PaymentDirection.RECEIVED);
+            newPayment.setReference(paymentRequest.paymentHash().toString());
+            newPayment.setAmountRequestedMsat(WalletUtils.getLongAmountFromInvoice(paymentRequest));
+            newPayment.setRecipient(paymentRequest.nodeId().toString());
+            newPayment.setPaymentRequest(paymentRequestStr.toLowerCase());
+            newPayment.setStatus(PaymentStatus.INIT);
+            newPayment.setDescription(description);
+            newPayment.setUpdated(new Date());
+            getApp().getDBHelper().insertOrUpdatePayment(newPayment);
+          }
+
+          this.lightningPaymentRequest = paymentRequestStr;
+          this.lightningDescription = description;
+          this.lightningAmount = paymentRequest.amount();
+
+          if (getActivity() != null) {
+            getActivity().runOnUiThread(() -> {
+              updateLightningDescriptionView();
+              updateLightningAmountView();
+              mBinding.lightningPr.setText(paymentRequestStr);
+              mBinding.lightningPr.setOnClickListener(v -> copyReceptionAddress(paymentRequestStr));
+              mBinding.lightningQr.setOnClickListener(v -> copyReceptionAddress(paymentRequestStr));
+            });
+          }
+
+          new LightningQRCodeTask(this, paymentRequestStr, 700, 700).execute();
         } catch (Exception e) {
           failPaymentRequestFields();
           log.error("could not generate payment request", e);
         } finally {
           isGeneratingPaymentRequest = false;
+          mBinding.setIsGeneratingLightningPR(isGeneratingPaymentRequest);
           log.info("end of payment request generation method...");
         }
-      }).run();
-    }
-  }
-
-  private void processLightningPaymentRequest(final PaymentRequest paymentRequest) {
-    if (paymentRequest == null) {
-      failPaymentRequestFields();
-    } else {
-      final String paymentRequestStr = PaymentRequest.write(paymentRequest);
-      final String description = paymentRequest.description().isLeft() ? paymentRequest.description().left().get() : paymentRequest.description().right().get().toString();
-      log.info("successfully generated payment_request=" + paymentRequestStr);
-
-      final Payment newPayment = new Payment();
-      newPayment.setType(PaymentType.BTC_LN);
-      newPayment.setDirection(PaymentDirection.RECEIVED);
-      newPayment.setReference(paymentRequest.paymentHash().toString());
-      newPayment.setAmountRequestedMsat(WalletUtils.getLongAmountFromInvoice(paymentRequest));
-      newPayment.setRecipient(paymentRequest.nodeId().toString());
-      newPayment.setPaymentRequest(paymentRequestStr.toLowerCase());
-      newPayment.setStatus(PaymentStatus.INIT);
-      newPayment.setDescription(description);
-      newPayment.setUpdated(new Date());
-      if (getApp() != null) getApp().getDBHelper().insertOrUpdatePayment(newPayment);
-
-      this.lightningPaymentRequest = paymentRequestStr;
-      this.lightningDescription = description;
-      this.lightningAmount = paymentRequest.amount();
-      updateLightningDescriptionView();
-      updateLightningAmountView();
-
-      mBinding.lightningPr.setText(paymentRequestStr);
-      mBinding.lightningPr.setOnClickListener(v -> copyReceptionAddress(paymentRequestStr));
-      mBinding.lightningQr.setOnClickListener(v -> copyReceptionAddress(paymentRequestStr));
-      new LightningQRCodeTask(this, paymentRequestStr, 700, 700).execute();
+      });
     }
   }
 
@@ -252,7 +253,7 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
     if (this.lightningDescription == null || this.lightningDescription.length() == 0) {
       mBinding.lightningDescription.setText(getString(R.string.receivepayment_lightning_description_notset));
       if (getContext() != null) {
-        mBinding.lightningDescription.setTextColor(ContextCompat.getColor(getContext(), R.color.grey_1));
+        mBinding.lightningDescription.setTextColor(ContextCompat.getColor(getContext(), R.color.grey_2));
         mBinding.lightningDescription.setTypeface(Typeface.DEFAULT, Typeface.ITALIC);
       }
     } else {
@@ -268,7 +269,7 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
     if (this.lightningAmount == null || this.lightningAmount.isEmpty()) {
       mBinding.lightningAmount.setText(getString(R.string.receivepayment_lightning_amount_notset));
       if (getContext() != null) {
-        mBinding.lightningAmount.setTextColor(ContextCompat.getColor(getContext(), R.color.grey_1));
+        mBinding.lightningAmount.setTextColor(ContextCompat.getColor(getContext(), R.color.grey_2));
         mBinding.lightningAmount.setTypeface(Typeface.DEFAULT, Typeface.ITALIC);
       }
     } else {
