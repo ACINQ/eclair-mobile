@@ -37,9 +37,11 @@ import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.fragments.PinDialog;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class EclairActivity extends AppCompatActivity {
-
+  private final Logger log = LoggerFactory.getLogger(EclairActivity.class);
   protected App app;
 
   @Override
@@ -76,12 +78,25 @@ public abstract class EclairActivity extends AppCompatActivity {
     return builder;
   }
 
+  protected boolean isAppReady() {
+    return app != null && app.appKit != null && app.getDBHelper() != null && app.pin.get() != null && app.seedHash.get() != null && app.backupKey_v2.get() != null;
+  }
+
+  protected void clearApp() {
+    log.info("clearing app data");
+    app.appKit = null;
+    app.pin.set(null);
+    app.seedHash.set(null);
+    app.backupKey_v1.set(null);
+    app.backupKey_v2.set(null);
+  }
+
   /**
    * Checks that the application was correctly initialized before accessing this activity. Redirect to Startup if not, which
    * restarts eclair correctly.
    */
   protected boolean checkInit() {
-    if (app == null || app.appKit == null || app.getDBHelper() == null || app.pin.get() == null) {
+    if (!isAppReady()) {
       final Intent startup = new Intent(this, StartupActivity.class);
       startup.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
       startup.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -100,7 +115,7 @@ public abstract class EclairActivity extends AppCompatActivity {
    * @return
    */
   protected boolean checkInit(final String origin, final String extra) {
-    if (app == null || app.appKit == null || app.getDBHelper() == null || app.pin.get() == null) {
+    if (!isAppReady()) {
       final Intent startup = new Intent(this, StartupActivity.class);
       startup.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
       startup.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
