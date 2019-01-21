@@ -17,6 +17,7 @@
 package fr.acinq.eclair.wallet.activities;
 
 import akka.actor.ActorRef;
+import akka.actor.ActorSystem;
 import akka.actor.Props;
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -85,6 +86,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
 
   private ActivityStartupBinding mBinding;
   private PinDialog mPinDialog;
+  private boolean isStartingNode = false;
   public final static String ORIGIN = BuildConfig.APPLICATION_ID + "ORIGIN";
   public final static String ORIGIN_EXTRA = BuildConfig.APPLICATION_ID + "ORIGIN_EXTRA";
   private static final HashSet<Integer> BREAKING_VERSIONS = new HashSet<>(Arrays.asList(14));
@@ -101,7 +103,11 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
     if (!EventBus.getDefault().isRegistered(this)) {
       EventBus.getDefault().register(this);
     }
-    checkup();
+    if (isStartingNode) {
+      log.debug("node is starting, wait for resolution...");
+    } else {
+      checkup();
+    }
   }
 
   @Override
@@ -116,51 +122,6 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
   protected void onDestroy() {
     EventBus.getDefault().unregister(this);
     super.onDestroy();
-  }
-
-  @Subscribe(threadMode = ThreadMode.MAIN)
-  public void processStartupFinish(StartupCompleteEvent event) {
-    final File datadir = new File(app.getFilesDir(), Constants.ECLAIR_DATADIR);
-    final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-    switch (event.status) {
-      case StartupTask.SUCCESS:
-        if (app.appKit != null) {
-          prefs.edit().putBoolean(Constants.SETTING_HAS_STARTED_ONCE, true).apply();
-          NetworkSyncReceiver.scheduleSync();
-          goToHome();
-        } else {
-          // empty appkit, something went wrong.
-          showError(getString(R.string.start_error_improper));
-          new Handler().postDelayed(() -> startNode(datadir, prefs), 1400);
-        }
-        break;
-      case StartupTask.NETWORK_ERROR:
-        app.pin.set(null);
-        app.seedHash.set(null);
-        app.backupKey_v1.set(null);
-        app.backupKey_v2.set(null);
-        showError(getString(R.string.start_error_connectivity), true, false);
-        break;
-      case StartupTask.TIMEOUT_ERROR:
-        app.pin.set(null);
-        app.seedHash.set(null);
-        app.backupKey_v1.set(null);
-        app.backupKey_v2.set(null);
-        showError(getString(R.string.start_error_timeout), true, true);
-        break;
-      default:
-        app.pin.set(null);
-        app.seedHash.set(null);
-        app.backupKey_v1.set(null);
-        app.backupKey_v2.set(null);
-        showError(getString(R.string.start_error_generic), true, true);
-        break;
-    }
-  }
-
-  @Subscribe(threadMode = ThreadMode.MAIN)
-  public void processStartupProgress(StartupProgressEvent event) {
-    mBinding.startupLog.setText(event.message);
   }
 
   private void showBreaking() {
@@ -193,7 +154,6 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
   }
 
   private void checkup() {
-    log.debug("starting checkup");
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
     final File datadir = new File(app.getFilesDir(), Constants.ECLAIR_DATADIR);
     // check version, apply migration script if required
@@ -203,10 +163,9 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
     }
     // check that wallet data are correct
     if (!checkWalletDatadir(datadir)) {
-      log.info("check wallet datadir failed");
+      log.debug("wallet datadir checked failed");
       return;
     }
-
 
     startNode(datadir, prefs);
   }
@@ -245,7 +204,6 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
     prefs.edit().putInt(Constants.SETTING_LAST_USED_VERSION, BuildConfig.VERSION_CODE).commit();
     return true;
   }
-
 
   private void migrateTestnetSqlite(final File datadir) {
     final File eclairSqlite = new File(datadir, "eclair.sqlite");
@@ -333,8 +291,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
     if (mBinding.stubPickInitWallet.isInflated()) {
       mBinding.stubPickInitWallet.getRoot().setVisibility(View.GONE);
     }
-
-    if (app.appKit == null) {
+    if (!isAppReady()) {
       if (datadir.exists() && !datadir.canRead()) {
         log.error("datadir is not readable. Aborting startup");
         showError(getString(R.string.start_error_datadir_unreadable), true, true);
@@ -364,7 +321,6 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
           mPinDialog.show();
         } else {
           launchStartupTask(datadir, currentPassword, prefs);
-
         }
       }
     } else {
@@ -399,28 +355,61 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
               if (!checkChannelsBackup(prefs)) return;
             }
           }
+          isStartingNode = true;
           new StartupTask().execute(app, seed);
 
         } catch (GeneralSecurityException e) {
-          app.pin.set(null);
-          app.seedHash.set(null);
-          app.backupKey_v1.set(null);
-          app.backupKey_v2.set(null);
+          clearApp();
+          isStartingNode = false;
           runOnUiThread(() -> {
             showError(getString(R.string.start_error_wrong_password));
             new Handler().postDelayed(() -> startNode(datadir, prefs), 1400);
           });
         } catch (Throwable t) {
           log.error("seed is unreadable", t);
-          app.pin.set(null);
-          app.seedHash.set(null);
-          app.backupKey_v1.set(null);
-          app.backupKey_v2.set(null);
+          clearApp();
+          isStartingNode = false;
           runOnUiThread(() -> showError(getString(R.string.start_error_unreadable_seed), true, true));
         }
       }
     }.start();
+  }
 
+  @Subscribe(threadMode = ThreadMode.MAIN)
+  public void processStartupFinish(StartupCompleteEvent event) {
+    final File datadir = new File(app.getFilesDir(), Constants.ECLAIR_DATADIR);
+    final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+    switch (event.status) {
+      case StartupTask.SUCCESS:
+        if (isAppReady()) {
+          prefs.edit().putBoolean(Constants.SETTING_HAS_STARTED_ONCE, true).apply();
+          NetworkSyncReceiver.scheduleSync();
+          goToHome();
+        } else {
+          // empty appkit, something went wrong.
+          showError(getString(R.string.start_error_improper));
+          new Handler().postDelayed(() -> startNode(datadir, prefs), 1400);
+        }
+        break;
+      case StartupTask.NETWORK_ERROR:
+        clearApp();
+        showError(getString(R.string.start_error_connectivity), true, false);
+        break;
+      case StartupTask.TIMEOUT_ERROR:
+        clearApp();
+        showError(getString(R.string.start_error_timeout), true, true);
+        break;
+      default:
+        clearApp();
+        showError(getString(R.string.start_error_generic), true, true);
+        break;
+    }
+    isStartingNode = false;
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN)
+  public void processStartupProgress(StartupProgressEvent event) {
+    mBinding.startupLog.setText(event.message);
   }
 
   public void pickImportExistingWallet(View view) {
