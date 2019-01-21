@@ -18,6 +18,7 @@ package fr.acinq.eclair.wallet.activities;
 
 import akka.actor.ActorRef;
 import akka.actor.Props;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -124,9 +125,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
     switch (event.status) {
       case StartupTask.SUCCESS:
         if (app.appKit != null) {
-          prefs.edit()
-            .putBoolean(Constants.SETTING_HAS_STARTED_ONCE, true)
-            .putInt(Constants.SETTING_LAST_USED_VERSION, BuildConfig.VERSION_CODE).apply();
+          prefs.edit().putBoolean(Constants.SETTING_HAS_STARTED_ONCE, true).apply();
           NetworkSyncReceiver.scheduleSync();
           goToHome();
         } else {
@@ -212,19 +211,19 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
     startNode(datadir, prefs);
   }
 
+  @SuppressLint("ApplySharedPref")
   private boolean checkAppVersion(final File datadir, final SharedPreferences prefs) {
     final int lastUsedVersion = prefs.getInt(Constants.SETTING_LAST_USED_VERSION, 0);
-    final boolean eclairStartedOnce = datadir.exists() && datadir.isDirectory() && WalletUtils.getEclairDBFile(getApplicationContext()).exists();
-    final boolean isFreshInstall = lastUsedVersion == 0 && !eclairStartedOnce;
-    if (lastUsedVersion < BuildConfig.VERSION_CODE && !isFreshInstall) {
-      if (BREAKING_VERSIONS.contains(BuildConfig.VERSION_CODE)) {
-        log.error("version {} cannot migrate from {}", BuildConfig.VERSION_CODE, lastUsedVersion);
-        showBreaking();
-        return false;
+    final boolean startedOnce = prefs.getBoolean(Constants.SETTING_HAS_STARTED_ONCE, false);
+    if (lastUsedVersion > 0 && startedOnce) { // only for
+      if (lastUsedVersion < BuildConfig.VERSION_CODE) {
+        if (BREAKING_VERSIONS.contains(BuildConfig.VERSION_CODE)) {
+          log.error("version {} cannot migrate from {}", BuildConfig.VERSION_CODE, lastUsedVersion);
+          showBreaking();
+          return false;
+        }
       }
-    }
-    // migration scripts based on last used version, only if the application has already been started
-    if (!isFreshInstall) {
+      // migration scripts based on last used version
       if (lastUsedVersion <= 15 && "testnet".equals(BuildConfig.CHAIN)) {
         // version 16 breaks the application's data folder structure
         migrateTestnetSqlite(datadir);
@@ -243,8 +242,10 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
         }
       }
     }
+    prefs.edit().putInt(Constants.SETTING_LAST_USED_VERSION, BuildConfig.VERSION_CODE).commit();
     return true;
   }
+
 
   private void migrateTestnetSqlite(final File datadir) {
     final File eclairSqlite = new File(datadir, "eclair.sqlite");
