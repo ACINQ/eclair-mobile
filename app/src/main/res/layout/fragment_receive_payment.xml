@@ -170,15 +170,6 @@
           android:visibility="@{paymentType == 1 &amp;&amp; !isLightningInboundEnabled ? View.VISIBLE : View.GONE}"
           app:layout_constraintTop_toBottomOf="@id/pick_lightning_button" />
 
-        <TextView
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:background="@drawable/rounded_bottom_white_grey_border"
-          android:padding="@dimen/space_lg"
-          android:text="@string/receivepayment_lightning_no_routes_available"
-          android:visibility="@{paymentType == 1 &amp;&amp; isLightningInboundEnabled &amp;&amp; !hasNormalChannels ? View.VISIBLE : View.GONE}"
-          app:layout_constraintTop_toBottomOf="@id/pick_lightning_button" />
-
         <android.support.constraint.ConstraintLayout
           android:id="@+id/lightning_view"
           android:layout_width="match_parent"
@@ -187,7 +178,7 @@
           android:paddingStart="@dimen/space_lg"
           android:paddingEnd="@dimen/space_lg"
           android:paddingBottom="@dimen/space_lg"
-          android:visibility="@{paymentType == 1 &amp;&amp; isLightningInboundEnabled &amp;&amp; hasNormalChannels ? View.VISIBLE : View.GONE}"
+          android:visibility="@{paymentType == 1 &amp;&amp; isLightningInboundEnabled ? View.VISIBLE : View.GONE}"
           app:layout_constraintTop_toBottomOf="@id/pick_lightning_button">
 
           <ImageView
@@ -217,27 +208,40 @@
             app:layout_constraintStart_toStartOf="@id/lightning_qr"
             app:layout_constraintTop_toTopOf="@id/lightning_qr" />
 
-          <TextView
-            android:id="@+id/lightning_pr_title"
-            style="@style/TitleCapsGrey"
+          <LinearLayout
+            android:id="@+id/lightning_main_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/space_md_p"
-            android:text="@string/receivepayment_lightning_pr_title"
-            app:layout_constraintTop_toBottomOf="@id/lightning_qr" />
+            android:orientation="vertical"
+            app:layout_constraintTop_toBottomOf="@id/lightning_qr">
 
-          <TextView
-            android:id="@+id/lightning_pr"
-            style="@style/DataRowText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/space_xxs"
-            android:clickable="true"
-            android:ellipsize="end"
-            android:focusable="true"
-            android:singleLine="true"
-            android:text="@string/unknown"
-            app:layout_constraintTop_toBottomOf="@id/lightning_pr_title" />
+            <TextView
+              android:id="@+id/lightning_pr_title"
+              style="@style/TitleCapsGrey"
+              android:text="@string/receivepayment_lightning_pr_title" />
+
+            <TextView
+              android:id="@+id/lightning_pr"
+              style="@style/DataRowText"
+              android:layout_marginTop="@dimen/space_xxs"
+              android:clickable="true"
+              android:ellipsize="end"
+              android:focusable="true"
+              android:singleLine="true"
+              android:text="@string/unknown"
+              app:layout_constraintTop_toBottomOf="@id/lightning_pr_title" />
+
+            <TextView
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_marginTop="@dimen/space_md"
+              android:background="@drawable/rounded_corner_grey"
+              android:padding="@dimen/space_xs"
+              android:text="@string/receivepayment_lightning_no_routes_available"
+              android:textSize="@dimen/text_sm" />
+
+          </LinearLayout>
 
           <android.support.constraint.ConstraintLayout
             android:id="@+id/lightning_parameters"
@@ -246,9 +250,7 @@
             android:layout_marginTop="@dimen/space_md"
             android:clickable="true"
             android:focusable="true"
-            android:foreground="?android:attr/selectableItemBackground"
-            android:visibility="@{paymentType == 1 &amp;&amp; isLightningInboundEnabled &amp;&amp; hasNormalChannels &amp;&amp; !isGeneratingLightningPR ? View.VISIBLE : View.GONE}"
-            app:layout_constraintTop_toBottomOf="@id/lightning_pr">
+            app:layout_constraintTop_toBottomOf="@id/lightning_main_layout">
 
             <android.support.constraint.Guideline
               android:id="@+id/mid_guideline_params"

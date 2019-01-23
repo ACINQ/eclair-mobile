@@ -95,6 +95,7 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
   private int introStep = 0;
   private boolean canSendPayments = false;
 
+  private ReceivePaymentFragment mReceivePaymentFragment;
   private PaymentsListFragment mPaymentsListFragment;
   private ChannelsListFragment mChannelsListFragment;
   private Handler mExchangeRateHandler = new Handler();
@@ -163,7 +164,8 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
     });
 
     final List<Fragment> fragments = new ArrayList<>();
-    fragments.add(new ReceivePaymentFragment());
+    mReceivePaymentFragment = new ReceivePaymentFragment();
+    fragments.add(mReceivePaymentFragment);
     mPaymentsListFragment = new PaymentsListFragment();
     fragments.add(mPaymentsListFragment);
     mChannelsListFragment = new ChannelsListFragment();
@@ -490,6 +492,7 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
 
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void handleChannelUpdateEvent(ChannelUpdateEvent event) {
+    mReceivePaymentFragment.notifyChannelsUpdate();
     mChannelsListFragment.updateActiveChannelsList();
   }
 

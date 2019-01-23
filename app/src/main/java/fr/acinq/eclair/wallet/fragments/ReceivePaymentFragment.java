@@ -132,7 +132,6 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
     if (prefs.getBoolean(Constants.SETTING_ENABLE_LIGHTNING_INBOUND_PAYMENTS, false) && !isGeneratingPaymentRequest) {
       isGeneratingPaymentRequest = true;
       mBinding.setIsGeneratingLightningPR(isGeneratingPaymentRequest);
-      mBinding.setHasNormalChannels(NodeSupervisor.hasActiveChannels());
       if (lightningUseDefaultDescription) {
         lightningDescription = prefs.getString(Constants.SETTING_PAYMENT_REQUEST_DEFAULT_DESCRIPTION, "");
       }
@@ -281,6 +280,12 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
         mBinding.lightningAmount.setTextColor(ContextCompat.getColor(this.getContext(), R.color.grey_4));
         mBinding.lightningAmount.setTypeface(Typeface.DEFAULT, Typeface.NORMAL);
       }
+    }
+  }
+
+  public void notifyChannelsUpdate() {
+    if (mBinding != null) {
+      mBinding.setHasNormalChannels(NodeSupervisor.hasActiveChannels());
     }
   }
 }
