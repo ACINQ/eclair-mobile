@@ -102,6 +102,14 @@ public class LocalChannel {
 
   private Date updated;
 
+  public long getReceivableMsat() {
+    return this.getCapacityMsat() - this.getBalanceMsat() - (this.getChannelReserveSat() / 1000);
+  }
+
+  public long getSendableMsat() {
+    return this.getBalanceMsat() - (this.getChannelReserveSat() / 1000);
+  }
+
   public LocalChannel() {
     this.isActive = true;
     this.created = new Date();

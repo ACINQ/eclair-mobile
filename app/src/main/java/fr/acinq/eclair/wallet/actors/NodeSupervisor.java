@@ -406,6 +406,20 @@ public class NodeSupervisor extends UntypedActor {
   }
 
   /**
+   * Optimistically estimates the maximum amount that this node can receive. OFFLINE channels are accounted for in order
+   * to smooth this estimation if the connection is flaky.
+   */
+  public static MilliSatoshi getMaxReceivable() {
+    long max_msat = 0;
+    for (LocalChannel d : activeChannelsMap.values()) {
+      if (NORMAL$.MODULE$.toString().equals(d.state) || OFFLINE$.MODULE$.toString().equals(d.state)) {
+        max_msat = Math.max(max_msat, d.getReceivableMsat());
+      }
+    }
+    return new MilliSatoshi(max_msat);
+  }
+
+  /**
    * Return true if all the active channels are offline. If there are no active channels, return false.
    */
   public static boolean areAllChannelsOffline() {

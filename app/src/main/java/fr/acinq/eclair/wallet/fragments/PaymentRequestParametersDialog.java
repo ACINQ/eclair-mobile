@@ -18,17 +18,14 @@ package fr.acinq.eclair.wallet.fragments;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputLayout;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-
-import org.greenrobot.greendao.annotation.NotNull;
-
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.eclair.CoinUnit;
 import fr.acinq.eclair.CoinUtils;
@@ -43,7 +40,7 @@ public class PaymentRequestParametersDialog extends Dialog {
 
   private PaymentRequestParametersDialogCallback mCallback;
 
-  public PaymentRequestParametersDialog(final Context context, final @NotNull PaymentRequestParametersDialogCallback callback,
+  public PaymentRequestParametersDialog(final Context context, final @NonNull PaymentRequestParametersDialogCallback callback,
                                         final int themeResId, final String description, final Option<MilliSatoshi> amountMsat) {
     super(context, themeResId);
     mCallback = callback;
@@ -63,30 +60,17 @@ public class PaymentRequestParametersDialog extends Dialog {
       amountEdit.setText(CoinUtils.rawAmountInUnit(amountMsat.get(), prefUnit).bigDecimal().toPlainString());
     }
 
-    setOnCancelListener(new OnCancelListener() {
-      @Override
-      public void onCancel(DialogInterface dialogInterface) {
-        dismiss();
-      }
-    });
-    mCancelButton.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View view) {
-        dismiss();
-      }
-    });
-    mCloseButton.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View view) {
-        final MilliSatoshi amountMsat = amountEdit.getText().length() == 0 ? null : new MilliSatoshi(
-          CoinUtils.convertStringAmountToMsat(amountEdit.getText().toString(), prefUnit.code()).amount());
-        if (amountMsat != null && (amountMsat.amount() <= 0 || amountMsat.amount() > PaymentRequest.MAX_AMOUNT().amount())) {
-          amountError.setText(context.getString(R.string.dialog_prparams_amount_error, "0", CoinUtils.formatAmountInUnit(PaymentRequest.MAX_AMOUNT(), prefUnit, true)));
-          amountError.setVisibility(View.VISIBLE);
-        } else {
-          amountError.setVisibility(View.GONE);
-          mCallback.onConfirm(PaymentRequestParametersDialog.this, descriptionEdit.getText().toString(), Option.apply(amountMsat));
-        }
+    setOnCancelListener(dialogInterface -> dismiss());
+    mCancelButton.setOnClickListener(view -> dismiss());
+    mCloseButton.setOnClickListener(view -> {
+      final MilliSatoshi amountMsat1 = amountEdit.getText().length() == 0 ? null : new MilliSatoshi(
+        CoinUtils.convertStringAmountToMsat(amountEdit.getText().toString(), prefUnit.code()).amount());
+      if (amountMsat1 != null && (amountMsat1.amount() <= 0 || amountMsat1.amount() > PaymentRequest.MAX_AMOUNT().amount())) {
+        amountError.setText(context.getString(R.string.dialog_prparams_amount_error, "0", CoinUtils.formatAmountInUnit(PaymentRequest.MAX_AMOUNT(), prefUnit, true)));
+        amountError.setVisibility(View.VISIBLE);
+      } else {
+        amountError.setVisibility(View.GONE);
+        mCallback.onConfirm(PaymentRequestParametersDialog.this, descriptionEdit.getText().toString(), Option.apply(amountMsat1));
       }
     });
   }

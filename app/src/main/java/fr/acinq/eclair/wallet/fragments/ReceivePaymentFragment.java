@@ -63,9 +63,6 @@ import java.util.Objects;
 public class ReceivePaymentFragment extends Fragment implements QRCodeTask.AsyncQRCodeResponse, LightningQRCodeTask.AsyncQRCodeResponse, PaymentRequestParametersDialog.PaymentRequestParametersDialogCallback {
   private final Logger log = LoggerFactory.getLogger(ReceivePaymentFragment.class);
   private FragmentReceivePaymentBinding mBinding;
-
-  private boolean isGeneratingPaymentRequest = false;
-
   private PaymentRequestParametersDialog mPRParamsDialog;
 
   private boolean lightningUseDefaultDescription = true;
@@ -89,12 +86,14 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
       mBinding.setPaymentType(1);
     });
     mBinding.lightningParameters.setOnClickListener(v -> {
-      if (!isGeneratingPaymentRequest) {
+      if (!mBinding.getIsGeneratingLightningPR()) {
         mPRParamsDialog = new PaymentRequestParametersDialog(ReceivePaymentFragment.this.getContext(), ReceivePaymentFragment.this,
           R.style.CustomAlertDialog, this.lightningDescription, this.lightningAmount);
         mPRParamsDialog.show();
       }
     });
+    mBinding.onchainAddressValue.setOnClickListener(v -> copyReceptionAddress(mBinding.getOnchainAddress()));
+    mBinding.onchainQr.setOnClickListener(v -> copyReceptionAddress(mBinding.getOnchainAddress()));
     return mBinding.getRoot();
   }
 
@@ -107,10 +106,12 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
     mBinding.setIsLightningInboundEnabled(prefs.getBoolean(Constants.SETTING_ENABLE_LIGHTNING_INBOUND_PAYMENTS, false));
     mBinding.setHasNormalChannels(NodeSupervisor.hasActiveChannels());
-    if (mBinding.getIsLightningInboundEnabled() && mBinding.getPaymentType() == 1 && !isGeneratingPaymentRequest && lightningPaymentRequest == null) {
+    if (mBinding.getIsLightningInboundEnabled() && mBinding.getPaymentType() == 1 && !mBinding.getIsGeneratingLightningPR() && lightningPaymentRequest == null) {
       generatePaymentRequest();
     }
-    setOnchainAddress();
+    if (mBinding.getPaymentType() == 0 && mBinding.getOnchainAddress() == null && getApp() != null && getApp().getElectrumState() != null) {
+      setOnchainAddress(getApp().getElectrumState().onchainAddress);
+    }
   }
 
   @Override
@@ -122,16 +123,10 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
     super.onPause();
   }
 
-  @Subscribe(threadMode = ThreadMode.MAIN)
-  public void handleNewWalletAddress(final ElectrumWallet.NewWalletReceiveAddress addressEvent) {
-    setOnchainAddress();
-  }
-
   private void generatePaymentRequest() {
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
-    if (prefs.getBoolean(Constants.SETTING_ENABLE_LIGHTNING_INBOUND_PAYMENTS, false) && !isGeneratingPaymentRequest) {
-      isGeneratingPaymentRequest = true;
-      mBinding.setIsGeneratingLightningPR(isGeneratingPaymentRequest);
+    if (prefs.getBoolean(Constants.SETTING_ENABLE_LIGHTNING_INBOUND_PAYMENTS, false) && !mBinding.getIsGeneratingLightningPR()) {
+      mBinding.setIsGeneratingLightningPR(true);
       if (lightningUseDefaultDescription) {
         lightningDescription = prefs.getString(Constants.SETTING_PAYMENT_REQUEST_DEFAULT_DESCRIPTION, "");
       }
@@ -166,6 +161,7 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
 
           if (getActivity() != null) {
             getActivity().runOnUiThread(() -> {
+              checkLightningAmount();
               updateLightningDescriptionView();
               updateLightningAmountView();
               mBinding.lightningPr.setText(paymentRequestStr);
@@ -174,25 +170,23 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
             });
           }
 
-          new LightningQRCodeTask(this, paymentRequestStr, 700, 700).execute();
+          new LightningQRCodeTask(this, paymentRequestStr, 250, 250).execute();
         } catch (Exception e) {
           failPaymentRequestFields();
           log.error("could not generate payment request", e);
         } finally {
-          isGeneratingPaymentRequest = false;
-          mBinding.setIsGeneratingLightningPR(isGeneratingPaymentRequest);
+          mBinding.setIsGeneratingLightningPR(false);
           log.info("end of payment request generation method...");
         }
       });
     }
   }
 
-  private void setOnchainAddress() {
-    final String address = getApp() != null ? getApp().getWalletAddress() : getString(R.string.unknown);
-    mBinding.onchainAddress.setText(address);
-    mBinding.onchainAddress.setOnClickListener(v -> copyReceptionAddress(address));
-    mBinding.onchainQr.setOnClickListener(v -> copyReceptionAddress(address));
-    new QRCodeTask(this, address, 700, 700).execute();
+  private void setOnchainAddress(final String address) {
+    if (address != null && !address.equals(mBinding.getOnchainAddress())) {
+      new QRCodeTask(this, address, 170, 170).execute();
+    }
+    mBinding.setOnchainAddress(address);
   }
 
   @Override
@@ -207,13 +201,14 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
   }
 
   private void copyReceptionAddress(final String address) {
-    if (getActivity() == null) return;
-    try {
-      ClipboardManager clipboard = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
-      clipboard.setPrimaryClip(ClipData.newPlainText("Bitcoin payment request", address));
-      Toast.makeText(getActivity().getApplicationContext(), "Copied to clipboard!", Toast.LENGTH_SHORT).show();
-    } catch (Exception e) {
-      log.error("failed to copy with cause=" + e.getMessage());
+    if (getActivity() != null && address != null) {
+      try {
+        ClipboardManager clipboard = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+        clipboard.setPrimaryClip(ClipData.newPlainText("Bitcoin payment request", address));
+        Toast.makeText(getActivity().getApplicationContext(), "Copied to clipboard!", Toast.LENGTH_SHORT).show();
+      } catch (Exception e) {
+        log.error("failed to copy with cause=" + e.getMessage());
+      }
     }
   }
 
@@ -225,6 +220,7 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
   }
 
   private void loadingPaymentRequestFields() {
+    mBinding.setExcessiveLightningAmount(false);
     mBinding.lightningPr.setText(R.string.receivepayment_lightning_wait);
     mBinding.lightningQr.setImageDrawable(getResources().getDrawable(R.drawable.qrcode_placeholder));
   }
@@ -283,9 +279,23 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
     }
   }
 
+  @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+  public void handleNewWalletAddress(final ElectrumWallet.NewWalletReceiveAddress addressEvent) {
+    setOnchainAddress(addressEvent.address());
+  }
+
+  private void checkLightningAmount() {
+    if (this.lightningAmount.isDefined()) {
+      mBinding.setExcessiveLightningAmount(this.lightningAmount.get().$greater(NodeSupervisor.getMaxReceivable()));
+    } else {
+      mBinding.setExcessiveLightningAmount(false);
+    }
+  }
+
   public void notifyChannelsUpdate() {
     if (mBinding != null) {
       mBinding.setHasNormalChannels(NodeSupervisor.hasActiveChannels());
+      checkLightningAmount();
     }
   }
 }

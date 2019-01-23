@@ -41,7 +41,6 @@ public class LightningQRCodeTask extends AsyncTask<String, Integer, Bitmap> {
     void processLightningQRCodeFinish(Bitmap output);
   }
   private AsyncQRCodeResponse delegate;
-  private final QRCodeWriter writer = new QRCodeWriter();
   private final int width;
   private final int height;
   private final String source;
@@ -56,7 +55,7 @@ public class LightningQRCodeTask extends AsyncTask<String, Integer, Bitmap> {
   @Override
   protected Bitmap doInBackground(String... params) {
     try {
-      return QRCodeTask.generateBitmap(this.writer, this.source, this.width, this.height);
+      return QRCodeTask.generateBitmap(this.source, this.width, this.height);
     } catch (Exception e) {
       log.warn("failed to generate QR code image for address {} with cause {}", source, e.getMessage());
       return null;

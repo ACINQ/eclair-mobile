@@ -27,6 +27,8 @@ import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 
+import com.google.zxing.qrcode.encoder.Encoder;
+import com.google.zxing.qrcode.encoder.QRCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,14 +43,14 @@ public class QRCodeTask extends AsyncTask<String, Integer, Bitmap> {
   public interface AsyncQRCodeResponse {
     void processFinish(Bitmap output);
   }
+
   private AsyncQRCodeResponse delegate;
 
-  private final QRCodeWriter writer = new QRCodeWriter();
   private final int width;
   private final int height;
   private final String source;
 
-  public QRCodeTask(AsyncQRCodeResponse delegate, String source, int width, int height){
+  public QRCodeTask(AsyncQRCodeResponse delegate, String source, int width, int height) {
     this.delegate = delegate;
     this.width = width;
     this.height = height;
@@ -58,7 +60,7 @@ public class QRCodeTask extends AsyncTask<String, Integer, Bitmap> {
   @Override
   protected Bitmap doInBackground(String... params) {
     try {
-      return generateBitmap(this.writer, this.source, this.width, this.height);
+      return generateBitmap(this.source, this.width, this.height);
     } catch (Exception e) {
       log.warn("failed to generate QR code image for address {} with cause {}", source, e.getMessage());
       return null;
@@ -69,18 +71,21 @@ public class QRCodeTask extends AsyncTask<String, Integer, Bitmap> {
     delegate.processFinish(result);
   }
 
-  static Bitmap generateBitmap(final QRCodeWriter writer, final String source, final int width, final int height) throws WriterException {
+  static Bitmap generateBitmap(final String source, final int finalWidth, final int finalHeight) throws WriterException {
     final Map<EncodeHintType, Object> hintsMap = new HashMap<>();
     hintsMap.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.L);
-    hintsMap.put(EncodeHintType.MARGIN, 1);
-    BitMatrix matrix = writer.encode(source, BarcodeFormat.QR_CODE, width, height, hintsMap);
-    final int[] pixels = new int[width * height];
-    for (int j = 0; j < height; j++) {
-      final int offset = j * width;
-      for (int i = 0; i < width; i++) {
-        pixels[offset + i] = matrix.get(i, j) ? Color.BLACK : 0xffffffff;
+    hintsMap.put(EncodeHintType.MARGIN, 0);
+    QRCode qrCode = Encoder.encode(source, ErrorCorrectionLevel.L, hintsMap);
+    int width = qrCode.getMatrix().getWidth();
+    int height = qrCode.getMatrix().getHeight();
+    int[] rgbArray = new int[width * height];
+    int i = 0;
+    for (int y = 0; y < height; y++) {
+      for (int x = 0; x < width; x++) {
+        rgbArray[i] = qrCode.getMatrix().get(x, y) > 0 ? Color.BLACK : Color.WHITE;
+        i++;
       }
     }
-    return Bitmap.createScaledBitmap(Bitmap.createBitmap(pixels, width, height, Bitmap.Config.ARGB_8888), width, height, false);
+    return Bitmap.createScaledBitmap(Bitmap.createBitmap(rgbArray, width, height, Bitmap.Config.RGB_565), finalWidth, finalHeight, false);
   }
 }

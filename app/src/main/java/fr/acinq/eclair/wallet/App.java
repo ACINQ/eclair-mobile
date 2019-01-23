@@ -102,7 +102,6 @@ public class App extends Application {
   private Cancellable pingNode;
   private AtomicReference<ElectrumState> electrumState = new AtomicReference<>(null);
   private DBHelper dbHelper;
-  private String walletAddress = "N/A";
 
   @Override
   public void onCreate() {
@@ -165,12 +164,14 @@ public class App extends Application {
     NotificationManagerCompat.from(this).notify((int) (System.currentTimeMillis() & 0xfffffff), builder.build());
   }
 
-  @Subscribe(threadMode = ThreadMode.MAIN)
+  @Subscribe(threadMode = ThreadMode.POSTING, sticky = true)
   public void handleNewWalletAddress(final ElectrumWallet.NewWalletReceiveAddress addressEvent) {
-    walletAddress = addressEvent.address();
+    if (electrumState.get() != null) {
+      electrumState.get().onchainAddress = addressEvent.address();
+    }
   }
 
-  @Subscribe(threadMode = ThreadMode.MAIN)
+  @Subscribe(threadMode = ThreadMode.POSTING)
   public void handleWalletReadyEvent(ElectrumWallet.WalletReady event) {
     final ElectrumState state = this.electrumState.get() == null ? new ElectrumState() : this.electrumState.get();
     state.confirmedBalance = event.confirmedBalance();
@@ -180,22 +181,18 @@ public class App extends Application {
     this.electrumState.set(state);
   }
 
-  @Subscribe(threadMode = ThreadMode.MAIN)
+  @Subscribe(threadMode = ThreadMode.POSTING)
   public void handleWalletDisconnectedEvent(ElectrumClient.ElectrumDisconnected$ event) {
     final ElectrumState state = this.electrumState.get() == null ? new ElectrumState() : this.electrumState.get();
     state.isConnected = false;
     this.electrumState.set(state);
   }
 
-  @Subscribe(threadMode = ThreadMode.MAIN)
+  @Subscribe(threadMode = ThreadMode.POSTING)
   public void handleElectrumReadyEvent(ElectrumClient.ElectrumReady event) {
     final ElectrumState state = this.electrumState.get() == null ? new ElectrumState() : this.electrumState.get();
     state.address = event.serverAddress();
     this.electrumState.set(state);
-  }
-
-  public String getWalletAddress() {
-    return this.walletAddress;
   }
 
   /**
@@ -479,6 +476,7 @@ public class App extends Application {
     public long blockTimestamp;
     public InetSocketAddress address;
     public boolean isConnected = false;
+    public String onchainAddress = null;
   }
 
   public static class AppKit {
