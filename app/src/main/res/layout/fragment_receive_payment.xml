@@ -295,7 +295,7 @@
             android:id="@+id/lightning_parameters"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/space_md"
+            android:layout_marginTop="@dimen/space_md_p"
             android:clickable="true"
             android:focusable="true"
             app:layout_constraintTop_toBottomOf="@id/lightning_main_layout">
@@ -307,28 +307,17 @@
               android:orientation="vertical"
               app:layout_constraintGuide_percent="0.4" />
 
-            <View
-              android:id="@+id/lightning_params_sep"
-              android:layout_width="0dp"
-              android:layout_height="1dp"
-              android:background="@color/grey_0_light_x1"
-              android:translationY="7dp"
-              app:layout_constraintEnd_toStartOf="@id/mid_guideline_params"
-              app:layout_constraintStart_toStartOf="parent"
-              app:layout_constraintTop_toTopOf="parent" />
-
             <TextView
-              android:layout_width="wrap_content"
+              android:id="@+id/lightning_params_sep"
+              android:layout_width="match_parent"
               android:layout_height="wrap_content"
+              android:textAlignment="center"
               android:layout_marginStart="@dimen/space_xxs"
               android:ellipsize="end"
               android:singleLine="true"
               android:text="@string/receivepayment_lightning_params_tip"
               android:textColor="@color/grey_0_dark_x2"
               android:textSize="@dimen/text_xs"
-              app:layout_constraintEnd_toEndOf="parent"
-              app:layout_constraintHorizontal_bias="0"
-              app:layout_constraintStart_toEndOf="@id/lightning_params_sep"
               app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
@@ -348,7 +337,7 @@
               style="@style/DataRowText"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
-              android:layout_marginTop="@dimen/space_md_p"
+              android:layout_marginTop="@dimen/space_sm"
               android:paddingStart="@dimen/space_xxs"
               android:text="@string/receivepayment_lightning_amount_notset"
               android:textIsSelectable="false"

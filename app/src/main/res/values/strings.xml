@@ -596,11 +596,11 @@
   <string name="receivepayment_lightning_no_routes_available">- Your channels are currently not active.</string>
   <string name="receivepayment_lightning_excessive_amount">- Requested amount exceeds your current receive capacity.</string>
   <string name="receivepayment_lightning_pr_title">Payment Request</string>
-  <string name="receivepayment_lightning_params_tip">Tap to edit</string>
+  <string name="receivepayment_lightning_params_tip">--- Tap to edit ---</string>
   <string name="receivepayment_lightning_description_title">Description</string>
   <string name="receivepayment_lightning_description_notset">No description</string>
   <string name="receivepayment_lightning_amount_title">Amount</string>
-  <string name="receivepayment_lightning_amount_notset">Set by the payer</string>
+  <string name="receivepayment_lightning_amount_notset">Set freely by the payer</string>
   <string name="receivepayment_lightning_amount_value"><![CDATA[%1$s<br /><font color="#bbbbbb">≈ %2$s</font>]]></string>
   <string name="receivepayment_lightning_wait">Please wait…</string>
   <string name="receivepayment_lightning_error">Error in payment request…</string>

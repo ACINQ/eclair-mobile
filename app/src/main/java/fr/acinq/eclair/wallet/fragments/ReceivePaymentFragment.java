@@ -78,22 +78,24 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
 
   @Override
   public View onCreateView(final LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState) {
-    mBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_receive_payment, container, false);
-    mBinding.setPaymentType(0);
-    mBinding.pickOnchainButton.setOnClickListener(v -> mBinding.setPaymentType(0));
-    mBinding.pickLightningButton.setOnClickListener(v -> {
-      generatePaymentRequest();
-      mBinding.setPaymentType(1);
-    });
-    mBinding.lightningParameters.setOnClickListener(v -> {
-      if (!mBinding.getIsGeneratingLightningPR()) {
-        mPRParamsDialog = new PaymentRequestParametersDialog(ReceivePaymentFragment.this.getContext(), ReceivePaymentFragment.this,
-          R.style.CustomAlertDialog, this.lightningDescription, this.lightningAmount);
-        mPRParamsDialog.show();
-      }
-    });
-    mBinding.onchainAddressValue.setOnClickListener(v -> copyReceptionAddress(mBinding.getOnchainAddress()));
-    mBinding.onchainQr.setOnClickListener(v -> copyReceptionAddress(mBinding.getOnchainAddress()));
+    if (mBinding == null) {
+      mBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_receive_payment, container, false);
+      mBinding.setPaymentType(0);
+      mBinding.pickOnchainButton.setOnClickListener(v -> mBinding.setPaymentType(0));
+      mBinding.pickLightningButton.setOnClickListener(v -> {
+        generatePaymentRequest();
+        mBinding.setPaymentType(1);
+      });
+      mBinding.lightningParameters.setOnClickListener(v -> {
+        if (!mBinding.getIsGeneratingLightningPR()) {
+          mPRParamsDialog = new PaymentRequestParametersDialog(ReceivePaymentFragment.this.getContext(), ReceivePaymentFragment.this,
+            R.style.CustomAlertDialog, this.lightningDescription, this.lightningAmount);
+          mPRParamsDialog.show();
+        }
+      });
+      mBinding.onchainAddressValue.setOnClickListener(v -> copyReceptionAddress(mBinding.getOnchainAddress()));
+      mBinding.onchainQr.setOnClickListener(v -> copyReceptionAddress(mBinding.getOnchainAddress()));
+    }
     return mBinding.getRoot();
   }
 
@@ -172,11 +174,9 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
 
           new LightningQRCodeTask(this, paymentRequestStr, 250, 250).execute();
         } catch (Exception e) {
+          mBinding.setIsGeneratingLightningPR(false);
           failPaymentRequestFields();
           log.error("could not generate payment request", e);
-        } finally {
-          mBinding.setIsGeneratingLightningPR(false);
-          log.info("end of payment request generation method...");
         }
       });
     }
@@ -214,6 +214,7 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
 
   @Override
   public void processLightningQRCodeFinish(Bitmap output) {
+    mBinding.setIsGeneratingLightningPR(false);
     if (output != null) {
       mBinding.lightningQr.setImageBitmap(output);
     }
