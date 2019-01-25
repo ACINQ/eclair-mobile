@@ -607,8 +607,9 @@
 
   <!-- //////////////// Payment Request Parameters Dialog /////////////////// -->
 
-  <string name="dialog_prparams_intro">You can change the description and the requested amount of the Lightning payment request you generate. These values are optional.\n\nNote that you can set a default description in the application settings page.</string>
-  <string name="dialog_prparams_description">Description</string>
+  <string name="dialog_prparams_description_desc">Description is optional, but using a meaningful value will help tracking the payment.</string>
+  <string name="dialog_prparams_description">Enter a description…</string>
+  <string name="dialog_prparams_amount_desc">Amount that the payer must send you. If you do not set an amount, payer can pay what he wants.</string>
   <string name="dialog_prparams_amount">Amount (in %1$s)</string>
   <string name="dialog_prparams_amount_error">Amount must be greater than %1$s, and no more than %2$s</string>
 

@@ -13,107 +13,129 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto">
 
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:app="http://schemas.android.com/apk/res-auto"
-  android:layout_width="match_parent"
-  android:layout_height="wrap_content">
-
-  <ScrollView
-    android:id="@+id/content_scrollview"
+  <android.support.constraint.ConstraintLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:scrollbars="vertical"
-    app:layout_constraintBottom_toTopOf="@+id/buttons_layout"
-    app:layout_constraintTop_toTopOf="parent">
+    android:background="@color/white">
 
-    <LinearLayout
+    <android.support.constraint.Guideline
+      android:id="@+id/mid_guideline"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:orientation="vertical"
+      app:layout_constraintGuide_percent="0.5" />
+
+    <ScrollView
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:gravity="top|start"
-      android:orientation="vertical"
-      android:padding="@dimen/space_lg">
+      android:fillViewport="true"
+      android:scrollbars="vertical"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent">
 
-      <TextView
+      <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/space_md"
-        android:text="@string/dialog_prparams_intro" />
+        android:orientation="vertical"
+        android:paddingBottom="@dimen/space_xl">
 
-      <android.support.design.widget.TextInputLayout
-        android:id="@+id/description_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/space_md"
-        android:hint="@string/dialog_prparams_description"
-        android:textColorHint="@color/grey_2">
-
-        <EditText
-          android:id="@+id/description"
+        <TextView
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:backgroundTint="@color/primary"
-          android:inputType="text"
-          android:textSize="12sp" />
-      </android.support.design.widget.TextInputLayout>
+          android:background="@drawable/rounded_corner_grey_light"
+          android:padding="@dimen/space_lg"
+          android:text="@string/dialog_prparams_description_desc" />
 
-      <android.support.design.widget.TextInputLayout
-        android:id="@+id/amount_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/space_sm"
-        android:hint="@string/dialog_prparams_amount"
-        android:textColorHint="@color/grey_2">
-
-        <EditText
-          android:id="@+id/amount"
+        <android.support.design.widget.TextInputLayout
+          android:id="@+id/description_layout"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:backgroundTint="@color/primary"
-          android:inputType="numberDecimal"
-          android:textSize="12sp" />
+          android:hint="@string/dialog_prparams_description"
+          android:padding="@dimen/space_lg"
+          android:textColorHint="@color/grey_2">
 
-      </android.support.design.widget.TextInputLayout>
+          <android.support.design.widget.TextInputEditText
+            android:id="@+id/description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/primary"
+            android:inputType="text"
+            android:textSize="@dimen/text_md" />
+        </android.support.design.widget.TextInputLayout>
 
-      <TextView
-        android:id="@+id/amount_error"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/space_md"
-        android:text="@string/dialog_prparams_amount_error"
-        android:textColor="@color/red_faded"
-        android:textSize="12sp"
-        android:visibility="gone" />
+        <TextView
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:background="@drawable/rounded_corner_grey_light"
+          android:padding="@dimen/space_lg"
+          android:text="@string/dialog_prparams_amount_desc" />
 
-    </LinearLayout>
-  </ScrollView>
+        <SeekBar
+          android:id="@+id/amount_seek"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:max="100"
+          android:progress="50" />
 
-  <LinearLayout
-    android:id="@+id/buttons_layout"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:gravity="center|end"
-    android:orientation="horizontal"
-    app:layout_constraintBottom_toBottomOf="parent">
+        <android.support.design.widget.TextInputLayout
+          android:id="@+id/amount_layout"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:hint="@string/dialog_prparams_amount"
+          android:padding="@dimen/space_lg"
+          android:textColorHint="@color/grey_2">
+
+          <android.support.design.widget.TextInputEditText
+            android:id="@+id/amount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/primary"
+            android:inputType="numberDecimal"
+            android:textSize="@dimen/text_md" />
+
+        </android.support.design.widget.TextInputLayout>
+
+        <TextView
+          android:id="@+id/amount_error"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_marginBottom="@dimen/space_md"
+          android:text="@string/dialog_prparams_amount_error"
+          android:textColor="@color/red_faded"
+          android:textSize="12sp"
+          android:visibility="gone" />
+
+      </LinearLayout>
+    </ScrollView>
 
     <Button
-      android:id="@+id/close_channel_cancel"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_marginEnd="16dp"
-      android:background="?android:attr/selectableItemBackground"
-      android:onClick="closeApp"
-      android:padding="@dimen/space_md"
+      android:id="@+id/cancel"
+      style="@style/ButtonStyle"
+      android:layout_width="0dp"
+      android:background="@color/white"
+      android:singleLine="true"
       android:text="@string/btn_cancel"
-      android:textColor="@color/grey_1" />
+      android:textColor="@color/grey_1"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toStartOf="@id/mid_guideline"
+      app:layout_constraintStart_toStartOf="parent" />
 
     <Button
-      android:id="@+id/close_channel_close"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:background="?android:attr/selectableItemBackground"
-      android:padding="@dimen/space_md"
+      android:id="@+id/confirm"
+      style="@style/ButtonStyle"
+      android:layout_width="0dp"
+      android:background="@color/white"
+      android:singleLine="true"
       android:text="@string/btn_ok"
-      android:textColor="@color/grey_4" />
-  </LinearLayout>
-</android.support.constraint.ConstraintLayout>
+      android:textColor="@color/grey_1"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toEndOf="@id/mid_guideline" />
+
+  </android.support.constraint.ConstraintLayout>
+</layout>

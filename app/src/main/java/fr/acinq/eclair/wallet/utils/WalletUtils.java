@@ -457,7 +457,7 @@ public class WalletUtils {
       lc.getLogger("fr.acinq.eclair.blockchain.electrum").setLevel(Level.WARN);
     }
     final Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-    root.setLevel(Level.INFO);
+    root.setLevel(BuildConfig.DEBUG ? Level.DEBUG : Level.INFO);
     root.addAppender(appender);
   }
 }

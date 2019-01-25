@@ -88,8 +88,10 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
       });
       mBinding.lightningParameters.setOnClickListener(v -> {
         if (!mBinding.getIsGeneratingLightningPR()) {
-          mPRParamsDialog = new PaymentRequestParametersDialog(ReceivePaymentFragment.this.getContext(), ReceivePaymentFragment.this,
-            R.style.CustomAlertDialog, this.lightningDescription, this.lightningAmount);
+          if (mPRParamsDialog == null) {
+            mPRParamsDialog = new PaymentRequestParametersDialog(ReceivePaymentFragment.this.getContext(), ReceivePaymentFragment.this);
+          }
+          mPRParamsDialog.setParams(this.lightningDescription, this.lightningAmount);
           mPRParamsDialog.show();
         }
       });
@@ -174,9 +176,11 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
 
           new LightningQRCodeTask(this, paymentRequestStr, 250, 250).execute();
         } catch (Exception e) {
-          mBinding.setIsGeneratingLightningPR(false);
-          failPaymentRequestFields();
           log.error("could not generate payment request", e);
+          mBinding.setIsGeneratingLightningPR(false);
+          if (getActivity() != null) {
+            getActivity().runOnUiThread(this::failPaymentRequestFields);
+          }
         }
       });
     }
