@@ -22,6 +22,7 @@ import android.support.annotation.NonNull;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 import com.typesafe.config.ConfigFactory;
+import fr.acinq.eclair.Setup;
 import fr.acinq.eclair.SyncLiteSetup;
 import fr.acinq.eclair.io.NodeURI;
 import fr.acinq.eclair.wallet.App;
@@ -44,6 +45,7 @@ import java.io.File;
 public class NetworkSyncWorker extends Worker {
   private final Logger log = LoggerFactory.getLogger(NetworkSyncWorker.class);
   private final ActorSystem system = ActorSystem.apply("sync-system");
+  private SyncLiteSetup liteSetup;
 
   public NetworkSyncWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
     super(context, workerParams);
@@ -62,6 +64,15 @@ public class NetworkSyncWorker extends Worker {
       system.awaitTermination();
       log.info("termination completed");
     }
+    if (liteSetup != null && liteSetup.nodeParams() != null) {
+      try {
+        liteSetup.nodeParams().channelsDb().close(); // eclair.sqlite
+        liteSetup.nodeParams().networkDb().close(); // network.sqlite
+        liteSetup.nodeParams().auditDb().close(); // audit.sqlite
+      } catch (Throwable t) {
+        log.error("could not close at least one database connection opened by litesetup", t);
+      }
+    }
   }
 
   @NonNull
@@ -75,8 +86,8 @@ public class NetworkSyncWorker extends Worker {
     } else {
       try {
         Class.forName("org.sqlite.JDBC");
-        final SyncLiteSetup setup = new SyncLiteSetup(new File(context.getFilesDir(), Constants.ECLAIR_DATADIR), ConfigFactory.empty(), NodeURI.parse(WalletUtils.ACINQ_NODE), system);
-        Await.result(setup.sync(), Duration.Inf());
+        liteSetup = new SyncLiteSetup(new File(context.getFilesDir(), Constants.ECLAIR_DATADIR), ConfigFactory.empty(), NodeURI.parse(WalletUtils.ACINQ_NODE), system);
+        Await.result(liteSetup.sync(), Duration.Inf());
         log.info("sync has completed");
         return Result.SUCCESS;
       } catch (Exception e) {
