@@ -52,4 +52,12 @@ public class NetworkSyncReceiver extends BroadcastReceiver {
       .setConstraints(new Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build());
     WorkManager.getInstance().enqueueUniquePeriodicWork(NETWORK_SYNC_TAG, ExistingPeriodicWorkPolicy.KEEP, syncWork.build());
   }
+
+  public static void doSyncASAP() {
+    final OneTimeWorkRequest syncWork = new OneTimeWorkRequest.Builder(NetworkSyncWorker.class)
+      .addTag(NETWORK_SYNC_TAG)
+      .setConstraints(new Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
+      .build();
+    WorkManager.getInstance().enqueueUniqueWork(NETWORK_SYNC_TAG, ExistingWorkPolicy.REPLACE, syncWork);
+  }
 }
