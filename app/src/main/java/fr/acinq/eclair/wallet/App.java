@@ -417,8 +417,8 @@ public class App extends Application {
       this.dbHelper.cleanLightningPayments();
     }
 
-    // delete instances of payments with an unknown description/recipient and a PENDING state
-    dbHelper.cleanUpUnknownPayments();
+    // delete unconfirmed onchain txs to get a clean slate before connecting to an electrum server
+    dbHelper.cleanUpZeroConfs();
 
     // rates & coin patterns
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());

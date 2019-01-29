@@ -16,16 +16,13 @@
 
 package fr.acinq.eclair.wallet.activities;
 
-import android.content.ClipData;
-import android.content.ClipboardManager;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
+import android.content.*;
 import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -36,28 +33,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewStub;
-import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
-import android.view.animation.LinearInterpolator;
-import android.view.animation.RotateAnimation;
+import android.view.animation.*;
 import android.widget.Toast;
-
-import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
 import com.google.android.gms.common.util.Strings;
-
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
-import org.greenrobot.eventbus.util.ThrowableFailureEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.blockchain.electrum.ElectrumClient;
@@ -68,17 +46,23 @@ import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.actors.NodeSupervisor;
 import fr.acinq.eclair.wallet.databinding.ActivityHomeBinding;
-import fr.acinq.eclair.wallet.events.BalanceUpdateEvent;
-import fr.acinq.eclair.wallet.events.BitcoinPaymentFailedEvent;
-import fr.acinq.eclair.wallet.events.ChannelUpdateEvent;
-import fr.acinq.eclair.wallet.events.LNPaymentFailedEvent;
-import fr.acinq.eclair.wallet.events.LNPaymentSuccessEvent;
-import fr.acinq.eclair.wallet.events.PaymentEvent;
+import fr.acinq.eclair.wallet.events.*;
 import fr.acinq.eclair.wallet.fragments.ChannelsListFragment;
 import fr.acinq.eclair.wallet.fragments.PaymentsListFragment;
 import fr.acinq.eclair.wallet.fragments.ReceivePaymentFragment;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
+import okhttp3.*;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+import org.greenrobot.eventbus.util.ThrowableFailureEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static fr.acinq.eclair.wallet.adapters.LocalChannelItemHolder.EXTRA_CHANNEL_ID;
 
@@ -100,6 +84,7 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
   private ChannelsListFragment mChannelsListFragment;
   private Handler mExchangeRateHandler = new Handler();
   private Runnable mExchangeRateRunnable;
+  private OkHttpClient httpClient = new OkHttpClient();
   private final Animation mBlinkingAnimation = new AlphaAnimation(0.3f, 1);
   private final Animation mRotatingAnimation = new RotateAnimation(0, -360, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF,
     0.5f);
@@ -197,12 +182,35 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
   }
 
   private void setUpExchangeRate() {
-    final RequestQueue queue = Volley.newRequestQueue(this);
-    final JsonObjectRequest request = WalletUtils.exchangeRateRequest(PreferenceManager.getDefaultSharedPreferences(getBaseContext()));
+    final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+    final Request request = new Request.Builder().url(WalletUtils.PRICE_RATE_API).build();
+
     mExchangeRateRunnable = new Runnable() {
       @Override
       public void run() {
-        queue.add(request);
+        httpClient.newCall(request).enqueue(new Callback() {
+          @Override
+          public void onFailure(@NonNull Call call, @NonNull IOException e) {
+            log.error("exchange rate call failed with cause:" + e.getLocalizedMessage());
+          }
+
+          @Override
+          public void onResponse(@NonNull Call call, @NonNull Response response) {
+            if (!response.isSuccessful()) {
+              log.error("exchange rate query responds with error code: " + response.code());
+            } else if (response.body() == null) {
+              final ResponseBody body = response.body();
+              if (body != null) {
+                body.close();
+                try {
+                  WalletUtils.handleExchangeRateResponse(prefs, body);
+                } catch (Throwable t) {
+                  log.error("could not read exchange rate response body", t);
+                }
+              }
+            }
+          }
+        });
         mExchangeRateHandler.postDelayed(this, 20 * 60 * 1000);
       }
     };
@@ -225,8 +233,12 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
         EventBus.getDefault().register(this);
       }
       PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
-      // refresh exchange rate
-      mExchangeRateHandler.post(mExchangeRateRunnable);
+      if (mExchangeRateHandler == null || mExchangeRateRunnable == null) {
+        setUpExchangeRate();
+      } else {
+        // refresh exchange rate
+        mExchangeRateHandler.post(mExchangeRateRunnable);
+      }
       // refresh LN balance
       updateElectrumState();
       updateBalance();
@@ -259,7 +271,9 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
   public void onPause() {
     super.onPause();
     PreferenceManager.getDefaultSharedPreferences(this).unregisterOnSharedPreferenceChangeListener(this);
-    mExchangeRateHandler.removeCallbacks(mExchangeRateRunnable);
+    if (mExchangeRateHandler != null && mExchangeRateRunnable != null) {
+      mExchangeRateHandler.removeCallbacks(mExchangeRateRunnable);
+    }
     closeSendPaymentButtons();
     closeOpenChannelButtons();
   }
