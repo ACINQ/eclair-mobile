@@ -146,11 +146,9 @@ public class DBHelper {
     insertOrUpdatePayment(p);
   }
 
-  public void cleanUpUnknownPayments() {
+  public void cleanUpZeroConfs() {
     daoSession.getPaymentDao().queryBuilder()
-      .where(PaymentDao.Properties.PaymentRequest.eq("unknown invoice"),
-        PaymentDao.Properties.Recipient.eq("unknown recipient"),
-        PaymentDao.Properties.Status.eq(PaymentStatus.PENDING))
+      .where(PaymentDao.Properties.Type.eq(PaymentType.BTC_ONCHAIN), PaymentDao.Properties.ConfidenceBlocks.eq(0))
       .buildDelete().executeDeleteWithoutDetachingEntities();
     daoSession.clear();
   }
