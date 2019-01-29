@@ -24,6 +24,7 @@ import android.net.Uri;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.text.Html;
 import android.view.View;
 import android.widget.TextView;
@@ -38,8 +39,6 @@ import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.rolling.FixedWindowRollingPolicy;
 import ch.qos.logback.core.rolling.RollingFileAppender;
 import ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy;
-import com.android.volley.Request;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.google.common.io.Files;
 import com.papertrailapp.logback.Syslog4jAppender;
 import com.tozny.crypto.android.AesCbcWithIntegrity;
@@ -54,6 +53,8 @@ import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.services.ChannelsBackupWorker;
+import okhttp3.ResponseBody;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.productivity.java.syslog4j.impl.net.tcp.ssl.SSLTCPNetSyslogConfig;
 import org.slf4j.LoggerFactory;
@@ -71,7 +72,7 @@ public class WalletUtils {
   private final static org.slf4j.Logger log = LoggerFactory.getLogger(WalletUtils.class);
 
   public final static String ACINQ_NODE = "03933884aaf1d6b108397e5efe5c86bcf2d8ca8d2f700eda99db9214fc2712b134@endurance.acinq.co:9735";
-  private final static String PRICE_RATE_API = "https://blockchain.info/fr/ticker";
+  public final static String PRICE_RATE_API = "https://blockchain.info/fr/ticker";
   public final static String UNENCRYPTED_SEED_NAME = "seed.dat";
   public final static String SEED_NAME = "enc_seed.dat";
   private final static String SEED_NAME_TEMP = "enc_seed_temp.dat";
@@ -117,36 +118,32 @@ public class WalletUtils {
     retrieveRateFromPrefs(prefs, "USD");
   }
 
-  public static JsonObjectRequest exchangeRateRequest(final SharedPreferences prefs) {
-    return new JsonObjectRequest(Request.Method.GET, PRICE_RATE_API, null,
-      response -> {
-        final SharedPreferences.Editor editor = prefs.edit();
-        saveCurrency(editor, response, "AUD"); // australian dollar
-        saveCurrency(editor, response, "BRL"); // br real
-        saveCurrency(editor, response, "CAD"); // canadian dollar
-        saveCurrency(editor, response, "CHF"); // swiss franc
-        saveCurrency(editor, response, "CLP"); // chilean pesos
-        saveCurrency(editor, response, "CNY"); // yuan
-        saveCurrency(editor, response, "DKK"); // denmark krone
-        saveCurrency(editor, response, "EUR"); // euro
-        saveCurrency(editor, response, "GBP"); // pound
-        saveCurrency(editor, response, "HKD"); // hong kong dollar
-        saveCurrency(editor, response, "INR"); // indian rupee
-        saveCurrency(editor, response, "ISK"); // icelandic kròna
-        saveCurrency(editor, response, "JPY"); // yen
-        saveCurrency(editor, response, "KRW"); // won
-        saveCurrency(editor, response, "NZD"); // nz dollar
-        saveCurrency(editor, response, "PLN"); // zloty
-        saveCurrency(editor, response, "RUB"); // ruble
-        saveCurrency(editor, response, "SEK"); // swedish krona
-        saveCurrency(editor, response, "SGD"); // singapore dollar
-        saveCurrency(editor, response, "THB"); // thai baht
-        saveCurrency(editor, response, "TWD"); // taiwan dollar
-        saveCurrency(editor, response, "USD"); // usd
-        editor.apply();
-      }, (error) -> {
-      log.error("error when querying price api, with cause {}", error.getMessage());
-    });
+  public static void handleExchangeRateResponse(final SharedPreferences prefs, @NonNull final ResponseBody body) throws IOException, JSONException {
+    final SharedPreferences.Editor editor = prefs.edit();
+    JSONObject json = new JSONObject(body.string());
+    saveCurrency(editor, json, "AUD"); // australian dollar
+    saveCurrency(editor, json, "BRL"); // br real
+    saveCurrency(editor, json, "CAD"); // canadian dollar
+    saveCurrency(editor, json, "CHF"); // swiss franc
+    saveCurrency(editor, json, "CLP"); // chilean pesos
+    saveCurrency(editor, json, "CNY"); // yuan
+    saveCurrency(editor, json, "DKK"); // denmark krone
+    saveCurrency(editor, json, "EUR"); // euro
+    saveCurrency(editor, json, "GBP"); // pound
+    saveCurrency(editor, json, "HKD"); // hong kong dollar
+    saveCurrency(editor, json, "INR"); // indian rupee
+    saveCurrency(editor, json, "ISK"); // icelandic kròna
+    saveCurrency(editor, json, "JPY"); // yen
+    saveCurrency(editor, json, "KRW"); // won
+    saveCurrency(editor, json, "NZD"); // nz dollar
+    saveCurrency(editor, json, "PLN"); // zloty
+    saveCurrency(editor, json, "RUB"); // ruble
+    saveCurrency(editor, json, "SEK"); // swedish krona
+    saveCurrency(editor, json, "SGD"); // singapore dollar
+    saveCurrency(editor, json, "THB"); // thai baht
+    saveCurrency(editor, json, "TWD"); // taiwan dollar
+    saveCurrency(editor, json, "USD"); // usd
+    editor.apply();
   }
 
   public static View.OnClickListener getOpenTxListener(final String txId) {
