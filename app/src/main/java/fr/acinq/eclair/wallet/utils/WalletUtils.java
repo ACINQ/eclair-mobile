@@ -445,6 +445,7 @@ public class WalletUtils {
   }
 
   private static void useAppender(final LoggerContext lc, final Appender<ILoggingEvent> appender) {
+    lc.getLogger("fr.acinq.eclair.crypto").setLevel(Level.WARN); // ChaCha20Poly1305 spams a lot in debug
     if (BuildConfig.DEBUG) {
       lc.getLogger("io.netty").setLevel(Level.DEBUG);
     } else {
