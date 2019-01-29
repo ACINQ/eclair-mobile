@@ -223,8 +223,12 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
         EventBus.getDefault().register(this);
       }
       PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
-      // refresh exchange rate
-      mExchangeRateHandler.post(mExchangeRateRunnable);
+      if (mExchangeRateHandler == null || mExchangeRateRunnable == null) {
+        setUpExchangeRate();
+      } else {
+        // refresh exchange rate
+        mExchangeRateHandler.post(mExchangeRateRunnable);
+      }
       // refresh LN balance
       updateElectrumState();
       updateBalance();
@@ -257,7 +261,9 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
   public void onPause() {
     super.onPause();
     PreferenceManager.getDefaultSharedPreferences(this).unregisterOnSharedPreferenceChangeListener(this);
-    mExchangeRateHandler.removeCallbacks(mExchangeRateRunnable);
+    if (mExchangeRateHandler != null && mExchangeRateRunnable != null) {
+      mExchangeRateHandler.removeCallbacks(mExchangeRateRunnable);
+    }
     closeSendPaymentButtons();
     closeOpenChannelButtons();
   }
