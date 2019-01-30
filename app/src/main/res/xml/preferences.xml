@@ -79,22 +79,21 @@
       android:summary="@string/prefs_lightning_enable_inbound_desc"
       android:title="@string/prefs_lightning_enable_inbound" />$
 
-    <!--<PreferenceCategory android:title="Payment Request parameters">-->
-      <EditTextPreference
-        android:dialogTitle="@string/prefs_payment_request_default_description"
-        android:key="payment_request_default_description"
-        android:summary="@string/prefs_payment_request_default_description_summary"
-        android:title="@string/prefs_payment_request_default_description" />
+    <EditTextPreference
+      android:dialogTitle="@string/prefs_payment_request_default_description"
+      android:key="payment_request_default_description"
+      android:summary="@string/prefs_payment_request_default_description_summary"
+      android:maxLength="256"
+      android:title="@string/prefs_payment_request_default_description" />
 
-      <ListPreference
-        android:defaultValue="3600"
-        android:dialogTitle="@string/prefs_payment_request_expiry"
-        android:entries="@array/lightning_pr_expiry_labels"
-        android:entryValues="@array/lightning_pr_expiry_values"
-        android:key="payment_request_expiry"
-        android:summary="%s"
-        android:title="@string/prefs_payment_request_expiry" />
-    <!--</PreferenceCategory>-->
+    <ListPreference
+      android:defaultValue="3600"
+      android:dialogTitle="@string/prefs_payment_request_expiry"
+      android:entries="@array/lightning_pr_expiry_labels"
+      android:entryValues="@array/lightning_pr_expiry_values"
+      android:key="payment_request_expiry"
+      android:summary="%s"
+      android:title="@string/prefs_payment_request_expiry" />
 
   </PreferenceCategory>
 

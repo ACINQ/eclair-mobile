@@ -408,6 +408,8 @@ public class NodeSupervisor extends UntypedActor {
   /**
    * Optimistically estimates the maximum amount that this node can receive. OFFLINE channels are accounted for in order
    * to smooth this estimation if the connection is flaky.
+   *
+   * This value will never exceed {@link PaymentRequest#MAX_AMOUNT()}
    */
   public static MilliSatoshi getMaxReceivable() {
     long max_msat = 0;
@@ -416,7 +418,7 @@ public class NodeSupervisor extends UntypedActor {
         max_msat = Math.max(max_msat, d.getReceivableMsat());
       }
     }
-    return new MilliSatoshi(max_msat);
+    return new MilliSatoshi(Math.min(PaymentRequest.MAX_AMOUNT().amount(), max_msat));
   }
 
   /**

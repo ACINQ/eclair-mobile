@@ -612,10 +612,11 @@
 
   <!-- //////////////// Payment Request Parameters Dialog /////////////////// -->
 
-  <string name="dialog_prparams_description_desc">Description is optional, but using a meaningful value will help tracking the payment.</string>
-  <string name="dialog_prparams_description">Enter a description…</string>
-  <string name="dialog_prparams_amount_desc">Amount that the payer must send you. If you do not set an amount, payer can pay what he wants.</string>
-  <string name="dialog_prparams_amount">Amount (in %1$s)</string>
-  <string name="dialog_prparams_amount_error">Amount must be greater than %1$s, and no more than %2$s</string>
+  <string name="dialog_prparams_description_title">Description</string>
+  <string name="dialog_prparams_description_hint">No description…</string>
+  <string name="dialog_prparams_amount_title">Amount (max %1$s).</string>
+  <string name="dialog_prparams_amount_hint">No amount requested</string>
+  <string name="dialog_prparams_amount_error_generic">Invalid amount</string>
+  <string name="dialog_prparams_amount_error_invalid">Amount cannot exceed %1$s</string>
 
 </resources>

@@ -34,6 +34,7 @@ import fr.acinq.eclair.CoinUnit;
 import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.wallet.R;
+import fr.acinq.eclair.wallet.actors.NodeSupervisor;
 import fr.acinq.eclair.wallet.databinding.DialogPaymentRequestParametersBinding;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 import org.slf4j.Logger;
@@ -50,36 +51,30 @@ public class PaymentRequestParametersDialog extends Dialog {
     mBinding = DataBindingUtil.inflate(LayoutInflater.from(getContext()), R.layout.dialog_payment_request_parameters, null, false);
     setContentView(mBinding.getRoot());
 
+    final MilliSatoshi maxReceivableAmount = NodeSupervisor.getMaxReceivable();
+    final String maxReceivableString = CoinUtils.formatAmountInUnit(maxReceivableAmount, prefUnit, true);
+    mBinding.amountTitle.setText(context.getString(R.string.dialog_prparams_amount_title, maxReceivableString));
+    mBinding.amountUnit.setText(prefUnit.shortLabel());
+
     setOnCancelListener(v -> dismiss());
     mBinding.cancel.setOnClickListener(v -> dismiss());
     mBinding.confirm.setOnClickListener(v -> {
-      final String amountString = mBinding.amount.getText().toString();
-      final MilliSatoshi amountMsat1 = amountString.length() == 0 ? null : new MilliSatoshi(CoinUtils.convertStringAmountToMsat(amountString, prefUnit.code()).amount());
-      if (amountMsat1 != null && (amountMsat1.amount() <= 0 || amountMsat1.amount() > PaymentRequest.MAX_AMOUNT().amount())) {
-        mBinding.amountError.setText(context.getString(R.string.dialog_prparams_amount_error, "0", CoinUtils.formatAmountInUnit(PaymentRequest.MAX_AMOUNT(), prefUnit, true)));
+      mBinding.amountError.setVisibility(View.GONE);
+      try {
+        final String amountString = mBinding.amount.getText().toString();
+        final MilliSatoshi amountMsat1 = amountString.length() == 0 ? null : new MilliSatoshi(CoinUtils.convertStringAmountToMsat(amountString, prefUnit.code()).amount());
+        if (amountMsat1 != null && (amountMsat1.amount() <= 0 || amountMsat1.amount() > maxReceivableAmount.amount())) {
+          mBinding.amountError.setText(context.getString(R.string.dialog_prparams_amount_error_invalid, maxReceivableString));
+          mBinding.amountError.setVisibility(View.VISIBLE);
+        } else {
+          callback.onConfirm(PaymentRequestParametersDialog.this, mBinding.description.getText().toString(), Option.apply(amountMsat1));
+        }
+      } catch (Exception e) {
+        log.info("could not read payment amount with cause=" + e.getLocalizedMessage());
+        mBinding.amountError.setText(R.string.dialog_prparams_amount_error_generic);
         mBinding.amountError.setVisibility(View.VISIBLE);
-      } else {
-        mBinding.amountError.setVisibility(View.GONE);
-        callback.onConfirm(PaymentRequestParametersDialog.this, mBinding.description.getText().toString(), Option.apply(amountMsat1));
       }
     });
-    mBinding.amountSeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-      @Override
-      public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-        log.info("amount seekbar =>" + progress);
-      }
-
-      @Override
-      public void onStartTrackingTouch(SeekBar seekBar) {
-
-      }
-
-      @Override
-      public void onStopTrackingTouch(SeekBar seekBar) {
-
-      }
-    });
-    mBinding.amountLayout.setHint(context.getString(R.string.dialog_prparams_amount, prefUnit.shortLabel()));
   }
 
   public void setParams(final String description, final Option<MilliSatoshi> amountMsat) {
