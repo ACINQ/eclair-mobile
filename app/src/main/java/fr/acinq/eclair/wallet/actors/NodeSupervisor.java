@@ -172,8 +172,8 @@ public class NodeSupervisor extends UntypedActor {
     }
     // ---- we sent a channel sig => update corresponding payment to PENDING in app's DB
     else if (message instanceof ChannelSignatureSent) {
-      final ChannelSignatureSent sigSent = (ChannelSignatureSent) message;
-      final Either<WaitingForRevocation, Crypto.Point> nextCommitInfo = sigSent.commitments().remoteNextCommitInfo();
+      final ChannelSignatureSent event = (ChannelSignatureSent) message;
+      final Either<WaitingForRevocation, Crypto.Point> nextCommitInfo = event.commitments().remoteNextCommitInfo();
       if (nextCommitInfo.isLeft()) {
         final RemoteCommit commit = nextCommitInfo.left().get().nextRemoteCommit();
         final Iterator<DirectedHtlc> htlcsIterator = commit.spec().htlcs().iterator();
@@ -197,19 +197,9 @@ public class NodeSupervisor extends UntypedActor {
       final ChannelSignatureReceived event = (ChannelSignatureReceived) message;
       final LocalChannel c = getChannel(event.channel());
       final LocalCommit localCommit = event.commitments().localCommit();
-      final Iterator<DirectedHtlc> htlcsIterator = localCommit.spec().htlcs().iterator();
-
-      int htlcsCount = 0;
-      while (htlcsIterator.hasNext()) {
-        DirectedHtlc h = htlcsIterator.next();
-        if (h.direction() instanceof OUT$) {
-          htlcsCount++;
-        }
-      }
-
       c.setChannelReserveSat(event.commitments().localParams().channelReserveSatoshis());
       c.setMinimumHtlcAmountMsat(event.commitments().localParams().htlcMinimumMsat());
-      c.htlcsInFlightCount = htlcsCount;
+      c.htlcsInFlightCount = localCommit.spec().htlcs().iterator().size();
       c.setBalanceMsat(localCommit.spec().toLocalMsat());
       c.setCapacityMsat(localCommit.spec().totalFunds());
       balanceRefreshScheduler.tell(Constants.REFRESH, null);
