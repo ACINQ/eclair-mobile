@@ -61,6 +61,9 @@ public class LocalChannel {
 
   private long minimumHtlcAmountMsat;
 
+  /**
+   * This is the time - in blocks - that we must wait before we get our funds back from the channel, in case of a local close.
+   */
   private int toSelfDelayBlocks;
 
   @Transient

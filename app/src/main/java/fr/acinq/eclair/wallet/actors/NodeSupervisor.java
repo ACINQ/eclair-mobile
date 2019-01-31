@@ -67,7 +67,7 @@ import scala.util.Either;
  */
 public class NodeSupervisor extends UntypedActor {
 
-  private final Logger log = LoggerFactory.getLogger(NodeSupervisor.class);
+  private final static Logger log = LoggerFactory.getLogger(NodeSupervisor.class);
   private DBHelper dbHelper;
   private OneTimeWorkRequest channelsBackupWork;
   private ActorRef paymentRefreshScheduler;
@@ -396,19 +396,35 @@ public class NodeSupervisor extends UntypedActor {
   }
 
   /**
-   * Optimistically estimates the maximum amount that this node can receive. OFFLINE channels are accounted for in order
-   * to smooth this estimation if the connection is flaky.
-   *
-   * This value will never exceed {@link PaymentRequest#MAX_AMOUNT()}
+   * Optimistically estimates the maximum amount that this node can receive. OFFLINE/SYNCING channels' balances are accounted
+   * for in order to smooth this estimation if the connection is flaky.
+   * <p>
+   * Returned amount will never exceed {@link PaymentRequest#MAX_AMOUNT()}.
    */
   public static MilliSatoshi getMaxReceivable() {
     long max_msat = 0;
     for (LocalChannel d : activeChannelsMap.values()) {
-      if (NORMAL$.MODULE$.toString().equals(d.state) || OFFLINE$.MODULE$.toString().equals(d.state)) {
+      if (NORMAL$.MODULE$.toString().equals(d.state) || OFFLINE$.MODULE$.toString().equals(d.state) || SYNCING$.MODULE$.toString().equals(d.state)) {
         max_msat = Math.max(max_msat, d.getReceivableMsat());
       }
     }
     return new MilliSatoshi(Math.min(PaymentRequest.MAX_AMOUNT().amount(), max_msat));
+  }
+
+  public final static int MIN_TO_SELF_DELAY_FOR_SAFE_INBOUND = 2000;
+
+  /**
+   * Checks if the node in its current state can receive lightning payments. If the node has one or more channels with a
+   * low to self delay, will return false.
+   */
+  public static boolean canReceivePayments() {
+    for (LocalChannel d : activeChannelsMap.values()) {
+      if (d.getToSelfDelayBlocks() <= MIN_TO_SELF_DELAY_FOR_SAFE_INBOUND) {
+        log.info("channel {} in state {} has toSelfDelay={}, node cannot receive ln payment", d.getChannelId(), d.state, d.getToSelfDelayBlocks());
+        return false;
+      }
+    }
+    return true;
   }
 
   /**

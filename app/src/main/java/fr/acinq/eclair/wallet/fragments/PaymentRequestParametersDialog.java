@@ -81,6 +81,8 @@ public class PaymentRequestParametersDialog extends Dialog {
     mBinding.description.setText(description);
     if (amountMsat.isDefined()) {
       mBinding.amount.setText(CoinUtils.rawAmountInUnit(amountMsat.get(), prefUnit).bigDecimal().toPlainString());
+    } else {
+      mBinding.amount.setText("");
     }
   }
 

@@ -19,11 +19,14 @@ package fr.acinq.eclair.wallet.activities;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceActivity;
-import android.preference.PreferenceFragment;
+import android.preference.*;
+import android.support.v7.app.AlertDialog;
 import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.wallet.R;
+import fr.acinq.eclair.wallet.actors.NodeSupervisor;
 import fr.acinq.eclair.wallet.utils.Constants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PreferencesActivity extends PreferenceActivity {
 
@@ -35,10 +38,44 @@ public class PreferencesActivity extends PreferenceActivity {
 
   public static class GeneralSettingsFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
 
+    private final Logger log = LoggerFactory.getLogger(GeneralSettingsFragment.class);
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
       addPreferencesFromResource(R.xml.preferences);
+      // --- override "enable reception with lightning" switch button: can only be enabled if all conditions are met
+      if (!NodeSupervisor.canReceivePayments()) {
+        disableCanReceive();
+      }
+      findPreference("enable_lightning_inbound_payments").setOnPreferenceChangeListener((preference, newValue) -> {
+        final boolean canReceive = NodeSupervisor.canReceivePayments();
+        log.debug("on preference change, new_value={}, canReceive=", newValue, canReceive);
+        if (canReceive) {
+          if (newValue instanceof Boolean && (Boolean) newValue) {
+            new AlertDialog.Builder(getActivity(), R.style.CustomAlertDialog)
+              .setIcon(R.drawable.ic_info_outline_blue_18dp)
+              .setTitle(R.string.prefs_lightning_inbound_warning_title)
+              .setMessage(R.string.prefs_lightning_inbound_warning_message)
+              .setPositiveButton(R.string.btn_ok, null)
+              .show();
+          }
+          return true; // that is, preference will be updated with the value input by the user
+        } else {
+          // user cannot receive over LN, disable the feature
+          disableCanReceive();
+          if (getActivity() != null) {
+            new AlertDialog.Builder(getActivity(), R.style.CustomAlertDialog)
+              .setIcon(R.drawable.ic_circle_cross_red_18dp)
+              .setTitle(R.string.prefs_lightning_error_not_authorized_title)
+              .setMessage(getString(R.string.prefs_lightning_error_not_authorized_message, NodeSupervisor.MIN_TO_SELF_DELAY_FOR_SAFE_INBOUND))
+              .setPositiveButton(R.string.btn_ok, null)
+              .show();
+          }
+          return false; // user action is ignored
+        }
+      });
+      // --- advanced settings button sending to specific activities
       findPreference("security_key").setOnPreferenceClickListener(v -> {
         startActivity(new Intent(getActivity().getApplicationContext(), SecuritySettingsActivity.class));
         return true;
@@ -63,6 +100,12 @@ public class PreferencesActivity extends PreferenceActivity {
     public void onPause() {
       super.onPause();
       getPreferenceManager().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
+    }
+
+    private void disableCanReceive() {
+      ((SwitchPreference) findPreference("enable_lightning_inbound_payments")).setChecked(false);
+//      PreferenceManager.getDefaultSharedPreferences(getActivity())
+//        .edit().putBoolean(Constants.SETTING_ENABLE_LIGHTNING_INBOUND_PAYMENTS, false).apply();
     }
 
     @Override
