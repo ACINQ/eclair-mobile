@@ -73,7 +73,7 @@ public class ElectrumClientTest {
 
       new Within(duration("3 seconds")) {
         protected void run() {
-          subject.tell(new ElectrumClient.GetMerkle(BinaryData.apply("c5efb5cbd35a44ba956b18100be0a91c9c33af4c7f31be20e33741d95f04e202"), 1210223L), getRef());
+          subject.tell(new ElectrumClient.GetMerkle(BinaryData.apply("c5efb5cbd35a44ba956b18100be0a91c9c33af4c7f31be20e33741d95f04e202"), 1210223), getRef());
           ElectrumClient.GetMerkleResponse response = expectMsgClass(duration("1 second"), ElectrumClient.GetMerkleResponse.class);
           Assert.assertEquals(response.txid(), BinaryData.apply("c5efb5cbd35a44ba956b18100be0a91c9c33af4c7f31be20e33741d95f04e202"));
           Assert.assertEquals(response.block_height(), 1210223L);
