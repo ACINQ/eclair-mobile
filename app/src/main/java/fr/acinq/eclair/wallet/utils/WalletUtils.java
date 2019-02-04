@@ -47,7 +47,6 @@ import fr.acinq.bitcoin.Block;
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.CoinUnit;
-import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.BuildConfig;
@@ -63,6 +62,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
@@ -76,6 +76,7 @@ public class WalletUtils {
   public final static String UNENCRYPTED_SEED_NAME = "seed.dat";
   public final static String SEED_NAME = "enc_seed.dat";
   private final static String SEED_NAME_TEMP = "enc_seed_temp.dat";
+  private final static String DECIMAL_SEPARATOR = String.valueOf(new DecimalFormat().getDecimalFormatSymbols().getDecimalSeparator());
   private static NumberFormat fiatFormat;
 
   private static void saveCurrency(final SharedPreferences.Editor editor, final JSONObject o, final String fiatCode) {
@@ -248,10 +249,9 @@ public class WalletUtils {
    */
   @SuppressLint("SetTextI18n")
   public static void printAmountInView(final TextView view, final String amount, final String direction) {
-    final String decSep = String.valueOf(CoinUtils.COIN_FORMAT().getDecimalFormatSymbols().getDecimalSeparator());
-    final String[] amountParts = amount.split(Pattern.quote(decSep));
+    final String[] amountParts = amount.split(Pattern.quote(DECIMAL_SEPARATOR));
     if (amountParts.length == 2) {
-      view.setText(Html.fromHtml(view.getContext().getString(R.string.pretty_amount_value, direction + amountParts[0] + decSep, amountParts[1])));
+      view.setText(Html.fromHtml(view.getContext().getString(R.string.pretty_amount_value, direction + amountParts[0] + DECIMAL_SEPARATOR, amountParts[1])));
     } else {
       view.setText(direction + amount);
     }
