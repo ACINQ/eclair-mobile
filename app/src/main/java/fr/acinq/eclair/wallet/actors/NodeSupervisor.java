@@ -419,7 +419,8 @@ public class NodeSupervisor extends UntypedActor {
    */
   public static boolean canReceivePayments() {
     for (LocalChannel d : activeChannelsMap.values()) {
-      if (d.getToSelfDelayBlocks() <= MIN_TO_SELF_DELAY_FOR_SAFE_INBOUND) {
+      if (d.getToSelfDelayBlocks() <= MIN_TO_SELF_DELAY_FOR_SAFE_INBOUND
+        && !(CLOSING$.MODULE$.toString().equals(d.state) || SHUTDOWN$.MODULE$.toString().equals(d.state) || CLOSED$.MODULE$.toString().equals(d.state))) {
         log.info("channel {} in state {} has toSelfDelay={}, node cannot receive ln payment", d.getChannelId(), d.state, d.getToSelfDelayBlocks());
         return false;
       }

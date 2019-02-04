@@ -475,10 +475,10 @@
   <string name="prefs_lightning_max_fee_desc">Abort lightning payments if the fees would exceed 3% of the amount to pay. This prevents overpaying opportunistic nodes in the middle of the route.\n\nDoes not affect on-chain payments.</string>
   <string name="prefs_lightning_enable_inbound">Enable Inbound Lightning Payments</string>
   <string name="prefs_lightning_enable_inbound_desc">This is a placeholder text warning the user that by enabling Eclair Wallet to receive payments over Lightning, he must regularly start the app so that it can watch the blockchain.</string>
-  <string name="prefs_lightning_inbound_warning_title">Congratulations…</string>
-  <string name="prefs_lightning_inbound_warning_message">You can now receive payment over Lightning!\n\nFor a safe experience, please start the application at least once a week to let the app check the blockchain and make sure that your channels are secure.</string>
-  <string name="prefs_lightning_error_not_authorized_title">Unsafe inbound lightning payments</string>
-  <string name="prefs_lightning_error_not_authorized_message">Sorry, you cannot enable inbound lightning payment with your current channels.\n\nYou need at least 1 channel with a \"To Self Delay\" value over %1$d blocks.</string>
+  <string name="prefs_lightning_inbound_warning_title">Congratulations</string>
+  <string name="prefs_lightning_inbound_warning_message">You can now receive payment over Lightning!\n\nFor a safe experience, please start the application at least once a week to check that your channels are secure.</string>
+  <string name="prefs_lightning_error_not_authorized_title">Low To-Self-Delay</string>
+  <string name="prefs_lightning_error_not_authorized_message">Some of your channels have a \"To Self Delay\" value below %1$d blocks which is unsafe for inbound lightning payments.\n\nPlease close these channels beforehand.\n\nNewly created channels will have a safe configuration.</string>
   <string name="prefs_payment_request_default_description">Payment request default description</string>
   <string name="prefs_payment_request_default_description_summary">Default description of the lightning payments that you request. Value is discretionary.\n\nA meaningful description will incite people to pay you.</string>
   <string name="prefs_payment_request_expiry">Payment request expiry</string>

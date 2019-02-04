@@ -53,8 +53,7 @@ public class PreferencesActivity extends PreferenceActivity {
         log.debug("on preference change, new_value={}, canReceive=", newValue, canReceive);
         if (canReceive) {
           if (newValue instanceof Boolean && (Boolean) newValue) {
-            new AlertDialog.Builder(getActivity(), R.style.CustomAlertDialog)
-              .setIcon(R.drawable.ic_info_outline_blue_18dp)
+            new AlertDialog.Builder(getActivity(), R.style.CustomDialog)
               .setTitle(R.string.prefs_lightning_inbound_warning_title)
               .setMessage(R.string.prefs_lightning_inbound_warning_message)
               .setPositiveButton(R.string.btn_ok, null)
@@ -65,7 +64,7 @@ public class PreferencesActivity extends PreferenceActivity {
           // user cannot receive over LN, disable the feature
           disableCanReceive();
           if (getActivity() != null) {
-            new AlertDialog.Builder(getActivity(), R.style.CustomAlertDialog)
+            new AlertDialog.Builder(getActivity(), R.style.CustomDialog)
               .setIcon(R.drawable.ic_circle_cross_red_18dp)
               .setTitle(R.string.prefs_lightning_error_not_authorized_title)
               .setMessage(getString(R.string.prefs_lightning_error_not_authorized_message, NodeSupervisor.MIN_TO_SELF_DELAY_FOR_SAFE_INBOUND))

@@ -66,10 +66,17 @@
     <item name="android:textColor">@color/white</item>
   </style>
 
+  <style name="CustomDialogTitle">
+    <item name="android:textColor">@color/grey_4</item>
+    <item name="android:textAppearance">@style/TextAppearance.AppCompat.Title</item>
+  </style>
+
   <style name="CustomDialog" parent="@style/Theme.AppCompat.Light.Dialog">
     <item name="colorPrimary">@color/primary</item>
+    <item name="colorAccent">@color/primary</item>
     <item name="android:textColor">@color/grey_4</item>
-    <item name="android:textColorPrimary">@color/primary</item>
+    <item name="android:textColorPrimary">@color/grey_4</item>
+    <item name="android:windowTitleStyle">@style/CustomDialogTitle</item>
     <item name="android:windowMinWidthMajor">85%</item>
     <item name="android:windowMinWidthMinor">85%</item>
     <item name="windowActionBar">false</item>
