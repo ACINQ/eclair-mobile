@@ -232,7 +232,8 @@ public class ChannelDetailsActivity extends EclairActivity {
           || Features.hasFeature(localFeatures, Features.CHANNEL_RANGE_QUERIES_BIT_MANDATORY()));
       mBinding.setHasDataLossProtection(Features.hasFeature(localFeatures, Features.OPTION_DATA_LOSS_PROTECT_OPTIONAL()));
     }
-    mBinding.toSelfDelay.setValue(String.valueOf(channel.getToSelfDelayBlocks()));
+    mBinding.toSelfDelay.setValue(getString(R.string.channeldetails_delay_value, channel.getToSelfDelayBlocks()));
+    mBinding.remoteToSelfDelay.setValue(getString(R.string.channeldetails_delay_value, channel.remoteToSelfDelayBlocks));
     mBinding.reserve.setValue(CoinUtils.formatAmountInUnit(new Satoshi(channel.getChannelReserveSat()), prefUnit, true));
     mBinding.countHtlcsInflight.setValue(String.valueOf(channel.htlcsInFlightCount));
     mBinding.minimumHtlcAmount.setValue(CoinUtils.formatAmountInUnit(new MilliSatoshi(channel.getMinimumHtlcAmountMsat()), prefUnit, true));

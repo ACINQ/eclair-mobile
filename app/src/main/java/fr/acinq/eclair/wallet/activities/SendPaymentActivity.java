@@ -151,8 +151,8 @@ public class SendPaymentActivity extends EclairActivity
   }
 
   private void checkLightningChannelsReady() {
-    // special case if all the channels are offline: we may simply have to wait for the connection to be established.
-    mBinding.setEnableSendButton(!NodeSupervisor.areAllChannelsOffline());
+    // send button is enabled only if there is at least 1 channel capable of processing the payment.
+    mBinding.setEnableSendButton(NodeSupervisor.hasOneNormalChannel());
     new Handler().postDelayed(this::checkLightningChannelsReady, 1000);
   }
 
@@ -285,7 +285,8 @@ public class SendPaymentActivity extends EclairActivity
    */
   public void confirmPayment(final View view) {
 
-    if (!mBinding.getEnableSendButton()) {
+    if (isLightningInvoice() && !NodeSupervisor.hasOneNormalChannel()) {
+      mBinding.setEnableSendButton(false);
       return;
     }
 
@@ -300,10 +301,6 @@ public class SendPaymentActivity extends EclairActivity
     try {
       if (isLightningInvoice()) {
         final PaymentRequest paymentRequest = invoice.right().get();
-        if (!NodeSupervisor.hasActiveChannels()) {
-          handlePaymentError(R.string.payment_error_ln_no_active_channels);
-          return;
-        }
         final long amountMsat = CoinUtils.convertStringAmountToMsat(mBinding.amountEditableValue.getText().toString(), preferredBitcoinUnit.code()).amount();
         if (isPinRequired()) {
           pinDialog = new PinDialog(SendPaymentActivity.this, R.style.FullScreenDialog, new PinDialog.PinDialogCallback() {

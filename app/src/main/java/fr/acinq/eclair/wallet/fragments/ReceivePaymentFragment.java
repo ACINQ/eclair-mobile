@@ -83,9 +83,10 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
       mBinding.setPaymentType(0);
       mBinding.pickOnchainButton.setOnClickListener(v -> mBinding.setPaymentType(0));
       mBinding.pickLightningButton.setOnClickListener(v -> {
-        generatePaymentRequest();
         mBinding.setPaymentType(1);
+        refreshLightningPaneState();
       });
+      mBinding.lightningGenerateNewPr.setOnClickListener(v -> generatePaymentRequest());
       mBinding.lightningParameters.setOnClickListener(v -> {
         if (!mBinding.getIsGeneratingLightningPR()) {
           if (mPRParamsDialog == null) {
@@ -107,11 +108,8 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
     if (!EventBus.getDefault().isRegistered(this)) {
       EventBus.getDefault().register(this);
     }
-    final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
-    mBinding.setIsLightningInboundEnabled(prefs.getBoolean(Constants.SETTING_ENABLE_LIGHTNING_INBOUND_PAYMENTS, false));
-    mBinding.setHasNormalChannels(NodeSupervisor.hasActiveChannels());
-    if (mBinding.getIsLightningInboundEnabled() && mBinding.getPaymentType() == 1 && !mBinding.getIsGeneratingLightningPR() && lightningPaymentRequest == null) {
-      generatePaymentRequest();
+    if (mBinding.getPaymentType() == 1) {
+      refreshLightningPaneState();
     }
     if (mBinding.getPaymentType() == 0 && mBinding.getOnchainAddress() == null && getApp() != null && getApp().getElectrumState() != null) {
       setOnchainAddress(getApp().getElectrumState().onchainAddress);
@@ -125,6 +123,16 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
       mPRParamsDialog.dismiss();
     }
     super.onPause();
+  }
+
+  private void refreshLightningPaneState() {
+    final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+    mBinding.setIsLightningInboundEnabled(prefs.getBoolean(Constants.SETTING_ENABLE_LIGHTNING_INBOUND_PAYMENTS, false));
+    mBinding.setHasNoLightningChannels(NodeSupervisor.getChannelsMap().isEmpty());
+    mBinding.setHasNormalChannels(NodeSupervisor.hasOneNormalChannel());
+    if (mBinding.getPaymentType() == 1 && mBinding.getIsLightningInboundEnabled() && !mBinding.getIsGeneratingLightningPR() && lightningPaymentRequest == null) {
+      generatePaymentRequest();
+    }
   }
 
   private void generatePaymentRequest() {
@@ -299,7 +307,7 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
 
   public void notifyChannelsUpdate() {
     if (mBinding != null) {
-      mBinding.setHasNormalChannels(NodeSupervisor.hasActiveChannels());
+      mBinding.setHasNormalChannels(NodeSupervisor.hasOneNormalChannel());
       checkLightningAmount();
     }
   }

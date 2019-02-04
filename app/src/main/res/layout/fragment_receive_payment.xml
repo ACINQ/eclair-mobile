@@ -36,6 +36,10 @@
       type="boolean" />
 
     <variable
+      name="hasNoLightningChannels"
+      type="boolean" />
+
+    <variable
       name="hasNormalChannels"
       type="boolean" />
 
@@ -198,6 +202,15 @@
           android:visibility="@{paymentType == 1 &amp;&amp; !isLightningInboundEnabled ? View.VISIBLE : View.GONE}"
           app:layout_constraintTop_toBottomOf="@id/pick_lightning_button" />
 
+        <TextView
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:background="@drawable/rounded_bottom_white_grey_border"
+          android:padding="@dimen/space_lg"
+          android:text="@string/receivepayment_lightning_no_channels"
+          android:visibility="@{paymentType == 1 &amp;&amp; isLightningInboundEnabled &amp;&amp; hasNoLightningChannels ? View.VISIBLE : View.GONE}"
+          app:layout_constraintTop_toBottomOf="@id/pick_lightning_button" />
+
         <android.support.constraint.ConstraintLayout
           android:id="@+id/lightning_view"
           android:layout_width="match_parent"
@@ -206,7 +219,7 @@
           android:paddingStart="@dimen/space_lg"
           android:paddingEnd="@dimen/space_lg"
           android:paddingBottom="@dimen/space_lg"
-          android:visibility="@{paymentType == 1 &amp;&amp; isLightningInboundEnabled ? View.VISIBLE : View.GONE}"
+          android:visibility="@{paymentType == 1 &amp;&amp; isLightningInboundEnabled &amp;&amp; !hasNoLightningChannels ? View.VISIBLE : View.GONE}"
           app:layout_constraintTop_toBottomOf="@id/pick_lightning_button">
 
           <ImageView
@@ -258,7 +271,7 @@
             app:layout_constraintTop_toBottomOf="@id/lightning_pr_title" />
 
           <LinearLayout
-            android:id="@+id/lightning_main_layout"
+            android:id="@+id/lightning_feedback_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/space_md"
@@ -291,6 +304,23 @@
               android:visibility="@{excessiveLightningAmount ? View.VISIBLE : View.GONE}" />
           </LinearLayout>
 
+          <Button
+            android:id="@+id/lightning_generate_new_pr"
+            style="@style/ButtonStyle"
+            android:layout_marginTop="@dimen/space_md"
+            android:alpha="@{isGeneratingLightningPR ? 0.3f : 1.0f}"
+            android:background="@drawable/rounded_corner_black"
+            android:drawableStart="@drawable/ic_refresh_white_14dp"
+            android:drawablePadding="@dimen/space_xs"
+            android:enabled="@{!isGeneratingLightningPR}"
+            android:padding="@dimen/space_xs"
+            android:text="@string/receivepayment_lightning_generate_new_pr"
+            android:textColor="@color/white"
+            android:textSize="@dimen/text_sm"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/lightning_feedback_layout" />
+
           <android.support.constraint.ConstraintLayout
             android:id="@+id/lightning_parameters"
             android:layout_width="match_parent"
@@ -298,7 +328,7 @@
             android:layout_marginTop="@dimen/space_md_p"
             android:clickable="true"
             android:focusable="true"
-            app:layout_constraintTop_toBottomOf="@id/lightning_main_layout">
+            app:layout_constraintTop_toBottomOf="@id/lightning_generate_new_pr">
 
             <android.support.constraint.Guideline
               android:id="@+id/mid_guideline_params"
@@ -311,11 +341,11 @@
               android:id="@+id/lightning_params_sep"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
-              android:textAlignment="center"
               android:layout_marginStart="@dimen/space_xxs"
               android:ellipsize="end"
               android:singleLine="true"
               android:text="@string/receivepayment_lightning_params_tip"
+              android:textAlignment="center"
               android:textColor="@color/grey_0_dark_x2"
               android:textSize="@dimen/text_xs"
               app:layout_constraintTop_toTopOf="parent" />

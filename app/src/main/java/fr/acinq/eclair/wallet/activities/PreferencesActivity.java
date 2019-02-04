@@ -65,9 +65,8 @@ public class PreferencesActivity extends PreferenceActivity {
           disableCanReceive();
           if (getActivity() != null) {
             new AlertDialog.Builder(getActivity(), R.style.CustomDialog)
-              .setIcon(R.drawable.ic_circle_cross_red_18dp)
               .setTitle(R.string.prefs_lightning_error_not_authorized_title)
-              .setMessage(getString(R.string.prefs_lightning_error_not_authorized_message, NodeSupervisor.MIN_TO_SELF_DELAY_FOR_SAFE_INBOUND))
+              .setMessage(getString(R.string.prefs_lightning_error_not_authorized_message, NodeSupervisor.MIN_REMOTE_TO_SELF_DELAY))
               .setPositiveButton(R.string.btn_ok, null)
               .show();
           }

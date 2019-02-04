@@ -295,6 +295,7 @@ public class NodeSupervisor extends UntypedActor {
         final Commitments commitments = ((HasCommitments) event.currentData()).commitments();
         c.setLocalFeatures(commitments.remoteParams().localFeatures().toString());
         c.setToSelfDelayBlocks(commitments.remoteParams().toSelfDelay());
+        c.remoteToSelfDelayBlocks = commitments.localParams().toSelfDelay();
         c.htlcsInFlightCount = commitments.localCommit().spec().htlcs().iterator().size();
         c.setChannelReserveSat(commitments.localParams().channelReserveSatoshis());
         c.setMinimumHtlcAmountMsat(commitments.localParams().htlcMinimumMsat());
@@ -373,15 +374,6 @@ public class NodeSupervisor extends UntypedActor {
     }
   }
 
-  public static boolean hasActiveChannels() {
-    for (LocalChannel c : activeChannelsMap.values()) {
-      if (NORMAL$.MODULE$.toString().equals(c.state)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
   /**
    * Checks if the wallet has at least 1 NORMAL channel with enough balance (including channel reserve).
    */
@@ -411,7 +403,7 @@ public class NodeSupervisor extends UntypedActor {
     return new MilliSatoshi(Math.min(PaymentRequest.MAX_AMOUNT().amount(), max_msat));
   }
 
-  public final static int MIN_TO_SELF_DELAY_FOR_SAFE_INBOUND = 2000;
+  public final static int MIN_REMOTE_TO_SELF_DELAY = 2016;
 
   /**
    * Checks if the node in its current state can receive lightning payments. If the node has one or more channels with a
@@ -419,9 +411,9 @@ public class NodeSupervisor extends UntypedActor {
    */
   public static boolean canReceivePayments() {
     for (LocalChannel d : activeChannelsMap.values()) {
-      if (d.getToSelfDelayBlocks() <= MIN_TO_SELF_DELAY_FOR_SAFE_INBOUND
+      if (d.remoteToSelfDelayBlocks <= MIN_REMOTE_TO_SELF_DELAY
         && !(CLOSING$.MODULE$.toString().equals(d.state) || SHUTDOWN$.MODULE$.toString().equals(d.state) || CLOSED$.MODULE$.toString().equals(d.state))) {
-        log.info("channel {} in state {} has toSelfDelay={}, node cannot receive ln payment", d.getChannelId(), d.state, d.getToSelfDelayBlocks());
+        log.info("channel {} in state {} has remote toSelfDelay={}, node cannot receive ln payment", d.getChannelId(), d.state, d.remoteToSelfDelayBlocks);
         return false;
       }
     }
@@ -429,16 +421,16 @@ public class NodeSupervisor extends UntypedActor {
   }
 
   /**
-   * Return true if all the active channels are offline. If there are no active channels, return false.
+   * Return true if one channel is normal, otherwise returns false.
    */
-  public static boolean areAllChannelsOffline() {
+  public static boolean hasOneNormalChannel() {
     if (activeChannelsMap.isEmpty()) return false;
     for (LocalChannel d : activeChannelsMap.values()) {
-      if (!OFFLINE$.MODULE$.toString().equals(d.state)) {
-        return false;
+      if (NORMAL$.MODULE$.toString().equals(d.state)) {
+        return true;
       }
     }
-    return true;
+    return false;
   }
 
   public static Map.Entry<ActorRef, LocalChannel> getChannelFromId(String channelId) {

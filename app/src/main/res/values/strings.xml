@@ -276,13 +276,15 @@
   <string name="channeldetails_terminated_disclaimer">This channel has been terminated.</string>
   <string name="channeldetails_opened_on"><![CDATA[Opened <b>%1$s</b>]]></string>
   <string name="channeldetails_closed_on"><![CDATA[Closed <b>%1$s</b>]]></string>
-  <string name="channeldetails_id_label">Channel Id</string>
-  <string name="channeldetails_short_id_label">Short Channel Id</string>
+  <string name="channeldetails_id_label">Channel id</string>
+  <string name="channeldetails_short_id_label">Short channel id</string>
   <string name="channeldetails_features_label">Features support</string>
   <string name="channeldetails_advanced_routing_label">Advanced routing sync</string>
   <string name="channeldetails_data_loss_protection_label">Dataloss protection</string>
   <string name="channeldetails_to_self_delay_label">Refund delay (uncooperative close)</string>
-  <string name="channeldetails_reserve_label">Minimum Channel Reserve</string>
+  <string name="channeldetails_remote_to_self_delay_label">Remote To-Self-Delay</string>
+  <string name="channeldetails_delay_value">%1$d blocks</string>
+  <string name="channeldetails_reserve_label">Minimum channel reserve</string>
   <string name="channeldetails_htlcs_count_label">Inflight HTLCs</string>
   <string name="channeldetails_min_htlc_amount_label">Minimum payment amount</string>
   <string name="channeldetails_closing_section">Closing information</string>
@@ -601,6 +603,7 @@
   <string name="receivepayment_onchain_wait">Retrieving fresh address…</string>
   <string name="receivepayment_lightning_image_desc">Lightning payment request QR Code</string>
   <string name="receivepayment_lightning_inbound_disabled">You must enable Lightning payment reception in the app settings.\n\nNote that, to safely use this feature, you should run the app once a week.</string>
+  <string name="receivepayment_lightning_no_channels">Please open a lightning channel to receive payments over lightning.</string>
   <string name="receivepayment_lightning_may_fail">This payment may fail</string>
   <string name="receivepayment_lightning_no_routes_available">- Your channels are currently not active.</string>
   <string name="receivepayment_lightning_excessive_amount">- Requested amount exceeds your current receive capacity.</string>
@@ -612,6 +615,7 @@
   <string name="receivepayment_lightning_amount_notset">Set freely by the payer</string>
   <string name="receivepayment_lightning_amount_value"><![CDATA[%1$s<br /><font color="#bbbbbb">≈ %2$s</font>]]></string>
   <string name="receivepayment_lightning_wait">Please wait…</string>
+  <string name="receivepayment_lightning_generate_new_pr">Generate new request</string>
   <string name="receivepayment_lightning_error">Error in payment request…</string>
 
   <!-- //////////////// Payment Request Parameters Dialog /////////////////// -->

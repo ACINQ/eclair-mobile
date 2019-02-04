@@ -338,6 +338,14 @@
           app:value="@string/unknown" />
 
         <fr.acinq.eclair.wallet.customviews.DataRow
+          android:id="@+id/remote_to_self_delay"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          app:has_border="true"
+          app:label="@string/channeldetails_remote_to_self_delay_label"
+          app:value="@string/unknown" />
+
+        <fr.acinq.eclair.wallet.customviews.DataRow
           android:id="@+id/reserve"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
