@@ -33,8 +33,8 @@ import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.package$;
 import fr.acinq.eclair.payment.PaymentRequest;
-import fr.acinq.eclair.wallet.utils.BitcoinURIParseException;
 import fr.acinq.eclair.wallet.utils.Constants;
+import fr.acinq.eclair.wallet.utils.EclairException;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -107,9 +107,9 @@ public class BitcoinURI {
    * Constructs a new object by trying to parse the input as a valid Bitcoin URI.
    *
    * @param input The raw URI data to be parsed (see class comments for accepted formats)
-   * @throws BitcoinURIParseException If the input fails Bitcoin URI syntax and semantic checks.
+   * @throws EclairException.BitcoinURIParseException If the input fails Bitcoin URI syntax and semantic checks.
    */
-  public BitcoinURI(String input) throws BitcoinURIParseException {
+  public BitcoinURI(String input) throws EclairException.BitcoinURIParseException {
     checkNotNull(input);
 
     String scheme = "bitcoin";
@@ -118,7 +118,7 @@ public class BitcoinURI {
     try {
       uri = new URI(input);
     } catch (URISyntaxException e) {
-      throw new BitcoinURIParseException("Bad URI syntax", e);
+      throw new EclairException.BitcoinURIParseException("Bad URI syntax", e);
     }
 
     // URI is formed as  bitcoin:<address>?<query parameters>
@@ -138,13 +138,13 @@ public class BitcoinURI {
     } else if (input.toLowerCase().startsWith(correctScheme)) {
       schemeSpecificPart = input.substring(correctScheme.length());
     } else {
-      throw new BitcoinURIParseException("Unsupported URI scheme: " + uri.getScheme());
+      throw new EclairException.BitcoinURIParseException("Unsupported URI scheme: " + uri.getScheme());
     }
 
     // Split off the address from the rest of the query parameters.
     String[] addressSplitTokens = schemeSpecificPart.split("\\?", 2);
     if (addressSplitTokens.length == 0)
-      throw new BitcoinURIParseException("No data found after the bitcoin: prefix");
+      throw new EclairException.BitcoinURIParseException("No data found after the bitcoin: prefix");
     String addressToken = addressSplitTokens[0];  // may be empty!
 
     String[] nameValuePairTokens;
@@ -166,7 +166,7 @@ public class BitcoinURI {
     }
 
     if (addressToken.isEmpty() && getPaymentRequestUrl() == null) {
-      throw new BitcoinURIParseException("No address and no r= parameter found");
+      throw new EclairException.BitcoinURIParseException("No address and no r= parameter found");
     }
   }
 
@@ -174,15 +174,15 @@ public class BitcoinURI {
    * @param nameValuePairTokens The tokens representing the name value pairs (assumed to be
    *                            separated by '=' e.g. 'amount=0.2')
    */
-  private void parseParameters(String addressToken, String[] nameValuePairTokens) throws BitcoinURIParseException {
+  private void parseParameters(String addressToken, String[] nameValuePairTokens) throws EclairException.BitcoinURIParseException {
     // Attempt to decode the rest of the tokens into a parameter map.
     for (String nameValuePairToken : nameValuePairTokens) {
       final int sepIndex = nameValuePairToken.indexOf('=');
       if (sepIndex == -1)
-        throw new BitcoinURIParseException("Malformed Bitcoin URI - no separator in '" +
+        throw new EclairException.BitcoinURIParseException("Malformed Bitcoin URI - no separator in '" +
           nameValuePairToken + "'");
       if (sepIndex == 0)
-        throw new BitcoinURIParseException("Malformed Bitcoin URI - empty name '" +
+        throw new EclairException.BitcoinURIParseException("Malformed Bitcoin URI - empty name '" +
           nameValuePairToken + "'");
       final String nameToken = nameValuePairToken.substring(0, sepIndex).toLowerCase(Locale.ENGLISH);
       final String valueToken = nameValuePairToken.substring(sepIndex + 1);
@@ -222,9 +222,9 @@ public class BitcoinURI {
    * @param key   The key for the map
    * @param value The value to store
    */
-  private void putWithValidation(String key, Object value) throws BitcoinURIParseException {
+  private void putWithValidation(String key, Object value) throws EclairException.BitcoinURIParseException {
     if (parameterMap.containsKey(key)) {
-      throw new BitcoinURIParseException(String.format(Locale.US, "'%s' is duplicated, URI is invalid", key));
+      throw new EclairException.BitcoinURIParseException(String.format(Locale.US, "'%s' is duplicated, URI is invalid", key));
     } else {
       parameterMap.put(key, value);
     }

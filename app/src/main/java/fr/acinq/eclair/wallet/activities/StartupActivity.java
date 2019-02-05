@@ -19,7 +19,6 @@ package fr.acinq.eclair.wallet.activities;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import akka.actor.ActorRef;
-import akka.actor.ActorSystem;
 import akka.actor.Props;
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -76,7 +75,7 @@ import scala.Option;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
-import fr.acinq.eclair.wallet.utils.StartNotificationReminder;
+import fr.acinq.eclair.wallet.services.RegularStartReminder;
 
 import java.io.File;
 import java.io.IOException;
@@ -131,7 +130,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
   private void setupStartReminderAlarm() {
     final AlarmManager m = ((AlarmManager) getSystemService(Context.ALARM_SERVICE));
     if (m != null) {
-      final PendingIntent broadcastIntent = StartNotificationReminder.getBroadcastIntent(getApplicationContext());
+      final PendingIntent broadcastIntent = RegularStartReminder.getBroadcastIntent(getApplicationContext());
       // first cancel existing alarm
       m.cancel(broadcastIntent);
       // then schedule a repeatable alarm that displays a notification. Next alarm date is saved in app prefs so that

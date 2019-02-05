@@ -189,7 +189,7 @@
         <action android:name="android.intent.action.BOOT_COMPLETED" />
       </intent-filter>
     </receiver>
-    <receiver android:name=".utils.StartNotificationReminder">
+    <receiver android:name=".services.RegularStartReminder">
       <intent-filter>
         <action android:name="android.intent.action.BOOT_COMPLETED" />
       </intent-filter>

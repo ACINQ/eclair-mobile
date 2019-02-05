@@ -62,7 +62,6 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
   private final Logger log = LoggerFactory.getLogger(OpenChannelActivity.class);
   private ActivityOpenChannelBinding mBinding;
 
-  private String remoteNodeURIAsString = "";
   private NodeURI remoteNodeURI = null;
   private String preferredFiatCurrency = Constants.FIAT_USD;
   private CoinUnit preferredBitcoinUnit = CoinUtils.getUnitFromString(Constants.BTC_CODE);
@@ -174,8 +173,7 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
     if (useDnsSeed) {
       startDNSDiscovery();
     } else {
-      remoteNodeURIAsString = getIntent().getStringExtra(EXTRA_NEW_HOST_URI).trim();
-      new NodeURIReaderTask(this, remoteNodeURIAsString).execute();
+      new NodeURIReaderTask(this, getIntent().getStringExtra(EXTRA_NEW_HOST_URI)).execute();
     }
   }
 

@@ -47,7 +47,6 @@ import fr.acinq.bitcoin.Block;
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.CoinUnit;
-import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.BuildConfig;
@@ -370,9 +369,9 @@ public class WalletUtils {
   /**
    * Sets up an index-based rolling policy with a max file size of 4MB.
    */
-  public static void setupLocalLogging(final Context context) throws ExternalStorageNotAvailableException {
+  public static void setupLocalLogging(final Context context) throws EclairException.ExternalStorageNotAvailableException {
     if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-      throw new ExternalStorageNotAvailableException();
+      throw new EclairException.ExternalStorageNotAvailableException();
     }
 
     final LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();

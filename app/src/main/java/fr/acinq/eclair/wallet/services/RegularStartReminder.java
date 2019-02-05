@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.acinq.eclair.wallet.utils;
+package fr.acinq.eclair.wallet.services;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -28,14 +28,17 @@ import android.support.v4.app.NotificationManagerCompat;
 
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.activities.StartupActivity;
+import fr.acinq.eclair.wallet.utils.Constants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class StartNotificationReminder extends BroadcastReceiver {
+public class RegularStartReminder extends BroadcastReceiver {
 
-  private static final String TAG = StartNotificationReminder.class.getSimpleName();
+  private final Logger log = LoggerFactory.getLogger(RegularStartReminder.class);
 
   public static PendingIntent getBroadcastIntent(Context context) {
     return PendingIntent.getBroadcast(context, Constants.NOTIF_START_REMINDER_REQUEST_CODE,
-      new Intent(context, StartNotificationReminder.class), 0);
+      new Intent(context, RegularStartReminder.class), 0);
   }
 
   @Override
