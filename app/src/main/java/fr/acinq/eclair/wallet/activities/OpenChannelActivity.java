@@ -16,25 +16,18 @@
 
 package fr.acinq.eclair.wallet.activities;
 
+import akka.dispatch.OnComplete;
+import akka.pattern.Patterns;
+import akka.util.Timeout;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
-
-import org.greenrobot.eventbus.util.AsyncExecutor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import akka.dispatch.OnComplete;
-import akka.pattern.Patterns;
-import akka.util.Timeout;
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.bitcoin.package$;
@@ -49,8 +42,11 @@ import fr.acinq.eclair.wallet.databinding.ActivityOpenChannelBinding;
 import fr.acinq.eclair.wallet.fragments.PinDialog;
 import fr.acinq.eclair.wallet.tasks.NodeURIReaderTask;
 import fr.acinq.eclair.wallet.utils.Constants;
+import fr.acinq.eclair.wallet.utils.TechnicalHelper;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
-import scala.Option;
+import org.greenrobot.eventbus.util.AsyncExecutor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import scala.concurrent.duration.Duration;
 
 public class OpenChannelActivity extends EclairActivity implements NodeURIReaderTask.AsyncNodeURIReaderTaskResponse {
@@ -77,7 +73,6 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
     final SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
     preferredFiatCurrency = WalletUtils.getPreferredFiat(sharedPrefs);
     preferredBitcoinUnit = WalletUtils.getPreferredCoinUnit(sharedPrefs);
-
     setFeesToDefault();
 
     mBinding.useAllFundsCheckbox.setOnCheckedChangeListener((v, isChecked) -> {
@@ -109,12 +104,7 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
       }
     });
 
-    mBinding.capacityValue.addTextChangedListener(new TextWatcher() {
-      @Override
-      public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-      }
-
-      @Override
+    mBinding.capacityValue.addTextChangedListener(new TechnicalHelper.SimpleTextWatcher() {
       public void onTextChanged(CharSequence s, int start, int before, int count) {
         // toggle hint depending on amount input
         mBinding.capacityHint.setVisibility(s == null || s.length() == 0 ? View.VISIBLE : View.GONE);
@@ -125,20 +115,12 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
           mBinding.capacityFiat.setText(getString(R.string.amount_to_fiat, getString(R.string.unknown)));
         }
       }
-
-      @Override
-      public void afterTextChanged(Editable s) {
-      }
     });
-    mBinding.feesValue.addTextChangedListener(new TextWatcher() {
-      @Override
-      public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after) {
-      }
-
+    mBinding.feesValue.addTextChangedListener(new TechnicalHelper.SimpleTextWatcher() {
       @Override
       public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
         try {
-          final Long feesSatPerByte = Long.parseLong(s.toString());
+          final long feesSatPerByte = Long.parseLong(s.toString());
           if (feesSatPerByte != app.estimateSlowFees() && feesSatPerByte != app.estimateMediumFees() && feesSatPerByte != app.estimateFastFees()) {
             feeRatingState = Constants.FEE_RATING_CUSTOM;
             mBinding.setFeeRatingState(feeRatingState);
@@ -160,16 +142,11 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
           log.debug("could not read fees with cause {}" + e.getMessage());
         }
       }
-
-      @Override
-      public void afterTextChanged(Editable s) {
-      }
     });
     mBinding.capacityUnit.setText(preferredBitcoinUnit.shortLabel());
     setFeesToDefault();
 
     final boolean useDnsSeed = getIntent().getBooleanExtra(EXTRA_USE_DNS_SEED, false);
-
     if (useDnsSeed) {
       startDNSDiscovery();
     } else {
