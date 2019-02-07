@@ -224,8 +224,8 @@
 
   <string name="openchannel_liquidity_instructions">Do you want this node to open a channel back? This will help you to receive payments over Lightning.</string>
   <string name="openchannel_liquidity_none">No</string>
-  <string name="openchannel_liquidity_acinq_5m">5 mBTC incoming channel</string>
   <string name="openchannel_liquidity_acinq_10m">10 mBTC incoming channel</string>
+  <string name="openchannel_liquidity_acinq_20m">20 mBTC incoming channel</string>
   <string name="openchannel_liquidity_cost">Cost %1$s</string>
 
   <!-- //////////////// Commons /////////////////// -->

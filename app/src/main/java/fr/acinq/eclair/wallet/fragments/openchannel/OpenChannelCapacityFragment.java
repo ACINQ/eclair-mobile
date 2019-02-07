@@ -61,6 +61,7 @@ public class OpenChannelCapacityFragment extends Fragment {
 
   public interface OnCapacityConfirmListener {
     void onCapacityConfirm(final Satoshi capacity, final long feesSatPerKW);
+
     void onCapacityBack();
   }
 
