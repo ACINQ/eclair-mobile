@@ -28,6 +28,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.CompoundButton;
 import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.eclair.CoinUnit;
 import fr.acinq.eclair.CoinUtils;
@@ -60,7 +61,7 @@ public class OpenChannelCapacityFragment extends Fragment {
   }
 
   public interface OnCapacityConfirmListener {
-    void onCapacityConfirm(final Satoshi capacity, final long feesSatPerKW);
+    void onCapacityConfirm(final Satoshi capacity, final long feesSatPerKW, final boolean requireLiquidity);
 
     void onCapacityBack();
   }
@@ -85,8 +86,11 @@ public class OpenChannelCapacityFragment extends Fragment {
     preferredFiatCurrency = WalletUtils.getPreferredFiat(sharedPrefs);
     preferredBitcoinUnit = WalletUtils.getPreferredCoinUnit(sharedPrefs);
     setFeesToDefault();
-    mBinding.setNodeURI(this.nodeURI);
+    mBinding.setNode(this.nodeURI);
 
+    mBinding.requestLiquidityCheckbox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+      mBinding.setGoToLiquidity(isChecked);
+    });
     mBinding.capacityLayout.setOnClickListener(v -> focusField(mBinding.capacityValue));
     mBinding.fundingFeesLayout.setOnClickListener(v -> focusField(mBinding.fundingFeesValue));
     mBinding.fundingFeesRating.setOnClickListener(v -> pickFees());
@@ -272,7 +276,7 @@ public class OpenChannelCapacityFragment extends Fragment {
       final Long feesSatPerKW = extractFundingFees(mBinding.fundingFeesValue.getText().toString());
       if (capacity != null && feesSatPerKW != null) {
         // amount and fees are correct, notify parent activity to move to next step
-        mCallback.onCapacityConfirm(capacity, feesSatPerKW);
+        mCallback.onCapacityConfirm(capacity, feesSatPerKW, mBinding.requestLiquidityCheckbox.isChecked());
       }
     }
   }

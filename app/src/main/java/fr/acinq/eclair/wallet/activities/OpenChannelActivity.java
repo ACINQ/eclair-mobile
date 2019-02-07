@@ -38,6 +38,7 @@ import fr.acinq.eclair.wallet.fragments.PinDialog;
 import fr.acinq.eclair.wallet.fragments.openchannel.OpenChannelCapacityFragment;
 import fr.acinq.eclair.wallet.fragments.openchannel.OpenChannelLiquidityFragment;
 import fr.acinq.eclair.wallet.tasks.NodeURIReaderTask;
+import fr.acinq.eclair.wallet.utils.WalletUtils;
 import org.greenrobot.eventbus.util.AsyncExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -126,7 +127,6 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
     fragmentManager.beginTransaction()
       .hide(mLiquidityFragment)
       .show(mCapacityFragment)
-      .addToBackStack(null)
       .commit();
   }
 
@@ -150,8 +150,13 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
   }
 
   @Override
-  public void onCapacityConfirm(final Satoshi capacity, final long feesSatPerKW) {
-    goToLiquidityPage(capacity, feesSatPerKW);
+  public void onCapacityConfirm(final Satoshi capacity, final long feesSatPerKW, final boolean requireLiquidity) {
+    final NodeURI nodeURI = mBinding.getNodeURI();
+    if (requireLiquidity && nodeURI.nodeId().equals(WalletUtils.ACINQ_NODE.nodeId())) {
+      goToLiquidityPage(capacity, feesSatPerKW);
+    } else {
+      openChannel_secure(nodeURI, capacity, feesSatPerKW, new MilliSatoshi(0));
+    }
   }
 
   @Override
@@ -161,16 +166,20 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
 
   @Override
   public void onLiquidityConfirm(final Satoshi capacity, final Long feesSatPerKW, final MilliSatoshi push) {
-    openChannel_secure(capacity, feesSatPerKW, push);
+    openChannel_secure(mBinding.getNodeURI(), capacity, feesSatPerKW, push);
   }
 
-  private void openChannel_secure(final Satoshi capacity, final Long feesSatPerKW, final MilliSatoshi push) {
+  private void openChannel_secure(final NodeURI nodeURI, final Satoshi capacity, final Long feesSatPerKW, final MilliSatoshi push) {
+    if (nodeURI == null) {
+      finish();
+      return;
+    }
     if (isPinRequired()) {
       pinDialog = new PinDialog(OpenChannelActivity.this, R.style.FullScreenDialog, new PinDialog.PinDialogCallback() {
         @Override
         public void onPinConfirm(final PinDialog dialog, final String pinValue) {
           if (isPinCorrect(pinValue, dialog)) {
-            doOpenChannel(mBinding.getNodeURI(), capacity, feesSatPerKW, push);
+            doOpenChannel(nodeURI, capacity, feesSatPerKW, push);
           } else {
             mBinding.setErrorMessage(getString(R.string.payment_error_incorrect_pin));
           }
@@ -183,7 +192,7 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
       });
       pinDialog.show();
     } else {
-      doOpenChannel(mBinding.getNodeURI(), capacity, feesSatPerKW, push);
+      doOpenChannel(nodeURI, capacity, feesSatPerKW, push);
     }
   }
 

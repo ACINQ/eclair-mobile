@@ -27,13 +27,21 @@
 
     <import type="fr.acinq.eclair.wallet.utils.Constants" />
 
+    <import type="fr.acinq.eclair.wallet.utils.WalletUtils" />
+
+    <import type="fr.acinq.eclair.io.NodeURI" />
+
     <variable
       name="feeRatingState"
       type="int" />
 
     <variable
-      name="nodeURI"
+      name="node"
       type="fr.acinq.eclair.io.NodeURI" />
+
+    <variable
+      name="goToLiquidity"
+      type="boolean" />
 
     <variable
       name="feesWarning"
@@ -179,10 +187,10 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:background="@color/grey_0_blue_light_x1"
-        android:ellipsize="end"
+        android:ellipsize="none"
         android:padding="@dimen/space_xs"
         android:singleLine="true"
-        android:text="@{nodeURI != null ? nodeURI.nodeId().toString() : @string/unknown}"
+        android:text="@{node != null ? node.nodeId().toString() : @string/unknown}"
         android:textIsSelectable="true"
         android:textSize="@dimen/text_sm"
         app:layout_constrainedWidth="true"
@@ -212,8 +220,10 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:background="@color/grey_0_blue_light_x2"
+        android:ellipsize="none"
         android:padding="@dimen/space_xs"
-        android:text="@{nodeURI != null ? nodeURI.address().toString() : @string/unknown}"
+        android:singleLine="true"
+        android:text="@{node != null ? node.address().toString() : @string/unknown}"
         android:textIsSelectable="true"
         android:textSize="@dimen/text_sm"
         app:layout_constrainedWidth="true"
@@ -237,13 +247,15 @@
 
       <LinearLayout
         android:id="@+id/funding_fees_layout"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/space_xs"
         android:clickable="true"
         android:focusable="true"
         android:orientation="horizontal"
         android:padding="@dimen/space_xs"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintEnd_toStartOf="@id/funding_fees_rating"
         app:layout_constraintStart_toEndOf="@id/label_guideline"
         app:layout_constraintTop_toBottomOf="@+id/peer_address">
 
@@ -301,6 +313,20 @@
         app:layout_constraintStart_toEndOf="@id/label_guideline"
         app:layout_constraintTop_toBottomOf="@id/funding_fees_layout" />
 
+      <CheckBox
+        android:id="@+id/request_liquidity_checkbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_md"
+        android:buttonTint="@color/primary"
+        android:text="@string/openchannel_request_liquidity_button"
+        android:textSize="@dimen/text_sm"
+        android:translationX="-26dp"
+        android:visibility="@{node != null &amp;&amp; node.nodeId().equals(WalletUtils.ACINQ_NODE.nodeId()) ? View.VISIBLE : View.GONE}"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintStart_toEndOf="@id/label_guideline"
+        app:layout_constraintTop_toBottomOf="@id/use_all_funds_checkbox" />
+
       <LinearLayout
         android:id="@+id/feedback_layout"
         android:layout_width="0dp"
@@ -311,7 +337,7 @@
         android:paddingEnd="@dimen/space_lg"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/use_all_funds_checkbox">
+        app:layout_constraintTop_toBottomOf="@id/request_liquidity_checkbox">
 
         <TextView
           style="@style/WarningMessage"
@@ -333,12 +359,14 @@
         android:id="@+id/button_cancel"
         style="@style/ButtonStyle"
         android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:gravity="center"
         android:text="@string/btn_cancel"
-        android:textColor="@color/grey_1"
+        app:layout_constraintBottom_toBottomOf="@id/button_next"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toLeftOf="@id/mid_guideline"
-        app:layout_constraintBottom_toBottomOf="@id/button_next"
-        app:layout_constraintTop_toTopOf="@id/button_next" />
+        app:layout_constraintTop_toTopOf="@id/button_next"
+        tools:ignore="RtlSymmetry" />
 
       <FrameLayout
         android:id="@+id/button_next"
@@ -348,17 +376,21 @@
         android:alpha="@{amountError == null ? 1f : 0.3f}"
         app:layout_constraintLeft_toRightOf="@id/mid_guideline"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/feedback_layout">
+        app:layout_constraintTop_toBottomOf="@id/feedback_layout"
+        tools:ignore="RtlSymmetry">
 
         <TextView
           style="@style/Base.TextAppearance.AppCompat.Button"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:layout_gravity="center"
-          android:drawableEnd="@drawable/ic_chevron_right_black_24dp"
-          android:drawablePadding="@dimen/space_xxs"
-          android:gravity="start|center"
-          android:text="@string/openchannel_button_next" />
+          android:drawableStart="@{goToLiquidity ? null : @drawable/ic_circle_check_green_24dp}"
+          android:drawableEnd="@{goToLiquidity ? @drawable/ic_chevron_right_black_24dp : null}"
+          android:drawablePadding="@dimen/space_xs"
+          android:gravity="center"
+          android:text="@{goToLiquidity ? @string/openchannel_button_next : @string/openchannel_button_confirm}"
+          android:textColor="@{goToLiquidity ? @color/grey_4 : @color/green}"
+          tools:ignore="RtlSymmetry" />
 
       </FrameLayout>
     </android.support.constraint.ConstraintLayout>

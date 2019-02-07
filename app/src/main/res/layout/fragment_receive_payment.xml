@@ -269,7 +269,7 @@
             android:focusable="true"
             android:singleLine="true"
             android:ellipsize="none"
-            android:text="@string/lipsum"
+            android:text="@string/receivepayment_lightning_wait"
             android:textSize="@dimen/text_md"
             app:layout_constrainedWidth="true"
             app:layout_constraintEnd_toEndOf="parent"

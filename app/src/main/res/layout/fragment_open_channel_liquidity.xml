@@ -121,8 +121,9 @@
           android:text="@string/openchannel_liquidity_cost"
           android:textColor="@color/grey_2"
           android:visibility="@{liquidityOpt == 1 ? View.VISIBLE : View.GONE}"
-          app:layout_constraintTop_toBottomOf="@id/liquidity_opt_10_title"
-          app:layout_constraintStart_toEndOf="@id/liquidity_opt_10_radio" />
+          app:layout_constrainedWidth="true"
+          app:layout_constraintStart_toEndOf="@id/liquidity_opt_10_radio"
+          app:layout_constraintTop_toBottomOf="@id/liquidity_opt_10_title" />
       </android.support.constraint.ConstraintLayout>
 
       <android.support.constraint.ConstraintLayout
@@ -161,18 +162,20 @@
           android:text="@string/openchannel_liquidity_cost"
           android:textColor="@color/grey_2"
           android:visibility="@{liquidityOpt == 2 ? View.VISIBLE : View.GONE}"
-          app:layout_constraintTop_toBottomOf="@id/liquidity_opt_20_title"
-          app:layout_constraintStart_toEndOf="@id/liquidity_opt_20_radio" />
+          app:layout_constrainedWidth="true"
+          app:layout_constraintStart_toEndOf="@id/liquidity_opt_20_radio"
+          app:layout_constraintTop_toBottomOf="@id/liquidity_opt_20_title" />
       </android.support.constraint.ConstraintLayout>
 
       <FrameLayout
         android:id="@+id/button_back"
         style="@style/ButtonStyle"
         android:layout_width="0dp"
+        app:layout_constraintBottom_toBottomOf="@id/button_next"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toLeftOf="@id/mid_guideline"
-        app:layout_constraintBottom_toBottomOf="@id/button_next"
-        app:layout_constraintTop_toTopOf="@id/button_next">
+        app:layout_constraintTop_toTopOf="@id/button_next"
+        tools:ignore="RtlSymmetry">
 
         <TextView
           style="@style/Base.TextAppearance.AppCompat.Button"
@@ -193,7 +196,8 @@
         android:layout_marginTop="@dimen/space_md_p"
         app:layout_constraintLeft_toRightOf="@id/mid_guideline"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/liquidity_opt_20">
+        app:layout_constraintTop_toBottomOf="@id/liquidity_opt_20"
+        tools:ignore="RtlSymmetry">
 
         <TextView
           style="@style/Base.TextAppearance.AppCompat.Button"
@@ -202,9 +206,9 @@
           android:layout_gravity="center"
           android:drawableStart="@drawable/ic_circle_check_green_24dp"
           android:drawablePadding="@dimen/space_xs"
-          android:textColor="@color/green"
-          android:gravity="start|center"
-          android:text="@string/openchannel_button_confirm" />
+          android:gravity="center"
+          android:text="@string/openchannel_button_confirm"
+          android:textColor="@color/green" />
 
       </FrameLayout>
     </android.support.constraint.ConstraintLayout>

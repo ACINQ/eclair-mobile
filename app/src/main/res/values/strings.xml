@@ -218,15 +218,16 @@
   <string name="openchannel_peer_address">Address</string>
   <string name="openchannel_max_funds_pleasewait">Hold on, calculating available funds…</string>
   <string name="openchannel_max_funds">Use all available funds</string>
+  <string name="openchannel_request_liquidity_button">Request liquidity from this node</string>
   <string name="openchannel_funding_fees">Funding fees</string>
   <string name="openchannel_button_next">Next</string>
   <string name="openchannel_button_confirm">Open</string>
 
   <string name="openchannel_liquidity_instructions">Do you want this node to open a channel back? This will help you to receive payments over Lightning.</string>
-  <string name="openchannel_liquidity_none">No</string>
+  <string name="openchannel_liquidity_none">Nevermind</string>
   <string name="openchannel_liquidity_acinq_10m">10 mBTC incoming channel</string>
   <string name="openchannel_liquidity_acinq_20m">20 mBTC incoming channel</string>
-  <string name="openchannel_liquidity_cost">Cost %1$s</string>
+  <string name="openchannel_liquidity_cost">Costs %1$s\n\nOnce this channel becomes active, a new channel with the corresponding inbound liquidity will be opened with you.</string>
 
   <!-- //////////////// Commons /////////////////// -->
 
@@ -336,8 +337,8 @@
   <string name="payment_destination_address">To</string>
   <string name="payment_fees">Fees</string>
   <string name="payment_fees_not_capped">Uncapped routing fee ; check the application\'s settings.</string>
-  <string name="payment_fees_verylow">The fees are very low, your transaction may need a very long time to confirm.</string>
-  <string name="payment_fees_veryhigh">The fees seem very high, you may be overpaying.</string>
+  <string name="payment_fees_verylow">Fees are very low, your transaction may need a very long time to confirm.</string>
+  <string name="payment_fees_veryhigh">Fees seem very high, you may be overpaying.</string>
   <string name="payment_loading_pleasewait">Reading invoice, please wait…</string>
   <string name="payment_amount_to_send">Amount in </string>
   <string name="payment_toast_sentbtc">Payment sent</string>

@@ -84,7 +84,7 @@ public class OpenChannelLiquidityFragment extends Fragment {
     mBinding.liquidityOpt10.setOnClickListener(v -> mBinding.setLiquidityOpt(1));
     mBinding.liquidityOpt10Cost.setText(getString(R.string.openchannel_liquidity_cost, CoinUtils.formatAmountInUnit(pushFor10mbtc, preferredBitcoinUnit, true)));
     mBinding.liquidityOpt20.setOnClickListener(v -> mBinding.setLiquidityOpt(2));
-    mBinding.liquidityOpt20Cost.setText(getString(R.string.openchannel_liquidity_cost, CoinUtils.formatAmountInUnit(pushFor10mbtc, preferredBitcoinUnit, true)));
+    mBinding.liquidityOpt20Cost.setText(getString(R.string.openchannel_liquidity_cost, CoinUtils.formatAmountInUnit(pushFor20mbtc, preferredBitcoinUnit, true)));
 
     mBinding.buttonBack.setOnClickListener(v -> {
       mCallback.onLiquidityBack();

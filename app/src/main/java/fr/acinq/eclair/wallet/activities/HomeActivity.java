@@ -443,7 +443,7 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
 
   public void openChannelWithAcinq(View view) {
     Intent intent = new Intent(getBaseContext(), OpenChannelActivity.class);
-    intent.putExtra(OpenChannelActivity.EXTRA_NEW_HOST_URI, WalletUtils.ACINQ_NODE);
+    intent.putExtra(OpenChannelActivity.EXTRA_NEW_HOST_URI, WalletUtils.ACINQ_NODE.toString());
     startActivity(intent);
   }
 
