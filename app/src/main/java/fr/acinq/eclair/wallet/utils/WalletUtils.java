@@ -42,9 +42,7 @@ import ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy;
 import com.google.common.io.Files;
 import com.papertrailapp.logback.Syslog4jAppender;
 import com.tozny.crypto.android.AesCbcWithIntegrity;
-import fr.acinq.bitcoin.BinaryData;
-import fr.acinq.bitcoin.Block;
-import fr.acinq.bitcoin.MilliSatoshi;
+import fr.acinq.bitcoin.*;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.CoinUnit;
 import fr.acinq.eclair.payment.PaymentRequest;
@@ -222,6 +220,8 @@ public class WalletUtils {
     return prefs.getString(Constants.SETTING_SELECTED_FIAT_CURRENCY, Constants.FIAT_USD).toUpperCase();
   }
 
+  private final static String NO_FIAT_RATE = "--";
+
   /**
    * Converts bitcoin amount to the fiat currency preferred by the user.
    *
@@ -231,12 +231,22 @@ public class WalletUtils {
    */
   public static String convertMsatToFiat(final long amountMsat, final String fiatCode) {
     final double rate = App.RATES.containsKey(fiatCode) ? App.RATES.get(fiatCode) : -1.0f;
-    if (rate < 0) return "--";
+    if (rate < 0) return NO_FIAT_RATE;
     return getFiatFormat().format(package$.MODULE$.millisatoshi2btc(new MilliSatoshi(amountMsat)).amount().doubleValue() * rate);
   }
 
   public static String convertMsatToFiatWithUnit(final long amountMsat, final String fiatCode) {
     return convertMsatToFiat(amountMsat, fiatCode) + " " + fiatCode.toUpperCase();
+  }
+
+  public static String convertSatToFiat(final Satoshi amount, final String fiatCode) {
+    final double rate = App.RATES.containsKey(fiatCode) ? App.RATES.get(fiatCode) : -1.0f;
+    if (rate < 0) return NO_FIAT_RATE;
+    return getFiatFormat().format(package$.MODULE$.satoshi2btc(amount).amount().doubleValue() * rate);
+  }
+
+  public static String convertSatToFiatWithUnit(final Satoshi amount, final String fiatCode) {
+    return convertSatToFiat(amount, fiatCode) + " " + fiatCode.toUpperCase();
   }
 
   public static CoinUnit getPreferredCoinUnit(final SharedPreferences prefs) {

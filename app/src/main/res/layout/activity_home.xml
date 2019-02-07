@@ -288,7 +288,7 @@
       android:layout_alignParentBottom="true"
       android:gravity="end"
       android:orientation="vertical"
-      android:visibility="@{electrumReady &amp;&amp; currentPage == 2 ? View.VISIBLE : View.GONE}"
+      android:visibility="@{ electrumReady &amp;&amp; currentPage == 2 ? View.VISIBLE : View.GONE}"
       tools:ignore="RelativeOverlap">
 
       <LinearLayout

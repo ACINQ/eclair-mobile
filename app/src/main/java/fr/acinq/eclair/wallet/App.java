@@ -348,15 +348,15 @@ public class App extends Application {
     return appKit.eclairKit.nodeParams().privateKey().publicKey().toBin().toString();
   }
 
-  public long estimateSlowFees() {
+  public static long estimateSlowFees() {
     return Math.max(Globals.feeratesPerKB().get().blocks_72() / 1000, 1);
   }
 
-  public long estimateMediumFees() {
+  public static long estimateMediumFees() {
     return Math.max(Globals.feeratesPerKB().get().blocks_12() / 1000, estimateSlowFees());
   }
 
-  public long estimateFastFees() {
+  public static long estimateFastFees() {
     return Math.max(Globals.feeratesPerKB().get().blocks_2() / 1000, estimateMediumFees());
   }
 

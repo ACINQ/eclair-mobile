@@ -127,6 +127,8 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
 
   private void refreshLightningPaneState() {
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+    mBinding.maxReceivable.setText(getString(R.string.receivepayment_lightning_max_receivable,
+      CoinUtils.formatAmountInUnit(NodeSupervisor.getMaxReceivable(), WalletUtils.getPreferredCoinUnit(prefs), true)));
     mBinding.setIsLightningInboundEnabled(prefs.getBoolean(Constants.SETTING_ENABLE_LIGHTNING_INBOUND_PAYMENTS, false));
     mBinding.setHasNoLightningChannels(NodeSupervisor.getChannelsMap().isEmpty());
     mBinding.setHasNormalChannels(NodeSupervisor.hasOneNormalChannel());
@@ -177,7 +179,6 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
               updateLightningDescriptionView();
               updateLightningAmountView();
               mBinding.lightningPr.setText(paymentRequestStr);
-              mBinding.lightningPr.setOnClickListener(v -> copyReceptionAddress(paymentRequestStr));
               mBinding.lightningQr.setOnClickListener(v -> copyReceptionAddress(paymentRequestStr));
             });
           }

@@ -26,6 +26,9 @@
   <color name="accent">#ba3259</color>
   <!-- very light greys for backgrounds -->
   <color name="grey_0">#ecedef</color>
+  <color name="grey_0_blue_light_x2">#f1f8fe</color>
+  <color name="grey_0_blue_light_x1">#dbedfd</color>
+  <color name="grey_0_blue">#bbdefb</color>
   <color name="grey_0_light_x3">#f9f9f9</color>
   <color name="grey_0_light_x2">#f6f6f6</color>
   <color name="grey_0_light_x1">#f2f2f2</color>

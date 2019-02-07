@@ -89,7 +89,7 @@
       android:parentActivityName=".activities.HomeActivity"
       android:stateNotNeeded="true"
       android:theme="@style/CustomDialog"
-      android:windowSoftInputMode="stateVisible" />
+      android:windowSoftInputMode="adjustResize" />
     <activity
       android:name=".activities.NetworkInfosActivity"
       android:label="@string/networkinfos_name"

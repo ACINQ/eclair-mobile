@@ -1,0 +1,366 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  ~ Copyright 2018 ACINQ SAS
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:id="@+id/layout">
+
+  <data>
+
+    <import type="android.view.View" />
+
+    <import type="fr.acinq.eclair.wallet.utils.Constants" />
+
+    <variable
+      name="feeRatingState"
+      type="int" />
+
+    <variable
+      name="nodeURI"
+      type="fr.acinq.eclair.io.NodeURI" />
+
+    <variable
+      name="feesWarning"
+      type="String" />
+
+    <variable
+      name="feesError"
+      type="String" />
+
+    <variable
+      name="amountError"
+      type="String" />
+
+  </data>
+
+  <ScrollView
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <android.support.constraint.ConstraintLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content">
+
+      <LinearLayout
+        android:id="@+id/capacity_layout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/grey_0_blue"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center|top"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:background="@drawable/rounded_corner_blue_bottom"
+          android:drawablePadding="@dimen/space_xxs"
+          android:paddingLeft="6dp"
+          android:paddingTop="2dp"
+          android:paddingRight="6dp"
+          android:paddingBottom="3dp"
+          android:text="@string/openchannel_title"
+          android:textColor="@color/grey_4"
+          android:textSize="@dimen/text_xs" />
+
+        <RelativeLayout
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:gravity="center"
+          android:paddingTop="20dp">
+
+          <EditText
+            android:id="@+id/capacity_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toStartOf="@+id/capacity_unit"
+            android:background="@android:color/transparent"
+            android:fontFamily="sans-serif-light"
+            android:importantForAutofill="no"
+            android:inputType="numberDecimal"
+            android:maxLines="1"
+            android:minWidth="@dimen/space_lg"
+            android:overScrollMode="always"
+            android:textAlignment="viewEnd"
+            android:textColor="@color/grey_4"
+            android:textCursorDrawable="@drawable/cursor_grey"
+            android:textSize="32sp"
+            tools:ignore="LabelFor,UnusedAttribute" />
+
+          <TextView
+            android:id="@+id/capacity_hint"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@+id/capacity_unit"
+            android:layout_marginEnd="8dp"
+            android:layout_toStartOf="@+id/capacity_unit"
+            android:alpha=".5"
+            android:fontFamily="sans-serif-light"
+            android:text="@string/openchannel_capacity_hint" />
+
+          <TextView
+            android:id="@+id/capacity_unit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@+id/capacity_value"
+            android:layout_alignParentEnd="true"
+            android:fontFamily="sans-serif-light"
+            android:maxLines="1"
+            android:paddingStart="6dp"
+            android:paddingEnd="0dp" />
+
+        </RelativeLayout>
+
+        <TextView
+          android:id="@+id/capacity_fiat"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginTop="@dimen/space_xxxs"
+          android:layout_marginBottom="@dimen/space_md"
+          android:fontFamily="sans-serif-light"
+          android:maxLines="1"
+          android:textSize="12sp" />
+
+      </LinearLayout>
+
+      <android.support.constraint.Guideline
+        android:id="@+id/label_guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.25" />
+
+      <android.support.constraint.Guideline
+        android:id="@+id/mid_guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.5" />
+
+      <TextView
+        style="@style/CapsGrey"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@color/grey_0_blue_light_x1"
+        android:gravity="end|center"
+        android:paddingStart="@dimen/space_xs"
+        android:text="@string/openchannel_peer_node"
+        android:textColor="@color/grey_1_dark_x1"
+        app:layout_constraintBottom_toBottomOf="@id/peer_node_id"
+        app:layout_constraintEnd_toStartOf="@id/label_guideline"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/peer_node_id"
+        tools:ignore="RtlSymmetry" />
+
+      <TextView
+        android:id="@+id/peer_node_id"
+        style="@style/DataRowText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/grey_0_blue_light_x1"
+        android:ellipsize="end"
+        android:padding="@dimen/space_xs"
+        android:singleLine="true"
+        android:text="@{nodeURI != null ? nodeURI.nodeId().toString() : @string/unknown}"
+        android:textIsSelectable="true"
+        android:textSize="@dimen/text_sm"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@id/label_guideline"
+        app:layout_constraintTop_toBottomOf="@id/capacity_layout"
+        app:layout_constraintVertical_chainStyle="packed" />
+
+      <TextView
+        style="@style/CapsGrey"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@color/grey_0_blue_light_x2"
+        android:gravity="end|center"
+        android:paddingStart="@dimen/space_xs"
+        android:text="@string/openchannel_peer_address"
+        app:layout_constraintBottom_toBottomOf="@id/peer_address"
+        app:layout_constraintEnd_toStartOf="@id/label_guideline"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/peer_address"
+        tools:ignore="RtlSymmetry" />
+
+      <TextView
+        android:id="@+id/peer_address"
+        style="@style/DataRowText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/grey_0_blue_light_x2"
+        android:padding="@dimen/space_xs"
+        android:text="@{nodeURI != null ? nodeURI.address().toString() : @string/unknown}"
+        android:textIsSelectable="true"
+        android:textSize="@dimen/text_sm"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintStart_toEndOf="@id/label_guideline"
+        app:layout_constraintTop_toBottomOf="@id/peer_node_id" />
+
+      <TextView
+        style="@style/CapsGrey"
+        android:paddingStart="@dimen/space_xs"
+        android:text="@string/openchannel_funding_fees"
+        android:textAlignment="viewEnd"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintBottom_toBottomOf="@+id/funding_fees_layout"
+        app:layout_constraintEnd_toStartOf="@id/label_guideline"
+        app:layout_constraintHorizontal_bias="1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/funding_fees_layout"
+        tools:ignore="RtlSymmetry" />
+
+      <LinearLayout
+        android:id="@+id/funding_fees_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_xs"
+        android:clickable="true"
+        android:focusable="true"
+        android:orientation="horizontal"
+        android:padding="@dimen/space_xs"
+        app:layout_constraintStart_toEndOf="@id/label_guideline"
+        app:layout_constraintTop_toBottomOf="@+id/peer_address">
+
+        <EditText
+          android:id="@+id/funding_fees_value"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginEnd="@dimen/space_xxs"
+          android:background="@drawable/bottom_dotted_border"
+          android:digits="0123456789"
+          android:importantForAutofill="no"
+          android:inputType="number"
+          android:maxLength="6"
+          android:maxLines="1"
+          android:minWidth="@dimen/space_md"
+          android:textAlignment="center"
+          android:textSize="12sp"
+          tools:ignore="LabelFor,UnusedAttribute" />
+
+        <TextView
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="@string/btc_fee_unit"
+          android:textColor="@color/grey_2"
+          android:textSize="12sp" />
+
+      </LinearLayout>
+
+      <Button
+        android:id="@+id/funding_fees_rating"
+        style="@style/ButtonStyle"
+        android:layout_marginTop="@dimen/space_xxs"
+        android:layout_marginEnd="@dimen/space_md"
+        android:background="@{feeRatingState == Constants.FEE_RATING_CUSTOM ? @drawable/rounded_corner_grey : @drawable/rounded_corner_green}"
+        android:minWidth="@dimen/space_xl"
+        android:padding="4dp"
+        android:textColor="@{feeRatingState == Constants.FEE_RATING_CUSTOM ? @color/grey_2 : @color/white}"
+        android:textSize="@dimen/text_sm"
+        app:layout_constraintBottom_toBottomOf="@id/funding_fees_layout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1"
+        app:layout_constraintStart_toEndOf="@id/funding_fees_layout"
+        app:layout_constraintTop_toTopOf="@id/funding_fees_layout" />
+
+      <CheckBox
+        android:id="@+id/use_all_funds_checkbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_md"
+        android:buttonTint="@color/primary"
+        android:text="@string/openchannel_max_funds"
+        android:textSize="@dimen/text_sm"
+        android:translationX="-26dp"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintStart_toEndOf="@id/label_guideline"
+        app:layout_constraintTop_toBottomOf="@id/funding_fees_layout" />
+
+      <LinearLayout
+        android:id="@+id/feedback_layout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingStart="@dimen/space_lg"
+        android:paddingEnd="@dimen/space_lg"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/use_all_funds_checkbox">
+
+        <TextView
+          style="@style/WarningMessage"
+          android:layout_marginTop="@dimen/space_lg"
+          android:text="@{feesWarning}"
+          android:textSize="@dimen/text_sm"
+          android:visibility="@{feesWarning != null ? View.VISIBLE : View.GONE}" />
+
+        <TextView
+          style="@style/ErrorMessage"
+          android:layout_marginTop="@dimen/space_lg"
+          android:text="@{amountError}"
+          android:textSize="@dimen/text_sm"
+          android:visibility="@{amountError != null ? View.VISIBLE : View.GONE}" />
+
+      </LinearLayout>
+
+      <Button
+        android:id="@+id/button_cancel"
+        style="@style/ButtonStyle"
+        android:layout_width="0dp"
+        android:text="@string/btn_cancel"
+        android:textColor="@color/grey_1"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/mid_guideline"
+        app:layout_constraintBottom_toBottomOf="@id/button_next"
+        app:layout_constraintTop_toTopOf="@id/button_next" />
+
+      <FrameLayout
+        android:id="@+id/button_next"
+        style="@style/ButtonStyle"
+        android:layout_width="0dp"
+        android:layout_marginTop="@dimen/space_md_p"
+        android:alpha="@{amountError == null ? 1f : 0.3f}"
+        app:layout_constraintLeft_toRightOf="@id/mid_guideline"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/feedback_layout">
+
+        <TextView
+          style="@style/Base.TextAppearance.AppCompat.Button"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_gravity="center"
+          android:drawableEnd="@drawable/ic_chevron_right_black_24dp"
+          android:drawablePadding="@dimen/space_xxs"
+          android:gravity="start|center"
+          android:text="@string/openchannel_button_next" />
+
+      </FrameLayout>
+    </android.support.constraint.ConstraintLayout>
+  </ScrollView>
+</layout>
