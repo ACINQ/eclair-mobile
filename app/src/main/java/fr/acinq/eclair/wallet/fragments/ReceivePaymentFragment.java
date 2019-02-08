@@ -16,13 +16,11 @@
 
 package fr.acinq.eclair.wallet.fragments;
 
-import android.content.ClipData;
-import android.content.ClipboardManager;
-import android.content.Context;
-import android.content.SharedPreferences;
+import android.content.*;
 import android.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -95,6 +93,14 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
           mPRParamsDialog.setParams(this.lightningDescription, this.lightningAmount);
           mPRParamsDialog.show();
         }
+      });
+      mBinding.onchainShare.setOnClickListener(v -> {
+        final String address = mBinding.getOnchainAddress();
+        final Intent shareIntent = new Intent(android.content.Intent.ACTION_SEND);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, getString(R.string.receivepayment_onchain_share_subject));
+        shareIntent.putExtra(Intent.EXTRA_TEXT, "bitcoin:" + address);
+        startActivity(Intent.createChooser(shareIntent, getString(R.string.receivepayment_onchain_share)));
       });
       mBinding.onchainAddressValue.setOnClickListener(v -> copyReceptionAddress(mBinding.getOnchainAddress()));
       mBinding.onchainQr.setOnClickListener(v -> copyReceptionAddress(mBinding.getOnchainAddress()));
@@ -179,6 +185,13 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
               updateLightningDescriptionView();
               updateLightningAmountView();
               mBinding.lightningPr.setText(paymentRequestStr);
+              mBinding.lightningSharePr.setOnClickListener(v -> {
+                final Intent shareIntent = new Intent(android.content.Intent.ACTION_SEND);
+                shareIntent.setType("text/plain");
+                shareIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, getString(R.string.receivepayment_lightning_share_subject));
+                shareIntent.putExtra(Intent.EXTRA_TEXT, "lightning:" + paymentRequestStr);
+                startActivity(Intent.createChooser(shareIntent, getString(R.string.receivepayment_lightning_share)));
+              });
               mBinding.lightningQr.setOnClickListener(v -> copyReceptionAddress(paymentRequestStr));
             });
           }
