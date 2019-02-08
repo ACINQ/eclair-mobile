@@ -66,6 +66,7 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
 
   private boolean lightningUseDefaultDescription = true;
   private String lightningPaymentRequest = null;
+  private String lightningPaymentHash = null;
   private String lightningDescription = "";
   private Option<MilliSatoshi> lightningAmount = Option.apply(null);
 
@@ -85,7 +86,6 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
         mBinding.setPaymentType(1);
         refreshLightningPaneState();
       });
-      mBinding.lightningGenerateNewPr.setOnClickListener(v -> generatePaymentRequest());
       mBinding.lightningEditPr.setOnClickListener(v -> {
         if (!mBinding.getIsGeneratingLightningPR()) {
           if (mPRParamsDialog == null) {
@@ -143,15 +143,37 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
     super.onPause();
   }
 
+  /**
+   * Checks if current payment request has been paid.
+   */
+  private boolean isCurrentPaymentRequestPaid() {
+    if (this.lightningPaymentHash != null && getApp() != null) {
+      final Payment p = getApp().getDBHelper().getPayment(this.lightningPaymentHash, PaymentType.BTC_LN);
+      if (p != null && p.getStatus() == PaymentStatus.PAID) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   private void refreshLightningPaneState() {
-    final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
-    mBinding.lightningMaxReceivable.setText(getString(R.string.receivepayment_lightning_max_receivable,
-      CoinUtils.formatAmountInUnit(NodeSupervisor.getMaxReceivable(), WalletUtils.getPreferredCoinUnit(prefs), true)));
-    mBinding.setIsLightningInboundEnabled(prefs.getBoolean(Constants.SETTING_ENABLE_LIGHTNING_INBOUND_PAYMENTS, false));
-    mBinding.setHasNoLightningChannels(NodeSupervisor.getChannelsMap().isEmpty());
-    mBinding.setHasNormalChannels(NodeSupervisor.hasOneNormalChannel());
-    if (mBinding.getPaymentType() == 1 && mBinding.getIsLightningInboundEnabled() && !mBinding.getIsGeneratingLightningPR() && lightningPaymentRequest == null) {
-      generatePaymentRequest();
+    if (mBinding.getPaymentType() == 1) {
+      // -- check if you can receive with lightning
+      mBinding.setHasNormalChannels(NodeSupervisor.hasOneNormalChannel());
+      mBinding.setHasNoLightningChannels(NodeSupervisor.getChannelsMap().isEmpty());
+      // -- check amount and update max receivable
+      final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+      mBinding.setIsLightningInboundEnabled(prefs.getBoolean(Constants.SETTING_ENABLE_LIGHTNING_INBOUND_PAYMENTS, false));
+      mBinding.lightningMaxReceivable.setText(getString(R.string.receivepayment_lightning_max_receivable,
+        CoinUtils.formatAmountInUnit(NodeSupervisor.getMaxReceivable(), WalletUtils.getPreferredCoinUnit(prefs), true)));
+      checkLightningAmount();
+      // -- if no payment request is being generated and we should have one, generate one
+      if (NodeSupervisor.hasOneNormalChannel() && !NodeSupervisor.getChannelsMap().isEmpty() && mBinding.getIsLightningInboundEnabled()
+        && !mBinding.getIsGeneratingLightningPR()) {
+        if (this.lightningPaymentRequest == null || isCurrentPaymentRequestPaid()) {
+          generatePaymentRequest();
+        }
+      }
     }
   }
 
@@ -188,6 +210,7 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
           }
 
           this.lightningPaymentRequest = paymentRequestStr;
+          this.lightningPaymentHash = paymentRequest.paymentHash().toString();
           this.lightningDescription = description;
           this.lightningAmount = paymentRequest.amount();
 
@@ -209,8 +232,8 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
           }
 
           new LightningQRCodeTask(this, paymentRequestStr, 280, 280).execute();
-        } catch (Exception e) {
-          log.error("could not generate payment request", e);
+        } catch (Throwable t) {
+          log.error("could not generate payment request", t);
           mBinding.setIsGeneratingLightningPR(false);
           if (getActivity() != null) {
             getActivity().runOnUiThread(this::failPaymentRequestFields);
@@ -267,6 +290,7 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
   private void failPaymentRequestFields() {
     mBinding.lightningPr.setText(R.string.receivepayment_lightning_error);
     this.lightningPaymentRequest = null;
+    this.lightningPaymentHash = null;
     this.lightningDescription = "";
     this.lightningAmount = Option.apply(null);
     updateLightningDescriptionView();
@@ -333,8 +357,7 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
 
   public void notifyChannelsUpdate() {
     if (mBinding != null) {
-      mBinding.setHasNormalChannels(NodeSupervisor.hasOneNormalChannel());
-      checkLightningAmount();
+      refreshLightningPaneState();
     }
   }
 }
