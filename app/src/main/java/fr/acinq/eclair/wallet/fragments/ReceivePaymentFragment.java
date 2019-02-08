@@ -171,6 +171,7 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
       if (NodeSupervisor.hasOneNormalChannel() && !NodeSupervisor.getChannelsMap().isEmpty() && mBinding.getIsLightningInboundEnabled()
         && !mBinding.getIsGeneratingLightningPR()) {
         if (this.lightningPaymentRequest == null || isCurrentPaymentRequestPaid()) {
+          resetPaymentRequestFields();
           generatePaymentRequest();
         }
       }
@@ -289,9 +290,14 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
 
   private void failPaymentRequestFields() {
     mBinding.lightningPr.setText(R.string.receivepayment_lightning_error);
+    resetPaymentRequestFields();
+  }
+
+  private void resetPaymentRequestFields() {
     this.lightningPaymentRequest = null;
     this.lightningPaymentHash = null;
-    this.lightningDescription = "";
+    this.lightningDescription = PreferenceManager.getDefaultSharedPreferences(this.getContext())
+      .getString(Constants.SETTING_PAYMENT_REQUEST_DEFAULT_DESCRIPTION, "");
     this.lightningAmount = Option.apply(null);
     updateLightningDescriptionView();
     updateLightningAmountView();
@@ -308,37 +314,41 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
   }
 
   private void updateLightningDescriptionView() {
-    if (this.lightningDescription == null || this.lightningDescription.length() == 0) {
-      mBinding.lightningDescription.setText(getString(R.string.receivepayment_lightning_description_notset));
-      if (getContext() != null) {
-        mBinding.lightningDescription.setTextColor(ContextCompat.getColor(getContext(), R.color.grey_2));
-        mBinding.lightningDescription.setTypeface(Typeface.DEFAULT, Typeface.ITALIC);
-      }
+    final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this.getContext());
+    final String defaultDesc = prefs.getString(Constants.SETTING_PAYMENT_REQUEST_DEFAULT_DESCRIPTION, null);
+    if (this.lightningDescription != null && this.lightningDescription.equals(defaultDesc)) {
+      mBinding.lightningDescription.setVisibility(View.GONE);
+      mBinding.lightningDescriptionLabel.setVisibility(View.GONE);
     } else {
-      mBinding.lightningDescription.setText(this.lightningDescription);
-      if (getContext() != null) {
-        mBinding.lightningDescription.setTextColor(ContextCompat.getColor(getContext(), R.color.grey_4));
-        mBinding.lightningDescription.setTypeface(Typeface.DEFAULT, Typeface.NORMAL);
+      mBinding.lightningDescription.setVisibility(View.VISIBLE);
+      mBinding.lightningDescriptionLabel.setVisibility(View.VISIBLE);
+      if (this.lightningDescription == null || this.lightningDescription.length() == 0) {
+        mBinding.lightningDescription.setText(getString(R.string.receivepayment_lightning_description_notset));
+        if (getContext() != null) {
+          mBinding.lightningDescription.setTextColor(ContextCompat.getColor(getContext(), R.color.grey_2));
+          mBinding.lightningDescription.setTypeface(Typeface.DEFAULT, Typeface.ITALIC);
+        }
+      } else {
+        mBinding.lightningDescription.setText(this.lightningDescription);
+        if (getContext() != null) {
+          mBinding.lightningDescription.setTextColor(ContextCompat.getColor(getContext(), R.color.grey_4));
+          mBinding.lightningDescription.setTypeface(Typeface.DEFAULT, Typeface.NORMAL);
+        }
       }
     }
   }
 
   private void updateLightningAmountView() {
     if (this.lightningAmount == null || this.lightningAmount.isEmpty()) {
-      mBinding.lightningAmount.setText(getString(R.string.receivepayment_lightning_amount_notset));
-      if (getContext() != null) {
-        mBinding.lightningAmount.setTextColor(ContextCompat.getColor(getContext(), R.color.grey_2));
-        mBinding.lightningAmount.setTypeface(Typeface.DEFAULT, Typeface.ITALIC);
-      }
+      mBinding.lightningAmount.setVisibility(View.GONE);
+      mBinding.lightningAmountLabel.setVisibility(View.GONE);
     } else {
       final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this.getContext());
+      mBinding.lightningAmount.setVisibility(View.VISIBLE);
+      mBinding.lightningAmountLabel.setVisibility(View.VISIBLE);
       mBinding.lightningAmount.setText(Html.fromHtml(getString(R.string.receivepayment_lightning_amount_value,
         CoinUtils.formatAmountInUnit(this.lightningAmount.get(), WalletUtils.getPreferredCoinUnit(prefs), true),
         WalletUtils.convertMsatToFiatWithUnit(this.lightningAmount.get().amount(), WalletUtils.getPreferredFiat(prefs)))));
-      if (getContext() != null) {
-        mBinding.lightningAmount.setTextColor(ContextCompat.getColor(this.getContext(), R.color.grey_4));
-        mBinding.lightningAmount.setTypeface(Typeface.DEFAULT, Typeface.NORMAL);
-      }
     }
   }
 

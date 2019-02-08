@@ -623,14 +623,13 @@
   <string name="receivepayment_lightning_max_receivable">Max: %1$s</string>
   <string name="receivepayment_lightning_max_what_title">What is Max Receivable</string>
   <string name="receivepayment_lightning_max_what_body">This maximum amount depends on the inbound capacity of your channels.\n\nTo increase this amount, you must balance your channels so that your peers have enough funds on their side, or ask for nodes to open channels with you.</string>
-  <string name="receivepayment_lightning_params_tip">--- Tap to edit ---</string>
   <string name="receivepayment_lightning_description_title">Description</string>
   <string name="receivepayment_lightning_description_notset">No description</string>
   <string name="receivepayment_lightning_amount_title">Amount</string>
   <string name="receivepayment_lightning_amount_notset">Freely set by the payer</string>
   <string name="receivepayment_lightning_amount_value"><![CDATA[%1$s<br /><font color="#bbbbbb">≈ %2$s</font>]]></string>
   <string name="receivepayment_lightning_wait">Please wait…</string>
-  <string name="receivepayment_lightning_edit_pr">Edit…</string>
+  <string name="receivepayment_lightning_edit_pr">Edit request…</string>
   <string name="receivepayment_lightning_generate_new_pr">Generate</string>
   <string name="receivepayment_lightning_error">Error in payment request…</string>
   <string name="receivepayment_onchain_share">Share this address…</string>
