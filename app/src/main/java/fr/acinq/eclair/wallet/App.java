@@ -67,6 +67,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.crypto.digests.SHA256Digest;
+import scala.Option;
 import scala.Symbol;
 import scala.Tuple2;
 import scala.collection.Iterable;
@@ -210,7 +211,7 @@ public class App extends Application {
     }
     Double maxFeePct = capMaxFee ? 0.03 : Double.MAX_VALUE;
     Patterns.ask(appKit.eclairKit.paymentInitiator(),
-      new PaymentLifecycle.SendPayment(amountMsat, paymentRequest.paymentHash(), paymentRequest.nodeId(), paymentRequest.routingInfo(), finalCltvExpiry + 1, 10, maxFeePct),
+      new PaymentLifecycle.SendPayment(amountMsat, paymentRequest.paymentHash(), paymentRequest.nodeId(), paymentRequest.routingInfo(), finalCltvExpiry + 1, 10, maxFeePct, Option.apply(null)),
       new Timeout(Duration.create(1, "seconds"))).onFailure(new OnFailure() {
       @Override
       public void onFailure(Throwable failure) throws Throwable {
