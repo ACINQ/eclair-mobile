@@ -23,8 +23,14 @@ public interface Constants {
 
   /**
    * time diff in sec beyond which a timestamp in a block header can safely be considered as late
+   * we use a fairly large value here, because we want to notify users that they can use the wallet as soon
+   * as we're connected to a "good" electrum server and sync has begun.
+   * 99% users will be able to use the wallet straight away
+   * in the rare instances where they were able to create and try to publish a tx during the syncing phase
+   * and one of their utxos got spent then publishing the tx will fail and the wallet will be updated.
+   * the time window for this is just a few seconds
    */
-  long DESYNC_DIFF_TIMESTAMP_SEC = 6 * 60 * 60L;
+  long DESYNC_DIFF_TIMESTAMP_SEC = 60L * 60 * 24 * 30; // 30 days
   long ONE_DAY_MS = 1000L * 60 * 60 * 24;
 
   /* ----------- PERMISSIONS & REQUEST CODES ------------ */

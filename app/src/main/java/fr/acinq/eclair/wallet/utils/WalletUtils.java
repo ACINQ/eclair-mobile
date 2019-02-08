@@ -40,7 +40,6 @@ import ch.qos.logback.core.rolling.FixedWindowRollingPolicy;
 import ch.qos.logback.core.rolling.RollingFileAppender;
 import ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy;
 import com.google.common.io.Files;
-import com.google.common.net.HostAndPort;
 import com.papertrailapp.logback.Syslog4jAppender;
 import com.tozny.crypto.android.AesCbcWithIntegrity;
 import fr.acinq.bitcoin.*;
@@ -76,6 +75,7 @@ public class WalletUtils {
   public final static String UNENCRYPTED_SEED_NAME = "seed.dat";
   public final static String SEED_NAME = "enc_seed.dat";
   private final static String SEED_NAME_TEMP = "enc_seed_temp.dat";
+  private final static String DECIMAL_SEPARATOR = String.valueOf(new DecimalFormat().getDecimalFormatSymbols().getDecimalSeparator());
   private static NumberFormat fiatFormat;
 
   private static void saveCurrency(final SharedPreferences.Editor editor, final JSONObject o, final String fiatCode) {
@@ -255,16 +255,14 @@ public class WalletUtils {
     return fr.acinq.eclair.CoinUtils.getUnitFromString(prefs.getString(Constants.SETTING_BTC_UNIT, Constants.BTC_CODE));
   }
 
-  private final static String decSep = String.valueOf(new DecimalFormat().getDecimalFormatSymbols().getDecimalSeparator());
-
   /**
    * Prints a stringified amount in a text view. Decimal part if present is smaller than int part.
    */
   @SuppressLint("SetTextI18n")
   public static void printAmountInView(final TextView view, final String amount, final String direction) {
-    final String[] amountParts = amount.split(Pattern.quote(decSep));
+    final String[] amountParts = amount.split(Pattern.quote(DECIMAL_SEPARATOR));
     if (amountParts.length == 2) {
-      view.setText(Html.fromHtml(view.getContext().getString(R.string.pretty_amount_value, direction + amountParts[0] + decSep, amountParts[1])));
+      view.setText(Html.fromHtml(view.getContext().getString(R.string.pretty_amount_value, direction + amountParts[0] + DECIMAL_SEPARATOR, amountParts[1])));
     } else {
       view.setText(direction + amount);
     }
