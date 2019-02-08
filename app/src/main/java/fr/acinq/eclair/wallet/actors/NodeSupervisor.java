@@ -19,6 +19,7 @@ package fr.acinq.eclair.wallet.actors;
 import fr.acinq.eclair.ShortChannelId;
 import fr.acinq.eclair.channel.*;
 import fr.acinq.eclair.payment.PaymentRequest;
+import fr.acinq.eclair.wallet.events.ReceivedLNPaymentNotificationEvent;
 import org.greenrobot.eventbus.EventBus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +44,6 @@ import fr.acinq.eclair.router.NORMAL$;
 import fr.acinq.eclair.router.SyncProgress;
 import fr.acinq.eclair.transactions.DirectedHtlc;
 import fr.acinq.eclair.transactions.IN$;
-import fr.acinq.eclair.transactions.OUT$;
 import fr.acinq.eclair.wallet.DBHelper;
 import fr.acinq.eclair.wallet.events.ClosingChannelNotificationEvent;
 import fr.acinq.eclair.wallet.events.LNPaymentFailedEvent;
@@ -356,20 +356,22 @@ public class NodeSupervisor extends UntypedActor {
     // ---- successful inbound payment
     else if (message instanceof fr.acinq.eclair.payment.PaymentReceived) {
       final PaymentReceived pr = (PaymentReceived) message;
-      final Payment paymentInDB = dbHelper.getPayment(pr.paymentHash().toString(), PaymentType.BTC_LN);
-      log.debug("received an payment with hash={}", pr.paymentHash().toString());
+      final String paymentHash = pr.paymentHash().toString();
+      final Payment paymentInDB = dbHelper.getPayment(paymentHash, PaymentType.BTC_LN);
+      log.debug("received a successful payment with hash={}", paymentHash);
       if (paymentInDB != null) {
         dbHelper.updatePaymentReceived(paymentInDB, pr.amount().amount());
       } else {
         final Payment p = new Payment();
         p.setType(PaymentType.BTC_LN);
         p.setDirection(PaymentDirection.RECEIVED);
-        p.setReference(pr.paymentHash().toString());
+        p.setReference(paymentHash);
         p.setAmountPaidMsat(pr.amount().amount());
         p.setStatus(PaymentStatus.PAID);
         p.setUpdated(new Date());
         dbHelper.insertOrUpdatePayment(p);
       }
+      EventBus.getDefault().post(new ReceivedLNPaymentNotificationEvent(paymentHash, paymentInDB == null ? null : paymentInDB.getDescription(), pr.amount()));
       paymentRefreshScheduler.tell(Constants.REFRESH, null);
     }
   }

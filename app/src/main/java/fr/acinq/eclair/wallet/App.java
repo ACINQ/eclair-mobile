@@ -51,15 +51,15 @@ import fr.acinq.eclair.channel.CMD_GETINFO$;
 import fr.acinq.eclair.channel.Channel;
 import fr.acinq.eclair.channel.RES_GETINFO;
 import fr.acinq.eclair.channel.Register;
-import fr.acinq.eclair.io.NodeURI;
 import fr.acinq.eclair.io.Peer;
 import fr.acinq.eclair.payment.PaymentLifecycle;
 import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.transactions.Scripts;
 import fr.acinq.eclair.wallet.activities.ChannelDetailsActivity;
+import fr.acinq.eclair.wallet.activities.LNPaymentDetailsActivity;
 import fr.acinq.eclair.wallet.actors.NodeSupervisor;
+import fr.acinq.eclair.wallet.adapters.PaymentItemHolder;
 import fr.acinq.eclair.wallet.events.*;
-import fr.acinq.eclair.wallet.services.NetworkSyncReceiver;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 import org.greenrobot.eventbus.EventBus;
@@ -158,6 +158,27 @@ public class App extends Application {
       .setContentTitle(notifTitle)
       .setContentText(notifMessage)
       .setStyle(new NotificationCompat.BigTextStyle().bigText(notifBigMessage.toString()))
+      .setContentIntent(PendingIntent.getActivity(this, (int) (System.currentTimeMillis() & 0xfffffff), intent, PendingIntent.FLAG_UPDATE_CURRENT))
+      .setAutoCancel(true);
+
+    NotificationManagerCompat.from(this).notify((int) (System.currentTimeMillis() & 0xfffffff), builder.build());
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN)
+  public void handleNotification(final ReceivedLNPaymentNotificationEvent event) {
+    final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+
+    final String notifTitle = getString(R.string.notif_received_ln_payment_title, CoinUtils.formatAmountInUnit(event.amount, WalletUtils.getPreferredCoinUnit(prefs), true));
+    final String notifMessage = getString(R.string.notif_received_ln_payment_message, event.paymentDescription);
+
+    final Intent intent = new Intent(this, LNPaymentDetailsActivity.class);
+    intent.putExtra(PaymentItemHolder.EXTRA_PAYMENT_ID, event.paymentHash);
+    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
+    final NotificationCompat.Builder builder = new NotificationCompat.Builder(this.getBaseContext(), Constants.NOTIF_CHANNEL_RECEIVED_LN_PAYMENT_ID)
+      .setSmallIcon(R.drawable.eclair_256x256)
+      .setContentTitle(notifTitle)
+      .setContentText(notifMessage)
       .setContentIntent(PendingIntent.getActivity(this, (int) (System.currentTimeMillis() & 0xfffffff), intent, PendingIntent.FLAG_UPDATE_CURRENT))
       .setAutoCancel(true);
 
@@ -433,11 +454,15 @@ public class App extends Application {
       final NotificationChannel startAppReminder = new NotificationChannel(Constants.NOTIF_CHANNEL_START_REMINDER_ID,
         getString(R.string.notification_channel_restart_name), NotificationManager.IMPORTANCE_HIGH);
       startAppReminder.setDescription(getString(R.string.notification_channel_restart_desc));
+      final NotificationChannel receivedLNPayment = new NotificationChannel(Constants.NOTIF_CHANNEL_RECEIVED_LN_PAYMENT_ID,
+        getString(R.string.notification_channel_received_ln_payment_name), NotificationManager.IMPORTANCE_DEFAULT);
+      startAppReminder.setDescription(getString(R.string.notification_channel_received_ln_payment_desc));
       // Register the channel with the system
       final NotificationManager notificationManager = getSystemService(NotificationManager.class);
       if (notificationManager != null) {
         notificationManager.createNotificationChannel(lightningChannelClosing);
         notificationManager.createNotificationChannel(startAppReminder);
+        notificationManager.createNotificationChannel(receivedLNPayment);
       }
     }
   }

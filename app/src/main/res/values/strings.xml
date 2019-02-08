@@ -24,6 +24,8 @@
   <string name="notification_channel_closing_ln_channel_desc">Notification displayed when a channel is closing, be it cooperative or not.</string>
   <string name="notification_channel_restart_name">Synchronization reminder</string>
   <string name="notification_channel_restart_desc">A notification that reminds you to start the app from time to time. Required when you intend to receive lightning payments with the app.</string>
+  <string name="notification_channel_received_ln_payment_name">Received Lightning Payment</string>
+  <string name="notification_channel_received_ln_payment_desc">This notification shows up when you receive a payment over Lightning.</string>
 
   <!-- //////////////// Activities Name //////////////////// -->
 
@@ -593,6 +595,9 @@
 
   <string name="notif_startreminder_title">Eclair Wallet should be started</string>
   <string name="notif_startreminder_message">Receiving lightning payments means that you should watch the blockchain from time to time.</string>
+
+  <string name="notif_received_ln_payment_title">Received %1$s payment…</string>
+  <string name="notif_received_ln_payment_message">Description: %1$s</string>
 
   <!-- //////////////// Channel Data //////////////////// -->
 
