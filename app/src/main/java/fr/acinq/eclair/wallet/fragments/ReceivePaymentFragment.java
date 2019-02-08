@@ -315,7 +315,7 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
 
   private void updateLightningDescriptionView() {
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this.getContext());
-    final String defaultDesc = prefs.getString(Constants.SETTING_PAYMENT_REQUEST_DEFAULT_DESCRIPTION, null);
+    final String defaultDesc = prefs.getString(Constants.SETTING_PAYMENT_REQUEST_DEFAULT_DESCRIPTION, "");
     if (this.lightningDescription != null && this.lightningDescription.equals(defaultDesc)) {
       mBinding.lightningDescription.setVisibility(View.GONE);
       mBinding.lightningDescriptionLabel.setVisibility(View.GONE);
