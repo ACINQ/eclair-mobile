@@ -40,22 +40,19 @@
 
   <RelativeLayout
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:visibility="@{nodeURI != null &amp;&amp; errorMessage == null ? View.VISIBLE : View.GONE}">
+    android:layout_height="match_parent">
 
     <FrameLayout
       android:id="@+id/fragment_container"
       android:layout_width="match_parent"
       android:layout_height="wrap_content" />
 
-    <!-- loading message displayed when the invoice is being parsed -->
     <TextView
       style="@style/RoundedWhitePanel"
       android:text="@string/openchannel_loading_pleasewait"
       android:textAlignment="center"
       android:visibility="@{nodeURI == null ? View.VISIBLE : View.GONE}" />
 
-    <!-- loading message displayed when the invoice is being parsed -->
     <TextView
       style="@style/RoundedWhitePanel"
       android:text="@{errorMessage}"
