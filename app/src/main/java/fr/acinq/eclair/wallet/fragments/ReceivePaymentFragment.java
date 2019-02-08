@@ -20,13 +20,13 @@ import android.content.*;
 import android.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
 import android.graphics.Typeface;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -105,7 +105,15 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
           startActivity(Intent.createChooser(shareIntent, getString(R.string.receivepayment_onchain_share)));
         }
       });
-      mBinding.lightningMaxWhat.setOnClickListener(v -> mBinding.setShowLightningMaxDetails(!mBinding.getShowLightningMaxDetails()));
+      mBinding.lightningMaxWhat.setOnClickListener(v -> {
+        if (getActivity() != null) {
+          new AlertDialog.Builder(getActivity(), R.style.CustomDialog)
+            .setTitle(R.string.receivepayment_lightning_max_what_title)
+            .setMessage(R.string.receivepayment_lightning_max_what_body)
+            .setPositiveButton(R.string.btn_ok, null)
+            .show();
+        }
+      });
       mBinding.onchainAddressValue.setOnClickListener(v -> copyReceptionAddress(mBinding.getOnchainAddress()));
       mBinding.onchainQr.setOnClickListener(v -> copyReceptionAddress(mBinding.getOnchainAddress()));
     }
@@ -200,7 +208,7 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
             });
           }
 
-          new LightningQRCodeTask(this, paymentRequestStr, 250, 250).execute();
+          new LightningQRCodeTask(this, paymentRequestStr, 280, 280).execute();
         } catch (Exception e) {
           log.error("could not generate payment request", e);
           mBinding.setIsGeneratingLightningPR(false);

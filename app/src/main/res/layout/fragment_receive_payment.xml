@@ -33,10 +33,6 @@
       type="String" />
 
     <variable
-      name="showLightningMaxDetails"
-      type="boolean" />
-
-    <variable
       name="isLightningInboundEnabled"
       type="boolean" />
 
@@ -274,10 +270,10 @@
             style="@style/TitleCapsGrey"
             android:layout_width="match_parent"
             android:layout_marginStart="@dimen/space_lg"
-            android:layout_marginTop="@dimen/space_md_p"
+            android:layout_marginTop="@dimen/space_xs"
             android:layout_marginEnd="@dimen/space_lg"
             android:text="@string/receivepayment_lightning_pr_title"
-            app:layout_constraintTop_toBottomOf="@id/lightning_qr" />
+            app:layout_constraintTop_toBottomOf="@id/lightning_max_receivable_wrapper" />
 
           <TextView
             android:id="@+id/lightning_pr"
@@ -479,60 +475,41 @@
             app:layout_constraintStart_toEndOf="@id/lightning_mid_guideline"
             app:layout_constraintTop_toBottomOf="@id/lightning_description" />
 
-          <View
-            android:id="@+id/separator_2"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginTop="@dimen/space_md_p"
-            android:background="@color/grey_0_light_x1"
-            app:layout_constraintTop_toBottomOf="@id/lightning_generate_new_pr" />
-
-          <TextView
-            android:id="@+id/lightning_max_receivable"
-            style="@style/DataRowText"
-            android:layout_marginTop="@dimen/space_md_p"
-            android:paddingStart="@dimen/space_lg"
-            android:paddingTop="@dimen/space_md"
-            android:paddingEnd="@dimen/space_lg"
-            android:text="@string/receivepayment_lightning_max_receivable"
-            android:textAlignment="center"
-            android:textStyle="bold"
-            app:layout_constrainedWidth="true"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/lightning_generate_new_pr" />
-
-          <Button
-            style="@style/ButtonStyle"
-            android:id="@+id/lightning_max_what"
+          <LinearLayout
+            android:id="@+id/lightning_max_receivable_wrapper"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/space_md"
-            android:padding="@dimen/space_xs"
-            android:textAppearance="@style/TextAppearance.AppCompat"
-            android:visibility="@{!showLightningMaxDetails ? View.VISIBLE : View.GONE}"
-            android:text="@string/receivepayment_lightning_max_what"
-            android:textColor="@color/blue"
-            android:textSize="@dimen/text_sm"
+            android:gravity="center"
+            android:layout_marginTop="@dimen/space_xxs"
+            android:orientation="horizontal"
             app:layout_constrainedWidth="true"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/lightning_max_receivable" />
+            app:layout_constraintTop_toBottomOf="@id/lightning_qr">
 
-          <TextView
-            style="@style/DataRowText"
-            android:layout_marginTop="@dimen/space_md"
-            android:paddingStart="@dimen/space_lg"
-            android:paddingEnd="@dimen/space_lg"
-            android:text="@string/receivepayment_lightning_how_to_liquidity"
-            android:textColor="@color/grey_2"
-            android:textSize="@dimen/text_sm"
-            android:visibility="@{showLightningMaxDetails ? View.VISIBLE : View.GONE}"
-            app:layout_constrainedWidth="true"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/lightning_max_what" />
+            <TextView
+              android:id="@+id/lightning_max_receivable"
+              style="@style/DataRowText"
+              android:layout_width="wrap_content"
+              android:maxWidth="160dp"
+              android:text="@string/receivepayment_lightning_max_receivable"
+              android:textAlignment="center"
+              android:textSize="@dimen/text_xs"
+              android:textStyle="bold" />
 
+            <ImageButton
+              android:id="@+id/lightning_max_what"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:background="@drawable/bg_circle_transparent"
+              android:contentDescription="@string/receivepayment_lightning_max_what_title"
+              android:padding="@dimen/space_xs"
+              android:src="@drawable/ic_info_outline_black_20dp"
+              app:layout_constrainedWidth="true"
+              app:layout_constraintStart_toEndOf="@id/lightning_max_receivable"
+              app:layout_constraintTop_toTopOf="@id/lightning_max_receivable" />
+
+          </LinearLayout>
         </android.support.constraint.ConstraintLayout>
       </android.support.constraint.ConstraintLayout>
     </FrameLayout>

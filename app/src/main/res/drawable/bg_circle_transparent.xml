@@ -27,7 +27,7 @@
     <shape
       android:shape="oval"
       android:useLevel="false">
-      <solid android:color="@color/grey_0_light_x2" />
+      <solid android:color="@android:color/transparent" />
     </shape>
   </item>
 </selector>

@@ -615,9 +615,9 @@
   <string name="receivepayment_lightning_no_routes_available">- Your channels are currently not active.</string>
   <string name="receivepayment_lightning_excessive_amount">- Requested amount exceeds your current receive capacity.</string>
   <string name="receivepayment_lightning_pr_title">Payment Request</string>
-  <string name="receivepayment_lightning_max_receivable">Your channels can receive up to\n%1$s</string>
-  <string name="receivepayment_lightning_max_what"><u>What is this?</u></string>
-  <string name="receivepayment_lightning_how_to_liquidity">This amount depends on the inbound capacity of your channels.\nTo increase this amount, you must balance your channels so that your peers have enough funds on their side, or ask for nodes to open channels with you.</string>
+  <string name="receivepayment_lightning_max_receivable">Max: %1$s</string>
+  <string name="receivepayment_lightning_max_what_title">What is Max Receivable</string>
+  <string name="receivepayment_lightning_max_what_body">This maximum amount depends on the inbound capacity of your channels.\n\nTo increase this amount, you must balance your channels so that your peers have enough funds on their side, or ask for nodes to open channels with you.</string>
   <string name="receivepayment_lightning_params_tip">--- Tap to edit ---</string>
   <string name="receivepayment_lightning_description_title">Description</string>
   <string name="receivepayment_lightning_description_notset">No description</string>
