@@ -14,132 +14,169 @@
   ~ limitations under the License.
   -->
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:app="http://schemas.android.com/apk/res-auto"
-  xmlns:tools="http://schemas.android.com/tools">
+  xmlns:app="http://schemas.android.com/apk/res-auto">
 
-  <android.support.constraint.ConstraintLayout
+  <data>
+
+    <import type="android.view.View" />
+
+    <variable
+      name="amountWarning"
+      type="String" />
+
+    <variable
+      name="amountError"
+      type="String" />
+  </data>
+
+  <!--<android.support.constraint.ConstraintLayout-->
+  <!--android:layout_width="match_parent"-->
+  <!--android:layout_height="wrap_content"-->
+  <!--android:background="@color/white">-->
+
+
+  <ScrollView
+    android:id="@+id/scrollView2"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/white">
+    android:fillViewport="true"
+    android:scrollbars="vertical"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent">
 
-    <android.support.constraint.Guideline
-      android:id="@+id/mid_guideline"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:orientation="vertical"
-      app:layout_constraintGuide_percent="0.5" />
-
-    <ScrollView
-      android:id="@+id/scrollView2"
+    <android.support.constraint.ConstraintLayout
       android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:fillViewport="true"
-      android:scrollbars="vertical"
-      app:layout_constraintBottom_toBottomOf="parent"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toTopOf="parent">
+      android:layout_height="wrap_content">
 
-      <android.support.constraint.ConstraintLayout
-        android:layout_width="match_parent"
+      <android.support.constraint.Guideline
+        android:id="@+id/mid_guideline"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingStart="@dimen/space_lg"
-        android:paddingTop="@dimen/space_lg"
-        android:paddingEnd="@dimen/space_lg"
-        android:paddingBottom="80dp">
+        app:layout_constraintGuide_percent="0.5" />
 
-        <TextView
-          android:id="@+id/description_title"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:fontFamily="sans-serif-medium"
-          android:text="@string/dialog_prparams_description_title"
-          android:textColor="@color/primary"
-          app:layout_constraintTop_toTopOf="parent" />
+      <TextView
+        android:id="@+id/description_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/space_lg"
+        android:layout_marginTop="@dimen/space_lg"
+        android:layout_marginEnd="@dimen/space_lg"
+        android:fontFamily="sans-serif-medium"
+        android:text="@string/dialog_prparams_description_title"
+        android:textColor="@color/primary"
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <android.support.design.widget.TextInputEditText
-          android:id="@+id/description"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:layout_marginStart="-4dp"
-          android:backgroundTint="@color/primary"
-          android:hint="@string/dialog_prparams_description_hint"
-          android:inputType="text"
-          android:maxLength="256"
-          android:textSize="@dimen/text_md"
-          app:layout_constraintTop_toBottomOf="@id/description_title" />
+      <EditText
+        android:id="@+id/description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/space_lg"
+        android:layout_marginEnd="@dimen/space_lg"
+        android:backgroundTint="@color/primary"
+        android:hint="@string/dialog_prparams_description_hint"
+        android:importantForAutofill="no"
+        android:inputType="text"
+        android:maxLength="256"
+        android:textSize="@dimen/text_md"
+        android:translationX="-4dp"
+        app:layout_constraintTop_toBottomOf="@id/description_title" />
 
-        <TextView
-          android:id="@+id/amount_title"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:layout_marginTop="@dimen/space_lg"
-          android:fontFamily="sans-serif-medium"
-          android:text="@string/dialog_prparams_amount_title"
-          android:textColor="@color/primary"
-          app:layout_constraintTop_toBottomOf="@id/description" />
+      <TextView
+        android:id="@+id/amount_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/space_lg"
+        android:layout_marginTop="@dimen/space_md_p"
+        android:layout_marginEnd="@dimen/space_lg"
+        android:fontFamily="sans-serif-medium"
+        android:text="@string/dialog_prparams_amount_title"
+        android:textColor="@color/primary"
+        app:layout_constraintTop_toBottomOf="@id/description" />
 
-        <android.support.design.widget.TextInputEditText
-          android:id="@+id/amount"
-          android:layout_width="0dp"
-          android:layout_height="wrap_content"
-          android:layout_marginStart="-4dp"
-          android:backgroundTint="@color/primary"
-          android:hint="@string/dialog_prparams_amount_hint"
-          android:inputType="numberDecimal"
-          android:textSize="@dimen/text_md"
-          app:layout_constraintEnd_toStartOf="@id/amount_unit"
-          app:layout_constraintStart_toStartOf="parent"
-          app:layout_constraintTop_toBottomOf="@id/amount_title" />
+      <EditText
+        android:id="@+id/amount"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/space_lg"
+        android:layout_marginEnd="@dimen/space_xs"
+        android:backgroundTint="@color/primary"
+        android:hint="@string/dialog_prparams_amount_hint"
+        android:importantForAutofill="no"
+        android:inputType="numberDecimal"
+        android:textSize="@dimen/text_md"
+        android:translationX="-4dp"
+        app:layout_constraintEnd_toStartOf="@id/amount_unit"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/amount_title" />
 
-        <TextView
-          android:id="@+id/amount_unit"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:layout_marginTop="@dimen/space_md_p"
-          android:minWidth="64dp"
-          android:paddingStart="@dimen/space_md"
-          app:layout_constraintBaseline_toBaselineOf="@id/amount"
-          app:layout_constraintEnd_toEndOf="parent" />
+      <TextView
+        android:id="@+id/amount_unit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_md_p"
+        android:layout_marginEnd="@dimen/space_lg"
+        app:layout_constraintBaseline_toBaselineOf="@id/amount"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-        <TextView
-          android:id="@+id/amount_error"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:layout_marginTop="@dimen/space_xs"
-          android:text="@string/dialog_prparams_amount_error_generic"
-          android:textColor="@color/red_faded"
-          android:textSize="12sp"
-          android:visibility="gone"
-          app:layout_constraintTop_toBottomOf="@id/amount" />
+      <TextView
+        android:id="@+id/amount_warning_view"
+        style="@style/WarningMessage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/space_lg"
+        android:layout_marginTop="@dimen/space_md"
+        android:layout_marginEnd="@dimen/space_lg"
+        android:text="@{amountWarning}"
+        android:textSize="@dimen/text_sm"
+        android:visibility="@{amountWarning != null ? View.VISIBLE : View.GONE}"
+        app:layout_constraintTop_toBottomOf="@id/amount" />
 
-      </android.support.constraint.ConstraintLayout>
-    </ScrollView>
+      <TextView
+        android:id="@+id/amount_error_view"
+        style="@style/ErrorMessage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/space_lg"
+        android:layout_marginTop="@dimen/space_md"
+        android:layout_marginEnd="@dimen/space_lg"
+        android:text="@{amountError}"
+        android:textSize="@dimen/text_sm"
+        android:visibility="@{amountError != null ? View.VISIBLE : View.GONE}"
+        app:layout_constraintTop_toBottomOf="@id/amount_warning_view" />
 
-    <Button
-      android:id="@+id/cancel"
-      style="@style/ButtonStyle"
-      android:layout_width="0dp"
-      android:background="@color/white"
-      android:singleLine="true"
-      android:text="@string/btn_cancel"
-      android:textColor="@color/grey_1"
-      app:layout_constraintBottom_toBottomOf="parent"
-      app:layout_constraintEnd_toStartOf="@id/mid_guideline"
-      app:layout_constraintStart_toStartOf="parent" />
+      <Button
+        android:id="@+id/cancel"
+        style="@style/ButtonStyle"
+        android:layout_width="0dp"
+        android:background="@color/white"
+        android:singleLine="true"
+        android:text="@string/btn_cancel"
+        android:textColor="@color/grey_1"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/mid_guideline"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/confirm" />
 
-    <Button
-      android:id="@+id/confirm"
-      style="@style/ButtonStyle"
-      android:layout_width="0dp"
-      android:background="@color/white"
-      android:singleLine="true"
-      android:text="@string/btn_ok"
-      android:textColor="@color/grey_1"
-      app:layout_constraintBottom_toBottomOf="parent"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintStart_toEndOf="@id/mid_guideline" />
+      <Button
+        android:id="@+id/confirm"
+        style="@style/ButtonStyle"
+        android:layout_width="0dp"
+        android:layout_marginTop="@dimen/space_lg"
+        android:background="@color/white"
+        android:singleLine="true"
+        android:text="@string/btn_ok"
+        android:textColor="@{amountError == null ? @color/grey_4 : @color/grey_1}"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/mid_guideline"
+        app:layout_constraintTop_toBottomOf="@+id/amount_error_view" />
 
-  </android.support.constraint.ConstraintLayout>
+    </android.support.constraint.ConstraintLayout>
+  </ScrollView>
+
+
+  <!--</android.support.constraint.ConstraintLayout>-->
 </layout>
