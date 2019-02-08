@@ -32,6 +32,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+import com.google.common.base.Strings;
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.blockchain.electrum.ElectrumWallet;
@@ -85,7 +86,7 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
         refreshLightningPaneState();
       });
       mBinding.lightningGenerateNewPr.setOnClickListener(v -> generatePaymentRequest());
-      mBinding.lightningParameters.setOnClickListener(v -> {
+      mBinding.lightningEditPr.setOnClickListener(v -> {
         if (!mBinding.getIsGeneratingLightningPR()) {
           if (mPRParamsDialog == null) {
             mPRParamsDialog = new PaymentRequestParametersDialog(ReceivePaymentFragment.this.getContext(), ReceivePaymentFragment.this);
@@ -96,12 +97,15 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
       });
       mBinding.onchainShare.setOnClickListener(v -> {
         final String address = mBinding.getOnchainAddress();
-        final Intent shareIntent = new Intent(android.content.Intent.ACTION_SEND);
-        shareIntent.setType("text/plain");
-        shareIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, getString(R.string.receivepayment_onchain_share_subject));
-        shareIntent.putExtra(Intent.EXTRA_TEXT, "bitcoin:" + address);
-        startActivity(Intent.createChooser(shareIntent, getString(R.string.receivepayment_onchain_share)));
+        if (!Strings.isNullOrEmpty(address)) {
+          final Intent shareIntent = new Intent(android.content.Intent.ACTION_SEND);
+          shareIntent.setType("text/plain");
+          shareIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, getString(R.string.receivepayment_onchain_share_subject));
+          shareIntent.putExtra(Intent.EXTRA_TEXT, "bitcoin:" + address);
+          startActivity(Intent.createChooser(shareIntent, getString(R.string.receivepayment_onchain_share)));
+        }
       });
+      mBinding.lightningMaxWhat.setOnClickListener(v -> mBinding.setShowLightningMaxDetails(!mBinding.getShowLightningMaxDetails()));
       mBinding.onchainAddressValue.setOnClickListener(v -> copyReceptionAddress(mBinding.getOnchainAddress()));
       mBinding.onchainQr.setOnClickListener(v -> copyReceptionAddress(mBinding.getOnchainAddress()));
     }
@@ -133,7 +137,7 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
 
   private void refreshLightningPaneState() {
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
-    mBinding.maxReceivable.setText(getString(R.string.receivepayment_lightning_max_receivable,
+    mBinding.lightningMaxReceivable.setText(getString(R.string.receivepayment_lightning_max_receivable,
       CoinUtils.formatAmountInUnit(NodeSupervisor.getMaxReceivable(), WalletUtils.getPreferredCoinUnit(prefs), true)));
     mBinding.setIsLightningInboundEnabled(prefs.getBoolean(Constants.SETTING_ENABLE_LIGHTNING_INBOUND_PAYMENTS, false));
     mBinding.setHasNoLightningChannels(NodeSupervisor.getChannelsMap().isEmpty());

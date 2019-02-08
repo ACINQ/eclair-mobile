@@ -33,6 +33,10 @@
       type="String" />
 
     <variable
+      name="showLightningMaxDetails"
+      type="boolean" />
+
+    <variable
       name="isLightningInboundEnabled"
       type="boolean" />
 
@@ -186,14 +190,14 @@
             style="@style/DataRowText"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/onchain_share"
             android:layout_marginTop="@dimen/space_xxs"
             android:layout_marginEnd="@dimen/space_sm"
             android:clickable="true"
             android:focusable="true"
             android:text="@{onchainAddress == null ? @string/receivepayment_onchain_wait : onchainAddress}"
             android:textSize="@dimen/text_md"
+            app:layout_constraintEnd_toStartOf="@id/onchain_share"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/onchain_title" />
 
           <ImageButton
@@ -357,128 +361,177 @@
             android:background="@color/grey_0_light_x1"
             app:layout_constraintTop_toBottomOf="@id/lightning_feedback_layout" />
 
-          <android.support.constraint.ConstraintLayout
-            android:id="@+id/lightning_parameters"
-            android:layout_width="match_parent"
+          <android.support.constraint.Guideline
+            android:id="@+id/mid_guideline_params"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.35" />
+
+          <android.support.constraint.Guideline
+            android:id="@+id/lightning_mid_guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.5" />
+
+          <TextView
+            style="@style/DataRowText"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/space_lg"
+            android:fontFamily="sans-serif-medium"
+            android:text="@string/receivepayment_lightning_amount_title"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintBaseline_toBaselineOf="@id/lightning_amount"
+            app:layout_constraintEnd_toStartOf="@id/mid_guideline_params"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintStart_toStartOf="parent" />
+
+          <TextView
+            android:id="@+id/lightning_amount"
+            style="@style/DataRowText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_xxs"
             android:layout_marginTop="@dimen/space_md"
+            android:text="@string/receivepayment_lightning_amount_notset"
+            android:textIsSelectable="false"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintStart_toEndOf="@id/mid_guideline_params"
+            app:layout_constraintTop_toBottomOf="@id/separator"
+            app:layout_goneMarginEnd="@dimen/space_lg" />
+
+          <TextView
+            style="@style/DataRowText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_lg"
+            android:layout_marginEnd="@dimen/space_xxs"
+            android:fontFamily="sans-serif-medium"
+            android:text="@string/receivepayment_lightning_description_title"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintBaseline_toBaselineOf="@id/lightning_description"
+            app:layout_constraintEnd_toStartOf="@id/mid_guideline_params"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+          <TextView
+            android:id="@+id/lightning_description"
+            style="@style/DataRowText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_xxs"
+            android:layout_marginTop="@dimen/space_xs"
             android:layout_marginEnd="@dimen/space_lg"
-            android:clickable="true"
-            android:focusable="true"
-            app:layout_constraintTop_toBottomOf="@id/separator">
+            android:ellipsize="end"
+            android:maxLines="3"
+            android:text="@string/receivepayment_lightning_description_notset"
+            android:textIsSelectable="false"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintStart_toEndOf="@id/mid_guideline_params"
+            app:layout_constraintTop_toBottomOf="@id/lightning_amount" />
 
-            <android.support.constraint.Guideline
-              android:id="@+id/mid_guideline_params"
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:orientation="vertical"
-              app:layout_constraintGuide_percent="0.35" />
-
-            <TextView
-              android:id="@+id/lightning_params_sep"
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:layout_marginStart="@dimen/space_xxs"
-              android:ellipsize="end"
-              android:singleLine="true"
-              android:text="@string/receivepayment_lightning_params_tip"
-              android:textAlignment="center"
-              android:textColor="@color/grey_0_dark_x2"
-              android:textSize="@dimen/text_xs"
-              app:layout_constraintStart_toStartOf="@id/mid_guideline_params"
-              app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-              style="@style/DataRowText"
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:fontFamily="sans-serif-medium"
-              android:text="@string/receivepayment_lightning_amount_title"
-              app:layout_constrainedWidth="true"
-              app:layout_constraintBaseline_toBaselineOf="@id/lightning_amount"
-              app:layout_constraintEnd_toStartOf="@id/mid_guideline_params"
-              app:layout_constraintHorizontal_bias="0"
-              app:layout_constraintStart_toStartOf="parent" />
-
-            <TextView
-              android:id="@+id/lightning_amount"
-              style="@style/DataRowText"
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:layout_marginStart="@dimen/space_xxs"
-              android:layout_marginTop="@dimen/space_xs"
-              android:text="@string/receivepayment_lightning_amount_notset"
-              android:textIsSelectable="false"
-              app:layout_constrainedWidth="true"
-              app:layout_constraintEnd_toEndOf="parent"
-              app:layout_constraintHorizontal_bias="0"
-              app:layout_constraintStart_toEndOf="@id/mid_guideline_params"
-              app:layout_constraintTop_toBottomOf="@+id/lightning_params_sep" />
-
-            <TextView
-              android:id="@+id/max_receivable"
-              style="@style/DataRowText"
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:layout_marginStart="@dimen/space_xxs"
-              android:text="@string/receivepayment_lightning_max_receivable"
-              android:textStyle="bold"
-              app:layout_constrainedWidth="true"
-              app:layout_constraintEnd_toEndOf="parent"
-              app:layout_constraintHorizontal_bias="0"
-              app:layout_constraintStart_toEndOf="@id/mid_guideline_params"
-              app:layout_constraintTop_toBottomOf="@id/lightning_amount" />
-
-            <TextView
-              style="@style/DataRowText"
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:layout_marginEnd="@dimen/space_xxs"
-              android:fontFamily="sans-serif-medium"
-              android:text="@string/receivepayment_lightning_description_title"
-              app:layout_constrainedWidth="true"
-              app:layout_constraintBaseline_toBaselineOf="@id/lightning_description"
-              app:layout_constraintEnd_toStartOf="@id/mid_guideline_params"
-              app:layout_constraintHorizontal_bias="0"
-              app:layout_constraintStart_toStartOf="parent"
-              app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-              android:id="@+id/lightning_description"
-              style="@style/DataRowText"
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:layout_marginStart="@dimen/space_xxs"
-              android:layout_marginTop="@dimen/space_xs"
-              android:ellipsize="end"
-              android:maxLines="3"
-              android:text="@string/receivepayment_lightning_description_notset"
-              android:textIsSelectable="false"
-              app:layout_constrainedWidth="true"
-              app:layout_constraintEnd_toEndOf="parent"
-              app:layout_constraintHorizontal_bias="0"
-              app:layout_constraintStart_toEndOf="@id/mid_guideline_params"
-              app:layout_constraintTop_toBottomOf="@id/max_receivable" />
-          </android.support.constraint.ConstraintLayout>
+          <Button
+            android:id="@+id/lightning_edit_pr"
+            style="@style/ButtonStyle"
+            android:layout_width="0dp"
+            android:layout_marginStart="@dimen/space_lg"
+            android:layout_marginTop="@dimen/space_md_p"
+            android:layout_marginEnd="@dimen/space_md"
+            android:alpha="@{isGeneratingLightningPR ? 0.3f : 1.0f}"
+            android:background="@drawable/rounded_corner_grey"
+            android:drawableStart="@drawable/ic_edit_black_14dp"
+            android:drawablePadding="@dimen/space_xs"
+            android:enabled="@{!isGeneratingLightningPR}"
+            android:gravity="center"
+            android:padding="@dimen/space_xs"
+            android:text="@string/receivepayment_lightning_edit_pr"
+            android:textSize="@dimen/text_sm"
+            app:layout_constraintEnd_toStartOf="@id/lightning_mid_guideline"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/lightning_description" />
 
           <Button
             android:id="@+id/lightning_generate_new_pr"
             style="@style/ButtonStyle"
+            android:layout_width="0dp"
+            android:layout_marginStart="@dimen/space_md"
             android:layout_marginTop="@dimen/space_md_p"
+            android:layout_marginEnd="@dimen/space_lg"
             android:alpha="@{isGeneratingLightningPR ? 0.3f : 1.0f}"
-            android:background="@drawable/rounded_corner_black"
+            android:background="@drawable/rounded_corner_primary"
             android:drawableStart="@drawable/ic_refresh_white_14dp"
             android:drawablePadding="@dimen/space_xs"
             android:enabled="@{!isGeneratingLightningPR}"
+            android:gravity="center"
             android:padding="@dimen/space_xs"
             android:text="@string/receivepayment_lightning_generate_new_pr"
             android:textColor="@color/white"
             android:textSize="@dimen/text_sm"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/lightning_mid_guideline"
+            app:layout_constraintTop_toBottomOf="@id/lightning_description" />
+
+          <View
+            android:id="@+id/separator_2"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="@dimen/space_md_p"
+            android:background="@color/grey_0_light_x1"
+            app:layout_constraintTop_toBottomOf="@id/lightning_generate_new_pr" />
+
+          <TextView
+            android:id="@+id/lightning_max_receivable"
+            style="@style/DataRowText"
+            android:layout_marginTop="@dimen/space_md_p"
+            android:paddingStart="@dimen/space_lg"
+            android:paddingTop="@dimen/space_md"
+            android:paddingEnd="@dimen/space_lg"
+            android:text="@string/receivepayment_lightning_max_receivable"
+            android:textAlignment="center"
+            android:textStyle="bold"
+            app:layout_constrainedWidth="true"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/lightning_parameters" />
+            app:layout_constraintTop_toBottomOf="@id/lightning_generate_new_pr" />
 
+          <Button
+            style="@style/ButtonStyle"
+            android:id="@+id/lightning_max_what"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_md"
+            android:padding="@dimen/space_xs"
+            android:textAppearance="@style/TextAppearance.AppCompat"
+            android:visibility="@{!showLightningMaxDetails ? View.VISIBLE : View.GONE}"
+            android:text="@string/receivepayment_lightning_max_what"
+            android:textColor="@color/blue"
+            android:textSize="@dimen/text_sm"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/lightning_max_receivable" />
+
+          <TextView
+            style="@style/DataRowText"
+            android:layout_marginTop="@dimen/space_md"
+            android:paddingStart="@dimen/space_lg"
+            android:paddingEnd="@dimen/space_lg"
+            android:text="@string/receivepayment_lightning_how_to_liquidity"
+            android:textColor="@color/grey_2"
+            android:textSize="@dimen/text_sm"
+            android:visibility="@{showLightningMaxDetails ? View.VISIBLE : View.GONE}"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/lightning_max_what" />
 
         </android.support.constraint.ConstraintLayout>
       </android.support.constraint.ConstraintLayout>
