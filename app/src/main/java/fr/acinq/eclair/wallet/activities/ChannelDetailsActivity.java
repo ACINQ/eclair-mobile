@@ -161,7 +161,8 @@ public class ChannelDetailsActivity extends EclairActivity {
       }
 
       if (CLOSING$.MODULE$.toString().equals(channel.state)) {
-        mBinding.closingTypeView.setVisibility(View.VISIBLE);
+        mBinding.closingType.setVisibility(View.VISIBLE);
+        mBinding.closingTypeTitle.setVisibility(View.VISIBLE);
         if (ClosingType.MUTUAL.equals(channel.getClosingType())) {
           mBinding.closingType.setText(getString(R.string.channeldetails_closingtype_mutual));
         } else if (ClosingType.LOCAL.equals(channel.getClosingType())) {

@@ -39,6 +39,7 @@ import fr.acinq.eclair.blockchain.electrum.ElectrumWallet;
 import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.R;
+import fr.acinq.eclair.wallet.activities.HomeActivity;
 import fr.acinq.eclair.wallet.actors.NodeSupervisor;
 import fr.acinq.eclair.wallet.databinding.FragmentReceivePaymentBinding;
 import fr.acinq.eclair.wallet.models.Payment;
@@ -157,12 +158,12 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
   }
 
   private void refreshLightningPaneState() {
-    if (mBinding.getPaymentType() == 1) {
+    if (mBinding.getPaymentType() == 1 && getActivity() != null) {
       // -- check if you can receive with lightning
       mBinding.setHasNormalChannels(NodeSupervisor.hasOneNormalChannel());
       mBinding.setHasNoLightningChannels(NodeSupervisor.getChannelsMap().isEmpty());
       // -- check amount and update max receivable
-      final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+      final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
       mBinding.setIsLightningInboundEnabled(prefs.getBoolean(Constants.SETTING_ENABLE_LIGHTNING_INBOUND_PAYMENTS, false));
       mBinding.lightningMaxReceivable.setText(getString(R.string.receivepayment_lightning_max_receivable,
         CoinUtils.formatAmountInUnit(NodeSupervisor.getMaxReceivable(), WalletUtils.getPreferredCoinUnit(prefs), true)));

@@ -83,19 +83,20 @@
             android:layout_marginTop="@dimen/space_xxs"
             android:textColor="@color/grey_2"
             android:textSize="12sp" />
-
         </LinearLayout>
 
-        <LinearLayout
+        <android.support.constraint.ConstraintLayout
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:orientation="vertical"
           android:padding="@dimen/space_md"
           android:visibility="@{isActive ? View.VISIBLE : View.GONE}">
 
           <TextView
+            android:id="@+id/balance_title"
             style="@style/TitleCapsGrey"
-            android:text="@string/channeldetails_balance_label" />
+            android:text="@string/channeldetails_balance_label"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
           <fr.acinq.eclair.wallet.customviews.CoinAmountView
             android:id="@+id/balance"
@@ -105,119 +106,137 @@
             app:amount_color="@color/grey_4"
             app:amount_size="36sp"
             app:force_btc="true"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/balance_title"
             app:unit="mBTC"
             app:unit_color="@color/grey_3"
             app:unit_size="12sp" />
 
           <TextView
             android:id="@+id/balance_fiat"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif-light"
-            android:text="@string/paymentdetails_amount_fiat" />
+            android:text="@string/paymentdetails_amount_fiat"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/balance" />
 
-          <LinearLayout
-            android:layout_width="match_parent"
+          <android.support.constraint.Guideline
+            android:id="@+id/mid_guideline"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.5" />
+
+          <TextView
+            android:id="@+id/state_title"
+            style="@style/TitleCapsGrey"
+            android:layout_width="wrap_content"
             android:layout_marginTop="@dimen/space_md"
-            android:baselineAligned="false"
-            android:orientation="horizontal">
+            android:text="@string/channeldetails_state_label"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintEnd_toStartOf="@id/mid_guideline"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/balance_fiat" />
 
-            <LinearLayout
-              android:layout_width="0dp"
+          <TextView
+            android:id="@+id/state"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textAllCaps="true"
+            android:textSize="12sp"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintEnd_toStartOf="@id/mid_guideline"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/state_title" />
+
+          <View
+            android:id="@+id/update_node_address_separator"
+            style="@style/HSeparator"
+            android:layout_marginTop="@dimen/space_xs"
+            android:visibility="gone"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintEnd_toStartOf="@id/mid_guideline"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/state" />
+
+          <Button
+            android:id="@+id/update_node_address_button"
+            style="@style/ButtonStyle"
+            android:layout_marginTop="@dimen/space_xs"
+            android:background="@drawable/rounded_corner_grey"
+            android:padding="@dimen/space_xs"
+            android:text="@string/channeldetails_open_connection_button"
+            android:textAlignment="viewStart"
+            android:textSize="@dimen/text_xs"
+            android:visibility="gone"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintEnd_toStartOf="@id/mid_guideline"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/update_node_address_separator" />
+
+          <TextView
+            android:id="@+id/closing_type_title"
+            style="@style/TitleCapsGrey"
+            android:layout_width="wrap_content"
+            android:layout_marginStart="@dimen/space_xxs"
+            android:text="@string/channeldetails_state_closing_type_label"
+            android:visibility="gone"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintStart_toStartOf="@id/mid_guideline"
+            app:layout_constraintTop_toTopOf="@id/state_title" />
+
+          <TextView
+            android:id="@+id/closing_type"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_xxs"
+            android:textSize="@dimen/text_sm"
+            android:visibility="gone"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintStart_toStartOf="@id/mid_guideline"
+            app:layout_constraintTop_toBottomOf="@id/closing_type_title" />
+
+          <FrameLayout
+            android:id="@+id/close_button"
+            style="@style/ButtonStyle"
+            android:gravity="center"
+            android:padding="@dimen/space_xs"
+            android:visibility="visible"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintBottom_toBottomOf="@id/state"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1"
+            app:layout_constraintStart_toStartOf="@id/mid_guideline"
+            app:layout_constraintTop_toTopOf="@id/state">
+
+            <TextView
+              android:layout_width="wrap_content"
               android:layout_height="wrap_content"
-              android:layout_weight="0.5"
-              android:orientation="vertical">
-
-              <TextView
-                style="@style/TitleCapsGrey"
-                android:text="@string/channeldetails_state_label" />
-
-              <TextView
-                android:id="@+id/state"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:textAllCaps="true"
-                android:textSize="12sp" />
-
-              <View
-                android:id="@+id/update_node_address_separator"
-                android:layout_width="50dp"
-                android:layout_height="1dp"
-                android:layout_marginTop="@dimen/space_xs"
-                android:background="@color/grey_0_light_x1"
-                android:visibility="gone" />
-
-              <Button
-                android:id="@+id/update_node_address_button"
-                style="@style/ButtonStyle"
-                android:layout_marginTop="@dimen/space_xs"
-                android:background="@drawable/rounded_corner_grey"
-                android:padding="@dimen/space_xs"
-                android:text="@string/channeldetails_open_connection_button"
-                android:textAlignment="viewStart"
-                android:textSize="10sp"
-                android:visibility="gone" />
-
-            </LinearLayout>
-
-            <LinearLayout
-              android:layout_width="0dp"
-              android:layout_height="wrap_content"
-              android:layout_weight="0.5"
-              android:orientation="vertical">
-
-              <LinearLayout
-                android:id="@+id/closing_type_view"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:orientation="vertical"
-                android:visibility="gone">
-
-                <TextView
-                  style="@style/TitleCapsGrey"
-                  android:text="@string/channeldetails_state_closing_type_label" />
-
-                <TextView
-                  android:id="@+id/closing_type"
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:textSize="12sp" />
-              </LinearLayout>
-
-              <LinearLayout
-                android:id="@+id/close_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:background="?attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center"
-                android:orientation="horizontal"
-                android:padding="8dp"
-                android:visibility="gone">
-
-                <ImageView
-                  android:layout_width="18dp"
-                  android:layout_height="18dp"
-                  android:layout_marginEnd="8dp"
-                  android:src="@drawable/ic_close_red" />
-
-                <TextView
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:text="@string/close_button"
-                  android:textAllCaps="true"
-                  android:textColor="@color/red_faded"
-                  android:textSize="12sp" />
-              </LinearLayout>
-            </LinearLayout>
-          </LinearLayout>
-        </LinearLayout>
+              android:drawableStart="@drawable/ic_circle_cross_red_18dp"
+              android:drawablePadding="@dimen/space_xs"
+              android:text="@string/close_button"
+              android:textAllCaps="true"
+              android:textColor="@color/red_faded"
+              android:textSize="@dimen/text_sm" />
+          </FrameLayout>
+        </android.support.constraint.ConstraintLayout>
 
         <TextView
           android:id="@+id/closing_section"

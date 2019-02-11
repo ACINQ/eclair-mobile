@@ -47,8 +47,8 @@ public class OpenChannelLiquidityFragment extends Fragment {
 
   private Satoshi capacity = null;
   private Long feesSatPerKW = null;
-  private static MilliBtc pushFor10mbtc = new MilliBtc(BigDecimal.exact(0.1));
-  private static MilliBtc pushFor20mbtc = new MilliBtc(BigDecimal.exact(0.2));
+  private static MilliBtc pushFor10mbtc = new MilliBtc(BigDecimal.exact(0.01));
+  private static MilliBtc pushFor20mbtc = new MilliBtc(BigDecimal.exact(0.02));
 
   public void setCapacityAndFees(final Satoshi capacity, final Long feesSatPerKW) {
     this.capacity = capacity;

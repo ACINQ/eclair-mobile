@@ -249,6 +249,7 @@
   <string name="pretty_amount_value"><![CDATA[%1$s<small>%2$s<small>]]></string>
   <string name="commons_progress_indicator">●</string>
   <string name="amount_to_fiat">≈ %1$s</string>
+  <string name="lipsum_short">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec mauris ex, auctor aliquet mauris id, rutrum ultrices libero. Phasellus porta vehicula rhoncus. Praesent nunc arcu, dignissim ac hendrerit id, viverra vel tellus. Lorem ipsum dolor sit amet, consectetur adipiscing elit.</string>
   <string name="lipsum">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec mauris ex, auctor aliquet mauris id, rutrum ultrices libero. Phasellus porta vehicula rhoncus. Praesent nunc arcu, dignissim ac hendrerit id, viverra vel tellus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec in est vel enim ultricies gravida ac a sapien. Quisque semper consequat risus quis iaculis. Quisque auctor, metus vehicula maximus mollis, est diam eleifend sem, et fermentum nunc dui ut tortor. Mauris lacus arcu, tincidunt vel justo ut, cursus aliquet nibh. Pellentesque ut lectus in enim consequat vitae eu velit. Vivamus purus nunc, iaculis id quam vitae, eleifend pharetra sem.</string>
 
   <!-- /////////////// Menus /////////////// -->
