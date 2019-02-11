@@ -1,0 +1,138 @@
+<!--
+  ~ Copyright 2018 ACINQ SAS
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+  <item android:id="@android:id/secondaryProgress">
+    <shape
+      android:innerRadiusRatio="6"
+      android:shape="ring"
+      android:thicknessRatio="10.0"
+      android:useLevel="true">
+
+      <gradient
+        android:centerColor="@color/grey_4"
+        android:endColor="@color/grey_4"
+        android:startColor="@color/grey_4"
+        android:type="sweep" />
+    </shape>
+  </item>
+
+  <item android:id="@android:id/progress">
+    <rotate
+      android:fromDegrees="270"
+      android:pivotX="50%"
+      android:pivotY="50%"
+      android:toDegrees="270">
+
+      <shape
+        android:innerRadiusRatio="6"
+        android:shape="ring"
+        android:thicknessRatio="10.0"
+        android:useLevel="true">
+
+        <rotate
+          android:fromDegrees="0"
+          android:pivotX="50%"
+          android:pivotY="50%"
+          android:toDegrees="360" />
+
+        <gradient
+          android:centerColor="@color/blue"
+          android:endColor="@color/blue"
+          android:startColor="@color/blue"
+          android:type="sweep" />
+
+      </shape>
+    </rotate>
+  </item>
+
+
+  <!--&lt;!&ndash;<item android:drawable="@drawable/progress_circular_background"/>&ndash;&gt;-->
+  <!--<item android:id="@android:id/background">-->
+  <!--<shape-->
+  <!--android:innerRadiusRatio="5.0"-->
+  <!--android:shape="ring"-->
+  <!--android:thickness="8dp"-->
+  <!--android:useLevel="false">-->
+
+  <!--<solid android:color="@color/grey_2" />-->
+  <!--</shape>-->
+  <!--</item>-->
+  <!--<item>-->
+  <!--<shape-->
+  <!--android:innerRadiusRatio="3.4"-->
+  <!--android:shape="ring"-->
+  <!--android:thicknessRatio="6.0" >-->
+  <!--<gradient-->
+  <!--android:endColor="#ffffffff"-->
+  <!--android:startColor="#ffffff"-->
+  <!--android:type="sweep"-->
+  <!--android:useLevel="true" />-->
+  <!--</shape>-->
+  <!--</item>-->
+  <!--<item>-->
+  <!--<rotate-->
+  <!--android:drawable="@drawable/progress_particle"-->
+  <!--android:fromDegrees="0"-->
+  <!--android:pivotX="50%"-->
+  <!--android:pivotY="50%"-->
+  <!--android:toDegrees="360" />-->
+  <!--</item>-->
+
+
+  <!--<item android:id="@android:id/background">-->
+  <!--<shape-->
+  <!--android:shape="ring"-->
+  <!--android:innerRadiusRatio="5.0"-->
+  <!--android:thickness="8dp"-->
+  <!--android:useLevel="false">-->
+
+  <!--<solid android:color="@color/grey_2" />-->
+  <!--</shape>-->
+  <!--</item>-->
+
+  <!--<item android:id="@android:id/progress">-->
+  <!--<clip>-->
+  <!--<shape-->
+  <!--android:shape="ring"-->
+  <!--android:innerRadiusRatio="5.0"-->
+  <!--android:thickness="8dp"-->
+  <!--android:useLevel="false">-->
+
+  <!--<solid android:color="@color/blue" />-->
+  <!--</shape>-->
+  <!--</clip>-->
+  <!--</item>-->
+
+
+  <!--<item android:id="@android:id/background">-->
+  <!--<shape-->
+  <!--android:innerRadiusRatio="5.0"-->
+  <!--android:shape="ring"-->
+  <!--android:useLevel="true">-->
+  <!--<solid android:color="@color/grey_1" />-->
+  <!--</shape>-->
+  <!--</item>-->
+
+  <!--<item android:id="@android:id/progress">-->
+  <!--<shape-->
+  <!--android:innerRadiusRatio="5.0"-->
+  <!--android:shape="ring"-->
+  <!--android:useLevel="true">-->
+  <!--<solid android:color="@color/blue" />-->
+  <!--</shape>-->
+  <!--</item>-->
+
+</layer-list>

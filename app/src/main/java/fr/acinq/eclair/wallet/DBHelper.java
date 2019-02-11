@@ -186,10 +186,16 @@ public class DBHelper {
     return qb.unique();
   }
 
+  /**
+   * Limit inactive channels list to 10 elements.
+   *
+   * TODO: export complete list to CSV (accounting feature)
+   */
   public List<LocalChannel> getInactiveChannels() {
     final QueryBuilder<LocalChannel> qb = daoSession.getLocalChannelDao().queryBuilder();
     qb.where(LocalChannelDao.Properties.IsActive.eq(false));
     qb.orderDesc(LocalChannelDao.Properties.Updated);
+    qb.limit(10);
     return qb.list();
   }
 

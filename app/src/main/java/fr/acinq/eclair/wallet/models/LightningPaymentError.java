@@ -18,15 +18,14 @@ package fr.acinq.eclair.wallet.models;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import fr.acinq.eclair.channel.ChannelException;
 import fr.acinq.eclair.payment.PaymentLifecycle;
 import fr.acinq.eclair.router.Hop;
 import fr.acinq.eclair.router.RouteNotFound$;
 import scala.collection.JavaConverters;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Wraps information about a failed lightning payment returned by eclair-core. Implements Parcelable
@@ -114,8 +113,8 @@ public class LightningPaymentError implements Parcelable {
       Throwable t = lf.t();
       if (t instanceof RouteNotFound$) {
         cause = "The wallet could not find a path to the payee.";
-      } else if (t instanceof PaymentLifecycle.RouteTooExpensive) {
-        cause = "Routing fees exceed 3% and are deemed too expensive. This check can be disabled in the application\'s preferences.";
+//      } else if (t instanceof PaymentLifecycle.RouteTooExpensive) {
+//        cause = "Routing fees exceed 3% and are deemed too expensive. This check can be disabled in the application\'s preferences.";
       } else if (t instanceof ChannelException){
         cause = t.getMessage();
         originChannelId = ((ChannelException) t).channelId().toString();

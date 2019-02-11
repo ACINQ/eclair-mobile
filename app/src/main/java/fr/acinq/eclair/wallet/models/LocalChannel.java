@@ -16,23 +16,13 @@
 
 package fr.acinq.eclair.wallet.models;
 
-import org.greenrobot.greendao.annotation.Convert;
-import org.greenrobot.greendao.annotation.Entity;
-import org.greenrobot.greendao.annotation.Generated;
-import org.greenrobot.greendao.annotation.Id;
-import org.greenrobot.greendao.annotation.Index;
-import org.greenrobot.greendao.annotation.NotNull;
-import org.greenrobot.greendao.annotation.Transient;
-import org.greenrobot.greendao.annotation.Unique;
+import fr.acinq.bitcoin.Transaction;
+import org.greenrobot.greendao.annotation.*;
+import scala.Option;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import fr.acinq.bitcoin.BinaryData;
-import fr.acinq.bitcoin.MilliSatoshi;
-import fr.acinq.bitcoin.Transaction;
-import scala.Option;
 
 @Entity(indexes = {
   @Index(value = "channelId, shortChannelId", unique = true)
@@ -112,11 +102,11 @@ public class LocalChannel {
   private Date updated;
 
   public long getReceivableMsat() {
-    return this.getCapacityMsat() - this.getBalanceMsat() - (this.getChannelReserveSat() / 1000);
+    return Math.max(this.getCapacityMsat() - this.getBalanceMsat() - (this.getChannelReserveSat() / 1000), 0);
   }
 
   public long getSendableMsat() {
-    return this.getBalanceMsat() - (this.getChannelReserveSat() / 1000);
+    return Math.max(this.getBalanceMsat() - (this.getChannelReserveSat() / 1000), 0);
   }
 
   public LocalChannel() {

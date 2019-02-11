@@ -16,30 +16,19 @@
 
 package fr.acinq.eclair.wallet.actors;
 
-import fr.acinq.eclair.ShortChannelId;
-import fr.acinq.eclair.channel.*;
-import fr.acinq.eclair.payment.PaymentRequest;
-import fr.acinq.eclair.wallet.events.ReceivedLNPaymentNotificationEvent;
-import org.greenrobot.eventbus.EventBus;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-
 import akka.actor.ActorRef;
 import akka.actor.Terminated;
 import akka.actor.UntypedActor;
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
-import fr.acinq.bitcoin.BinaryData;
-import fr.acinq.bitcoin.Crypto;
-import fr.acinq.bitcoin.MilliSatoshi;
-import fr.acinq.bitcoin.Satoshi;
+import fr.acinq.bitcoin.*;
 import fr.acinq.bitcoin.package$;
+import fr.acinq.eclair.ShortChannelId;
+import fr.acinq.eclair.channel.*;
 import fr.acinq.eclair.payment.PaymentLifecycle;
 import fr.acinq.eclair.payment.PaymentReceived;
+import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.router.NORMAL$;
 import fr.acinq.eclair.router.SyncProgress;
 import fr.acinq.eclair.transactions.DirectedHtlc;
@@ -48,19 +37,20 @@ import fr.acinq.eclair.wallet.DBHelper;
 import fr.acinq.eclair.wallet.events.ClosingChannelNotificationEvent;
 import fr.acinq.eclair.wallet.events.LNPaymentFailedEvent;
 import fr.acinq.eclair.wallet.events.LNPaymentSuccessEvent;
-import fr.acinq.eclair.wallet.models.ClosingType;
-import fr.acinq.eclair.wallet.models.LightningPaymentError;
-import fr.acinq.eclair.wallet.models.LocalChannel;
-import fr.acinq.eclair.wallet.models.Payment;
-import fr.acinq.eclair.wallet.models.PaymentDirection;
-import fr.acinq.eclair.wallet.models.PaymentStatus;
-import fr.acinq.eclair.wallet.models.PaymentType;
+import fr.acinq.eclair.wallet.events.ReceivedLNPaymentNotificationEvent;
+import fr.acinq.eclair.wallet.models.*;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
+import org.greenrobot.eventbus.EventBus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import scala.collection.Iterator;
 import scala.collection.JavaConverters;
 import scala.collection.Seq;
 import scala.util.Either;
+
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This actor handles the messages sent by the Eclair node.
@@ -104,17 +94,17 @@ public class NodeSupervisor extends UntypedActor {
     return new MilliSatoshi(total);
   }
 
-  public static Seq<Seq<PaymentRequest.ExtraHop>> getRoutes() {
-    final List<Seq<PaymentRequest.ExtraHop>> routes = new ArrayList<>();
+  public static scala.collection.immutable.List<scala.collection.immutable.List<PaymentRequest.ExtraHop>> getRoutes() {
+    final List<scala.collection.immutable.List<PaymentRequest.ExtraHop>> routes = new ArrayList<>();
     for (LocalChannel channel : getChannelsMap().values()) {
       if (channel.state.equals(NORMAL$.MODULE$.toString())) {
         routes.add(getExtraHops(channel));
       }
     }
-    return JavaConverters.asScalaIteratorConverter(routes.iterator()).asScala().toSeq();
+    return JavaConverters.asScalaIteratorConverter(routes.iterator()).asScala().toList();
   }
 
-  private static Seq<PaymentRequest.ExtraHop> getExtraHops(final LocalChannel channel) {
+  private static scala.collection.immutable.List<PaymentRequest.ExtraHop> getExtraHops(final LocalChannel channel) {
     final List<PaymentRequest.ExtraHop> hops = new ArrayList<>();
     final PaymentRequest.ExtraHop hop = new PaymentRequest.ExtraHop(
       Crypto.PublicKey$.MODULE$.apply(BinaryData.apply(channel.getPeerNodeId())),
@@ -123,7 +113,7 @@ public class NodeSupervisor extends UntypedActor {
       channel.feeProportionalMillionths,
       channel.cltvExpiryDelta);
     hops.add(hop);
-    return JavaConverters.asScalaIteratorConverter(hops.iterator()).asScala().toSeq();
+    return JavaConverters.asScalaIteratorConverter(hops.iterator()).asScala().toList();
   }
 
   private static LocalChannel getChannel(ActorRef ref) {

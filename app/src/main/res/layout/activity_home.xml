@@ -273,7 +273,7 @@
         android:layout_marginEnd="@dimen/space_md"
         android:layout_marginBottom="@dimen/space_md"
         android:onClick="toggleSendPaymentButtons"
-        android:src="@mipmap/ic_send"
+        android:src="@drawable/ic_send_white_24dp"
         android:visibility="visible"
         app:backgroundTint="@color/primary"
         app:fabSize="normal" />

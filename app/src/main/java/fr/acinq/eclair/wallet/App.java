@@ -237,9 +237,9 @@ public class App extends Application {
     if (paymentRequest.minFinalCltvExpiry().isDefined() && paymentRequest.minFinalCltvExpiry().get() instanceof Long) {
       finalCltvExpiry = (Long) paymentRequest.minFinalCltvExpiry().get();
     }
-    Double maxFeePct = capMaxFee ? 0.03 : Double.MAX_VALUE;
     Patterns.ask(appKit.eclairKit.paymentInitiator(),
-      new PaymentLifecycle.SendPayment(amountMsat, paymentRequest.paymentHash(), paymentRequest.nodeId(), paymentRequest.routingInfo(), finalCltvExpiry + 1, 10, maxFeePct, Option.apply(null)),
+      new PaymentLifecycle.SendPayment(amountMsat, paymentRequest.paymentHash(), paymentRequest.nodeId(), paymentRequest.routingInfo(),
+        finalCltvExpiry + 1, 10, Option.apply(null), Option.apply(null)),
       new Timeout(Duration.create(1, "seconds"))).onFailure(new OnFailure() {
       @Override
       public void onFailure(Throwable failure) throws Throwable {

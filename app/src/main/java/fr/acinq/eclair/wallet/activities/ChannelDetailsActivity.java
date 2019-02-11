@@ -16,6 +16,7 @@
 
 package fr.acinq.eclair.wallet.activities;
 
+import akka.actor.ActorRef;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
@@ -27,22 +28,7 @@ import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.view.View;
 import android.widget.Toast;
-
 import com.google.common.base.Strings;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.text.DateFormat;
-import java.text.NumberFormat;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Nullable;
-
-import akka.actor.ActorRef;
 import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.Satoshi;
@@ -50,19 +36,7 @@ import fr.acinq.eclair.CoinUnit;
 import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.Features;
 import fr.acinq.eclair.Globals;
-import fr.acinq.eclair.channel.CLOSING$;
-import fr.acinq.eclair.channel.NEGOTIATING$;
-import fr.acinq.eclair.channel.OFFLINE$;
-import fr.acinq.eclair.channel.SHUTDOWN$;
-import fr.acinq.eclair.channel.SYNCING$;
-import fr.acinq.eclair.channel.WAIT_FOR_ACCEPT_CHANNEL$;
-import fr.acinq.eclair.channel.WAIT_FOR_FUNDING_CONFIRMED$;
-import fr.acinq.eclair.channel.WAIT_FOR_FUNDING_CREATED$;
-import fr.acinq.eclair.channel.WAIT_FOR_FUNDING_INTERNAL$;
-import fr.acinq.eclair.channel.WAIT_FOR_FUNDING_LOCKED$;
-import fr.acinq.eclair.channel.WAIT_FOR_FUNDING_SIGNED$;
-import fr.acinq.eclair.channel.WAIT_FOR_INIT_INTERNAL$;
-import fr.acinq.eclair.channel.WAIT_FOR_OPEN_CHANNEL$;
+import fr.acinq.eclair.channel.*;
 import fr.acinq.eclair.router.NORMAL$;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.actors.NodeSupervisor;
@@ -72,6 +46,16 @@ import fr.acinq.eclair.wallet.fragments.CloseChannelDialog;
 import fr.acinq.eclair.wallet.models.ClosingType;
 import fr.acinq.eclair.wallet.models.LocalChannel;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nullable;
+import java.text.DateFormat;
+import java.text.NumberFormat;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public class ChannelDetailsActivity extends EclairActivity {
 
@@ -145,11 +129,25 @@ public class ChannelDetailsActivity extends EclairActivity {
   private void setupView(final LocalChannel channel, @Nullable final ActorRef actorRef) {
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
     final CoinUnit prefUnit = WalletUtils.getPreferredCoinUnit(prefs);
+    final String fiatUnit = WalletUtils.getPreferredFiat(prefs);
     mBinding.setIsActive(channel.getIsActive());
 
     if (channel.getIsActive()) {
-      mBinding.balance.setAmountMsat(new MilliSatoshi(channel.getBalanceMsat()));
-      mBinding.balanceFiat.setText(getString(R.string.paymentdetails_amount_fiat, WalletUtils.convertMsatToFiatWithUnit(channel.getBalanceMsat(), WalletUtils.getPreferredFiat(prefs))));
+      mBinding.balance.setValue(getString(R.string.channeldetails_balance_value,
+        CoinUtils.formatAmountInUnit(new MilliSatoshi(channel.getBalanceMsat()), prefUnit, true),
+        WalletUtils.convertMsatToFiatWithUnit(channel.getBalanceMsat(), fiatUnit))
+      );
+      mBinding.capacity.setValue(getString(R.string.channeldetails_balance_value,
+        CoinUtils.formatAmountInUnit(new MilliSatoshi(channel.getCapacityMsat()), prefUnit, true),
+        WalletUtils.convertMsatToFiatWithUnit(channel.getCapacityMsat(), fiatUnit))
+      );
+      final double progress = channel.getCapacityMsat() != 0 ? (double) channel.getBalanceMsat() / channel.getCapacityMsat() * 100 : 0;
+      mBinding.balanceProgress.setProgress(100 - (int) progress);
+      mBinding.maxReceivable.setText(CoinUtils.formatAmountInUnit(new MilliSatoshi(channel.getReceivableMsat()), prefUnit, true));
+      mBinding.maxReceivableFiat.setText(getString(R.string.amount_to_fiat, WalletUtils.convertMsatToFiatWithUnit(channel.getReceivableMsat(), fiatUnit)));
+      mBinding.maxSendable.setText(CoinUtils.formatAmountInUnit(new MilliSatoshi(channel.getSendableMsat()), prefUnit, true));
+      mBinding.maxSendableFiat.setText(getString(R.string.amount_to_fiat, WalletUtils.convertMsatToFiatWithUnit(channel.getSendableMsat(), fiatUnit)));
+
       mBinding.state.setText(channel.state);
 
       if (NORMAL$.MODULE$.toString().equals(channel.state)) {
@@ -223,7 +221,6 @@ public class ChannelDetailsActivity extends EclairActivity {
     }
 
     mBinding.nodeId.setValue(channel.getPeerNodeId());
-    mBinding.capacity.setValue(CoinUtils.formatAmountInUnit(new MilliSatoshi(channel.getCapacityMsat()), prefUnit, true));
     mBinding.channelId.setValue(channel.getChannelId());
     mBinding.shortChannelId.setValue(channel.getShortChannelId());
     if (channel.getLocalFeatures() != null) {

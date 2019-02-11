@@ -68,6 +68,7 @@
           android:backgroundTint="@color/primary_light_x3"
           android:digits="abcdefghijklmnopqrstuvwxyz "
           android:inputType="text"
+          android:autofillHints="false"
           android:textColor="@color/white"
           android:textSize="12sp" />
 

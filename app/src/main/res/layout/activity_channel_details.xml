@@ -91,42 +91,6 @@
           android:padding="@dimen/space_md"
           android:visibility="@{isActive ? View.VISIBLE : View.GONE}">
 
-          <TextView
-            android:id="@+id/balance_title"
-            style="@style/TitleCapsGrey"
-            android:text="@string/channeldetails_balance_label"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-          <fr.acinq.eclair.wallet.customviews.CoinAmountView
-            android:id="@+id/balance"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:alignment="left"
-            app:amount_color="@color/grey_4"
-            app:amount_size="36sp"
-            app:force_btc="true"
-            app:layout_constrainedWidth="true"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/balance_title"
-            app:unit="mBTC"
-            app:unit_color="@color/grey_3"
-            app:unit_size="12sp" />
-
-          <TextView
-            android:id="@+id/balance_fiat"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="sans-serif-light"
-            android:text="@string/paymentdetails_amount_fiat"
-            app:layout_constrainedWidth="true"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/balance" />
-
           <android.support.constraint.Guideline
             android:id="@+id/mid_guideline"
             android:layout_width="wrap_content"
@@ -134,17 +98,138 @@
             android:orientation="vertical"
             app:layout_constraintGuide_percent="0.5" />
 
+          <android.support.constraint.Guideline
+            android:id="@+id/balance_left_guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.4" />
+
+          <android.support.constraint.Guideline
+            android:id="@+id/balance_right_guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.6" />
+
+          <TextView
+            android:id="@+id/max_sendable_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_lg_p"
+            android:layout_marginEnd="@dimen/space_xs"
+            android:drawableEnd="@drawable/ic_send_black_16dp"
+            android:drawablePadding="@dimen/space_xxs"
+            android:gravity="center"
+            android:text="@string/channeldetails_sendable"
+            android:textSize="@dimen/text_xs"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/balance_left_guideline"
+            app:layout_constraintHorizontal_bias="1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+          <TextView
+            android:id="@+id/max_sendable"
+            style="@style/DataRowText"
+            android:layout_width="wrap_content"
+            android:layout_marginEnd="@dimen/space_xs"
+            android:fontFamily="sans-serif-medium"
+            android:textSize="@dimen/text_md"
+            android:layout_marginTop="@dimen/space_xxs"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintEnd_toStartOf="@id/balance_left_guideline"
+            app:layout_constraintHorizontal_bias="1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/max_sendable_title" />
+
+          <TextView
+            android:id="@+id/max_sendable_fiat"
+            style="@style/DataRowText"
+            android:layout_width="wrap_content"
+            android:layout_marginEnd="@dimen/space_xs"
+            android:textColor="@color/grey_1"
+            android:textSize="@dimen/text_sm"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintEnd_toStartOf="@id/balance_left_guideline"
+            app:layout_constraintHorizontal_bias="1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/max_sendable" />
+
+          <ProgressBar
+            android:id="@+id/balance_progress"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_marginStart="@dimen/space_xs"
+            android:layout_marginEnd="@dimen/space_xs"
+            android:max="100"
+            android:progress="60"
+            android:progressDrawable="@drawable/progress_bar"
+            android:progressTint="@color/green"
+            android:secondaryProgress="100"
+            android:secondaryProgressTint="#3464A2"
+            app:layout_constraintBottom_toBottomOf="@id/max_sendable_fiat"
+            app:layout_constraintEnd_toStartOf="@id/balance_right_guideline"
+            app:layout_constraintStart_toEndOf="@id/balance_left_guideline"
+            app:layout_constraintTop_toTopOf="@id/max_sendable_title" />
+
+          <TextView
+            android:id="@+id/max_receivable_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_xs"
+            android:layout_marginEnd="@dimen/space_xs"
+            android:drawableStart="@drawable/ic_receive_black_16dp"
+            android:drawablePadding="@dimen/space_xxs"
+            android:gravity="center"
+            android:text="@string/channeldetails_receivable"
+            android:textSize="@dimen/text_xs"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintStart_toEndOf="@id/balance_right_guideline"
+            app:layout_constraintTop_toTopOf="@id/max_sendable_title" />
+
+          <TextView
+            android:id="@+id/max_receivable"
+            style="@style/DataRowText"
+            android:layout_width="wrap_content"
+            android:layout_marginStart="@dimen/space_xs"
+            android:fontFamily="sans-serif-medium"
+            android:layout_marginTop="@dimen/space_xxs"
+            android:textSize="@dimen/text_md"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintStart_toEndOf="@id/balance_right_guideline"
+            app:layout_constraintTop_toBottomOf="@id/max_receivable_title" />
+
+          <TextView
+            android:id="@+id/max_receivable_fiat"
+            style="@style/DataRowText"
+            android:layout_width="wrap_content"
+            android:layout_marginStart="@dimen/space_xs"
+            android:textColor="@color/grey_1"
+            android:textSize="@dimen/text_sm"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintStart_toEndOf="@id/balance_right_guideline"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/max_receivable" />
+
           <TextView
             android:id="@+id/state_title"
             style="@style/TitleCapsGrey"
             android:layout_width="wrap_content"
-            android:layout_marginTop="@dimen/space_md"
+            android:layout_marginTop="@dimen/space_lg"
             android:text="@string/channeldetails_state_label"
             app:layout_constrainedWidth="true"
             app:layout_constraintEnd_toStartOf="@id/mid_guideline"
             app:layout_constraintHorizontal_bias="0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/balance_fiat" />
+            app:layout_constraintTop_toBottomOf="@id/max_sendable_fiat" />
 
           <TextView
             android:id="@+id/state"
@@ -291,6 +376,14 @@
           android:layout_height="wrap_content"
           app:has_border="true"
           app:label="@string/channeldetails_capacity_label"
+          app:value="@string/unknown" />
+
+        <fr.acinq.eclair.wallet.customviews.DataRow
+          android:id="@+id/balance"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          app:has_border="true"
+          app:label="@string/channeldetails_balance_label"
           app:value="@string/unknown" />
 
         <fr.acinq.eclair.wallet.customviews.DataRow
