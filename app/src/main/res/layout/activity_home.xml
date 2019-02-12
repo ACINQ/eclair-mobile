@@ -251,6 +251,8 @@
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:onClick="pasteSendPaymentRequest"
+          app:bg="@drawable/rounded_left_primary_dark"
+          app:bgcolor="@color/primary"
           app:icon="@mipmap/ic_paste"
           app:label="Paste a payment request" />
 
@@ -259,6 +261,8 @@
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:onClick="scanSendPaymentRequest"
+          app:bg="@drawable/rounded_left_primary_dark"
+          app:bgcolor="@color/primary"
           app:icon="@drawable/ic_scan_white_24dp"
           app:label="Scan a payment request" />
 
@@ -288,7 +292,7 @@
       android:layout_alignParentBottom="true"
       android:gravity="end"
       android:orientation="vertical"
-      android:visibility="@{ electrumReady &amp;&amp; currentPage == 2 ? View.VISIBLE : View.GONE}"
+      android:visibility="@{electrumReady &amp;&amp; currentPage == 2 ? View.VISIBLE : View.GONE}"
       tools:ignore="RelativeOverlap">
 
       <LinearLayout
@@ -303,6 +307,7 @@
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:onClick="pasteNodeURI"
+          app:bg="@drawable/rounded_left_green_dark"
           app:bgcolor="@color/green"
           app:icon="@mipmap/ic_paste"
           app:label="@string/home_channel_paste_uri" />
@@ -312,6 +317,7 @@
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:onClick="scanNodeURI"
+          app:bg="@drawable/rounded_left_green_dark"
           app:bgcolor="@color/green"
           app:icon="@drawable/ic_scan_white_24dp"
           app:label="@string/home_channel_scan_uri" />
@@ -321,6 +327,7 @@
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:onClick="openChannelRandom"
+          app:bg="@drawable/rounded_left_green_dark"
           app:bgcolor="@color/green"
           app:icon="@drawable/icon_random_white"
           app:label="@string/home_channel_random" />
@@ -330,6 +337,7 @@
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:onClick="openChannelWithAcinq"
+          app:bg="@drawable/rounded_left_green_dark"
           app:bgcolor="@color/green"
           app:icon="@drawable/icon_random_white"
           app:label="@string/home_channel_acinq" />

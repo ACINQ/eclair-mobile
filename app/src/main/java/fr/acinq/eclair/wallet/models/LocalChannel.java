@@ -102,11 +102,11 @@ public class LocalChannel {
   private Date updated;
 
   public long getReceivableMsat() {
-    return Math.max(this.getCapacityMsat() - this.getBalanceMsat() - (this.getChannelReserveSat() / 1000), 0);
+    return Math.max(this.getCapacityMsat() - this.getBalanceMsat() - (this.getChannelReserveSat() * 1000), 0);
   }
 
   public long getSendableMsat() {
-    return Math.max(this.getBalanceMsat() - (this.getChannelReserveSat() / 1000), 0);
+    return Math.max(this.getBalanceMsat() - (this.getChannelReserveSat() * 1000), 0);
   }
 
   public LocalChannel() {

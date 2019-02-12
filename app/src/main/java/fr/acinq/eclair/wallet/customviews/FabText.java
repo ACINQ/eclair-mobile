@@ -52,16 +52,19 @@ public class FabText extends RelativeLayout {
   private void init(AttributeSet attrs, int defStyle) {
     final TypedArray arr = getContext().obtainStyledAttributes(attrs, R.styleable.FabText, defStyle, 0);
     try {
-      String service = Context.LAYOUT_INFLATER_SERVICE;
-      LayoutInflater li = (LayoutInflater) getContext().getSystemService(service);
+      final String service = Context.LAYOUT_INFLATER_SERVICE;
+      final LayoutInflater li = (LayoutInflater) getContext().getSystemService(service);
       layout = li.inflate(R.layout.custom_fab_text, this, true);
-      int bgColor = arr.getColor(R.styleable.FabText_bgcolor, ContextCompat.getColor(getContext(), R.color.primary));
-      String label = arr.getString(R.styleable.FabText_label);
+
+      final int bgColor = arr.getColor(R.styleable.FabText_bgcolor, ContextCompat.getColor(getContext(), R.color.primary));
+      final String label = arr.getString(R.styleable.FabText_label);
 
       labelTextView = layout.findViewById(R.id.fabtext_label);
       labelTextView.setText(label);
-      labelTextView.setBackgroundColor(bgColor);
-      if ("".equals(label)) labelTextView.setVisibility(GONE);
+      labelTextView.setBackground(arr.getDrawable(R.styleable.FabText_bg));
+      if ("".equals(label)) {
+        labelTextView.setVisibility(GONE);
+      }
 
       fab = layout.findViewById(R.id.fabtext_button);
       fab.setImageResource(arr.getResourceId(R.styleable.FabText_icon, R.mipmap.ic_plus));

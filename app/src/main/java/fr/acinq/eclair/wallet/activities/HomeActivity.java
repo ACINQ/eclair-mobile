@@ -16,7 +16,10 @@
 
 package fr.acinq.eclair.wallet.activities;
 
-import android.content.*;
+import android.content.ClipboardManager;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.Bundle;
@@ -404,7 +407,7 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
 
   public void toggleSendPaymentButtons(View view) {
     boolean isVisible = mBinding.sendpaymentActionsList.getVisibility() == View.VISIBLE;
-    mBinding.sendpaymentToggler.animate().rotation(isVisible ? 0 : -90).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(150).start();
+    mBinding.sendpaymentToggler.animate().rotation(isVisible ? 0 : -45).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(150).start();
     mBinding.sendpaymentToggler.setBackgroundTintList(ContextCompat.getColorStateList(this, isVisible ? R.color.primary : R.color.grey_4));
     mBinding.sendpaymentActionsList.setVisibility(isVisible ? View.GONE : View.VISIBLE);
   }

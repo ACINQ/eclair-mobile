@@ -46,6 +46,7 @@
     <attr name="label" />
     <attr name="icon" format="reference" />
     <attr name="bgcolor" format="color" />
+    <attr name="bg" format="reference" />
   </declare-styleable>
 
 </resources>

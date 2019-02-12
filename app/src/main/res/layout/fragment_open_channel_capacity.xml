@@ -317,7 +317,7 @@
         android:id="@+id/request_liquidity_checkbox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/space_md"
+        android:layout_marginTop="@dimen/space_xs"
         android:buttonTint="@color/primary"
         android:text="@string/openchannel_request_liquidity_button"
         android:textSize="@dimen/text_sm"
