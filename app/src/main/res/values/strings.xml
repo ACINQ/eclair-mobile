@@ -62,7 +62,7 @@
   <string name="localchannels_active_empty">No active channels yet…\nTo open a new channel click on the (+) button.</string>
   <string name="localchannels_show_inactive">Show closed channels</string>
   <string name="localchannels_hide_inactive">Hide closed channels</string>
-  <string name="receive_title">Your bitcoin address</string>
+  <string name="receive_title">Request payment</string>
 
   <!-- //////////////// Home Intro //////////////////// -->
 
@@ -234,7 +234,7 @@
   <!-- //////////////// Commons /////////////////// -->
 
   <string name="unknown">N/A</string>
-  <string name="unknown_desc">No description available</string>
+  <string name="unknown_desc">No description</string>
   <string name="btn_confirm">Confirm</string>
   <string name="btn_ok">OK</string>
   <string name="btn_cancel">Cancel</string>
@@ -445,8 +445,11 @@
 
   <!-- //////////////// Payment Item //////////////////// -->
 
-  <string name="paymentitem_confidence_suffix">confs</string>
+  <string name="paymentitem_icon_desc">payment type</string>
   <string name="paymentitem_fee_prefix">fee:</string>
+  <string name="paymentitem_failed">Failed</string>
+  <string name="paymentitem_pending">Pending…</string>
+  <string name="paymentitem_zero_conf">Unconfirmed</string>
 
   <!-- //////////////// Local Channel Item //////////////////// -->
 

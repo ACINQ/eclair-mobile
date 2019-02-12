@@ -23,6 +23,7 @@
     <item name="colorPrimaryDark">@color/primary</item>
     <item name="colorAccent">@color/primary</item>
     <item name="android:textColorSecondary">@color/white</item>
+    <item name="android:letterSpacing">0.015</item>
 
     <!-- forced white bg for consistency with older android versions -->
     <item name="android:windowBackground">@color/almost_white</item>

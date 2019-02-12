@@ -103,7 +103,7 @@
       android:max="100"
       android:progress="50"
       android:progressBackgroundTint="@color/grey_1"
-      android:progressTint="@color/blue_light_x1" />
+      android:progressTint="@color/azur_light_x1" />
 
     <TextView
       android:id="@+id/delayed_closing"
