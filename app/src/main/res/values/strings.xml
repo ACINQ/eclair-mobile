@@ -493,9 +493,9 @@
   <string name="prefs_lightning_max_fee">Lightning Fee Protection</string>
   <string name="prefs_lightning_max_fee_desc">Prevent making a Lightning payment if the fee would be too high. Limit is set to 3% (with a tolerance if fee is smaller than 21 satoshis to allow tiny payments).</string>
   <string name="prefs_lightning_enable_inbound">Enable receive over Lightning</string>
-  <string name="prefs_lightning_enable_inbound_desc">If this feature is enabled, you need to make sure that your phone doesn't stay without internet connectivity for more than two weeks straight.</string>
+  <string name="prefs_lightning_enable_inbound_desc">If this feature is enabled, you need to make sure that your phone doesn\'t stay without internet connectivity for more than two weeks straight.</string>
   <string name="prefs_lightning_inbound_warning_title">Notice</string>
-  <string name="prefs_lightning_inbound_warning_message">Congratulations! You can now receive payment over Lightning.\n\nEclair Mobile will watch your channels in the background and will warn you if needed.\n\nNote that you need to make sure that your phone doesn't stay without internet connectivity for more than two weeks straight.</string>
+  <string name="prefs_lightning_inbound_warning_message">Congratulations! You can now receive payment over Lightning.\n\nEclair Mobile will watch your channels in the background and will warn you if needed.\n\nNote that you need to make sure that your phone doesn\'t stay without internet connectivity for more than two weeks straight.</string>
   <string name="prefs_lightning_error_not_authorized_title">Incompatible channels</string>
   <string name="prefs_lightning_error_not_authorized_message">Some of your existing channels have a "retaliation window" smaller than %1$d blocks, please close these channels first.\n\nAll Newly created channels will have a safe configuration.</string>
   <string name="prefs_payment_request_default_description">Payment request default description</string>
@@ -601,8 +601,11 @@
   <string name="notif_channelclosing_bigmessage_normal">You should see an incoming on-chain transaction.</string>
   <string name="notif_channelclosing_bigmessage_localclosing">You or your wallet unilaterally closed this channel. You will receive your funds in %1$d blocks. This value is dependent on the channel configuration.</string>
 
-  <string name="notif_startreminder_title">Eclair Mobile should be started</string>
-  <string name="notif_startreminder_message">Receiving lightning payments means that you should watch the blockchain from time to time.</string>
+  <string name="notif_electrum_check_reminder_title">Eclair Mobile should be started</string>
+  <string name="notif_electrum_check_reminder_message">Receiving lightning payments means that you should watch the blockchain from time to time.</string>
+
+  <string name="notif_electrum_check_alert_title">A cheating attempt has been detected.</string>
+  <string name="notif_electrum_check_alert_message">Please start Eclair Mobile ASAP for automated retaliation.</string>
 
   <string name="notif_received_ln_payment_title">Received %1$s payment…</string>
   <string name="notif_received_ln_payment_message">Description: %1$s</string>

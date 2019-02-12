@@ -107,7 +107,7 @@ public class NodeSupervisor extends UntypedActor {
   private static scala.collection.immutable.List<PaymentRequest.ExtraHop> getExtraHops(final LocalChannel channel) {
     final List<PaymentRequest.ExtraHop> hops = new ArrayList<>();
     final PaymentRequest.ExtraHop hop = new PaymentRequest.ExtraHop(
-      Crypto.PublicKey$.MODULE$.apply(BinaryData.apply(channel.getPeerNodeId())),
+      Crypto.PublicKey$.MODULE$.apply(BinaryData.apply(channel.getPeerNodeId()), false),
       ShortChannelId.apply(channel.getShortChannelId()),
       channel.feeBaseMsat,
       channel.feeProportionalMillionths,

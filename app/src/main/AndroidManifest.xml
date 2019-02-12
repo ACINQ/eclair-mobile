@@ -182,14 +182,9 @@
 
     <!-- broadcast receivers -->
     <receiver
-      android:name=".services.NetworkSyncReceiver"
+      android:name=".services.BootReceiver"
       android:enabled="true"
       android:exported="false">
-      <intent-filter>
-        <action android:name="android.intent.action.BOOT_COMPLETED" />
-      </intent-filter>
-    </receiver>
-    <receiver android:name=".services.RegularStartReminder">
       <intent-filter>
         <action android:name="android.intent.action.BOOT_COMPLETED" />
       </intent-filter>

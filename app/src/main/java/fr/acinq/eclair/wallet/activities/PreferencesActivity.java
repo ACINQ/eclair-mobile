@@ -24,6 +24,7 @@ import android.support.v7.app.AlertDialog;
 import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.actors.NodeSupervisor;
+import fr.acinq.eclair.wallet.services.CheckElectrumWorker;
 import fr.acinq.eclair.wallet.utils.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,6 +59,7 @@ public class PreferencesActivity extends PreferenceActivity {
               .setMessage(R.string.prefs_lightning_inbound_warning_message)
               .setPositiveButton(R.string.btn_ok, null)
               .show();
+            CheckElectrumWorker.scheduleLongDelay();
           }
           return true; // that is, preference will be updated with the value input by the user
         } else {

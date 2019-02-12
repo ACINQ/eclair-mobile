@@ -31,7 +31,9 @@ public interface Constants {
    * the time window for this is just a few seconds
    */
   long DESYNC_DIFF_TIMESTAMP_SEC = 60L * 60 * 24 * 30; // 30 days
-  long ONE_DAY_MS = 1000L * 60 * 60 * 24;
+  long ONE_MIN_MS = 1000L * 60;
+  long ONE_HOUR_MS = ONE_MIN_MS * 60;
+  long ONE_DAY_MS = ONE_HOUR_MS * 24;
 
   /* ----------- PERMISSIONS & REQUEST CODES ------------ */
 
@@ -58,7 +60,8 @@ public interface Constants {
   String SETTING_HAS_STARTED_ONCE = "has_started_once";
   String SETTING_CHANNELS_RESTORE_DONE = "channels_restore_done";
   String SETTING_CHANNELS_BACKUP_SEEN_ONCE = "channels_backup_seen_once";
-  String SETTING_NEXT_START_REMINDER_ALARM = "next_start_reminder_date";
+  String SETTING_ELECTRUM_CHECK_LAST_DATE = "electrum_check_last_date";
+  String SETTING_ELECTRUM_CHECK_LAST_RESULT = "electrum_check_last_result";
 
   // currencies
   String SETTING_SELECTED_FIAT_CURRENCY = "fiat_currency";

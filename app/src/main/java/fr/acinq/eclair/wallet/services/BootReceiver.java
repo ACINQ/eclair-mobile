@@ -19,8 +19,11 @@ package fr.acinq.eclair.wallet.services;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import androidx.work.*;
 import fr.acinq.eclair.wallet.BuildConfig;
+import fr.acinq.eclair.wallet.utils.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,32 +35,15 @@ import java.util.concurrent.TimeUnit;
  * This receiver is started when the device has booted. The work is also scheduled when the app starts, though being
  * unique, with the KEEP policy, the work will not be rescheduled if it already was scheduled.
  */
-public class NetworkSyncReceiver extends BroadcastReceiver {
-
-  private static final Logger log = LoggerFactory.getLogger(NetworkSyncReceiver.class);
-  public static final String NETWORK_SYNC_TAG = BuildConfig.APPLICATION_ID + ".PeriodicNetworkSyncWork";
-
+public class BootReceiver extends BroadcastReceiver {
   @Override
   public void onReceive(final Context context, final Intent intent) {
     if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
-      scheduleSync();
+      NetworkSyncWorker.scheduleSync();
+      final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+      if (prefs.getBoolean(Constants.SETTING_ENABLE_LIGHTNING_INBOUND_PAYMENTS, false)) {
+        CheckElectrumWorker.scheduleASAP();
+      }
     }
-  }
-
-  public static void scheduleSync() {
-    log.info("scheduling sync work");
-    // flex adds a pause between each sync work to make sure that a sync work is not run immediately after the previous one (regardless of interval)
-    final PeriodicWorkRequest.Builder syncWork = new PeriodicWorkRequest.Builder(NetworkSyncWorker.class, 12, TimeUnit.HOURS, 8, TimeUnit.HOURS)
-      .addTag(NETWORK_SYNC_TAG)
-      .setConstraints(new Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build());
-    WorkManager.getInstance().enqueueUniquePeriodicWork(NETWORK_SYNC_TAG, ExistingPeriodicWorkPolicy.KEEP, syncWork.build());
-  }
-
-  public static void doSyncASAP() {
-    final OneTimeWorkRequest syncWork = new OneTimeWorkRequest.Builder(NetworkSyncWorker.class)
-      .addTag(NETWORK_SYNC_TAG)
-      .setConstraints(new Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
-      .build();
-    WorkManager.getInstance().enqueueUniqueWork(NETWORK_SYNC_TAG, ExistingWorkPolicy.REPLACE, syncWork);
   }
 }

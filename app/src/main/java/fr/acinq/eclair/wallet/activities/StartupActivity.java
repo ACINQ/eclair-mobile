@@ -16,8 +16,6 @@
 
 package fr.acinq.eclair.wallet.activities;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import akka.actor.ActorRef;
 import akka.actor.Props;
 import android.annotation.SuppressLint;
@@ -61,7 +59,8 @@ import fr.acinq.eclair.wallet.actors.NodeSupervisor;
 import fr.acinq.eclair.wallet.actors.RefreshScheduler;
 import fr.acinq.eclair.wallet.databinding.ActivityStartupBinding;
 import fr.acinq.eclair.wallet.fragments.PinDialog;
-import fr.acinq.eclair.wallet.services.NetworkSyncReceiver;
+import fr.acinq.eclair.wallet.services.CheckElectrumWorker;
+import fr.acinq.eclair.wallet.services.NetworkSyncWorker;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.EclairException;
 import fr.acinq.eclair.wallet.utils.EncryptedBackup;
@@ -75,7 +74,6 @@ import scala.Option;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
-import fr.acinq.eclair.wallet.services.RegularStartReminder;
 
 import java.io.File;
 import java.io.IOException;
@@ -125,20 +123,6 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
   protected void onDestroy() {
     EventBus.getDefault().unregister(this);
     super.onDestroy();
-  }
-
-  private void setupStartReminderAlarm() {
-    final AlarmManager m = ((AlarmManager) getSystemService(Context.ALARM_SERVICE));
-    if (m != null) {
-      final PendingIntent broadcastIntent = RegularStartReminder.getBroadcastIntent(getApplicationContext());
-      // first cancel existing alarm
-      m.cancel(broadcastIntent);
-      // then schedule a repeatable alarm that displays a notification. Next alarm date is saved in app prefs so that
-      // a BOOT_COMPLETED intent knows the best time when a reminder notification must be shown.
-      final long nextReminder = System.currentTimeMillis() + Constants.ONE_DAY_MS * 3;
-      PreferenceManager.getDefaultSharedPreferences(getBaseContext()).edit().putLong(Constants.SETTING_NEXT_START_REMINDER_ALARM, nextReminder).apply();
-      m.setRepeating(AlarmManager.RTC_WAKEUP, nextReminder, Constants.ONE_DAY_MS, broadcastIntent);
-    }
   }
 
   private void showBreaking() {
@@ -402,8 +386,10 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
       case StartupTask.SUCCESS:
         if (isAppReady()) {
           prefs.edit().putBoolean(Constants.SETTING_HAS_STARTED_ONCE, true).apply();
-          NetworkSyncReceiver.scheduleSync();
-          setupStartReminderAlarm();
+          NetworkSyncWorker.scheduleSync();
+          if (prefs.getBoolean(Constants.SETTING_ENABLE_LIGHTNING_INBOUND_PAYMENTS, false)) {
+            CheckElectrumWorker.scheduleLongDelay();
+          }
           goToHome();
         } else {
           // empty appkit, something went wrong.
@@ -581,21 +567,20 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
     private void cancelSyncWork() {
       final WorkManager workManager = WorkManager.getInstance();
       try {
-        final List<WorkInfo> works = workManager.getWorkInfosByTag(NetworkSyncReceiver.NETWORK_SYNC_TAG).get();
-        if (works == null || works.isEmpty()) {
-          log.info("no sync work found");
+        final List<WorkInfo> works = workManager.getWorkInfosByTag(NetworkSyncWorker.NETWORK_SYNC_TAG).get();
+        works.addAll(workManager.getWorkInfosByTag(CheckElectrumWorker.ELECTRUM_CHECK_WORKER_TAG).get());
+        if (works.isEmpty()) {
+          log.info("no background works were found");
         } else {
           for (WorkInfo work : works) {
-            log.debug("found a sync work in state {}, full data={}", work.getState(), work);
-            if (work.getState() == WorkInfo.State.RUNNING) {
-              log.info("found a running sync work, cancelling work...");
-              workManager.cancelWorkById(work.getId()).getResult().get();
-            }
+            log.info("found a sync work in state {}, full data={}", work.getState(), work);
+            workManager.cancelWorkById(work.getId()).getResult().get();
+            log.info("successfully cancelled work {}", work);
           }
         }
       } catch (Exception e) {
         log.error("failed to retrieve or cancel sync works", e);
-        throw new RuntimeException("could not cancel sync works");
+        throw new RuntimeException("could not cancel background work");
       }
     }
   }
