@@ -108,14 +108,12 @@ public class LightningPaymentError implements Parcelable {
 
     } else if (failure instanceof PaymentLifecycle.LocalFailure) {
       final PaymentLifecycle.LocalFailure lf = (PaymentLifecycle.LocalFailure) failure;
-      final String type = lf.getClass().getSimpleName();
+      final String type = "Local";
       String cause;
       String originChannelId = null;
       Throwable t = lf.t();
       if (t instanceof RouteNotFound$) {
-        cause = "The wallet could not find a path to the payee.";
-      } else if (t instanceof PaymentLifecycle.RouteTooExpensive) {
-        cause = "Routing fees exceed 3% and are deemed too expensive. This check can be disabled in the application\'s preferences.";
+        cause = "Route not found.";
       } else if (t instanceof ChannelException){
         cause = t.getMessage();
         originChannelId = ((ChannelException) t).channelId().toString();

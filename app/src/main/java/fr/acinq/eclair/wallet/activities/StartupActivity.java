@@ -206,6 +206,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
   }
 
   private boolean checkWalletDatadir(final File datadir) {
+    mBinding.startupLog.setText("");
     if (datadir.exists() && new File(datadir, WalletUtils.SEED_NAME).exists()) {
       return true;
     } else {
@@ -315,6 +316,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
               if (!checkChannelsBackup(prefs)) return;
             }
           }
+          runOnUiThread(() -> mBinding.startupLog.setText(getString(R.string.start_log_seed_ok)));
           isStartingNode = true;
           new StartupTask().execute(app, seed);
 
@@ -352,14 +354,17 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
         }
         break;
       case StartupTask.NETWORK_ERROR:
+        mBinding.startupLog.setText("");
         clearApp();
         showError(getString(R.string.start_error_connectivity), true, false);
         break;
       case StartupTask.TIMEOUT_ERROR:
+        mBinding.startupLog.setText("");
         clearApp();
         showError(getString(R.string.start_error_timeout), true, true);
         break;
       default:
+        mBinding.startupLog.setText("");
         clearApp();
         showError(getString(R.string.start_error_generic), true, true);
         break;
@@ -428,7 +433,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
         final BinaryData seed = (BinaryData) params[1];
         final File datadir = new File(app.getFilesDir(), Constants.ECLAIR_DATADIR);
 
-        publishProgress("initializing system");
+        publishProgress(app.getString(R.string.start_log_init));
         // bootstrap hangs if network is unavailable.
         // TODO: The app should be able to handle an offline mode. Remove await from bootstrap and resolve appkit asynchronously.
         // AppKit should be available from the app without fully bootstrapping the node.
@@ -441,7 +446,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
         app.checkupInit();
         cancelSyncWork();
 
-        publishProgress("setting up eclair");
+        publishProgress(app.getString(R.string.start_log_setting_up));
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(app.getBaseContext());
         Class.forName("org.sqlite.JDBC");
         final Setup setup = new Setup(datadir, getOverrideConfig(prefs), Option.apply(seed), app.system);
@@ -461,7 +466,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
         // electrum payment supervisor actor
         app.system.actorOf(Props.create(ElectrumSupervisor.class, app.getDBHelper(), paymentsRefreshScheduler, balanceRefreshScheduler), "ElectrumSupervisor");
 
-        publishProgress("starting core");
+        publishProgress(app.getString(R.string.start_log_starting_core));
         Future<Kit> fKit = setup.bootstrap();
         Kit kit = Await.result(fKit, Duration.create(60, "seconds"));
         ElectrumEclairWallet electrumWallet = (ElectrumEclairWallet) kit.wallet();
@@ -469,7 +474,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
         app.appKit = new App.AppKit(electrumWallet, kit);
         app.scheduleConnectionToNode();
         app.monitorConnectivity();
-        publishProgress("done");
+        publishProgress(app.getString(R.string.start_log_done));
         return SUCCESS;
 
       } catch (EclairException.NetworkException t) {

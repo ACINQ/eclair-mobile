@@ -47,7 +47,7 @@ public class NetworkSyncReceiver extends BroadcastReceiver {
   public static void scheduleSync() {
     log.info("scheduling sync work");
     // flex adds a pause between each sync work to make sure that a sync work is not run immediately after the previous one (regardless of interval)
-    final PeriodicWorkRequest.Builder syncWork = new PeriodicWorkRequest.Builder(NetworkSyncWorker.class, 6, TimeUnit.HOURS, 4, TimeUnit.HOURS)
+    final PeriodicWorkRequest.Builder syncWork = new PeriodicWorkRequest.Builder(NetworkSyncWorker.class, 12, TimeUnit.HOURS, 8, TimeUnit.HOURS)
       .addTag(NETWORK_SYNC_TAG)
       .setConstraints(new Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build());
     WorkManager.getInstance().enqueueUniquePeriodicWork(NETWORK_SYNC_TAG, ExistingPeriodicWorkPolicy.KEEP, syncWork.build());

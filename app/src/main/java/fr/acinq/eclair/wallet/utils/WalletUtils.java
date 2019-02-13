@@ -24,6 +24,7 @@ import android.net.Uri;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.text.Html;
 import android.view.View;
 import android.widget.TextView;
@@ -38,8 +39,6 @@ import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.rolling.FixedWindowRollingPolicy;
 import ch.qos.logback.core.rolling.RollingFileAppender;
 import ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy;
-import com.android.volley.Request;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.google.common.io.Files;
 import com.papertrailapp.logback.Syslog4jAppender;
 import com.tozny.crypto.android.AesCbcWithIntegrity;
@@ -48,12 +47,13 @@ import fr.acinq.bitcoin.Block;
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.CoinUnit;
-import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.services.ChannelsBackupWorker;
+import okhttp3.ResponseBody;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.productivity.java.syslog4j.impl.net.tcp.ssl.SSLTCPNetSyslogConfig;
 import org.slf4j.LoggerFactory;
@@ -62,6 +62,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
@@ -70,10 +71,10 @@ public class WalletUtils {
   private final static org.slf4j.Logger log = LoggerFactory.getLogger(WalletUtils.class);
 
   public final static String ACINQ_NODE = "03864ef025fde8fb587d989186ce6a4a186895ee44a926bfc370e2c366597a3f8f@node.acinq.co:9735";
-  private final static String PRICE_RATE_API = "https://blockchain.info/fr/ticker";
-  public final static String UNENCRYPTED_SEED_NAME = "seed.dat";
+  public final static String PRICE_RATE_API = "https://blockchain.info/fr/ticker";
   public final static String SEED_NAME = "enc_seed.dat";
   private final static String SEED_NAME_TEMP = "enc_seed_temp.dat";
+  private final static String DECIMAL_SEPARATOR = String.valueOf(new DecimalFormat().getDecimalFormatSymbols().getDecimalSeparator());
   private static NumberFormat fiatFormat;
 
   private static void saveCurrency(final SharedPreferences.Editor editor, final JSONObject o, final String fiatCode) {
@@ -116,36 +117,32 @@ public class WalletUtils {
     retrieveRateFromPrefs(prefs, "USD");
   }
 
-  public static JsonObjectRequest exchangeRateRequest(final SharedPreferences prefs) {
-    return new JsonObjectRequest(Request.Method.GET, PRICE_RATE_API, null,
-      response -> {
-        final SharedPreferences.Editor editor = prefs.edit();
-        saveCurrency(editor, response, "AUD"); // australian dollar
-        saveCurrency(editor, response, "BRL"); // br real
-        saveCurrency(editor, response, "CAD"); // canadian dollar
-        saveCurrency(editor, response, "CHF"); // swiss franc
-        saveCurrency(editor, response, "CLP"); // chilean pesos
-        saveCurrency(editor, response, "CNY"); // yuan
-        saveCurrency(editor, response, "DKK"); // denmark krone
-        saveCurrency(editor, response, "EUR"); // euro
-        saveCurrency(editor, response, "GBP"); // pound
-        saveCurrency(editor, response, "HKD"); // hong kong dollar
-        saveCurrency(editor, response, "INR"); // indian rupee
-        saveCurrency(editor, response, "ISK"); // icelandic kròna
-        saveCurrency(editor, response, "JPY"); // yen
-        saveCurrency(editor, response, "KRW"); // won
-        saveCurrency(editor, response, "NZD"); // nz dollar
-        saveCurrency(editor, response, "PLN"); // zloty
-        saveCurrency(editor, response, "RUB"); // ruble
-        saveCurrency(editor, response, "SEK"); // swedish krona
-        saveCurrency(editor, response, "SGD"); // singapore dollar
-        saveCurrency(editor, response, "THB"); // thai baht
-        saveCurrency(editor, response, "TWD"); // taiwan dollar
-        saveCurrency(editor, response, "USD"); // usd
-        editor.apply();
-      }, (error) -> {
-      log.error("error when querying price api, with cause {}", error.getMessage());
-    });
+  public static void handleExchangeRateResponse(final SharedPreferences prefs, @NonNull final ResponseBody body) throws IOException, JSONException {
+    final SharedPreferences.Editor editor = prefs.edit();
+    JSONObject json = new JSONObject(body.string());
+    saveCurrency(editor, json, "AUD"); // australian dollar
+    saveCurrency(editor, json, "BRL"); // br real
+    saveCurrency(editor, json, "CAD"); // canadian dollar
+    saveCurrency(editor, json, "CHF"); // swiss franc
+    saveCurrency(editor, json, "CLP"); // chilean pesos
+    saveCurrency(editor, json, "CNY"); // yuan
+    saveCurrency(editor, json, "DKK"); // denmark krone
+    saveCurrency(editor, json, "EUR"); // euro
+    saveCurrency(editor, json, "GBP"); // pound
+    saveCurrency(editor, json, "HKD"); // hong kong dollar
+    saveCurrency(editor, json, "INR"); // indian rupee
+    saveCurrency(editor, json, "ISK"); // icelandic kròna
+    saveCurrency(editor, json, "JPY"); // yen
+    saveCurrency(editor, json, "KRW"); // won
+    saveCurrency(editor, json, "NZD"); // nz dollar
+    saveCurrency(editor, json, "PLN"); // zloty
+    saveCurrency(editor, json, "RUB"); // ruble
+    saveCurrency(editor, json, "SEK"); // swedish krona
+    saveCurrency(editor, json, "SGD"); // singapore dollar
+    saveCurrency(editor, json, "THB"); // thai baht
+    saveCurrency(editor, json, "TWD"); // taiwan dollar
+    saveCurrency(editor, json, "USD"); // usd
+    editor.apply();
   }
 
   public static View.OnClickListener getOpenTxListener(final String txId) {
@@ -250,10 +247,9 @@ public class WalletUtils {
    */
   @SuppressLint("SetTextI18n")
   public static void printAmountInView(final TextView view, final String amount, final String direction) {
-    final String decSep = String.valueOf(CoinUtils.COIN_FORMAT().getDecimalFormatSymbols().getDecimalSeparator());
-    final String[] amountParts = amount.split(Pattern.quote(decSep));
+    final String[] amountParts = amount.split(Pattern.quote(DECIMAL_SEPARATOR));
     if (amountParts.length == 2) {
-      view.setText(Html.fromHtml(view.getContext().getString(R.string.pretty_amount_value, direction + amountParts[0] + decSep, amountParts[1])));
+      view.setText(Html.fromHtml(view.getContext().getString(R.string.pretty_amount_value, direction + amountParts[0] + DECIMAL_SEPARATOR, amountParts[1])));
     } else {
       view.setText(direction + amount);
     }
@@ -447,6 +443,7 @@ public class WalletUtils {
   }
 
   private static void useAppender(final LoggerContext lc, final Appender<ILoggingEvent> appender) {
+    lc.getLogger("fr.acinq.eclair.crypto").setLevel(Level.WARN); // ChaCha20Poly1305 spams a lot in debug
     if (BuildConfig.DEBUG) {
       lc.getLogger("io.netty").setLevel(Level.DEBUG);
     } else {
@@ -454,7 +451,7 @@ public class WalletUtils {
       lc.getLogger("fr.acinq.eclair.blockchain.electrum").setLevel(Level.WARN);
     }
     final Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-    root.setLevel(Level.INFO);
+    root.setLevel(BuildConfig.DEBUG ? Level.DEBUG : Level.INFO);
     root.addAppender(appender);
   }
 }

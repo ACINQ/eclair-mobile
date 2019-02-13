@@ -20,7 +20,6 @@ import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Cancellable;
 import akka.dispatch.OnComplete;
-import akka.dispatch.OnFailure;
 import akka.pattern.Patterns;
 import akka.util.Timeout;
 import android.app.Application;
@@ -37,9 +36,11 @@ import android.net.NetworkCapabilities;
 import android.net.NetworkRequest;
 import android.os.Build;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import fr.acinq.bitcoin.*;
+import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.Globals;
 import fr.acinq.eclair.JsonSerializers$;
@@ -55,18 +56,21 @@ import fr.acinq.eclair.io.NodeURI;
 import fr.acinq.eclair.io.Peer;
 import fr.acinq.eclair.payment.PaymentLifecycle;
 import fr.acinq.eclair.payment.PaymentRequest;
+import fr.acinq.eclair.router.RouteParams;
+import fr.acinq.eclair.router.Router;
 import fr.acinq.eclair.transactions.Scripts;
 import fr.acinq.eclair.wallet.activities.ChannelDetailsActivity;
 import fr.acinq.eclair.wallet.events.*;
-import fr.acinq.eclair.wallet.services.NetworkSyncReceiver;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
+import okhttp3.*;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.crypto.digests.SHA256Digest;
+import scala.Option;
 import scala.Symbol;
 import scala.Tuple2;
 import scala.collection.Iterable;
@@ -74,12 +78,14 @@ import scala.collection.Iterator;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
+import scala.math.BigDecimal;
 import upickle.default$;
-import fr.acinq.bitcoin.package$;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static fr.acinq.eclair.wallet.adapters.LocalChannelItemHolder.EXTRA_CHANNEL_ID;
@@ -98,7 +104,17 @@ public class App extends Application {
   // version 1 is kept for backward compatibility
   public AtomicReference<BinaryData> backupKey_v2 = new AtomicReference<>(null);
   public AppKit appKit;
+
+  // Route params with high base fee (at most 1mBTC)
+  private final Option<RouteParams> noLimitRouteParams = Option.apply(RouteParams.apply(
+    package$.MODULE$.millibtc2millisatoshi(new MilliBtc(BigDecimal.exact(1))).amount(), 1d, 10, Router.DEFAULT_ROUTE_MAX_CLTV()));
+
   private Cancellable pingNode;
+
+  private Cancellable exchangeRatePoller;
+  private final Request exchangeRateRequest = new Request.Builder().url(WalletUtils.PRICE_RATE_API).build();
+  private final OkHttpClient httpClient = new OkHttpClient();
+
   private AtomicReference<ElectrumState> electrumState = new AtomicReference<>(null);
   private DBHelper dbHelper;
   private String walletAddress = "N/A";
@@ -110,6 +126,7 @@ public class App extends Application {
     }
     super.onCreate();
     WalletUtils.setupLogging(getBaseContext());
+    scheduleExchangeRatePoll();
   }
 
   public void monitorConnectivity() {
@@ -202,20 +219,16 @@ public class App extends Application {
    *
    * @param paymentRequest Lightning payment request
    * @param amountMsat     Amount of the payment in millisatoshis. Overrides the amount provided by the payment request!
+   * @param checkFees      True if the user wants to use the default route parameters limiting the route fees to reasonable values.
+   *                       If false, can lead the user to pay a lot of fees.
    */
-  public void sendLNPayment(final PaymentRequest paymentRequest, final long amountMsat, final boolean capMaxFee) {
+  public void sendLNPayment(final PaymentRequest paymentRequest, final long amountMsat, final boolean checkFees) {
     Long finalCltvExpiry = Channel.MIN_CLTV_EXPIRY();
     if (paymentRequest.minFinalCltvExpiry().isDefined() && paymentRequest.minFinalCltvExpiry().get() instanceof Long) {
       finalCltvExpiry = (Long) paymentRequest.minFinalCltvExpiry().get();
     }
-    Double maxFeePct = capMaxFee ? 0.03 : Double.MAX_VALUE;
-    Patterns.ask(appKit.eclairKit.paymentInitiator(),
-      new PaymentLifecycle.SendPayment(amountMsat, paymentRequest.paymentHash(), paymentRequest.nodeId(), paymentRequest.routingInfo(), finalCltvExpiry + 1, 10, maxFeePct),
-      new Timeout(Duration.create(1, "seconds"))).onFailure(new OnFailure() {
-      @Override
-      public void onFailure(Throwable failure) throws Throwable {
-      }
-    }, this.system.dispatcher());
+    appKit.eclairKit.paymentInitiator().tell(new PaymentLifecycle.SendPayment(amountMsat, paymentRequest.paymentHash(), paymentRequest.nodeId(), paymentRequest.routingInfo(),
+      finalCltvExpiry + 1, 10, Option.apply(false), checkFees ? Option.apply(null) : noLimitRouteParams), ActorRef.noSender());
   }
 
   /**
@@ -320,6 +333,48 @@ public class App extends Application {
     }
   }
 
+  public void scheduleExchangeRatePoll() {
+    final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+    if (exchangeRatePoller != null) {
+      exchangeRatePoller.cancel();
+    }
+    if (system != null) {
+      exchangeRatePoller = system.scheduler().schedule(
+        Duration.Zero(), Duration.create(20, TimeUnit.MINUTES),
+        () -> {
+          log.debug("requesting exchange rates from remote API... {}", exchangeRateRequest);
+          httpClient.newCall(exchangeRateRequest).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+              log.warn("exchange rate call failed with cause {}", e.getLocalizedMessage());
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) {
+              log.debug("exchange rate api responded with {}", response);
+              if (!response.isSuccessful()) {
+                log.warn("exchange rate query responds with error code {}", response.code());
+              } else {
+                final ResponseBody body = response.body();
+                if (body != null) {
+                  try {
+                    WalletUtils.handleExchangeRateResponse(prefs, body);
+                  } catch (Throwable t) {
+                    log.error("could not read exchange rate response body", t);
+                  } finally {
+                    body.close();
+                  }
+                } else {
+                  log.warn("exchange rate body is null");
+                }
+              }
+            }
+          });
+        },
+        system.dispatcher());
+    }
+  }
+
   /**
    * Broadcast a transaction using the payload.
    */
@@ -408,8 +463,8 @@ public class App extends Application {
       this.dbHelper = new DBHelper(getApplicationContext());
     }
 
-    // delete instances of payments with an unknown description/recipient and a PENDING state
-    dbHelper.cleanUpUnknownPayments();
+    // delete unconfirmed onchain txs to get a clean slate before connecting to an electrum server
+    dbHelper.cleanUpZeroConfs();
 
     // rates & coin patterns
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
