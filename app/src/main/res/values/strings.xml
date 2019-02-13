@@ -469,7 +469,7 @@
   <string name="prefs_pin_title">Ask for password before payment</string>
   <string name="prefs_pin_default_info">Uses the PIN encrypting your wallet</string>
   <string name="prefs_lightning_max_fee">Cap Lightning fees</string>
-  <string name="prefs_lightning_max_fee_desc">Abort lightning payments if the fees would exceed 3% of the amount to pay. This prevents overpaying opportunistic nodes in the middle of the route.\n\nDoes not affect on-chain payments.</string>
+  <string name="prefs_lightning_max_fee_desc">Abort lightning payments if the routing fees are excessive.</string>
   <string name="prefs_onchain_explorer">Preferred onchain explorer</string>
   <string name="prefs_onchain_explorer_dialog">Explore onchain tx with</string>
   <string name="prefs_security_title">Security Settings</string>
