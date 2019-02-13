@@ -37,9 +37,11 @@ import android.net.NetworkCapabilities;
 import android.net.NetworkRequest;
 import android.os.Build;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import fr.acinq.bitcoin.*;
+import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.Globals;
 import fr.acinq.eclair.JsonSerializers$;
@@ -58,9 +60,9 @@ import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.transactions.Scripts;
 import fr.acinq.eclair.wallet.activities.ChannelDetailsActivity;
 import fr.acinq.eclair.wallet.events.*;
-import fr.acinq.eclair.wallet.services.NetworkSyncReceiver;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
+import okhttp3.*;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -76,11 +78,12 @@ import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
 import upickle.default$;
-import fr.acinq.bitcoin.package$;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static fr.acinq.eclair.wallet.adapters.LocalChannelItemHolder.EXTRA_CHANNEL_ID;
@@ -100,6 +103,11 @@ public class App extends Application {
   public AtomicReference<BinaryData> backupKey_v2 = new AtomicReference<>(null);
   public AppKit appKit;
   private Cancellable pingNode;
+
+  private Cancellable exchangeRatePoller;
+  private final Request exchangeRateRequest = new Request.Builder().url(WalletUtils.PRICE_RATE_API).build();
+  private final OkHttpClient httpClient = new OkHttpClient();
+
   private AtomicReference<ElectrumState> electrumState = new AtomicReference<>(null);
   private DBHelper dbHelper;
   private String walletAddress = "N/A";
@@ -111,6 +119,7 @@ public class App extends Application {
     }
     super.onCreate();
     WalletUtils.setupLogging(getBaseContext());
+    scheduleExchangeRatePoll();
   }
 
   public void monitorConnectivity() {
@@ -317,6 +326,48 @@ public class App extends Application {
       pingNode = system.scheduler().schedule(
         Duration.Zero(), Duration.create(60, "seconds"),
         () -> appKit.eclairKit.switchboard().tell(new Peer.Connect(NodeURI.parse(WalletUtils.ACINQ_NODE)), ActorRef.noSender()),
+        system.dispatcher());
+    }
+  }
+
+  public void scheduleExchangeRatePoll() {
+    final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+    if (exchangeRatePoller != null) {
+      exchangeRatePoller.cancel();
+    }
+    if (system != null) {
+      exchangeRatePoller = system.scheduler().schedule(
+        Duration.Zero(), Duration.create(20, TimeUnit.MINUTES),
+        () -> {
+          log.debug("requesting exchange rates from remote API... {}", exchangeRateRequest);
+          httpClient.newCall(exchangeRateRequest).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+              log.warn("exchange rate call failed with cause {}", e.getLocalizedMessage());
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) {
+              log.debug("exchange rate api responded with {}", response);
+              if (!response.isSuccessful()) {
+                log.warn("exchange rate query responds with error code {}", response.code());
+              } else {
+                final ResponseBody body = response.body();
+                if (body != null) {
+                  try {
+                    WalletUtils.handleExchangeRateResponse(prefs, body);
+                  } catch (Throwable t) {
+                    log.error("could not read exchange rate response body", t);
+                  } finally {
+                    body.close();
+                  }
+                } else {
+                  log.warn("exchange rate body is null");
+                }
+              }
+            }
+          });
+        },
         system.dispatcher());
     }
   }
