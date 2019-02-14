@@ -169,7 +169,7 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
         CoinUtils.formatAmountInUnit(NodeSupervisor.getMaxReceivable(), WalletUtils.getPreferredCoinUnit(prefs), true)));
       checkLightningAmount();
       // -- if no payment request is being generated and we should have one, generate one
-      if (NodeSupervisor.hasOneNormalChannel() && !NodeSupervisor.getChannelsMap().isEmpty() && mBinding.getIsLightningInboundEnabled()
+      if (!NodeSupervisor.getChannelsMap().isEmpty() && mBinding.getIsLightningInboundEnabled()
         && !mBinding.getIsGeneratingLightningPR()) {
         if (this.lightningPaymentRequest == null || isCurrentPaymentRequestPaid()) {
           resetPaymentRequestFields();
