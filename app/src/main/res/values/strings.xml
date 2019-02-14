@@ -291,8 +291,8 @@
   <string name="channeldetails_features_label">Features support</string>
   <string name="channeldetails_advanced_routing_label">Advanced routing sync</string>
   <string name="channeldetails_data_loss_protection_label">Dataloss protection</string>
-  <string name="channeldetails_to_self_delay_label">Refund delay (uncooperative close)</string>
-  <string name="channeldetails_remote_to_self_delay_label">Remote To-Self-Delay</string>
+  <string name="channeldetails_to_self_delay_label">Refund delay (local uncooperative close)</string>
+  <string name="channeldetails_remote_to_self_delay_label">Retaliation window (remote uncooperative close)</string>
   <string name="channeldetails_delay_value">%1$d blocks</string>
   <string name="channeldetails_reserve_label">Minimum channel reserve</string>
   <string name="channeldetails_htlcs_count_label">Inflight HTLCs</string>
@@ -405,7 +405,7 @@
   <string name="about_general_text">An advanced Lightning/Bitcoin mobile wallet by ACINQ. It relies on Electrum servers for access to the Bitcoin network.\n\nFees are retrieved from the BitGo API. Exchange rates are retrieved from the Blockchain.info api. Note that this conversion to fiat may not be accurate.\n\nThis software is compliant with the BOLT specifications (Lightning Network standard).</string>
   <string name="about_version">Current version</string>
   <string name="about_faq"><![CDATA[
-    <p>Any questions? Check <a href="https://github.com/ACINQ/eclair-wallet/wiki/FAQ">the FAQ</a></p>
+    <p>Any questions? Check <a href="https://github.com/ACINQ/eclair-mobile/wiki/FAQ">the FAQ</a></p>
     You can also join <a href="https://gitter.im/ACINQ/eclair">our Gitter chat</a>.
   ]]></string>
   <string name="about_limitations_title">Software Limitations</string>
@@ -490,16 +490,16 @@
   <string name="prefs_change_password_button">Change password</string>
   <string name="prefs_pin_title">Ask for password before payment</string>
   <string name="prefs_pin_default_info">Uses the PIN encrypting your wallet</string>
-  <string name="prefs_lightning_max_fee">Cap Lightning fees</string>
-  <string name="prefs_lightning_max_fee_desc">Abort lightning payments if the fees would exceed 3% of the amount to pay. This prevents overpaying opportunistic nodes in the middle of the route.\n\nDoes not affect on-chain payments.</string>
-  <string name="prefs_lightning_enable_inbound">Enable Inbound Lightning Payments</string>
-  <string name="prefs_lightning_enable_inbound_desc">This is a placeholder text warning the user that by enabling Eclair Wallet to receive payments over Lightning, he must regularly start the app so that it can watch the blockchain.</string>
-  <string name="prefs_lightning_inbound_warning_title">Congratulations</string>
-  <string name="prefs_lightning_inbound_warning_message">You can now receive payment over Lightning!\n\nFor a safe experience, please start the application at least once a week to check that your channels are secure.</string>
-  <string name="prefs_lightning_error_not_authorized_title">Low To-Self-Delay</string>
-  <string name="prefs_lightning_error_not_authorized_message">Some of your channels have a \"To Self Delay\" value below %1$d blocks which is unsafe for inbound lightning payments.\n\nPlease close these channels beforehand.\n\nNewly created channels will have a safe configuration.</string>
+  <string name="prefs_lightning_max_fee">Lightning Fee Protection</string>
+  <string name="prefs_lightning_max_fee_desc">Prevent making a Lightning payment if the fee would be too high. Limit is set to 3% (with a tolerance if fee is smaller than 21 satoshis to allow tiny payments).</string>
+  <string name="prefs_lightning_enable_inbound">Enable receive over Lightning</string>
+  <string name="prefs_lightning_enable_inbound_desc">If this feature is enabled, you need to make sure that your phone doesn't stay without internet connectivity for more than two weeks straight.</string>
+  <string name="prefs_lightning_inbound_warning_title">Notice</string>
+  <string name="prefs_lightning_inbound_warning_message">Congratulations! You can now receive payment over Lightning.\n\nEclair Mobile will watch your channels in the background and will warn you if needed.\n\nNote that you need to make sure that your phone doesn't stay without internet connectivity for more than two weeks straight.</string>
+  <string name="prefs_lightning_error_not_authorized_title">Incompatible channels</string>
+  <string name="prefs_lightning_error_not_authorized_message">Some of your existing channels have a "retaliation window" smaller than %1$d blocks, please close these channels first.\n\nAll Newly created channels will have a safe configuration.</string>
   <string name="prefs_payment_request_default_description">Payment request default description</string>
-  <string name="prefs_payment_request_default_description_summary">Default description of the lightning payments that you request. Value is discretionary.\n\nA meaningful description will incite people to pay you.</string>
+  <string name="prefs_payment_request_default_description_summary">Default description for your lightning payment requests.</string>
   <string name="prefs_payment_request_expiry">Payment request expiry</string>
   <string name="prefs_onchain_explorer">Preferred onchain explorer</string>
   <string name="prefs_onchain_explorer_dialog">Explore onchain tx with</string>
@@ -601,7 +601,7 @@
   <string name="notif_channelclosing_bigmessage_normal">You should see an incoming on-chain transaction.</string>
   <string name="notif_channelclosing_bigmessage_localclosing">You or your wallet unilaterally closed this channel. You will receive your funds in %1$d blocks. This value is dependent on the channel configuration.</string>
 
-  <string name="notif_startreminder_title">Eclair Wallet should be started</string>
+  <string name="notif_startreminder_title">Eclair Mobile should be started</string>
   <string name="notif_startreminder_message">Receiving lightning payments means that you should watch the blockchain from time to time.</string>
 
   <string name="notif_received_ln_payment_title">Received %1$s payment…</string>
@@ -622,7 +622,7 @@
   <string name="receivepayment_onchain_image_desc">On-chain address QR Code</string>
   <string name="receivepayment_onchain_wait">Retrieving fresh address…</string>
   <string name="receivepayment_lightning_image_desc">Lightning payment request QR Code</string>
-  <string name="receivepayment_lightning_inbound_disabled">You must enable Lightning payment reception in the app settings.\n\nNote that, to safely use this feature, you should run the app once a week.</string>
+  <string name="receivepayment_lightning_inbound_disabled">You must enable this feature in the settings first.</string>
   <string name="receivepayment_lightning_no_channels">Please open a lightning channel to receive payments over lightning.</string>
   <string name="receivepayment_lightning_may_fail">This payment may fail</string>
   <string name="receivepayment_lightning_no_routes_available">- Your channels are currently not active.</string>
