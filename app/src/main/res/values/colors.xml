@@ -44,7 +44,7 @@
   <!-- almost black, good for regular text -->
   <color name="grey_4">#333333</color>
   <color name="green">#00c28c</color>
-  <color name="green_dark">#0C9C6E</color>
+  <color name="green_dark">#0BA876</color>
   <color name="yellow">#ffe88a</color>
   <color name="yellow_light_x2">#feedc5</color>
   <color name="yellow_light_x1">#ffda97</color>

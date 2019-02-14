@@ -93,9 +93,15 @@ public class ElectrumSupervisor extends UntypedActor {
       paymentReceived.setConfidenceBlocks((int) walletTransactionReceive.depth());
       paymentReceived.setConfidenceType(0);
 
-      if (paymentInDB == null) {
-        // timestamp is updated only if the transaction is not already known
-        paymentReceived.setUpdated(new Date());
+      if (walletTransactionReceive.timestamp().isDefined()) {
+         // Tx is included in a block, its timestamp is the block's timestamp.
+         // Note: on-chain payment timestamp is stored in the 'updated' field of the payment object, to facilitate integration
+         // with lightning payments when ordering payments by date.
+         paymentReceived.setCreated(new Date((Long) walletTransactionReceive.timestamp().get() * 1000));
+         paymentReceived.setUpdated(new Date((Long) walletTransactionReceive.timestamp().get() * 1000));
+      } else if (paymentInDB == null) {
+        // New tx that we don't know and which is not in a block yet. Its temporary timestamp is the current date.
+         paymentReceived.setCreated(new Date());
       }
 
       dbHelper.insertOrUpdatePayment(paymentReceived);
