@@ -499,6 +499,7 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
     Intent intent = new Intent(this, PaymentSuccessActivity.class);
     intent.putExtra(PaymentSuccessActivity.EXTRA_PAYMENTSUCCESS_DESC, event.payment.getDescription());
     intent.putExtra(PaymentSuccessActivity.EXTRA_PAYMENTSUCCESS_AMOUNT, event.payment.getAmountPaidMsat());
+    intent.putExtra(PaymentSuccessActivity.EXTRA_PAYMENTSUCCESS_DIRECTION, event.payment.getDirection().toString());
     startActivity(intent);
   }
 

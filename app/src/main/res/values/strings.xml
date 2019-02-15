@@ -389,7 +389,8 @@
 
   <!-- //////////////// Successful / Failed Payment Splash //////////////////// -->
 
-  <string name="paymentsuccess_title">Payment sent!</string>
+  <string name="paymentsuccess_sent_title">Payment sent!</string>
+  <string name="paymentsuccess_received_title">Payment received!</string>
   <string name="paymentfailure_title">Payment failed!</string>
   <string name="paymentfailure_show_details">Click here for details</string>
   <string name="paymentfailure_error_size">%1$d attempt(s) made.</string>

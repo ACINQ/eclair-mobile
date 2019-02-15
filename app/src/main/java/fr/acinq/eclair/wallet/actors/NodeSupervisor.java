@@ -361,6 +361,7 @@ public class NodeSupervisor extends UntypedActor {
         p.setUpdated(new Date());
         dbHelper.insertOrUpdatePayment(p);
       }
+      EventBus.getDefault().post(new LNPaymentSuccessEvent(paymentInDB));
       EventBus.getDefault().post(new ReceivedLNPaymentNotificationEvent(paymentHash, paymentInDB == null ? null : paymentInDB.getDescription(), pr.amount()));
       paymentRefreshScheduler.tell(Constants.REFRESH, null);
     }
