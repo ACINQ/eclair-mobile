@@ -51,7 +51,7 @@
         android:clickable="true"
         android:focusable="true"
         android:onClick="success_tap"
-        android:visibility="@{isReceived ? View.GONE : View.VISIBLE}"
+        android:visibility="@{isReceived ? View.INVISIBLE : View.VISIBLE}"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"

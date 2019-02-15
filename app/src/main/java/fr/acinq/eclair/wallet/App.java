@@ -39,6 +39,7 @@ import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
+import android.text.format.DateUtils;
 import fr.acinq.bitcoin.*;
 import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.Globals;
@@ -77,9 +78,10 @@ import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
 import upickle.default$;
-import fr.acinq.bitcoin.package$;
 
 import java.net.InetSocketAddress;
+import java.text.DateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
@@ -110,6 +112,16 @@ public class App extends Application {
     }
     super.onCreate();
     WalletUtils.setupLogging(getBaseContext());
+    detectBackgroundRunnable();
+  }
+
+  private void detectBackgroundRunnable() {
+    final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+    final long lastStartDate = prefs.getLong(Constants.SETTING_ELECTRUM_CHECK_LAST_DATE, System.currentTimeMillis());
+    if (lastStartDate > 0 && System.currentTimeMillis() - lastStartDate > DateUtils.MINUTE_IN_MILLIS * 3) {
+      log.warn("app has not run in background since {}", DateFormat.getDateTimeInstance().format(new Date(lastStartDate)));
+      prefs.edit().putBoolean(Constants.SETTING_BACKGROUND_DISABLED_WARNING, true).apply();
+    }
   }
 
   public void monitorConnectivity() {

@@ -16,10 +16,7 @@
 
 package fr.acinq.eclair.wallet.activities;
 
-import android.content.ClipboardManager;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
+import android.content.*;
 import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.Bundle;
@@ -32,11 +29,17 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
+import android.text.Html;
+import android.text.SpannableString;
+import android.text.format.DateUtils;
+import android.text.method.LinkMovementMethod;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewStub;
 import android.view.animation.*;
+import android.widget.TextView;
 import android.widget.Toast;
 import com.google.android.gms.common.util.Strings;
 import fr.acinq.bitcoin.MilliSatoshi;
@@ -64,7 +67,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static fr.acinq.eclair.wallet.adapters.LocalChannelItemHolder.EXTRA_CHANNEL_ID;
@@ -140,6 +145,22 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
     } else {
       // app may be started with a payment request intent
       readURIIntent(getIntent());
+    }
+  }
+
+  private void checkBackgroundRunnableWarning() {
+    final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+    if (prefs.getBoolean(Constants.SETTING_BACKGROUND_DISABLED_WARNING, false)) {
+      // show warning -- only once
+      final AlertDialog d = new AlertDialog.Builder(HomeActivity.this, R.style.CustomDialog)
+        .setTitle(R.string.home_warning_runnable_background_title)
+        .setMessage(Html.fromHtml(getString(R.string.home_warning_runnable_background_message)))
+        .setPositiveButton(R.string.btn_ok, (dialog, which) -> prefs.edit().putBoolean(Constants.SETTING_BACKGROUND_DISABLED_WARNING, false).apply())
+        .show();
+      final TextView messageView = d.findViewById(android.R.id.message);
+      if (messageView != null) {
+        messageView.setMovementMethod(LinkMovementMethod.getInstance());
+      }
     }
   }
 
@@ -245,6 +266,7 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
       // refresh LN balance
       updateElectrumState();
       updateBalance();
+      checkBackgroundRunnableWarning();
     }
   }
 

@@ -56,6 +56,15 @@
   <string name="home_electrum_establishing_custom">Establishing connection with %1$s…</string>
   <string name="home_electrum_syncing">Syncing from %1$s…</string>
 
+  <string name="home_warning_runnable_background_title">Background service</string>
+  <string name="home_warning_runnable_background_message"><![CDATA[
+  It seems that Eclair Mobile has not been able to run in background lately. Make sure that your device does not aggressively optimize this application.
+  <br /><br />
+  This can happen on some devices which do not use a stock Android, such as <b>Nokia</b>, <b>OnePlus</b>, <b>Xiaomi</b>, <b>Huawei</b> or <b>Samsung</b> devices.
+  <br /><br />
+  You can check this website for instructions: <a href=\"https://dontkillmyapp.com\">https://dontkillmyapp.com</a> or visit our FAQ.
+  ]]></string>
+
   <string name="payments_title">Transaction history</string>
   <string name="payments_empty">No transactions yet…</string>
   <string name="localchannels_title">Lightning Channels</string>
@@ -607,8 +616,8 @@
   <string name="notif_electrum_check_reminder_title">Eclair Mobile should be started</string>
   <string name="notif_electrum_check_reminder_message">Receiving lightning payments means that you should watch the blockchain from time to time.</string>
 
-  <string name="notif_electrum_check_alert_title">A cheating attempt has been detected.</string>
-  <string name="notif_electrum_check_alert_message">Please start Eclair Mobile ASAP for automated retaliation.</string>
+  <string name="notif_electrum_check_alert_title">Cheating attempt detected.</string>
+  <string name="notif_electrum_check_alert_message">Start Eclair Mobile for automated retaliation.</string>
 
   <string name="notif_received_ln_payment_title">Received %1$s payment…</string>
   <string name="notif_received_ln_payment_message">Description: %1$s</string>

@@ -105,7 +105,7 @@ public class CheckElectrumWorker extends Worker {
         } else {
           // it's fine: no network access but a verification was recently made
         }
-
+        scheduleShortDelay();
         return Result.SUCCESS;
       } else {
         try {
@@ -149,28 +149,44 @@ public class CheckElectrumWorker extends Worker {
     return Await.result(setup.check(), Duration.Inf());
   }
 
-  private final long MAX_FRESH_WINDOW = DateUtils.MINUTE_IN_MILLIS * 45; //DateUtils.DAY_IN_MILLIS;
-  private final long MAX_FRESH_WINDOW_IF_OK = DateUtils.MINUTE_IN_MILLIS * 120; // 3 * DateUtils.DAY_IN_MILLIS;
+  private final long MAX_FRESH_WINDOW = DateUtils.MINUTE_IN_MILLIS * 2; //DateUtils.DAY_IN_MILLIS;
+  private final long MAX_FRESH_WINDOW_IF_OK = DateUtils.MINUTE_IN_MILLIS * 3; // 3 * DateUtils.DAY_IN_MILLIS;
 
   private boolean isLastCheckFresh(@NonNull final Context context) {
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-    final String lastCheckResult = prefs.getString(Constants.SETTING_ELECTRUM_CHECK_LAST_RESULT, null);
+
+    final long currentTime = System.currentTimeMillis();
+    final long lastBootDate = prefs.getLong(Constants.SETTING_LAST_SUCCESSFUL_BOOT_DATE, 0);
     final long lastCheckDate = prefs.getLong(Constants.SETTING_ELECTRUM_CHECK_LAST_DATE, 0);
+    final String lastCheckResult = prefs.getString(Constants.SETTING_ELECTRUM_CHECK_LAST_RESULT, null);
+    final long delaySinceCheck = currentTime - lastCheckDate;
+
+    if (lastBootDate == 0) {
+      log.warn("last boot date has never been set");
+      return false;
+    }
+
+    if (currentTime - lastBootDate < MAX_FRESH_WINDOW_IF_OK) {
+      log.info("fresh last boot: ", DateUtils.getRelativeTimeSpanString(currentTime, lastBootDate, currentTime - lastBootDate));
+      return true;
+    }
+
     if (lastCheckDate == 0) {
       log.debug("check has never run!");
       return false;
-    } else {
-      final long delaySinceCheck = System.currentTimeMillis() - lastCheckDate;
-      log.info("it has been {} since last check, which resulted with={}", DateUtils.getRelativeTimeSpanString(delaySinceCheck), lastCheckResult);
-      if (delaySinceCheck < MAX_FRESH_WINDOW) {
-        return true;
-      } else if (delaySinceCheck < MAX_FRESH_WINDOW_IF_OK && WatchListener.Ok$.MODULE$.toString().equalsIgnoreCase(lastCheckResult)) {
-        // we had OK less than 3 days ago
-        return true;
-      } else {
-        return false;
-      }
     }
+
+    log.info("it has been {} since last check, which resulted with={}", DateUtils.getRelativeTimeSpanString(currentTime, lastCheckDate, delaySinceCheck), lastCheckResult);
+    if (delaySinceCheck < MAX_FRESH_WINDOW) {
+      return true;
+    }
+
+    if (delaySinceCheck < MAX_FRESH_WINDOW_IF_OK && WatchListener.Ok$.MODULE$.toString().equalsIgnoreCase(lastCheckResult)) {
+      // we had OK less than 3 days ago
+      return true;
+    }
+
+    return false;
   }
 
   static void scheduleASAP() {
@@ -178,11 +194,11 @@ public class CheckElectrumWorker extends Worker {
   }
 
   private static void scheduleShortDelay() {
-    scheduleNextCheck(15L, TimeUnit.MINUTES);
+    scheduleNextCheck(1L, TimeUnit.MINUTES);
   }
 
   public static void scheduleLongDelay() {
-    scheduleNextCheck(15L, TimeUnit.MINUTES);
+    scheduleNextCheck(1L, TimeUnit.MINUTES);
   }
 
   private static void scheduleNextCheck(final Long delay, @NonNull final TimeUnit delayTimeUnit) {
@@ -204,8 +220,10 @@ public class CheckElectrumWorker extends Worker {
       .setSmallIcon(R.drawable.eclair_256x256)
       .setContentTitle(title)
       .setContentText(message)
+      .setStyle(new NotificationCompat.BigTextStyle().bigText(message))
       .setContentIntent(PendingIntent.getActivity(context, Constants.NOTIF_START_REMINDER_REQUEST_CODE, startIntent, PendingIntent.FLAG_UPDATE_CURRENT))
-      .setAutoCancel(isAlert);
+      .setOngoing(isAlert)
+      .setAutoCancel(true);
     NotificationManagerCompat.from(context).notify(Constants.NOTIF_START_REMINDER_REQUEST_CODE, builder.build());
   }
 }

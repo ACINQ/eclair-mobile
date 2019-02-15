@@ -385,7 +385,10 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
     switch (event.status) {
       case StartupTask.SUCCESS:
         if (isAppReady()) {
-          prefs.edit().putBoolean(Constants.SETTING_HAS_STARTED_ONCE, true).apply();
+          prefs.edit()
+            .putBoolean(Constants.SETTING_HAS_STARTED_ONCE, true)
+            .putLong(Constants.SETTING_LAST_SUCCESSFUL_BOOT_DATE, System.currentTimeMillis())
+            .apply();
           NetworkSyncWorker.scheduleSync();
           CheckElectrumWorker.scheduleLongDelay();
           goToHome();
