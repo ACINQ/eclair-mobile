@@ -25,12 +25,7 @@ import android.text.format.DateUtils;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import com.google.common.base.Strings;
-
-import java.text.DateFormat;
-import java.text.NumberFormat;
-
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.CoinUnit;
@@ -45,6 +40,8 @@ import fr.acinq.eclair.wallet.models.PaymentStatus;
 import fr.acinq.eclair.wallet.models.PaymentType;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
+
+import java.text.NumberFormat;
 
 public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
@@ -145,9 +142,10 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
       // -- description
       if (Strings.isNullOrEmpty(payment.getDescription())) {
         mDescription.setText(itemView.getResources().getString(R.string.unknown_desc));
-        mDescription.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.grey_2));
+        mDescription.setTypeface(Typeface.DEFAULT, Typeface.ITALIC);
       } else {
         mDescription.setText(payment.getDescription());
+        mDescription.setTypeface(Typeface.DEFAULT, Typeface.NORMAL);
       }
 
       // -- status

@@ -92,16 +92,17 @@ public class ElectrumSupervisor extends UntypedActor {
       paymentReceived.setAmountPaidMsat(package$.MODULE$.satoshi2millisatoshi(amount).amount());
       paymentReceived.setConfidenceBlocks((int) walletTransactionReceive.depth());
       paymentReceived.setConfidenceType(0);
-
+      
       if (walletTransactionReceive.timestamp().isDefined() && (Long) walletTransactionReceive.timestamp().get() > 0) {
-         // Tx is included in a block, its timestamp is the block's timestamp.
-         // Note: on-chain payment timestamp is stored in the 'updated' field of the payment object, to facilitate integration
-         // with lightning payments when ordering payments by date.
-         paymentReceived.setCreated(new Date((Long) walletTransactionReceive.timestamp().get() * 1000));
-         paymentReceived.setUpdated(new Date((Long) walletTransactionReceive.timestamp().get() * 1000));
+        // Tx is included in a block, its timestamp is the block's timestamp.
+        // Note: on-chain payment timestamp is stored in the 'updated' field of the payment object, to facilitate integration
+        // with lightning payments when ordering payments by date.
+        paymentReceived.setCreated(new Date((Long) walletTransactionReceive.timestamp().get() * 1000));
+        paymentReceived.setUpdated(new Date((Long) walletTransactionReceive.timestamp().get() * 1000));
       } else if (paymentInDB == null) {
         // New tx that we don't know and which is not in a block yet. Its temporary timestamp is the current date.
-         paymentReceived.setCreated(new Date());
+        paymentReceived.setCreated(new Date());
+        paymentReceived.setUpdated(new Date());
       }
 
       dbHelper.insertOrUpdatePayment(paymentReceived);
