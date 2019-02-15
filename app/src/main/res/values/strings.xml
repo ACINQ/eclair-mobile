@@ -72,6 +72,8 @@
   <string name="localchannels_closed_empty">No closed channels yet…</string>
   <string name="localchannels_show_inactive">Show closed channels</string>
   <string name="localchannels_hide_inactive">Hide closed channels</string>
+  <string name="localchannels_total_sendable">Total can send</string>
+  <string name="localchannels_total_receivable">Total can receive</string>
   <string name="receive_title">Request payment</string>
 
   <!-- //////////////// Home Intro //////////////////// -->

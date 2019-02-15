@@ -17,6 +17,10 @@
 package fr.acinq.eclair.wallet.models;
 
 import fr.acinq.bitcoin.Transaction;
+import fr.acinq.eclair.channel.CLOSED$;
+import fr.acinq.eclair.channel.CLOSING$;
+import fr.acinq.eclair.channel.WAIT_FOR_ACCEPT_CHANNEL$;
+import fr.acinq.eclair.channel.WAIT_FOR_INIT_INTERNAL$;
 import org.greenrobot.greendao.annotation.*;
 import scala.Option;
 
@@ -107,6 +111,21 @@ public class LocalChannel {
 
   public long getSendableMsat() {
     return Math.max(this.getBalanceMsat() - (this.getChannelReserveSat() * 1000), 0);
+  }
+
+  /**
+   * Returns true if channels funds can be used, base on state. Funds are unusable if state is:
+   * - closing/closed/shutdown
+   * - in error
+   * - unknown
+   * - waiting for init/accept
+   */
+  public boolean fundsAreUsable() {
+    return this.state != null && !this.state.startsWith("ERR_")
+      && !WAIT_FOR_INIT_INTERNAL$.MODULE$.toString().equals(this.state)
+      && !WAIT_FOR_ACCEPT_CHANNEL$.MODULE$.toString().equals(this.state)
+      && !CLOSING$.MODULE$.toString().equals(this.state)
+      && !CLOSED$.MODULE$.toString().equals(this.state);
   }
 
   public LocalChannel() {

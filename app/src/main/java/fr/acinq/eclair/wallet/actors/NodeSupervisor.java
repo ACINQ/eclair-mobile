@@ -83,12 +83,7 @@ public class NodeSupervisor extends UntypedActor {
   public static MilliSatoshi getChannelsBalance() {
     long total = 0;
     for (LocalChannel c : NodeSupervisor.getChannelsMap().values()) {
-      // not closed, not closing, not in error
-      if (c.state != null && !c.state.startsWith("ERR_")
-        && !WAIT_FOR_INIT_INTERNAL$.MODULE$.toString().equals(c.state)
-        && !WAIT_FOR_ACCEPT_CHANNEL$.MODULE$.toString().equals(c.state)
-        && !CLOSING$.MODULE$.toString().equals(c.state)
-        && !CLOSED$.MODULE$.toString().equals(c.state)) {
+      if (c.fundsAreUsable()) {
         total += c.getBalanceMsat();
       }
     }

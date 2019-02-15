@@ -54,6 +54,7 @@
   <color name="red_faded_light_x1">#ff6c6c</color>
   <color name="red_faded_dark_x1">#be4141</color>
   <color name="red_faded_dark_x2">#b13a3a</color>
+  <color name="receive_color">#c5cbda</color>
   <color name="blue">#1084E9</color>
   <color name="azur_dark">#539dc2</color>
   <color name="azur">#67ccf2</color>
