@@ -15,7 +15,8 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:tools="http://schemas.android.com/tools">
 
   <data>
 
@@ -50,11 +51,11 @@
       <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp"
+        android:padding="@dimen/space_md"
         android:text="@string/localchannels_active_empty"
         android:textAlignment="center"
         android:textColor="@color/grey_1"
-        android:textSize="12sp"
+        android:textSize="@dimen/text_sm"
         android:visibility="@{activeSize == 0 ? View.VISIBLE : View.GONE}" />
 
       <android.support.v7.widget.RecyclerView
@@ -71,13 +72,23 @@
         android:layout_gravity="center"
         android:drawableStart="@{showInactive ? @drawable/ic_expand_less_grey_24dp : @drawable/ic_expand_more_grey_24dp}"
         android:drawablePadding="@dimen/space_xxs"
+        android:fontFamily="sans-serif"
         android:foreground="@android:color/transparent"
         android:padding="@dimen/space_sm"
         android:text="@{showInactive ? @string/localchannels_hide_inactive : @string/localchannels_show_inactive}"
         android:textColor="@color/grey_1"
-        android:textSize="10sp"
-        android:fontFamily="sans-serif"
-        android:visibility="@{inactiveSize > 0 ? View.VISIBLE : View.GONE}" />
+        android:textSize="@dimen/text_xs"
+        tools:ignore="UnusedAttribute" />
+
+      <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/space_md"
+        android:text="@string/localchannels_closed_empty"
+        android:textAlignment="center"
+        android:textColor="@color/grey_1"
+        android:textSize="@dimen/text_sm"
+        android:visibility="@{inactiveSize == 0 &amp;&amp; showInactive ? View.VISIBLE : View.GONE}" />
 
       <android.support.v7.widget.RecyclerView
         android:id="@+id/inactive_channels_list"

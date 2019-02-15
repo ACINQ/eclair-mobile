@@ -60,6 +60,7 @@
   <string name="payments_empty">No transactions yet…</string>
   <string name="localchannels_title">Lightning Channels</string>
   <string name="localchannels_active_empty">No active channels yet…\nTo open a new channel click on the (+) button.</string>
+  <string name="localchannels_closed_empty">No closed channels yet…</string>
   <string name="localchannels_show_inactive">Show closed channels</string>
   <string name="localchannels_hide_inactive">Hide closed channels</string>
   <string name="receive_title">Request payment</string>
