@@ -145,7 +145,7 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
       // -- description
       if (Strings.isNullOrEmpty(payment.getDescription())) {
         mDescription.setText(itemView.getResources().getString(R.string.unknown_desc));
-        mDescription.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.grey_1));
+        mDescription.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.grey_2));
       } else {
         mDescription.setText(payment.getDescription());
       }

@@ -50,7 +50,7 @@
     android:layout_marginEnd="@dimen/text_md"
     android:ellipsize="end"
     android:singleLine="true"
-    android:text="@string/lipsum"
+    android:text="@string/unknown"
     android:textSize="@dimen/text_md"
     app:layout_constrainedWidth="true"
     app:layout_constraintEnd_toStartOf="@id/amount_guideline"

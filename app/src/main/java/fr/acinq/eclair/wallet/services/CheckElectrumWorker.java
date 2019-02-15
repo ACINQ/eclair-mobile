@@ -51,6 +51,27 @@ import java.util.concurrent.TimeUnit;
 public class CheckElectrumWorker extends Worker {
   private static final Logger log = LoggerFactory.getLogger(CheckElectrumWorker.class);
   public static final String ELECTRUM_CHECK_WORKER_TAG = BuildConfig.APPLICATION_ID + ".CheckElectrumWorker";
+
+  /**
+   * Delay in milliseconds. If no electrum check has occurred since (now) - (this), we consider that the device is
+   * blocking this application from working in background.
+   *
+   * Should be high enough as to not trigger false positives.
+   */
+  public static final long DELAY_BEFORE_BACKGROUND_WARNING = DateUtils.HOUR_IN_MILLIS * 4; // 5 * DateUtils.DAY_IN_MILLIS;
+
+  /**
+   * Delay in milliseconds in which the last electrum check can be considered fresh enough that users do not need
+   * to be reminded that eclair needs a working connection.
+   */
+  private static final long MAX_FRESH_WINDOW = DateUtils.MINUTE_IN_MILLIS * 120; //DateUtils.DAY_IN_MILLIS;
+
+  /**
+   * Delay in milliseconds in which the last electrum check can be considered fresh enough that users do not need
+   * to be reminded that eclair needs a working connection, IF this last check returned OK.
+   */
+  private static final long MAX_FRESH_WINDOW_IF_OK = DateUtils.MINUTE_IN_MILLIS * 120; // 3 * DateUtils.DAY_IN_MILLIS;
+
   private final ActorSystem system = ActorSystem.apply("check-electrum-system");
   private CheckElectrumSetup setup;
 
@@ -149,9 +170,6 @@ public class CheckElectrumWorker extends Worker {
     return Await.result(setup.check(), Duration.Inf());
   }
 
-  private final long MAX_FRESH_WINDOW = DateUtils.MINUTE_IN_MILLIS * 2; //DateUtils.DAY_IN_MILLIS;
-  private final long MAX_FRESH_WINDOW_IF_OK = DateUtils.MINUTE_IN_MILLIS * 3; // 3 * DateUtils.DAY_IN_MILLIS;
-
   private boolean isLastCheckFresh(@NonNull final Context context) {
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 
@@ -194,11 +212,11 @@ public class CheckElectrumWorker extends Worker {
   }
 
   private static void scheduleShortDelay() {
-    scheduleNextCheck(1L, TimeUnit.MINUTES);
+    scheduleNextCheck(60L, TimeUnit.MINUTES);
   }
 
   public static void scheduleLongDelay() {
-    scheduleNextCheck(1L, TimeUnit.MINUTES);
+    scheduleNextCheck(60L, TimeUnit.MINUTES);
   }
 
   private static void scheduleNextCheck(final Long delay, @NonNull final TimeUnit delayTimeUnit) {

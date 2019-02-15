@@ -613,7 +613,7 @@
   <string name="notif_channelclosing_bigmessage_normal">You should see an incoming on-chain transaction.</string>
   <string name="notif_channelclosing_bigmessage_localclosing">You or your wallet unilaterally closed this channel. You will receive your funds in %1$d blocks. This value is dependent on the channel configuration.</string>
 
-  <string name="notif_electrum_check_reminder_title">Eclair Mobile should be started</string>
+  <string name="notif_electrum_check_reminder_title">Eclair Mobile requires connection</string>
   <string name="notif_electrum_check_reminder_message">Receiving lightning payments means that you should watch the blockchain from time to time.</string>
 
   <string name="notif_electrum_check_alert_title">Cheating attempt detected.</string>

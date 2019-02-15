@@ -41,6 +41,7 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.text.format.DateUtils;
 import fr.acinq.bitcoin.*;
+import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.Globals;
 import fr.acinq.eclair.JsonSerializers$;
@@ -61,6 +62,7 @@ import fr.acinq.eclair.wallet.activities.LNPaymentDetailsActivity;
 import fr.acinq.eclair.wallet.actors.NodeSupervisor;
 import fr.acinq.eclair.wallet.adapters.PaymentItemHolder;
 import fr.acinq.eclair.wallet.events.*;
+import fr.acinq.eclair.wallet.services.CheckElectrumWorker;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 import org.greenrobot.eventbus.EventBus;
@@ -118,7 +120,7 @@ public class App extends Application {
   private void detectBackgroundRunnable() {
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
     final long lastStartDate = prefs.getLong(Constants.SETTING_ELECTRUM_CHECK_LAST_DATE, System.currentTimeMillis());
-    if (lastStartDate > 0 && System.currentTimeMillis() - lastStartDate > DateUtils.MINUTE_IN_MILLIS * 3) {
+    if (lastStartDate > 0 && System.currentTimeMillis() - lastStartDate > CheckElectrumWorker.DELAY_BEFORE_BACKGROUND_WARNING) {
       log.warn("app has not run in background since {}", DateFormat.getDateTimeInstance().format(new Date(lastStartDate)));
       prefs.edit().putBoolean(Constants.SETTING_BACKGROUND_DISABLED_WARNING, true).apply();
     }
