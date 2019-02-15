@@ -60,7 +60,7 @@
         android:id="@+id/balance"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/primary"
+        android:background="@drawable/bg_primary_gradient"
         android:clickable="true"
         android:focusable="true"
         android:paddingStart="@dimen/space_xs"
@@ -136,7 +136,7 @@
           android:layout_width="wrap_content"
           android:layout_height="@dimen/action_bar_height"
           android:layout_marginStart="@dimen/space_md"
-          android:background="@color/primary"
+          android:background="@android:color/transparent"
           app:layout_constraintBottom_toTopOf="@id/notifs_guideline"
           app:layout_constraintEnd_toEndOf="parent"
           app:layout_constraintTop_toTopOf="parent" />
