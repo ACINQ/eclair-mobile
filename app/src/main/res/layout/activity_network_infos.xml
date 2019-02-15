@@ -91,6 +91,16 @@
             app:has_action="true"
             app:value="@string/unknown" />
 
+          <fr.acinq.eclair.wallet.customviews.DataRow
+            android:id="@+id/electrum_check_bg_result"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:has_border="true"
+            app:has_action="true"
+            app:action_label="Reset"
+            app:label="@string/networkinfos_electrum_check_label"
+            app:value="@string/unknown" />
+
           <TextView
             style="@style/TitleBar"
             android:drawableStart="@drawable/ic_box_grey_14dp"

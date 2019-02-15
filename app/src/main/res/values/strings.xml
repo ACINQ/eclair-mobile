@@ -444,6 +444,8 @@
   <string name="networkinfos_networkdb_toast">Successfully deleted DB, restarting application…</string>
   <string name="networkinfos_xpub_label">Master Public Key</string>
 
+  <string name="networkinfos_electrum_check_label">Background check</string>
+
   <!-- //////////////// Payment Item //////////////////// -->
 
   <string name="paymentitem_icon_desc">payment type</string>
