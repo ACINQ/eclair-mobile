@@ -16,7 +16,10 @@
 
 package fr.acinq.eclair.wallet.activities;
 
-import android.content.*;
+import android.content.ClipboardManager;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.Bundle;
@@ -29,14 +32,15 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.text.Html;
-import android.text.SpannableString;
-import android.text.format.DateUtils;
 import android.text.method.LinkMovementMethod;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewStub;
-import android.view.animation.*;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.google.android.gms.common.util.Strings;
@@ -63,10 +67,7 @@ import org.greenrobot.eventbus.util.ThrowableFailureEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.text.DateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import static fr.acinq.eclair.wallet.adapters.LocalChannelItemHolder.EXTRA_CHANNEL_ID;
@@ -88,8 +89,6 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
   private PaymentsListFragment mPaymentsListFragment;
   private ChannelsListFragment mChannelsListFragment;
   private final Animation mBlinkingAnimation = new AlphaAnimation(0.3f, 1);
-  private final Animation mRotatingAnimation = new RotateAnimation(0, -360, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF,
-    0.5f);
 
   @Override
   protected void onCreate(final Bundle savedInstanceState) {
@@ -121,10 +120,7 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
     mBlinkingAnimation.setRepeatCount(Animation.INFINITE);
     mBlinkingAnimation.setRepeatMode(Animation.REVERSE);
 
-    mRotatingAnimation.setDuration(2000);
-    mRotatingAnimation.setRepeatCount(Animation.INFINITE);
-    mRotatingAnimation.setInterpolator(new LinearInterpolator());
-    mBinding.syncProgressIcon.startAnimation(mRotatingAnimation);
+    mBinding.syncProgressIcon.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate));
 
     final Intent intent = getIntent();
     if (intent.hasExtra(StartupActivity.ORIGIN)) {
@@ -433,9 +429,7 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
     if (p >= 100) {
       mBinding.syncProgressIcon.clearAnimation();
     } else {
-      if (mBinding.syncProgressIcon.getAnimation() == null || mBinding.syncProgressIcon.getAnimation().hasEnded()) {
-        mBinding.syncProgressIcon.startAnimation(mRotatingAnimation);
-      }
+      mBinding.syncProgressIcon.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate));
     }
     mBinding.setSyncProgress(p);
   }
