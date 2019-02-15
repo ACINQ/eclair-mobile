@@ -40,10 +40,7 @@ public class BootReceiver extends BroadcastReceiver {
   public void onReceive(final Context context, final Intent intent) {
     if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
       NetworkSyncWorker.scheduleSync();
-      final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-      if (prefs.getBoolean(Constants.SETTING_ENABLE_LIGHTNING_INBOUND_PAYMENTS, false)) {
-        CheckElectrumWorker.scheduleASAP();
-      }
+      CheckElectrumWorker.scheduleASAP();
     }
   }
 }

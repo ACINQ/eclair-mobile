@@ -387,9 +387,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
         if (isAppReady()) {
           prefs.edit().putBoolean(Constants.SETTING_HAS_STARTED_ONCE, true).apply();
           NetworkSyncWorker.scheduleSync();
-          if (prefs.getBoolean(Constants.SETTING_ENABLE_LIGHTNING_INBOUND_PAYMENTS, false)) {
-            CheckElectrumWorker.scheduleLongDelay();
-          }
+          CheckElectrumWorker.scheduleLongDelay();
           goToHome();
         } else {
           // empty appkit, something went wrong.

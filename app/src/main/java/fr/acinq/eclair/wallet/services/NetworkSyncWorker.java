@@ -83,7 +83,7 @@ public class NetworkSyncWorker extends Worker {
     final Context context = getApplicationContext();
     if (((App) context).appKit != null) {
       log.info("application is running (appkit not null)");
-      return Result.FAILURE;
+      return Result.SUCCESS;
     } else {
       try {
         Class.forName("org.sqlite.JDBC");
@@ -108,7 +108,7 @@ public class NetworkSyncWorker extends Worker {
     final PeriodicWorkRequest.Builder syncWork = new PeriodicWorkRequest.Builder(NetworkSyncWorker.class, 12, TimeUnit.HOURS, 8, TimeUnit.HOURS)
       .addTag(NETWORK_SYNC_TAG)
       .setConstraints(new Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build());
-    WorkManager.getInstance().enqueueUniquePeriodicWork(NETWORK_SYNC_TAG, ExistingPeriodicWorkPolicy.KEEP, syncWork.build());
+    WorkManager.getInstance().enqueueUniquePeriodicWork(NETWORK_SYNC_TAG, ExistingPeriodicWorkPolicy.REPLACE, syncWork.build());
   }
 
   public static void doSyncASAP() {
