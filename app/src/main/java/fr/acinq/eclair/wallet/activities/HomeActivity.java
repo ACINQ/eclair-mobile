@@ -20,9 +20,7 @@ import android.content.*;
 import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -58,7 +56,6 @@ import fr.acinq.eclair.wallet.fragments.PaymentsListFragment;
 import fr.acinq.eclair.wallet.fragments.ReceivePaymentFragment;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
-import okhttp3.*;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -90,9 +87,6 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
   private ReceivePaymentFragment mReceivePaymentFragment;
   private PaymentsListFragment mPaymentsListFragment;
   private ChannelsListFragment mChannelsListFragment;
-  private Handler mExchangeRateHandler = new Handler();
-  private Runnable mExchangeRateRunnable;
-  private OkHttpClient httpClient = new OkHttpClient();
   private final Animation mBlinkingAnimation = new AlphaAnimation(0.3f, 1);
   private final Animation mRotatingAnimation = new RotateAnimation(0, -360, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF,
     0.5f);
@@ -121,7 +115,6 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
 
     setUpTabs(savedInstanceState);
     setUpBalanceInteraction(prefs);
-    setUpExchangeRate();
 
     // --- animations
     mBlinkingAnimation.setDuration(500);
@@ -205,41 +198,6 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
     });
   }
 
-  private void setUpExchangeRate() {
-    final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-    final Request request = new Request.Builder().url(WalletUtils.PRICE_RATE_API).build();
-
-    mExchangeRateRunnable = new Runnable() {
-      @Override
-      public void run() {
-        httpClient.newCall(request).enqueue(new Callback() {
-          @Override
-          public void onFailure(@NonNull Call call, @NonNull IOException e) {
-            log.error("exchange rate call failed with cause:" + e.getLocalizedMessage());
-          }
-
-          @Override
-          public void onResponse(@NonNull Call call, @NonNull Response response) {
-            if (!response.isSuccessful()) {
-              log.error("exchange rate query responds with error code: " + response.code());
-            } else if (response.body() == null) {
-              final ResponseBody body = response.body();
-              if (body != null) {
-                body.close();
-                try {
-                  WalletUtils.handleExchangeRateResponse(prefs, body);
-                } catch (Throwable t) {
-                  log.error("could not read exchange rate response body", t);
-                }
-              }
-            }
-          }
-        });
-        mExchangeRateHandler.postDelayed(this, 20 * 60 * 1000);
-      }
-    };
-  }
-
   @Override
   public void onStart() {
     super.onStart();
@@ -257,12 +215,6 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
         EventBus.getDefault().register(this);
       }
       PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
-      if (mExchangeRateHandler == null || mExchangeRateRunnable == null) {
-        setUpExchangeRate();
-      } else {
-        // refresh exchange rate
-        mExchangeRateHandler.post(mExchangeRateRunnable);
-      }
       // refresh LN balance
       updateElectrumState();
       updateBalance();
@@ -278,7 +230,7 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
 
   private void readURIIntent(final Intent intent) {
     final Uri paymentRequest = intent.getParcelableExtra(EXTRA_PAYMENT_URI);
-    if (paymentRequest != null) {
+    if (paymentRequest != null && paymentRequest.getScheme() != null) {
       switch (paymentRequest.getScheme()) {
         case "bitcoin":
         case "lightning":
@@ -296,9 +248,6 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
   public void onPause() {
     super.onPause();
     PreferenceManager.getDefaultSharedPreferences(this).unregisterOnSharedPreferenceChangeListener(this);
-    if (mExchangeRateHandler != null && mExchangeRateRunnable != null) {
-      mExchangeRateHandler.removeCallbacks(mExchangeRateRunnable);
-    }
     closeSendPaymentButtons();
     closeOpenChannelButtons();
   }
