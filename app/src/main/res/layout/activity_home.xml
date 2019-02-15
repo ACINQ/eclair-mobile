@@ -64,7 +64,8 @@
         android:clickable="true"
         android:focusable="true"
         android:paddingStart="@dimen/space_xs"
-        android:paddingEnd="@dimen/space_xs">
+        android:paddingEnd="@dimen/space_xs"
+        android:paddingBottom="@dimen/space_sm">
 
         <android.support.constraint.Guideline
           android:id="@+id/notifs_guideline"
@@ -144,7 +145,6 @@
           android:id="@+id/balance_total"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
-          android:layout_alignParentTop="true"
           app:alignment="center"
           app:amount_color="@color/almost_white"
           app:amount_size="38sp"
@@ -159,7 +159,6 @@
           android:id="@+id/balance_onchain"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
-          android:layout_below="@+id/balance_total"
           android:layout_marginTop="@dimen/space_xxs"
           android:alpha="0.8"
           app:alignment="center"
@@ -167,7 +166,7 @@
           app:amount_color="@color/almost_white"
           app:amount_size="11sp"
           app:image_size="12dp"
-          app:image_src="@drawable/icon_btc_shape_white"
+          app:image_src="@drawable/ic_chain_white_24dp"
           app:layout_constraintEnd_toEndOf="parent"
           app:layout_constraintStart_toStartOf="parent"
           app:layout_constraintTop_toBottomOf="@id/balance_total"
@@ -179,14 +178,14 @@
           android:id="@+id/balance_lightning"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
-          android:layout_below="@+id/balance_onchain"
+          android:layout_marginTop="@dimen/space_xxxs"
           android:alpha="0.8"
           app:alignment="center"
           app:amount_bold="true"
           app:amount_color="@color/almost_white"
           app:amount_size="11sp"
           app:image_size="12dp"
-          app:image_src="@drawable/icon_bolt_shape_white"
+          app:image_src="@drawable/ic_bolt_white_24dp"
           app:layout_constraintEnd_toEndOf="parent"
           app:layout_constraintStart_toStartOf="parent"
           app:layout_constraintTop_toBottomOf="@id/balance_onchain"
@@ -194,7 +193,6 @@
           app:unit_color="@color/almost_white"
           app:unit_size="10sp" />
 
-        <!--</RelativeLayout>-->
       </android.support.constraint.ConstraintLayout>
 
       <!-- tabs + fragments -->
