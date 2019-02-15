@@ -22,6 +22,7 @@ import akka.actor.UntypedActor;
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
+import com.google.common.base.Strings;
 import fr.acinq.bitcoin.*;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.ShortChannelId;
@@ -96,9 +97,11 @@ public class NodeSupervisor extends UntypedActor {
 
   public static scala.collection.immutable.List<scala.collection.immutable.List<PaymentRequest.ExtraHop>> getRoutes() {
     final List<scala.collection.immutable.List<PaymentRequest.ExtraHop>> routes = new ArrayList<>();
+    final Set<String> peersInRoute = new HashSet<>();
     for (LocalChannel channel : getChannelsMap().values()) {
-      if (channel.state.equals(NORMAL$.MODULE$.toString())) {
+      if (!Strings.isNullOrEmpty(channel.getShortChannelId()) && !peersInRoute.contains(channel.getPeerNodeId()) && routes.size() < 5) {
         routes.add(getExtraHops(channel));
+        peersInRoute.add(channel.getPeerNodeId());
       }
     }
     return JavaConverters.asScalaIteratorConverter(routes.iterator()).asScala().toList();
