@@ -29,7 +29,6 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.text.format.DateUtils;
 import androidx.work.*;
-import com.typesafe.config.ConfigFactory;
 import fr.acinq.eclair.CheckElectrumSetup;
 import fr.acinq.eclair.WatchListener;
 import fr.acinq.eclair.wallet.App;
@@ -37,6 +36,7 @@ import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.activities.StartupActivity;
 import fr.acinq.eclair.wallet.utils.Constants;
+import fr.acinq.eclair.wallet.utils.WalletUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.concurrent.Await;
@@ -55,7 +55,7 @@ public class CheckElectrumWorker extends Worker {
   /**
    * Delay in milliseconds. If no electrum check has occurred since (now) - (this), we consider that the device is
    * blocking this application from working in background.
-   *
+   * <p>
    * Should be high enough as to not trigger false positives.
    */
   public static final long DELAY_BEFORE_BACKGROUND_WARNING = DateUtils.HOUR_IN_MILLIS * 4; // 5 * DateUtils.DAY_IN_MILLIS;
@@ -83,13 +83,12 @@ public class CheckElectrumWorker extends Worker {
   public void onStopped() {
     super.onStopped();
     cleanup();
-    scheduleShortDelay();
   }
 
   private void cleanup() {
     if (!system.isTerminated()) {
       system.shutdown();
-      log.info("system shutdown requested...");
+      log.debug("system shutdown requested...");
       system.awaitTermination();
       log.info("termination completed");
     }
@@ -112,7 +111,6 @@ public class CheckElectrumWorker extends Worker {
 
     if (((App) context).appKit != null) {
       log.info("application is already running (appkit not null), no need to check");
-      scheduleLongDelay();
       return Result.SUCCESS;
     } else {
 
@@ -126,28 +124,23 @@ public class CheckElectrumWorker extends Worker {
         } else {
           // it's fine: no network access but a verification was recently made
         }
-        scheduleShortDelay();
         return Result.SUCCESS;
       } else {
         try {
           final WatchListener.WatchResult result = startElectrumCheck(context);
           log.info("check has completed with result {}", result);
           if (result instanceof WatchListener.Ok$) {
-            log.info("electrum check reports that everything's fine");
-            scheduleLongDelay();
+            log.debug("electrum check reports that everything's fine");
           } else if (result instanceof WatchListener.Unknown$) {
-            log.warn("electrum check returned an unknown result, we should check again shortly");
-            scheduleShortDelay();
+            log.debug("electrum check returned an unknown result");
           } else {
             log.warn("cheating attempt detected, app must be started ASAP!");
             showNotification(context, true);
-            scheduleShortDelay();
           }
           saveLastCheckResult(context, result);
           return Result.SUCCESS;
         } catch (Throwable t) {
           log.error("electrum check has failed: ", t);
-          scheduleShortDelay();
           return Result.FAILURE;
         } finally {
           cleanup();
@@ -166,8 +159,8 @@ public class CheckElectrumWorker extends Worker {
 
   private WatchListener.WatchResult startElectrumCheck(@NonNull final Context context) throws Exception {
     Class.forName("org.sqlite.JDBC");
-    setup = new CheckElectrumSetup(new File(context.getFilesDir(), Constants.ECLAIR_DATADIR), ConfigFactory.empty(), system);
-    return Await.result(setup.check(), Duration.Inf());
+    setup = new CheckElectrumSetup(new File(context.getFilesDir(), Constants.ECLAIR_DATADIR), WalletUtils.getOverrideConfig(PreferenceManager.getDefaultSharedPreferences(context)), system);
+    return Await.result(setup.check(), Duration.apply(3, TimeUnit.MINUTES));
   }
 
   private boolean isLastCheckFresh(@NonNull final Context context) {
@@ -207,26 +200,11 @@ public class CheckElectrumWorker extends Worker {
     return false;
   }
 
-  static void scheduleASAP() {
-    scheduleNextCheck(null, TimeUnit.MINUTES);
-  }
-
-  private static void scheduleShortDelay() {
-    scheduleNextCheck(60L, TimeUnit.MINUTES);
-  }
-
-  public static void scheduleLongDelay() {
-    scheduleNextCheck(60L, TimeUnit.MINUTES);
-  }
-
-  private static void scheduleNextCheck(final Long delay, @NonNull final TimeUnit delayTimeUnit) {
+  public static void schedule() {
     log.info("scheduling electrum check work");
-    final OneTimeWorkRequest.Builder work = new OneTimeWorkRequest.Builder(CheckElectrumWorker.class)
+    final PeriodicWorkRequest.Builder work = new PeriodicWorkRequest.Builder(CheckElectrumWorker.class, 20, TimeUnit.MINUTES, 5, TimeUnit.MINUTES)
       .addTag(ELECTRUM_CHECK_WORKER_TAG);
-    if (delay != null) {
-      work.setInitialDelay(delay, delayTimeUnit);
-    }
-    WorkManager.getInstance().enqueueUniqueWork(ELECTRUM_CHECK_WORKER_TAG, ExistingWorkPolicy.REPLACE, work.build());
+    WorkManager.getInstance().enqueueUniquePeriodicWork(ELECTRUM_CHECK_WORKER_TAG, ExistingPeriodicWorkPolicy.REPLACE, work.build());
   }
 
   private void showNotification(@NonNull final Context context, final boolean isAlert) {

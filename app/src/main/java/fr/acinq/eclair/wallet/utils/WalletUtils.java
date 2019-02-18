@@ -39,9 +39,13 @@ import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.rolling.FixedWindowRollingPolicy;
 import ch.qos.logback.core.rolling.RollingFileAppender;
 import ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy;
+import com.google.common.base.Strings;
 import com.google.common.io.Files;
+import com.google.common.net.HostAndPort;
 import com.papertrailapp.logback.Syslog4jAppender;
 import com.tozny.crypto.android.AesCbcWithIntegrity;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 import fr.acinq.bitcoin.*;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.CoinUnit;
@@ -63,6 +67,8 @@ import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
@@ -466,5 +472,30 @@ public class WalletUtils {
     final Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
     root.setLevel(BuildConfig.DEBUG ? Level.DEBUG : Level.INFO);
     root.addAppender(appender);
+  }
+
+  /**
+   * Builds a TypeSafe configuration to override the default conf of the node setup. Returns an empty config if no configuration entry must be overridden.
+   * <p>
+   * If the user has set a preferred electrum server, retrieves it from the prefs and adds it to the configuration.
+   */
+  public static Config getOverrideConfig(final SharedPreferences prefs) {
+    final String prefsElectrumAddress = prefs.getString(Constants.CUSTOM_ELECTRUM_SERVER, "").trim();
+    if (!Strings.isNullOrEmpty(prefsElectrumAddress)) {
+      try {
+        final HostAndPort address = HostAndPort.fromString(prefsElectrumAddress).withDefaultPort(50002);
+        final Map<String, Object> conf = new HashMap<>();
+        if (!Strings.isNullOrEmpty(address.getHost())) {
+          conf.put("eclair.electrum.host", address.getHost());
+          conf.put("eclair.electrum.port", address.getPort());
+          // custom server certificate must be valid
+          conf.put("eclair.electrum.ssl", "strict");
+          return ConfigFactory.parseMap(conf);
+        }
+      } catch (Exception e) {
+        log.error("could not read custom electrum address=" + prefsElectrumAddress, e);
+      }
+    }
+    return ConfigFactory.empty();
   }
 }

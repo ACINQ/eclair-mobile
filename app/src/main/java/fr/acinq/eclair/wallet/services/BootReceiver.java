@@ -40,7 +40,7 @@ public class BootReceiver extends BroadcastReceiver {
   public void onReceive(final Context context, final Intent intent) {
     if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
       NetworkSyncWorker.scheduleSync();
-      CheckElectrumWorker.scheduleASAP();
+      CheckElectrumWorker.schedule();
     }
   }
 }

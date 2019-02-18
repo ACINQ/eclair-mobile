@@ -391,7 +391,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
             .putLong(Constants.SETTING_LAST_SUCCESSFUL_BOOT_DATE, System.currentTimeMillis())
             .apply();
           NetworkSyncWorker.scheduleSync();
-          CheckElectrumWorker.scheduleLongDelay();
+          CheckElectrumWorker.schedule();
           goToHome();
         } else {
           // empty appkit, something went wrong.
@@ -495,7 +495,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
         publishProgress(app.getString(R.string.start_log_setting_up));
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(app.getBaseContext());
         Class.forName("org.sqlite.JDBC");
-        final Setup setup = new Setup(datadir, getOverrideConfig(prefs), Option.apply(seed), app.system);
+        final Setup setup = new Setup(datadir, WalletUtils.getOverrideConfig(prefs), Option.apply(seed), app.system);
 
         // ui refresh schedulers
         final ActorRef paymentsRefreshScheduler = app.system.actorOf(Props.create(RefreshScheduler.PaymentsRefreshScheduler.class), "PaymentsRefreshScheduler");
@@ -539,31 +539,6 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
     @Override
     protected void onPostExecute(Integer status) {
       EventBus.getDefault().post(new StartupCompleteEvent(status));
-    }
-
-    /**
-     * Builds a TypeSafe configuration to override the default conf of the node setup. Returns an empty config if no configuration entry must be overridden.
-     * <p>
-     * If the user has set a preferred electrum server, retrieves it from the prefs and adds it to the configuration.
-     */
-    private Config getOverrideConfig(final SharedPreferences prefs) {
-      final String prefsElectrumAddress = prefs.getString(Constants.CUSTOM_ELECTRUM_SERVER, "").trim();
-      if (!Strings.isNullOrEmpty(prefsElectrumAddress)) {
-        try {
-          final HostAndPort address = HostAndPort.fromString(prefsElectrumAddress).withDefaultPort(50002);
-          final Map<String, Object> conf = new HashMap<>();
-          if (!Strings.isNullOrEmpty(address.getHost())) {
-            conf.put("eclair.electrum.host", address.getHost());
-            conf.put("eclair.electrum.port", address.getPort());
-            // custom server certificate must be valid
-            conf.put("eclair.electrum.ssl", "strict");
-            return ConfigFactory.parseMap(conf);
-          }
-        } catch (Exception e) {
-          log.error("could not read custom electrum address=" + prefsElectrumAddress, e);
-        }
-      }
-      return ConfigFactory.empty();
     }
 
     private void cancelSyncWork() {

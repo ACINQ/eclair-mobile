@@ -59,7 +59,7 @@ public class PreferencesActivity extends PreferenceActivity {
               .setMessage(R.string.prefs_lightning_inbound_warning_message)
               .setPositiveButton(R.string.btn_ok, null)
               .show();
-            CheckElectrumWorker.scheduleLongDelay();
+            CheckElectrumWorker.schedule();
           }
           return true; // that is, preference will be updated with the value input by the user
         } else {
