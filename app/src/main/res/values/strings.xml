@@ -22,8 +22,8 @@
   <string name="app_name">Eclair DEV</string>
   <string name="notification_channel_closing_ln_channel_name">Channel Closing</string>
   <string name="notification_channel_closing_ln_channel_desc">Notification displayed when a channel is closing, be it cooperative or not.</string>
-  <string name="notification_channel_restart_name">Synchronization reminder</string>
-  <string name="notification_channel_restart_desc">A notification that reminds you to start the app from time to time. Required when you intend to receive lightning payments with the app.</string>
+  <string name="notification_channel_restart_name">Background watcher</string>
+  <string name="notification_channel_restart_desc">Alerts you when you need to start the app. Should be high priority.</string>
   <string name="notification_channel_received_ln_payment_name">Received Lightning Payment</string>
   <string name="notification_channel_received_ln_payment_desc">This notification shows up when you receive a payment over Lightning.</string>
 
@@ -615,10 +615,10 @@
   <string name="notif_channelclosing_bigmessage_normal">You should see an incoming on-chain transaction.</string>
   <string name="notif_channelclosing_bigmessage_localclosing">You or your wallet unilaterally closed this channel. You will receive your funds in %1$d blocks. This value is dependent on the channel configuration.</string>
 
-  <string name="notif_electrum_check_reminder_title">Eclair Mobile requires connection</string>
-  <string name="notif_electrum_check_reminder_message">Receiving lightning payments means that you should watch the blockchain from time to time.</string>
+  <string name="notif_electrum_check_reminder_title">Unable to watch your channels</string>
+  <string name="notif_electrum_check_reminder_message">It seems that you have been offline for a few days. Eclair Mobile needs access to the internet at least once every two weeks to protect your funds.</string>
 
-  <string name="notif_electrum_check_alert_title">Cheating attempt detected.</string>
+  <string name="notif_electrum_check_alert_title">Cheating attempt detected</string>
   <string name="notif_electrum_check_alert_message">Start Eclair Mobile for automated retaliation.</string>
 
   <string name="notif_received_ln_payment_title">Received %1$s payment…</string>

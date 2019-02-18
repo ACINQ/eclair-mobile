@@ -181,6 +181,7 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
 
       mPaymentIcon.setImageResource(R.drawable.ic_chain_orange_14dp);
       mDescription.setText(payment.getReference());
+      mDescription.setTypeface(Typeface.DEFAULT, Typeface.NORMAL);
     }
   }
 
