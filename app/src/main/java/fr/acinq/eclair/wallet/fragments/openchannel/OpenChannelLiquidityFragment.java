@@ -90,21 +90,21 @@ public class OpenChannelLiquidityFragment extends Fragment {
       CoinUtils.formatAmountInUnit(liquidity1, preferredBitcoinUnit, true)));
     mBinding.liquidityOpt10Cost.setText(getString(R.string.openchannel_liquidity_cost,
       CoinUtils.formatAmountInUnit(pushFor1, preferredBitcoinUnit, true),
-      WalletUtils.convertMsatToFiat(package$.MODULE$.millibtc2millisatoshi(pushFor1).amount(), fiatUnit)));
+      WalletUtils.convertMsatToFiatWithUnit(package$.MODULE$.millibtc2millisatoshi(pushFor1).amount(), fiatUnit)));
 
     mBinding.liquidityOpt25.setOnClickListener(v -> mBinding.setLiquidityOpt(2));
     mBinding.liquidityOpt25Title.setText(getString(R.string.openchannel_liquidity_label,
       CoinUtils.formatAmountInUnit(liquidity2, preferredBitcoinUnit, true)));
     mBinding.liquidityOpt25Cost.setText(getString(R.string.openchannel_liquidity_cost,
       CoinUtils.formatAmountInUnit(pushFor2, preferredBitcoinUnit, true),
-      WalletUtils.convertMsatToFiat(package$.MODULE$.millibtc2millisatoshi(pushFor2).amount(), fiatUnit)));
+      WalletUtils.convertMsatToFiatWithUnit(package$.MODULE$.millibtc2millisatoshi(pushFor2).amount(), fiatUnit)));
 
     mBinding.liquidityOpt50.setOnClickListener(v -> mBinding.setLiquidityOpt(3));
     mBinding.liquidityOpt50Title.setText(getString(R.string.openchannel_liquidity_label,
       CoinUtils.formatAmountInUnit(liquidity3, preferredBitcoinUnit, true)));
     mBinding.liquidityOpt50Cost.setText(getString(R.string.openchannel_liquidity_cost,
       CoinUtils.formatAmountInUnit(pushFor3, preferredBitcoinUnit, true),
-      WalletUtils.convertMsatToFiat(package$.MODULE$.millibtc2millisatoshi(pushFor3).amount(), fiatUnit)));
+      WalletUtils.convertMsatToFiatWithUnit(package$.MODULE$.millibtc2millisatoshi(pushFor3).amount(), fiatUnit)));
 
     mBinding.buttonBack.setOnClickListener(v -> {
       mBinding.setLiquidityOpt(0);

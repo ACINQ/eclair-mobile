@@ -148,7 +148,7 @@
           android:layout_marginBottom="@dimen/space_md"
           android:fontFamily="sans-serif-light"
           android:maxLines="1"
-          android:textSize="12sp" />
+          android:textSize="@dimen/text_sm" />
 
       </LinearLayout>
 
