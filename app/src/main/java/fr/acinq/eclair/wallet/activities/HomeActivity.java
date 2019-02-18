@@ -139,12 +139,12 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
 
   private void checkBackgroundRunnableWarning() {
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-    if (prefs.getBoolean(Constants.SETTING_BACKGROUND_DISABLED_WARNING, false)) {
+    if (prefs.getBoolean(Constants.SETTING_BACKGROUND_CANNOT_RUN_WARNING, false)) {
       // show warning -- only once
       final AlertDialog d = new AlertDialog.Builder(HomeActivity.this, R.style.CustomDialog)
         .setTitle(R.string.home_warning_runnable_background_title)
         .setMessage(Html.fromHtml(getString(R.string.home_warning_runnable_background_message)))
-        .setPositiveButton(R.string.btn_ok, (dialog, which) -> prefs.edit().putBoolean(Constants.SETTING_BACKGROUND_DISABLED_WARNING, false).apply())
+        .setPositiveButton(R.string.btn_ok, (dialog, which) -> prefs.edit().putBoolean(Constants.SETTING_BACKGROUND_CANNOT_RUN_WARNING, false).apply())
         .show();
       final TextView messageView = d.findViewById(android.R.id.message);
       if (messageView != null) {

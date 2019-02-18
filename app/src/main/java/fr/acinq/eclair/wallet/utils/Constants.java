@@ -63,7 +63,7 @@ public interface Constants {
   String SETTING_LAST_SUCCESSFUL_BOOT_DATE = "last_successful_boot_date";
   String SETTING_ELECTRUM_CHECK_LAST_DATE = "electrum_check_last_date";
   String SETTING_ELECTRUM_CHECK_LAST_RESULT = "electrum_check_last_result";
-  String SETTING_BACKGROUND_DISABLED_WARNING = "app_background_disabled_warning";
+  String SETTING_BACKGROUND_CANNOT_RUN_WARNING = "app_background_cannot_run_warning";
 
   // currencies
   String SETTING_SELECTED_FIAT_CURRENCY = "fiat_currency";

@@ -135,9 +135,13 @@ public class App extends Application {
   private void detectBackgroundRunnable() {
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
     final long lastStartDate = prefs.getLong(Constants.SETTING_ELECTRUM_CHECK_LAST_DATE, System.currentTimeMillis());
-    if (lastStartDate > 0 && System.currentTimeMillis() - lastStartDate > CheckElectrumWorker.DELAY_BEFORE_BACKGROUND_WARNING) {
+    if (lastStartDate == 0) {
+      log.debug("background check has never run");
+    } else if (System.currentTimeMillis() - lastStartDate > CheckElectrumWorker.DELAY_BEFORE_BACKGROUND_WARNING) {
       log.warn("app has not run in background since {}", DateFormat.getDateTimeInstance().format(new Date(lastStartDate)));
-      prefs.edit().putBoolean(Constants.SETTING_BACKGROUND_DISABLED_WARNING, true).apply();
+      prefs.edit().putBoolean(Constants.SETTING_BACKGROUND_CANNOT_RUN_WARNING, true).apply();
+    } else {
+      prefs.edit().putBoolean(Constants.SETTING_BACKGROUND_CANNOT_RUN_WARNING, false).apply();
     }
   }
 
