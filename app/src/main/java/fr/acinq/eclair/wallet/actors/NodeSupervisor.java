@@ -127,6 +127,7 @@ public class NodeSupervisor extends UntypedActor {
       // restore data from DB that were sent only once by the node and may have be persisted
       final LocalChannel channelInDB = dbHelper.getLocalChannel(c.getChannelId());
       if (channelInDB != null) {
+        c.setClosingErrorMessage(channelInDB.getClosingErrorMessage());
         c.setRefundAtBlock(channelInDB.getRefundAtBlock());
       }
 
@@ -236,12 +237,10 @@ public class NodeSupervisor extends UntypedActor {
     else if (message instanceof LocalCommitConfirmed) {
       final LocalCommitConfirmed event = (LocalCommitConfirmed) message;
       log.info("received local commit confirmed for channel {}, refund at block {}", event.channelId(), event.refundAtBlock());
-      final LocalChannel c = activeChannelsMap.get(event.channel());
-      if (c != null) {
-        c.setRefundAtBlock(event.refundAtBlock());
-        dbHelper.saveLocalChannel(c);
-        channelsRefreshScheduler.tell(Constants.REFRESH, null);
-      }
+      final LocalChannel c = getChannel(event.channel());
+      c.setRefundAtBlock(event.refundAtBlock());
+      dbHelper.saveLocalChannel(c);
+      channelsRefreshScheduler.tell(Constants.REFRESH, null);
     }
     // ---- channel state changed
     else if (message instanceof ChannelStateChanged) {
