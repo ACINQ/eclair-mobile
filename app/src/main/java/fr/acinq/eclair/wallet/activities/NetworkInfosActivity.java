@@ -116,19 +116,13 @@ public class NetworkInfosActivity extends EclairActivity implements SwipeRefresh
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
     final long lastCheckDate = prefs.getLong(Constants.SETTING_ELECTRUM_CHECK_LAST_DATE, 0);
     if (lastCheckDate == 0) {
-      mBinding.electrumCheckBgResult.setValue("check has never run");
+      mBinding.electrumCheckBgResult.setValue("never run");
     } else {
       final String lastCheckResult = prefs.getString(Constants.SETTING_ELECTRUM_CHECK_LAST_RESULT, null);
       final long delaySinceCheck = System.currentTimeMillis() - lastCheckDate;
       log.info("it has been {} since last check, which resulted with={}", DateUtils.getRelativeTimeSpanString(delaySinceCheck), lastCheckResult);
-      mBinding.electrumCheckBgResult.setValue("last check result=" + lastCheckResult + "\n" + DateUtils.getRelativeTimeSpanString(lastCheckDate, System.currentTimeMillis(), delaySinceCheck));
+      mBinding.electrumCheckBgResult.setValue(lastCheckResult + " / " + DateUtils.getRelativeTimeSpanString(lastCheckDate, System.currentTimeMillis(), delaySinceCheck));
     }
-    mBinding.electrumCheckBgResult.actionButton.setOnClickListener(v -> {
-      prefs.edit()
-        .putLong(Constants.SETTING_ELECTRUM_CHECK_LAST_DATE, 0)
-        .putString(Constants.SETTING_ELECTRUM_CHECK_LAST_RESULT, null)
-        .apply();
-    });
   }
 
   @Override
