@@ -58,19 +58,19 @@ public class CheckElectrumWorker extends Worker {
    * <p>
    * Should be high enough as to not trigger false positives.
    */
-  public static final long DELAY_BEFORE_BACKGROUND_WARNING = DateUtils.HOUR_IN_MILLIS * 4; // 5 * DateUtils.DAY_IN_MILLIS;
+  public static final long DELAY_BEFORE_BACKGROUND_WARNING = DateUtils.DAY_IN_MILLIS * 5;
 
   /**
    * Delay in milliseconds in which the last electrum check can be considered fresh enough that users do not need
    * to be reminded that eclair needs a working connection.
    */
-  private static final long MAX_FRESH_WINDOW = DateUtils.MINUTE_IN_MILLIS * 120; //DateUtils.DAY_IN_MILLIS;
+  private static final long MAX_FRESH_WINDOW = DateUtils.DAY_IN_MILLIS * 3;
 
   /**
    * Delay in milliseconds in which the last electrum check can be considered fresh enough that users do not need
    * to be reminded that eclair needs a working connection, IF this last check returned OK.
    */
-  private static final long MAX_FRESH_WINDOW_IF_OK = DateUtils.MINUTE_IN_MILLIS * 120; // 3 * DateUtils.DAY_IN_MILLIS;
+  private static final long MAX_FRESH_WINDOW_IF_OK = DateUtils.DAY_IN_MILLIS * 3;
 
   private final ActorSystem system = ActorSystem.apply("check-electrum-system");
   private CheckElectrumSetup setup;
@@ -202,7 +202,7 @@ public class CheckElectrumWorker extends Worker {
 
   public static void schedule() {
     log.info("scheduling electrum check work");
-    final PeriodicWorkRequest.Builder work = new PeriodicWorkRequest.Builder(CheckElectrumWorker.class, 20, TimeUnit.MINUTES, 5, TimeUnit.MINUTES)
+    final PeriodicWorkRequest.Builder work = new PeriodicWorkRequest.Builder(CheckElectrumWorker.class, 22, TimeUnit.HOURS, 12, TimeUnit.HOURS)
       .addTag(ELECTRUM_CHECK_WORKER_TAG);
     WorkManager.getInstance().enqueueUniquePeriodicWork(ELECTRUM_CHECK_WORKER_TAG, ExistingPeriodicWorkPolicy.REPLACE, work.build());
   }
