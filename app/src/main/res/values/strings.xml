@@ -100,7 +100,7 @@
 
   <!-- //////////////// Startup /////////////////// -->
 
-  <string name="start_enter_password">Enter password to unlock</string>
+  <string name="start_enter_password">Enter PIN to unlock</string>
   <string name="start_error_breaking_changes"><![CDATA[
     <h3>Breaking changes</h3>
     This new version requires a clean data directory. Please reset the app\'s data.
@@ -113,12 +113,12 @@
   <string name="start_error_unreadable_seed">Seed is not readable; eclair can not start.</string>
   <string name="start_error_connectivity">Your device is not connected to the internet. Please check your network settings.</string>
   <string name="start_error_timeout">Could not start eclair within a reasonable time frame. Your network connection may be offline or very slow.</string>
-  <string name="start_error_wrong_password">Wrong password.</string>
+  <string name="start_error_wrong_password">Wrong PIN.</string>
   <string name="start_error_improper">App did not initialize properly, restarting…</string>
   <string name="start_error_generic">Could not start eclair.</string>
   <string name="start_error_datadir_unreadable">Datadir is not readable.</string>
   <string name="start_error_datadir_not_directory">Datadir is not a directory.</string>
-  <string name="start_error_unencrypted">Your seed is not encrypted. Please enter a password.</string>
+  <string name="start_error_unencrypted">Your seed is not encrypted. Please enter a PIN.</string>
   <string name="start_log_init">initializing system…</string>
   <string name="start_log_setting_up">setting up eclair…</string>
   <string name="start_log_starting_core">starting core…</string>
@@ -143,7 +143,7 @@
   <string name="createwallet_error_generic">Wallet creation error, aborting…</string>
   <string name="createwallet_encryption_title">Seed Encryption</string>
   <string name="createwallet_encryption_instructions">The seed must now be encrypted with a 6 digits PIN.</string>
-  <string name="createwallet_encryption_button">Set pin</string>
+  <string name="createwallet_encryption_button">Set PIN</string>
   <string name="createwallet_please_wait">Please wait…</string>
   <string name="createwallet_success">Your wallet has been successfully created!</string>
 
@@ -463,10 +463,10 @@
   <string name="prefs_fiat_currency_dialog">Display in fiat currency</string>
   <string name="prefs_btc_unit">Bitcoin unit</string>
   <string name="prefs_btc_decimals">Number of decimals shown</string>
-  <string name="prefs_change_password">Change the app password</string>
-  <string name="prefs_change_password_desc">Seed will be re-encrypted with a new password</string>
-  <string name="prefs_change_password_button">Change password</string>
-  <string name="prefs_pin_title">Ask for password before payment</string>
+  <string name="prefs_change_password">Change the app PIN</string>
+  <string name="prefs_change_password_desc">Seed will be re-encrypted with a new PIN</string>
+  <string name="prefs_change_password_button">Change PIN</string>
+  <string name="prefs_pin_title">Ask for PIN before payment</string>
   <string name="prefs_pin_default_info">Uses the PIN encrypting your wallet</string>
   <string name="prefs_lightning_max_fee">Cap Lightning fees</string>
   <string name="prefs_lightning_max_fee_desc">Abort lightning payments if the routing fees are excessive.</string>
@@ -479,8 +479,8 @@
 
   <!-- //////////////// Security Settings //////////////////// -->
 
-  <string name="security_password_update_success">Password updated</string>
-  <string name="security_password_update_failure">Incorrect password</string>
+  <string name="security_password_update_success">PIN updated</string>
+  <string name="security_password_update_failure">Incorrect PIN</string>
 
   <!-- //////////////// Scanner messages //////////////////// -->
 
@@ -555,8 +555,8 @@
 
   <!-- //////////////// Wallet //////////////////// -->
 
-  <string name="seed_encrypt_prompt">Enter a password to \nencrypt the seed</string>
-  <string name="seed_encrypt_prompt_confirm">Confirm password</string>
+  <string name="seed_encrypt_prompt">Enter a PIN to \nencrypt the seed</string>
+  <string name="seed_encrypt_prompt_confirm">Confirm PIN</string>
   <string name="seed_encrypt_general_failure">Could not write seed</string>
   <string name="seed_read_general_failure">Could not read seed</string>
   <string name="wallet_init_create_new">Create new wallet</string>
