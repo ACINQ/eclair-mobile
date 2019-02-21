@@ -24,8 +24,6 @@ import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import fr.acinq.bitcoin.BinaryData;
@@ -35,6 +33,7 @@ import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.CoinUnit;
 import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.payment.PaymentRequest;
+import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.actors.NodeSupervisor;
@@ -47,6 +46,7 @@ import fr.acinq.eclair.wallet.models.PaymentType;
 import fr.acinq.eclair.wallet.tasks.BitcoinInvoiceReaderTask;
 import fr.acinq.eclair.wallet.tasks.LNInvoiceReaderTask;
 import fr.acinq.eclair.wallet.utils.Constants;
+import fr.acinq.eclair.wallet.utils.TechnicalHelper;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 import org.bitcoinj.uri.BitcoinURI;
 import org.greenrobot.eventbus.util.AsyncExecutor;
@@ -254,17 +254,17 @@ public class SendPaymentActivity extends EclairActivity
   public void pickFees(final View view) {
     if (feeRatingState == Constants.FEE_RATING_SLOW) {
       feeRatingState = Constants.FEE_RATING_MEDIUM;
-      mBinding.feesValue.setText(String.valueOf(app.estimateMediumFees()));
+      mBinding.feesValue.setText(String.valueOf(App.estimateMediumFees()));
       mBinding.setFeeRatingState(feeRatingState);
       mBinding.feesRating.setText(R.string.payment_fees_medium);
     } else if (feeRatingState == Constants.FEE_RATING_MEDIUM) {
       feeRatingState = Constants.FEE_RATING_FAST;
-      mBinding.feesValue.setText(String.valueOf(app.estimateFastFees()));
+      mBinding.feesValue.setText(String.valueOf(App.estimateFastFees()));
       mBinding.setFeeRatingState(feeRatingState);
       mBinding.feesRating.setText(R.string.payment_fees_fast);
     } else if (feeRatingState == Constants.FEE_RATING_FAST) {
       feeRatingState = Constants.FEE_RATING_SLOW;
-      mBinding.feesValue.setText(String.valueOf(app.estimateSlowFees()));
+      mBinding.feesValue.setText(String.valueOf(App.estimateSlowFees()));
       mBinding.setFeeRatingState(feeRatingState);
       mBinding.feesRating.setText(R.string.payment_fees_slow);
     } else {
@@ -274,7 +274,7 @@ public class SendPaymentActivity extends EclairActivity
 
   private void setFeesToDefault() {
     feeRatingState = Constants.FEE_RATING_FAST;
-    mBinding.feesValue.setText(String.valueOf(app.estimateFastFees()));
+    mBinding.feesValue.setText(String.valueOf(App.estimateFastFees()));
     mBinding.setFeeRatingState(feeRatingState);
     mBinding.feesRating.setText(R.string.payment_fees_fast);
   }
@@ -498,11 +498,7 @@ public class SendPaymentActivity extends EclairActivity
     capLightningFees = sharedPref.getBoolean(Constants.SETTING_CAP_LIGHTNING_FEES, true);
     mBinding.amountEditableUnit.setText(preferredBitcoinUnit.shortLabel());
 
-    mBinding.amountEditableValue.addTextChangedListener(new TextWatcher() {
-      @Override
-      public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-      }
-
+    mBinding.amountEditableValue.addTextChangedListener(new TechnicalHelper.SimpleTextWatcher() {
       @SuppressLint("SetTextI18n")
       @Override
       public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -523,31 +519,23 @@ public class SendPaymentActivity extends EclairActivity
           mBinding.amountFiat.setText("0 " + preferredFiatCurrency.toUpperCase());
         }
       }
-
-      @Override
-      public void afterTextChanged(final Editable s) {
-      }
     });
 
-    mBinding.feesValue.addTextChangedListener(new TextWatcher() {
-      @Override
-      public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after) {
-      }
-
+    mBinding.feesValue.addTextChangedListener(new TechnicalHelper.SimpleTextWatcher() {
       @SuppressLint("SetTextI18n")
       @Override
       public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
         try {
-          final Long feesSatPerByte = Long.parseLong(s.toString());
-          if (feesSatPerByte != app.estimateSlowFees() && feesSatPerByte != app.estimateMediumFees() && feesSatPerByte != app.estimateFastFees()) {
+          final long feesSatPerByte = Long.parseLong(s.toString());
+          if (feesSatPerByte != App.estimateSlowFees() && feesSatPerByte != App.estimateMediumFees() && feesSatPerByte != App.estimateFastFees()) {
             feeRatingState = Constants.FEE_RATING_CUSTOM;
             mBinding.setFeeRatingState(feeRatingState);
             mBinding.feesRating.setText(R.string.payment_fees_custom);
           }
-          if (feesSatPerByte <= app.estimateSlowFees() / 2) {
+          if (feesSatPerByte <= App.estimateSlowFees() / 2) {
             mBinding.feesWarning.setText(R.string.payment_fees_verylow);
             mBinding.feesWarning.setVisibility(View.VISIBLE);
-          } else if (feesSatPerByte >= app.estimateFastFees() * 2) {
+          } else if (feesSatPerByte >= App.estimateFastFees() * 2) {
             mBinding.feesWarning.setText(R.string.payment_fees_veryhigh);
             mBinding.feesWarning.setVisibility(View.VISIBLE);
           } else {
@@ -556,10 +544,6 @@ public class SendPaymentActivity extends EclairActivity
         } catch (NumberFormatException e) {
           log.debug("could not read fees with cause {}", e.getMessage());
         }
-      }
-
-      @Override
-      public void afterTextChanged(Editable s) {
       }
     });
 
