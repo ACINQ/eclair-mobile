@@ -47,12 +47,20 @@ public class OpenChannelLiquidityFragment extends Fragment {
 
   private Satoshi capacity = null;
   private Long feesSatPerKW = null;
-  private static MilliBtc liquidity1 = new MilliBtc(BigDecimal.exact(10));
-  private static MilliBtc pushFor1 = new MilliBtc(BigDecimal.exact(0.1));
-  private static MilliBtc liquidity2 = new MilliBtc(BigDecimal.exact(25));
-  private static MilliBtc pushFor2 = new MilliBtc(BigDecimal.exact(0.25));
-  private static MilliBtc liquidity3 = new MilliBtc(BigDecimal.exact(50));
-  private static MilliBtc pushFor3 = new MilliBtc(BigDecimal.exact(0.5));
+
+  private enum LIQUIDITY_REQUESTS {
+    _10_MBTC(10, 0.1),
+    _25_MBTC(25, 0.25),
+    _50_MBTC(50, 0.5);
+
+    private final MilliBtc inboundCapacity;
+    private final MilliSatoshi cost;
+
+    LIQUIDITY_REQUESTS(final long inboundCapacity_mbtc, final Double cost_mbtc) {
+      this.inboundCapacity = new MilliBtc(BigDecimal.exact(inboundCapacity_mbtc));
+      this.cost = package$.MODULE$.millibtc2millisatoshi(new MilliBtc(BigDecimal.exact(cost_mbtc)));
+    }
+  }
 
   public void setCapacityAndFees(final Satoshi capacity, final Long feesSatPerKW) {
     this.capacity = capacity;
@@ -87,24 +95,24 @@ public class OpenChannelLiquidityFragment extends Fragment {
 
     mBinding.liquidityOpt10.setOnClickListener(v -> mBinding.setLiquidityOpt(1));
     mBinding.liquidityOpt10Title.setText(getString(R.string.openchannel_liquidity_label,
-      CoinUtils.formatAmountInUnit(liquidity1, preferredBitcoinUnit, true)));
+      CoinUtils.formatAmountInUnit(LIQUIDITY_REQUESTS._10_MBTC.inboundCapacity, preferredBitcoinUnit, true)));
     mBinding.liquidityOpt10Cost.setText(getString(R.string.openchannel_liquidity_cost,
-      CoinUtils.formatAmountInUnit(pushFor1, preferredBitcoinUnit, true),
-      WalletUtils.convertMsatToFiatWithUnit(package$.MODULE$.millibtc2millisatoshi(pushFor1).amount(), fiatUnit)));
+      CoinUtils.formatAmountInUnit(LIQUIDITY_REQUESTS._10_MBTC.cost, preferredBitcoinUnit, true),
+      WalletUtils.convertMsatToFiatWithUnit(LIQUIDITY_REQUESTS._10_MBTC.cost.amount(), fiatUnit)));
 
     mBinding.liquidityOpt25.setOnClickListener(v -> mBinding.setLiquidityOpt(2));
     mBinding.liquidityOpt25Title.setText(getString(R.string.openchannel_liquidity_label,
-      CoinUtils.formatAmountInUnit(liquidity2, preferredBitcoinUnit, true)));
+      CoinUtils.formatAmountInUnit(LIQUIDITY_REQUESTS._25_MBTC.inboundCapacity, preferredBitcoinUnit, true)));
     mBinding.liquidityOpt25Cost.setText(getString(R.string.openchannel_liquidity_cost,
-      CoinUtils.formatAmountInUnit(pushFor2, preferredBitcoinUnit, true),
-      WalletUtils.convertMsatToFiatWithUnit(package$.MODULE$.millibtc2millisatoshi(pushFor2).amount(), fiatUnit)));
+      CoinUtils.formatAmountInUnit(LIQUIDITY_REQUESTS._25_MBTC.cost, preferredBitcoinUnit, true),
+      WalletUtils.convertMsatToFiatWithUnit(LIQUIDITY_REQUESTS._25_MBTC.cost.amount(), fiatUnit)));
 
     mBinding.liquidityOpt50.setOnClickListener(v -> mBinding.setLiquidityOpt(3));
     mBinding.liquidityOpt50Title.setText(getString(R.string.openchannel_liquidity_label,
-      CoinUtils.formatAmountInUnit(liquidity3, preferredBitcoinUnit, true)));
+      CoinUtils.formatAmountInUnit(LIQUIDITY_REQUESTS._50_MBTC.inboundCapacity, preferredBitcoinUnit, true)));
     mBinding.liquidityOpt50Cost.setText(getString(R.string.openchannel_liquidity_cost,
-      CoinUtils.formatAmountInUnit(pushFor3, preferredBitcoinUnit, true),
-      WalletUtils.convertMsatToFiatWithUnit(package$.MODULE$.millibtc2millisatoshi(pushFor3).amount(), fiatUnit)));
+      CoinUtils.formatAmountInUnit(LIQUIDITY_REQUESTS._50_MBTC.cost, preferredBitcoinUnit, true),
+      WalletUtils.convertMsatToFiatWithUnit(LIQUIDITY_REQUESTS._50_MBTC.cost.amount(), fiatUnit)));
 
     mBinding.buttonBack.setOnClickListener(v -> {
       mBinding.setLiquidityOpt(0);
@@ -112,25 +120,22 @@ public class OpenChannelLiquidityFragment extends Fragment {
     });
 
     mBinding.buttonNext.setOnClickListener(v -> {
-      MilliBtc push;
+      MilliSatoshi push = new MilliSatoshi(0);
       switch (mBinding.getLiquidityOpt()) {
         case 1: {
-          push = pushFor1;
+          push = LIQUIDITY_REQUESTS._10_MBTC.cost;
           break;
         }
         case 2: {
-          push = pushFor2;
+          push = LIQUIDITY_REQUESTS._25_MBTC.cost;
           break;
         }
         case 3: {
-          push = pushFor2;
+          push = LIQUIDITY_REQUESTS._50_MBTC.cost;
           break;
         }
-        default: {
-          push = new MilliBtc(BigDecimal.exact(0));
-        }
       }
-      mCallback.onLiquidityConfirm(this.capacity, this.feesSatPerKW, package$.MODULE$.millibtc2millisatoshi(push));
+      mCallback.onLiquidityConfirm(this.capacity, this.feesSatPerKW, push);
     });
 
     return mBinding.getRoot();
