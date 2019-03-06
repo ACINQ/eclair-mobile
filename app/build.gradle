@@ -68,7 +68,7 @@ dependencies {
   implementation 'com.google.code.findbugs:jsr305:3.0.2'
   implementation 'com.google.android.gms:play-services-drive:16.0.0'
   implementation 'com.google.android.gms:play-services-auth:16.0.1'
-  implementation ('android.arch.work:work-runtime:1.0.0-alpha11') {
+  implementation ('android.arch.work:work-runtime:1.0.0') {
     exclude group: 'com.google.guava', module: 'listenablefuture'
   }
   // logging

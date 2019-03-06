@@ -83,17 +83,17 @@ public class NetworkSyncWorker extends Worker {
     final Context context = getApplicationContext();
     if (((App) context).appKit != null) {
       log.info("application is running (appkit not null)");
-      return Result.SUCCESS;
+      return Result.success();
     } else {
       try {
         Class.forName("org.sqlite.JDBC");
         liteSetup = new SyncLiteSetup(new File(context.getFilesDir(), Constants.ECLAIR_DATADIR), ConfigFactory.empty(), WalletUtils.ACINQ_NODE, system);
         Await.result(liteSetup.sync(), Duration.Inf());
         log.info("sync has completed");
-        return Result.SUCCESS;
+        return Result.success();
       } catch (Exception e) {
         log.error("network sync worker failed: ", e);
-        return Result.FAILURE;
+        return Result.failure();
       } finally {
         cleanup();
       }

@@ -72,7 +72,7 @@ public class ChannelsBackupWorker extends Worker {
     final String key = getInputData().getString(BACKUP_KEY_INPUT);
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
     if (!prefs.getBoolean(Constants.SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_ENABLED, false) || backupFileName == null) {
-      return Result.SUCCESS;
+      return Result.success();
     }
 
     final Context context = getApplicationContext();
@@ -80,7 +80,7 @@ public class ChannelsBackupWorker extends Worker {
 
     // --- check authorization
     if (signInAccount == null) {
-      return Result.FAILURE;
+      return Result.failure();
     }
 
     final DriveResourceClient driveResourceClient = Drive.getDriveResourceClient(context, signInAccount);
@@ -100,14 +100,14 @@ public class ChannelsBackupWorker extends Worker {
         .putBoolean(Constants.SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_ENABLED, true)
         .putBoolean(Constants.SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_HAS_FAILED, false)
         .apply();
-      return Result.SUCCESS;
+      return Result.success();
     } catch (Throwable t) {
       log.error(TAG, "failed to save channels backup", t);
       prefs.edit()
         .putBoolean(Constants.SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_ENABLED, false)
         .putBoolean(Constants.SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_HAS_FAILED, true)
         .apply();
-      return Result.FAILURE;
+      return Result.failure();
     }
   }
 

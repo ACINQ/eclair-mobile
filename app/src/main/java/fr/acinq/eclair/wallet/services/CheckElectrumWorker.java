@@ -70,7 +70,7 @@ public class CheckElectrumWorker extends Worker {
    * Delay in milliseconds in which the last electrum check can be considered fresh enough that users do not need
    * to be reminded that eclair needs a working connection, IF this last check returned OK.
    */
-  private static final long MAX_FRESH_WINDOW_IF_OK = DateUtils.DAY_IN_MILLIS * 3;
+  private static final long MAX_FRESH_WINDOW_IF_OK = DateUtils.DAY_IN_MILLIS * 5;
 
   private final ActorSystem system = ActorSystem.apply("check-electrum-system");
   private CheckElectrumSetup setup;
@@ -108,12 +108,13 @@ public class CheckElectrumWorker extends Worker {
   public Result doWork() {
     final Context context = getApplicationContext();
     log.info("worker has started");
-
+    // -- if app is running in foreground, check is not possible
     if (((App) context).appKit != null) {
       log.info("application is already running (appkit not null), no need to check");
-      return Result.SUCCESS;
+      timestampAttempt(context);
+      return Result.failure();
     } else {
-
+      // -- app is not running, this is a legit background work, let's check network connectivity
       final ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
       final NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
       if (activeNetwork == null || !activeNetwork.isConnectedOrConnecting()) {
@@ -121,10 +122,9 @@ public class CheckElectrumWorker extends Worker {
         if (!isLastCheckFresh(context)) {
           log.warn("let's notify the user: we have not been able to check txs for a while");
           showNotification(context, false);
-        } else {
-          // it's fine: no network access but a verification was recently made
         }
-        return Result.SUCCESS;
+        timestampAttempt(context);
+        return Result.failure();
       } else {
         try {
           final WatchListener.WatchResult result = startElectrumCheck(context);
@@ -138,22 +138,34 @@ public class CheckElectrumWorker extends Worker {
             showNotification(context, true);
           }
           saveLastCheckResult(context, result);
-          return Result.SUCCESS;
+          return Result.success();
         } catch (Throwable t) {
           log.error("electrum check has failed: ", t);
-          return Result.FAILURE;
+          return Result.failure();
         } finally {
+          timestampAttempt(context);
           cleanup();
         }
       }
     }
   }
 
+  /**
+   * Saving the timestamp of the last electrum check attempts lets the app know if the worker is able to run in background.
+   * See {@link App#detectBackgroundRunnable} method.
+   */
+  private void timestampAttempt(final Context context) {
+    final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+    prefs.edit()
+      .putLong(Constants.SETTING_ELECTRUM_CHECK_LAST_ATTEMPT_TIMESTAMP, System.currentTimeMillis())
+      .apply();
+  }
+
   private void saveLastCheckResult(@NonNull final Context context, final WatchListener.WatchResult result) {
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
     prefs.edit()
-      .putLong(Constants.SETTING_ELECTRUM_CHECK_LAST_DATE, System.currentTimeMillis())
-      .putString(Constants.SETTING_ELECTRUM_CHECK_LAST_RESULT, result.toString())
+      .putLong(Constants.SETTING_ELECTRUM_CHECK_LAST_OUTCOME_TIMESTAMP, System.currentTimeMillis())
+      .putString(Constants.SETTING_ELECTRUM_CHECK_LAST_OUTCOME_RESULT, result.toString())
       .apply();
   }
 
@@ -168,8 +180,8 @@ public class CheckElectrumWorker extends Worker {
 
     final long currentTime = System.currentTimeMillis();
     final long lastBootDate = prefs.getLong(Constants.SETTING_LAST_SUCCESSFUL_BOOT_DATE, 0);
-    final long lastCheckDate = prefs.getLong(Constants.SETTING_ELECTRUM_CHECK_LAST_DATE, 0);
-    final String lastCheckResult = prefs.getString(Constants.SETTING_ELECTRUM_CHECK_LAST_RESULT, null);
+    final long lastCheckDate = prefs.getLong(Constants.SETTING_ELECTRUM_CHECK_LAST_OUTCOME_TIMESTAMP, 0);
+    final String lastCheckResult = prefs.getString(Constants.SETTING_ELECTRUM_CHECK_LAST_OUTCOME_RESULT, null);
     final long delaySinceCheck = currentTime - lastCheckDate;
 
     if (lastBootDate == 0) {
@@ -193,7 +205,7 @@ public class CheckElectrumWorker extends Worker {
     }
 
     if (delaySinceCheck < MAX_FRESH_WINDOW_IF_OK && WatchListener.Ok$.MODULE$.toString().equalsIgnoreCase(lastCheckResult)) {
-      // we had OK less than 3 days ago
+      // we had OK recently
       return true;
     }
 

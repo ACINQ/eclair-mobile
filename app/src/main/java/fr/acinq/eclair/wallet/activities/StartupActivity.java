@@ -36,11 +36,7 @@ import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.common.base.Strings;
 import com.google.common.io.Files;
-import com.google.common.net.HostAndPort;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
 import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.bitcoin.DeterministicWallet;
 import fr.acinq.eclair.Kit;
@@ -490,7 +486,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
         }
 
         app.checkupInit();
-        cancelSyncWork();
+        cancelBackgroundWorks();
 
         publishProgress(app.getString(R.string.start_log_setting_up));
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(app.getBaseContext());
@@ -541,7 +537,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
       EventBus.getDefault().post(new StartupCompleteEvent(status));
     }
 
-    private void cancelSyncWork() {
+    private void cancelBackgroundWorks() {
       final WorkManager workManager = WorkManager.getInstance();
       try {
         final List<WorkInfo> works = workManager.getWorkInfosByTag(NetworkSyncWorker.NETWORK_SYNC_TAG).get();
@@ -550,13 +546,13 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
           log.info("no background works were found");
         } else {
           for (WorkInfo work : works) {
-            log.info("found a sync work in state {}, full data={}", work.getState(), work);
+            log.info("found a background work in state {}, full data={}", work.getState(), work);
             workManager.cancelWorkById(work.getId()).getResult().get();
             log.info("successfully cancelled work {}", work);
           }
         }
       } catch (Exception e) {
-        log.error("failed to retrieve or cancel sync works", e);
+        log.error("failed to retrieve or cancel background works", e);
         throw new RuntimeException("could not cancel background work");
       }
     }

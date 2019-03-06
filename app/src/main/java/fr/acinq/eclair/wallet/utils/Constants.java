@@ -61,8 +61,9 @@ public interface Constants {
   String SETTING_CHANNELS_RESTORE_DONE = "channels_restore_done";
   String SETTING_CHANNELS_BACKUP_SEEN_ONCE = "channels_backup_seen_once";
   String SETTING_LAST_SUCCESSFUL_BOOT_DATE = "last_successful_boot_date";
-  String SETTING_ELECTRUM_CHECK_LAST_DATE = "electrum_check_last_date";
-  String SETTING_ELECTRUM_CHECK_LAST_RESULT = "electrum_check_last_result";
+  String SETTING_ELECTRUM_CHECK_LAST_ATTEMPT_TIMESTAMP = "electrum_check_last_attempt_timestamp";
+  String SETTING_ELECTRUM_CHECK_LAST_OUTCOME_TIMESTAMP = "electrum_check_last_date";
+  String SETTING_ELECTRUM_CHECK_LAST_OUTCOME_RESULT = "electrum_check_last_result";
   String SETTING_BACKGROUND_CANNOT_RUN_WARNING = "app_background_cannot_run_warning";
 
   // currencies

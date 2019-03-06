@@ -58,11 +58,11 @@
 
   <string name="home_warning_runnable_background_title">Background service</string>
   <string name="home_warning_runnable_background_message"><![CDATA[
-  It seems that Eclair Mobile has not been able to run in background lately. Make sure that your device does not aggressively optimize this application.
+  It seems that Eclair Mobile has not been able to run in background lately. Make sure that your phone does not aggressively optimize this application.
   <br /><br />
-  This can happen on some devices which do not use a stock Android, such as <b>Nokia</b>, <b>OnePlus</b>, <b>Xiaomi</b>, <b>Huawei</b> or <b>Samsung</b> devices.
+  Some vendors like <b>Nokia</b>, <b>Xiaomi</b>, <b>Huawei</b> or <b>Samsung</b> run overzealous custom battery savers preventing non white-listed apps to run in background.
   <br /><br />
-  You can check this website for instructions: <a href=\"https://dontkillmyapp.com\">https://dontkillmyapp.com</a> or visit our FAQ.
+  You can check <a href="https://github.com/ACINQ/eclair-mobile/wiki/FAQ">our FAQ</a> for more information.
   ]]></string>
 
   <string name="payments_title">Transaction history</string>
@@ -88,31 +88,6 @@
   <string name="home_intro_openchannel_patience_sub">Opening a channel takes 2 confirmations.</string>
   <string name="home_intro_sendpayment">Click here to send a payment</string>
   <string name="home_intro_sendpayment_sub">Make sure to have 1 channel\nin NORMAL state</string>
-
-  <!-- //////////////// Disclaimer /////////////////// -->
-
-  <string name="disclaimer_1"><![CDATA[
-    <h1>WARNING</h1>
-    <p>
-      This is beta software based on bleeding edge technology, please <b>use with a reasonable
-      amount of money!</b>
-    </p>
-    <p>
-      <b>ON-CHAIN FUNDS</b>
-      <br />
-      On-chain funds are secured by a BIP39 seed with a BIP49 derivation path.
-      You can back them up like you would with any other wallet.
-    </p>
-    <p>
-      <b>OFF-CHAIN FUNDS (Lightning)</b><br />
-      Off-chain funds <b>cannot currently be backed up</b>. This will be improved in a coming
-      release, but for now, consider them like coins in your physical wallet: if you lose your
-      device or clear your application data, you will lose the bitcoins in your Lightning channels.
-    </p>
-    ]]>
-  </string>
-  <string name="disclaimer_1_button_ok">I UNDERSTAND</string>
-  <string name="disclaimer_button_quit">QUIT</string>
 
   <!-- //////////////// Startup /////////////////// -->
 

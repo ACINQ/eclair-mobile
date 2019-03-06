@@ -132,11 +132,26 @@ public class App extends Application {
     detectBackgroundRunnable();
   }
 
+  /**
+   * Triggers a message if the background electrum check worker has not been able to run lately. This should only happen
+   * if the device OS force-stops the app and prevents any jobs from running in background.
+   * <p>
+   * Some devices vendors are known to aggressively kill applications (including background jobs) in order to save battery,
+   * unless the app is whitelisted by the user in a custom OS setting page. This behaviour is hard to detect and not
+   * standard, and does not happen on a stock android. By checking the timestamp stored in (see
+   * {@link Constants#SETTING_ELECTRUM_CHECK_LAST_ATTEMPT_TIMESTAMP}, this mechanism should be able to warn the user if
+   * the app is unable to run in background.
+   * <p>
+   * Note that this mechanism is not fool-proof: the message will not be displayed if the user regularly starts the
+   * application (at least once every {@link CheckElectrumWorker#DELAY_BEFORE_BACKGROUND_WARNING}). This however should
+   * not be a problem since, in this scenario, the app runs regularly enough so that a background electrum check is in
+   * fact not necessary.
+   */
   private void detectBackgroundRunnable() {
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-    final long lastElectrumCheckDate = prefs.getLong(Constants.SETTING_ELECTRUM_CHECK_LAST_DATE, 0);
-    if (lastElectrumCheckDate == 0 || System.currentTimeMillis() - lastElectrumCheckDate > CheckElectrumWorker.DELAY_BEFORE_BACKGROUND_WARNING) {
-      log.warn("app has not run in background since {}", DateFormat.getDateTimeInstance().format(new Date(lastElectrumCheckDate)));
+    final long lastElectrumCheckAttemptDate = prefs.getLong(Constants.SETTING_ELECTRUM_CHECK_LAST_ATTEMPT_TIMESTAMP, System.currentTimeMillis());
+    if (System.currentTimeMillis() - lastElectrumCheckAttemptDate > CheckElectrumWorker.DELAY_BEFORE_BACKGROUND_WARNING) {
+      log.warn("app has not run in background since {}", DateFormat.getDateTimeInstance().format(new Date(lastElectrumCheckAttemptDate)));
       prefs.edit().putBoolean(Constants.SETTING_BACKGROUND_CANNOT_RUN_WARNING, true).apply();
     } else {
       prefs.edit().putBoolean(Constants.SETTING_BACKGROUND_CANNOT_RUN_WARNING, false).apply();
