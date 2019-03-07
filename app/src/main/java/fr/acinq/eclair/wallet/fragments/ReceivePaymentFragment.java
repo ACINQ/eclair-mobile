@@ -88,7 +88,7 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
         refreshLightningPaneState();
       });
       mBinding.lightningEditPr.setOnClickListener(v -> {
-        if (!mBinding.getIsGeneratingLightningPR()) {
+        if (mBinding != null && !mBinding.getIsGeneratingLightningPR()) {
           if (mPRParamsDialog == null) {
             mPRParamsDialog = new PaymentRequestParametersDialog(ReceivePaymentFragment.this.getContext(), ReceivePaymentFragment.this);
           }
@@ -150,24 +150,22 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
   private boolean isCurrentPaymentRequestPaid() {
     if (this.lightningPaymentHash != null && getApp() != null) {
       final Payment p = getApp().getDBHelper().getPayment(this.lightningPaymentHash, PaymentType.BTC_LN);
-      if (p != null && p.getStatus() == PaymentStatus.PAID) {
-        return true;
-      }
+      return p != null && p.getStatus() == PaymentStatus.PAID;
     }
     return false;
   }
 
   private void refreshLightningPaneState() {
-    if (mBinding.getPaymentType() == 1 && getActivity() != null) {
+    if (mBinding != null && mBinding.getPaymentType() == 1 && getActivity() != null && getContext() != null) {
       // -- check if you can receive with lightning
       mBinding.setHasNormalChannels(NodeSupervisor.hasOneNormalChannel());
       mBinding.setHasNoLightningChannels(NodeSupervisor.getChannelsMap().isEmpty());
       // -- check amount and update max receivable
       final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
       mBinding.setIsLightningInboundEnabled(prefs.getBoolean(Constants.SETTING_ENABLE_LIGHTNING_INBOUND_PAYMENTS, false));
-      mBinding.lightningMaxReceivable.setText(getString(R.string.receivepayment_lightning_max_receivable,
-        CoinUtils.formatAmountInUnit(NodeSupervisor.getMaxReceivable(), WalletUtils.getPreferredCoinUnit(prefs), true)));
       checkLightningAmount();
+      mBinding.lightningMaxReceivable.setText(getString(R.string.receivepayment_lightning_max_receivable,
+        CoinUtils.formatAmountInUnit(mBinding.getMaxReceivable(), WalletUtils.getPreferredCoinUnit(prefs), true)));
       // -- if no payment request is being generated and we should have one, generate one
       if (!NodeSupervisor.getChannelsMap().isEmpty() && mBinding.getIsLightningInboundEnabled()
         && !mBinding.getIsGeneratingLightningPR()) {
@@ -359,8 +357,9 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
   }
 
   private void checkLightningAmount() {
+    mBinding.setMaxReceivable(NodeSupervisor.getMaxReceivable());
     if (this.lightningAmount.isDefined()) {
-      mBinding.setExcessiveLightningAmount(this.lightningAmount.get().$greater(NodeSupervisor.getMaxReceivable()));
+      mBinding.setExcessiveLightningAmount(this.lightningAmount.get().$greater(mBinding.getMaxReceivable()));
     } else {
       mBinding.setExcessiveLightningAmount(false);
     }

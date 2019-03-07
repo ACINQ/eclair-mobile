@@ -46,6 +46,7 @@
   <color name="green">#00c28c</color>
   <color name="green_dark">#0BA876</color>
   <color name="yellow">#ffe88a</color>
+  <color name="yellow_light_x3">#FFF3DF</color>
   <color name="yellow_light_x2">#feedc5</color>
   <color name="yellow_light_x1">#ffda97</color>
   <color name="orange">#ffab00</color>
