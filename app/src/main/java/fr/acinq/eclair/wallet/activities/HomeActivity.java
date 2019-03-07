@@ -189,8 +189,12 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
       mBinding.balanceOnchain.refreshUnits();
       mBinding.balanceLightning.refreshUnits();
       mBinding.balanceTotal.refreshUnits();
-      mPaymentsListFragment.refreshList();
-      mChannelsListFragment.updateActiveChannelsList();
+      if (mPaymentsListFragment.isAdded()) {
+        mPaymentsListFragment.refreshList();
+      }
+      if (mChannelsListFragment.isAdded()) {
+        mChannelsListFragment.updateActiveChannelsList();
+      }
     });
   }
 
@@ -475,8 +479,12 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
 
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void handleChannelUpdateEvent(ChannelUpdateEvent event) {
-    mReceivePaymentFragment.notifyChannelsUpdate();
-    mChannelsListFragment.updateActiveChannelsList();
+    if (mReceivePaymentFragment.isAdded()) {
+      mReceivePaymentFragment.notifyChannelsUpdate();
+    }
+    if (mChannelsListFragment.isAdded()) {
+      mChannelsListFragment.updateActiveChannelsList();
+    }
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
