@@ -27,7 +27,7 @@
 
     <!-- forced white bg for consistency with older android versions -->
     <item name="android:windowBackground">@color/almost_white</item>
-    <item name="android:colorBackground">@color/almost_white</item>
+    <item name="android:colorBackground">@color/white</item>
 
     <item name="windowActionBar">false</item>
     <item name="windowNoTitle">true</item>
@@ -38,9 +38,13 @@
   <style name="PrimaryBgTheme" parent="AppTheme">
     <item name="android:textColor">@color/white</item>
     <item name="colorAccent">@color/primary_light_x3</item>
-    <item name="android:windowBackground">@color/primary</item>
-    <item name="android:colorBackground">@color/primary</item>
+    <item name="android:windowBackground">@drawable/bg_primary_gradient</item>
+    <item name="android:colorBackground">@color/white</item>
     <item name="android:lineSpacingMultiplier">1.15</item>
+  </style>
+
+  <style name="HomeTheme" parent="PrimaryBgTheme">
+    <item name="android:textColor">@color/grey_4</item>
   </style>
 
   <style name="PreferenceStyle" parent="Preference">
@@ -111,16 +115,17 @@
   </style>
 
   <style name="CustomTabStyle" parent="Widget.Design.TabLayout">
-    <item name="tabPaddingStart">12dp</item>
-    <item name="tabPaddingEnd">12dp</item>
-    <item name="tabBackground">?attr/selectableItemBackground</item>
+    <item name="tabPaddingStart">@dimen/space_md_p</item>
+    <item name="tabPaddingEnd">@dimen/space_md_p</item>
+    <item name="tabBackground">@android:color/transparent</item>
     <item name="tabTextAppearance">@style/CustomTabText</item>
-    <item name="tabSelectedTextColor">@color/grey_3</item>
+    <item name="tabIndicatorColor">@android:color/transparent</item>
+    <item name="tabSelectedTextColor">@color/white</item>
   </style>
 
   <style name="CustomTabText" parent="TextAppearance.AppCompat.Button">
     <item name="android:textSize">10sp</item>
-    <item name="android:textColor">@color/grey_1</item>
+    <item name="android:textColor">@color/primary_light_x2</item>
   </style>
 
   <style name="PinButtonStyle" parent="@style/Widget.AppCompat.Button.Borderless.Colored">

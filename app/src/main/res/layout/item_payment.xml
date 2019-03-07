@@ -16,11 +16,13 @@
 
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
   android:layout_width="match_parent"
   android:layout_height="wrap_content"
   android:background="?android:attr/selectableItemBackground"
   android:paddingTop="@dimen/space_sm"
-  android:paddingBottom="@dimen/space_sm">
+  android:paddingBottom="@dimen/space_sm"
+  tools:ignore="UnusedAttribute">
 
   <ImageView
     android:id="@+id/paymentitem_type"
@@ -107,7 +109,7 @@
     android:id="@+id/paymentitem_amount_unit"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_marginEnd="@dimen/space_md_p"
+    android:layout_marginEnd="@dimen/space_md"
     android:maxLines="1"
     android:textColor="@color/grey_1"
     android:textSize="@dimen/text_xs"

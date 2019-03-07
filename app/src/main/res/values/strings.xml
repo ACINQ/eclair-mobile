@@ -65,16 +65,16 @@
   You can check <a href="https://github.com/ACINQ/eclair-mobile/wiki/FAQ">our FAQ</a> for more information.
   ]]></string>
 
-  <string name="payments_title">Transaction history</string>
+  <string name="payments_title">Payments</string>
   <string name="payments_empty">No transactions yet…</string>
-  <string name="localchannels_title">Lightning Channels</string>
+  <string name="localchannels_title">Channels</string>
   <string name="localchannels_active_empty">No active channels yet…\nTo open a new channel click on the (+) button.</string>
   <string name="localchannels_closed_empty">No closed channels yet…</string>
   <string name="localchannels_show_inactive">Show closed channels</string>
   <string name="localchannels_hide_inactive">Hide closed channels</string>
   <string name="localchannels_total_sendable">Total can send</string>
   <string name="localchannels_total_receivable">Total can receive</string>
-  <string name="receive_title">Request payment</string>
+  <string name="receive_title">Receive</string>
 
   <!-- //////////////// Home Intro //////////////////// -->
 
@@ -616,9 +616,9 @@
   <string name="receivepayment_lightning_image_desc">Lightning payment request QR Code</string>
   <string name="receivepayment_lightning_inbound_disabled">You must enable this feature in the settings first.</string>
   <string name="receivepayment_lightning_no_channels">Please open a Lightning channel to receive payments over Lightning.</string>
-  <string name="receivepayment_lightning_may_fail">This payment may fail</string>
+  <string name="receivepayment_lightning_may_fail">You may be unable to receive the payment</string>
   <string name="receivepayment_lightning_no_routes_available">- Your channels are currently not active.</string>
-  <string name="receivepayment_lightning_excessive_amount">- Requested amount exceeds your current receive capacity.</string>
+  <string name="receivepayment_lightning_excessive_amount">- Requested amount exceeds your current inbound capacity.</string>
   <string name="receivepayment_lightning_no_inbound">- You have no inbound capacity.</string>
   <string name="receivepayment_lightning_pr_title">Payment Request</string>
   <string name="receivepayment_lightning_max_receivable">Max: %1$s</string>

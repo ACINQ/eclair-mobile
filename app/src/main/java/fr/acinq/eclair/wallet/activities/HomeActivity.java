@@ -33,6 +33,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
+import android.transition.TransitionManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -59,6 +60,7 @@ import fr.acinq.eclair.wallet.fragments.ChannelsListFragment;
 import fr.acinq.eclair.wallet.fragments.PaymentsListFragment;
 import fr.acinq.eclair.wallet.fragments.ReceivePaymentFragment;
 import fr.acinq.eclair.wallet.utils.Constants;
+import fr.acinq.eclair.wallet.utils.TechnicalHelper;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -183,17 +185,36 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
   }
 
   private void setUpBalanceInteraction(final SharedPreferences prefs) {
-    mBinding.balance.setOnClickListener(view -> {
-      boolean displayBalanceAsFiat = WalletUtils.shouldDisplayInFiat(prefs);
-      prefs.edit().putBoolean(Constants.SETTING_DISPLAY_IN_FIAT, !displayBalanceAsFiat).commit();
-      mBinding.balanceOnchain.refreshUnits();
-      mBinding.balanceLightning.refreshUnits();
-      mBinding.balanceTotal.refreshUnits();
-      if (mPaymentsListFragment.isAdded()) {
-        mPaymentsListFragment.refreshList();
+    mBinding.balance.setOnTouchListener(new TechnicalHelper.OnSwipeTouchListener(getApplicationContext()) {
+      @Override
+      public void onSwipeBottom() {
+        TransitionManager.beginDelayedTransition(mBinding.balanceTransition);
+        mBinding.balanceTotal.setVisibility(mBinding.balanceTotal.getVisibility() == View.GONE ? View.VISIBLE : View.GONE);
+        mBinding.balanceLightning.setVisibility(mBinding.balanceLightning.getVisibility() == View.GONE ? View.VISIBLE : View.GONE);
+        mBinding.balanceOnchain.setVisibility(mBinding.balanceOnchain.getVisibility() == View.GONE ? View.VISIBLE : View.GONE);
       }
-      if (mChannelsListFragment.isAdded()) {
-        mChannelsListFragment.updateActiveChannelsList();
+      @Override
+      public void onSwipeTop() {
+        TransitionManager.beginDelayedTransition(mBinding.balanceTransition);
+        mBinding.balanceTotal.setVisibility(mBinding.balanceTotal.getVisibility() == View.GONE ? View.VISIBLE : View.GONE);
+        mBinding.balanceLightning.setVisibility(mBinding.balanceLightning.getVisibility() == View.GONE ? View.VISIBLE : View.GONE);
+        mBinding.balanceOnchain.setVisibility(mBinding.balanceOnchain.getVisibility() == View.GONE ? View.VISIBLE : View.GONE);
+      }
+
+      @Override
+      public boolean onClick() {
+        boolean displayBalanceAsFiat = WalletUtils.shouldDisplayInFiat(prefs);
+        prefs.edit().putBoolean(Constants.SETTING_DISPLAY_IN_FIAT, !displayBalanceAsFiat).commit();
+        mBinding.balanceOnchain.refreshUnits();
+        mBinding.balanceLightning.refreshUnits();
+        mBinding.balanceTotal.refreshUnits();
+        if (mPaymentsListFragment.isAdded()) {
+          mPaymentsListFragment.refreshList();
+        }
+        if (mChannelsListFragment.isAdded()) {
+          mChannelsListFragment.updateActiveChannelsList();
+        }
+        return true;
       }
     });
   }

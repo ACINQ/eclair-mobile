@@ -40,13 +40,16 @@
   <android.support.v4.widget.NestedScrollView
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:fillViewport="true">
+    android:clipToPadding="false"
+    android:paddingBottom="88dp"
+    android:scrollbars="none">
 
     <android.support.constraint.ConstraintLayout
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:background="@color/grey_0_light_x3"
-      android:paddingBottom="88dp">
+      android:layout_marginStart="@dimen/space_sm"
+      android:layout_marginEnd="@dimen/space_sm"
+      android:background="@drawable/rounded_corner_grey">
 
       <TextView
         android:id="@+id/no_active_channels"
@@ -96,7 +99,7 @@
         android:id="@+id/total_sendable_fiat"
         style="@style/DataRowText"
         android:layout_width="wrap_content"
-        android:textColor="@color/grey_1"
+        android:textColor="@color/grey_1_dark_x1"
         android:textSize="@dimen/text_sm"
         android:visibility="@{activeSize == 0 ? View.GONE : View.VISIBLE}"
         app:layout_constrainedWidth="true"
@@ -110,9 +113,9 @@
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="60dp"
         android:layout_height="60dp"
+        android:layout_marginTop="@dimen/space_lg"
         android:max="100"
         android:progress="60"
-        android:layout_marginTop="@dimen/space_lg"
         android:progressDrawable="@drawable/progress_bar"
         android:progressTint="@color/receive_color"
         android:secondaryProgress="100"
@@ -158,7 +161,7 @@
         android:id="@+id/total_receivable_fiat"
         style="@style/DataRowText"
         android:layout_width="wrap_content"
-        android:textColor="@color/grey_1"
+        android:textColor="@color/grey_1_dark_x1"
         android:textSize="@dimen/text_sm"
         android:visibility="@{activeSize == 0 ? View.GONE : View.VISIBLE}"
         app:layout_constrainedWidth="true"
@@ -195,8 +198,8 @@
         android:text="@{showInactive ? @string/localchannels_hide_inactive : @string/localchannels_show_inactive}"
         android:textColor="@color/grey_1"
         android:textSize="@dimen/text_xs"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/active_channels_list"
         tools:ignore="UnusedAttribute" />
 

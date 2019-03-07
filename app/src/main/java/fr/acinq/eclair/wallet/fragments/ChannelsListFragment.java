@@ -139,15 +139,17 @@ public class ChannelsListFragment extends Fragment {
           final MilliSatoshi totalSendable = new MilliSatoshi(totalSendableMsat);
           final double sendReceiveRelative = totalSendableMsat + totalReceivableMsat > 0 ? (double) totalSendableMsat / (totalSendableMsat + totalReceivableMsat) * 100 : 0;
 
-          if (getActivity() != null && mBinding != null && getContext() != null) {
+          if (getActivity() != null && mBinding != null) {
             getActivity().runOnUiThread(() -> {
-              mBinding.balanceProgress.setProgress(100 - (int) sendReceiveRelative);
-              mBinding.totalReceivable.setText(CoinUtils.formatAmountInUnit(totalReceivable, prefUnit, true));
-              mBinding.totalReceivableFiat.setText(getString(R.string.amount_to_fiat, WalletUtils.convertMsatToFiatWithUnit(totalReceivable.amount(), fiatUnit)));
-              mBinding.totalSendable.setText(CoinUtils.formatAmountInUnit(totalSendable, prefUnit, true));
-              mBinding.totalSendableFiat.setText(getString(R.string.amount_to_fiat, WalletUtils.convertMsatToFiatWithUnit(totalSendable.amount(), fiatUnit)));
-              mActiveChannelsAdapter.update(channels, WalletUtils.getPreferredFiat(prefs), WalletUtils.getPreferredCoinUnit(prefs), WalletUtils.shouldDisplayInFiat(prefs));
-              mBinding.setActiveSize(channels.size());
+              if (getContext() != null) {
+                mBinding.balanceProgress.setProgress(100 - (int) sendReceiveRelative);
+                mBinding.totalReceivable.setText(CoinUtils.formatAmountInUnit(totalReceivable, prefUnit, true));
+                mBinding.totalReceivableFiat.setText(getString(R.string.amount_to_fiat, WalletUtils.convertMsatToFiatWithUnit(totalReceivable.amount(), fiatUnit)));
+                mBinding.totalSendable.setText(CoinUtils.formatAmountInUnit(totalSendable, prefUnit, true));
+                mBinding.totalSendableFiat.setText(getString(R.string.amount_to_fiat, WalletUtils.convertMsatToFiatWithUnit(totalSendable.amount(), fiatUnit)));
+                mActiveChannelsAdapter.update(channels, WalletUtils.getPreferredFiat(prefs), WalletUtils.getPreferredCoinUnit(prefs), WalletUtils.shouldDisplayInFiat(prefs));
+                mBinding.setActiveSize(channels.size());
+              }
             });
           }
         }
