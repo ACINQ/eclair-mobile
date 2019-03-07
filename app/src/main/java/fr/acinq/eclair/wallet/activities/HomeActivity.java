@@ -166,8 +166,12 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
       mBinding.balanceOnchain.refreshUnits();
       mBinding.balanceLightning.refreshUnits();
       mBinding.balanceTotal.refreshUnits();
-      mPaymentsListFragment.refreshList();
-      mChannelsListFragment.updateActiveChannelsList();
+      if (mPaymentsListFragment.isAdded()) {
+        mPaymentsListFragment.refreshList();
+      }
+      if (mChannelsListFragment.isAdded()) {
+        mChannelsListFragment.updateActiveChannelsList();
+      }
     });
   }
 

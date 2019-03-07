@@ -106,13 +106,15 @@ public class ChannelsListFragment extends Fragment {
     new Thread() {
       @Override
       public void run() {
-        if (mActiveChannelsAdapter != null && getContext() != null && getActivity() != null) {
+        if (mActiveChannelsAdapter != null && getContext() != null) {
           final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
           final List<LocalChannel> channels = new ArrayList<>(NodeSupervisor.getChannelsMap().values());
-          getActivity().runOnUiThread(() -> {
-            mActiveChannelsAdapter.update(channels, WalletUtils.getPreferredFiat(prefs), WalletUtils.getPreferredCoinUnit(prefs), WalletUtils.shouldDisplayInFiat(prefs));
-            mBinding.setActiveSize(channels.size());
-          });
+          if (getActivity() != null && mBinding != null && getContext() != null) {
+            getActivity().runOnUiThread(() -> {
+              mActiveChannelsAdapter.update(channels, WalletUtils.getPreferredFiat(prefs), WalletUtils.getPreferredCoinUnit(prefs), WalletUtils.shouldDisplayInFiat(prefs));
+              mBinding.setActiveSize(channels.size());
+            });
+          }
         }
       }
     }.start();
