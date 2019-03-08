@@ -70,7 +70,7 @@
       android:layout_height="wrap_content"
       android:paddingStart="@dimen/space_md_p"
       android:paddingEnd="@dimen/space_md_p"
-      android:paddingBottom="@dimen/space_xxl">
+      android:paddingBottom="@dimen/space_xl">
 
       <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
@@ -489,7 +489,7 @@
               android:id="@+id/lightning_max_what"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
-              android:background="@drawable/bg_circle_transparent"
+              android:background="@drawable/bg_circle_transparent_grey"
               android:contentDescription="@string/receivepayment_lightning_max_what_title"
               android:padding="@dimen/space_xs"
               android:src="@drawable/ic_info_outline_black_20dp"

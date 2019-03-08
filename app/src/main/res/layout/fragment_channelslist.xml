@@ -47,8 +47,8 @@
     <android.support.constraint.ConstraintLayout
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:layout_marginStart="@dimen/space_sm"
-      android:layout_marginEnd="@dimen/space_sm"
+      android:layout_marginStart="@dimen/space_md_p"
+      android:layout_marginEnd="@dimen/space_md_p"
       android:background="@drawable/rounded_corner_grey">
 
       <TextView

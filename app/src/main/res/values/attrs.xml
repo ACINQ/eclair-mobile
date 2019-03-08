@@ -17,11 +17,6 @@
 <resources>
   <attr name="label" format="string" />
   <declare-styleable name="CoinAmountView">
-    <attr name="alignment" format="enum">
-      <enum name="left" value="0" />
-      <enum name="center" value="1" />
-      <enum name="right" value="2" />
-    </attr>
     <attr name="force_btc" format="boolean" />
     <attr name="image_src" format="reference" />
     <attr name="image_size" format="dimension" />

@@ -60,7 +60,6 @@
             android:id="@+id/tx_amount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:alignment="left"
             app:amount_color="@color/grey_4"
             app:amount_size="36sp"
             app:force_btc="true"

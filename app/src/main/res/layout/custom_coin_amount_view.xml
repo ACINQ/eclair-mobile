@@ -14,41 +14,53 @@
   ~ limitations under the License.
   -->
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-  android:id="@+id/view_relative"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  android:id="@+id/layout"
   android:layout_width="wrap_content"
   android:layout_height="wrap_content"
   android:gravity="center">
 
   <ImageView
     android:id="@+id/view_image"
-    android:layout_width="12dp"
-    android:layout_height="12dp"
-    android:layout_toStartOf="@+id/view_amount"
-    android:layout_centerVertical="true"
-    android:layout_marginRight="4dp"
-    android:visibility="gone" />
+    android:layout_width="14dp"
+    android:layout_height="14dp"
+    android:layout_marginEnd="@dimen/space_xxs"
+    android:baselineAlignBottom="true"
+    android:contentDescription="@null"
+    android:visibility="gone"
+    app:layout_constraintBaseline_toBaselineOf="@id/view_amount"
+    app:layout_constraintEnd_toStartOf="@id/view_amount"
+    app:layout_constraintHorizontal_chainStyle="packed"
+    app:layout_constraintStart_toStartOf="parent" />
 
   <TextView
     android:id="@+id/view_amount"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_toStartOf="@+id/view_unit"
+    android:layout_marginStart="@dimen/space_xxs"
+    android:layout_marginEnd="@dimen/space_xxxs"
     android:ellipsize="none"
-    android:fontFamily="sans-serif-light"
+    android:fontFamily="sans-serif-thin"
     android:singleLine="true"
     android:text="0,00"
-    android:textSize="30sp" />
+    android:textSize="30sp"
+    app:layout_constraintEnd_toStartOf="@id/view_unit"
+    app:layout_constraintHorizontal_chainStyle="packed"
+    app:layout_constraintStart_toEndOf="@id/view_image"
+    app:layout_constraintTop_toTopOf="parent" />
 
   <TextView
     android:id="@+id/view_unit"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_alignBaseline="@+id/view_amount"
-    android:layout_alignParentEnd="true"
+    android:layout_marginStart="@dimen/space_xxxs"
     android:fontFamily="sans-serif-light"
     android:maxLines="1"
-    android:paddingEnd="0dp"
-    android:paddingStart="4dp" />
+    android:text="mBTC"
+    app:layout_constraintBaseline_toBaselineOf="@id/view_amount"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintHorizontal_chainStyle="packed"
+    app:layout_constraintStart_toEndOf="@id/view_amount" />
 
-</RelativeLayout>
+</android.support.constraint.ConstraintLayout>

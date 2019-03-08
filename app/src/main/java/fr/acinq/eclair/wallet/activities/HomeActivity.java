@@ -24,6 +24,7 @@ import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -33,12 +34,16 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
+import android.transition.Fade;
+import android.transition.Slide;
 import android.transition.TransitionManager;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewStub;
-import android.view.animation.*;
+import android.transition.TransitionSet;
+import android.view.*;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.google.android.gms.common.util.Strings;
@@ -151,12 +156,6 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
   }
 
   private void setUpTabs(final Bundle savedInstanceState) {
-    mBinding.viewpager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-      @Override
-      public void onPageSelected(int position) {
-        mBinding.setCurrentPage(position);
-      }
-    });
 
     final List<Fragment> fragments = new ArrayList<>();
     mReceivePaymentFragment = new ReceivePaymentFragment();
@@ -168,7 +167,15 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
     HomePagerAdapter mPagerAdapter = new HomePagerAdapter(getSupportFragmentManager(), fragments);
 
     mBinding.viewpager.setAdapter(mPagerAdapter);
+    mBinding.viewpager.setPageTransformer(true, new TechnicalHelper.ZoomOutPageTransformer());
+
     mBinding.tabs.setupWithViewPager(mBinding.viewpager);
+    for (int i = 0; i < mBinding.tabs.getTabCount(); i++) {
+      TabLayout.Tab tab = mBinding.tabs.getTabAt(i);
+      if (tab != null) {
+        tab.setCustomView(mPagerAdapter.getTabView(i));
+      }
+    }
 
     if (savedInstanceState != null && savedInstanceState.containsKey("currentPage")) {
       mBinding.viewpager.setCurrentItem(savedInstanceState.getInt("currentPage"));
@@ -177,23 +184,64 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
       mBinding.viewpager.setCurrentItem(intent.getIntExtra(EXTRA_PAGE, 1));
       mBinding.setCurrentPage(1);
     }
+
+    mBinding.viewpager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+      @Override
+      public void onPageSelected(int position) {
+        mBinding.setCurrentPage(position);
+        animateTabs(position);
+      }
+    });
+
+    mBinding.tabs.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+      @Override
+      public void onGlobalLayout() {
+        mBinding.tabs.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+        animateTabs(mBinding.getCurrentPage());
+      }
+    });
+  }
+
+  @Override
+  public void onWindowFocusChanged(boolean hasFocus) {
+    super.onWindowFocusChanged(hasFocus);
+    animateTabs(mBinding.getCurrentPage());
+  }
+
+  private void animateTabs(int position) {
+    for (int i = 0; i < mBinding.tabs.getTabCount(); i++) {
+      TabLayout.Tab tab = mBinding.tabs.getTabAt(i);
+      if (tab != null && tab.getCustomView() != null) {
+        final View v = tab.getCustomView();
+        ((TextView) v.findViewById(R.id.label)).setTextColor(ContextCompat.getColorStateList(getApplicationContext(), i == position ? R.color.white : R.color.primary_light_x2));
+        ((ImageView) v.findViewById(R.id.icon)).setColorFilter(ContextCompat.getColor(getApplicationContext(), i == position ? R.color.white : R.color.primary_light_x2));
+        if (v.getAnimation() != null) {
+          v.clearAnimation();
+        }
+        v.setPivotX((float) v.getMeasuredWidth() / 2);
+        v.setPivotY(v.getMeasuredHeight());
+        if (i == position) {
+          v.animate().scaleX(1f).scaleY(1f).setDuration(350).setInterpolator(new AccelerateDecelerateInterpolator()).start();
+        } else if (v.getScaleX() == 1f) {
+          v.animate().scaleX(.75f).scaleY(.75f).setDuration(250).setInterpolator(new AccelerateDecelerateInterpolator()).start();
+        } else {
+          v.setScaleX(.75f);
+          v.setScaleY(.75f);
+        }
+      }
+    }
   }
 
   private void setUpBalanceInteraction(final SharedPreferences prefs) {
     mBinding.balance.setOnTouchListener(new TechnicalHelper.OnSwipeTouchListener(getApplicationContext()) {
       @Override
       public void onSwipeBottom() {
-        TransitionManager.beginDelayedTransition(mBinding.balanceTransition);
-        mBinding.balanceTotal.setVisibility(mBinding.balanceTotal.getVisibility() == View.GONE ? View.VISIBLE : View.GONE);
-        mBinding.balanceLightning.setVisibility(mBinding.balanceLightning.getVisibility() == View.GONE ? View.VISIBLE : View.GONE);
-        mBinding.balanceOnchain.setVisibility(mBinding.balanceOnchain.getVisibility() == View.GONE ? View.VISIBLE : View.GONE);
+        animateBalanceSwap();
       }
+
       @Override
       public void onSwipeTop() {
-        TransitionManager.beginDelayedTransition(mBinding.balanceTransition);
-        mBinding.balanceTotal.setVisibility(mBinding.balanceTotal.getVisibility() == View.GONE ? View.VISIBLE : View.GONE);
-        mBinding.balanceLightning.setVisibility(mBinding.balanceLightning.getVisibility() == View.GONE ? View.VISIBLE : View.GONE);
-        mBinding.balanceOnchain.setVisibility(mBinding.balanceOnchain.getVisibility() == View.GONE ? View.VISIBLE : View.GONE);
+        animateBalanceSwap();
       }
 
       @Override
@@ -321,6 +369,19 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
       mBinding.balanceTotal.refreshUnits();
       mBinding.balanceOnchain.refreshUnits();
       mBinding.balanceLightning.refreshUnits();
+    }
+  }
+
+  public void swapBalance(final View v) {
+    animateBalanceSwap();
+  }
+
+  private void animateBalanceSwap() {
+    if (mBinding.balanceTransition.getAnimation() == null || mBinding.balanceTransition.getAnimation().hasEnded()) {
+      final Slide slide = new Slide();
+      slide.setSlideEdge(Gravity.BOTTOM);
+      TransitionManager.beginDelayedTransition(mBinding.balanceTransition, new TransitionSet().addTransition(new Fade()).addTransition(slide));
+      mBinding.setShowBalanceDetails(!mBinding.getShowBalanceDetails());
     }
   }
 
@@ -561,7 +622,8 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
 
   private class HomePagerAdapter extends FragmentStatePagerAdapter {
     private final List<Fragment> mFragmentList;
-    private final String[] titles = new String[]{getString(R.string.receive_title), getString(R.string.payments_title), getString(R.string.localchannels_title)};
+    private final String[] titles = {getString(R.string.receive_title), getString(R.string.payments_title), getString(R.string.localchannels_title)};
+    public int[] icons_resources = {R.drawable.ic_receive_white_24dp, R.drawable.ic_activity_white_24dp, R.drawable.ic_cloud_lightning_white_24dp};
 
     public HomePagerAdapter(FragmentManager fm, List<Fragment> fragments) {
       super(fm);
@@ -581,6 +643,15 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
     @Override
     public CharSequence getPageTitle(int position) {
       return titles[position];
+    }
+
+    public View getTabView(final int position) {
+      final View v = LayoutInflater.from(getApplicationContext()).inflate(R.layout.custom_tab, null);
+      ((TextView) v.findViewById(R.id.label)).setText(titles[position]);
+      ((ImageView) v.findViewById(R.id.icon)).setImageResource(icons_resources[position]);
+      v.setScaleX(.75f);
+      v.setScaleY(.75f);
+      return v;
     }
   }
 

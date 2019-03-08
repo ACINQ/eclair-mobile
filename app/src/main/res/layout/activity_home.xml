@@ -38,6 +38,10 @@
       name="syncProgress"
       type="int" />
 
+    <variable
+      name="showBalanceDetails"
+      type="boolean" />
+
   </data>
 
   <RelativeLayout
@@ -142,8 +146,10 @@
 
         <LinearLayout
           android:id="@+id/balance_transition"
-          android:layout_width="match_parent"
+          android:layout_width="wrap_content"
           android:layout_height="76dp"
+          android:layout_marginStart="@dimen/space_xs"
+          android:gravity="center"
           android:orientation="vertical"
           app:layout_constraintEnd_toEndOf="parent"
           app:layout_constraintStart_toStartOf="parent"
@@ -153,23 +159,21 @@
             android:id="@+id/balance_total"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:alignment="center"
+            android:visibility="@{!showBalanceDetails ? View.VISIBLE : View.GONE}"
             app:amount_color="@color/white"
             app:amount_size="40sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/notifs_guideline"
             app:unit="mBTC"
-            app:unit_color="@color/primary_light_x3"
+            app:unit_color="@color/primary_light_x2"
             app:unit_size="12sp" />
 
           <fr.acinq.eclair.wallet.customviews.CoinAmountView
             android:id="@+id/balance_onchain"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/space_sm"
-            android:visibility="gone"
-            app:alignment="center"
+            android:visibility="@{showBalanceDetails ? View.VISIBLE : View.GONE}"
             app:amount_color="@color/white"
             app:amount_size="@dimen/text_xl"
             app:image_size="12dp"
@@ -179,7 +183,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/notifs_guideline"
             app:unit="mBTC"
-            app:unit_color="@color/primary_light_x3"
+            app:unit_color="@color/primary_light_x2"
             app:unit_size="10sp" />
 
           <fr.acinq.eclair.wallet.customviews.CoinAmountView
@@ -187,8 +191,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/space_xxs"
-            android:visibility="gone"
-            app:alignment="center"
+            android:visibility="@{showBalanceDetails ? View.VISIBLE : View.GONE}"
             app:amount_color="@color/white"
             app:amount_size="@dimen/text_xl"
             app:image_size="12dp"
@@ -198,7 +201,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/balance_onchain"
             app:unit="mBTC"
-            app:unit_color="@color/primary_light_x3"
+            app:unit_color="@color/primary_light_x2"
             app:unit_size="10sp" />
 
         </LinearLayout>
@@ -210,10 +213,10 @@
         android:id="@+id/tabs"
         style="@style/CustomTabStyle"
         android:layout_width="wrap_content"
-        android:layout_height="38dp"
+        android:layout_height="wrap_content"
         android:layout_gravity="center"
         app:tabGravity="center"
-        app:tabMode="scrollable"
+        app:tabMode="fixed"
         app:tabRippleColor="@android:color/transparent" />
 
       <android.support.v4.view.ViewPager
