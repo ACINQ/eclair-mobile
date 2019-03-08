@@ -77,8 +77,8 @@ public interface TechnicalHelper {
 
     private final class GestureListener extends GestureDetector.SimpleOnGestureListener {
 
-      private static final int SWIPE_DISTANCE_THRESHOLD = 100;
-      private static final int SWIPE_VELOCITY_THRESHOLD = 100;
+      private static final int SWIPE_DISTANCE_THRESHOLD = 50;
+      private static final int SWIPE_VELOCITY_THRESHOLD = 80;
 
       @Override
       public boolean onDown(final MotionEvent e) {
@@ -120,7 +120,7 @@ public interface TechnicalHelper {
 
   // -- see https://developer.android.com/training/animation/screen-slide.html#zoom-out
   public class ZoomOutPageTransformer implements ViewPager.PageTransformer {
-    private static final float MIN_SCALE = 0.87f;
+    private static final float MIN_SCALE = 0.9f;
     private static final float MIN_ALPHA = 0.6f;
 
     public void transformPage(@NonNull View view, float position) {

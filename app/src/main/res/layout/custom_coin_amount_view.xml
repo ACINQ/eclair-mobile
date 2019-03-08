@@ -18,14 +18,13 @@
   xmlns:app="http://schemas.android.com/apk/res-auto"
   android:id="@+id/layout"
   android:layout_width="wrap_content"
-  android:layout_height="wrap_content"
-  android:gravity="center">
+  android:layout_height="wrap_content">
 
   <ImageView
     android:id="@+id/view_image"
     android:layout_width="14dp"
     android:layout_height="14dp"
-    android:layout_marginEnd="@dimen/space_xxs"
+    android:layout_marginEnd="@dimen/space_xxxs"
     android:baselineAlignBottom="true"
     android:contentDescription="@null"
     android:visibility="gone"
@@ -38,13 +37,14 @@
     android:id="@+id/view_amount"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_marginStart="@dimen/space_xxs"
+    android:layout_marginStart="@dimen/space_xxxs"
     android:layout_marginEnd="@dimen/space_xxxs"
     android:ellipsize="none"
     android:fontFamily="sans-serif-thin"
     android:singleLine="true"
     android:text="0,00"
     android:textSize="30sp"
+    app:layout_constraintBottom_toBottomOf="parent"
     app:layout_constraintEnd_toStartOf="@id/view_unit"
     app:layout_constraintHorizontal_chainStyle="packed"
     app:layout_constraintStart_toEndOf="@id/view_image"

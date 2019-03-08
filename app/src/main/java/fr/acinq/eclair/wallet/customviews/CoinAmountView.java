@@ -99,7 +99,7 @@ public class CoinAmountView extends ConstraintLayout {
       final int amountColor = arr.getColor(R.styleable.CoinAmountView_amount_color, ContextCompat.getColor(getContext(), R.color.grey_2));
       final boolean isAmountBold = arr.getBoolean(R.styleable.CoinAmountView_amount_bold, false);
       if (isAmountBold) {
-        amountTextView.setTypeface(null, Typeface.BOLD);
+        amountTextView.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
       }
       amountTextView.setTextSize(TypedValue.COMPLEX_UNIT_PX, amountSize);
       amountTextView.setTextColor(amountColor);
@@ -108,7 +108,7 @@ public class CoinAmountView extends ConstraintLayout {
       final int unitColor = arr.getColor(R.styleable.CoinAmountView_unit_color, ContextCompat.getColor(getContext(), R.color.grey_2));
       final boolean isUnitBold = arr.getBoolean(R.styleable.CoinAmountView_unit_bold, false);
       if (isUnitBold) {
-        unitTextView.setTypeface(null, Typeface.BOLD);
+        unitTextView.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
       }
       unitTextView.setTextSize(TypedValue.COMPLEX_UNIT_PX, unitSize);
       unitTextView.setTextColor(unitColor);

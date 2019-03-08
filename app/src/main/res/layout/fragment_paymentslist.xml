@@ -16,7 +16,7 @@
   ~ limitations under the License.
   -->
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
   android:layout_width="match_parent"
   android:layout_height="match_parent"
@@ -31,13 +31,18 @@
     android:text="@string/payments_empty"
     android:textAlignment="center"
     android:textColor="@color/grey_1"
-    android:textSize="12sp" />
+    android:textSize="@dimen/text_sm"
+    app:layout_constraintTop_toTopOf="parent" />
 
   <android.support.v4.widget.SwipeRefreshLayout
     android:id="@+id/payments_swiperefresh"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior">
+    android:layout_height="wrap_content"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent">
 
     <android.support.v7.widget.RecyclerView
       android:id="@+id/payments_list"
@@ -49,4 +54,4 @@
 
   </android.support.v4.widget.SwipeRefreshLayout>
 
-</RelativeLayout>
+</android.support.constraint.ConstraintLayout>

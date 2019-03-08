@@ -34,16 +34,13 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
-import android.transition.Fade;
-import android.transition.Slide;
-import android.transition.TransitionManager;
-import android.transition.TransitionSet;
 import android.view.*;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.google.android.gms.common.util.Strings;
@@ -233,15 +230,15 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
   }
 
   private void setUpBalanceInteraction(final SharedPreferences prefs) {
-    mBinding.balance.setOnTouchListener(new TechnicalHelper.OnSwipeTouchListener(getApplicationContext()) {
+    mBinding.balanceScroll.setOnTouchListener(new TechnicalHelper.OnSwipeTouchListener(getApplicationContext()) {
       @Override
       public void onSwipeBottom() {
-        animateBalanceSwap();
+        mBinding.balanceScroll.fullScroll(ScrollView.FOCUS_UP);
       }
 
       @Override
       public void onSwipeTop() {
-        animateBalanceSwap();
+        mBinding.balanceScroll.fullScroll(ScrollView.FOCUS_DOWN);
       }
 
       @Override
@@ -369,19 +366,6 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
       mBinding.balanceTotal.refreshUnits();
       mBinding.balanceOnchain.refreshUnits();
       mBinding.balanceLightning.refreshUnits();
-    }
-  }
-
-  public void swapBalance(final View v) {
-    animateBalanceSwap();
-  }
-
-  private void animateBalanceSwap() {
-    if (mBinding.balanceTransition.getAnimation() == null || mBinding.balanceTransition.getAnimation().hasEnded()) {
-      final Slide slide = new Slide();
-      slide.setSlideEdge(Gravity.BOTTOM);
-      TransitionManager.beginDelayedTransition(mBinding.balanceTransition, new TransitionSet().addTransition(new Fade()).addTransition(slide));
-      mBinding.setShowBalanceDetails(!mBinding.getShowBalanceDetails());
     }
   }
 
