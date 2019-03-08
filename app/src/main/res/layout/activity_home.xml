@@ -361,7 +361,7 @@
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:layout_alignParentBottom="true"
-      android:background="@color/primary"
+      android:background="@color/primary_dark_x3"
       android:clickable="true"
       android:ellipsize="end"
       android:focusable="true"
