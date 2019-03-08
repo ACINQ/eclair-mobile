@@ -38,10 +38,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewStub;
-import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
+import android.view.animation.*;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.google.android.gms.common.util.Strings;
@@ -121,8 +118,6 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
     mBlinkingAnimation.setDuration(500);
     mBlinkingAnimation.setRepeatCount(Animation.INFINITE);
     mBlinkingAnimation.setRepeatMode(Animation.REVERSE);
-
-    mBinding.syncProgressIcon.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate));
 
     final Intent intent = getIntent();
     if (intent.hasExtra(StartupActivity.ORIGIN)) {
@@ -454,7 +449,9 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
     if (p >= 100) {
       mBinding.syncProgressIcon.clearAnimation();
     } else {
-      mBinding.syncProgressIcon.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate));
+      if (mBinding.syncProgressIcon.getAnimation() == null || !mBinding.syncProgressIcon.getAnimation().hasStarted() || mBinding.syncProgressIcon.getAnimation().hasEnded()) {
+        mBinding.syncProgressIcon.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate));
+      }
     }
     mBinding.setSyncProgress(p);
   }
