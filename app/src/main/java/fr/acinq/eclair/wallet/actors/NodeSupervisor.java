@@ -124,6 +124,22 @@ public class NodeSupervisor extends UntypedActor {
       c.setChannelId(event.channelId().toString());
       c.setPeerNodeId(event.remoteNodeId().toString());
 
+      final Iterator<DirectedHtlc> it = event.currentData().commitments().localCommit().spec().htlcs().iterator();
+      int htlcsCount = 0;
+      while(it.hasNext()) {
+        final DirectedHtlc htlc = it.next();
+        htlcsCount++;
+        if (htlc.direction() instanceof OUT$) {
+          final String htlcPaymentHash = htlc.add().paymentHash().toString();
+          final Payment p = dbHelper.getPayment(htlcPaymentHash, PaymentType.BTC_LN);
+          if (p != null && p.getStatus() == PaymentStatus.INIT) {
+            dbHelper.updatePaymentPending(p);
+            paymentRefreshScheduler.tell(Constants.REFRESH, null);
+          }
+        }
+      }
+      c.htlcsInFlightCount = htlcsCount;
+
       // restore data from DB that were sent only once by the node and may have be persisted
       final LocalChannel channelInDB = dbHelper.getLocalChannel(c.getChannelId());
       if (channelInDB != null) {

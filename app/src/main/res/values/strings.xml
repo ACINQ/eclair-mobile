@@ -387,7 +387,7 @@
   <string name="about_general_text">An advanced Lightning/Bitcoin mobile wallet by ACINQ. It relies on Electrum servers for access to the Bitcoin network.\n\nFees are retrieved from the BitGo API. Exchange rates are retrieved from the Blockchain.info api. Note that this conversion to fiat may not be accurate.\n\nThis software is compliant with the BOLT specifications (Lightning Network standard).</string>
   <string name="about_version">Current version</string>
   <string name="about_faq"><![CDATA[
-    <p>Any questions? Check <a href="https://github.com/ACINQ/eclair-wallet/wiki/FAQ">the FAQ</a></p>
+    <p>Any questions? Check <a href="https://github.com/ACINQ/eclair-mobile/wiki/FAQ">the FAQ</a></p>
     You can also join <a href="https://gitter.im/ACINQ/eclair">our Gitter chat</a>.
   ]]></string>
   <string name="about_limitations_title">Software Limitations</string>
@@ -429,6 +429,7 @@
 
   <string name="paymentitem_confidence_suffix">confs</string>
   <string name="paymentitem_fee_prefix">fee:</string>
+  <string name="paymentitem_init">Processing…</string>
 
   <!-- //////////////// Local Channel Item //////////////////// -->
 

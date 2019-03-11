@@ -21,6 +21,7 @@ import android.database.Cursor;
 
 import org.greenrobot.greendao.DaoException;
 import org.greenrobot.greendao.database.Database;
+import org.greenrobot.greendao.query.DeleteQuery;
 import org.greenrobot.greendao.query.QueryBuilder;
 
 import java.util.Date;
@@ -155,6 +156,17 @@ public class DBHelper {
 
   public void insertOrUpdatePayment(Payment p) {
     daoSession.getPaymentDao().insertOrReplace(p);
+  }
+
+  /**
+   * Removes all Lightning payments in INIT status from database, be it SENT or RECEIVED.
+   */
+  public void cleanLightningPayments() {
+    final DeleteQuery<Payment> query = daoSession.queryBuilder(Payment.class)
+      .where(PaymentDao.Properties.Type.eq(PaymentType.BTC_LN), PaymentDao.Properties.Status.eq(PaymentStatus.INIT))
+      .buildDelete();
+    query.executeDeleteWithoutDetachingEntities();
+    daoSession.clear();
   }
 
   public void updatePayment(Payment p) {
