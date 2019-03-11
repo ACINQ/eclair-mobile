@@ -64,11 +64,7 @@ public interface TechnicalHelper {
     public void onSwipeBottom() {
     }
 
-    /**
-     * Returns true if the motion event is consumed
-     */
-    public boolean onClick() {
-      return true;
+    public void onClick() {
     }
 
     public boolean onTouch(final View v, final MotionEvent event) {
@@ -77,8 +73,8 @@ public interface TechnicalHelper {
 
     private final class GestureListener extends GestureDetector.SimpleOnGestureListener {
 
-      private static final int SWIPE_DISTANCE_THRESHOLD = 50;
-      private static final int SWIPE_VELOCITY_THRESHOLD = 80;
+      private static final int SWIPE_DISTANCE_THRESHOLD = 20;
+      private static final int SWIPE_VELOCITY_THRESHOLD = 30;
 
       @Override
       public boolean onDown(final MotionEvent e) {
@@ -120,7 +116,7 @@ public interface TechnicalHelper {
 
   // -- see https://developer.android.com/training/animation/screen-slide.html#zoom-out
   public class ZoomOutPageTransformer implements ViewPager.PageTransformer {
-    private static final float MIN_SCALE = 0.9f;
+    private static final float MIN_SCALE = 0.94f;
     private static final float MIN_ALPHA = 0.6f;
 
     public void transformPage(@NonNull View view, float position) {

@@ -242,7 +242,7 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
       }
 
       @Override
-      public boolean onClick() {
+      public void onClick() {
         boolean displayBalanceAsFiat = WalletUtils.shouldDisplayInFiat(prefs);
         prefs.edit().putBoolean(Constants.SETTING_DISPLAY_IN_FIAT, !displayBalanceAsFiat).commit();
         mBinding.balanceOnchain.refreshUnits();
@@ -254,7 +254,6 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
         if (mChannelsListFragment.isAdded()) {
           mChannelsListFragment.updateActiveChannelsList();
         }
-        return true;
       }
     });
   }
