@@ -39,6 +39,7 @@
   <string name="home_channel_scan_uri">Scan a node URI</string>
   <string name="home_channel_random">Random node</string>
   <string name="home_channel_acinq">ACINQ node</string>
+  <string name="home_sync_init">Syncing…</string>
   <string name="home_sync_progress">%1$d%%</string>
   <string name="home_sync_progress_desc">Updating the lightning network map</string>
   <string name="home_sync_progress_about"><![CDATA[
