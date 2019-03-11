@@ -120,6 +120,7 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
     mBlinkingAnimation.setDuration(500);
     mBlinkingAnimation.setRepeatCount(Animation.INFINITE);
     mBlinkingAnimation.setRepeatMode(Animation.REVERSE);
+    mBinding.syncProgressIcon.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate));
 
     final Intent intent = getIntent();
     if (intent.hasExtra(StartupActivity.ORIGIN)) {

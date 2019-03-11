@@ -68,12 +68,13 @@
       android:id="@+id/sync_progress_icon"
       android:layout_width="22dp"
       android:layout_height="22dp"
+      android:layout_marginStart="@dimen/space_xs"
       android:clickable="true"
       android:contentDescription="@string/home_sync_progress_desc"
       android:focusable="true"
       android:onClick="popinSyncProgress"
       android:src="@drawable/ic_sync_yellow_24dp"
-      android:visibility="@{syncProgress &gt; 0 &amp;&amp; syncProgress &lt; 100 ? View.VISIBLE : View.GONE}"
+      android:visibility="@{syncProgress &gt;= 0 &amp;&amp; syncProgress &lt; 100 ? View.VISIBLE : View.GONE}"
       app:layout_constraintBottom_toTopOf="@id/notifs_guideline"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toTopOf="parent" />
@@ -88,11 +89,11 @@
       android:focusable="true"
       android:maxWidth="80dp"
       android:onClick="popinSyncProgress"
-      android:text="@{String.format(@string/home_sync_progress, syncProgress)}"
+      android:text="@{syncProgress == 0 ? @string/home_sync_init : String.format(@string/home_sync_progress, syncProgress)}"
       android:textAllCaps="true"
       android:textColor="@color/yellow"
       android:textSize="@dimen/text_xs"
-      android:visibility="@{syncProgress &gt; 0 &amp;&amp; syncProgress &lt; 100 ? View.VISIBLE : View.GONE}"
+      android:visibility="@{syncProgress &gt;= 0 &amp;&amp; syncProgress &lt; 100 ? View.VISIBLE : View.GONE}"
       app:layout_constrainedWidth="true"
       app:layout_constraintBottom_toBottomOf="@id/sync_progress_icon"
       app:layout_constraintHorizontal_bias="0"
@@ -144,8 +145,8 @@
 
       <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
-        android:paddingBottom="20dp"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:paddingBottom="20dp">
 
         <fr.acinq.eclair.wallet.customviews.CoinAmountView
           android:id="@+id/balance_total"
@@ -166,9 +167,9 @@
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:layout_marginTop="20dp"
+          app:amount_bold="true"
           app:amount_color="@color/white"
           app:amount_size="@dimen/text_xl"
-          app:amount_bold="true"
           app:image_size="14dp"
           app:image_src="@drawable/ic_chain_white_24dp"
           app:layout_constrainedWidth="true"
@@ -184,10 +185,10 @@
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:layout_marginTop="@dimen/space_xxs"
+          app:amount_bold="true"
           app:amount_color="@color/white"
           app:amount_size="@dimen/text_xl"
           app:image_size="14dp"
-          app:amount_bold="true"
           app:image_src="@drawable/ic_bolt_white_24dp"
           app:layout_constrainedWidth="true"
           app:layout_constraintEnd_toEndOf="parent"
