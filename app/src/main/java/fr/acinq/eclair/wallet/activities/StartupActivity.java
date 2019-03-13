@@ -515,7 +515,6 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
         ElectrumEclairWallet electrumWallet = (ElectrumEclairWallet) kit.wallet();
 
         app.appKit = new App.AppKit(electrumWallet, kit);
-        app.scheduleConnectionToNode();
         app.monitorConnectivity();
         publishProgress(app.getString(R.string.start_log_done));
         return SUCCESS;

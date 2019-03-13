@@ -381,12 +381,17 @@ public class App extends Application {
     }
   }
 
-  public void scheduleConnectionToNode() {
+  private void scheduleConnectionToNode() {
+    log.info("scheduling connection to ACINQ node");
     if (pingNode != null) pingNode.cancel();
-    if (system != null && appKit != null && appKit.eclairKit != null && appKit.eclairKit.switchboard() != null) {
+    if (system != null) {
       pingNode = system.scheduler().schedule(
-        Duration.Zero(), Duration.create(60, "seconds"),
-        () -> appKit.eclairKit.switchboard().tell(new Peer.Connect(WalletUtils.ACINQ_NODE), ActorRef.noSender()),
+        Duration.Zero(), Duration.create(10, TimeUnit.MINUTES),
+        () -> {
+          if (appKit != null && appKit.eclairKit != null && appKit.eclairKit.switchboard() != null) {
+            appKit.eclairKit.switchboard().tell(new Peer.Connect(WalletUtils.ACINQ_NODE), ActorRef.noSender());
+          }
+        },
         system.dispatcher());
     }
   }
@@ -474,7 +479,7 @@ public class App extends Application {
     future.onComplete(new OnComplete<Object>() {
       @Override
       public void onComplete(Throwable throwable, Object o) throws Throwable {
-        if (throwable == null && o != null && o instanceof Iterable) {
+        if (throwable == null && o instanceof Iterable) {
           EventBus.getDefault().post(new NetworkChannelsCountEvent(((Iterable) o).size()));
         } else {
           EventBus.getDefault().post(new NetworkChannelsCountEvent(-1));
