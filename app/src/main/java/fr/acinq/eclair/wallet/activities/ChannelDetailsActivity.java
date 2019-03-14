@@ -126,7 +126,7 @@ public class ChannelDetailsActivity extends EclairActivity {
     }
   }
 
-  private void setupView(final LocalChannel channel, @Nullable final ActorRef actorRef) {
+  private void setupView(final LocalChannel channel, @Nullable final ActorRef channelRef) {
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
     final CoinUnit prefUnit = WalletUtils.getPreferredCoinUnit(prefs);
     final String fiatUnit = WalletUtils.getPreferredFiat(prefs);
@@ -183,8 +183,8 @@ public class ChannelDetailsActivity extends EclairActivity {
         });
       }
 
-      mCloseChannelDialog = new CloseChannelDialog(ChannelDetailsActivity.this, dialog -> finish(), actorRef,
-        STATE_MUTUAL_CLOSE.contains(channel.state), STATE_FORCE_CLOSE.contains(channel.state));
+      mCloseChannelDialog = new CloseChannelDialog(ChannelDetailsActivity.this, dialog -> finish(), channelRef,
+        app.getElectrumState() == null ? null : app.getElectrumState().onchainAddress, STATE_MUTUAL_CLOSE.contains(channel.state), STATE_FORCE_CLOSE.contains(channel.state));
       mBinding.closeButton.setOnClickListener(v -> mCloseChannelDialog.show());
       mBinding.closeButton.setVisibility(STATE_MUTUAL_CLOSE.contains(channel.state) || STATE_FORCE_CLOSE.contains(channel.state)
         ? View.VISIBLE : View.GONE);
