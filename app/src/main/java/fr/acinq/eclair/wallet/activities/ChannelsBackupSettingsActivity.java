@@ -107,7 +107,7 @@ public class ChannelsBackupSettingsActivity extends GoogleDriveBaseActivity impl
 
   public void switchAccess(final View view) {
     if (mBinding.switchButton.isChecked()) {
-      final Dialog confirm = new AlertDialog.Builder(this)
+      final Dialog confirm = new AlertDialog.Builder(ChannelsBackupSettingsActivity.this)
         .setMessage(R.string.backup_drive_revoke_confirm)
         .setPositiveButton(R.string.btn_ok, (dialog, which) ->
           new Thread() {

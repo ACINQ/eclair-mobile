@@ -52,6 +52,9 @@ public class PreferencesActivity extends PreferenceActivity {
       findPreference("enable_lightning_inbound_payments").setOnPreferenceChangeListener((preference, newValue) -> {
         final boolean canReceive = NodeSupervisor.canReceivePayments();
         log.debug("on preference change, new_value={}, canReceive=", newValue, canReceive);
+        if (getActivity() == null) {
+          return false; // user action is ignored
+        }
         if (canReceive) {
           if (newValue instanceof Boolean && (Boolean) newValue) {
             new AlertDialog.Builder(getActivity(), R.style.CustomDialog)
@@ -65,13 +68,11 @@ public class PreferencesActivity extends PreferenceActivity {
         } else {
           // user cannot receive over LN, disable the feature
           disableCanReceive();
-          if (getActivity() != null) {
-            new AlertDialog.Builder(getActivity(), R.style.CustomDialog)
-              .setTitle(R.string.prefs_lightning_error_not_authorized_title)
-              .setMessage(getString(R.string.prefs_lightning_error_not_authorized_message, NodeSupervisor.MIN_REMOTE_TO_SELF_DELAY))
-              .setPositiveButton(R.string.btn_ok, null)
-              .show();
-          }
+          new AlertDialog.Builder(getActivity(), R.style.CustomDialog)
+            .setTitle(R.string.prefs_lightning_error_not_authorized_title)
+            .setMessage(getString(R.string.prefs_lightning_error_not_authorized_message, NodeSupervisor.MIN_REMOTE_TO_SELF_DELAY))
+            .setPositiveButton(R.string.btn_ok, null)
+            .show();
           return false; // user action is ignored
         }
       });

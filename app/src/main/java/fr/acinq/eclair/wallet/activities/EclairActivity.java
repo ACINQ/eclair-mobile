@@ -70,7 +70,7 @@ public abstract class EclairActivity extends AppCompatActivity {
   }
 
   protected AlertDialog.Builder getCustomDialog(final String message) {
-    final AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.CustomAlertDialog);
+    final AlertDialog.Builder builder = new AlertDialog.Builder(EclairActivity.this, R.style.CustomAlertDialog);
     final View v = getLayoutInflater().inflate(R.layout.custom_alert, null);
     final TextView content = v.findViewById(R.id.alert_content);
     content.setText(Html.fromHtml(message));
