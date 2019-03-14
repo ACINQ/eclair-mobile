@@ -144,9 +144,9 @@ public class ChannelsListFragment extends Fragment {
               if (getContext() != null) {
                 mBinding.balanceProgress.setProgress(100 - (int) sendReceiveRelative);
                 mBinding.totalReceivable.setText(CoinUtils.formatAmountInUnit(totalReceivable, prefUnit, true));
-                mBinding.totalReceivableFiat.setText(getString(R.string.amount_to_fiat, WalletUtils.convertMsatToFiatWithUnit(totalReceivable.amount(), fiatUnit)));
+                mBinding.totalReceivableFiat.setText(getString(R.string.amount_to_fiat, WalletUtils.formatMsatToFiatWithUnit(totalReceivable.amount(), fiatUnit)));
                 mBinding.totalSendable.setText(CoinUtils.formatAmountInUnit(totalSendable, prefUnit, true));
-                mBinding.totalSendableFiat.setText(getString(R.string.amount_to_fiat, WalletUtils.convertMsatToFiatWithUnit(totalSendable.amount(), fiatUnit)));
+                mBinding.totalSendableFiat.setText(getString(R.string.amount_to_fiat, WalletUtils.formatMsatToFiatWithUnit(totalSendable.amount(), fiatUnit)));
                 mActiveChannelsAdapter.update(channels, WalletUtils.getPreferredFiat(prefs), WalletUtils.getPreferredCoinUnit(prefs), WalletUtils.shouldDisplayInFiat(prefs));
                 mBinding.setActiveSize(channels.size());
               }

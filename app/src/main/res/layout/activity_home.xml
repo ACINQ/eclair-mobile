@@ -132,74 +132,87 @@
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintTop_toTopOf="parent" />
 
-    <ScrollView
-      android:id="@+id/balance_scroll"
+    <android.support.constraint.ConstraintLayout
+      android:id="@+id/balance"
       android:layout_width="match_parent"
-      android:layout_height="88dp"
-      android:fillViewport="true"
-      android:overScrollMode="never"
-      android:scrollbars="none"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toBottomOf="@id/notifs_guideline">
+      app:layout_constraintTop_toBottomOf="@id/notifs_guideline"
+      android:layout_height="wrap_content">
 
-      <android.support.constraint.ConstraintLayout
-        android:layout_width="match_parent"
+      <fr.acinq.eclair.wallet.customviews.CoinAmountView
+        android:id="@+id/balance_total"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingBottom="20dp">
+        app:amount_color="@color/white"
+        app:amount_size="34sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:unit="mBTC"
+        app:unit_color="@color/white"
+        app:unit_size="@dimen/text_xs" />
 
-        <fr.acinq.eclair.wallet.customviews.CoinAmountView
-          android:id="@+id/balance_total"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:layout_marginTop="14dp"
-          app:amount_color="@color/white"
-          app:amount_size="40sp"
-          app:layout_constraintEnd_toEndOf="parent"
-          app:layout_constraintStart_toStartOf="parent"
-          app:layout_constraintTop_toTopOf="parent"
-          app:unit="mBTC"
-          app:unit_color="@color/primary_light_x2"
-          app:unit_size="12sp" />
+      <ImageView
+        android:id="@+id/balance_onchain_icon"
+        android:layout_width="10dp"
+        android:layout_height="10dp"
+        android:layout_marginStart="@dimen/space_xs"
+        android:src="@drawable/ic_chain_white_24dp"
+        android:tint="@color/primary_light_x2"
+        app:layout_constraintBottom_toBottomOf="@id/balance_onchain"
+        app:layout_constraintEnd_toStartOf="@id/balance_onchain"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/balance_onchain"
+        tools:ignore="ContentDescription" />
 
-        <fr.acinq.eclair.wallet.customviews.CoinAmountView
-          android:id="@+id/balance_onchain"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:layout_marginTop="20dp"
-          app:amount_bold="true"
-          app:amount_color="@color/white"
-          app:amount_size="@dimen/text_xl"
-          app:image_size="14dp"
-          app:image_src="@drawable/ic_chain_white_24dp"
-          app:layout_constrainedWidth="true"
-          app:layout_constraintEnd_toEndOf="parent"
-          app:layout_constraintStart_toStartOf="parent"
-          app:layout_constraintTop_toBottomOf="@id/balance_total"
-          app:unit="mBTC"
-          app:unit_color="@color/primary_light_x2"
-          app:unit_size="10sp" />
+      <fr.acinq.eclair.wallet.customviews.CoinAmountView
+        android:id="@+id/balance_onchain"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/space_xxs"
+        android:layout_marginTop="@dimen/space_xxxs"
+        app:amount_color="@color/white"
+        app:amount_size="@dimen/text_sm"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toEndOf="@id/balance_onchain_icon"
+        app:layout_constraintTop_toBottomOf="@id/balance_total"
+        app:unit="mBTC"
+        app:unit_color="@color/primary_light_x2"
+        app:unit_size="@dimen/text_xs" />
 
-        <fr.acinq.eclair.wallet.customviews.CoinAmountView
-          android:id="@+id/balance_lightning"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:layout_marginTop="@dimen/space_xxs"
-          app:amount_bold="true"
-          app:amount_color="@color/white"
-          app:amount_size="@dimen/text_xl"
-          app:image_size="14dp"
-          app:image_src="@drawable/ic_bolt_white_24dp"
-          app:layout_constrainedWidth="true"
-          app:layout_constraintEnd_toEndOf="parent"
-          app:layout_constraintStart_toStartOf="parent"
-          app:layout_constraintTop_toBottomOf="@id/balance_onchain"
-          app:unit="mBTC"
-          app:unit_color="@color/primary_light_x2"
-          app:unit_size="10sp" />
+    </android.support.constraint.ConstraintLayout>
 
-      </android.support.constraint.ConstraintLayout>
-    </ScrollView>
+    <ImageView
+      android:id="@+id/balance_lightning_icon"
+      android:layout_width="10dp"
+      android:layout_height="10dp"
+      android:src="@drawable/ic_bolt_white_24dp"
+      android:tint="@color/primary_light_x2"
+      app:layout_constraintBottom_toBottomOf="@id/balance_lightning"
+      app:layout_constraintEnd_toStartOf="@id/balance_lightning"
+      app:layout_constraintHorizontal_chainStyle="packed"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="@id/balance_lightning"
+      tools:ignore="ContentDescription" />
+
+    <fr.acinq.eclair.wallet.customviews.CoinAmountView
+      android:id="@+id/balance_lightning"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginStart="@dimen/space_xxs"
+      android:layout_marginTop="@dimen/space_xxxs"
+      app:amount_color="@color/white"
+      app:amount_size="@dimen/text_sm"
+      app:layout_constrainedWidth="true"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintHorizontal_chainStyle="packed"
+      app:layout_constraintStart_toEndOf="@id/balance_lightning_icon"
+      app:layout_constraintTop_toBottomOf="@id/balance"
+      app:unit="mBTC"
+      app:unit_color="@color/primary_light_x2"
+      app:unit_size="@dimen/text_xs" />
 
     <!-- tabs + fragments -->
     <android.support.design.widget.TabLayout
@@ -208,7 +221,8 @@
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:layout_gravity="center"
-      app:layout_constraintTop_toBottomOf="@id/balance_scroll"
+      android:layout_marginTop="@dimen/space_sm"
+      app:layout_constraintTop_toBottomOf="@id/balance_lightning"
       app:tabGravity="center"
       app:tabMode="fixed"
       app:tabRippleColor="@android:color/transparent" />

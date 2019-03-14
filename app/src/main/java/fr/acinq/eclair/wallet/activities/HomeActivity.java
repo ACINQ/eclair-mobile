@@ -40,7 +40,6 @@ import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.google.android.gms.common.util.Strings;
@@ -231,30 +230,17 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
   }
 
   private void setUpBalanceInteraction(final SharedPreferences prefs) {
-    mBinding.balanceScroll.setOnTouchListener(new TechnicalHelper.OnSwipeTouchListener(getApplicationContext()) {
-      @Override
-      public void onSwipeBottom() {
-        mBinding.balanceScroll.fullScroll(ScrollView.FOCUS_UP);
+    mBinding.balance.setOnClickListener(v -> {
+      boolean displayBalanceAsFiat = WalletUtils.shouldDisplayInFiat(prefs);
+      prefs.edit().putBoolean(Constants.SETTING_DISPLAY_IN_FIAT, !displayBalanceAsFiat).commit();
+      mBinding.balanceOnchain.refreshUnits();
+      mBinding.balanceLightning.refreshUnits();
+      mBinding.balanceTotal.refreshUnits();
+      if (mPaymentsListFragment.isAdded()) {
+        mPaymentsListFragment.refreshList();
       }
-
-      @Override
-      public void onSwipeTop() {
-        mBinding.balanceScroll.fullScroll(ScrollView.FOCUS_DOWN);
-      }
-
-      @Override
-      public void onClick() {
-        boolean displayBalanceAsFiat = WalletUtils.shouldDisplayInFiat(prefs);
-        prefs.edit().putBoolean(Constants.SETTING_DISPLAY_IN_FIAT, !displayBalanceAsFiat).commit();
-        mBinding.balanceOnchain.refreshUnits();
-        mBinding.balanceLightning.refreshUnits();
-        mBinding.balanceTotal.refreshUnits();
-        if (mPaymentsListFragment.isAdded()) {
-          mPaymentsListFragment.refreshList();
-        }
-        if (mChannelsListFragment.isAdded()) {
-          mChannelsListFragment.updateActiveChannelsList();
-        }
+      if (mChannelsListFragment.isAdded()) {
+        mChannelsListFragment.updateActiveChannelsList();
       }
     });
   }

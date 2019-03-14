@@ -28,7 +28,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.CompoundButton;
 import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.eclair.CoinUnit;
 import fr.acinq.eclair.CoinUtils;
@@ -176,7 +175,7 @@ public class OpenChannelCapacityFragment extends Fragment {
     mBinding.setAmountError(null);
     try {
       final Satoshi capacity = CoinUtils.convertStringAmountToSat(amount, preferredBitcoinUnit.code());
-      mBinding.capacityFiat.setText(getString(R.string.amount_to_fiat, WalletUtils.convertSatToFiatWithUnit(capacity, preferredFiatCurrency)));
+      mBinding.capacityFiat.setText(getString(R.string.amount_to_fiat, WalletUtils.formatSatToFiatWithUnit(capacity, preferredFiatCurrency)));
       if (capacity.amount() < minFunding.amount() || capacity.amount() >= maxFunding.amount()) {
         mBinding.setAmountError(getString(R.string.openchannel_capacity_invalid, CoinUtils.formatAmountInUnit(minFunding, preferredBitcoinUnit, false),
           CoinUtils.formatAmountInUnit(maxFunding, preferredBitcoinUnit, true)));

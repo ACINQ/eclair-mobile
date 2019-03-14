@@ -39,7 +39,6 @@ import fr.acinq.eclair.blockchain.electrum.ElectrumWallet;
 import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.R;
-import fr.acinq.eclair.wallet.activities.HomeActivity;
 import fr.acinq.eclair.wallet.actors.NodeSupervisor;
 import fr.acinq.eclair.wallet.databinding.FragmentReceivePaymentBinding;
 import fr.acinq.eclair.wallet.models.Payment;
@@ -347,7 +346,7 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
       mBinding.lightningAmountLabel.setVisibility(View.VISIBLE);
       mBinding.lightningAmount.setText(Html.fromHtml(getString(R.string.receivepayment_lightning_amount_value,
         CoinUtils.formatAmountInUnit(this.lightningAmount.get(), WalletUtils.getPreferredCoinUnit(prefs), true),
-        WalletUtils.convertMsatToFiatWithUnit(this.lightningAmount.get().amount(), WalletUtils.getPreferredFiat(prefs)))));
+        WalletUtils.formatMsatToFiatWithUnit(this.lightningAmount.get().amount(), WalletUtils.getPreferredFiat(prefs)))));
     }
   }
 

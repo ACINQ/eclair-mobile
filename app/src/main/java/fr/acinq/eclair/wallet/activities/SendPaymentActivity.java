@@ -161,7 +161,7 @@ public class SendPaymentActivity extends EclairActivity
       final MilliSatoshi amountMsat = package$.MODULE$.satoshi2millisatoshi(bitcoinURI.getAmount());
       mBinding.amountEditableHint.setVisibility(View.GONE);
       mBinding.amountEditableValue.setText(CoinUtils.rawAmountInUnit(amountMsat, preferredBitcoinUnit).bigDecimal().toPlainString());
-      mBinding.amountFiat.setText(WalletUtils.convertMsatToFiatWithUnit(amountMsat.amount(), preferredFiatCurrency));
+      mBinding.amountFiat.setText(WalletUtils.formatMsatToFiatWithUnit(amountMsat.amount(), preferredFiatCurrency));
     } else {
       // only open the keyboard forcibly if no amount was set in the URI. This makes for a cleaner initial display.
       forceFocusAmount(null);
@@ -182,7 +182,7 @@ public class SendPaymentActivity extends EclairActivity
       if (paymentRequest.amount().isDefined()) {
         final MilliSatoshi amountMsat = WalletUtils.getAmountFromInvoice(paymentRequest);
         mBinding.amountEditableValue.setText(CoinUtils.rawAmountInUnit(amountMsat, preferredBitcoinUnit).bigDecimal().toPlainString());
-        mBinding.amountFiat.setText(WalletUtils.convertMsatToFiatWithUnit(amountMsat.amount(), preferredFiatCurrency));
+        mBinding.amountFiat.setText(WalletUtils.formatMsatToFiatWithUnit(amountMsat.amount(), preferredFiatCurrency));
       }
       mBinding.recipientValue.setText(paymentRequest.nodeId().toBin().toString());
       final Either<String, BinaryData> desc = paymentRequest.description();
@@ -506,7 +506,7 @@ public class SendPaymentActivity extends EclairActivity
         mBinding.amountEditableHint.setVisibility(s == null || s.length() == 0 ? View.VISIBLE : View.GONE);
         try {
           final MilliSatoshi amountMsat = CoinUtils.convertStringAmountToMsat(s.toString(), preferredBitcoinUnit.code());
-          mBinding.amountFiat.setText(WalletUtils.convertMsatToFiatWithUnit(amountMsat.amount(), preferredFiatCurrency));
+          mBinding.amountFiat.setText(WalletUtils.formatMsatToFiatWithUnit(amountMsat.amount(), preferredFiatCurrency));
           if (invoice != null && invoice.isLeft()) {
             if (package$.MODULE$.millisatoshi2satoshi(amountMsat).$greater(app.getOnchainBalance())) {
               handlePaymentError(R.string.payment_error_amount_onchain_insufficient_funds);

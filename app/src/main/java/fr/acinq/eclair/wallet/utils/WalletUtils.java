@@ -237,24 +237,36 @@ public class WalletUtils {
    * @param fiatCode   fiat currency code (USD, EUR, RUB, JPY, ...)
    * @return localized formatted string of the converted amount
    */
-  public static String convertMsatToFiat(final long amountMsat, final String fiatCode) {
+  public static double convertMsatToFiat(final long amountMsat, final String fiatCode) {
     final double rate = App.RATES.containsKey(fiatCode) ? App.RATES.get(fiatCode) : -1.0f;
-    if (rate < 0) return NO_FIAT_RATE;
-    return getFiatFormat().format(package$.MODULE$.millisatoshi2btc(new MilliSatoshi(amountMsat)).amount().doubleValue() * rate);
+    return package$.MODULE$.millisatoshi2btc(new MilliSatoshi(amountMsat)).amount().doubleValue() * rate;
   }
 
-  public static String convertMsatToFiatWithUnit(final long amountMsat, final String fiatCode) {
-    return convertMsatToFiat(amountMsat, fiatCode) + " " + fiatCode.toUpperCase();
+  /**
+   * Converts bitcoin amount to the fiat currency preferred by the user.
+   *
+   * @param amountMsat amount in milli satoshis
+   * @param fiatCode   fiat currency code (USD, EUR, RUB, JPY, ...)
+   * @return localized formatted string of the converted amount
+   */
+  public static String formatMsatToFiat(final long amountMsat, final String fiatCode) {
+    final double fiatValue = convertMsatToFiat(amountMsat, fiatCode);
+    if (fiatValue < 0) return NO_FIAT_RATE;
+    return getFiatFormat().format(fiatValue);
   }
 
-  public static String convertSatToFiat(final Satoshi amount, final String fiatCode) {
+  public static String formatMsatToFiatWithUnit(final long amountMsat, final String fiatCode) {
+    return formatMsatToFiat(amountMsat, fiatCode) + " " + fiatCode.toUpperCase();
+  }
+
+  public static String formatSatToFiat(final Satoshi amount, final String fiatCode) {
     final double rate = App.RATES.containsKey(fiatCode) ? App.RATES.get(fiatCode) : -1.0f;
     if (rate < 0) return NO_FIAT_RATE;
     return getFiatFormat().format(package$.MODULE$.satoshi2btc(amount).amount().doubleValue() * rate);
   }
 
-  public static String convertSatToFiatWithUnit(final Satoshi amount, final String fiatCode) {
-    return convertSatToFiat(amount, fiatCode) + " " + fiatCode.toUpperCase();
+  public static String formatSatToFiatWithUnit(final Satoshi amount, final String fiatCode) {
+    return formatSatToFiat(amount, fiatCode) + " " + fiatCode.toUpperCase();
   }
 
   public static CoinUnit getPreferredCoinUnit(final SharedPreferences prefs) {

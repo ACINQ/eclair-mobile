@@ -135,18 +135,18 @@ public class ChannelDetailsActivity extends EclairActivity {
     if (channel.getIsActive()) {
       mBinding.balance.setValue(getString(R.string.channeldetails_balance_value,
         CoinUtils.formatAmountInUnit(new MilliSatoshi(channel.getBalanceMsat()), prefUnit, true),
-        WalletUtils.convertMsatToFiatWithUnit(channel.getBalanceMsat(), fiatUnit))
+        WalletUtils.formatMsatToFiatWithUnit(channel.getBalanceMsat(), fiatUnit))
       );
       mBinding.capacity.setValue(getString(R.string.channeldetails_balance_value,
         CoinUtils.formatAmountInUnit(new MilliSatoshi(channel.getCapacityMsat()), prefUnit, true),
-        WalletUtils.convertMsatToFiatWithUnit(channel.getCapacityMsat(), fiatUnit))
+        WalletUtils.formatMsatToFiatWithUnit(channel.getCapacityMsat(), fiatUnit))
       );
       final double progress = channel.getCapacityMsat() != 0 ? (double) channel.getBalanceMsat() / channel.getCapacityMsat() * 100 : 0;
       mBinding.balanceProgress.setProgress(100 - (int) progress);
       mBinding.maxReceivable.setText(CoinUtils.formatAmountInUnit(new MilliSatoshi(channel.getReceivableMsat()), prefUnit, true));
-      mBinding.maxReceivableFiat.setText(getString(R.string.amount_to_fiat, WalletUtils.convertMsatToFiatWithUnit(channel.getReceivableMsat(), fiatUnit)));
+      mBinding.maxReceivableFiat.setText(getString(R.string.amount_to_fiat, WalletUtils.formatMsatToFiatWithUnit(channel.getReceivableMsat(), fiatUnit)));
       mBinding.maxSendable.setText(CoinUtils.formatAmountInUnit(new MilliSatoshi(channel.getSendableMsat()), prefUnit, true));
-      mBinding.maxSendableFiat.setText(getString(R.string.amount_to_fiat, WalletUtils.convertMsatToFiatWithUnit(channel.getSendableMsat(), fiatUnit)));
+      mBinding.maxSendableFiat.setText(getString(R.string.amount_to_fiat, WalletUtils.formatMsatToFiatWithUnit(channel.getSendableMsat(), fiatUnit)));
 
       mBinding.state.setText(channel.state);
 
