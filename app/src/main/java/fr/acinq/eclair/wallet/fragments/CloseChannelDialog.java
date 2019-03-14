@@ -25,7 +25,6 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
-import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.bitcoin.Script;
 import fr.acinq.eclair.channel.CMD_CLOSE;
 import fr.acinq.eclair.channel.CMD_FORCECLOSE$;
@@ -35,6 +34,7 @@ import fr.acinq.eclair.wallet.utils.WalletUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.Option;
+import scodec.bits.ByteVector;
 
 public class CloseChannelDialog extends Dialog {
   private final Logger log = LoggerFactory.getLogger(CloseChannelDialog.class);
@@ -84,7 +84,7 @@ public class CloseChannelDialog extends Dialog {
         channelActorRef.tell(CMD_FORCECLOSE$.MODULE$, channelActorRef);
       } else {
         try {
-          final BinaryData closeScriptPubKey = Script.write(package$.MODULE$.addressToPublicKeyScript(closeAddress, WalletUtils.getChainHash()));
+          final ByteVector closeScriptPubKey = Script.write(package$.MODULE$.addressToPublicKeyScript(closeAddress, WalletUtils.getChainHash()));
           channelActorRef.tell(CMD_CLOSE.apply(Option.apply(closeScriptPubKey)), channelActorRef);
         } catch (Throwable t) {
           log.error("could not transform address to script pubkey", t);

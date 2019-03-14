@@ -46,10 +46,13 @@ import fr.acinq.eclair.wallet.utils.WalletUtils;
 import org.greenrobot.eventbus.EventBus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.spongycastle.util.encoders.Hex;
+
 import scala.collection.Iterator;
 import scala.collection.JavaConverters;
 import scala.collection.Seq;
 import scala.util.Either;
+import scodec.bits.ByteVector;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -66,7 +69,7 @@ public class NodeSupervisor extends UntypedActor {
   private ActorRef channelsRefreshScheduler;
   private ActorRef balanceRefreshScheduler;
 
-  public NodeSupervisor(final DBHelper dbHelper, final String seedHash, final BinaryData backupKey,
+  public NodeSupervisor(final DBHelper dbHelper, final String seedHash, final ByteVector32 backupKey,
                         final ActorRef paymentRefreshScheduler, final ActorRef channelsRefreshScheduler, final ActorRef balanceRefreshScheduler) {
     this.dbHelper = dbHelper;
     this.channelsBackupWork = WalletUtils.generateBackupRequest(seedHash, backupKey);
@@ -106,7 +109,7 @@ public class NodeSupervisor extends UntypedActor {
   private static scala.collection.immutable.List<PaymentRequest.ExtraHop> getExtraHops(final LocalChannel channel) {
     final List<PaymentRequest.ExtraHop> hops = new ArrayList<>();
     final PaymentRequest.ExtraHop hop = new PaymentRequest.ExtraHop(
-      Crypto.PublicKey$.MODULE$.apply(BinaryData.apply(channel.getPeerNodeId()), false),
+      Crypto.PublicKey$.MODULE$.apply(ByteVector.view(Hex.decode(channel.getPeerNodeId())), false),
       ShortChannelId.apply(channel.getShortChannelId()),
       channel.feeBaseMsat,
       channel.feeProportionalMillionths,

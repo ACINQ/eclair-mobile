@@ -82,6 +82,7 @@ import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
 import scala.math.BigDecimal;
+import scodec.bits.ByteVector;
 import upickle.default$;
 
 import java.io.IOException;
@@ -103,15 +104,20 @@ public class App extends Application {
   public AtomicReference<String> pin = new AtomicReference<>(null);
   public AtomicReference<String> seedHash = new AtomicReference<>(null);
   // version 1 of the backup encryption key uses a m/49' path for derivation, same as BIP49
-  public AtomicReference<BinaryData> backupKey_v1 = new AtomicReference<>(null);
+  public AtomicReference<ByteVector32> backupKey_v1 = new AtomicReference<>(null);
   // version 2 of the backup encryption key uses a m/42'/0' (mainnet) or m/42'/1' (testnet) path, which is better than m/49'.
   // version 1 is kept for backward compatibility
-  public AtomicReference<BinaryData> backupKey_v2 = new AtomicReference<>(null);
+  public AtomicReference<ByteVector32> backupKey_v2 = new AtomicReference<>(null);
   public AppKit appKit;
 
   // Route params with high base fee (at most 1mBTC)
   private final Option<RouteParams> noLimitRouteParams = Option.apply(RouteParams.apply(
-    package$.MODULE$.millibtc2millisatoshi(new MilliBtc(BigDecimal.exact(1))).amount(), 1d, 10, Router.DEFAULT_ROUTE_MAX_CLTV()));
+    false,
+    package$.MODULE$.millibtc2millisatoshi(new MilliBtc(BigDecimal.exact(1))).amount(),
+    1d,
+    10,
+    Router.DEFAULT_ROUTE_MAX_CLTV(),
+    Option.empty()));
 
   private Cancellable pingNode;
 
@@ -365,8 +371,11 @@ public class App extends Application {
     try {
       // simulate multisig transaction to our self to retrieve outputs total amount
       final Crypto.PublicKey pubkey = appKit.eclairKit.nodeParams().privateKey().publicKey();
-      final BinaryData placeholderScript = Script.write(Script.pay2wsh(Scripts.multiSig2of2(pubkey, pubkey)));
-      final String placeholderAddress = Bech32.encodeWitnessAddress("mainnet".equals(BuildConfig.CHAIN) ? "bc" : "tb", (byte) 0, Crypto.hash(new SHA256Digest(), package$.MODULE$.binaryData2Seq(placeholderScript)));
+      final ByteVector placeholderScript = Script.write(Script.pay2wsh(Scripts.multiSig2of2(pubkey, pubkey)));
+      final String placeholderAddress = Bech32.encodeWitnessAddress(
+        "mainnet".equals(BuildConfig.CHAIN) ? "bc" : "tb",
+        (byte) 0,
+        Crypto.hash(new SHA256Digest(), placeholderScript));
       final Tuple2<Transaction, Satoshi> tx_fee = Await.result(appKit.electrumWallet.sendAll(placeholderAddress, feesPerKw), Duration.create(20, "seconds"));
       long available = 0;
       Iterator<TxOut> it = tx_fee._1.txOut().iterator();
@@ -491,7 +500,7 @@ public class App extends Application {
   /**
    * Asynchronously ask for the raw json data of a local channel.
    */
-  public void getLocalChannelRawData(final BinaryData channelId) {
+  public void getLocalChannelRawData(final ByteVector32 channelId) {
     Register.Forward<CMD_GETINFO$> forward = new Register.Forward<>(channelId, CMD_GETINFO$.MODULE$);
     Future<Object> future = Patterns.ask(appKit.eclairKit.register(), forward, new Timeout(Duration.create(5, "seconds")));
     future.onComplete(new OnComplete<Object>() {

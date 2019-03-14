@@ -37,7 +37,6 @@ import androidx.work.WorkManager;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.common.io.Files;
-import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.bitcoin.DeterministicWallet;
 import fr.acinq.eclair.Kit;
 import fr.acinq.eclair.Setup;
@@ -70,6 +69,8 @@ import scala.Option;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
+import scodec.bits.ByteVector;
+import scodec.bits.ByteVector$;
 
 import java.io.File;
 import java.io.IOException;
@@ -333,9 +334,9 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
       @Override
       public void run() {
         try {
-          final BinaryData seed = BinaryData.apply(new String(WalletUtils.readSeedFile(datadir, password)));
+          final ByteVector seed = ByteVector$.MODULE$.apply(WalletUtils.readSeedFile(datadir, password));
           final DeterministicWallet.ExtendedPrivateKey pk = DeterministicWallet.derivePrivateKey(
-            DeterministicWallet.generate(seed.data()), LocalKeyManager.nodeKeyBasePath(WalletUtils.getChainHash()));
+            DeterministicWallet.generate(seed), LocalKeyManager.nodeKeyBasePath(WalletUtils.getChainHash()));
           app.pin.set(password);
           app.seedHash.set(pk.privateKey().publicKey().hash160().toString());
           app.backupKey_v1.set(EncryptedBackup.generateBackupKey_v1(pk));
@@ -472,7 +473,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
     protected Integer doInBackground(Object... params) {
       try {
         App app = (App) params[0];
-        final BinaryData seed = (BinaryData) params[1];
+        final ByteVector seed = (ByteVector) params[1];
         final File datadir = new File(app.getFilesDir(), Constants.ECLAIR_DATADIR);
 
         publishProgress(app.getString(R.string.start_log_init));

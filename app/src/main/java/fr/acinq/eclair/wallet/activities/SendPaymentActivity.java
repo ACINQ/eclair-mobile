@@ -26,7 +26,8 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import fr.acinq.bitcoin.BinaryData;
+
+import fr.acinq.bitcoin.ByteVector32;
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.bitcoin.package$;
@@ -185,7 +186,7 @@ public class SendPaymentActivity extends EclairActivity
         mBinding.amountFiat.setText(WalletUtils.formatMsatToFiatWithUnit(amountMsat.amount(), preferredFiatCurrency));
       }
       mBinding.recipientValue.setText(paymentRequest.nodeId().toBin().toString());
-      final Either<String, BinaryData> desc = paymentRequest.description();
+      final Either<String, ByteVector32> desc = paymentRequest.description();
       mBinding.descriptionValue.setText(desc.isLeft() ? desc.left().get() : desc.right().get().toString());
       if (paymentRequest.amount().isEmpty()) {
         // only open the keyboard forcibly if no amount was set in the payment request. This makes for a cleaner initial

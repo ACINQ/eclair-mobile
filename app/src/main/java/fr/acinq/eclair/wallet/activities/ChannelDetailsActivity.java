@@ -29,7 +29,6 @@ import android.text.Html;
 import android.view.View;
 import android.widget.Toast;
 import com.google.common.base.Strings;
-import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.eclair.CoinUnit;
@@ -46,8 +45,11 @@ import fr.acinq.eclair.wallet.fragments.CloseChannelDialog;
 import fr.acinq.eclair.wallet.models.ClosingType;
 import fr.acinq.eclair.wallet.models.LocalChannel;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
+import scodec.bits.ByteVector;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.spongycastle.util.encoders.Hex;
 
 import javax.annotation.Nullable;
 import java.text.DateFormat;
@@ -224,7 +226,7 @@ public class ChannelDetailsActivity extends EclairActivity {
     mBinding.channelId.setValue(channel.getChannelId());
     mBinding.shortChannelId.setValue(channel.getShortChannelId());
     if (channel.getLocalFeatures() != null) {
-      final BinaryData localFeatures = BinaryData.apply(channel.getLocalFeatures());
+      final ByteVector localFeatures = ByteVector.view(Hex.decode(channel.getLocalFeatures()));
       mBinding.setHasAdvancedRoutingSync(
         Features.hasFeature(localFeatures, Features.CHANNEL_RANGE_QUERIES_BIT_OPTIONAL())
           || Features.hasFeature(localFeatures, Features.CHANNEL_RANGE_QUERIES_BIT_MANDATORY()));

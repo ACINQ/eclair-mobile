@@ -56,6 +56,8 @@ import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.services.ChannelsBackupWorker;
 import okhttp3.ResponseBody;
+import scodec.bits.ByteVector;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.productivity.java.syslog4j.impl.net.tcp.ssl.SSLTCPNetSyslogConfig;
@@ -304,7 +306,7 @@ public class WalletUtils {
     return paymentRequest.amount().isEmpty() ? new MilliSatoshi(0) : paymentRequest.amount().get();
   }
 
-  public static BinaryData getChainHash() {
+  public static ByteVector32 getChainHash() {
     return "mainnet".equals(BuildConfig.CHAIN) ? Block.LivenetGenesisBlock().hash() : Block.TestnetGenesisBlock().hash();
   }
 
@@ -325,7 +327,7 @@ public class WalletUtils {
     return "eclair_" + BuildConfig.CHAIN + "_" + seedHash + ".bkup";
   }
 
-  public static OneTimeWorkRequest generateBackupRequest(final String seedHash, final BinaryData backupKey) {
+  public static OneTimeWorkRequest generateBackupRequest(final String seedHash, final ByteVector32 backupKey) {
     return new OneTimeWorkRequest.Builder(ChannelsBackupWorker.class)
       .setInputData(new Data.Builder()
         .putString(ChannelsBackupWorker.BACKUP_NAME_INPUT, WalletUtils.getEclairBackupFileName(seedHash))
@@ -336,11 +338,8 @@ public class WalletUtils {
       .build();
   }
 
-  public static String toAscii(final BinaryData b) {
-    final byte[] bytes = new byte[b.length()];
-    for (int i = 0; i < b.length(); i++) {
-      bytes[i] = (Byte) b.data().apply(i);
-    }
+  public static String toAscii(final ByteVector b) {
+    final byte[] bytes = b.toArray();
     return new String(bytes, StandardCharsets.US_ASCII);
   }
 

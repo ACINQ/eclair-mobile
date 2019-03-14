@@ -76,7 +76,7 @@ public class CreateSeedActivity extends EclairActivity implements EclairActivity
 
     try {
       mMnemonics = JavaConverters.seqAsJavaListConverter(MnemonicCode.toMnemonics(
-        fr.acinq.eclair.package$.MODULE$.randomBytes(16).data(),
+        fr.acinq.eclair.package$.MODULE$.randomBytes(16),
         MnemonicCode.englishWordlist())).asJava();
 
       final Bundle args = new Bundle();

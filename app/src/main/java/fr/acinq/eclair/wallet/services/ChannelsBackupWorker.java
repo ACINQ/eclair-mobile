@@ -39,6 +39,7 @@ import com.tozny.crypto.android.AesCbcWithIntegrity;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.spongycastle.util.encoders.Hex;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -46,13 +47,14 @@ import java.io.InputStream;
 
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
-import fr.acinq.bitcoin.BinaryData;
+import fr.acinq.bitcoin.ByteVector32;
 import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.activities.GoogleDriveBaseActivity;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.EncryptedBackup;
 import fr.acinq.eclair.wallet.utils.EncryptedData;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
+import scodec.bits.ByteVector;
 
 public class ChannelsBackupWorker extends Worker {
   private final Logger log = LoggerFactory.getLogger(ChannelsBackupWorker.class);
@@ -90,7 +92,7 @@ public class ChannelsBackupWorker extends Worker {
 
     try {
       final MetadataBuffer buffer = Tasks.await(metadataBufferTask);
-      final AesCbcWithIntegrity.SecretKeys sk = EncryptedData.secretKeyFromBinaryKey(BinaryData.apply(key));
+      final AesCbcWithIntegrity.SecretKeys sk = EncryptedData.secretKeyFromBinaryKey(ByteVector32.apply(ByteVector.view(Hex.decode(key))));
       if (buffer.getCount() == 0) {
         Tasks.await(createBackup(context, driveResourceClient, backupFileName, sk));
       } else {
