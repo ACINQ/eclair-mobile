@@ -490,8 +490,8 @@
   <string name="prefs_payment_request_default_description">Payment request default description</string>
   <string name="prefs_payment_request_default_description_summary">Default description for your lightning payment requests.</string>
   <string name="prefs_payment_request_expiry">Payment request expiry</string>
-  <string name="prefs_onchain_explorer">Preferred onchain explorer</string>
-  <string name="prefs_onchain_explorer_dialog">Explore onchain tx with</string>
+  <string name="prefs_onchain_explorer">On-chain explorer URL</string>
+  <string name="prefs_onchain_explorer_dialog">Enter explorer URL</string>
   <string name="prefs_security_title">Security Settings</string>
   <string name="prefs_haptic_title">Haptic feedback on PIN</string>
   <string name="prefs_backup_title">Channels Backup</string>

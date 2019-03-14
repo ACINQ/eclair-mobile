@@ -154,9 +154,12 @@ public class WalletUtils {
 
   public static View.OnClickListener getOpenTxListener(final String txId) {
     return v -> {
-      final String uri = PreferenceManager.getDefaultSharedPreferences(v.getContext())
+      String uri = PreferenceManager.getDefaultSharedPreferences(v.getContext())
         .getString(Constants.SETTING_ONCHAIN_EXPLORER, "https://api.blockcypher.com/v1/btc/test3/txs/");
       try {
+        if (uri != null && !uri.endsWith("/")) {
+          uri += "/";
+        }
         Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri + txId));
         v.getContext().startActivity(browserIntent);
       } catch (Throwable t) {
