@@ -618,7 +618,7 @@
   <string name="receivepayment_lightning_image_desc">Lightning payment request QR Code</string>
   <string name="receivepayment_lightning_inbound_disabled">You must enable this feature in the settings first.</string>
   <string name="receivepayment_lightning_no_channels">Please open a Lightning channel to receive payments over Lightning.</string>
-  <string name="receivepayment_lightning_may_fail">You may be unable to receive the payment</string>
+  <string name="receivepayment_lightning_may_fail">You may be unable to receive this payment</string>
   <string name="receivepayment_lightning_no_routes_available">- Your channels are currently not active.</string>
   <string name="receivepayment_lightning_excessive_amount">- Requested amount exceeds your current inbound capacity.</string>
   <string name="receivepayment_lightning_no_inbound">- You have no inbound capacity.</string>
