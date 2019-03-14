@@ -396,8 +396,6 @@
     <p>Any questions? Check <a href="https://github.com/ACINQ/eclair-mobile/wiki/FAQ">the FAQ</a></p>
     You can also join <a href="https://gitter.im/ACINQ/eclair">our Gitter chat</a>.
   ]]></string>
-  <string name="about_limitations_title">Software Limitations</string>
-  <string name="about_limitations_text">Lightning channels are outbound only: you can pay with LN, but not receive/forward payments.</string>
   <string name="about_acinq_title">About ACINQ</string>
   <string name="about_acinq_text"><![CDATA[
     <p>ACINQ is a Bitcoin technology company, and a proud member of the Lightning development community.</p>
