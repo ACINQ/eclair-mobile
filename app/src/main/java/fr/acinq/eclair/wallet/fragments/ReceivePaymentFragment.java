@@ -71,14 +71,15 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
   }
 
   private void displayAddress() {
-    mAddressTextView.setText(getAddress());
-    new QRCodeTask(this, getAddress(), 700, 700).execute();
+    final String address = getAddress() == null ? getString(R.string.unknown) : getAddress();
+    mAddressTextView.setText(address);
+    new QRCodeTask(this, address, 700, 700).execute();
   }
 
   private String getAddress() {
     if (getActivity() != null && getActivity().getApplication() != null) {
       return ((App) getActivity().getApplication()).getWalletAddress();
-    } else return "Not available";
+    } else return null;
   }
 
   @Override

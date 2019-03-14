@@ -117,7 +117,7 @@ public class App extends Application {
 
   private AtomicReference<ElectrumState> electrumState = new AtomicReference<>(null);
   private DBHelper dbHelper;
-  private String walletAddress = "N/A";
+  private String walletAddress = null;
 
   @Override
   public void onCreate() {
