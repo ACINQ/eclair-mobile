@@ -65,6 +65,8 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.spongycastle.util.encoders.Hex;
+
 import scala.Option;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
@@ -334,7 +336,11 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
       @Override
       public void run() {
         try {
-          final ByteVector seed = ByteVector$.MODULE$.apply(WalletUtils.readSeedFile(datadir, password));
+          // this is a bit tricky: for compatibility reasons the actual content of the seed file
+          // is the hexadecimal representation of the seed and not the seed itself
+          final byte[] hexbytes = WalletUtils.readSeedFile(datadir, password);
+          final byte[] bytes = Hex.decode(hexbytes);
+          final ByteVector seed = ByteVector$.MODULE$.apply(bytes);
           final DeterministicWallet.ExtendedPrivateKey pk = DeterministicWallet.derivePrivateKey(
             DeterministicWallet.generate(seed), LocalKeyManager.nodeKeyBasePath(WalletUtils.getChainHash()));
           app.pin.set(password);
