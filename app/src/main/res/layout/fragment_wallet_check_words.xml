@@ -85,7 +85,7 @@
           android:layout_marginBottom="@dimen/space_md"
           android:backgroundTint="@color/primary_light_x3"
           android:digits="abcdefghijklmnopqrstuvwxyz "
-          android:inputType="textVisiblePassword"
+          android:inputType="textVisiblePassword|textNoSuggestions"
           android:textColor="@color/white"
           android:textSize="14sp" />
 
@@ -109,7 +109,7 @@
           android:layout_marginBottom="@dimen/space_md"
           android:backgroundTint="@color/primary_light_x3"
           android:digits="abcdefghijklmnopqrstuvwxyz "
-          android:inputType="textVisiblePassword"
+          android:inputType="textVisiblePassword|textNoSuggestions"
           android:textColor="@color/white"
           android:textSize="14sp" />
 
@@ -132,7 +132,7 @@
           android:layout_gravity="fill_horizontal"
           android:backgroundTint="@color/primary_light_x3"
           android:digits="abcdefghijklmnopqrstuvwxyz "
-          android:inputType="textVisiblePassword"
+          android:inputType="textVisiblePassword|textNoSuggestions"
           android:textColor="@color/white"
           android:textSize="14sp" />
       </GridLayout>
