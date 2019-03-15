@@ -67,7 +67,7 @@
           android:layout_height="wrap_content"
           android:backgroundTint="@color/primary_light_x3"
           android:digits="abcdefghijklmnopqrstuvwxyz "
-          android:inputType="textVisiblePassword"
+          android:inputType="textVisiblePassword|textNoSuggestions"
           android:autofillHints="false"
           android:textColor="@color/white"
           android:textSize="12sp" />
