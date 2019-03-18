@@ -464,7 +464,7 @@ public class App extends Application {
    * Returns the eclair node's public key.
    */
   public String nodePublicKey() {
-    return appKit.eclairKit.nodeParams().privateKey().publicKey().toBin().toString();
+    return appKit.eclairKit.nodeParams().privateKey().publicKey().toString();
   }
 
   public static long estimateSlowFees() {
