@@ -54,7 +54,7 @@
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:backgroundTint="@color/primary_light_x3"
-          android:inputType="textVisiblePassword"
+          android:inputType="textVisiblePassword|textNoSuggestions"
           android:maxLength="256"
           android:textColor="@color/white"
           android:textSize="12sp" />
