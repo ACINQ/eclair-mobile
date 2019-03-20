@@ -40,6 +40,7 @@ import ch.qos.logback.core.rolling.FixedWindowRollingPolicy;
 import ch.qos.logback.core.rolling.RollingFileAppender;
 import ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy;
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import com.google.common.io.Files;
 import com.google.common.net.HostAndPort;
 import com.papertrailapp.logback.Syslog4jAppender;
@@ -56,10 +57,14 @@ import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.services.ChannelsBackupWorker;
 import okhttp3.ResponseBody;
+import scala.collection.JavaConverters;
+import scodec.bits.ByteVector;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.productivity.java.syslog4j.impl.net.tcp.ssl.SSLTCPNetSyslogConfig;
 import org.slf4j.LoggerFactory;
+import org.spongycastle.util.encoders.Hex;
 
 import java.io.File;
 import java.io.IOException;
@@ -68,6 +73,7 @@ import java.security.GeneralSecurityException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
@@ -167,6 +173,16 @@ public class WalletUtils {
         Toast.makeText(v.getContext(), "Could not open explorer", Toast.LENGTH_SHORT).show();
       }
     };
+  }
+
+  public static byte[] mnemonicsToSeed(List<String> mnemonics, String passphrase) {
+    final byte[] bytes = MnemonicCode.toSeed(JavaConverters.collectionAsScalaIterableConverter(mnemonics).asScala().toSeq(), passphrase).toArray();
+    final byte[] seed = Hex.encode(bytes);
+    return seed;
+  }
+
+  public static byte[] mnemonicsToSeed(String mnemonics, String passphrase) {
+    return mnemonicsToSeed(Lists.newArrayList(mnemonics.split(" ")), passphrase);
   }
 
   private static byte[] readSeedFile(final File datadir, final String seedFileName, final String password) throws IOException, IllegalAccessException, GeneralSecurityException {
@@ -304,7 +320,7 @@ public class WalletUtils {
     return paymentRequest.amount().isEmpty() ? new MilliSatoshi(0) : paymentRequest.amount().get();
   }
 
-  public static BinaryData getChainHash() {
+  public static ByteVector32 getChainHash() {
     return "mainnet".equals(BuildConfig.CHAIN) ? Block.LivenetGenesisBlock().hash() : Block.TestnetGenesisBlock().hash();
   }
 
@@ -325,7 +341,7 @@ public class WalletUtils {
     return "eclair_" + BuildConfig.CHAIN + "_" + seedHash + ".bkup";
   }
 
-  public static OneTimeWorkRequest generateBackupRequest(final String seedHash, final BinaryData backupKey) {
+  public static OneTimeWorkRequest generateBackupRequest(final String seedHash, final ByteVector32 backupKey) {
     return new OneTimeWorkRequest.Builder(ChannelsBackupWorker.class)
       .setInputData(new Data.Builder()
         .putString(ChannelsBackupWorker.BACKUP_NAME_INPUT, WalletUtils.getEclairBackupFileName(seedHash))
@@ -336,11 +352,8 @@ public class WalletUtils {
       .build();
   }
 
-  public static String toAscii(final BinaryData b) {
-    final byte[] bytes = new byte[b.length()];
-    for (int i = 0; i < b.length(); i++) {
-      bytes[i] = (Byte) b.data().apply(i);
-    }
+  public static String toAscii(final ByteVector b) {
+    final byte[] bytes = b.toArray();
     return new String(bytes, StandardCharsets.US_ASCII);
   }
 

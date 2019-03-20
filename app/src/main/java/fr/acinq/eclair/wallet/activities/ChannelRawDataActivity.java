@@ -31,12 +31,15 @@ import android.widget.Toast;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.spongycastle.util.encoders.Hex;
 
-import fr.acinq.bitcoin.BinaryData;
+import fr.acinq.bitcoin.ByteVector32;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.adapters.LocalChannelItemHolder;
 import fr.acinq.eclair.wallet.databinding.ActivityChannelRawDataBinding;
 import fr.acinq.eclair.wallet.events.ChannelRawDataEvent;
+import scodec.bits.Bases;
+import scodec.bits.ByteVector;
 
 public class ChannelRawDataActivity extends EclairActivity {
 
@@ -73,7 +76,7 @@ public class ChannelRawDataActivity extends EclairActivity {
       if (!EventBus.getDefault().isRegistered(this)) {
         EventBus.getDefault().register(this);
       }
-      app.getLocalChannelRawData(BinaryData.apply(mChannelId));
+      app.getLocalChannelRawData(ByteVector32.apply(ByteVector.view(Hex.decode(mChannelId))));
     }
   }
 

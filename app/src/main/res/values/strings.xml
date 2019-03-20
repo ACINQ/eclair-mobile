@@ -413,7 +413,7 @@
   <string name="networkinfos_nodeid_label">Your node id</string>
   <string name="networkinfos_blockcount_label">Block height</string>
   <string name="networkinfos_feerate_label">Current fee rate</string>
-  <string name="networkinfos_electrum_address_label">Current Electrum server</string>
+  <string name="networkinfos_electrum_address_label">Current electrum server</string>
   <string name="networkinfos_electrum_address_connecting">Establishing connection…</string>
   <string name="networkinfos_electrum_address_connecting_to_custom">Attempting connection to %1$s…</string>
   <string name="networkinfos_electrum_address_set_custom">Set custom server…</string>
