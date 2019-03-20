@@ -110,15 +110,6 @@ public class App extends Application {
   public AtomicReference<ByteVector32> backupKey_v2 = new AtomicReference<>(null);
   public AppKit appKit;
 
-  // Route params with high base fee (at most 1mBTC)
-  private final Option<RouteParams> noLimitRouteParams = Option.apply(RouteParams.apply(
-    false,
-    package$.MODULE$.millibtc2millisatoshi(new MilliBtc(BigDecimal.exact(1))).amount(),
-    1d,
-    10,
-    Router.DEFAULT_ROUTE_MAX_CLTV(),
-    Option.empty()));
-
   private Cancellable pingNode;
 
   private Cancellable exchangeRatePoller;
@@ -287,12 +278,24 @@ public class App extends Application {
    *                       If false, can lead the user to pay a lot of fees.
    */
   public void sendLNPayment(final PaymentRequest paymentRequest, final long amountMsat, final boolean checkFees) {
-    Long finalCltvExpiry = Channel.MIN_CLTV_EXPIRY();
-    if (paymentRequest.minFinalCltvExpiry().isDefined() && paymentRequest.minFinalCltvExpiry().get() instanceof Long) {
-      finalCltvExpiry = (Long) paymentRequest.minFinalCltvExpiry().get();
-    }
-    appKit.eclairKit.paymentInitiator().tell(new PaymentLifecycle.SendPayment(amountMsat, paymentRequest.paymentHash(), paymentRequest.nodeId(), paymentRequest.routingInfo(),
-      finalCltvExpiry + 1, 10, Option.apply(false), checkFees ? Option.apply(null) : noLimitRouteParams), ActorRef.noSender());
+    final Long finalCltvExpiry = paymentRequest.minFinalCltvExpiry().isDefined() && paymentRequest.minFinalCltvExpiry().get() instanceof Long
+      ? (Long) paymentRequest.minFinalCltvExpiry().get()
+      : (Long) Channel.MIN_CLTV_EXPIRY();
+
+    // Route params with high base fee (at most 1mBTC)
+    final Option<RouteParams> routeParams = checkFees
+      ? Option.apply(null) // when fee protection is enabled, use the default RouteParams with reasonable values
+      : Option.apply(RouteParams.apply( // otherwise, let's build a "no limit" RouteParams
+        false, // never randomize on mobile
+        package$.MODULE$.millibtc2millisatoshi(new MilliBtc(BigDecimal.exact(1))).amount(), // at most 1mBTC base fee
+        1d, // at most 100%
+        10,
+        Router.DEFAULT_ROUTE_MAX_CLTV(),
+        Option.empty()));
+
+    appKit.eclairKit.paymentInitiator().tell(new PaymentLifecycle.SendPayment(
+      amountMsat, paymentRequest.paymentHash(), paymentRequest.nodeId(), paymentRequest.routingInfo(),
+      finalCltvExpiry + 1, 10, Option.apply(false), routeParams), ActorRef.noSender());
   }
 
   /**
