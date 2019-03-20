@@ -289,7 +289,7 @@ public class App extends Application {
         false, // never randomize on mobile
         package$.MODULE$.millibtc2millisatoshi(new MilliBtc(BigDecimal.exact(1))).amount(), // at most 1mBTC base fee
         1d, // at most 100%
-        10,
+        4,
         Router.DEFAULT_ROUTE_MAX_CLTV(),
         Option.empty()));
 
