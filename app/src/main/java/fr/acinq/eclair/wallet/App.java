@@ -295,7 +295,7 @@ public class App extends Application {
 
     appKit.eclairKit.paymentInitiator().tell(new PaymentLifecycle.SendPayment(
       amountMsat, paymentRequest.paymentHash(), paymentRequest.nodeId(), paymentRequest.routingInfo(),
-      finalCltvExpiry + 1, 10, Option.apply(false), routeParams), ActorRef.noSender());
+      finalCltvExpiry + 1, 10, routeParams), ActorRef.noSender());
   }
 
   /**
