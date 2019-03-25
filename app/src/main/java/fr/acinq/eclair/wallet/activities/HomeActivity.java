@@ -33,6 +33,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.text.Html;
+import android.text.format.DateUtils;
 import android.text.method.LinkMovementMethod;
 import android.view.*;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -57,6 +58,7 @@ import fr.acinq.eclair.wallet.events.*;
 import fr.acinq.eclair.wallet.fragments.ChannelsListFragment;
 import fr.acinq.eclair.wallet.fragments.PaymentsListFragment;
 import fr.acinq.eclair.wallet.fragments.ReceivePaymentFragment;
+import fr.acinq.eclair.wallet.services.CheckElectrumWorker;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.TechnicalHelper;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
@@ -143,7 +145,14 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
       final AlertDialog d = new AlertDialog.Builder(HomeActivity.this, R.style.CustomDialog)
         .setTitle(R.string.home_warning_runnable_background_title)
         .setMessage(Html.fromHtml(getString(R.string.home_warning_runnable_background_message)))
-        .setPositiveButton(R.string.btn_ok, (dialog, which) -> prefs.edit().putBoolean(Constants.SETTING_BACKGROUND_CANNOT_RUN_WARNING, false).apply())
+        .setPositiveButton(R.string.btn_ok, (dialog, which) -> {
+            // bump last attempt timestamp by a few hours so that the message is not shown again for a short while.
+            final long bumpedLastAttemptTimestamp = System.currentTimeMillis() - CheckElectrumWorker.DELAY_BEFORE_BACKGROUND_WARNING + DateUtils.HOUR_IN_MILLIS * 6;
+            prefs.edit()
+              .putBoolean(Constants.SETTING_BACKGROUND_CANNOT_RUN_WARNING, false)
+              .putLong(Constants.SETTING_ELECTRUM_CHECK_LAST_ATTEMPT_TIMESTAMP, bumpedLastAttemptTimestamp)
+              .apply();
+          })
         .show();
       final TextView messageView = d.findViewById(android.R.id.message);
       if (messageView != null) {
