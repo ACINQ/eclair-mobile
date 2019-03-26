@@ -313,7 +313,7 @@ public class NodeSupervisor extends UntypedActor {
         c.state = event.currentState().toString();
         if (event.currentData() instanceof HasCommitments) {
           final Commitments commitments = ((HasCommitments) event.currentData()).commitments();
-          c.setLocalFeatures(commitments.remoteParams().localFeatures().toString());
+          c.setLocalFeatures(commitments.remoteParams().localFeatures().toHex());
           c.setToSelfDelayBlocks(commitments.remoteParams().toSelfDelay());
           c.remoteToSelfDelayBlocks = commitments.localParams().toSelfDelay();
           c.htlcsInFlightCount = commitments.localCommit().spec().htlcs().iterator().size();
