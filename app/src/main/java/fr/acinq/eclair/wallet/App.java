@@ -70,6 +70,8 @@ import okhttp3.*;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.crypto.digests.SHA256Digest;
@@ -99,6 +101,7 @@ import static fr.acinq.eclair.wallet.adapters.LocalChannelItemHolder.EXTRA_CHANN
 public class App extends Application {
 
   public final static Map<String, Float> RATES = new HashMap<>();
+  public static WalletContext walletContext = new WalletContext(BuildConfig.VERSION_CODE, Constants.DEFAULT_LIQUIDITY_PRICE);
   public final ActorSystem system = ActorSystem.apply("system");
   private final Logger log = LoggerFactory.getLogger(App.class);
   public AtomicReference<String> pin = new AtomicReference<>(null);
@@ -113,7 +116,6 @@ public class App extends Application {
   private Cancellable pingNode;
 
   private Cancellable exchangeRatePoller;
-  private final Request exchangeRateRequest = new Request.Builder().url(WalletUtils.PRICE_RATE_API).build();
   private final OkHttpClient httpClient = new OkHttpClient();
 
   private AtomicReference<ElectrumState> electrumState = new AtomicReference<>(null);
@@ -127,6 +129,7 @@ public class App extends Application {
     super.onCreate();
     WalletUtils.setupLogging(getBaseContext());
     detectBackgroundRunnable();
+    fetchWalletContext();
   }
 
   /**
@@ -286,12 +289,12 @@ public class App extends Application {
     final Option<RouteParams> routeParams = checkFees
       ? Option.apply(null) // when fee protection is enabled, use the default RouteParams with reasonable values
       : Option.apply(RouteParams.apply( // otherwise, let's build a "no limit" RouteParams
-        false, // never randomize on mobile
-        package$.MODULE$.millibtc2millisatoshi(new MilliBtc(BigDecimal.exact(1))).amount(), // at most 1mBTC base fee
-        1d, // at most 100%
-        4,
-        Router.DEFAULT_ROUTE_MAX_CLTV(),
-        Option.empty()));
+      false, // never randomize on mobile
+      package$.MODULE$.millibtc2millisatoshi(new MilliBtc(BigDecimal.exact(1))).amount(), // at most 1mBTC base fee
+      1d, // at most 100%
+      4,
+      Router.DEFAULT_ROUTE_MAX_CLTV(),
+      Option.empty()));
 
     appKit.eclairKit.paymentInitiator().tell(new PaymentLifecycle.SendPayment(
       amountMsat, paymentRequest.paymentHash(), paymentRequest.nodeId(), paymentRequest.routingInfo(),
@@ -401,11 +404,38 @@ public class App extends Application {
         Duration.Zero(), Duration.create(10, TimeUnit.MINUTES),
         () -> {
           if (appKit != null && appKit.eclairKit != null && appKit.eclairKit.switchboard() != null) {
-            appKit.eclairKit.switchboard().tell(new Peer.Connect(WalletUtils.ACINQ_NODE), ActorRef.noSender());
+            appKit.eclairKit.switchboard().tell(new Peer.Connect(Constants.ACINQ_NODE_URI), ActorRef.noSender());
           }
         },
         system.dispatcher());
     }
+  }
+
+  private void fetchWalletContext() {
+    httpClient.newCall(new Request.Builder().url(Constants.WALLET_CONTEXT_SOURCE).build()).enqueue(new Callback() {
+      @Override
+      public void onFailure(@NonNull Call call, @NonNull IOException e) {
+        log.warn("could not retrieve wallet context from acinq, defaulting to fallback");
+      }
+
+      @Override
+      public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+        final ResponseBody body = response.body();
+        if (response.isSuccessful() && body != null) {
+          try {
+            final JSONObject json = new JSONObject(body.string());
+            log.debug("wallet context responded with {}", json.toString(2));
+            final int latestAppCode = json.getJSONObject(BuildConfig.CHAIN).getInt("version");
+            final double liquidityPrice = json.getJSONObject(BuildConfig.CHAIN).getJSONObject("liquidity").getJSONObject("v1").getDouble("price");
+            walletContext = new WalletContext(latestAppCode, liquidityPrice);
+          } catch (JSONException e) {
+            log.error("could not read wallet context body", e);
+          }
+        } else {
+          log.warn("wallet context query responds with code {}, defaulting to fallback", response.code());
+        }
+      }
+    });
   }
 
   public void scheduleExchangeRatePoll() {
@@ -416,36 +446,33 @@ public class App extends Application {
     if (system != null) {
       exchangeRatePoller = system.scheduler().schedule(
         Duration.Zero(), Duration.create(20, TimeUnit.MINUTES),
-        () -> {
-          log.debug("requesting exchange rates from remote API... {}", exchangeRateRequest);
-          httpClient.newCall(exchangeRateRequest).enqueue(new Callback() {
-            @Override
-            public void onFailure(@NonNull Call call, @NonNull IOException e) {
-              log.warn("exchange rate call failed with cause {}", e.getLocalizedMessage());
-            }
+        () -> httpClient.newCall(new Request.Builder().url(Constants.PRICE_RATE_API).build()).enqueue(new Callback() {
+          @Override
+          public void onFailure(@NonNull Call call, @NonNull IOException e) {
+            log.warn("exchange rate call failed with cause {}", e.getLocalizedMessage());
+          }
 
-            @Override
-            public void onResponse(@NonNull Call call, @NonNull Response response) {
-              log.debug("exchange rate api responded with {}", response);
-              if (!response.isSuccessful()) {
-                log.warn("exchange rate query responds with error code {}", response.code());
-              } else {
-                final ResponseBody body = response.body();
-                if (body != null) {
-                  try {
-                    WalletUtils.handleExchangeRateResponse(prefs, body);
-                  } catch (Throwable t) {
-                    log.error("could not read exchange rate response body", t);
-                  } finally {
-                    body.close();
-                  }
-                } else {
-                  log.warn("exchange rate body is null");
+          @Override
+          public void onResponse(@NonNull Call call, @NonNull Response response) {
+            log.debug("exchange rate api responded with {}", response);
+            if (!response.isSuccessful()) {
+              log.warn("exchange rate query responds with error code {}", response.code());
+            } else {
+              final ResponseBody body = response.body();
+              if (body != null) {
+                try {
+                  WalletUtils.handleExchangeRateResponse(prefs, body);
+                } catch (Throwable t) {
+                  log.error("could not read exchange rate response body", t);
+                } finally {
+                  body.close();
                 }
+              } else {
+                log.warn("exchange rate body is null");
               }
             }
-          });
-        },
+          }
+        }),
         system.dispatcher());
     }
   }
@@ -594,6 +621,16 @@ public class App extends Application {
 
   public DBHelper getDBHelper() {
     return dbHelper;
+  }
+
+  public static class WalletContext {
+    public final int version;
+    public final double liquidityRate;
+
+    public WalletContext(final int version, final double liquidityRate) {
+      this.version = version;
+      this.liquidityRate = liquidityRate;
+    }
   }
 
   public static class ElectrumState {

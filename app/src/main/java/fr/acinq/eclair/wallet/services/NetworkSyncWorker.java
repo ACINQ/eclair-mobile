@@ -21,13 +21,10 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import androidx.work.*;
 import com.typesafe.config.ConfigFactory;
-import fr.acinq.eclair.Setup;
 import fr.acinq.eclair.SyncLiteSetup;
-import fr.acinq.eclair.io.NodeURI;
 import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.utils.Constants;
-import fr.acinq.eclair.wallet.utils.WalletUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.concurrent.Await;
@@ -87,7 +84,7 @@ public class NetworkSyncWorker extends Worker {
     } else {
       try {
         Class.forName("org.sqlite.JDBC");
-        liteSetup = new SyncLiteSetup(new File(context.getFilesDir(), Constants.ECLAIR_DATADIR), ConfigFactory.empty(), WalletUtils.ACINQ_NODE, system);
+        liteSetup = new SyncLiteSetup(new File(context.getFilesDir(), Constants.ECLAIR_DATADIR), ConfigFactory.empty(), Constants.ACINQ_NODE_URI, system);
         Await.result(liteSetup.sync(), Duration.Inf());
         log.info("sync has completed");
         return Result.success();

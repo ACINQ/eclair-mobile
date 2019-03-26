@@ -24,7 +24,6 @@ import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 import fr.acinq.bitcoin.MilliSatoshi;
@@ -38,7 +37,7 @@ import fr.acinq.eclair.wallet.fragments.PinDialog;
 import fr.acinq.eclair.wallet.fragments.openchannel.OpenChannelCapacityFragment;
 import fr.acinq.eclair.wallet.fragments.openchannel.OpenChannelLiquidityFragment;
 import fr.acinq.eclair.wallet.tasks.NodeURIReaderTask;
-import fr.acinq.eclair.wallet.utils.WalletUtils;
+import fr.acinq.eclair.wallet.utils.Constants;
 import org.greenrobot.eventbus.util.AsyncExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -152,7 +151,7 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
   @Override
   public void onCapacityConfirm(final Satoshi capacity, final long feesSatPerKW, final boolean requireLiquidity) {
     final NodeURI nodeURI = mBinding.getNodeURI();
-    if (requireLiquidity && nodeURI.nodeId().equals(WalletUtils.ACINQ_NODE.nodeId())) {
+    if (requireLiquidity && nodeURI.nodeId().equals(Constants.ACINQ_NODE_URI.nodeId())) {
       goToLiquidityPage(capacity, feesSatPerKW);
     } else {
       openChannel_secure(nodeURI, capacity, feesSatPerKW, new MilliSatoshi(0));

@@ -32,6 +32,7 @@ import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.CoinUnit;
 import fr.acinq.eclair.CoinUtils;
+import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.activities.OpenChannelActivity;
 import fr.acinq.eclair.wallet.databinding.FragmentOpenChannelLiquidityBinding;
@@ -49,16 +50,16 @@ public class OpenChannelLiquidityFragment extends Fragment {
   private Long feesSatPerKW = null;
 
   private enum LIQUIDITY_REQUESTS {
-    _10_MBTC(10, 0.1),
-    _25_MBTC(25, 0.25),
-    _50_MBTC(50, 0.5);
+    _10_MBTC(10),
+    _25_MBTC(25),
+    _50_MBTC(50);
 
     private final MilliBtc inboundCapacity;
     private final MilliSatoshi cost;
 
-    LIQUIDITY_REQUESTS(final long inboundCapacity_mbtc, final Double cost_mbtc) {
+    LIQUIDITY_REQUESTS(final long inboundCapacity_mbtc) {
       this.inboundCapacity = new MilliBtc(BigDecimal.exact(inboundCapacity_mbtc));
-      this.cost = package$.MODULE$.millibtc2millisatoshi(new MilliBtc(BigDecimal.exact(cost_mbtc)));
+      this.cost = package$.MODULE$.millibtc2millisatoshi(new MilliBtc(inboundCapacity.amount().$times(BigDecimal.exact(App.walletContext.liquidityRate))));
     }
   }
 

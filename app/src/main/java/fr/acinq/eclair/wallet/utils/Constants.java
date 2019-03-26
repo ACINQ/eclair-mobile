@@ -16,6 +16,7 @@
 
 package fr.acinq.eclair.wallet.utils;
 
+import fr.acinq.eclair.io.NodeURI;
 import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.models.FeeRating;
 
@@ -65,6 +66,7 @@ public interface Constants {
   String SETTING_ELECTRUM_CHECK_LAST_OUTCOME_TIMESTAMP = "electrum_check_last_date";
   String SETTING_ELECTRUM_CHECK_LAST_OUTCOME_RESULT = "electrum_check_last_result";
   String SETTING_BACKGROUND_CANNOT_RUN_WARNING = "app_background_cannot_run_warning";
+  String SETTING_LAST_UPDATE_WARNING_TIMESTAMP = "last_update_warning_timestamp";
 
   // currencies
   String SETTING_SELECTED_FIAT_CURRENCY = "fiat_currency";
@@ -150,14 +152,26 @@ public interface Constants {
   int NODE_CONNECT_CONNECTING = 1;
   int NODE_CONNECT_SUCCESS = 2;
 
-  /* --------- REFRESH SCHEDULER ----------- */
+  /* --------- REFRESH SCHEDULER MESSAGES ----------- */
 
   String WAKE_UP = "wake_up";
   String REFRESH = "refresh";
 
   /* ----------- NOTIFICATION CHANNEL IDS ------------ */
+
   String NOTIF_CHANNEL_CLOSED_ID = "CHANNEL_CLOSED";
   String NOTIF_CHANNEL_START_REMINDER_ID = "START_APP";
   String NOTIF_CHANNEL_RECEIVED_LN_PAYMENT_ID = "RECEIVED_LN_PAYMENT";
   int NOTIF_START_REMINDER_REQUEST_CODE = 437165794;
+
+  /* ------------ API URLS ------------ */
+
+  String PRICE_RATE_API = "https://blockchain.info/fr/ticker";
+  NodeURI ACINQ_NODE_URI = NodeURI.parse("03933884aaf1d6b108397e5efe5c86bcf2d8ca8d2f700eda99db9214fc2712b134@endurance.acinq.co:9735");
+  String WALLET_CONTEXT_SOURCE = "https://acinq.co/mobile/walletcontext.json";
+  String DEFAULT_ONCHAIN_EXPLORER = "https://api.blockcypher.com/v1/btc/test3/txs/";
+
+  /* ------------ LIQUIDITY REQUEST ------------ */
+
+  double DEFAULT_LIQUIDITY_PRICE = 0.01;
 }

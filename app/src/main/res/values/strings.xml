@@ -92,6 +92,9 @@
 
   <!-- //////////////// Startup /////////////////// -->
 
+  <string name="startup_update_wallet_title">Update available</string>
+  <string name="startup_update_wallet_message">An new version of Eclair Mobile has been released.\n\nPlease keep this app up-to-date to enjoy the latest bug fixes and improvements!</string>
+
   <string name="start_enter_password">Enter PIN to unlock</string>
   <string name="start_error_breaking_changes"><![CDATA[
     <h3>Breaking changes</h3>

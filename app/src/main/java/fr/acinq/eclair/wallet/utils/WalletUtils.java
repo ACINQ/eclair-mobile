@@ -82,8 +82,6 @@ public class WalletUtils {
 
   private final static org.slf4j.Logger log = LoggerFactory.getLogger(WalletUtils.class);
 
-  public final static NodeURI ACINQ_NODE = NodeURI.parse("03933884aaf1d6b108397e5efe5c86bcf2d8ca8d2f700eda99db9214fc2712b134@endurance.acinq.co:9735");
-  public final static String PRICE_RATE_API = "https://blockchain.info/fr/ticker";
   public final static String UNENCRYPTED_SEED_NAME = "seed.dat";
   public final static String SEED_NAME = "enc_seed.dat";
   private final static String SEED_NAME_TEMP = "enc_seed_temp.dat";
@@ -161,7 +159,7 @@ public class WalletUtils {
   public static View.OnClickListener getOpenTxListener(final String txId) {
     return v -> {
       String uri = PreferenceManager.getDefaultSharedPreferences(v.getContext())
-        .getString(Constants.SETTING_ONCHAIN_EXPLORER, "https://api.blockcypher.com/v1/btc/test3/txs/");
+        .getString(Constants.SETTING_ONCHAIN_EXPLORER, Constants.DEFAULT_ONCHAIN_EXPLORER);
       try {
         if (uri != null && !uri.endsWith("/")) {
           uri += "/";

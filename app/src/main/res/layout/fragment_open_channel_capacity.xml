@@ -27,8 +27,6 @@
 
     <import type="fr.acinq.eclair.wallet.utils.Constants" />
 
-    <import type="fr.acinq.eclair.wallet.utils.WalletUtils" />
-
     <import type="fr.acinq.eclair.io.NodeURI" />
 
     <variable
@@ -322,7 +320,7 @@
         android:text="@string/openchannel_request_liquidity_button"
         android:textSize="@dimen/text_sm"
         android:translationX="-26dp"
-        android:visibility="@{node != null &amp;&amp; node.nodeId().equals(WalletUtils.ACINQ_NODE.nodeId()) ? View.VISIBLE : View.GONE}"
+        android:visibility="@{node != null &amp;&amp; node.nodeId().equals(Constants.ACINQ_NODE_URI.nodeId()) ? View.VISIBLE : View.GONE}"
         app:layout_constrainedWidth="true"
         app:layout_constraintStart_toEndOf="@id/label_guideline"
         app:layout_constraintTop_toBottomOf="@id/use_all_funds_checkbox" />

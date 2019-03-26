@@ -123,6 +123,18 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
     mBlinkingAnimation.setRepeatMode(Animation.REVERSE);
     mBinding.syncProgressIcon.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate));
 
+    // show an 'update available' message if the last released version is 5 code higher than the current version on device
+    // this message should not display more than once per day
+    if (App.walletContext.version - BuildConfig.VERSION_CODE >= 5
+      && System.currentTimeMillis() - prefs.getLong(Constants.SETTING_LAST_UPDATE_WARNING_TIMESTAMP, 0) > DateUtils.DAY_IN_MILLIS) {
+      new AlertDialog.Builder(HomeActivity.this, R.style.CustomDialog)
+        .setTitle(R.string.startup_update_wallet_title)
+        .setMessage(R.string.startup_update_wallet_message)
+        .setPositiveButton(R.string.btn_ok, null)
+        .show();
+      prefs.edit().putLong(Constants.SETTING_LAST_UPDATE_WARNING_TIMESTAMP, System.currentTimeMillis()).apply();
+    }
+
     final Intent intent = getIntent();
     if (intent.hasExtra(StartupActivity.ORIGIN)) {
       final String origin = intent.getStringExtra(StartupActivity.ORIGIN);
@@ -473,7 +485,7 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
 
   public void openChannelWithAcinq(View view) {
     Intent intent = new Intent(getBaseContext(), OpenChannelActivity.class);
-    intent.putExtra(OpenChannelActivity.EXTRA_NEW_HOST_URI, WalletUtils.ACINQ_NODE.toString());
+    intent.putExtra(OpenChannelActivity.EXTRA_NEW_HOST_URI, Constants.ACINQ_NODE_URI.toString());
     startActivity(intent);
   }
 

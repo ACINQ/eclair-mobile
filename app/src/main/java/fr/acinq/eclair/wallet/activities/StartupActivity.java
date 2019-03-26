@@ -66,7 +66,6 @@ import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
-
 import scala.Option;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
@@ -77,7 +76,9 @@ import scodec.bits.ByteVector$;
 import java.io.File;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
 import java.util.concurrent.TimeoutException;
 
 public class StartupActivity extends EclairActivity implements EclairActivity.EncryptSeedCallback {
