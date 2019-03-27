@@ -36,10 +36,7 @@ import android.text.Html;
 import android.text.format.DateUtils;
 import android.text.method.LinkMovementMethod;
 import android.view.*;
-import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
+import android.view.animation.*;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -121,7 +118,6 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
     mBlinkingAnimation.setDuration(500);
     mBlinkingAnimation.setRepeatCount(Animation.INFINITE);
     mBlinkingAnimation.setRepeatMode(Animation.REVERSE);
-    mBinding.syncProgressIcon.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate));
 
     // show an 'update available' message if the last released version is 5 code higher than the current version on device
     // this message should not display more than once per day
@@ -498,14 +494,18 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void handleSyncProgressEvent(SyncProgress progress) {
     final int p = (int) (progress.progress() * 100);
+    mBinding.setSyncProgress(p);
     if (p >= 100) {
       mBinding.syncProgressIcon.clearAnimation();
     } else {
       if (mBinding.syncProgressIcon.getAnimation() == null || !mBinding.syncProgressIcon.getAnimation().hasStarted() || mBinding.syncProgressIcon.getAnimation().hasEnded()) {
-        mBinding.syncProgressIcon.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate));
+        final Animation mRotatingAnimation = new RotateAnimation(0, -360, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF,0.5f);
+        mRotatingAnimation.setDuration(2000);
+        mRotatingAnimation.setRepeatCount(Animation.INFINITE);
+        mRotatingAnimation.setInterpolator(new LinearInterpolator());
+        mBinding.syncProgressIcon.startAnimation(mRotatingAnimation);
       }
     }
-    mBinding.setSyncProgress(p);
   }
 
   public void popinSyncProgress(final View view) {
