@@ -53,13 +53,17 @@ public class OpenChannelLiquidityFragment extends Fragment {
     _10_MBTC(10),
     _25_MBTC(25),
     _50_MBTC(50);
-
+    private final Logger log = LoggerFactory.getLogger(LIQUIDITY_REQUESTS.class);
     private final MilliBtc inboundCapacity;
     private final MilliSatoshi cost;
 
     LIQUIDITY_REQUESTS(final long inboundCapacity_mbtc) {
       this.inboundCapacity = new MilliBtc(BigDecimal.exact(inboundCapacity_mbtc));
-      this.cost = package$.MODULE$.millibtc2millisatoshi(new MilliBtc(inboundCapacity.amount().$times(BigDecimal.exact(App.walletContext.liquidityRate))));
+      if (App.walletContext != null) {
+        this.cost = package$.MODULE$.millibtc2millisatoshi(new MilliBtc(inboundCapacity.amount().$times(BigDecimal.double2bigDecimal(App.walletContext.liquidityRate))));
+      } else {
+        this.cost = new MilliSatoshi(0);
+      }
     }
   }
 

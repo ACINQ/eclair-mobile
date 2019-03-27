@@ -30,6 +30,7 @@ import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.eclair.io.NodeURI;
 import fr.acinq.eclair.io.Peer;
+import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.databinding.ActivityOpenChannelBinding;
@@ -73,7 +74,9 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
   @Override
   protected void onResume() {
     super.onResume();
-    checkInit();
+    if (checkInit()) {
+      app.fetchWalletContext();
+    }
   }
 
   @Override
@@ -152,7 +155,12 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
   public void onCapacityConfirm(final Satoshi capacity, final long feesSatPerKW, final boolean requireLiquidity) {
     final NodeURI nodeURI = mBinding.getNodeURI();
     if (requireLiquidity && nodeURI.nodeId().equals(Constants.ACINQ_NODE_URI.nodeId())) {
-      goToLiquidityPage(capacity, feesSatPerKW);
+      if (App.walletContext == null) {
+        log.info("wallet context is null, liquidity feature is unavailable");
+        Toast.makeText(getApplicationContext(), R.string.openchannel_liquidity_unavailable, Toast.LENGTH_LONG).show();
+      } else {
+        goToLiquidityPage(capacity, feesSatPerKW);
+      }
     } else {
       openChannel_secure(nodeURI, capacity, feesSatPerKW, new MilliSatoshi(0));
     }

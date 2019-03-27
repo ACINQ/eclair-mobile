@@ -125,7 +125,7 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
 
     // show an 'update available' message if the last released version is 5 code higher than the current version on device
     // this message should not display more than once per day
-    if (App.walletContext.version - BuildConfig.VERSION_CODE >= 5
+    if (App.walletContext != null && App.walletContext.version - BuildConfig.VERSION_CODE >= 5
       && System.currentTimeMillis() - prefs.getLong(Constants.SETTING_LAST_UPDATE_WARNING_TIMESTAMP, 0) > DateUtils.DAY_IN_MILLIS) {
       new AlertDialog.Builder(HomeActivity.this, R.style.CustomDialog)
         .setTitle(R.string.startup_update_wallet_title)

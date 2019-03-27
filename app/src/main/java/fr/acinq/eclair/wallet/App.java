@@ -37,6 +37,7 @@ import android.net.NetworkRequest;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import fr.acinq.bitcoin.*;
@@ -101,7 +102,7 @@ import static fr.acinq.eclair.wallet.adapters.LocalChannelItemHolder.EXTRA_CHANN
 public class App extends Application {
 
   public final static Map<String, Float> RATES = new HashMap<>();
-  public static WalletContext walletContext = new WalletContext(BuildConfig.VERSION_CODE, Constants.DEFAULT_LIQUIDITY_PRICE);
+  public static @Nullable WalletContext walletContext = null;
   public final ActorSystem system = ActorSystem.apply("system");
   private final Logger log = LoggerFactory.getLogger(App.class);
   public AtomicReference<String> pin = new AtomicReference<>(null);
@@ -411,7 +412,7 @@ public class App extends Application {
     }
   }
 
-  private void fetchWalletContext() {
+  public void fetchWalletContext() {
     httpClient.newCall(new Request.Builder().url(Constants.WALLET_CONTEXT_SOURCE).build()).enqueue(new Callback() {
       @Override
       public void onFailure(@NonNull Call call, @NonNull IOException e) {

@@ -171,7 +171,4 @@ public interface Constants {
   String WALLET_CONTEXT_SOURCE = "https://acinq.co/mobile/walletcontext.json";
   String DEFAULT_ONCHAIN_EXPLORER = "https://api.blockcypher.com/v1/btc/test3/txs/";
 
-  /* ------------ LIQUIDITY REQUEST ------------ */
-
-  double DEFAULT_LIQUIDITY_PRICE = 0.01;
 }

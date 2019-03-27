@@ -29,6 +29,8 @@
 
     <import type="fr.acinq.eclair.io.NodeURI" />
 
+    <import type="fr.acinq.eclair.wallet.App" />
+
     <variable
       name="feeRatingState"
       type="int" />
@@ -317,9 +319,12 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/space_xs"
         android:buttonTint="@color/primary"
+        android:textColor="@color/grey_4"
         android:text="@string/openchannel_request_liquidity_button"
         android:textSize="@dimen/text_sm"
         android:translationX="-26dp"
+        android:alpha="@{App.walletContext != null ? 1.0f : .3f}"
+        android:enabled="@{App.walletContext != null}"
         android:visibility="@{node != null &amp;&amp; node.nodeId().equals(Constants.ACINQ_NODE_URI.nodeId()) ? View.VISIBLE : View.GONE}"
         app:layout_constrainedWidth="true"
         app:layout_constraintStart_toEndOf="@id/label_guideline"
