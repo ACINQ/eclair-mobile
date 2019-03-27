@@ -42,97 +42,12 @@
         android:thicknessRatio="10.0"
         android:useLevel="true">
 
-        <rotate
-          android:fromDegrees="0"
-          android:pivotX="50%"
-          android:pivotY="50%"
-          android:toDegrees="360" />
-
         <gradient
           android:centerColor="@color/azur"
           android:endColor="@color/azur"
           android:startColor="@color/azur"
           android:type="sweep" />
-
       </shape>
     </rotate>
   </item>
-
-
-  <!--&lt;!&ndash;<item android:drawable="@drawable/progress_circular_background"/>&ndash;&gt;-->
-  <!--<item android:id="@android:id/background">-->
-  <!--<shape-->
-  <!--android:innerRadiusRatio="5.0"-->
-  <!--android:shape="ring"-->
-  <!--android:thickness="8dp"-->
-  <!--android:useLevel="false">-->
-
-  <!--<solid android:color="@color/grey_2" />-->
-  <!--</shape>-->
-  <!--</item>-->
-  <!--<item>-->
-  <!--<shape-->
-  <!--android:innerRadiusRatio="3.4"-->
-  <!--android:shape="ring"-->
-  <!--android:thicknessRatio="6.0" >-->
-  <!--<gradient-->
-  <!--android:endColor="#ffffffff"-->
-  <!--android:startColor="#ffffff"-->
-  <!--android:type="sweep"-->
-  <!--android:useLevel="true" />-->
-  <!--</shape>-->
-  <!--</item>-->
-  <!--<item>-->
-  <!--<rotate-->
-  <!--android:drawable="@drawable/progress_particle"-->
-  <!--android:fromDegrees="0"-->
-  <!--android:pivotX="50%"-->
-  <!--android:pivotY="50%"-->
-  <!--android:toDegrees="360" />-->
-  <!--</item>-->
-
-
-  <!--<item android:id="@android:id/background">-->
-  <!--<shape-->
-  <!--android:shape="ring"-->
-  <!--android:innerRadiusRatio="5.0"-->
-  <!--android:thickness="8dp"-->
-  <!--android:useLevel="false">-->
-
-  <!--<solid android:color="@color/grey_2" />-->
-  <!--</shape>-->
-  <!--</item>-->
-
-  <!--<item android:id="@android:id/progress">-->
-  <!--<clip>-->
-  <!--<shape-->
-  <!--android:shape="ring"-->
-  <!--android:innerRadiusRatio="5.0"-->
-  <!--android:thickness="8dp"-->
-  <!--android:useLevel="false">-->
-
-  <!--<solid android:color="@color/blue" />-->
-  <!--</shape>-->
-  <!--</clip>-->
-  <!--</item>-->
-
-
-  <!--<item android:id="@android:id/background">-->
-  <!--<shape-->
-  <!--android:innerRadiusRatio="5.0"-->
-  <!--android:shape="ring"-->
-  <!--android:useLevel="true">-->
-  <!--<solid android:color="@color/grey_1" />-->
-  <!--</shape>-->
-  <!--</item>-->
-
-  <!--<item android:id="@android:id/progress">-->
-  <!--<shape-->
-  <!--android:innerRadiusRatio="5.0"-->
-  <!--android:shape="ring"-->
-  <!--android:useLevel="true">-->
-  <!--<solid android:color="@color/blue" />-->
-  <!--</shape>-->
-  <!--</item>-->
-
 </layer-list>
