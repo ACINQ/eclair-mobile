@@ -28,7 +28,6 @@ import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
 
-import fr.acinq.eclair.blockchain.electrum.ElectrumWallet;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 
 public class SeedEncryptionTest {
@@ -50,7 +49,7 @@ public class SeedEncryptionTest {
 
   @Test
   public void writeAndReadSeed() throws IOException, GeneralSecurityException, IllegalAccessException {
-    byte[] seed = new byte[ElectrumWallet.SEED_BYTES_LENGTH()];
+    byte[] seed = new byte[16];
     new SecureRandom().nextBytes(seed);
     final File datadir = temp.newFolder("datadir_temp");
     WalletUtils.writeSeedFile(datadir, seed, password);
@@ -60,7 +59,7 @@ public class SeedEncryptionTest {
 
   @Test(expected = GeneralSecurityException.class)
   public void failReadSeedWrongPassword() throws IOException, GeneralSecurityException, IllegalAccessException {
-    byte[] seed = new byte[ElectrumWallet.SEED_BYTES_LENGTH()];
+    byte[] seed = new byte[16];
     new SecureRandom().nextBytes(seed);
     final File datadir = temp.newFolder("datadir_temp");
     WalletUtils.writeSeedFile(datadir, seed, password);

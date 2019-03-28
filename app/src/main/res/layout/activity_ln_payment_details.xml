@@ -18,6 +18,16 @@
   xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools">
 
+  <data>
+
+    <import type="android.view.View" />
+
+    <variable
+      name="isReceived"
+      type="boolean" />
+
+  </data>
+
   <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -43,13 +53,12 @@
 
           <TextView
             style="@style/TitleCapsGrey"
-            android:text="@string/paymentdetails_amount_paid_label" />
+            android:text="@{isReceived ? @string/paymentdetails_amount_received_label : @string/paymentdetails_amount_paid_label}" />
 
           <fr.acinq.eclair.wallet.customviews.CoinAmountView
             android:id="@+id/amount_paid"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:alignment="left"
             app:amount_color="@color/grey_4"
             app:amount_size="36sp"
             app:force_btc="true"
@@ -92,6 +101,7 @@
               android:layout_height="wrap_content"
               android:layout_marginStart="@dimen/space_md"
               android:layout_weight="0.5"
+              android:visibility="@{isReceived ? View.GONE : View.VISIBLE}"
               android:orientation="vertical">
 
               <TextView
@@ -126,6 +136,7 @@
           android:id="@+id/recipient"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
+          android:visibility="@{isReceived ? View.GONE : View.VISIBLE}"
           app:has_border="true"
           app:label="@string/paymentdetails_recipient_label"
           app:value="@string/unknown" />
@@ -142,6 +153,7 @@
           android:id="@+id/amount_sent"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
+          android:visibility="@{isReceived ? View.GONE : View.VISIBLE}"
           app:has_border="true"
           app:label="@string/paymentdetails_amount_sent_label"
           app:value="@string/unknown" />
@@ -158,6 +170,7 @@
           android:id="@+id/preimage"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
+          android:visibility="@{isReceived ? View.GONE : View.VISIBLE}"
           app:has_border="true"
           app:label="@string/paymentdetails_preimage_label"
           app:value="@string/unknown" />

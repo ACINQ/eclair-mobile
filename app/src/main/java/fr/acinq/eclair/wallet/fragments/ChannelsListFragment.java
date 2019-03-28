@@ -26,18 +26,21 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
-import java.util.ArrayList;
-import java.util.List;
-
+import fr.acinq.bitcoin.MilliSatoshi;
+import fr.acinq.eclair.CoinUnit;
+import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.DBHelper;
-import fr.acinq.eclair.wallet.actors.NodeSupervisor;
 import fr.acinq.eclair.wallet.R;
+import fr.acinq.eclair.wallet.actors.NodeSupervisor;
 import fr.acinq.eclair.wallet.adapters.LocalChannelItemAdapter;
 import fr.acinq.eclair.wallet.databinding.FragmentChannelslistBinding;
 import fr.acinq.eclair.wallet.models.LocalChannel;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class ChannelsListFragment extends Fragment {
 
@@ -61,7 +64,10 @@ public class ChannelsListFragment extends Fragment {
     mBinding.setShowInactive(false);
     mBinding.setActiveSize(0);
     mBinding.setInactiveSize(0);
-    mBinding.toggleInactive.setOnClickListener(v -> mBinding.setShowInactive(!mBinding.getShowInactive()));
+    mBinding.toggleInactive.setOnClickListener(v -> {
+      mBinding.setShowInactive(!mBinding.getShowInactive());
+      updateInactiveChannelsList();
+    });
 
     mBinding.activeChannelsList.setHasFixedSize(true);
     mBinding.activeChannelsList.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -78,28 +84,28 @@ public class ChannelsListFragment extends Fragment {
   public void onResume() {
     super.onResume();
     updateActiveChannelsList();
-    updateInactiveChannelsList();
   }
 
   public void updateInactiveChannelsList() {
-    new Thread() {
-      @Override
-      public void run() {
-        if (getContext() != null && getActivity() != null && getActivity().getApplication() != null) {
-          final DBHelper dbHelper = ((App) getActivity().getApplication()).getDBHelper();
-          if (dbHelper != null) {
-            final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
-            final List<LocalChannel> inactiveChannels = dbHelper.getInactiveChannels();
-            getActivity().runOnUiThread(() -> {
-              mInactiveChannelsAdapter.update(inactiveChannels,
-                WalletUtils.getPreferredFiat(prefs), WalletUtils.getPreferredCoinUnit(prefs), WalletUtils.shouldDisplayInFiat(prefs));
-              mBinding.setInactiveSize(inactiveChannels.size());
-            });
-
+    if (mBinding.getShowInactive()) {
+      new Thread() {
+        @Override
+        public void run() {
+          if (getContext() != null && getActivity() != null && getActivity().getApplication() != null) {
+            final DBHelper dbHelper = ((App) getActivity().getApplication()).getDBHelper();
+            if (dbHelper != null) {
+              final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+              final List<LocalChannel> inactiveChannels = dbHelper.getInactiveChannels();
+              getActivity().runOnUiThread(() -> {
+                mInactiveChannelsAdapter.update(inactiveChannels,
+                  WalletUtils.getPreferredFiat(prefs), WalletUtils.getPreferredCoinUnit(prefs), WalletUtils.shouldDisplayInFiat(prefs));
+                mBinding.setInactiveSize(inactiveChannels.size());
+              });
+            }
           }
         }
-      }
-    }.start();
+      }.start();
+    }
   }
 
   public void updateActiveChannelsList() {
@@ -108,11 +114,35 @@ public class ChannelsListFragment extends Fragment {
       public void run() {
         if (mActiveChannelsAdapter != null && getContext() != null) {
           final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
-          final List<LocalChannel> channels = new ArrayList<>(NodeSupervisor.getChannelsMap().values());
-          if (getActivity() != null && mBinding != null && getContext() != null) {
+
+          // convert to list and sort
+          List<LocalChannel> channels = new ArrayList<>(NodeSupervisor.getChannelsMap().values());
+          Collections.sort(channels, (c1, c2) -> Long.compare(c2.getCapacityMsat(), c1.getCapacityMsat()));
+
+          // get sendable/receivable
+          long totalReceivableMsat = 0;
+          long totalSendableMsat = 0;
+
+          for (LocalChannel c : channels) {
+            if (c.fundsAreUsable()) {
+              totalReceivableMsat += c.getReceivableMsat();
+              totalSendableMsat += c.getSendableMsat();
+            }
+          }
+
+          final MilliSatoshi totalReceivable = new MilliSatoshi(totalReceivableMsat);
+          final MilliSatoshi totalSendable = new MilliSatoshi(totalSendableMsat);
+          final double sendReceiveRelative = totalSendableMsat + totalReceivableMsat > 0 ? (double) totalSendableMsat / (totalSendableMsat + totalReceivableMsat) * 100 : 0;
+
+          if (getActivity() != null && mBinding != null) {
             getActivity().runOnUiThread(() -> {
-              mActiveChannelsAdapter.update(channels, WalletUtils.getPreferredFiat(prefs), WalletUtils.getPreferredCoinUnit(prefs), WalletUtils.shouldDisplayInFiat(prefs));
-              mBinding.setActiveSize(channels.size());
+              if (getContext() != null) {
+                mBinding.balanceProgress.setProgress(100 - (int) sendReceiveRelative);
+                mBinding.totalReceivable.setAmountMsat(totalReceivable);
+                mBinding.totalSendable.setAmountMsat(totalSendable);
+                mActiveChannelsAdapter.update(channels, WalletUtils.getPreferredFiat(prefs), WalletUtils.getPreferredCoinUnit(prefs), WalletUtils.shouldDisplayInFiat(prefs));
+                mBinding.setActiveSize(channels.size());
+              }
             });
           }
         }

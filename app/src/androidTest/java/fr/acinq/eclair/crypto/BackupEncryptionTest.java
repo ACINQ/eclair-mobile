@@ -24,11 +24,9 @@ import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
 
 import fr.acinq.bitcoin.DeterministicWallet;
-import fr.acinq.bitcoin.package$;
-import fr.acinq.eclair.blockchain.electrum.ElectrumWallet;
 import fr.acinq.eclair.wallet.utils.EncryptedBackup;
 import fr.acinq.eclair.wallet.utils.EncryptedData;
-import fr.acinq.eclair.wallet.utils.WalletUtils;
+import scodec.bits.ByteVector;
 
 public class BackupEncryptionTest {
 
@@ -36,9 +34,9 @@ public class BackupEncryptionTest {
   public void encryptWithSeed_v1() throws GeneralSecurityException {
 
     // create a master key from a random seed
-    byte[] seed = new byte[ElectrumWallet.SEED_BYTES_LENGTH()];
+    byte[] seed = new byte[16];
     new SecureRandom().nextBytes(seed);
-    final DeterministicWallet.ExtendedPrivateKey xpriv = DeterministicWallet.generate(package$.MODULE$.array2binaryData(seed).data());
+    final DeterministicWallet.ExtendedPrivateKey xpriv = DeterministicWallet.generate(ByteVector.view(seed));
 
     // derive a hardened key from xpriv
     // hardened means that, even if the key is compromised, it is not possible to find the parent key
@@ -59,9 +57,9 @@ public class BackupEncryptionTest {
   public void encryptWithSeed_v2() throws GeneralSecurityException {
 
     // create a master key from a random seed
-    byte[] seed = new byte[ElectrumWallet.SEED_BYTES_LENGTH()];
+    byte[] seed = new byte[16];
     new SecureRandom().nextBytes(seed);
-    final DeterministicWallet.ExtendedPrivateKey xpriv = DeterministicWallet.generate(package$.MODULE$.array2binaryData(seed).data());
+    final DeterministicWallet.ExtendedPrivateKey xpriv = DeterministicWallet.generate(ByteVector.view(seed));
 
     // derive a hardened key from xpriv
     // hardened means that, even if the key is compromised, it is not possible to find the parent key

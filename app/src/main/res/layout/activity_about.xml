@@ -67,17 +67,6 @@
 
         <TextView
           style="@style/TitleBar"
-          android:text="@string/about_limitations_title" />
-
-        <TextView
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:background="@drawable/rounded_corner_white_bottom"
-          android:padding="@dimen/space_md"
-          android:text="@string/about_limitations_text" />
-
-        <TextView
-          style="@style/TitleBar"
           android:text="@string/about_acinq_title" />
 
         <TextView

@@ -39,6 +39,7 @@ import com.tozny.crypto.android.AesCbcWithIntegrity;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.spongycastle.util.encoders.Hex;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -46,13 +47,14 @@ import java.io.InputStream;
 
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
-import fr.acinq.bitcoin.BinaryData;
+import fr.acinq.bitcoin.ByteVector32;
 import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.activities.GoogleDriveBaseActivity;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.EncryptedBackup;
 import fr.acinq.eclair.wallet.utils.EncryptedData;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
+import scodec.bits.ByteVector;
 
 public class ChannelsBackupWorker extends Worker {
   private final Logger log = LoggerFactory.getLogger(ChannelsBackupWorker.class);
@@ -72,7 +74,7 @@ public class ChannelsBackupWorker extends Worker {
     final String key = getInputData().getString(BACKUP_KEY_INPUT);
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
     if (!prefs.getBoolean(Constants.SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_ENABLED, false) || backupFileName == null) {
-      return Result.SUCCESS;
+      return Result.success();
     }
 
     final Context context = getApplicationContext();
@@ -80,7 +82,7 @@ public class ChannelsBackupWorker extends Worker {
 
     // --- check authorization
     if (signInAccount == null) {
-      return Result.FAILURE;
+      return Result.failure();
     }
 
     final DriveResourceClient driveResourceClient = Drive.getDriveResourceClient(context, signInAccount);
@@ -90,7 +92,7 @@ public class ChannelsBackupWorker extends Worker {
 
     try {
       final MetadataBuffer buffer = Tasks.await(metadataBufferTask);
-      final AesCbcWithIntegrity.SecretKeys sk = EncryptedData.secretKeyFromBinaryKey(BinaryData.apply(key));
+      final AesCbcWithIntegrity.SecretKeys sk = EncryptedData.secretKeyFromBinaryKey(ByteVector32.apply(ByteVector.view(Hex.decode(key))));
       if (buffer.getCount() == 0) {
         Tasks.await(createBackup(context, driveResourceClient, backupFileName, sk));
       } else {
@@ -100,14 +102,14 @@ public class ChannelsBackupWorker extends Worker {
         .putBoolean(Constants.SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_ENABLED, true)
         .putBoolean(Constants.SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_HAS_FAILED, false)
         .apply();
-      return Result.SUCCESS;
+      return Result.success();
     } catch (Throwable t) {
       log.error(TAG, "failed to save channels backup", t);
       prefs.edit()
         .putBoolean(Constants.SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_ENABLED, false)
         .putBoolean(Constants.SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_HAS_FAILED, true)
         .apply();
-      return Result.FAILURE;
+      return Result.failure();
     }
   }
 

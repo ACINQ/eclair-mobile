@@ -17,21 +17,13 @@
 <resources>
   <attr name="label" format="string" />
   <declare-styleable name="CoinAmountView">
-    <attr name="alignment" format="enum">
-      <enum name="left" value="0" />
-      <enum name="center" value="1" />
-      <enum name="right" value="2" />
-    </attr>
     <attr name="force_btc" format="boolean" />
-    <attr name="image_src" format="reference" />
-    <attr name="image_size" format="dimension" />
     <attr name="amount_size" format="dimension" />
     <attr name="amount_color" format="color" />
-    <attr name="amount_bold" format="boolean" />
+    <attr name="bold" format="boolean" />
     <attr name="unit" format="string" />
     <attr name="unit_size" format="dimension" />
     <attr name="unit_color" format="color" />
-    <attr name="unit_bold" format="boolean" />
   </declare-styleable>
   <declare-styleable name="DataRow">
     <attr name="label" />
@@ -46,6 +38,7 @@
     <attr name="label" />
     <attr name="icon" format="reference" />
     <attr name="bgcolor" format="color" />
+    <attr name="bg" format="reference" />
   </declare-styleable>
 
 </resources>

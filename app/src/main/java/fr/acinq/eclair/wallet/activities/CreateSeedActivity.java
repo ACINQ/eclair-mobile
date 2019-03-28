@@ -34,6 +34,7 @@ import android.view.inputmethod.InputMethodManager;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.spongycastle.util.encoders.Hex;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -51,6 +52,7 @@ import fr.acinq.eclair.wallet.fragments.WalletEncryptFragment;
 import fr.acinq.eclair.wallet.fragments.WalletPassphraseConfirmFragment;
 import fr.acinq.eclair.wallet.fragments.WalletPassphraseFragment;
 import fr.acinq.eclair.wallet.utils.Constants;
+import fr.acinq.eclair.wallet.utils.WalletUtils;
 import scala.collection.JavaConverters;
 
 public class CreateSeedActivity extends EclairActivity implements EclairActivity.EncryptSeedCallback {
@@ -76,7 +78,7 @@ public class CreateSeedActivity extends EclairActivity implements EclairActivity
 
     try {
       mMnemonics = JavaConverters.seqAsJavaListConverter(MnemonicCode.toMnemonics(
-        fr.acinq.eclair.package$.MODULE$.randomBytes(16).data(),
+        fr.acinq.eclair.package$.MODULE$.randomBytes(16),
         MnemonicCode.englishWordlist())).asJava();
 
       final Bundle args = new Bundle();
@@ -296,7 +298,7 @@ public class CreateSeedActivity extends EclairActivity implements EclairActivity
           }
           final String passphrase = mPassphrase;
           final File datadir = new File(getFilesDir(), Constants.ECLAIR_DATADIR);
-          final byte[] seed = MnemonicCode.toSeed(JavaConverters.collectionAsScalaIterableConverter(mMnemonics).asScala().toSeq(), passphrase).toString().getBytes();
+          final byte[] seed = WalletUtils.mnemonicsToSeed(mMnemonics, passphrase);
           runOnUiThread(() -> encryptWallet(CreateSeedActivity.this, false, datadir, seed));
         } catch (Exception e) {
           runOnUiThread(() -> {

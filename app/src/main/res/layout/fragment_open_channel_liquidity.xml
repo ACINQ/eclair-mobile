@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  ~ Copyright 2018 ACINQ SAS
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:id="@+id/layout">
+
+  <data>
+
+    <import type="android.view.View" />
+
+    <variable
+      name="liquidityOpt"
+      type="int" />
+  </data>
+
+  <ScrollView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:fadeScrollbars="false"
+    android:fillViewport="true"
+    android:scrollbars="vertical">
+
+    <android.support.constraint.ConstraintLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content">
+
+      <android.support.constraint.Guideline
+        android:id="@+id/mid_guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.5" />
+
+      <TextView
+        android:id="@+id/instructions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/space_lg"
+        android:text="@string/openchannel_liquidity_instructions"
+        app:layout_constraintTop_toTopOf="parent" />
+
+      <android.support.constraint.ConstraintLayout
+        android:id="@+id/liquidity_opt_10"
+        style="@style/ButtonStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/space_xs"
+        app:layout_constraintTop_toBottomOf="@id/instructions">
+
+        <RadioButton
+          android:id="@+id/liquidity_opt_10_radio"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginStart="@dimen/space_md"
+          android:buttonTint="@color/primary"
+          android:checked="@{liquidityOpt == 1}"
+          android:clickable="false"
+          android:focusable="false"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+          android:id="@+id/liquidity_opt_10_title"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginEnd="@dimen/space_lg"
+          android:text="@string/openchannel_liquidity_label"
+          app:layout_constrainedWidth="true"
+          app:layout_constraintBaseline_toBaselineOf="@id/liquidity_opt_10_radio"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintHorizontal_bias="0"
+          app:layout_constraintStart_toEndOf="@id/liquidity_opt_10_radio"
+          app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+          android:id="@+id/liquidity_opt_10_cost"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginEnd="@dimen/space_lg"
+          android:text="@string/openchannel_liquidity_cost"
+          android:textColor="@color/grey_2"
+          android:visibility="@{liquidityOpt == 1 ? View.VISIBLE : View.GONE}"
+          app:layout_constrainedWidth="true"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintHorizontal_bias="0"
+          app:layout_constraintStart_toEndOf="@id/liquidity_opt_10_radio"
+          app:layout_constraintTop_toBottomOf="@id/liquidity_opt_10_title" />
+      </android.support.constraint.ConstraintLayout>
+
+      <android.support.constraint.ConstraintLayout
+        android:id="@+id/liquidity_opt_25"
+        style="@style/ButtonStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/space_xs"
+        app:layout_constraintTop_toBottomOf="@id/liquidity_opt_10">
+
+        <RadioButton
+          android:id="@+id/liquidity_opt_25_radio"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginStart="@dimen/space_md"
+          android:buttonTint="@color/primary"
+          android:checked="@{liquidityOpt == 2}"
+          android:clickable="false"
+          android:focusable="false"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+          android:id="@+id/liquidity_opt_25_title"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginEnd="@dimen/space_lg"
+          android:text="@string/openchannel_liquidity_label"
+          app:layout_constrainedWidth="true"
+          app:layout_constraintBaseline_toBaselineOf="@id/liquidity_opt_25_radio"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintHorizontal_bias="0"
+          app:layout_constraintStart_toEndOf="@id/liquidity_opt_25_radio"
+          app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+          android:id="@+id/liquidity_opt_25_cost"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginEnd="@dimen/space_lg"
+          android:text="@string/openchannel_liquidity_cost"
+          android:textColor="@color/grey_2"
+          android:visibility="@{liquidityOpt == 2 ? View.VISIBLE : View.GONE}"
+          app:layout_constrainedWidth="true"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintHorizontal_bias="0"
+          app:layout_constraintStart_toEndOf="@id/liquidity_opt_25_radio"
+          app:layout_constraintTop_toBottomOf="@id/liquidity_opt_25_title" />
+      </android.support.constraint.ConstraintLayout>
+
+      <android.support.constraint.ConstraintLayout
+        android:id="@+id/liquidity_opt_50"
+        style="@style/ButtonStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/space_xs"
+        app:layout_constraintTop_toBottomOf="@id/liquidity_opt_25">
+
+        <RadioButton
+          android:id="@+id/liquidity_opt_50_radio"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginStart="@dimen/space_md"
+          android:buttonTint="@color/primary"
+          android:checked="@{liquidityOpt == 3}"
+          android:clickable="false"
+          android:focusable="false"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+          android:id="@+id/liquidity_opt_50_title"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginEnd="@dimen/space_lg"
+          android:text="@string/openchannel_liquidity_label"
+          app:layout_constrainedWidth="true"
+          app:layout_constraintBaseline_toBaselineOf="@id/liquidity_opt_50_radio"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintHorizontal_bias="0"
+          app:layout_constraintStart_toEndOf="@id/liquidity_opt_50_radio"
+          app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+          android:id="@+id/liquidity_opt_50_cost"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginEnd="@dimen/space_lg"
+          android:text="@string/openchannel_liquidity_cost"
+          android:textColor="@color/grey_2"
+          android:visibility="@{liquidityOpt == 3 ? View.VISIBLE : View.GONE}"
+          app:layout_constrainedWidth="true"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintHorizontal_bias="0"
+          app:layout_constraintStart_toEndOf="@id/liquidity_opt_50_radio"
+          app:layout_constraintTop_toBottomOf="@id/liquidity_opt_50_title" />
+      </android.support.constraint.ConstraintLayout>
+
+      <TextView
+        android:id="@+id/what_will_happen"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/space_lg"
+        android:layout_marginEnd="@dimen/space_lg"
+        android:paddingTop="@dimen/space_md"
+        android:paddingBottom="@dimen/space_md"
+        android:text="@string/openchannel_liquidity_what_will_happen"
+        android:visibility="@{liquidityOpt > 0 ? View.VISIBLE : View.GONE}"
+        app:layout_constraintTop_toBottomOf="@id/liquidity_opt_50" />
+
+      <FrameLayout
+        android:id="@+id/button_back"
+        style="@style/ButtonStyle"
+        android:layout_width="0dp"
+        app:layout_constraintBottom_toBottomOf="@id/button_next"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/mid_guideline"
+        app:layout_constraintTop_toTopOf="@id/button_next"
+        tools:ignore="RtlSymmetry">
+
+        <TextView
+          style="@style/Base.TextAppearance.AppCompat.Button"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_gravity="center"
+          android:drawableStart="@drawable/ic_chevron_left_black_24dp"
+          android:drawablePadding="@dimen/space_xs"
+          android:gravity="start|center"
+          android:text="@string/btn_back" />
+
+      </FrameLayout>
+
+      <FrameLayout
+        android:id="@+id/button_next"
+        style="@style/ButtonStyle"
+        android:layout_width="0dp"
+        android:layout_marginTop="@dimen/space_md_p"
+        app:layout_constraintLeft_toRightOf="@id/mid_guideline"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/what_will_happen"
+        tools:ignore="RtlSymmetry">
+
+        <TextView
+          style="@style/Base.TextAppearance.AppCompat.Button"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_gravity="center"
+          android:drawableStart="@drawable/ic_circle_check_green_24dp"
+          android:drawablePadding="@dimen/space_xs"
+          android:gravity="center"
+          android:text="@string/openchannel_button_confirm"
+          android:textColor="@color/green" />
+
+      </FrameLayout>
+    </android.support.constraint.ConstraintLayout>
+  </ScrollView>
+</layout>

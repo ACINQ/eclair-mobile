@@ -17,6 +17,7 @@
 package fr.acinq.eclair.wallet.activities;
 
 import android.app.Dialog;
+import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.os.Handler;
@@ -24,6 +25,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
+import android.text.format.DateUtils;
 import android.widget.Toast;
 
 import com.google.common.base.Strings;
@@ -46,11 +48,14 @@ import fr.acinq.eclair.wallet.events.XpubEvent;
 import fr.acinq.eclair.wallet.fragments.CustomElectrumServerDialog;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class NetworkInfosActivity extends EclairActivity implements SwipeRefreshLayout.OnRefreshListener {
 
   private ActivityNetworkInfosBinding mBinding;
   private CustomElectrumServerDialog mElectrumDialog;
+  private final Logger log = LoggerFactory.getLogger(NetworkInfosActivity.class);
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {

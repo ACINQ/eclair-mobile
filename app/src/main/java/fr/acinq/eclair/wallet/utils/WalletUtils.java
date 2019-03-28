@@ -39,24 +39,32 @@ import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.rolling.FixedWindowRollingPolicy;
 import ch.qos.logback.core.rolling.RollingFileAppender;
 import ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy;
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import com.google.common.io.Files;
+import com.google.common.net.HostAndPort;
 import com.papertrailapp.logback.Syslog4jAppender;
 import com.tozny.crypto.android.AesCbcWithIntegrity;
-import fr.acinq.bitcoin.BinaryData;
-import fr.acinq.bitcoin.Block;
-import fr.acinq.bitcoin.MilliSatoshi;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+import fr.acinq.bitcoin.*;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.CoinUnit;
+import fr.acinq.eclair.io.NodeURI;
 import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.services.ChannelsBackupWorker;
 import okhttp3.ResponseBody;
+import scala.collection.JavaConverters;
+import scodec.bits.ByteVector;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.productivity.java.syslog4j.impl.net.tcp.ssl.SSLTCPNetSyslogConfig;
 import org.slf4j.LoggerFactory;
+import org.spongycastle.util.encoders.Hex;
 
 import java.io.File;
 import java.io.IOException;
@@ -64,14 +72,17 @@ import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 public class WalletUtils {
+
   private final static org.slf4j.Logger log = LoggerFactory.getLogger(WalletUtils.class);
 
-  public final static String ACINQ_NODE = "03864ef025fde8fb587d989186ce6a4a186895ee44a926bfc370e2c366597a3f8f@node.acinq.co:9735";
-  public final static String PRICE_RATE_API = "https://blockchain.info/fr/ticker";
+  public final static String UNENCRYPTED_SEED_NAME = "seed.dat";
   public final static String SEED_NAME = "enc_seed.dat";
   private final static String SEED_NAME_TEMP = "enc_seed_temp.dat";
   private final static String DECIMAL_SEPARATOR = String.valueOf(new DecimalFormat().getDecimalFormatSymbols().getDecimalSeparator());
@@ -148,7 +159,7 @@ public class WalletUtils {
   public static View.OnClickListener getOpenTxListener(final String txId) {
     return v -> {
       String uri = PreferenceManager.getDefaultSharedPreferences(v.getContext())
-        .getString(Constants.SETTING_ONCHAIN_EXPLORER, "https://api.blockcypher.com/v1/btc/main/txs/");
+        .getString(Constants.SETTING_ONCHAIN_EXPLORER, Constants.DEFAULT_ONCHAIN_EXPLORER);
       try {
         if (uri != null && !uri.endsWith("/")) {
           uri += "/";
@@ -160,6 +171,16 @@ public class WalletUtils {
         Toast.makeText(v.getContext(), "Could not open explorer", Toast.LENGTH_SHORT).show();
       }
     };
+  }
+
+  public static byte[] mnemonicsToSeed(List<String> mnemonics, String passphrase) {
+    final byte[] bytes = MnemonicCode.toSeed(JavaConverters.collectionAsScalaIterableConverter(mnemonics).asScala().toSeq(), passphrase).toArray();
+    final byte[] seed = Hex.encode(bytes);
+    return seed;
+  }
+
+  public static byte[] mnemonicsToSeed(String mnemonics, String passphrase) {
+    return mnemonicsToSeed(Lists.newArrayList(mnemonics.split(" ")), passphrase);
   }
 
   private static byte[] readSeedFile(final File datadir, final String seedFileName, final String password) throws IOException, IllegalAccessException, GeneralSecurityException {
@@ -224,6 +245,8 @@ public class WalletUtils {
     return prefs.getString(Constants.SETTING_SELECTED_FIAT_CURRENCY, Constants.FIAT_USD).toUpperCase();
   }
 
+  private final static String NO_FIAT_RATE = "--";
+
   /**
    * Converts bitcoin amount to the fiat currency preferred by the user.
    *
@@ -231,14 +254,36 @@ public class WalletUtils {
    * @param fiatCode   fiat currency code (USD, EUR, RUB, JPY, ...)
    * @return localized formatted string of the converted amount
    */
-  public static String convertMsatToFiat(final long amountMsat, final String fiatCode) {
+  public static double convertMsatToFiat(final long amountMsat, final String fiatCode) {
     final double rate = App.RATES.containsKey(fiatCode) ? App.RATES.get(fiatCode) : -1.0f;
-    if (rate < 0) return "--";
-    return getFiatFormat().format(package$.MODULE$.millisatoshi2btc(new MilliSatoshi(amountMsat)).amount().doubleValue() * rate);
+    return package$.MODULE$.millisatoshi2btc(new MilliSatoshi(amountMsat)).amount().doubleValue() * rate;
   }
 
-  public static String convertMsatToFiatWithUnit(final long amountMsat, final String fiatCode) {
-    return convertMsatToFiat(amountMsat, fiatCode) + " " + fiatCode.toUpperCase();
+  /**
+   * Converts bitcoin amount to the fiat currency preferred by the user.
+   *
+   * @param amountMsat amount in milli satoshis
+   * @param fiatCode   fiat currency code (USD, EUR, RUB, JPY, ...)
+   * @return localized formatted string of the converted amount
+   */
+  public static String formatMsatToFiat(final long amountMsat, final String fiatCode) {
+    final double fiatValue = convertMsatToFiat(amountMsat, fiatCode);
+    if (fiatValue < 0) return NO_FIAT_RATE;
+    return getFiatFormat().format(fiatValue);
+  }
+
+  public static String formatMsatToFiatWithUnit(final long amountMsat, final String fiatCode) {
+    return formatMsatToFiat(amountMsat, fiatCode) + " " + fiatCode.toUpperCase();
+  }
+
+  public static String formatSatToFiat(final Satoshi amount, final String fiatCode) {
+    final double rate = App.RATES.containsKey(fiatCode) ? App.RATES.get(fiatCode) : -1.0f;
+    if (rate < 0) return NO_FIAT_RATE;
+    return getFiatFormat().format(package$.MODULE$.satoshi2btc(amount).amount().doubleValue() * rate);
+  }
+
+  public static String formatSatToFiatWithUnit(final Satoshi amount, final String fiatCode) {
+    return formatSatToFiat(amount, fiatCode) + " " + fiatCode.toUpperCase();
   }
 
   public static CoinUnit getPreferredCoinUnit(final SharedPreferences prefs) {
@@ -273,7 +318,7 @@ public class WalletUtils {
     return paymentRequest.amount().isEmpty() ? new MilliSatoshi(0) : paymentRequest.amount().get();
   }
 
-  public static BinaryData getChainHash() {
+  public static ByteVector32 getChainHash() {
     return "mainnet".equals(BuildConfig.CHAIN) ? Block.LivenetGenesisBlock().hash() : Block.TestnetGenesisBlock().hash();
   }
 
@@ -294,7 +339,7 @@ public class WalletUtils {
     return "eclair_" + BuildConfig.CHAIN + "_" + seedHash + ".bkup";
   }
 
-  public static OneTimeWorkRequest generateBackupRequest(final String seedHash, final BinaryData backupKey) {
+  public static OneTimeWorkRequest generateBackupRequest(final String seedHash, final ByteVector32 backupKey) {
     return new OneTimeWorkRequest.Builder(ChannelsBackupWorker.class)
       .setInputData(new Data.Builder()
         .putString(ChannelsBackupWorker.BACKUP_NAME_INPUT, WalletUtils.getEclairBackupFileName(seedHash))
@@ -305,11 +350,8 @@ public class WalletUtils {
       .build();
   }
 
-  public static String toAscii(final BinaryData b) {
-    final byte[] bytes = new byte[b.length()];
-    for (int i = 0; i < b.length(); i++) {
-      bytes[i] = (Byte) b.data().apply(i);
-    }
+  public static String toAscii(final ByteVector b) {
+    final byte[] bytes = b.toArray();
     return new String(bytes, StandardCharsets.US_ASCII);
   }
 
@@ -369,9 +411,9 @@ public class WalletUtils {
   /**
    * Sets up an index-based rolling policy with a max file size of 4MB.
    */
-  public static void setupLocalLogging(final Context context) throws ExternalStorageNotAvailableException {
+  public static void setupLocalLogging(final Context context) throws EclairException.ExternalStorageNotAvailableException {
     if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-      throw new ExternalStorageNotAvailableException();
+      throw new EclairException.ExternalStorageNotAvailableException();
     }
 
     final LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
@@ -456,5 +498,30 @@ public class WalletUtils {
     final Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
     root.setLevel(BuildConfig.DEBUG ? Level.DEBUG : Level.INFO);
     root.addAppender(appender);
+  }
+
+  /**
+   * Builds a TypeSafe configuration to override the default conf of the node setup. Returns an empty config if no configuration entry must be overridden.
+   * <p>
+   * If the user has set a preferred electrum server, retrieves it from the prefs and adds it to the configuration.
+   */
+  public static Config getOverrideConfig(final SharedPreferences prefs) {
+    final String prefsElectrumAddress = prefs.getString(Constants.CUSTOM_ELECTRUM_SERVER, "").trim();
+    if (!Strings.isNullOrEmpty(prefsElectrumAddress)) {
+      try {
+        final HostAndPort address = HostAndPort.fromString(prefsElectrumAddress).withDefaultPort(50002);
+        final Map<String, Object> conf = new HashMap<>();
+        if (!Strings.isNullOrEmpty(address.getHost())) {
+          conf.put("eclair.electrum.host", address.getHost());
+          conf.put("eclair.electrum.port", address.getPort());
+          // custom server certificate must be valid
+          conf.put("eclair.electrum.ssl", "strict");
+          return ConfigFactory.parseMap(conf);
+        }
+      } catch (Exception e) {
+        log.error("could not read custom electrum address=" + prefsElectrumAddress, e);
+      }
+    }
+    return ConfigFactory.empty();
   }
 }

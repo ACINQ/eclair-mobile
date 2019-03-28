@@ -22,7 +22,6 @@ import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.ActionBar;
@@ -30,6 +29,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Toast;
 
+import fr.acinq.eclair.wallet.utils.EclairException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +39,6 @@ import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.databinding.ActivityLogsSettingsBinding;
 import fr.acinq.eclair.wallet.utils.Constants;
-import fr.acinq.eclair.wallet.utils.ExternalStorageNotAvailableException;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 
 public class LogsSettingsActivity extends EclairActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
@@ -111,7 +110,7 @@ public class LogsSettingsActivity extends EclairActivity implements SharedPrefer
         prefs.edit().putString(Constants.SETTING_LOGS_OUTPUT, Constants.LOGS_OUTPUT_NONE).apply();
       }
       Toast.makeText(this, R.string.logging_toast_update_success, Toast.LENGTH_SHORT).show();
-    } catch (ExternalStorageNotAvailableException e) {
+    } catch (EclairException.ExternalStorageNotAvailableException e) {
       Toast.makeText(this, R.string.logging_toast_error_external_storage, Toast.LENGTH_SHORT).show();
     } catch (Throwable t) {
       log.error("could not update logs settings", t);

@@ -16,192 +16,66 @@
 
 package fr.acinq.eclair.wallet.activities;
 
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.databinding.DataBindingUtil;
-import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.view.View;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.Toast;
-
-import org.greenrobot.eventbus.util.AsyncExecutor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import akka.dispatch.OnComplete;
 import akka.pattern.Patterns;
 import akka.util.Timeout;
+import android.content.Context;
+import android.databinding.DataBindingUtil;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.Toast;
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.Satoshi;
-import fr.acinq.bitcoin.package$;
-import fr.acinq.eclair.CoinUnit;
-import fr.acinq.eclair.CoinUtils;
-import fr.acinq.eclair.channel.Channel;
 import fr.acinq.eclair.io.NodeURI;
 import fr.acinq.eclair.io.Peer;
+import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.databinding.ActivityOpenChannelBinding;
 import fr.acinq.eclair.wallet.fragments.PinDialog;
+import fr.acinq.eclair.wallet.fragments.openchannel.OpenChannelCapacityFragment;
+import fr.acinq.eclair.wallet.fragments.openchannel.OpenChannelLiquidityFragment;
 import fr.acinq.eclair.wallet.tasks.NodeURIReaderTask;
 import fr.acinq.eclair.wallet.utils.Constants;
-import fr.acinq.eclair.wallet.utils.WalletUtils;
-import scala.Option;
+import org.greenrobot.eventbus.util.AsyncExecutor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import scala.concurrent.duration.Duration;
 
-public class OpenChannelActivity extends EclairActivity implements NodeURIReaderTask.AsyncNodeURIReaderTaskResponse {
+public class OpenChannelActivity extends EclairActivity implements NodeURIReaderTask.AsyncNodeURIReaderTaskResponse, OpenChannelCapacityFragment.OnCapacityConfirmListener, OpenChannelLiquidityFragment.OnLiquidityConfirmListener {
 
   public static final String EXTRA_NEW_HOST_URI = BuildConfig.APPLICATION_ID + "NEW_HOST_URI";
   public static final String EXTRA_USE_DNS_SEED = BuildConfig.APPLICATION_ID + "USE_DNS_SEED";
-  final MilliSatoshi minFunding = new MilliSatoshi(100000000); // 1 mBTC
-  final MilliSatoshi maxFunding = package$.MODULE$.satoshi2millisatoshi(new Satoshi(Channel.MAX_FUNDING_SATOSHIS()));
   private final Logger log = LoggerFactory.getLogger(OpenChannelActivity.class);
   private ActivityOpenChannelBinding mBinding;
 
-  private String remoteNodeURIAsString = "";
-  private NodeURI remoteNodeURI = null;
-  private String preferredFiatCurrency = Constants.FIAT_USD;
-  private CoinUnit preferredBitcoinUnit = CoinUtils.getUnitFromString(Constants.BTC_CODE);
-  // state of the fees, used with data binding
-  private int feeRatingState = Constants.FEE_RATING_FAST;
   private PinDialog pinDialog;
+  private OpenChannelCapacityFragment mCapacityFragment;
+  private OpenChannelLiquidityFragment mLiquidityFragment;
+
+  public enum Steps {
+    SET_CAPACITY, SET_FEES, REQUEST_LIQUIDITY, CONFIRM
+  }
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     mBinding = DataBindingUtil.setContentView(this, R.layout.activity_open_channel);
-
-    final SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-    preferredFiatCurrency = WalletUtils.getPreferredFiat(sharedPrefs);
-    preferredBitcoinUnit = WalletUtils.getPreferredCoinUnit(sharedPrefs);
-
-    setFeesToDefault();
-
-    mBinding.useAllFundsCheckbox.setOnCheckedChangeListener((v, isChecked) -> {
-      if (isChecked) {
-        mBinding.useAllFundsCheckbox.setEnabled(false);
-        mBinding.useAllFundsCheckbox.setText(R.string.openchannel_max_funds_pleasewait);
-        new Thread() {
-          @Override
-          public void run() {
-            try {
-              final Long feesPerKw = fr.acinq.eclair.package$.MODULE$.feerateByte2Kw(Long.parseLong(mBinding.feesValue.getText().toString()));
-              final long capacitySat = Math.min(app.getAvailableFundsAfterFees(feesPerKw).amount(), Channel.MAX_FUNDING_SATOSHIS());
-              runOnUiThread(() -> {
-                mBinding.capacityValue.setText(CoinUtils.rawAmountInUnit(new Satoshi(capacitySat), preferredBitcoinUnit).bigDecimal().toPlainString());
-                mBinding.capacityValue.setEnabled(false);
-              });
-            } catch (Exception e) {
-              log.error("could not retrieve max funds from wallet", e);
-            } finally {
-              runOnUiThread(() -> {
-                mBinding.useAllFundsCheckbox.setEnabled(true);
-                mBinding.useAllFundsCheckbox.setText(R.string.openchannel_max_funds);
-              });
-            }
-          }
-        }.start();
-      } else {
-        mBinding.capacityValue.setEnabled(true);
-      }
-    });
-
-    mBinding.capacityValue.addTextChangedListener(new TextWatcher() {
-      @Override
-      public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-      }
-
-      @Override
-      public void onTextChanged(CharSequence s, int start, int before, int count) {
-        // toggle hint depending on amount input
-        mBinding.capacityHint.setVisibility(s == null || s.length() == 0 ? View.VISIBLE : View.GONE);
-        try {
-          checkAmount(s.toString());
-        } catch (Exception e) {
-          log.debug("could not convert amount to number with cause {}", e.getMessage());
-          mBinding.capacityFiat.setText(getString(R.string.amount_to_fiat, getString(R.string.unknown)));
-        }
-      }
-
-      @Override
-      public void afterTextChanged(Editable s) {
-      }
-    });
-    mBinding.feesValue.addTextChangedListener(new TextWatcher() {
-      @Override
-      public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after) {
-      }
-
-      @Override
-      public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
-        try {
-          final Long feesSatPerByte = Long.parseLong(s.toString());
-          if (feesSatPerByte != app.estimateSlowFees() && feesSatPerByte != app.estimateMediumFees() && feesSatPerByte != app.estimateFastFees()) {
-            feeRatingState = Constants.FEE_RATING_CUSTOM;
-            mBinding.setFeeRatingState(feeRatingState);
-            mBinding.feesRating.setText(R.string.payment_fees_custom);
-          }
-          if (feesSatPerByte <= app.estimateSlowFees() / 2) {
-            mBinding.feesWarning.setText(R.string.payment_fees_verylow);
-            mBinding.feesWarning.setVisibility(View.VISIBLE);
-          } else if (feesSatPerByte >= app.estimateFastFees() * 2) {
-            mBinding.feesWarning.setText(R.string.payment_fees_veryhigh);
-            mBinding.feesWarning.setVisibility(View.VISIBLE);
-          } else {
-            mBinding.feesWarning.setVisibility(View.GONE);
-          }
-          // fee value changes must invalidate the 'set all available funds' checkbox, since this amount
-          // would probably not be correct anymore
-          mBinding.useAllFundsCheckbox.setChecked(false);
-        } catch (NumberFormatException e) {
-          log.debug("could not read fees with cause {}" + e.getMessage());
-        }
-      }
-
-      @Override
-      public void afterTextChanged(Editable s) {
-      }
-    });
-    mBinding.capacityUnit.setText(preferredBitcoinUnit.shortLabel());
-    setFeesToDefault();
-
     final boolean useDnsSeed = getIntent().getBooleanExtra(EXTRA_USE_DNS_SEED, false);
-
     if (useDnsSeed) {
       startDNSDiscovery();
     } else {
-      remoteNodeURIAsString = getIntent().getStringExtra(EXTRA_NEW_HOST_URI).trim();
-      new NodeURIReaderTask(this, remoteNodeURIAsString).execute();
+      new NodeURIReaderTask(this, getIntent().getStringExtra(EXTRA_NEW_HOST_URI)).execute();
     }
-  }
-
-  private void startDNSDiscovery() {
-    mBinding.loading.setText(getString(R.string.openchannel_dns_seed));
   }
 
   @Override
   protected void onResume() {
     super.onResume();
-    checkInit();
-  }
-
-  public void focusAmount(final View view) {
-    mBinding.capacityValue.requestFocus();
-    final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-    if (imm != null) {
-      imm.showSoftInput(mBinding.capacityValue, 0);
-    }
-  }
-
-  public void forceFocusFees(final View view) {
-    mBinding.feesValue.requestFocus();
-    final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-    if (imm != null) {
-      imm.showSoftInput(mBinding.feesValue, 0);
+    if (checkInit()) {
+      app.fetchWalletContext();
     }
   }
 
@@ -214,151 +88,125 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
     super.onPause();
   }
 
-  public void pickFees(final View view) {
-    if (feeRatingState == Constants.FEE_RATING_SLOW) {
-      feeRatingState = Constants.FEE_RATING_MEDIUM;
-      mBinding.feesValue.setText(String.valueOf(app.estimateMediumFees()));
-      mBinding.setFeeRatingState(feeRatingState);
-      mBinding.feesRating.setText(R.string.payment_fees_medium);
-    } else if (feeRatingState == Constants.FEE_RATING_MEDIUM) {
-      feeRatingState = Constants.FEE_RATING_FAST;
-      mBinding.feesValue.setText(String.valueOf(app.estimateFastFees()));
-      mBinding.setFeeRatingState(feeRatingState);
-      mBinding.feesRating.setText(R.string.payment_fees_fast);
-    } else if (feeRatingState == Constants.FEE_RATING_FAST) {
-      feeRatingState = Constants.FEE_RATING_SLOW;
-      mBinding.feesValue.setText(String.valueOf(app.estimateSlowFees()));
-      mBinding.setFeeRatingState(feeRatingState);
-      mBinding.feesRating.setText(R.string.payment_fees_slow);
-    } else {
-      setFeesToDefault();
+  @Override
+  public void onAttachFragment(Fragment fragment) {
+    if (fragment instanceof OpenChannelCapacityFragment) {
+      OpenChannelCapacityFragment f = (OpenChannelCapacityFragment) fragment;
+      f.setListener(this);
+    }
+    if (fragment instanceof OpenChannelLiquidityFragment) {
+      OpenChannelLiquidityFragment f = (OpenChannelLiquidityFragment) fragment;
+      f.setListener(this);
     }
   }
 
-  private void setFeesToDefault() {
-    feeRatingState = Constants.FEE_RATING_FAST;
-    mBinding.feesValue.setText(String.valueOf(app.estimateFastFees()));
-    mBinding.setFeeRatingState(feeRatingState);
-    mBinding.feesRating.setText(R.string.payment_fees_fast);
-  }
-
-  /**
-   * Checks if the String amount respects the following rules:
-   * <ul>
-   * <li>numeric</li>
-   * <li>convertible to MilliSatoshi in the current user preferred unit</li>
-   * <li>exceeds the minimal capacity amount (1mBTC)</li>
-   * <li>does not exceed the maximal capacity amount (167 mBTC)</li>
-   * <li>does not exceed the available onchain balance (confirmed + unconfirmed), accounting a minimal required leftover</li>
-   * </ul>
-   * <p>
-   * Show an error in the open channel form if one of the rules is not respected.
-   *
-   * @param amount string amount
-   * @return true if amount is valid, false otherwise
-   */
-  private boolean checkAmount(final String amount) throws IllegalArgumentException, NullPointerException {
-    final MilliSatoshi amountMsat = CoinUtils.convertStringAmountToMsat(amount, preferredBitcoinUnit.code());
-    mBinding.capacityFiat.setText(getString(R.string.amount_to_fiat, WalletUtils.convertMsatToFiatWithUnit(amountMsat.amount(), preferredFiatCurrency)));
-    if (amountMsat.amount() < minFunding.amount() || amountMsat.amount() >= maxFunding.amount()) {
-      showError(getString(R.string.openchannel_capacity_invalid, CoinUtils.formatAmountInUnit(minFunding, preferredBitcoinUnit, false),
-        CoinUtils.formatAmountInUnit(maxFunding, preferredBitcoinUnit, true)));
-      return false;
-    } else if (package$.MODULE$.millisatoshi2satoshi(amountMsat).amount() > app.getOnchainBalance().amount()) {
-      showError(getString(R.string.openchannel_capacity_notenoughfunds));
-      return false;
+  @Override
+  public void processNodeURIFinish(final NodeURI uri) {
+    if (uri == null || uri.address() == null || uri.nodeId() == null) {
+      mBinding.setErrorMessage(getString(R.string.openchannel_error_address));
     } else {
-      mBinding.error.setVisibility(View.GONE);
-      return true;
+      mBinding.setNodeURI(uri);
+      mCapacityFragment = new OpenChannelCapacityFragment();
+      mCapacityFragment.setNodeURI(uri);
+      mLiquidityFragment = new OpenChannelLiquidityFragment();
+
+      final FragmentManager fragmentManager = getSupportFragmentManager();
+      fragmentManager.beginTransaction()
+        .add(mBinding.fragmentContainer.getId(), mCapacityFragment)
+        .add(mBinding.fragmentContainer.getId(), mLiquidityFragment)
+        .show(mCapacityFragment)
+        .hide(mLiquidityFragment)
+        .commit();
     }
   }
 
-  private void showError(final String errorLabel) {
-    mBinding.error.setText(errorLabel);
-    mBinding.error.setVisibility(View.VISIBLE);
+  private void startDNSDiscovery() {
+    mBinding.setErrorMessage(getString(R.string.openchannel_dns_seed));
   }
 
-  private void setURIFields(final String pubkey, final String ip, final String port) {
-    mBinding.pubkeyValue.setText(pubkey);
-    mBinding.ipValue.setText(ip);
-    mBinding.portValue.setText(port);
-    mBinding.openButton.setVisibility(View.VISIBLE);
+  private void goToCapacityPage() {
+    final FragmentManager fragmentManager = getSupportFragmentManager();
+    fragmentManager.beginTransaction()
+      .hide(mLiquidityFragment)
+      .show(mCapacityFragment)
+      .commit();
   }
 
-  private void disableForm() {
-    mBinding.openButton.setEnabled(false);
-    mBinding.capacityValue.setEnabled(false);
-    mBinding.openButton.setAlpha(0.3f);
+  private void goToLiquidityPage(final Satoshi capacity, final Long feesSatPerByte) {
+    final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+    if (imm != null) {
+      imm.hideSoftInputFromWindow(mBinding.getRoot().getWindowToken(), 0);
+    }
+    final FragmentManager fragmentManager = getSupportFragmentManager();
+    mLiquidityFragment.setCapacityAndFees(capacity, feesSatPerByte);
+    fragmentManager.beginTransaction()
+      .hide(mCapacityFragment)
+      .show(mLiquidityFragment)
+      .addToBackStack(null)
+      .commit();
   }
 
-  private void enableForm() {
-    mBinding.openButton.setEnabled(true);
-    mBinding.capacityValue.setEnabled(true);
-    mBinding.openButton.setAlpha(1f);
-  }
-
-  public void cancelOpenChannel(View view) {
-    goToHome();
-  }
-
-  private void goToHome() {
-    Intent intent = new Intent(getBaseContext(), HomeActivity.class);
-    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-    startActivity(intent);
+  @Override
+  public void onCapacityBack() {
     finish();
   }
 
-  public void confirmOpenChannel(View view) {
-    try {
-      if (!checkAmount(mBinding.capacityValue.getText().toString())) {
-        return;
+  @Override
+  public void onCapacityConfirm(final Satoshi capacity, final long feesSatPerKW, final boolean requireLiquidity) {
+    final NodeURI nodeURI = mBinding.getNodeURI();
+    if (requireLiquidity && nodeURI.nodeId().equals(Constants.ACINQ_NODE_URI.nodeId())) {
+      if (App.walletContext == null) {
+        log.info("wallet context is null, liquidity feature is unavailable");
+        Toast.makeText(getApplicationContext(), R.string.openchannel_liquidity_unavailable, Toast.LENGTH_LONG).show();
+      } else {
+        goToLiquidityPage(capacity, feesSatPerKW);
       }
-    } catch (Exception e) {
-      log.debug("could not convert amount to number with cause {}", e.getMessage());
-      showError(getString(R.string.openchannel_error_capacity_nan));
+    } else {
+      openChannel_secure(nodeURI, capacity, feesSatPerKW, new MilliSatoshi(0));
+    }
+  }
+
+  @Override
+  public void onLiquidityBack() {
+    goToCapacityPage();
+  }
+
+  @Override
+  public void onLiquidityConfirm(final Satoshi capacity, final Long feesSatPerKW, final MilliSatoshi push) {
+    openChannel_secure(mBinding.getNodeURI(), capacity, feesSatPerKW, push);
+  }
+
+  private void openChannel_secure(final NodeURI nodeURI, final Satoshi capacity, final Long feesSatPerKW, final MilliSatoshi push) {
+    if (nodeURI == null) {
+      finish();
       return;
     }
-
-    try {
-      if (Long.parseLong(mBinding.feesValue.getText().toString()) <= 0) {
-        showError(getString(R.string.openchannel_error_fees_gt_0));
-        return;
-      }
-    } catch (Exception e) {
-      log.debug("could not read fees with cause {}", e.getMessage());
-      showError(getString(R.string.openchannel_error_fees_nan));
-      return;
-    }
-
-    disableForm();
     if (isPinRequired()) {
       pinDialog = new PinDialog(OpenChannelActivity.this, R.style.FullScreenDialog, new PinDialog.PinDialogCallback() {
         @Override
         public void onPinConfirm(final PinDialog dialog, final String pinValue) {
           if (isPinCorrect(pinValue, dialog)) {
-            doOpenChannel();
+            doOpenChannel(nodeURI, capacity, feesSatPerKW, push);
           } else {
-            showError(getString(R.string.payment_error_incorrect_pin));
-            enableForm();
+            mBinding.setErrorMessage(getString(R.string.payment_error_incorrect_pin));
           }
         }
 
         @Override
         public void onPinCancel(PinDialog dialog) {
-          enableForm();
+          // nothing
         }
       });
       pinDialog.show();
     } else {
-      doOpenChannel();
+      doOpenChannel(nodeURI, capacity, feesSatPerKW, push);
     }
   }
 
-  private void doOpenChannel() {
+  private void doOpenChannel(final NodeURI nodeURI, final Satoshi capacity, final Long feesSatPerKW, final MilliSatoshi push) {
     try {
-      final Satoshi fundingSat = CoinUtils.convertStringAmountToSat(mBinding.capacityValue.getText().toString(), preferredBitcoinUnit.code());
-      final Long feesPerKw = fr.acinq.eclair.package$.MODULE$.feerateByte2Kw(Long.parseLong(mBinding.feesValue.getText().toString()));
-      final Peer.OpenChannel open = new Peer.OpenChannel(remoteNodeURI.nodeId(), fundingSat, new MilliSatoshi(0), scala.Option.apply(feesPerKw), scala.Option.apply(null));
+      log.info("opening channel with {} with capacity={} fees={} push={}", nodeURI, capacity, feesSatPerKW, push);
+      final Peer.OpenChannel open = new Peer.OpenChannel(nodeURI.nodeId(), capacity, push, scala.Option.apply(feesSatPerKW), scala.Option.apply(null));
       AsyncExecutor.create().execute(
         () -> {
           final Timeout timeout = new Timeout(Duration.create(30, "seconds"));
@@ -382,25 +230,12 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
               }
             }
           };
-          Patterns.ask(app.appKit.eclairKit.switchboard(), new Peer.Connect(remoteNodeURI), timeout)
+          Patterns.ask(app.appKit.eclairKit.switchboard(), new Peer.Connect(nodeURI), timeout)
             .onComplete(onConnectComplete, app.system.dispatcher());
         });
-      goToHome();
+      finish();
     } catch (Throwable t) {
-      showError(t.getLocalizedMessage());
-    }
-  }
-
-  @Override
-  public void processNodeURIFinish(final NodeURI uri) {
-    this.remoteNodeURI = uri;
-    if (this.remoteNodeURI == null || this.remoteNodeURI.address() == null || this.remoteNodeURI.nodeId() == null) {
-      mBinding.loading.setText(getString(R.string.openchannel_error_address));
-    } else {
-      mBinding.loading.setVisibility(View.GONE);
-      setURIFields(uri.nodeId().toString(), uri.address().getHost(), String.valueOf(uri.address().getPort()));
-      mBinding.form.setVisibility(View.VISIBLE);
-      mBinding.capacityValue.requestFocus();
+      mBinding.setErrorMessage(t.getLocalizedMessage());
     }
   }
 }

@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright 2018 ACINQ SAS
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,14 +22,18 @@
   <color name="primary_light_x1">#33befb</color>
   <color name="primary_dark_x1">#0098d9</color>
   <color name="primary_dark_x3">#0f729e</color>
+  <color name="primary_dark_x4">#056088</color>
   <color name="accent">#ba3259</color>
   <!-- very light greys for backgrounds -->
   <color name="grey_0">#ecedef</color>
+  <color name="grey_0_blue_light_x2">#f1f8fe</color>
+  <color name="grey_0_blue_light_x1">#dbedfd</color>
+  <color name="grey_0_blue">#bbdefb</color>
   <color name="grey_0_light_x3">#f9f9f9</color>
   <color name="grey_0_light_x2">#f6f6f6</color>
   <color name="grey_0_light_x1">#f2f2f2</color>
   <color name="grey_0_dark_x1">#e8e9eb</color>
-  <color name="grey_0_dark_x2">#dedede</color>
+  <color name="grey_0_dark_x2">#dadbdf</color>
   <!-- light grey for text that should be almost invisible to the user -->
   <color name="grey_1">#bbbbbb</color>
   <color name="grey_1_dark_x1">#acacac</color>
@@ -41,7 +44,9 @@
   <!-- almost black, good for regular text -->
   <color name="grey_4">#333333</color>
   <color name="green">#00c28c</color>
+  <color name="green_dark">#0BA876</color>
   <color name="yellow">#ffe88a</color>
+  <color name="yellow_light_x3">#FFF3DF</color>
   <color name="yellow_light_x2">#feedc5</color>
   <color name="yellow_light_x1">#ffda97</color>
   <color name="orange">#ffab00</color>
@@ -50,11 +55,13 @@
   <color name="red_faded_light_x1">#ff6c6c</color>
   <color name="red_faded_dark_x1">#be4141</color>
   <color name="red_faded_dark_x2">#b13a3a</color>
-  <color name="blue_dark">#539dc2</color>
-  <color name="blue">#67ccf2</color>
-  <color name="blue_light_x1">#91e2ff</color>
-  <color name="blue_light_x2">#c8eefc</color>
-  <color name="blue_light_x3">#ebfaff</color>
+  <color name="receive_color">#c5cbda</color>
+  <color name="blue">#1084E9</color>
+  <color name="azur_dark">#539dc2</color>
+  <color name="azur">#67ccf2</color>
+  <color name="azur_light_x1">#91e2ff</color>
+  <color name="azur_light_x2">#c8eefc</color>
+  <color name="azur_light_x3">#ebfaff</color>
   <color name="white">#ffffff</color>
   <color name="white_low_alpha">#11ffffff</color>
   <color name="almost_white">#fbfbfb</color>

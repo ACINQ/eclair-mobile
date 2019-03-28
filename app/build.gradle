@@ -8,8 +8,8 @@ android {
     applicationId "fr.acinq.eclair.wallet.mainnet2"
     minSdkVersion 21
     targetSdkVersion 28
-    versionCode 38
-    versionName "0.3.22"
+    versionCode 42
+    versionName "0.4.2-DEV"
     testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     multiDexEnabled true
   }
@@ -25,6 +25,12 @@ android {
       resValue "string", "CHAIN", CHAIN_MAINNET
       buildConfigField "String", "CHAIN", CHAIN_MAINNET
       debuggable true
+    }
+    applicationVariants.all { variant ->
+      variant.outputs.all { output ->
+        final String chain = variant.buildType.resValues.get("CHAIN").value // careful, contains " characters...
+        outputFileName = "v${defaultConfig.versionCode}-${chain.substring(1, chain.length() - 1)}-${variant.buildType.name}.apk"
+      }
     }
   }
   configurations.all {
@@ -68,7 +74,7 @@ dependencies {
   implementation 'com.google.code.findbugs:jsr305:3.0.2'
   implementation 'com.google.android.gms:play-services-drive:16.0.0'
   implementation 'com.google.android.gms:play-services-auth:16.0.1'
-  implementation ('android.arch.work:work-runtime:1.0.0-alpha11') {
+  implementation('android.arch.work:work-runtime:1.0.0') {
     exclude group: 'com.google.guava', module: 'listenablefuture'
   }
   // logging
@@ -78,7 +84,7 @@ dependencies {
     exclude group: 'ch.qos.logback'
   }
   // eclair core
-  implementation 'fr.acinq.eclair:eclair-core_2.11:0.2-android-beta18'
+  implementation 'fr.acinq.eclair:eclair-core_2.11:0.2-android-beta19'
   // database orm
   implementation 'org.greenrobot:greendao:3.2.2'
   // required for greendao encryption, disabled for now

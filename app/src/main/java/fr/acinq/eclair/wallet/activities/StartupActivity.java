@@ -17,7 +17,6 @@
 package fr.acinq.eclair.wallet.activities;
 
 import akka.actor.ActorRef;
-import akka.actor.ActorSystem;
 import akka.actor.Props;
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -37,18 +36,14 @@ import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.common.base.Strings;
 import com.google.common.io.Files;
-import com.google.common.net.HostAndPort;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-import fr.acinq.bitcoin.BinaryData;
 import fr.acinq.bitcoin.DeterministicWallet;
 import fr.acinq.eclair.Kit;
 import fr.acinq.eclair.Setup;
 import fr.acinq.eclair.blockchain.electrum.ElectrumEclairWallet;
 import fr.acinq.eclair.channel.ChannelEvent;
 import fr.acinq.eclair.crypto.LocalKeyManager;
+import fr.acinq.eclair.payment.PaymentEvent;
 import fr.acinq.eclair.payment.PaymentLifecycle;
 import fr.acinq.eclair.router.SyncProgress;
 import fr.acinq.eclair.wallet.App;
@@ -59,7 +54,8 @@ import fr.acinq.eclair.wallet.actors.NodeSupervisor;
 import fr.acinq.eclair.wallet.actors.RefreshScheduler;
 import fr.acinq.eclair.wallet.databinding.ActivityStartupBinding;
 import fr.acinq.eclair.wallet.fragments.PinDialog;
-import fr.acinq.eclair.wallet.services.NetworkSyncReceiver;
+import fr.acinq.eclair.wallet.services.CheckElectrumWorker;
+import fr.acinq.eclair.wallet.services.NetworkSyncWorker;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.EclairException;
 import fr.acinq.eclair.wallet.utils.EncryptedBackup;
@@ -69,15 +65,20 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.spongycastle.util.encoders.Hex;
 import scala.Option;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
+import scodec.bits.ByteVector;
+import scodec.bits.ByteVector$;
 
 import java.io.File;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
 import java.util.concurrent.TimeoutException;
 
 public class StartupActivity extends EclairActivity implements EclairActivity.EncryptSeedCallback {
@@ -296,9 +297,13 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
       @Override
       public void run() {
         try {
-          final BinaryData seed = BinaryData.apply(new String(WalletUtils.readSeedFile(datadir, password)));
+          // this is a bit tricky: for compatibility reasons the actual content of the seed file
+          // is the hexadecimal representation of the seed and not the seed itself
+          final byte[] hexbytes = WalletUtils.readSeedFile(datadir, password);
+          final byte[] bytes = Hex.decode(hexbytes);
+          final ByteVector seed = ByteVector$.MODULE$.apply(bytes);
           final DeterministicWallet.ExtendedPrivateKey pk = DeterministicWallet.derivePrivateKey(
-            DeterministicWallet.generate(seed.data()), LocalKeyManager.nodeKeyBasePath(WalletUtils.getChainHash()));
+            DeterministicWallet.generate(seed), LocalKeyManager.nodeKeyBasePath(WalletUtils.getChainHash()));
           app.pin.set(password);
           app.seedHash.set(pk.privateKey().publicKey().hash160().toString());
           app.backupKey_v1.set(EncryptedBackup.generateBackupKey_v1(pk));
@@ -344,8 +349,13 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
     switch (event.status) {
       case StartupTask.SUCCESS:
         if (isAppReady()) {
-          prefs.edit().putBoolean(Constants.SETTING_HAS_STARTED_ONCE, true).apply();
-          NetworkSyncReceiver.scheduleSync();
+          app.scheduleExchangeRatePoll();
+          prefs.edit()
+            .putBoolean(Constants.SETTING_HAS_STARTED_ONCE, true)
+            .putLong(Constants.SETTING_LAST_SUCCESSFUL_BOOT_DATE, System.currentTimeMillis())
+            .apply();
+          NetworkSyncWorker.scheduleSync();
+          CheckElectrumWorker.schedule();
           goToHome();
         } else {
           // empty appkit, something went wrong.
@@ -430,7 +440,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
     protected Integer doInBackground(Object... params) {
       try {
         App app = (App) params[0];
-        final BinaryData seed = (BinaryData) params[1];
+        final ByteVector seed = (ByteVector) params[1];
         final File datadir = new File(app.getFilesDir(), Constants.ECLAIR_DATADIR);
 
         publishProgress(app.getString(R.string.start_log_init));
@@ -444,12 +454,12 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
         }
 
         app.checkupInit();
-        cancelSyncWork();
+        cancelBackgroundWorks();
 
         publishProgress(app.getString(R.string.start_log_setting_up));
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(app.getBaseContext());
         Class.forName("org.sqlite.JDBC");
-        final Setup setup = new Setup(datadir, getOverrideConfig(prefs), Option.apply(seed), app.system);
+        final Setup setup = new Setup(datadir, WalletUtils.getOverrideConfig(prefs), Option.apply(seed), app.system);
 
         // ui refresh schedulers
         final ActorRef paymentsRefreshScheduler = app.system.actorOf(Props.create(RefreshScheduler.PaymentsRefreshScheduler.class), "PaymentsRefreshScheduler");
@@ -461,6 +471,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
           app.seedHash.get(), app.backupKey_v2.get(), paymentsRefreshScheduler, channelsRefreshScheduler, balanceRefreshScheduler), "NodeSupervisor");
         app.system.eventStream().subscribe(nodeSupervisor, ChannelEvent.class);
         app.system.eventStream().subscribe(nodeSupervisor, SyncProgress.class);
+        app.system.eventStream().subscribe(nodeSupervisor, PaymentEvent.class);
         app.system.eventStream().subscribe(nodeSupervisor, PaymentLifecycle.PaymentResult.class);
 
         // electrum payment supervisor actor
@@ -493,49 +504,23 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
       EventBus.getDefault().post(new StartupCompleteEvent(status));
     }
 
-    /**
-     * Builds a TypeSafe configuration to override the default conf of the node setup. Returns an empty config if no configuration entry must be overridden.
-     * <p>
-     * If the user has set a preferred electrum server, retrieves it from the prefs and adds it to the configuration.
-     */
-    private Config getOverrideConfig(final SharedPreferences prefs) {
-      final String prefsElectrumAddress = prefs.getString(Constants.CUSTOM_ELECTRUM_SERVER, "").trim();
-      if (!Strings.isNullOrEmpty(prefsElectrumAddress)) {
-        try {
-          final HostAndPort address = HostAndPort.fromString(prefsElectrumAddress).withDefaultPort(50002);
-          final Map<String, Object> conf = new HashMap<>();
-          if (!Strings.isNullOrEmpty(address.getHost())) {
-            conf.put("eclair.electrum.host", address.getHost());
-            conf.put("eclair.electrum.port", address.getPort());
-            // custom server certificate must be valid
-            conf.put("eclair.electrum.ssl", "strict");
-            return ConfigFactory.parseMap(conf);
-          }
-        } catch (Exception e) {
-          log.error("could not read custom electrum address=" + prefsElectrumAddress, e);
-        }
-      }
-      return ConfigFactory.empty();
-    }
-
-    private void cancelSyncWork() {
+    private void cancelBackgroundWorks() {
       final WorkManager workManager = WorkManager.getInstance();
       try {
-        final List<WorkInfo> works = workManager.getWorkInfosByTag(NetworkSyncReceiver.NETWORK_SYNC_TAG).get();
-        if (works == null || works.isEmpty()) {
-          log.info("no sync work found");
+        final List<WorkInfo> works = workManager.getWorkInfosByTag(NetworkSyncWorker.NETWORK_SYNC_TAG).get();
+        works.addAll(workManager.getWorkInfosByTag(CheckElectrumWorker.ELECTRUM_CHECK_WORKER_TAG).get());
+        if (works.isEmpty()) {
+          log.info("no background works were found");
         } else {
           for (WorkInfo work : works) {
-            log.debug("found a sync work in state {}, full data={}", work.getState(), work);
-            if (work.getState() == WorkInfo.State.RUNNING) {
-              log.info("found a running sync work, cancelling work...");
-              workManager.cancelWorkById(work.getId()).getResult().get();
-            }
+            log.info("found a background work in state {}, full data={}", work.getState(), work);
+            workManager.cancelWorkById(work.getId()).getResult().get();
+            log.info("successfully cancelled work {}", work);
           }
         }
       } catch (Exception e) {
-        log.error("failed to retrieve or cancel sync works", e);
-        throw new RuntimeException("could not cancel sync works");
+        log.error("failed to retrieve or cancel background works", e);
+        throw new RuntimeException("could not cancel background work");
       }
     }
   }

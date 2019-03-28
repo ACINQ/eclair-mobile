@@ -38,7 +38,7 @@ public class NodeURIReaderTask extends AsyncTask<String, Integer, NodeURI> {
   protected NodeURI doInBackground(String... params) {
     NodeURI uri = null;
     try {
-      uri = NodeURI.parse(nodeURIAsString);
+      uri = NodeURI.parse(nodeURIAsString.trim());
     } catch (Throwable t) {
       log.debug("could not read uri {} with cause {}", nodeURIAsString, t.getMessage());
     }

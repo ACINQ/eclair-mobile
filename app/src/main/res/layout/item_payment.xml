@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright 2018 ACINQ SAS
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,135 +14,157 @@
   ~ limitations under the License.
   -->
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
   android:layout_width="match_parent"
-  android:layout_height="@dimen/item_height"
-  android:background="?android:attr/selectableItemBackground">
+  android:layout_height="wrap_content"
+  android:background="?android:attr/selectableItemBackground"
+  android:paddingTop="@dimen/space_sm"
+  android:paddingBottom="@dimen/space_sm"
+  tools:ignore="UnusedAttribute">
 
   <ImageView
-    android:id="@+id/paymentitem_image"
-    android:layout_width="22dp"
-    android:layout_height="22dp"
+    android:id="@+id/paymentitem_type"
+    android:layout_width="16dp"
+    android:layout_height="16dp"
     android:layout_alignParentStart="true"
     android:layout_centerVertical="true"
     android:layout_gravity="center"
-    android:layout_marginEnd="8dp"
-    android:layout_marginStart="8dp" />
+    android:layout_marginStart="@dimen/space_md"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent"
+    android:contentDescription="@string/paymentitem_icon_desc" />
 
-  <RelativeLayout
-    android:id="@+id/paymentitem_content"
+  <android.support.constraint.Guideline
+    android:id="@+id/amount_guideline"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_centerVertical="true"
-    android:layout_marginEnd="8dp"
-    android:layout_toEndOf="@+id/paymentitem_image"
-    android:layout_toStartOf="@+id/paymentitem_amount"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    app:layout_constraintGuide_percent="0.6" />
 
-    <TextView
-      android:id="@+id/paymentitem_description"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:ellipsize="end"
-      android:maxLines="1"
-      android:text="@string/unknown"
-      android:textSize="12sp" />
+  <TextView
+    android:id="@+id/paymentitem_description"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="@dimen/space_sm"
+    android:layout_marginEnd="@dimen/text_md"
+    android:ellipsize="end"
+    android:singleLine="true"
+    android:text="@string/unknown"
+    android:textSize="@dimen/text_md"
+    app:layout_constrainedWidth="true"
+    app:layout_constraintEnd_toStartOf="@id/amount_guideline"
+    app:layout_constraintHorizontal_bias="0"
+    app:layout_constraintStart_toEndOf="@id/paymentitem_type"
+    app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-      android:id="@+id/paymentitem_status"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_below="@+id/paymentitem_description"
-      android:layout_marginEnd="4dp"
-      android:text="@string/unknown"
-      android:textColor="@color/primary"
-      android:textSize="10sp" />
+  <TextView
+    android:id="@+id/paymentitem_status"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginEnd="@dimen/space_md_p"
+    android:ellipsize="end"
+    android:maxWidth="120dp"
+    android:maxLines="1"
+    android:textColor="@color/grey_1"
+    android:textSize="@dimen/text_md"
+    android:visibility="gone"
+    app:layout_constrainedWidth="true"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintHorizontal_bias="1"
+    app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-      android:id="@+id/paymentitem_date"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_below="@+id/paymentitem_description"
-      android:layout_toEndOf="@+id/paymentitem_status"
-      android:maxLines="1"
-      android:text="@string/unknown"
-      android:textColor="@color/grey_1"
-      android:textSize="10sp" />
+  <TextView
+    android:id="@+id/paymentitem_date"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:maxLines="1"
+    android:text="@string/unknown"
+    android:textColor="@color/grey_1"
+    android:textSize="@dimen/text_sm"
+    app:layout_constrainedWidth="true"
+    app:layout_constraintHorizontal_bias="0"
+    app:layout_constraintStart_toStartOf="@id/paymentitem_description"
+    app:layout_constraintTop_toBottomOf="@id/paymentitem_description" />
 
-  </RelativeLayout>
+  <TextView
+    android:id="@+id/paymentitem_amount_value"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginEnd="@dimen/space_xxxs"
+    android:ellipsize="end"
+    android:letterSpacing="0.02"
+    android:maxLines="1"
+    android:textSize="@dimen/text_md"
+    app:layout_constrainedWidth="true"
+    app:layout_constraintBaseline_toBaselineOf="@id/paymentitem_description"
+    app:layout_constraintEnd_toStartOf="@id/paymentitem_amount_unit"
+    app:layout_constraintHorizontal_bias="1"
+    app:layout_constraintStart_toEndOf="@id/amount_guideline" />
 
-  <RelativeLayout
-    android:id="@+id/paymentitem_amount"
-    android:layout_width="128dp"
-    android:layout_height="match_parent"
-    android:layout_alignParentEnd="true"
-    android:layout_centerVertical="true"
-    android:layout_marginEnd="8dp"
-    android:gravity="end|center_vertical"
-    android:minWidth="40dp">
+  <TextView
+    android:id="@+id/paymentitem_amount_unit"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginEnd="@dimen/space_md"
+    android:maxLines="1"
+    android:textColor="@color/grey_1"
+    android:textSize="@dimen/text_xs"
+    app:layout_constrainedWidth="true"
+    app:layout_constraintBaseline_toBaselineOf="@id/paymentitem_amount_value"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintHorizontal_bias="1" />
 
-    <TextView
-      android:id="@+id/paymentitem_amount_value"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_alignParentTop="true"
-      android:layout_marginEnd="4dp"
-      android:layout_toStartOf="@+id/paymentitem_amount_unit"
-      android:maxLines="1"
-      android:textSize="14sp" />
+  <TextView
+    android:id="@+id/paymentitem_fees_prefix"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_alignBaseline="@+id/paymentitem_fees_value"
+    android:layout_marginEnd="@dimen/space_xxs"
+    android:layout_toStartOf="@+id/paymentitem_fees_value"
+    android:maxLines="1"
+    android:text="@string/paymentitem_fee_prefix"
+    android:textColor="@color/grey_1"
+    android:textSize="@dimen/text_xs"
+    android:visibility="visible"
+    app:layout_constrainedWidth="true"
+    app:layout_constraintBaseline_toBaselineOf="@id/paymentitem_fees_unit"
+    app:layout_constraintEnd_toStartOf="@id/paymentitem_fees_value"
+    app:layout_constraintHorizontal_bias="1" />
 
-    <TextView
-      android:id="@+id/paymentitem_amount_unit"
-      android:layout_width="26dp"
-      android:layout_height="wrap_content"
-      android:layout_alignBaseline="@+id/paymentitem_amount_value"
-      android:layout_alignParentEnd="true"
-      android:maxLines="1"
-      android:textColor="@color/grey_2"
-      android:textSize="8sp" />
+  <TextView
+    android:id="@+id/paymentitem_fees_value"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_below="@+id/paymentitem_amount_value"
+    android:layout_marginEnd="@dimen/space_xxs"
+    android:layout_toStartOf="@+id/paymentitem_amount_unit"
+    android:maxLines="1"
+    android:textColor="@color/grey_2"
+    android:textSize="@dimen/text_xs"
+    android:visibility="visible"
+    app:layout_constrainedWidth="true"
 
-    <TextView
-      android:id="@+id/paymentitem_fees_prefix"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_alignBaseline="@+id/paymentitem_fees_value"
-      android:layout_marginEnd="2dp"
-      android:layout_toStartOf="@+id/paymentitem_fees_value"
-      android:maxLines="1"
-      android:text="@string/paymentitem_fee_prefix"
-      android:textColor="@color/grey_1"
-      android:textSize="10sp"
-      android:visibility="gone" />
+    app:layout_constraintBaseline_toBaselineOf="@id/paymentitem_fees_unit"
+    app:layout_constraintEnd_toStartOf="@id/paymentitem_fees_unit"
+    app:layout_constraintHorizontal_bias="1" />
 
-    <TextView
-      android:id="@+id/paymentitem_fees_value"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_below="@+id/paymentitem_amount_value"
-      android:layout_marginEnd="4dp"
-      android:layout_toStartOf="@+id/paymentitem_amount_unit"
-      android:maxLines="1"
-      android:textColor="@color/grey_2"
-      android:textSize="10sp"
-      android:visibility="gone" />
+  <TextView
+    android:id="@+id/paymentitem_fees_unit"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_alignBaseline="@+id/paymentitem_fees_value"
+    android:layout_alignStart="@+id/paymentitem_amount_unit"
+    android:maxLines="1"
+    android:textColor="@color/grey_1"
+    android:textSize="@dimen/text_xs"
+    android:visibility="visible"
+    app:layout_constrainedWidth="true"
+    app:layout_constraintBaseline_toBaselineOf="@id/paymentitem_date"
+    app:layout_constraintHorizontal_bias="1"
+    app:layout_constraintStart_toStartOf="@id/paymentitem_amount_unit" />
 
-    <TextView
-      android:id="@+id/paymentitem_fees_unit"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_alignBaseline="@+id/paymentitem_fees_value"
-      android:layout_alignStart="@+id/paymentitem_amount_unit"
-      android:maxLines="1"
-      android:textColor="@color/grey_1"
-      android:textSize="8sp"
-      android:visibility="gone" />
-
-  </RelativeLayout>
-
-  <View
-    android:layout_width="match_parent"
-    android:layout_height="1dp"
-    android:layout_alignParentBottom="true"
-    android:background="@color/grey_0_light_x1" />
-
-</RelativeLayout>
+</android.support.constraint.ConstraintLayout>

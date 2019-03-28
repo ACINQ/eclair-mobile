@@ -70,6 +70,28 @@
       android:summary="@string/prefs_lightning_max_fee_desc"
       android:title="@string/prefs_lightning_max_fee" />
 
+    <SwitchPreference
+      android:defaultValue="false"
+      android:key="enable_lightning_inbound_payments"
+      android:summary="@string/prefs_lightning_enable_inbound_desc"
+      android:title="@string/prefs_lightning_enable_inbound" />$
+
+    <EditTextPreference
+      android:dialogTitle="@string/prefs_payment_request_default_description"
+      android:key="payment_request_default_description"
+      android:summary="@string/prefs_payment_request_default_description_summary"
+      android:maxLength="256"
+      android:title="@string/prefs_payment_request_default_description" />
+
+    <ListPreference
+      android:defaultValue="3600"
+      android:dialogTitle="@string/prefs_payment_request_expiry"
+      android:entries="@array/lightning_pr_expiry_labels"
+      android:entryValues="@array/lightning_pr_expiry_values"
+      android:key="payment_request_expiry"
+      android:summary="%s"
+      android:title="@string/prefs_payment_request_expiry" />
+
   </PreferenceCategory>
 
   <PreferenceCategory android:title="@string/prefs_cat_advanced">

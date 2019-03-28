@@ -31,15 +31,21 @@ import android.widget.Toast;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.spongycastle.util.encoders.Hex;
 
-import fr.acinq.bitcoin.BinaryData;
+import fr.acinq.bitcoin.ByteVector32;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.adapters.LocalChannelItemHolder;
 import fr.acinq.eclair.wallet.databinding.ActivityChannelRawDataBinding;
 import fr.acinq.eclair.wallet.events.ChannelRawDataEvent;
+import scodec.bits.Bases;
+import scodec.bits.ByteVector;
 
 public class ChannelRawDataActivity extends EclairActivity {
 
+  private final Logger log = LoggerFactory.getLogger(ChannelRawDataActivity.class);
   private ActivityChannelRawDataBinding mBinding;
   private String mChannelId;
 
@@ -62,6 +68,7 @@ public class ChannelRawDataActivity extends EclairActivity {
     if (event == null || event.json == null) {
       mBinding.rawJson.setText(getString(R.string.rawdata_error));
     } else {
+      log.info("retrieved channel raw data {}", event.json);
       mBinding.rawJson.setText(event.json);
     }
   }
@@ -73,7 +80,7 @@ public class ChannelRawDataActivity extends EclairActivity {
       if (!EventBus.getDefault().isRegistered(this)) {
         EventBus.getDefault().register(this);
       }
-      app.getLocalChannelRawData(BinaryData.apply(mChannelId));
+      app.getLocalChannelRawData(ByteVector32.apply(ByteVector.view(Hex.decode(mChannelId))));
     }
   }
 

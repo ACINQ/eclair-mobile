@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright 2018 ACINQ SAS
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto">
+
+  <data>
+
+    <import type="android.view.View" />
+
+    <variable
+      name="amountWarning"
+      type="String" />
+
+    <variable
+      name="amountError"
+      type="String" />
+  </data>
+
+  <!--<android.support.constraint.ConstraintLayout-->
+  <!--android:layout_width="match_parent"-->
+  <!--android:layout_height="wrap_content"-->
+  <!--android:background="@color/white">-->
+
+
+  <ScrollView
+    android:id="@+id/scrollView2"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:fillViewport="true"
+    android:scrollbars="vertical"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent">
+
+    <android.support.constraint.ConstraintLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content">
+
+      <android.support.constraint.Guideline
+        android:id="@+id/mid_guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.5" />
+
+      <TextView
+        android:id="@+id/description_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/space_lg"
+        android:layout_marginTop="@dimen/space_lg"
+        android:layout_marginEnd="@dimen/space_lg"
+        android:fontFamily="sans-serif-medium"
+        android:text="@string/dialog_prparams_description_title"
+        android:textColor="@color/primary"
+        app:layout_constraintTop_toTopOf="parent" />
+
+      <EditText
+        android:id="@+id/description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/space_lg"
+        android:layout_marginEnd="@dimen/space_lg"
+        android:backgroundTint="@color/primary"
+        android:hint="@string/dialog_prparams_description_hint"
+        android:importantForAutofill="no"
+        android:inputType="text"
+        android:maxLength="256"
+        android:textSize="@dimen/text_md"
+        android:translationX="-4dp"
+        app:layout_constraintTop_toBottomOf="@id/description_title" />
+
+      <TextView
+        android:id="@+id/amount_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/space_lg"
+        android:layout_marginTop="@dimen/space_md_p"
+        android:layout_marginEnd="@dimen/space_lg"
+        android:fontFamily="sans-serif-medium"
+        android:text="@string/dialog_prparams_amount_title"
+        android:textColor="@color/primary"
+        app:layout_constraintTop_toBottomOf="@id/description" />
+
+      <EditText
+        android:id="@+id/amount"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/space_lg"
+        android:layout_marginEnd="@dimen/space_xs"
+        android:backgroundTint="@color/primary"
+        android:hint="@string/dialog_prparams_amount_hint"
+        android:importantForAutofill="no"
+        android:inputType="numberDecimal"
+        android:textSize="@dimen/text_md"
+        android:translationX="-4dp"
+        app:layout_constraintEnd_toStartOf="@id/amount_unit"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/amount_title" />
+
+      <TextView
+        android:id="@+id/amount_unit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_md_p"
+        android:layout_marginEnd="@dimen/space_lg"
+        app:layout_constraintBaseline_toBaselineOf="@id/amount"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+      <TextView
+        android:id="@+id/amount_warning_view"
+        style="@style/WarningMessage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/space_lg"
+        android:layout_marginTop="@dimen/space_md"
+        android:layout_marginEnd="@dimen/space_lg"
+        android:text="@{amountWarning}"
+        android:textSize="@dimen/text_sm"
+        android:visibility="@{amountWarning != null ? View.VISIBLE : View.GONE}"
+        app:layout_constraintTop_toBottomOf="@id/amount" />
+
+      <TextView
+        android:id="@+id/amount_error_view"
+        style="@style/ErrorMessage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/space_lg"
+        android:layout_marginTop="@dimen/space_md"
+        android:layout_marginEnd="@dimen/space_lg"
+        android:text="@{amountError}"
+        android:textSize="@dimen/text_sm"
+        android:visibility="@{amountError != null ? View.VISIBLE : View.GONE}"
+        app:layout_constraintTop_toBottomOf="@id/amount_warning_view" />
+
+      <Button
+        android:id="@+id/cancel"
+        style="@style/ButtonStyle"
+        android:layout_width="0dp"
+        android:background="@color/white"
+        android:singleLine="true"
+        android:text="@string/btn_cancel"
+        android:textColor="@color/grey_1"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/mid_guideline"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/confirm" />
+
+      <Button
+        android:id="@+id/confirm"
+        style="@style/ButtonStyle"
+        android:layout_width="0dp"
+        android:layout_marginTop="@dimen/space_lg"
+        android:background="@color/white"
+        android:singleLine="true"
+        android:text="@string/btn_ok"
+        android:textColor="@{amountError == null ? @color/grey_4 : @color/grey_1}"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/mid_guideline"
+        app:layout_constraintTop_toBottomOf="@+id/amount_error_view" />
+
+    </android.support.constraint.ConstraintLayout>
+  </ScrollView>
+
+
+  <!--</android.support.constraint.ConstraintLayout>-->
+</layout>

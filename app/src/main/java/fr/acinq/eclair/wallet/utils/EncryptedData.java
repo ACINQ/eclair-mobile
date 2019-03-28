@@ -24,8 +24,8 @@ import java.security.GeneralSecurityException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
-import fr.acinq.bitcoin.BinaryData;
-import fr.acinq.bitcoin.package$;
+import fr.acinq.bitcoin.ByteVector32;
+import scodec.bits.ByteVector;
 
 public abstract class EncryptedData {
 
@@ -55,8 +55,8 @@ public abstract class EncryptedData {
     return AesCbcWithIntegrity.decrypt(civ, sk);
   }
 
-  public static AesCbcWithIntegrity.SecretKeys secretKeyFromBinaryKey(final BinaryData key) {
-    final byte[] keyBytes = package$.MODULE$.binaryData2array(key);
+  public static AesCbcWithIntegrity.SecretKeys secretKeyFromBinaryKey(final ByteVector32 key) {
+    final byte[] keyBytes = key.bytes().toArray();
     final byte[] confidentialityKeyBytes = new byte[16];
     System.arraycopy(keyBytes, 0, confidentialityKeyBytes, 0, 16);
     final byte[] integrityKeyBytes = new byte[16];

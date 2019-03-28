@@ -21,27 +21,23 @@ import android.content.SharedPreferences;
 import android.content.res.TypedArray;
 import android.graphics.Typeface;
 import android.preference.PreferenceManager;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.util.TypedValue;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
-
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.eclair.CoinUnit;
 import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 
-public class CoinAmountView extends RelativeLayout {
+public class CoinAmountView extends ConstraintLayout {
   private final SharedPreferences prefs;
   private TextView amountTextView;
   private TextView unitTextView;
-  private ImageView imageView;
   private MilliSatoshi amountMsat = new MilliSatoshi(0);
   private CoinUnit prefBtcUnit;
   private String prefFiatCurrency;
@@ -69,7 +65,7 @@ public class CoinAmountView extends RelativeLayout {
     this.prefBtcUnit = WalletUtils.getPreferredCoinUnit(prefs);
     this.prefFiatCurrency = WalletUtils.getPreferredFiat(prefs);
     if (WalletUtils.shouldDisplayInFiat(prefs) && !forceBtcUnit) {
-      WalletUtils.printAmountInView(amountTextView, WalletUtils.convertMsatToFiat(amountMsat.amount(), prefFiatCurrency));
+      WalletUtils.printAmountInView(amountTextView, WalletUtils.formatMsatToFiat(amountMsat.amount(), prefFiatCurrency));
       unitTextView.setText(prefFiatCurrency.toUpperCase());
     } else {
       WalletUtils.printAmountInView(amountTextView, CoinUtils.formatAmountInUnit(amountMsat, prefBtcUnit, false));
@@ -86,44 +82,22 @@ public class CoinAmountView extends RelativeLayout {
       final View layout = li.inflate(R.layout.custom_coin_amount_view, this, true);
       amountTextView = layout.findViewById(R.id.view_amount);
       unitTextView = layout.findViewById(R.id.view_unit);
-      imageView = layout.findViewById(R.id.view_image);
-      final RelativeLayout relativeLayout = layout.findViewById(R.id.view_relative);
-
-      switch (arr.getInt(R.styleable.CoinAmountView_alignment, 0)) {
-        case 1:
-          relativeLayout.setGravity(Gravity.CENTER);
-          break;
-        case 2:
-          relativeLayout.setGravity(Gravity.RIGHT);
-          break;
-        default:
-          relativeLayout.setGravity(Gravity.LEFT);
-      }
-
-      final int imageResId = arr.getResourceId(R.styleable.CoinAmountView_image_src, 0);
-      if (imageResId != 0) {
-        final int imageSize = arr.getDimensionPixelSize(R.styleable.CoinAmountView_image_size, 0);
-        imageView.setImageResource(imageResId);
-        imageView.setVisibility(VISIBLE);
-        imageView.getLayoutParams().height = imageSize;
-        imageView.getLayoutParams().width = imageSize;
-      }
 
       final int amountSize = arr.getDimensionPixelSize(R.styleable.CoinAmountView_amount_size, 0);
-      final int amountColor = arr.getColor(R.styleable.CoinAmountView_amount_color, ContextCompat.getColor(getContext(), R.color.grey_2));
-      final boolean isAmountBold = arr.getBoolean(R.styleable.CoinAmountView_amount_bold, false);
-      if (isAmountBold) {
-        amountTextView.setTypeface(null, Typeface.BOLD);
-      }
+      final int amountColor = arr.getColor(R.styleable.CoinAmountView_amount_color, ContextCompat.getColor(getContext(), R.color.grey_4));
+      final boolean isBold = arr.getBoolean(R.styleable.CoinAmountView_bold, false);
       amountTextView.setTextSize(TypedValue.COMPLEX_UNIT_PX, amountSize);
       amountTextView.setTextColor(amountColor);
+      if (isBold) {
+        amountTextView.setTypeface(Typeface.create("sans-serif-medium", Typeface.NORMAL));
+        unitTextView.setTypeface(Typeface.create("sans-serif-medium", Typeface.NORMAL));
+      } else {
+        amountTextView.setTypeface(Typeface.create("sans-serif-light", Typeface.NORMAL));
+        unitTextView.setTypeface(Typeface.create("sans-serif-light", Typeface.NORMAL));
+      }
 
       final int unitSize = arr.getDimensionPixelSize(R.styleable.CoinAmountView_unit_size, 0);
-      final int unitColor = arr.getColor(R.styleable.CoinAmountView_unit_color, ContextCompat.getColor(getContext(), R.color.grey_2));
-      final boolean isUnitBold = arr.getBoolean(R.styleable.CoinAmountView_unit_bold, false);
-      if (isUnitBold) {
-        unitTextView.setTypeface(null, Typeface.BOLD);
-      }
+      final int unitColor = arr.getColor(R.styleable.CoinAmountView_unit_color, ContextCompat.getColor(getContext(), R.color.grey_4));
       unitTextView.setTextSize(TypedValue.COMPLEX_UNIT_PX, unitSize);
       unitTextView.setTextColor(unitColor);
 

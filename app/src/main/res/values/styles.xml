@@ -23,10 +23,11 @@
     <item name="colorPrimaryDark">@color/primary</item>
     <item name="colorAccent">@color/primary</item>
     <item name="android:textColorSecondary">@color/white</item>
+    <item name="android:letterSpacing">0.01</item>
 
     <!-- forced white bg for consistency with older android versions -->
     <item name="android:windowBackground">@color/almost_white</item>
-    <item name="android:colorBackground">@color/almost_white</item>
+    <item name="android:colorBackground">@color/white</item>
 
     <item name="windowActionBar">false</item>
     <item name="windowNoTitle">true</item>
@@ -37,9 +38,13 @@
   <style name="PrimaryBgTheme" parent="AppTheme">
     <item name="android:textColor">@color/white</item>
     <item name="colorAccent">@color/primary_light_x3</item>
-    <item name="android:windowBackground">@color/primary</item>
-    <item name="android:colorBackground">@color/primary</item>
+    <item name="android:windowBackground">@drawable/bg_primary_gradient</item>
+    <item name="android:colorBackground">@color/white</item>
     <item name="android:lineSpacingMultiplier">1.15</item>
+  </style>
+
+  <style name="HomeTheme" parent="PrimaryBgTheme">
+    <item name="android:textColor">@color/grey_4</item>
   </style>
 
   <style name="PreferenceStyle" parent="Preference">
@@ -66,14 +71,23 @@
     <item name="android:textColor">@color/white</item>
   </style>
 
+  <style name="CustomDialogTitle">
+    <item name="android:textColor">@color/grey_4</item>
+    <item name="android:textAppearance">@style/TextAppearance.AppCompat.Title</item>
+  </style>
+
   <style name="CustomDialog" parent="@style/Theme.AppCompat.Light.Dialog">
     <item name="colorPrimary">@color/primary</item>
+    <item name="colorAccent">@color/primary</item>
     <item name="android:textColor">@color/grey_4</item>
+    <item name="android:textColorPrimary">@color/grey_4</item>
+    <item name="android:windowTitleStyle">@style/CustomDialogTitle</item>
     <item name="android:windowMinWidthMajor">85%</item>
     <item name="android:windowMinWidthMinor">85%</item>
     <item name="windowActionBar">false</item>
     <item name="windowNoTitle">true</item>
     <item name="actionBarTheme">@null</item>
+    <item name="android:windowSoftInputMode">adjustResize</item>
   </style>
 
   <style name="FullScreenDialog" parent="@style/CustomDialog">
@@ -101,16 +115,19 @@
   </style>
 
   <style name="CustomTabStyle" parent="Widget.Design.TabLayout">
-    <item name="tabPaddingStart">12dp</item>
-    <item name="tabPaddingEnd">12dp</item>
-    <item name="tabBackground">?attr/selectableItemBackground</item>
+    <item name="tabPaddingStart">@dimen/space_xs</item>
+    <item name="tabPaddingEnd">@dimen/space_xs</item>
+    <item name="tabBackground">@android:color/transparent</item>
     <item name="tabTextAppearance">@style/CustomTabText</item>
-    <item name="tabSelectedTextColor">@color/grey_3</item>
+    <item name="tabIndicatorHeight">0dp</item>
+    <item name="tabIndicatorColor">@android:color/transparent</item>
+    <item name="tabSelectedTextColor">@color/white</item>
   </style>
 
   <style name="CustomTabText" parent="TextAppearance.AppCompat.Button">
     <item name="android:textSize">10sp</item>
-    <item name="android:textColor">@color/grey_1</item>
+    <item name="android:textColor">@color/primary_light_x2</item>
+    <item name="textAllCaps">false</item>
   </style>
 
   <style name="PinButtonStyle" parent="@style/Widget.AppCompat.Button.Borderless.Colored">
@@ -172,6 +189,17 @@
     <item name="android:textColor">@color/grey_4</item>
   </style>
 
+  <style name="WarningMessage">
+    <item name="android:layout_width">wrap_content</item>
+    <item name="android:layout_height">wrap_content</item>
+    <item name="android:drawableStart">@drawable/ic_alert_circle_orange_bg_18dp</item>
+    <item name="android:drawablePadding">@dimen/space_xs</item>
+  </style>
+
+  <style name="ErrorMessage" parent="WarningMessage">
+    <item name="android:drawableStart">@drawable/ic_x_circle_red_bg_18dp</item>
+  </style>
+
   <style name="ProgressIndicator" parent="Base.TextAppearance.AppCompat">
     <item name="android:layout_width">wrap_content</item>
     <item name="android:layout_height">wrap_content</item>
@@ -213,12 +241,17 @@
     <!--<item name="android:paddingStart">@dimen/space_xxs</item>-->
   </style>
 
-  <style name="TitleCapsGrey">
-    <item name="android:layout_width">match_parent</item>
+  <style name="CapsGrey">
+    <item name="android:layout_width">wrap_content</item>
     <item name="android:layout_height">wrap_content</item>
     <item name="android:textAllCaps">true</item>
     <item name="android:textColor">@color/grey_1</item>
     <item name="android:textSize">@dimen/text_xs</item>
+  </style>
+
+  <style name="TitleCapsGrey" parent="CapsGrey">
+    <item name="android:textSize">@dimen/text_xs</item>
+    <item name="android:layout_width">match_parent</item>
     <item name="android:layout_marginBottom">@dimen/space_xxs</item>
   </style>
 

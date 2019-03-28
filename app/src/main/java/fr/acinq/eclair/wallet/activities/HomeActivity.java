@@ -16,22 +16,29 @@
 
 package fr.acinq.eclair.wallet.activities;
 
-import android.content.*;
+import android.content.ClipboardManager;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewStub;
+import android.support.v7.app.AlertDialog;
+import android.text.Html;
+import android.text.format.DateUtils;
+import android.text.method.LinkMovementMethod;
+import android.view.*;
 import android.view.animation.*;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 import com.google.android.gms.common.util.Strings;
 import fr.acinq.bitcoin.MilliSatoshi;
@@ -48,7 +55,9 @@ import fr.acinq.eclair.wallet.events.*;
 import fr.acinq.eclair.wallet.fragments.ChannelsListFragment;
 import fr.acinq.eclair.wallet.fragments.PaymentsListFragment;
 import fr.acinq.eclair.wallet.fragments.ReceivePaymentFragment;
+import fr.acinq.eclair.wallet.services.CheckElectrumWorker;
 import fr.acinq.eclair.wallet.utils.Constants;
+import fr.acinq.eclair.wallet.utils.TechnicalHelper;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -75,11 +84,10 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
   private int introStep = 0;
   private boolean canSendPayments = false;
 
+  private ReceivePaymentFragment mReceivePaymentFragment;
   private PaymentsListFragment mPaymentsListFragment;
   private ChannelsListFragment mChannelsListFragment;
   private final Animation mBlinkingAnimation = new AlphaAnimation(0.3f, 1);
-  private final Animation mRotatingAnimation = new RotateAnimation(0, -360, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF,
-    0.5f);
 
   @Override
   protected void onCreate(final Bundle savedInstanceState) {
@@ -111,10 +119,17 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
     mBlinkingAnimation.setRepeatCount(Animation.INFINITE);
     mBlinkingAnimation.setRepeatMode(Animation.REVERSE);
 
-    mRotatingAnimation.setDuration(2000);
-    mRotatingAnimation.setRepeatCount(Animation.INFINITE);
-    mRotatingAnimation.setInterpolator(new LinearInterpolator());
-    mBinding.syncProgressIcon.startAnimation(mRotatingAnimation);
+    // show an 'update available' message if the last released version is 5 code higher than the current version on device
+    // this message should not display more than once per day
+    if (App.walletContext != null && App.walletContext.version - BuildConfig.VERSION_CODE >= 5
+      && System.currentTimeMillis() - prefs.getLong(Constants.SETTING_LAST_UPDATE_WARNING_TIMESTAMP, 0) > DateUtils.DAY_IN_MILLIS) {
+      new AlertDialog.Builder(HomeActivity.this, R.style.CustomDialog)
+        .setTitle(R.string.startup_update_wallet_title)
+        .setMessage(R.string.startup_update_wallet_message)
+        .setPositiveButton(R.string.btn_ok, null)
+        .show();
+      prefs.edit().putLong(Constants.SETTING_LAST_UPDATE_WARNING_TIMESTAMP, System.currentTimeMillis()).apply();
+    }
 
     final Intent intent = getIntent();
     if (intent.hasExtra(StartupActivity.ORIGIN)) {
@@ -131,16 +146,34 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
     }
   }
 
-  private void setUpTabs(final Bundle savedInstanceState) {
-    mBinding.viewpager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-      @Override
-      public void onPageSelected(int position) {
-        mBinding.setCurrentPage(position);
+  private void checkBackgroundRunnableWarning() {
+    final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+    if (prefs.getBoolean(Constants.SETTING_BACKGROUND_CANNOT_RUN_WARNING, false)) {
+      // show warning -- only once
+      final AlertDialog d = new AlertDialog.Builder(HomeActivity.this, R.style.CustomDialog)
+        .setTitle(R.string.home_warning_runnable_background_title)
+        .setMessage(Html.fromHtml(getString(R.string.home_warning_runnable_background_message)))
+        .setPositiveButton(R.string.btn_ok, (dialog, which) -> {
+            // bump last attempt timestamp by a few hours so that the message is not shown again for a short while.
+            final long bumpedLastAttemptTimestamp = System.currentTimeMillis() - CheckElectrumWorker.DELAY_BEFORE_BACKGROUND_WARNING + DateUtils.HOUR_IN_MILLIS * 6;
+            prefs.edit()
+              .putBoolean(Constants.SETTING_BACKGROUND_CANNOT_RUN_WARNING, false)
+              .putLong(Constants.SETTING_ELECTRUM_CHECK_LAST_ATTEMPT_TIMESTAMP, bumpedLastAttemptTimestamp)
+              .apply();
+          })
+        .show();
+      final TextView messageView = d.findViewById(android.R.id.message);
+      if (messageView != null) {
+        messageView.setMovementMethod(LinkMovementMethod.getInstance());
       }
-    });
+    }
+  }
+
+  private void setUpTabs(final Bundle savedInstanceState) {
 
     final List<Fragment> fragments = new ArrayList<>();
-    fragments.add(new ReceivePaymentFragment());
+    mReceivePaymentFragment = new ReceivePaymentFragment();
+    fragments.add(mReceivePaymentFragment);
     mPaymentsListFragment = new PaymentsListFragment();
     fragments.add(mPaymentsListFragment);
     mChannelsListFragment = new ChannelsListFragment();
@@ -148,7 +181,15 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
     HomePagerAdapter mPagerAdapter = new HomePagerAdapter(getSupportFragmentManager(), fragments);
 
     mBinding.viewpager.setAdapter(mPagerAdapter);
+    mBinding.viewpager.setPageTransformer(true, new TechnicalHelper.ZoomOutPageTransformer());
+
     mBinding.tabs.setupWithViewPager(mBinding.viewpager);
+    for (int i = 0; i < mBinding.tabs.getTabCount(); i++) {
+      TabLayout.Tab tab = mBinding.tabs.getTabAt(i);
+      if (tab != null) {
+        tab.setCustomView(mPagerAdapter.getTabView(i));
+      }
+    }
 
     if (savedInstanceState != null && savedInstanceState.containsKey("currentPage")) {
       mBinding.viewpager.setCurrentItem(savedInstanceState.getInt("currentPage"));
@@ -157,10 +198,56 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
       mBinding.viewpager.setCurrentItem(intent.getIntExtra(EXTRA_PAGE, 1));
       mBinding.setCurrentPage(1);
     }
+
+    mBinding.viewpager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+      @Override
+      public void onPageSelected(int position) {
+        mBinding.setCurrentPage(position);
+        animateTabs(position);
+      }
+    });
+
+    mBinding.tabs.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+      @Override
+      public void onGlobalLayout() {
+        mBinding.tabs.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+        animateTabs(mBinding.getCurrentPage());
+      }
+    });
+  }
+
+  @Override
+  public void onWindowFocusChanged(boolean hasFocus) {
+    super.onWindowFocusChanged(hasFocus);
+    animateTabs(mBinding.getCurrentPage());
+  }
+
+  private void animateTabs(int position) {
+    for (int i = 0; i < mBinding.tabs.getTabCount(); i++) {
+      TabLayout.Tab tab = mBinding.tabs.getTabAt(i);
+      if (tab != null && tab.getCustomView() != null) {
+        final View v = tab.getCustomView();
+        ((TextView) v.findViewById(R.id.label)).setTextColor(ContextCompat.getColorStateList(getApplicationContext(), i == position ? R.color.white : R.color.primary_light_x2));
+        ((ImageView) v.findViewById(R.id.icon)).setColorFilter(ContextCompat.getColor(getApplicationContext(), i == position ? R.color.white : R.color.primary_light_x2));
+        if (v.getAnimation() != null) {
+          v.clearAnimation();
+        }
+        v.setPivotX((float) v.getMeasuredWidth() / 2);
+        v.setPivotY(v.getMeasuredHeight());
+        if (i == position) {
+          v.animate().scaleX(1f).scaleY(1f).setDuration(350).setInterpolator(new AccelerateDecelerateInterpolator()).start();
+        } else if (v.getScaleX() == 1f) {
+          v.animate().scaleX(.75f).scaleY(.75f).setDuration(250).setInterpolator(new AccelerateDecelerateInterpolator()).start();
+        } else {
+          v.setScaleX(.75f);
+          v.setScaleY(.75f);
+        }
+      }
+    }
   }
 
   private void setUpBalanceInteraction(final SharedPreferences prefs) {
-    mBinding.balance.setOnClickListener(view -> {
+    mBinding.balance.setOnClickListener(v -> {
       boolean displayBalanceAsFiat = WalletUtils.shouldDisplayInFiat(prefs);
       prefs.edit().putBoolean(Constants.SETTING_DISPLAY_IN_FIAT, !displayBalanceAsFiat).commit();
       mBinding.balanceOnchain.refreshUnits();
@@ -195,6 +282,7 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
       // refresh LN balance
       updateElectrumState();
       updateBalance();
+      checkBackgroundRunnableWarning();
     }
   }
 
@@ -354,7 +442,7 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
 
   public void toggleSendPaymentButtons(View view) {
     boolean isVisible = mBinding.sendpaymentActionsList.getVisibility() == View.VISIBLE;
-    mBinding.sendpaymentToggler.animate().rotation(isVisible ? 0 : -90).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(150).start();
+    mBinding.sendpaymentToggler.animate().rotation(isVisible ? 0 : -45).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(150).start();
     mBinding.sendpaymentToggler.setBackgroundTintList(ContextCompat.getColorStateList(this, isVisible ? R.color.primary : R.color.grey_4));
     mBinding.sendpaymentActionsList.setVisibility(isVisible ? View.GONE : View.VISIBLE);
   }
@@ -393,7 +481,7 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
 
   public void openChannelWithAcinq(View view) {
     Intent intent = new Intent(getBaseContext(), OpenChannelActivity.class);
-    intent.putExtra(OpenChannelActivity.EXTRA_NEW_HOST_URI, WalletUtils.ACINQ_NODE);
+    intent.putExtra(OpenChannelActivity.EXTRA_NEW_HOST_URI, Constants.ACINQ_NODE_URI.toString());
     startActivity(intent);
   }
 
@@ -403,32 +491,25 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
     startActivity(intent);
   }
 
-  public void copyReceptionAddress(View view) {
-    try {
-      ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-      clipboard.setPrimaryClip(ClipData.newPlainText("Bitcoin address", app.getWalletAddress()));
-      Toast.makeText(this.getApplicationContext(), "Copied address to clipboard", Toast.LENGTH_SHORT).show();
-    } catch (Exception e) {
-      log.debug("failed to copy address with cause {}", e.getMessage());
-      Toast.makeText(this.getApplicationContext(), "Could not copy address", Toast.LENGTH_SHORT).show();
+  @Subscribe(threadMode = ThreadMode.MAIN)
+  public void handleSyncProgressEvent(SyncProgress progress) {
+    final int p = (int) (progress.progress() * 100);
+    mBinding.setSyncProgress(p);
+    if (p >= 100) {
+      mBinding.syncProgressIcon.clearAnimation();
+    } else {
+      if (mBinding.syncProgressIcon.getAnimation() == null || !mBinding.syncProgressIcon.getAnimation().hasStarted() || mBinding.syncProgressIcon.getAnimation().hasEnded()) {
+        final Animation mRotatingAnimation = new RotateAnimation(0, -360, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF,0.5f);
+        mRotatingAnimation.setDuration(2000);
+        mRotatingAnimation.setRepeatCount(Animation.INFINITE);
+        mRotatingAnimation.setInterpolator(new LinearInterpolator());
+        mBinding.syncProgressIcon.startAnimation(mRotatingAnimation);
+      }
     }
   }
 
   public void popinSyncProgress(final View view) {
     getCustomDialog(R.string.home_sync_progress_about).setPositiveButton(R.string.btn_ok, null).create().show();
-  }
-
-  @Subscribe(threadMode = ThreadMode.MAIN)
-  public void handleSyncProgressEvent(SyncProgress progress) {
-    final int p = (int) (progress.progress() * 100);
-    if (p >= 100) {
-      mBinding.syncProgressIcon.clearAnimation();
-    } else {
-      if (mBinding.syncProgressIcon.getAnimation() == null || mBinding.syncProgressIcon.getAnimation().hasEnded()) {
-        mBinding.syncProgressIcon.startAnimation(mRotatingAnimation);
-      }
-    }
-    mBinding.setSyncProgress(p);
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
@@ -457,6 +538,7 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
     Intent intent = new Intent(this, PaymentSuccessActivity.class);
     intent.putExtra(PaymentSuccessActivity.EXTRA_PAYMENTSUCCESS_DESC, event.payment.getDescription());
     intent.putExtra(PaymentSuccessActivity.EXTRA_PAYMENTSUCCESS_AMOUNT, event.payment.getAmountPaidMsat());
+    intent.putExtra(PaymentSuccessActivity.EXTRA_PAYMENTSUCCESS_DIRECTION, event.payment.getDirection().toString());
     startActivity(intent);
   }
 
@@ -467,7 +549,12 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
 
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void handleChannelUpdateEvent(ChannelUpdateEvent event) {
-    mChannelsListFragment.updateActiveChannelsList();
+    if (mReceivePaymentFragment.isAdded()) {
+      mReceivePaymentFragment.notifyChannelsUpdate();
+    }
+    if (mChannelsListFragment.isAdded()) {
+      mChannelsListFragment.updateActiveChannelsList();
+    }
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)
@@ -526,7 +613,8 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
 
   private class HomePagerAdapter extends FragmentStatePagerAdapter {
     private final List<Fragment> mFragmentList;
-    private final String[] titles = new String[]{getString(R.string.receive_title), getString(R.string.payments_title), getString(R.string.localchannels_title)};
+    private final String[] titles = {getString(R.string.receive_title), getString(R.string.payments_title), getString(R.string.localchannels_title)};
+    public int[] icons_resources = {R.drawable.ic_receive_white_24dp, R.drawable.ic_activity_white_24dp, R.drawable.ic_cloud_lightning_white_24dp};
 
     public HomePagerAdapter(FragmentManager fm, List<Fragment> fragments) {
       super(fm);
@@ -546,6 +634,15 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
     @Override
     public CharSequence getPageTitle(int position) {
       return titles[position];
+    }
+
+    public View getTabView(final int position) {
+      final View v = LayoutInflater.from(getApplicationContext()).inflate(R.layout.custom_tab, null);
+      ((TextView) v.findViewById(R.id.label)).setText(titles[position]);
+      ((ImageView) v.findViewById(R.id.icon)).setImageResource(icons_resources[position]);
+      v.setScaleX(.75f);
+      v.setScaleY(.75f);
+      return v;
     }
   }
 

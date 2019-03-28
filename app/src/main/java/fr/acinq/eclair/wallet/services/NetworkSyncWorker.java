@@ -19,21 +19,19 @@ package fr.acinq.eclair.wallet.services;
 import akka.actor.ActorSystem;
 import android.content.Context;
 import android.support.annotation.NonNull;
-import androidx.work.Worker;
-import androidx.work.WorkerParameters;
+import androidx.work.*;
 import com.typesafe.config.ConfigFactory;
-import fr.acinq.eclair.Setup;
 import fr.acinq.eclair.SyncLiteSetup;
-import fr.acinq.eclair.io.NodeURI;
 import fr.acinq.eclair.wallet.App;
+import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.utils.Constants;
-import fr.acinq.eclair.wallet.utils.WalletUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.concurrent.Await;
 import scala.concurrent.duration.Duration;
 
 import java.io.File;
+import java.util.concurrent.TimeUnit;
 
 /**
  * This worker starts a light instance of the node tasked with synchronizing the Lightning Network routing table
@@ -43,7 +41,7 @@ import java.io.File;
  * is shutdown.
  */
 public class NetworkSyncWorker extends Worker {
-  private final Logger log = LoggerFactory.getLogger(NetworkSyncWorker.class);
+  private final static Logger log = LoggerFactory.getLogger(NetworkSyncWorker.class);
   private final ActorSystem system = ActorSystem.apply("sync-system");
   private SyncLiteSetup liteSetup;
 
@@ -82,20 +80,39 @@ public class NetworkSyncWorker extends Worker {
     final Context context = getApplicationContext();
     if (((App) context).appKit != null) {
       log.info("application is running (appkit not null)");
-      return Result.FAILURE;
+      return Result.success();
     } else {
       try {
         Class.forName("org.sqlite.JDBC");
-        liteSetup = new SyncLiteSetup(new File(context.getFilesDir(), Constants.ECLAIR_DATADIR), ConfigFactory.empty(), NodeURI.parse(WalletUtils.ACINQ_NODE), system);
+        liteSetup = new SyncLiteSetup(new File(context.getFilesDir(), Constants.ECLAIR_DATADIR), ConfigFactory.empty(), Constants.ACINQ_NODE_URI, system);
         Await.result(liteSetup.sync(), Duration.Inf());
         log.info("sync has completed");
-        return Result.SUCCESS;
+        return Result.success();
       } catch (Exception e) {
         log.error("network sync worker failed: ", e);
-        return Result.FAILURE;
+        return Result.failure();
       } finally {
         cleanup();
       }
     }
+  }
+
+  public static final String NETWORK_SYNC_TAG = BuildConfig.APPLICATION_ID + ".PeriodicNetworkSyncWork";
+
+  public static void scheduleSync() {
+    log.info("scheduling sync work");
+    // flex adds a pause between each sync work to make sure that a sync work is not run immediately after the previous one (regardless of interval)
+    final PeriodicWorkRequest.Builder syncWork = new PeriodicWorkRequest.Builder(NetworkSyncWorker.class, 12, TimeUnit.HOURS, 8, TimeUnit.HOURS)
+      .addTag(NETWORK_SYNC_TAG)
+      .setConstraints(new Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build());
+    WorkManager.getInstance().enqueueUniquePeriodicWork(NETWORK_SYNC_TAG, ExistingPeriodicWorkPolicy.REPLACE, syncWork.build());
+  }
+
+  public static void doSyncASAP() {
+    final OneTimeWorkRequest syncWork = new OneTimeWorkRequest.Builder(NetworkSyncWorker.class)
+      .addTag(NETWORK_SYNC_TAG)
+      .setConstraints(new Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
+      .build();
+    WorkManager.getInstance().enqueueUniqueWork(NETWORK_SYNC_TAG, ExistingWorkPolicy.REPLACE, syncWork);
   }
 }

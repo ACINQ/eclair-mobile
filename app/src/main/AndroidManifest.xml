@@ -65,7 +65,9 @@
       android:name=".activities.HomeActivity"
       android:label="@string/app_name"
       android:launchMode="singleTask"
-      android:screenOrientation="portrait" />
+      android:screenOrientation="portrait"
+      android:theme="@style/HomeTheme"
+      android:windowSoftInputMode="adjustNothing" />
     <activity
       android:name=".activities.SendPaymentActivity"
       android:label=""
@@ -88,7 +90,7 @@
       android:parentActivityName=".activities.HomeActivity"
       android:stateNotNeeded="true"
       android:theme="@style/CustomDialog"
-      android:windowSoftInputMode="stateVisible" />
+      android:windowSoftInputMode="adjustResize" />
     <activity
       android:name=".activities.NetworkInfosActivity"
       android:label="@string/networkinfos_name"
@@ -181,7 +183,7 @@
 
     <!-- broadcast receivers -->
     <receiver
-      android:name=".services.NetworkSyncReceiver"
+      android:name=".services.BootReceiver"
       android:enabled="true"
       android:exported="false">
       <intent-filter>

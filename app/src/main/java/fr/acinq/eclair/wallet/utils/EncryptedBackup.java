@@ -23,7 +23,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 
-import fr.acinq.bitcoin.BinaryData;
+import fr.acinq.bitcoin.ByteVector32;
 import fr.acinq.bitcoin.DeterministicWallet;
 import fr.acinq.eclair.wallet.BuildConfig;
 
@@ -92,7 +92,7 @@ public class EncryptedBackup extends EncryptedData {
    * Derives a hardened key from the extended key. This is used to encrypt/decrypt the channels backup files.
    * Path is the same as BIP49.
    */
-  public static BinaryData generateBackupKey_v1(final DeterministicWallet.ExtendedPrivateKey pk) {
+  public static ByteVector32 generateBackupKey_v1(final DeterministicWallet.ExtendedPrivateKey pk) {
     final DeterministicWallet.ExtendedPrivateKey dpriv = DeterministicWallet.derivePrivateKey(pk,
       DeterministicWallet.KeyPath$.MODULE$.apply("m/49'"));
     return dpriv.secretkeybytes();
@@ -102,7 +102,7 @@ public class EncryptedBackup extends EncryptedData {
    * Derives a hardened key from the extended key. This is used to encrypt/decrypt the channels backup files.
    * Path depends on the chain used by the wallet, mainnet or testnet.
    */
-  public static BinaryData generateBackupKey_v2(final DeterministicWallet.ExtendedPrivateKey pk) {
+  public static ByteVector32 generateBackupKey_v2(final DeterministicWallet.ExtendedPrivateKey pk) {
     final DeterministicWallet.ExtendedPrivateKey dpriv = DeterministicWallet.derivePrivateKey(pk,
       DeterministicWallet.KeyPath$.MODULE$.apply("mainnet".equals(BuildConfig.CHAIN) ? "m/42'/0'" : "m/42'/1'"));
     return dpriv.secretkeybytes();

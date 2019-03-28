@@ -60,15 +60,17 @@ public class LNPaymentDetailsActivity extends EclairActivity {
     long paymentId = intent.getLongExtra(PaymentItemHolder.EXTRA_PAYMENT_ID, -1);
     try {
       final Payment p = app.getDBHelper().getPayment(paymentId);
+      final boolean isPaymentReceived = PaymentDirection.RECEIVED.equals(p.getDirection());
+      mBinding.setIsReceived(isPaymentReceived);
 
       final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
       final CoinUnit prefUnit = WalletUtils.getPreferredCoinUnit(prefs);
 
       mBinding.amountPaid.setAmountMsat(new MilliSatoshi(p.getAmountPaidMsat()));
-      mBinding.amountPaidFiat.setText(getString(R.string.paymentdetails_amount_fiat, WalletUtils.convertMsatToFiatWithUnit(p.getAmountPaidMsat(), WalletUtils.getPreferredFiat(prefs))));
+      mBinding.amountPaidFiat.setText(getString(R.string.paymentdetails_amount_fiat, WalletUtils.formatMsatToFiatWithUnit(p.getAmountPaidMsat(), WalletUtils.getPreferredFiat(prefs))));
 
       mBinding.fees.setText(CoinUtils.formatAmountInUnit(new MilliSatoshi(p.getFeesPaidMsat()), prefUnit, true));
-      mBinding.status.setText(p.getStatus().name());
+      mBinding.status.setText(p.getStatus().toString());
       if (PaymentStatus.PAID == p.getStatus()) {
         mBinding.status.setTextColor(ContextCompat.getColor(this, R.color.green));
       } else if (PaymentStatus.FAILED == p.getStatus()) {
@@ -84,6 +86,7 @@ public class LNPaymentDetailsActivity extends EclairActivity {
       } else {
         mBinding.amountRequested.setValue(CoinUtils.formatAmountInUnit(new MilliSatoshi(p.getAmountRequestedMsat()), prefUnit, true));
       }
+
       mBinding.amountSent.setValue(CoinUtils.formatAmountInUnit(new MilliSatoshi(p.getAmountSentMsat()), prefUnit, true));
       mBinding.paymenthash.setValue(p.getReference());
       mBinding.preimage.setValue(p.getPreimage());

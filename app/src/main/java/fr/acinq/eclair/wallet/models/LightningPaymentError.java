@@ -18,15 +18,14 @@ package fr.acinq.eclair.wallet.models;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import fr.acinq.eclair.channel.ChannelException;
 import fr.acinq.eclair.payment.PaymentLifecycle;
 import fr.acinq.eclair.router.Hop;
 import fr.acinq.eclair.router.RouteNotFound$;
 import scala.collection.JavaConverters;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Wraps information about a failed lightning payment returned by eclair-core. Implements Parcelable

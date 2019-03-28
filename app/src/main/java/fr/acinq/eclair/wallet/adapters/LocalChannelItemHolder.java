@@ -75,11 +75,11 @@ public class LocalChannelItemHolder extends RecyclerView.ViewHolder implements V
   @SuppressLint("SetTextI18n")
   protected void bindItem(final LocalChannel item, final String fiatCode, final CoinUnit prefUnit, final boolean displayAmountAsFiat) {
     this.channel = item;
-    node.setText(itemView.getResources().getString(R.string.channelitem_with_node, item.getPeerNodeId()));
+    node.setText(itemView.getResources().getString(R.string.channelitem_with_node_funder, item.getPeerNodeId()));
 
     // ---- setting amount & unit with optional conversion to fiat
     if (displayAmountAsFiat) {
-      WalletUtils.printAmountInView(balance, WalletUtils.convertMsatToFiat(item.getBalanceMsat(), fiatCode));
+      WalletUtils.printAmountInView(balance, WalletUtils.formatMsatToFiat(item.getBalanceMsat(), fiatCode));
       balanceUnit.setText(fiatCode.toUpperCase());
     } else {
       WalletUtils.printAmountInView(balance, CoinUtils.formatAmountInUnit(new MilliSatoshi(item.getBalanceMsat()), prefUnit, false));
@@ -90,8 +90,7 @@ public class LocalChannelItemHolder extends RecyclerView.ViewHolder implements V
       state.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.grey_1));
       final long delaySinceClosed = channel.getUpdated().getTime() - System.currentTimeMillis();
       state.setText(itemView.getResources().getString(R.string.channelitem_inactive_date,
-        DateUtils.getRelativeTimeSpanString(channel.getUpdated().getTime(), System.currentTimeMillis(),
-          delaySinceClosed <= 24 * 60 * 60 * 1000 ? DateUtils.HOUR_IN_MILLIS : DateUtils.DAY_IN_MILLIS)));
+        DateUtils.getRelativeTimeSpanString(channel.getUpdated().getTime(), System.currentTimeMillis(), delaySinceClosed)));
       balanceProgressBar.setVisibility(View.GONE);
     } else {
       // ---- state
