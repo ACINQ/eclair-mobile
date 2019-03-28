@@ -225,6 +225,7 @@ public class ChannelDetailsActivity extends EclairActivity {
     mBinding.nodeId.setValue(channel.getPeerNodeId());
     mBinding.channelId.setValue(channel.getChannelId());
     mBinding.shortChannelId.setValue(channel.getShortChannelId());
+    mBinding.funder.setValue(getString(channel.isFunder ? R.string.channeldetails_funder_you : R.string.channeldetails_funder_peer));
     if (channel.getLocalFeatures() != null) {
       final ByteVector localFeatures = ByteVector.view(Hex.decode(channel.getLocalFeatures()));
       mBinding.setHasAdvancedRoutingSync(

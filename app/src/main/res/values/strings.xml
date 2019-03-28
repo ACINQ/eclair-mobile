@@ -278,6 +278,9 @@
   <string name="channeldetails_closed_on"><![CDATA[Closed <b>%1$s</b>]]></string>
   <string name="channeldetails_id_label">Channel id</string>
   <string name="channeldetails_short_id_label">Short channel id</string>
+  <string name="channeldetails_funder">Funder</string>
+  <string name="channeldetails_funder_you">Funded by you</string>
+  <string name="channeldetails_funder_peer">Funded by the peer</string>
   <string name="channeldetails_features_label">Features support</string>
   <string name="channeldetails_advanced_routing_label">Advanced routing sync</string>
   <string name="channeldetails_data_loss_protection_label">Dataloss protection</string>
@@ -448,7 +451,8 @@
   <string name="channelitem_delayed_closing">Refund in %1$d block%2$s</string>
   <string name="channelitem_delayed_closing_unknown">Refund in %1$d+ blocks</string>
   <string name="channelitem_delayed_closing_claimable">Refund claimable</string>
-  <string name="channelitem_with_node">With %1$s</string>
+  <string name="channelitem_with_node_funder">With %1$s</string>
+  <string name="channelitem_with_node_fundee">Funded by %1$s</string>
   <string name="channelitem_inflight_htlcs">%1$d inflight payment(s)</string>
   <string name="channelitem_cooperative">(cooperative)</string>
   <string name="channelitem_uncooperative">(uncooperative)</string>

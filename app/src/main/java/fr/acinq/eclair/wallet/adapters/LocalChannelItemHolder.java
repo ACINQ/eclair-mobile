@@ -75,7 +75,7 @@ public class LocalChannelItemHolder extends RecyclerView.ViewHolder implements V
   @SuppressLint("SetTextI18n")
   protected void bindItem(final LocalChannel item, final String fiatCode, final CoinUnit prefUnit, final boolean displayAmountAsFiat) {
     this.channel = item;
-    node.setText(itemView.getResources().getString(R.string.channelitem_with_node, item.getPeerNodeId()));
+    node.setText(itemView.getResources().getString(item.isFunder ? R.string.channelitem_with_node_funder : R.string.channelitem_with_node_fundee, item.getPeerNodeId()));
 
     // ---- setting amount & unit with optional conversion to fiat
     if (displayAmountAsFiat) {

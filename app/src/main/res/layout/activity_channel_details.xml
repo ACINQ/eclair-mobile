@@ -409,6 +409,15 @@
           app:value="@string/unknown" />
 
         <fr.acinq.eclair.wallet.customviews.DataRow
+          android:id="@+id/funder"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:visibility="@{isActive ? View.VISIBLE : View.GONE}"
+          app:has_border="true"
+          app:label="@string/channeldetails_funder"
+          app:value="@string/unknown" />
+
+        <fr.acinq.eclair.wallet.customviews.DataRow
           android:id="@+id/transaction_id"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"

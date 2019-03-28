@@ -83,6 +83,7 @@
       android:layout_height="wrap_content"
       android:ellipsize="end"
       android:singleLine="true"
+      android:textSize="@dimen/text_sm"
       android:text="@string/unknown" />
 
     <TextView

@@ -129,6 +129,7 @@ public class NodeSupervisor extends UntypedActor {
       final LocalChannel c = getOrCreateChannel(event.channel());
       c.setChannelId(event.temporaryChannelId().toString());
       c.setPeerNodeId(event.remoteNodeId().toString());
+      c.isFunder = event.isFunder();
       activeChannelsMap.put(event.channel(), c);
       context().watch(event.channel());
       channelsRefreshScheduler.tell(Constants.REFRESH, null);
@@ -137,7 +138,7 @@ public class NodeSupervisor extends UntypedActor {
       final LocalChannel c = getOrCreateChannel(event.channel());
       c.setChannelId(event.channelId().toString());
       c.setPeerNodeId(event.remoteNodeId().toString());
-
+      c.isFunder = event.isFunder();
       final Iterator<DirectedHtlc> it = event.currentData().commitments().localCommit().spec().htlcs().iterator();
       int htlcsCount = 0;
       while(it.hasNext()) {
