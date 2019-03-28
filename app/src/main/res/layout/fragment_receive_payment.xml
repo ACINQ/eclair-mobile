@@ -294,6 +294,7 @@
               android:layout_height="wrap_content"
               android:fontFamily="sans-serif-medium"
               android:gravity="start|center"
+              android:paddingBottom="@dimen/space_xxs"
               android:text="@string/receivepayment_lightning_may_fail"
               android:textSize="@dimen/text_sm" />
 
