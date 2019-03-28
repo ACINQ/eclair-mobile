@@ -20,6 +20,7 @@
     <attr name="force_btc" format="boolean" />
     <attr name="amount_size" format="dimension" />
     <attr name="amount_color" format="color" />
+    <attr name="bold" format="boolean" />
     <attr name="unit" format="string" />
     <attr name="unit_size" format="dimension" />
     <attr name="unit_color" format="color" />

@@ -75,47 +75,36 @@
         android:textSize="@dimen/text_xs"
         android:visibility="@{activeSize == 0 ? View.GONE : View.VISIBLE}"
         app:layout_constrainedWidth="true"
+        app:layout_constraintBottom_toTopOf="@id/total_sendable"
         app:layout_constraintEnd_toEndOf="@id/total_sendable"
         app:layout_constraintHorizontal_bias="1"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/balance_progress" />
+        app:layout_constraintTop_toTopOf="@id/balance_progress"
+        app:layout_constraintVertical_chainStyle="packed" />
 
-      <TextView
+      <fr.acinq.eclair.wallet.customviews.CoinAmountView
         android:id="@+id/total_sendable"
         style="@style/DataRowText"
         android:layout_width="wrap_content"
         android:layout_marginStart="@dimen/space_xxs"
-        android:layout_marginTop="@dimen/space_xxs"
-        android:layout_marginEnd="@dimen/space_xs"
-        android:fontFamily="sans-serif-medium"
-        android:textAlignment="viewEnd"
-        android:textSize="@dimen/text_md"
         android:visibility="@{activeSize == 0 ? View.GONE : View.VISIBLE}"
+        app:amount_size="@dimen/text_lg"
+        app:bold="true"
         app:layout_constrainedWidth="true"
+        app:layout_constraintBottom_toBottomOf="@id/balance_progress"
         app:layout_constraintEnd_toStartOf="@id/balance_progress"
         app:layout_constraintHorizontal_bias="1"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/total_sendable_title" />
-
-      <TextView
-        android:id="@+id/total_sendable_fiat"
-        style="@style/DataRowText"
-        android:layout_width="wrap_content"
-        android:textColor="@color/grey_1_dark_x1"
-        android:textSize="@dimen/text_sm"
-        android:visibility="@{activeSize == 0 ? View.GONE : View.VISIBLE}"
-        app:layout_constrainedWidth="true"
-        app:layout_constraintEnd_toEndOf="@id/total_sendable"
-        app:layout_constraintHorizontal_bias="1"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/total_sendable" />
+        app:layout_constraintTop_toBottomOf="@id/total_sendable_title"
+        app:layout_constraintVertical_chainStyle="packed"
+        app:unit_size="@dimen/text_xs" />
 
       <ProgressBar
         android:id="@+id/balance_progress"
         style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:layout_marginTop="@dimen/space_lg"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_marginTop="@dimen/space_md_p"
         android:max="100"
         android:progress="60"
         android:progressDrawable="@drawable/progress_bar"
@@ -139,52 +128,42 @@
         android:textSize="@dimen/text_xs"
         android:visibility="@{activeSize == 0 ? View.GONE : View.VISIBLE}"
         app:layout_constrainedWidth="true"
+        app:layout_constraintBottom_toTopOf="@id/total_receivable"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0"
         app:layout_constraintStart_toStartOf="@id/total_receivable"
-        app:layout_constraintTop_toTopOf="@id/total_sendable_title" />
+        app:layout_constraintTop_toTopOf="@id/balance_progress"
+        app:layout_constraintVertical_chainStyle="packed" />
 
-      <TextView
+      <fr.acinq.eclair.wallet.customviews.CoinAmountView
         android:id="@+id/total_receivable"
         style="@style/DataRowText"
         android:layout_width="wrap_content"
-        android:layout_marginStart="@dimen/space_xs"
-        android:layout_marginTop="@dimen/space_xxs"
         android:layout_marginEnd="@dimen/space_xxs"
-        android:fontFamily="sans-serif-medium"
-        android:textSize="@dimen/text_md"
         android:visibility="@{activeSize == 0 ? View.GONE : View.VISIBLE}"
+        app:amount_size="@dimen/text_lg"
+        app:bold="true"
         app:layout_constrainedWidth="true"
+        app:layout_constraintBottom_toBottomOf="@id/balance_progress"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0"
         app:layout_constraintStart_toEndOf="@id/balance_progress"
-        app:layout_constraintTop_toBottomOf="@id/total_receivable_title" />
-
-      <TextView
-        android:id="@+id/total_receivable_fiat"
-        style="@style/DataRowText"
-        android:layout_width="wrap_content"
-        android:textColor="@color/grey_1_dark_x1"
-        android:textSize="@dimen/text_sm"
-        android:visibility="@{activeSize == 0 ? View.GONE : View.VISIBLE}"
-        app:layout_constrainedWidth="true"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0"
-        app:layout_constraintStart_toStartOf="@id/total_receivable"
-        app:layout_constraintTop_toBottomOf="@id/total_receivable" />
+        app:layout_constraintTop_toBottomOf="@id/total_receivable_title"
+        app:layout_constraintVertical_chainStyle="packed"
+        app:unit_size="@dimen/text_xs" />
 
       <android.support.constraint.Barrier
         android:id="@+id/barrier"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:barrierDirection="bottom"
-        app:constraint_referenced_ids="total_receivable_fiat, total_sendable_fiat, balance_progress, no_active_channels" />
+        app:constraint_referenced_ids="total_receivable, total_sendable, balance_progress, no_active_channels" />
 
       <android.support.v7.widget.RecyclerView
         android:id="@+id/active_channels_list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/space_md_p"
+        android:layout_marginTop="@dimen/space_md"
         android:nestedScrollingEnabled="false"
         android:visibility="@{activeSize > 0 ? View.VISIBLE : View.GONE}"
         app:layout_constraintTop_toTopOf="@id/barrier" />

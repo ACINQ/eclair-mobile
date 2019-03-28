@@ -17,10 +17,8 @@
 package fr.acinq.eclair.wallet.models;
 
 import fr.acinq.bitcoin.Transaction;
-import fr.acinq.eclair.channel.CLOSED$;
-import fr.acinq.eclair.channel.CLOSING$;
-import fr.acinq.eclair.channel.WAIT_FOR_ACCEPT_CHANNEL$;
-import fr.acinq.eclair.channel.WAIT_FOR_INIT_INTERNAL$;
+import fr.acinq.eclair.channel.*;
+import fr.acinq.eclair.router.NORMAL$;
 import org.greenrobot.greendao.annotation.*;
 import scala.Option;
 
@@ -105,27 +103,49 @@ public class LocalChannel {
 
   private Date updated;
 
+  /**
+   * This does not take into account the state of the channel!
+   */
   public long getReceivableMsat() {
     return Math.max(this.getCapacityMsat() - this.getBalanceMsat() - (this.getChannelReserveSat() * 1000), 0);
   }
 
+  /**
+   * This does not take into account the state of the channel!
+   */
   public long getSendableMsat() {
     return Math.max(this.getBalanceMsat() - (this.getChannelReserveSat() * 1000), 0);
   }
 
   /**
-   * Returns true if channels funds can be used, base on state. Funds are unusable if state is:
+   * Returns true if channel's funds can be accounted for when computing the lightning balance of the wallet.
+   * True if channel's state is one of:
    * - closing/closed/shutdown
    * - in error
    * - unknown
    * - waiting for init/accept
    */
-  public boolean fundsAreUsable() {
+  public boolean fundsAreAccountedFor() {
     return this.state != null && !this.state.startsWith("ERR_")
       && !WAIT_FOR_INIT_INTERNAL$.MODULE$.toString().equals(this.state)
       && !WAIT_FOR_ACCEPT_CHANNEL$.MODULE$.toString().equals(this.state)
       && !CLOSING$.MODULE$.toString().equals(this.state)
       && !CLOSED$.MODULE$.toString().equals(this.state);
+  }
+
+  /**
+   * Returns true if channel's funds (inbound or outbound) can be used to receive or to send payments.
+   * Funds are usable if the channel's state is one of:
+   * - normal
+   * - syncing
+   * - offline
+   * <p>
+   * This is an optimistic estimation because an OFFLINE/SYNCING channel cannot receive or send funds. However
+   * restricting funds usability to NORMAL channels only would be too strict and may confuse the user, especially when
+   * the user just started the app and channels are establishing connection.
+   */
+  public boolean fundsAreUsable() {
+    return NORMAL$.MODULE$.toString().equals(this.state) || OFFLINE$.MODULE$.toString().equals(this.state) || SYNCING$.MODULE$.toString().equals(this.state);
   }
 
   public LocalChannel() {

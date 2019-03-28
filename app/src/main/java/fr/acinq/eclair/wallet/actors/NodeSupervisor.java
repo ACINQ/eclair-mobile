@@ -87,7 +87,7 @@ public class NodeSupervisor extends UntypedActor {
   public static MilliSatoshi getChannelsBalance() {
     long total = 0;
     for (LocalChannel c : NodeSupervisor.getChannelsMap().values()) {
-      if (c.fundsAreUsable()) {
+      if (c.fundsAreAccountedFor()) {
         total += c.getBalanceMsat();
       }
     }
@@ -418,7 +418,7 @@ public class NodeSupervisor extends UntypedActor {
   public static MilliSatoshi getMaxReceivable() {
     long max_msat = 0;
     for (LocalChannel d : activeChannelsMap.values()) {
-      if (NORMAL$.MODULE$.toString().equals(d.state) || OFFLINE$.MODULE$.toString().equals(d.state) || SYNCING$.MODULE$.toString().equals(d.state)) {
+      if (d.fundsAreUsable()) {
         max_msat = Math.max(max_msat, d.getReceivableMsat());
       }
     }

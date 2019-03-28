@@ -19,6 +19,7 @@ package fr.acinq.eclair.wallet.customviews;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.TypedArray;
+import android.graphics.Typeface;
 import android.preference.PreferenceManager;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.content.ContextCompat;
@@ -83,12 +84,20 @@ public class CoinAmountView extends ConstraintLayout {
       unitTextView = layout.findViewById(R.id.view_unit);
 
       final int amountSize = arr.getDimensionPixelSize(R.styleable.CoinAmountView_amount_size, 0);
-      final int amountColor = arr.getColor(R.styleable.CoinAmountView_amount_color, ContextCompat.getColor(getContext(), R.color.grey_2));
+      final int amountColor = arr.getColor(R.styleable.CoinAmountView_amount_color, ContextCompat.getColor(getContext(), R.color.grey_4));
+      final boolean isBold = arr.getBoolean(R.styleable.CoinAmountView_bold, false);
       amountTextView.setTextSize(TypedValue.COMPLEX_UNIT_PX, amountSize);
       amountTextView.setTextColor(amountColor);
+      if (isBold) {
+        amountTextView.setTypeface(Typeface.create("sans-serif-medium", Typeface.NORMAL));
+        unitTextView.setTypeface(Typeface.create("sans-serif-medium", Typeface.NORMAL));
+      } else {
+        amountTextView.setTypeface(Typeface.create("sans-serif-light", Typeface.NORMAL));
+        unitTextView.setTypeface(Typeface.create("sans-serif-light", Typeface.NORMAL));
+      }
 
       final int unitSize = arr.getDimensionPixelSize(R.styleable.CoinAmountView_unit_size, 0);
-      final int unitColor = arr.getColor(R.styleable.CoinAmountView_unit_color, ContextCompat.getColor(getContext(), R.color.grey_2));
+      final int unitColor = arr.getColor(R.styleable.CoinAmountView_unit_color, ContextCompat.getColor(getContext(), R.color.grey_4));
       unitTextView.setTextSize(TypedValue.COMPLEX_UNIT_PX, unitSize);
       unitTextView.setTextColor(unitColor);
 

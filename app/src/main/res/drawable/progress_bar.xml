@@ -18,7 +18,7 @@
     <shape
       android:innerRadiusRatio="6"
       android:shape="ring"
-      android:thicknessRatio="10.0"
+      android:thicknessRatio="10"
       android:useLevel="true">
 
       <gradient
@@ -39,7 +39,7 @@
       <shape
         android:innerRadiusRatio="6"
         android:shape="ring"
-        android:thicknessRatio="10.0"
+        android:thicknessRatio="10"
         android:useLevel="true">
 
         <gradient
