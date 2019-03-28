@@ -185,7 +185,7 @@ public class SendPaymentActivity extends EclairActivity
         mBinding.amountEditableValue.setText(CoinUtils.rawAmountInUnit(amountMsat, preferredBitcoinUnit).bigDecimal().toPlainString());
         mBinding.amountFiat.setText(WalletUtils.formatMsatToFiatWithUnit(amountMsat.amount(), preferredFiatCurrency));
       }
-      mBinding.recipientValue.setText(paymentRequest.nodeId().toBin().toString());
+      mBinding.recipientValue.setText(paymentRequest.nodeId().toString());
       final Either<String, ByteVector32> desc = paymentRequest.description();
       mBinding.descriptionValue.setText(desc.isLeft() ? desc.left().get() : desc.right().get().toString());
       if (paymentRequest.amount().isEmpty()) {
