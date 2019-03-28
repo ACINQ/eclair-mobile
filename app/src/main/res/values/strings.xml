@@ -216,7 +216,7 @@
   <string name="openchannel_button_confirm">Open</string>
 
   <string name="openchannel_liquidity_instructions">Do you want this node to open a channel back? This will help you to receive payments over Lightning.</string>
-  <string name="openchannel_liquidity_what_will_happen">Once this channel becomes active, a new channel with the corresponding inbound liquidity will be opened with you.</string>
+  <string name="openchannel_liquidity_what_will_happen">Once the channel you\'ve opened becomes active, a new channel with the corresponding inbound capacity will be opened with you, and will stay open at least 30 days.</string>
   <string name="openchannel_liquidity_label">%1$s incoming channel</string>
   <string name="openchannel_liquidity_cost">Costs %1$s\n≈ %2$s</string>
   <string name="openchannel_liquidity_unavailable">Liquidity is not available now, try later…</string>
