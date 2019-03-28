@@ -49,10 +49,7 @@ import fr.acinq.eclair.Kit;
 import fr.acinq.eclair.blockchain.electrum.ElectrumClient;
 import fr.acinq.eclair.blockchain.electrum.ElectrumEclairWallet;
 import fr.acinq.eclair.blockchain.electrum.ElectrumWallet;
-import fr.acinq.eclair.channel.CMD_GETINFO$;
-import fr.acinq.eclair.channel.Channel;
-import fr.acinq.eclair.channel.RES_GETINFO;
-import fr.acinq.eclair.channel.Register;
+import fr.acinq.eclair.channel.*;
 import fr.acinq.eclair.io.Peer;
 import fr.acinq.eclair.payment.PaymentLifecycle;
 import fr.acinq.eclair.payment.PaymentRequest;
@@ -166,8 +163,7 @@ public class App extends Application {
       final ConnectivityManager.NetworkCallback callback = new ConnectivityManager.NetworkCallback() {
         @Override
         public void onAvailable(Network n) {
-          scheduleConnectionToNode();
-          // TODO: reconnect electrum
+          scheduleConnectionToACINQ();
         }
       };
       cm.registerNetworkCallback(request, callback);
@@ -397,10 +393,21 @@ public class App extends Application {
     }
   }
 
-  private void scheduleConnectionToNode() {
-    log.info("scheduling connection to ACINQ node");
+  private boolean hasChannelWithACINQ() {
+    final Iterator<HasCommitments> channelsIt = appKit.eclairKit.nodeParams().channelsDb().listChannels().iterator();
+    while (channelsIt.hasNext()) {
+      if (Constants.ACINQ_NODE_URI.nodeId().equals(channelsIt.next().commitments().remoteParams().nodeId())) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private void scheduleConnectionToACINQ() {
     if (pingNode != null) pingNode.cancel();
+    if (appKit == null || appKit.eclairKit == null || hasChannelWithACINQ()) return;
     if (system != null) {
+      log.info("scheduling connection to ACINQ node");
       pingNode = system.scheduler().schedule(
         Duration.Zero(), Duration.create(10, TimeUnit.MINUTES),
         () -> {
