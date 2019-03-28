@@ -111,21 +111,6 @@ public class NetworkInfosActivity extends EclairActivity implements SwipeRefresh
     mBinding.feeRate.setValue(NumberFormat.getInstance().format(Globals.feeratesPerKw().get().block_1()) + " sat/kw");
     app.getNetworkChannelsCount();
     mBinding.swipeRefresh.setRefreshing(false);
-
-
-    final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-    final long lastCheckAttemptDate = prefs.getLong(Constants.SETTING_ELECTRUM_CHECK_LAST_ATTEMPT_TIMESTAMP, 0);
-    final long lastCheckDate = prefs.getLong(Constants.SETTING_ELECTRUM_CHECK_LAST_OUTCOME_TIMESTAMP, 0);
-    if (lastCheckAttemptDate == 0) {
-      mBinding.electrumCheckBgResult.setValue("never run");
-    } else {
-      final String lastCheckResult = prefs.getString(Constants.SETTING_ELECTRUM_CHECK_LAST_OUTCOME_RESULT, null);
-      final long delaySinceCheck = System.currentTimeMillis() - lastCheckDate;
-      log.info("it has been {} since last check, which resulted with={}", DateUtils.getRelativeTimeSpanString(delaySinceCheck), lastCheckResult);
-      mBinding.electrumCheckBgResult.setValue(
-        lastCheckResult + ": " + DateFormat.getDateTimeInstance().format(new Date(lastCheckDate))
-      + "\n--\nlast attempt: " + DateFormat.getDateTimeInstance().format(new Date(lastCheckAttemptDate)));
-    }
   }
 
   @Override
