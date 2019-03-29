@@ -19,12 +19,14 @@ package fr.acinq.eclair.wallet.activities;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import com.google.android.gms.common.util.Strings;
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.eclair.CoinUnit;
 import fr.acinq.eclair.CoinUtils;
@@ -79,7 +81,13 @@ public class LNPaymentDetailsActivity extends EclairActivity {
         mBinding.status.setTextColor(ContextCompat.getColor(this, R.color.orange));
       }
       mBinding.recipient.setValue(p.getRecipient());
-      mBinding.desc.setText(p.getDescription());
+      if (Strings.isEmptyOrWhitespace(p.getDescription())) {
+        mBinding.desc.setText(getString(R.string.receivepayment_lightning_description_notset));
+        mBinding.desc.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.grey_2));
+        mBinding.desc.setTypeface(Typeface.DEFAULT, Typeface.ITALIC);
+      } else {
+        mBinding.desc.setText(p.getDescription());
+      }
       if (p.getAmountRequestedMsat() == 0) {
         // this is a donation
         mBinding.amountRequested.setValue(getString(R.string.paymentdetails_amount_requested_donation));

@@ -635,7 +635,7 @@
   <string name="receivepayment_lightning_max_what_title">What is this Max value?</string>
   <string name="receivepayment_lightning_max_what_body">This is the maximum amount you can receive in one payment.\n\nThis maximum amount depends on the inbound capacity of your channels.\n\nTo increase this amount, you must balance your channels so that your peers have enough funds on their side, or ask for nodes to open channels with you.</string>
   <string name="receivepayment_lightning_description_title">Desc.</string>
-  <string name="receivepayment_lightning_description_notset">No description</string>
+  <string name="receivepayment_lightning_description_notset">No description set</string>
   <string name="receivepayment_lightning_amount_title">Amount</string>
   <string name="receivepayment_lightning_amount_notset">Freely set by the payer</string>
   <string name="receivepayment_lightning_amount_value"><![CDATA[%1$s<br /><font color="#bbbbbb">≈ %2$s</font>]]></string>
