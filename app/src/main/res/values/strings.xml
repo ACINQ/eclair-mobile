@@ -442,7 +442,7 @@
   <string name="paymentitem_icon_desc">payment type</string>
   <string name="paymentitem_fee_prefix">fee:</string>
   <string name="paymentitem_failed">Failed</string>
-  <string name="paymentitem_init">Processing…</string>
+  <string name="paymentitem_init">Finding route…</string>
   <string name="paymentitem_pending">Pending…</string>
   <string name="paymentitem_zero_conf">Unconfirmed</string>
 
