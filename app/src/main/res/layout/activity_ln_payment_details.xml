@@ -111,7 +111,19 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/status_title" />
 
+          <Button
+            android:id="@+id/retry_payment"
+            style="@style/ButtonStyle"
+            android:background="@drawable/rounded_corner_grey"
+            android:layout_marginTop="@dimen/space_xs"
+            android:padding="@dimen/space_xs"
+            android:textSize="@dimen/text_xs"
+            android:text="@string/paymentdetails_retry_failed"
+            app:layout_constraintTop_toBottomOf="@id/status"
+            app:layout_constraintStart_toStartOf="@id/amount_paid_fiat" />
+
           <TextView
+            android:id="@+id/routing_fees_title"
             style="@style/CapsGrey"
             android:text="@string/paymentdetails_fees_label"
             android:visibility="@{isReceived ? View.GONE : View.VISIBLE}"
@@ -129,7 +141,14 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0"
             app:layout_constraintStart_toEndOf="@id/mid_guideline"
-            app:layout_constraintTop_toBottomOf="@id/status_title" />
+            app:layout_constraintTop_toBottomOf="@id/routing_fees_title" />
+
+          <android.support.constraint.Barrier
+            android:id="@+id/barrier"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="fees, status, retry_payment" />
 
           <TextView
             android:id="@+id/desc_title"
@@ -139,7 +158,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/status" />
+            app:layout_constraintTop_toBottomOf="@+id/barrier" />
 
           <TextView
             android:id="@+id/desc"
