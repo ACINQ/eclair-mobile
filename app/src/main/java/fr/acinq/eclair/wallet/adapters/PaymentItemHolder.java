@@ -45,7 +45,7 @@ import java.text.NumberFormat;
 
 public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-  public static final String EXTRA_PAYMENT_ID = BuildConfig.APPLICATION_ID + "PAYMENT_ID";
+  public static final String EXTRA_PAYMENT_ID = BuildConfig.APPLICATION_ID + ".PAYMENT_ID";
 
   private final ImageView mPaymentIcon;
   private final TextView mDescription;
@@ -82,8 +82,14 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
   }
 
   @SuppressLint("SetTextI18n")
-  public void bindPaymentItem(final Payment payment, final String fiatCode, final CoinUnit prefUnit, final boolean displayAmountAsFiat) {
+  public void bindPaymentItem(final int position, final Payment payment, final String fiatCode, final CoinUnit prefUnit, final boolean displayAmountAsFiat) {
     this.mPayment = payment;
+
+    // override item padding set in xml file ; if item is first in list, top padding is a bit larger because it looks
+    // better with the current layout.
+    final int topPadding = itemView.getResources().getDimensionPixelOffset(position == 0 ? R.dimen.space_md : R.dimen.space_sm);
+    final int bottomPadding = itemView.getResources().getDimensionPixelOffset(R.dimen.space_sm);
+    itemView.setPadding(0, topPadding, 0, bottomPadding);
 
     // amount should be the amount paid, fallback to requested (useful for LN)
     final long amountMsat = payment.getAmountPaidMsat() == 0 ? payment.getAmountSentMsat() : payment.getAmountPaidMsat();

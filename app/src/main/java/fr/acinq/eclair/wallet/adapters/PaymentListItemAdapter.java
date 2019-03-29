@@ -50,7 +50,7 @@ public class PaymentListItemAdapter extends RecyclerView.Adapter<PaymentItemHold
   @Override
   public void onBindViewHolder(PaymentItemHolder holder, int position) {
     final Payment payment = this.payments.get(position);
-    holder.bindPaymentItem(payment, this.fiatCode, this.prefUnit, this.displayAmountAsFiat);
+    holder.bindPaymentItem(position, payment, this.fiatCode, this.prefUnit, this.displayAmountAsFiat);
   }
 
   @Override
