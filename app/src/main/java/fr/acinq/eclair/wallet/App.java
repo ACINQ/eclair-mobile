@@ -293,6 +293,7 @@ public class App extends Application {
       Router.DEFAULT_ROUTE_MAX_CLTV(),
       Option.empty()));
 
+    log.info("(lightning) sending {} msat for invoice {}", amountMsat, paymentRequest.toString());
     appKit.eclairKit.paymentInitiator().tell(new PaymentLifecycle.SendPayment(
       amountMsat, paymentRequest.paymentHash(), paymentRequest.nodeId(), paymentRequest.routingInfo(),
       finalCltvExpiry + 1, 10, routeParams), ActorRef.noSender());

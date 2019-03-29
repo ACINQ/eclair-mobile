@@ -389,16 +389,31 @@ public class SendPaymentActivity extends EclairActivity
    * @param prAsString payment request as a string (used for display)
    */
   private void sendLNPayment(final long amountMsat, final PaymentRequest pr, final String prAsString) {
-    final String paymentHash = pr.paymentHash().toString();
-    final Payment p = app.getDBHelper().getPayment(paymentHash, PaymentType.BTC_LN);
-    if (p != null && p.getStatus() == PaymentStatus.PAID) {
-      canNotHandlePayment(R.string.payment_error_paid);
-    } else if (p != null && p.getStatus() == PaymentStatus.PENDING) {
-      canNotHandlePayment(R.string.payment_error_pending);
-    } else {
-      AsyncExecutor.create().execute(() -> {
-        // payment attempt is processed if it does not already exist or is not failed/init
-        if (p == null) {
+    new Thread() {
+      @Override
+      public void run() {
+        final String paymentHash = pr.paymentHash().toString();
+        final Payment p = app.getDBHelper().getPayment(paymentHash, PaymentType.BTC_LN);
+
+        // 1 - check if payment exists in DB
+        if (p != null && (p.getStatus() == PaymentStatus.INIT || p.getStatus() == PaymentStatus.PENDING)) {
+          // Payment is already initializing (~ computing route) or pending (~ en route in netwok), abort payment.
+          canNotHandlePayment(R.string.payment_error_pending);
+          return;
+        } else if (p != null && p.getStatus() == PaymentStatus.PAID) {
+          // Payment already paid, abort payment.
+          canNotHandlePayment(R.string.payment_error_paid);
+          return;
+        } else if (p != null && p.getStatus() == PaymentStatus.FAILED) {
+          // Payment exists but has failed, retry it with new amount.
+          p.setAmountSentMsat(amountMsat);
+          p.setUpdated(new Date());
+          p.setStatus(PaymentStatus.INIT);
+          app.getDBHelper().insertOrUpdatePayment(p);
+        } else if (p == null) {
+          // Payment does not exist yet, insert it in DB with init state.
+          // Note that init payment are cleared when starting the app, so any payment stuck in limbo would be erased.
+          // Pending payment (aka en route in network) are guaranteed to resolve to failure or success.
           final String paymentDescription = pr.description().isLeft() ? pr.description().left().get() : pr.description().right().get().toString();
           final Payment newPayment = new Payment();
           newPayment.setType(PaymentType.BTC_LN);
@@ -413,18 +428,16 @@ public class SendPaymentActivity extends EclairActivity
           newPayment.setUpdated(new Date());
           app.getDBHelper().insertOrUpdatePayment(newPayment);
         } else {
-          p.setAmountSentMsat(amountMsat);
-          p.setUpdated(new Date());
-          app.getDBHelper().insertOrUpdatePayment(p);
+          log.warn("unable to handle state of payment {}", p);
+          canNotHandlePayment(R.string.payment_error_unhandled_state);
+          return;
         }
 
-        // execute payment future, with cltv expiry + 1 to prevent the case where a block is mined just
-        // when the payment is made, which would fail the payment.
-        log.info("(lightning) sending {} msat for invoice {}", amountMsat, prAsString);
+        // 2 - send payment to the payment initiator
         app.sendLNPayment(pr, amountMsat, capLightningFees);
-      });
-      closeAndGoHome();
-    }
+        runOnUiThread(() -> closeAndGoHome());
+      }
+    }.start();
   }
 
   /**
