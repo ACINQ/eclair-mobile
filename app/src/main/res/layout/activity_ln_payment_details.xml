@@ -45,15 +45,18 @@
 
       <LinearLayout style="@style/DataRowContainer">
 
-        <LinearLayout
+        <android.support.constraint.ConstraintLayout
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:orientation="vertical"
           android:padding="@dimen/space_md">
 
           <TextView
+            android:id="@+id/amount_title"
             style="@style/TitleCapsGrey"
-            android:text="@{isReceived ? @string/paymentdetails_amount_received_label : @string/paymentdetails_amount_paid_label}" />
+            android:text="@{isReceived ? @string/paymentdetails_amount_received_label : @string/paymentdetails_amount_paid_label}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
           <fr.acinq.eclair.wallet.customviews.CoinAmountView
             android:id="@+id/amount_paid"
@@ -62,6 +65,11 @@
             app:amount_color="@color/grey_4"
             app:amount_size="36sp"
             app:force_btc="true"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/amount_title"
             app:unit="mBTC"
             app:unit_color="@color/grey_4"
             app:unit_size="12sp" />
@@ -71,61 +79,80 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif-light"
-            android:text="@string/paymentdetails_amount_fiat" />
+            android:text="@string/paymentdetails_amount_fiat"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/amount_paid" />
 
-          <LinearLayout
-            android:layout_width="match_parent"
+          <android.support.constraint.Guideline
+            android:id="@+id/mid_guideline"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/space_md"
-            android:baselineAligned="false"
-            android:orientation="horizontal">
-
-            <LinearLayout
-              android:layout_width="0dp"
-              android:layout_height="wrap_content"
-              android:layout_weight="0.5"
-              android:orientation="vertical">
-
-              <TextView
-                style="@style/TitleCapsGrey"
-                android:text="@string/paymentdetails_status_label" />
-
-              <TextView
-                android:id="@+id/status"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-            </LinearLayout>
-
-            <LinearLayout
-              android:layout_width="0dp"
-              android:layout_height="wrap_content"
-              android:layout_marginStart="@dimen/space_md"
-              android:layout_weight="0.5"
-              android:visibility="@{isReceived ? View.GONE : View.VISIBLE}"
-              android:orientation="vertical">
-
-              <TextView
-                style="@style/TitleCapsGrey"
-                android:text="@string/paymentdetails_fees_label" />
-
-              <TextView
-                android:id="@+id/fees"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-            </LinearLayout>
-          </LinearLayout>
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.5" />
 
           <TextView
-            style="@style/TitleCapsGrey"
+            android:id="@+id/status_title"
+            style="@style/CapsGrey"
             android:layout_marginTop="@dimen/space_md"
-            android:text="@string/paymentdetails_desc_label" />
+            android:text="@string/paymentdetails_status_label"
+            app:layout_constraintEnd_toStartOf="@id/mid_guideline"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/amount_paid_fiat" />
+
+          <TextView
+            android:id="@+id/status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintEnd_toStartOf="@id/mid_guideline"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/status_title" />
+
+          <TextView
+            style="@style/CapsGrey"
+            android:text="@string/paymentdetails_fees_label"
+            android:visibility="@{isReceived ? View.GONE : View.VISIBLE}"
+            app:layout_constraintBaseline_toBaselineOf="@+id/status_title"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintStart_toEndOf="@id/mid_guideline" />
+
+          <TextView
+            android:id="@+id/fees"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="@{isReceived ? View.GONE : View.VISIBLE}"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintStart_toEndOf="@id/mid_guideline"
+            app:layout_constraintTop_toBottomOf="@id/status_title" />
+
+          <TextView
+            android:id="@+id/desc_title"
+            style="@style/CapsGrey"
+            android:layout_marginTop="@dimen/space_md"
+            android:text="@string/paymentdetails_desc_label"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/status" />
 
           <TextView
             android:id="@+id/desc"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/unknown" />
-        </LinearLayout>
+            android:text="@string/unknown"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/desc_title" />
+
+        </android.support.constraint.ConstraintLayout>
 
         <TextView
           style="@style/TitleBar"

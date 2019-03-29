@@ -282,7 +282,6 @@ public class App extends Application {
       ? (Long) paymentRequest.minFinalCltvExpiry().get()
       : (Long) Channel.MIN_CLTV_EXPIRY();
 
-    // Route params with high base fee (at most 1mBTC)
     final Option<RouteParams> routeParams = checkFees
       ? Option.apply(null) // when fee protection is enabled, use the default RouteParams with reasonable values
       : Option.apply(RouteParams.apply( // otherwise, let's build a "no limit" RouteParams
