@@ -18,6 +18,7 @@ package fr.acinq.eclair.wallet.adapters;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.Typeface;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
@@ -135,6 +136,11 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
     }
 
     mDescription.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.grey_4));
+    if (mPayment.getStatus() == PaymentStatus.FAILED) {
+      mPaymentIcon.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(itemView.getContext(), R.color.grey_1)));
+    } else {
+      mPaymentIcon.setImageTintList(null);
+    }
 
     // -- lightning payments
     if (PaymentType.BTC_LN.equals(payment.getType())) {
