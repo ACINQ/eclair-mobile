@@ -8,8 +8,8 @@ android {
     applicationId "fr.acinq.eclair.wallet.mainnet2"
     minSdkVersion 21
     targetSdkVersion 28
-    versionCode 42
-    versionName "0.4.2"
+    versionCode 43
+    versionName "0.4.3-DEV"
     testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     multiDexEnabled true
   }
