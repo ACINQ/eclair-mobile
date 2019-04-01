@@ -43,6 +43,8 @@ import scala.concurrent.Await;
 import scala.concurrent.duration.Duration;
 
 import java.io.File;
+import java.text.DateFormat;
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -114,38 +116,21 @@ public class CheckElectrumWorker extends Worker {
       timestampAttempt(context);
       return Result.failure();
     } else {
-      // -- app is not running, this is a legit background work, let's check network connectivity
-      final ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-      final NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-      if (activeNetwork == null || !activeNetwork.isConnectedOrConnecting()) {
-        log.info("we have no connection, let's check if the check was run recently");
-        if (!isLastCheckFresh(context)) {
-          log.warn("let's notify the user: we have not been able to check txs for a while");
-          showNotification(context, false);
+      try {
+        final WatchListener.WatchResult result = startElectrumCheck(context);
+        log.info("check has completed with result {}", result);
+        if (result instanceof WatchListener.NotOk$) {
+          log.warn("cheating attempt detected, app must be started ASAP!");
+          showNotification(context, true);
         }
-        timestampAttempt(context);
+        saveLastCheckResult(context, result);
+        return Result.success();
+      } catch (Throwable t) {
+        log.error("electrum check has failed: ", t);
         return Result.failure();
-      } else {
-        try {
-          final WatchListener.WatchResult result = startElectrumCheck(context);
-          log.info("check has completed with result {}", result);
-          if (result instanceof WatchListener.Ok$) {
-            log.debug("electrum check reports that everything's fine");
-          } else if (result instanceof WatchListener.Unknown$) {
-            log.debug("electrum check returned an unknown result");
-          } else {
-            log.warn("cheating attempt detected, app must be started ASAP!");
-            showNotification(context, true);
-          }
-          saveLastCheckResult(context, result);
-          return Result.success();
-        } catch (Throwable t) {
-          log.error("electrum check has failed: ", t);
-          return Result.failure();
-        } finally {
-          timestampAttempt(context);
-          cleanup();
-        }
+      } finally {
+        timestampAttempt(context);
+        cleanup();
       }
     }
   }
@@ -172,17 +157,36 @@ public class CheckElectrumWorker extends Worker {
   private WatchListener.WatchResult startElectrumCheck(@NonNull final Context context) throws Exception {
     Class.forName("org.sqlite.JDBC");
     setup = new CheckElectrumSetup(new File(context.getFilesDir(), Constants.ECLAIR_DATADIR), WalletUtils.getOverrideConfig(PreferenceManager.getDefaultSharedPreferences(context)), system);
-    return Await.result(setup.check(), Duration.apply(3, TimeUnit.MINUTES));
+    if (setup.nodeParams().channelsDb().listChannels().isEmpty()) {
+      log.info("no active channels found");
+      return WatchListener.Ok$.MODULE$;
+    } else {
+      // if there is no network connectivity, return failure
+      final ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+      final NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+      if (activeNetwork == null || !activeNetwork.isConnectedOrConnecting()) {
+        log.info("we have no connection, let's check if the check was run recently");
+        if (!isLastCheckFresh(context)) {
+          log.warn("let's notify the user: we have not been able to check txs for a while");
+          showNotification(context, false);
+        }
+        return WatchListener.Unknown$.MODULE$;
+      } else {
+        return Await.result(setup.check(), Duration.apply(3, TimeUnit.MINUTES));
+      }
+    }
   }
 
   private boolean isLastCheckFresh(@NonNull final Context context) {
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-
     final long currentTime = System.currentTimeMillis();
     final long lastBootDate = prefs.getLong(Constants.SETTING_LAST_SUCCESSFUL_BOOT_DATE, 0);
     final long lastCheckDate = prefs.getLong(Constants.SETTING_ELECTRUM_CHECK_LAST_OUTCOME_TIMESTAMP, 0);
     final String lastCheckResult = prefs.getString(Constants.SETTING_ELECTRUM_CHECK_LAST_OUTCOME_RESULT, null);
     final long delaySinceCheck = currentTime - lastCheckDate;
+
+    log.debug("last boot happened on {}, last check happened on {}, delay={} ms", DateFormat.getDateTimeInstance().format(new Date(lastBootDate)),
+      DateFormat.getDateTimeInstance().format(new Date(lastCheckDate)), DateUtils.formatElapsedTime(delaySinceCheck / 1000));
 
     if (lastBootDate == 0) {
       log.warn("last boot date has never been set");
@@ -190,22 +194,22 @@ public class CheckElectrumWorker extends Worker {
     }
 
     if (currentTime - lastBootDate < MAX_FRESH_WINDOW_IF_OK) {
-      log.info("fresh last boot: ", DateUtils.getRelativeTimeSpanString(currentTime, lastBootDate, currentTime - lastBootDate));
+      // equivalent to a fresh check with OK result
+      log.debug("fresh last boot");
       return true;
     }
 
     if (lastCheckDate == 0) {
-      log.debug("check has never run!");
+      log.debug("check has never run");
       return false;
     }
 
-    log.info("it has been {} since last check, which resulted with={}", DateUtils.getRelativeTimeSpanString(currentTime, lastCheckDate, delaySinceCheck), lastCheckResult);
     if (delaySinceCheck < MAX_FRESH_WINDOW) {
       return true;
     }
 
     if (delaySinceCheck < MAX_FRESH_WINDOW_IF_OK && WatchListener.Ok$.MODULE$.toString().equalsIgnoreCase(lastCheckResult)) {
-      // we had OK recently
+      // we had OK recently (time window is a bit longer)
       return true;
     }
 
