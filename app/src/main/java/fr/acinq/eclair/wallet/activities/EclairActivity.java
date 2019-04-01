@@ -83,7 +83,7 @@ public abstract class EclairActivity extends AppCompatActivity {
   }
 
   protected void clearApp() {
-    log.info("clearing app data");
+    log.debug("clearing appKit and transient data");
     app.appKit = null;
     app.pin.set(null);
     app.seedHash.set(null);
