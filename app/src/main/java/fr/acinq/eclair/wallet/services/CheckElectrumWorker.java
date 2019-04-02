@@ -39,6 +39,8 @@ import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import scala.Option;
 import scala.concurrent.Await;
 import scala.concurrent.duration.Duration;
 
@@ -96,9 +98,9 @@ public class CheckElectrumWorker extends Worker {
     }
     if (setup != null && setup.nodeParams() != null) {
       try {
-        setup.nodeParams().channelsDb().close(); // eclair.sqlite
-        setup.nodeParams().networkDb().close(); // network.sqlite
-        setup.nodeParams().auditDb().close(); // audit.sqlite
+        setup.nodeParams().db().channels().close(); // eclair.sqlite
+        setup.nodeParams().db().network().close(); // network.sqlite
+        setup.nodeParams().db().audit().close(); // audit.sqlite
       } catch (Throwable t) {
         log.error("could not close at least one database connection opened by check electrum setup", t);
       }
@@ -156,8 +158,8 @@ public class CheckElectrumWorker extends Worker {
 
   private WatchListener.WatchResult startElectrumCheck(@NonNull final Context context) throws Exception {
     Class.forName("org.sqlite.JDBC");
-    setup = new CheckElectrumSetup(new File(context.getFilesDir(), Constants.ECLAIR_DATADIR), WalletUtils.getOverrideConfig(PreferenceManager.getDefaultSharedPreferences(context)), system);
-    if (setup.nodeParams().channelsDb().listChannels().isEmpty()) {
+    setup = new CheckElectrumSetup(new File(context.getFilesDir(), Constants.ECLAIR_DATADIR), WalletUtils.getOverrideConfig(PreferenceManager.getDefaultSharedPreferences(context)), Option.empty(), system);
+    if (setup.nodeParams().db().channels().listLocalChannels().isEmpty()) {
       log.info("no active channels found");
       return WatchListener.Ok$.MODULE$;
     } else {

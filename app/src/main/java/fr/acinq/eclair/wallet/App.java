@@ -394,7 +394,7 @@ public class App extends Application {
   }
 
   private boolean hasChannelWithACINQ() {
-    final Iterator<HasCommitments> channelsIt = appKit.eclairKit.nodeParams().channelsDb().listChannels().iterator();
+    final Iterator<HasCommitments> channelsIt = appKit.eclairKit.nodeParams().db().channels().listLocalChannels().iterator();
     while (channelsIt.hasNext()) {
       if (Constants.ACINQ_NODE_URI.nodeId().equals(channelsIt.next().commitments().remoteParams().nodeId())) {
         return true;
