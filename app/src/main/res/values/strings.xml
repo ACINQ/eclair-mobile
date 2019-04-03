@@ -359,6 +359,7 @@
   <string name="payment_error_ln_insufficient_funds">Your Lightning channels do not have enough balance to process this payment.</string>
   <string name="payment_error_pending">This payment is already processing.</string>
   <string name="payment_error_paid">This payment has already been paid.</string>
+  <string name="payment_error_unhandled_state">This payment cannot be sent. Try again later…</string>
   <string name="payment_error_incorrect_pin">PIN is incorrect.</string>
 
   <!-- //////////////// LN payment details //////////////////// -->
@@ -370,6 +371,7 @@
   <string name="paymentdetails_amount_fiat">≈ %1$s</string>
   <string name="paymentdetails_recipient_label">Recipient node</string>
   <string name="paymentdetails_status_label">Status</string>
+  <string name="paymentdetails_retry_failed">Retry payment</string>
   <string name="paymentdetails_desc_label">Payment description</string>
   <string name="paymentdetails_amount_requested_label">Amount requested</string>
   <string name="paymentdetails_amount_requested_donation">Not set</string>
@@ -442,7 +444,7 @@
   <string name="paymentitem_icon_desc">payment type</string>
   <string name="paymentitem_fee_prefix">fee:</string>
   <string name="paymentitem_failed">Failed</string>
-  <string name="paymentitem_init">Processing…</string>
+  <string name="paymentitem_init">Finding route…</string>
   <string name="paymentitem_pending">Pending…</string>
   <string name="paymentitem_zero_conf">Unconfirmed</string>
 
@@ -598,8 +600,8 @@
   <string name="notif_channelclosing_bigmessage_normal">You should see an incoming on-chain transaction.</string>
   <string name="notif_channelclosing_bigmessage_localclosing">You or your wallet unilaterally closed this channel. You will receive your funds in %1$d blocks. This value is dependent on the channel configuration.</string>
 
-  <string name="notif_electrum_check_reminder_title">Unable to watch your channels</string>
-  <string name="notif_electrum_check_reminder_message">It seems that you have been offline for a few days. Eclair Mobile needs access to the internet at least once every two weeks to protect your funds.</string>
+  <string name="notif_electrum_check_reminder_title">Unable to watch your Lightning channels</string>
+  <string name="notif_electrum_check_reminder_message">To protect the funds in your Lightning channels, Eclair needs to watch the blockchain once in a while, but has been unable to do so the last few days. Make sure that you have a working internet connection.</string>
 
   <string name="notif_electrum_check_alert_title">Cheating attempt detected</string>
   <string name="notif_electrum_check_alert_message">Start Eclair Mobile for automated retaliation.</string>
@@ -633,7 +635,7 @@
   <string name="receivepayment_lightning_max_what_title">What is this Max value?</string>
   <string name="receivepayment_lightning_max_what_body">This is the maximum amount you can receive in one payment.\n\nThis maximum amount depends on the inbound capacity of your channels.\n\nTo increase this amount, you must balance your channels so that your peers have enough funds on their side, or ask for nodes to open channels with you.</string>
   <string name="receivepayment_lightning_description_title">Desc.</string>
-  <string name="receivepayment_lightning_description_notset">No description</string>
+  <string name="receivepayment_lightning_description_notset">No description set</string>
   <string name="receivepayment_lightning_amount_title">Amount</string>
   <string name="receivepayment_lightning_amount_notset">Freely set by the payer</string>
   <string name="receivepayment_lightning_amount_value"><![CDATA[%1$s<br /><font color="#bbbbbb">≈ %2$s</font>]]></string>

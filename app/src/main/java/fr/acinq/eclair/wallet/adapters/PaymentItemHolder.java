@@ -18,6 +18,7 @@ package fr.acinq.eclair.wallet.adapters;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.Typeface;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
@@ -45,7 +46,7 @@ import java.text.NumberFormat;
 
 public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-  public static final String EXTRA_PAYMENT_ID = BuildConfig.APPLICATION_ID + "PAYMENT_ID";
+  public static final String EXTRA_PAYMENT_ID = BuildConfig.APPLICATION_ID + ".PAYMENT_ID";
 
   private final ImageView mPaymentIcon;
   private final TextView mDescription;
@@ -82,8 +83,14 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
   }
 
   @SuppressLint("SetTextI18n")
-  public void bindPaymentItem(final Payment payment, final String fiatCode, final CoinUnit prefUnit, final boolean displayAmountAsFiat) {
+  public void bindPaymentItem(final int position, final Payment payment, final String fiatCode, final CoinUnit prefUnit, final boolean displayAmountAsFiat) {
     this.mPayment = payment;
+
+    // override item padding set in xml file ; if item is first in list, top padding is a bit larger because it looks
+    // better with the current layout.
+    final int topPadding = itemView.getResources().getDimensionPixelOffset(position == 0 ? R.dimen.space_md : R.dimen.space_sm);
+    final int bottomPadding = itemView.getResources().getDimensionPixelOffset(R.dimen.space_sm);
+    itemView.setPadding(0, topPadding, 0, bottomPadding);
 
     // amount should be the amount paid, fallback to requested (useful for LN)
     final long amountMsat = payment.getAmountPaidMsat() == 0 ? payment.getAmountSentMsat() : payment.getAmountPaidMsat();
@@ -129,6 +136,11 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
     }
 
     mDescription.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.grey_4));
+    if (mPayment.getStatus() == PaymentStatus.FAILED) {
+      mPaymentIcon.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(itemView.getContext(), R.color.grey_1)));
+    } else {
+      mPaymentIcon.setImageTintList(null);
+    }
 
     // -- lightning payments
     if (PaymentType.BTC_LN.equals(payment.getType())) {

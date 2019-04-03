@@ -27,11 +27,10 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_centerHorizontal="true"
-    android:padding="@dimen/space_md"
+    android:padding="@dimen/space_md_p"
     android:text="@string/payments_empty"
     android:textAlignment="center"
     android:textColor="@color/grey_1"
-    android:textSize="@dimen/text_sm"
     app:layout_constraintTop_toTopOf="parent" />
 
   <android.support.v4.widget.SwipeRefreshLayout
@@ -49,7 +48,6 @@
       android:layout_width="match_parent"
       android:layout_height="match_parent"
       android:clipToPadding="false"
-      android:paddingTop="@dimen/space_xxs"
       android:paddingBottom="88dp" />
 
   </android.support.v4.widget.SwipeRefreshLayout>

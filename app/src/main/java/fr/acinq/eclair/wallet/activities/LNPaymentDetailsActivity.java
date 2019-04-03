@@ -19,14 +19,14 @@ package fr.acinq.eclair.wallet.activities;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
-
-import java.text.DateFormat;
-
+import android.view.View;
+import com.google.android.gms.common.util.Strings;
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.eclair.CoinUnit;
 import fr.acinq.eclair.CoinUtils;
@@ -37,6 +37,8 @@ import fr.acinq.eclair.wallet.models.Payment;
 import fr.acinq.eclair.wallet.models.PaymentDirection;
 import fr.acinq.eclair.wallet.models.PaymentStatus;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
+
+import java.text.DateFormat;
 
 public class LNPaymentDetailsActivity extends EclairActivity {
 
@@ -79,12 +81,29 @@ public class LNPaymentDetailsActivity extends EclairActivity {
         mBinding.status.setTextColor(ContextCompat.getColor(this, R.color.orange));
       }
       mBinding.recipient.setValue(p.getRecipient());
-      mBinding.desc.setText(p.getDescription());
+      if (Strings.isEmptyOrWhitespace(p.getDescription())) {
+        mBinding.desc.setText(getString(R.string.receivepayment_lightning_description_notset));
+        mBinding.desc.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.grey_2));
+        mBinding.desc.setTypeface(Typeface.DEFAULT, Typeface.ITALIC);
+      } else {
+        mBinding.desc.setText(p.getDescription());
+      }
       if (p.getAmountRequestedMsat() == 0) {
         // this is a donation
         mBinding.amountRequested.setValue(getString(R.string.paymentdetails_amount_requested_donation));
       } else {
         mBinding.amountRequested.setValue(CoinUtils.formatAmountInUnit(new MilliSatoshi(p.getAmountRequestedMsat()), prefUnit, true));
+      }
+
+      if (p.getStatus() == PaymentStatus.FAILED && p.getDirection() == PaymentDirection.SENT) {
+        mBinding.retryPayment.setVisibility(View.VISIBLE);
+        mBinding.retryPayment.setOnClickListener(v -> {
+          final Intent paymentIntent = new Intent(this, SendPaymentActivity.class);
+          paymentIntent.putExtra(SendPaymentActivity.EXTRA_INVOICE, p.getPaymentRequest());
+          startActivity(paymentIntent);
+        });
+      } else {
+        mBinding.retryPayment.setVisibility(View.GONE);
       }
 
       mBinding.amountSent.setValue(CoinUtils.formatAmountInUnit(new MilliSatoshi(p.getAmountSentMsat()), prefUnit, true));

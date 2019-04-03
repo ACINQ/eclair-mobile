@@ -282,7 +282,6 @@ public class App extends Application {
       ? (Long) paymentRequest.minFinalCltvExpiry().get()
       : (Long) Channel.MIN_CLTV_EXPIRY();
 
-    // Route params with high base fee (at most 1mBTC)
     final Option<RouteParams> routeParams = checkFees
       ? Option.apply(null) // when fee protection is enabled, use the default RouteParams with reasonable values
       : Option.apply(RouteParams.apply( // otherwise, let's build a "no limit" RouteParams
@@ -293,6 +292,7 @@ public class App extends Application {
       Router.DEFAULT_ROUTE_MAX_CLTV(),
       Option.empty()));
 
+    log.info("(lightning) sending {} msat for invoice {}", amountMsat, paymentRequest.toString());
     appKit.eclairKit.paymentInitiator().tell(new PaymentLifecycle.SendPayment(
       amountMsat, paymentRequest.paymentHash(), paymentRequest.nodeId(), paymentRequest.routingInfo(),
       finalCltvExpiry + 1, 10, routeParams), ActorRef.noSender());

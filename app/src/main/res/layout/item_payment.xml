@@ -28,14 +28,11 @@
     android:id="@+id/paymentitem_type"
     android:layout_width="16dp"
     android:layout_height="16dp"
-    android:layout_alignParentStart="true"
-    android:layout_centerVertical="true"
-    android:layout_gravity="center"
-    android:layout_marginStart="@dimen/space_md"
+    android:layout_marginStart="14dp"
+    android:contentDescription="@string/paymentitem_icon_desc"
     app:layout_constraintBottom_toBottomOf="parent"
     app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toTopOf="parent"
-    android:contentDescription="@string/paymentitem_icon_desc" />
+    app:layout_constraintTop_toTopOf="parent" />
 
   <android.support.constraint.Guideline
     android:id="@+id/amount_guideline"
@@ -49,7 +46,7 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_marginStart="@dimen/space_sm"
-    android:layout_marginEnd="@dimen/text_md"
+    android:layout_marginEnd="@dimen/space_xs"
     android:ellipsize="end"
     android:singleLine="true"
     android:text="@string/unknown"
@@ -64,7 +61,7 @@
     android:id="@+id/paymentitem_status"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_marginEnd="@dimen/space_md_p"
+    android:layout_marginEnd="@dimen/space_md"
     android:ellipsize="end"
     android:maxWidth="120dp"
     android:maxLines="1"
@@ -72,9 +69,9 @@
     android:textSize="@dimen/text_md"
     android:visibility="gone"
     app:layout_constrainedWidth="true"
-    app:layout_constraintBottom_toBottomOf="parent"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintHorizontal_bias="1"
+    app:layout_constraintStart_toEndOf="@id/amount_guideline"
     app:layout_constraintTop_toTopOf="parent" />
 
   <TextView
@@ -94,16 +91,16 @@
     android:id="@+id/paymentitem_amount_value"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_marginEnd="@dimen/space_xxxs"
+    android:layout_marginEnd="@dimen/space_xxs"
     android:ellipsize="end"
     android:letterSpacing="0.02"
     android:maxLines="1"
     android:textSize="@dimen/text_md"
     app:layout_constrainedWidth="true"
-    app:layout_constraintBaseline_toBaselineOf="@id/paymentitem_description"
     app:layout_constraintEnd_toStartOf="@id/paymentitem_amount_unit"
     app:layout_constraintHorizontal_bias="1"
-    app:layout_constraintStart_toEndOf="@id/amount_guideline" />
+    app:layout_constraintStart_toEndOf="@id/amount_guideline"
+    app:layout_constraintTop_toTopOf="parent" />
 
   <TextView
     android:id="@+id/paymentitem_amount_unit"
@@ -122,14 +119,11 @@
     android:id="@+id/paymentitem_fees_prefix"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_alignBaseline="@+id/paymentitem_fees_value"
     android:layout_marginEnd="@dimen/space_xxs"
-    android:layout_toStartOf="@+id/paymentitem_fees_value"
     android:maxLines="1"
     android:text="@string/paymentitem_fee_prefix"
     android:textColor="@color/grey_1"
     android:textSize="@dimen/text_xs"
-    android:visibility="visible"
     app:layout_constrainedWidth="true"
     app:layout_constraintBaseline_toBaselineOf="@id/paymentitem_fees_unit"
     app:layout_constraintEnd_toStartOf="@id/paymentitem_fees_value"
@@ -139,15 +133,11 @@
     android:id="@+id/paymentitem_fees_value"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_below="@+id/paymentitem_amount_value"
     android:layout_marginEnd="@dimen/space_xxs"
-    android:layout_toStartOf="@+id/paymentitem_amount_unit"
     android:maxLines="1"
     android:textColor="@color/grey_2"
     android:textSize="@dimen/text_xs"
-    android:visibility="visible"
     app:layout_constrainedWidth="true"
-
     app:layout_constraintBaseline_toBaselineOf="@id/paymentitem_fees_unit"
     app:layout_constraintEnd_toStartOf="@id/paymentitem_fees_unit"
     app:layout_constraintHorizontal_bias="1" />
@@ -156,15 +146,13 @@
     android:id="@+id/paymentitem_fees_unit"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_alignBaseline="@+id/paymentitem_fees_value"
-    android:layout_alignStart="@+id/paymentitem_amount_unit"
+    android:layout_marginEnd="@dimen/space_md"
     android:maxLines="1"
     android:textColor="@color/grey_1"
     android:textSize="@dimen/text_xs"
-    android:visibility="visible"
     app:layout_constrainedWidth="true"
     app:layout_constraintBaseline_toBaselineOf="@id/paymentitem_date"
-    app:layout_constraintHorizontal_bias="1"
-    app:layout_constraintStart_toStartOf="@id/paymentitem_amount_unit" />
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintHorizontal_bias="1" />
 
 </android.support.constraint.ConstraintLayout>
