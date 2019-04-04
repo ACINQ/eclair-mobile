@@ -56,19 +56,21 @@ public class NetworkSyncWorker extends Worker {
   }
 
   private void cleanup() {
-    if (!system.isTerminated()) {
-      system.shutdown();
-      log.info("system shutdown requested...");
-      system.awaitTermination();
+    try {
+      log.debug("system shutdown requested...");
+      Await.result(system.terminate(), Duration.Inf());
       log.info("termination completed");
-    }
-    if (liteSetup != null && liteSetup.nodeParams() != null) {
-      try {
-        liteSetup.nodeParams().channelsDb().close(); // eclair.sqlite
-        liteSetup.nodeParams().networkDb().close(); // network.sqlite
-        liteSetup.nodeParams().auditDb().close(); // audit.sqlite
-      } catch (Throwable t) {
-        log.error("could not close at least one database connection opened by litesetup", t);
+    } catch (Throwable t) {
+      log.warn("termination error: ", t);
+    } finally {
+      if (liteSetup != null && liteSetup.nodeParams() != null) {
+        try {
+          liteSetup.nodeParams().channelsDb().close(); // eclair.sqlite
+          liteSetup.nodeParams().networkDb().close(); // network.sqlite
+          liteSetup.nodeParams().auditDb().close(); // audit.sqlite
+        } catch (Throwable t) {
+          log.error("could not close at least one database connection opened by litesetup", t);
+        }
       }
     }
   }

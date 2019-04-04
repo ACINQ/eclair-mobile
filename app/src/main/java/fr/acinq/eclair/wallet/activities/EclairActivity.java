@@ -55,7 +55,7 @@ public abstract class EclairActivity extends AppCompatActivity {
     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
     PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_ONE_SHOT);
 
-    if (app != null) app.system.shutdown();
+    if (app != null) app.system.terminate();
     AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
     if (manager != null) {
       manager.set(AlarmManager.RTC, System.currentTimeMillis() + 500, pendingIntent);

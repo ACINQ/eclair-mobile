@@ -45,6 +45,7 @@ import scala.concurrent.duration.Duration;
 import java.io.File;
 import java.text.DateFormat;
 import java.util.Date;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -88,19 +89,21 @@ public class CheckElectrumWorker extends Worker {
   }
 
   private void cleanup() {
-    if (!system.isTerminated()) {
-      system.shutdown();
+    try {
       log.debug("system shutdown requested...");
-      system.awaitTermination();
+      Await.result(system.terminate(), Duration.Inf());
       log.info("termination completed");
-    }
-    if (setup != null && setup.nodeParams() != null) {
-      try {
-        setup.nodeParams().channelsDb().close(); // eclair.sqlite
-        setup.nodeParams().networkDb().close(); // network.sqlite
-        setup.nodeParams().auditDb().close(); // audit.sqlite
-      } catch (Throwable t) {
-        log.error("could not close at least one database connection opened by check electrum setup", t);
+    } catch (Throwable t) {
+      log.warn("termination error: ", t);
+    } finally {
+      if (setup != null && setup.nodeParams() != null) {
+        try {
+          setup.nodeParams().channelsDb().close(); // eclair.sqlite
+          setup.nodeParams().networkDb().close(); // network.sqlite
+          setup.nodeParams().auditDb().close(); // audit.sqlite
+        } catch (Throwable t) {
+          log.error("could not close at least one database connection opened by check electrum setup: ", t);
+        }
       }
     }
   }
