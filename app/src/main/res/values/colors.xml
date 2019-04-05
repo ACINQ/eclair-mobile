@@ -29,7 +29,6 @@
   <color name="grey_0_blue_light_x2">#f1f8fe</color>
   <color name="grey_0_blue_light_x1">#dbedfd</color>
   <color name="grey_0_blue">#bbdefb</color>
-  <color name="grey_0_light_x3">#f9f9f9</color>
   <color name="grey_0_light_x2">#f6f6f6</color>
   <color name="grey_0_light_x1">#f2f2f2</color>
   <color name="grey_0_dark_x1">#e8e9eb</color>
@@ -47,8 +46,6 @@
   <color name="green_dark">#0BA876</color>
   <color name="yellow">#ffe88a</color>
   <color name="yellow_light_x3">#FFF3DF</color>
-  <color name="yellow_light_x2">#feedc5</color>
-  <color name="yellow_light_x1">#ffda97</color>
   <color name="orange">#ffab00</color>
   <color name="red_faded">#ca4747</color>
   <color name="red_faded_light_x2">#ffa4a4</color>
@@ -57,13 +54,9 @@
   <color name="red_faded_dark_x2">#b13a3a</color>
   <color name="receive_color">#c5cbda</color>
   <color name="blue">#1084E9</color>
-  <color name="azur_dark">#539dc2</color>
   <color name="azur">#67ccf2</color>
   <color name="azur_light_x1">#91e2ff</color>
-  <color name="azur_light_x2">#c8eefc</color>
-  <color name="azur_light_x3">#ebfaff</color>
   <color name="white">#ffffff</color>
-  <color name="white_low_alpha">#11ffffff</color>
   <color name="almost_white">#fbfbfb</color>
   <color name="intro">#ffe785</color>
   <color name="black_overlay">#10000000</color>
