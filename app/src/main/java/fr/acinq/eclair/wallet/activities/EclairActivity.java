@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ACINQ SAS
+ * Copyright 2019 ACINQ SAS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -83,7 +83,7 @@ public abstract class EclairActivity extends AppCompatActivity {
   }
 
   protected void clearApp() {
-    log.info("clearing app data");
+    log.debug("clearing appKit and transient data");
     app.appKit = null;
     app.pin.set(null);
     app.seedHash.set(null);

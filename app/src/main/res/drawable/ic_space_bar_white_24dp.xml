@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright 2018 ACINQ SAS
+  ~ Copyright 2019 ACINQ SAS
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -14,11 +14,16 @@
   ~ limitations under the License.
   -->
 
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
-  <item>
-    <shape android:shape="rectangle">
-      <solid android:color="@color/grey_0_light_x1"/>
-      <corners android:topLeftRadius="2dp" android:topRightRadius="2dp" />
-    </shape>
-  </item>
-</selector>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+  android:width="48dp"
+  android:height="20dp"
+  android:viewportWidth="24"
+  android:viewportHeight="24">
+  <path
+    android:fillColor="#00000000"
+    android:pathData="M21,15v2a1,2 0,0 1,-1 2H5a1,2 0,0 1,-1 -2v-2"
+    android:strokeWidth="1"
+    android:strokeColor="@color/white"
+    android:strokeLineCap="round"
+    android:strokeLineJoin="miter" />
+</vector>

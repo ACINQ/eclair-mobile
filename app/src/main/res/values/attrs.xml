@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright 2018 ACINQ SAS
+  ~ Copyright 2019 ACINQ SAS
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -24,6 +24,9 @@
     <attr name="unit" format="string" />
     <attr name="unit_size" format="dimension" />
     <attr name="unit_color" format="color" />
+  </declare-styleable>
+  <declare-styleable name="VirtualKeyboard">
+    <attr name="label" />
   </declare-styleable>
   <declare-styleable name="DataRow">
     <attr name="label" />

@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright 2018 ACINQ SAS
+  ~ Copyright 2019 ACINQ SAS
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
   -->
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-  android:id="@+id/home_intro"
   android:layout_width="match_parent"
   android:layout_height="match_parent"
   android:background="@android:color/transparent"
