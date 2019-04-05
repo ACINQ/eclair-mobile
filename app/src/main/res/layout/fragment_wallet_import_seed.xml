@@ -16,7 +16,9 @@
   ~ limitations under the License.
   -->
 
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools">
 
   <data>
 
@@ -30,69 +32,145 @@
     android:clipToPadding="false"
     android:fillViewport="true">
 
-    <LinearLayout
+    <android.support.constraint.ConstraintLayout
       android:id="@+id/transitions_layout"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
+      android:clipToPadding="false"
       android:gravity="start|center"
-      android:orientation="vertical"
-      android:paddingBottom="@dimen/space_xl"
-      android:paddingEnd="@dimen/space_lg"
       android:paddingStart="@dimen/space_lg"
-      android:paddingTop="@dimen/space_xl">
+      android:paddingTop="@dimen/space_xl"
+      android:paddingEnd="@dimen/space_lg"
+      android:paddingBottom="@dimen/space_xl">
 
       <TextView
+        android:id="@+id/title"
         style="@style/TitleCapsIcon"
-        android:layout_marginBottom="@dimen/space_sm"
         android:drawableStart="@drawable/ic_key_white_24dp"
-        android:text="@string/importwallet_init_title" />
+        android:text="@string/importwallet_init_title"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
       <TextView
+        android:id="@+id/instructions"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/space_md"
-        android:text="@string/importwallet_init_instructions" />
+        android:layout_marginTop="@dimen/space_sm"
+        android:text="@string/importwallet_init_instructions"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/title" />
 
-      <android.support.design.widget.TextInputLayout
-        android:id="@+id/mnemonics_input_layout"
+      <android.support.constraint.ConstraintLayout
+        android:id="@+id/mnemonics_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="32dp"
-        android:hint="@string/importwallet_input_hint"
-        android:textColorHint="@color/primary_light_x3">
+        android:layout_marginTop="@dimen/space_lg"
+        android:background="@drawable/rounded_corner_primary_dark_x4"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/instructions">
 
-        <android.support.design.widget.TextInputEditText
+        <TextView
+          android:id="@+id/mnemonics_input_label"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_marginTop="@dimen/space_xs"
+          android:paddingStart="@dimen/space_sm"
+          android:paddingEnd="@dimen/space_sm"
+          android:src="@drawable/ic_chevron_right_black_24dp"
+          android:text="@string/importwallet_mnemonics_label"
+          android:textColor="@color/primary_light_x1"
+          android:textSize="@dimen/text_sm"
+          android:tint="@color/primary_light_x1"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toTopOf="parent"
+          tools:ignore="ContentDescription" />
+
+        <TextView
           android:id="@+id/mnemonics_input"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:backgroundTint="@color/primary_light_x3"
-          android:digits="abcdefghijklmnopqrstuvwxyz "
-          android:inputType="textVisiblePassword|textNoSuggestions"
-          android:autofillHints="false"
-          android:textColor="@color/white"
-          android:textSize="12sp" />
+          android:layout_marginTop="@dimen/space_xs"
+          android:autofillHints="@null"
+          android:importantForAutofill="no"
+          android:inputType="textVisiblePassword|textMultiLine"
+          android:paddingStart="@dimen/space_sm"
+          android:paddingEnd="@dimen/space_sm"
+          app:layout_constrainedWidth="true"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintHorizontal_bias="0"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toBottomOf="@id/mnemonics_input_label" />
 
-      </android.support.design.widget.TextInputLayout>
+        <HorizontalScrollView
+          android:id="@+id/autocomplete_scroll"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:fadeScrollbars="false"
+          android:fillViewport="true"
+          android:scrollbarAlwaysDrawHorizontalTrack="true"
+          android:scrollbarSize="4dp"
+          android:scrollbars="horizontal"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toBottomOf="@id/mnemonics_input">
+
+          <TextView
+            android:id="@+id/autocomplete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/space_xs"
+            android:textAlignment="center"
+            android:textSize="@dimen/text_sm" />
+        </HorizontalScrollView>
+
+      </android.support.constraint.ConstraintLayout>
+
+      <View
+        android:id="@+id/keyboard_separator"
+        android:layout_width="6dp"
+        android:layout_height="@dimen/space_md"
+        android:layout_gravity="center"
+        android:background="@color/primary_dark_x1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/mnemonics_layout" />
+
+      <fr.acinq.eclair.wallet.customviews.VirtualKeyboard
+        android:id="@+id/virtual_keyboard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/keyboard_separator" />
 
       <TextView
         android:id="@+id/seed_error"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/space_md"
-        android:background="@drawable/rounded_corner_primary_light_x1"
+        style="@style/RoundedWhitePanel"
         android:clickable="true"
+        android:elevation="8dp"
         android:focusable="true"
-        android:gravity="start|center"
-        android:onClick="goToInit"
         android:padding="@dimen/space_md"
         android:text="@string/importwallet_seed_error"
-        android:visibility="gone" />
+        android:visibility="gone"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/keyboard_separator" />
 
       <Button
         style="@style/EndButtonStyle"
+        android:layout_marginTop="@dimen/space_md_p"
         android:onClick="importMnemonics"
-        android:text="@string/importwallet_next_button" />
+        android:text="@string/importwallet_next_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/virtual_keyboard" />
 
-    </LinearLayout>
+    </android.support.constraint.ConstraintLayout>
   </ScrollView>
 </layout>

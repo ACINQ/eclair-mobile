@@ -15,7 +15,8 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto">
 
   <data>
 
@@ -47,17 +48,19 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/space_lg"
         android:hint="@string/wallet_passphrase_confirm_input_hint"
-        android:textColorHint="@color/primary_light_x3">
+        android:textColorHint="@color/primary_light_x3"
+        app:passwordToggleEnabled="true"
+        app:passwordToggleTint="@color/primary_light_x3">
 
         <android.support.design.widget.TextInputEditText
           android:id="@+id/passphrase_confirm_input"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:backgroundTint="@color/primary_light_x3"
-          android:inputType="textVisiblePassword|textNoSuggestions"
+          android:inputType="textPassword|textNoSuggestions"
           android:maxLength="256"
           android:textColor="@color/white"
-          android:textSize="12sp" />
+          android:textSize="@dimen/text_md" />
 
       </android.support.design.widget.TextInputLayout>
 

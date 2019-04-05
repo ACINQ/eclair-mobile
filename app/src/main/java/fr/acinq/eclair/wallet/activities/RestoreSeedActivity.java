@@ -30,11 +30,6 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
 import fr.acinq.bitcoin.MnemonicCode;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.adapters.SimplePagerAdapter;
@@ -44,6 +39,10 @@ import fr.acinq.eclair.wallet.fragments.WalletImportSeedFragment;
 import fr.acinq.eclair.wallet.fragments.WalletPassphraseFragment;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 public class RestoreSeedActivity extends EclairActivity implements EclairActivity.EncryptSeedCallback {
 
@@ -128,12 +127,8 @@ public class RestoreSeedActivity extends EclairActivity implements EclairActivit
     }
     seedErrorHandler.removeCallbacks(null);
     try {
-      final String mnemonics = mWalletImportSeedFragment.mBinding.mnemonicsInput.getText().toString().trim();
+      final String mnemonics = mWalletImportSeedFragment.mBinding.mnemonicsInput.getText().toString().trim().toLowerCase();
       MnemonicCode.validate(mnemonics);
-      final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-      if (imm != null && view != null && view.getWindowToken() != null) {
-        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-      }
       goToPassphrase();
     } catch (Exception e) {
       handleSeedError(R.string.importwallet_seed_error, e.getLocalizedMessage());
@@ -143,7 +138,7 @@ public class RestoreSeedActivity extends EclairActivity implements EclairActivit
   private void handleSeedError(final int errorCode, final String message) {
     if (mWalletImportSeedFragment != null && mWalletImportSeedFragment.mBinding != null) {
       TransitionManager.beginDelayedTransition(mWalletImportSeedFragment.mBinding.transitionsLayout);
-      mWalletImportSeedFragment.mBinding.mnemonicsInputLayout.startAnimation(mErrorAnimation);
+      mWalletImportSeedFragment.mBinding.mnemonicsInput.startAnimation(mErrorAnimation);
       mWalletImportSeedFragment.mBinding.seedError.setText(getString(errorCode, message));
       mWalletImportSeedFragment.mBinding.seedError.setVisibility(View.VISIBLE);
       seedErrorHandler.postDelayed(() -> {
@@ -157,7 +152,7 @@ public class RestoreSeedActivity extends EclairActivity implements EclairActivit
 
   public void goToPassphraseConfirmStep(final View view) {
     try {
-      final String mnemonics = mWalletImportSeedFragment.mBinding.mnemonicsInput.getText().toString().trim();
+      final String mnemonics = mWalletImportSeedFragment.mBinding.mnemonicsInput.getText().toString().trim().toLowerCase();
       final String passphrase = mWalletPassphraseFragment.mBinding.passphraseInput.getText().toString();
       WalletUtils.mnemonicsToSeed(mnemonics, passphrase);
       final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -183,7 +178,7 @@ public class RestoreSeedActivity extends EclairActivity implements EclairActivit
       @Override
       public void run() {
         try {
-          final String mnemonics = mWalletImportSeedFragment.mBinding.mnemonicsInput.getText().toString().trim();
+          final String mnemonics = mWalletImportSeedFragment.mBinding.mnemonicsInput.getText().toString().trim().toLowerCase();
           final String passphrase = mWalletPassphraseFragment.mBinding.passphraseInput.getText().toString();
           if (mnemonics.equals("")) {
             // reference was lost -- cannot continue

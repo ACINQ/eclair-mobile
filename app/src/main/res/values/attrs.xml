@@ -25,6 +25,9 @@
     <attr name="unit_size" format="dimension" />
     <attr name="unit_color" format="color" />
   </declare-styleable>
+  <declare-styleable name="VirtualKeyboard">
+    <attr name="label" />
+  </declare-styleable>
   <declare-styleable name="DataRow">
     <attr name="label" />
     <attr name="value" format="string" />

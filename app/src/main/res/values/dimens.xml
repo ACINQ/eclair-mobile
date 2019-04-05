@@ -47,5 +47,6 @@
   <dimen name="payment_title_width">45dp</dimen>
 
   <dimen name="pin_button_size">64dp</dimen>
+  <dimen name="virtual_key_size">30dp</dimen>
 
 </resources>
