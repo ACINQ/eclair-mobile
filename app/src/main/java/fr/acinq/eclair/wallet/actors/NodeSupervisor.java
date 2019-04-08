@@ -47,7 +47,6 @@ import org.greenrobot.eventbus.EventBus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
-
 import scala.collection.Iterator;
 import scala.collection.JavaConverters;
 import scala.collection.Seq;
@@ -98,7 +97,8 @@ public class NodeSupervisor extends UntypedActor {
     final List<scala.collection.immutable.List<PaymentRequest.ExtraHop>> routes = new ArrayList<>();
     final Set<String> peersInRoute = new HashSet<>();
     for (LocalChannel channel : getChannelsMap().values()) {
-      if (!Strings.isNullOrEmpty(channel.getShortChannelId()) && !peersInRoute.contains(channel.getPeerNodeId()) && routes.size() < 5) {
+      if (!Strings.isNullOrEmpty(channel.getShortChannelId()) && !peersInRoute.contains(channel.getPeerNodeId()) && routes.size() < 5
+        && channel.receivedChannelUpdate()) {
         routes.add(getExtraHops(channel));
         peersInRoute.add(channel.getPeerNodeId());
       }
@@ -141,7 +141,7 @@ public class NodeSupervisor extends UntypedActor {
       c.isFunder = event.isFunder();
       final Iterator<DirectedHtlc> it = event.currentData().commitments().localCommit().spec().htlcs().iterator();
       int htlcsCount = 0;
-      while(it.hasNext()) {
+      while (it.hasNext()) {
         final DirectedHtlc htlc = it.next();
         htlcsCount++;
         if (htlc.direction() instanceof OUT$) {

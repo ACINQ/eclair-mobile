@@ -121,6 +121,14 @@ public class LocalChannel {
   }
 
   /**
+   * Return true if there has been a {@link LocalChannelUpdate} for this channel, false otherwise.
+   * Based on the channel's fees and expiry.
+   */
+  public boolean receivedChannelUpdate() {
+    return feeBaseMsat != null && feeProportionalMillionths != null && cltvExpiryDelta != null;
+  }
+
+  /**
    * Returns true if channel's funds can be accounted for when computing the lightning balance of the wallet.
    * True if channel's state is one of:
    * - closing/closed/shutdown
