@@ -154,6 +154,16 @@ public class DBHelper {
     daoSession.clear();
   }
 
+  /**
+   * This will delete all on-chain txs from the application DB. This should only be done when resyncing wallet.
+   */
+  public void deleteAllOnchainTxs() {
+    daoSession.getPaymentDao().queryBuilder()
+      .where(PaymentDao.Properties.Type.eq(PaymentType.BTC_ONCHAIN))
+      .buildDelete().executeDeleteWithoutDetachingEntities();
+    daoSession.clear();
+  }
+
   public void insertOrUpdatePayment(Payment p) {
     daoSession.getPaymentDao().insertOrReplace(p);
   }

@@ -49,6 +49,8 @@
             android:layout_height="wrap_content"
             app:has_border="true"
             app:label="@string/networkinfos_blockcount_label"
+            app:has_action="true"
+            app:action_label="@string/networkinfos_electrumdb_action"
             app:value="@string/unknown" />
 
           <fr.acinq.eclair.wallet.customviews.DataRow

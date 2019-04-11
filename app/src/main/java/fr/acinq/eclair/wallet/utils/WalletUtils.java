@@ -327,6 +327,10 @@ public class WalletUtils {
     return new File(datadir, BuildConfig.CHAIN);
   }
 
+  public static File getWalletDBFile(final Context context) {
+    return new File(getChainDatadir(context), Constants.WALLET_DB_FILE);
+  }
+
   public static File getNetworkDBFile(final Context context) {
     return new File(getChainDatadir(context), Constants.NETWORK_DB_FILE);
   }
