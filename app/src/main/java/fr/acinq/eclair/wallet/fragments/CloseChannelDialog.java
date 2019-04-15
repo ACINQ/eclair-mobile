@@ -20,6 +20,7 @@ import akka.actor.ActorRef;
 import android.app.Dialog;
 import android.content.Context;
 import android.support.v4.content.ContextCompat;
+import android.text.Html;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -46,7 +47,6 @@ public class CloseChannelDialog extends Dialog {
 
   public CloseChannelDialog(final Context context, final CloseChannelDialogCallback callback, final ActorRef channelActorRef, final String closeAddress, final boolean mutualAllowed, final boolean forceAllowed) {
     super(context, R.style.CustomDialog);
-
     mCallback = callback;
 
     setContentView(R.layout.dialog_close_channel);
@@ -54,6 +54,8 @@ public class CloseChannelDialog extends Dialog {
     mForceCheckbox = findViewById(R.id.close_channel_force_checkbox);
     mCancelButton = findViewById(R.id.close_channel_cancel);
     mCloseButton = findViewById(R.id.close_channel_close);
+
+    mForceWarningText.setText(Html.fromHtml(context.getString(R.string.dialog_close_channel_force_warning)));
 
     // if only force close is allowed, checkbox is true and hidden and warning is always shown
     if (!mutualAllowed && forceAllowed) {

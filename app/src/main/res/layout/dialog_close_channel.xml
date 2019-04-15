@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright 2019 ACINQ SAS
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,8 +24,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:scrollbars="vertical"
-    app:layout_constraintTop_toTopOf="parent"
-    app:layout_constraintBottom_toTopOf="@+id/buttons_layout">
+    app:layout_constraintBottom_toTopOf="@+id/buttons_layout"
+    app:layout_constraintTop_toTopOf="parent">
 
     <LinearLayout
       android:layout_width="match_parent"
@@ -44,9 +43,9 @@
         android:id="@+id/close_channel_force_checkbox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/space_md"
-        android:layout_marginEnd="@dimen/space_md"
         android:layout_marginStart="@dimen/space_md"
+        android:layout_marginEnd="@dimen/space_md"
+        android:layout_marginBottom="@dimen/space_md"
         android:buttonTint="@color/primary"
         android:text="@string/dialog_close_channel_force_checkbox_opt"
         android:visibility="gone" />
@@ -55,14 +54,13 @@
         android:id="@+id/close_channel_force_warning"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/grey_0_light_x1"
-        android:drawablePadding="8dp"
-        android:drawableStart="@drawable/ic_warning_tri"
         android:layout_marginBottom="40dp"
+        android:background="@color/grey_0_light_x1"
+        android:drawableStart="@drawable/ic_alert_circle_orange_bg_18dp"
+        android:drawablePadding="@dimen/space_sm"
         android:padding="@dimen/space_md"
-        android:text="@string/dialog_close_channel_force_warning"
         android:textColor="@color/grey_3"
-        android:textSize="12sp"
+        android:textSize="@dimen/text_md"
         android:visibility="gone" />
     </LinearLayout>
   </ScrollView>
