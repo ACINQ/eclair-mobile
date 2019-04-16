@@ -110,6 +110,9 @@ public class DataRow extends ConstraintLayout {
     }
   }
 
+  /**
+   * Do not use to display value coming from external sources.
+   */
   public void setHtmlValue(final String value) {
     valueTextView.setVisibility(VISIBLE);
     valueTextView.setText(Html.fromHtml(value));
