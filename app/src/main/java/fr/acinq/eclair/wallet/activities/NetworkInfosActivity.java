@@ -69,9 +69,9 @@ public class NetworkInfosActivity extends EclairActivity implements SwipeRefresh
 
     mBinding.swipeRefresh.setColorSchemeResources(R.color.primary, R.color.green, R.color.accent);
     mBinding.swipeRefresh.setOnRefreshListener(this);
-    mBinding.blockCount.actionButton.setOnClickListener(v -> deleteElectrumDB());
     mBinding.networkChannelsCount.actionButton.setOnClickListener(v -> deleteNetworkDB());
     mBinding.electrumAddress.actionButton.setOnClickListener(v -> setCustomElectrum());
+    mBinding.xpub.actionButton.setOnClickListener(v -> deleteElectrumDB());
   }
 
   @Override

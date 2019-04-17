@@ -419,8 +419,8 @@
   <string name="networkinfos_networkdb_confirm"><![CDATA[Are you sure you want to delete your network database?<br/><br/>The application will restart automatically.]]></string>
   <string name="networkinfos_networkdb_toast">Successfully deleted DB, restarting application…</string>
   <string name="networkinfos_xpub_label">Master Public Key</string>
-  <string name="networkinfos_electrumdb_action">Full blockchain rescan</string>
-  <string name="networkinfos_electrumdb_confirm">This will force the app to fully resync from Electrum.\n\nAre you sure you want to do this?</string>
+  <string name="networkinfos_electrumdb_action">Reset wallet cache</string>
+  <string name="networkinfos_electrumdb_confirm"><![CDATA[The app will restart and fully resync from Electrum. This can take a few minutes.<br /><br />Are you sure you want to proceed?]]></string>
   <string name="networkinfos_electrumdb_toast">Reset done, restarting application…</string>
 
   <!-- //////////////// Payment Item //////////////////// -->
