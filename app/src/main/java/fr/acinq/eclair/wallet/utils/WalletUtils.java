@@ -497,7 +497,6 @@ public class WalletUtils {
       lc.getLogger("io.netty").setLevel(Level.DEBUG);
     } else {
       lc.getLogger("io.netty").setLevel(Level.WARN);
-      lc.getLogger("fr.acinq.eclair.blockchain.electrum").setLevel(Level.WARN);
     }
     final Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
     root.setLevel(BuildConfig.DEBUG ? Level.DEBUG : Level.INFO);
