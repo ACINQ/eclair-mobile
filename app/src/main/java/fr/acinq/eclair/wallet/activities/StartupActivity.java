@@ -54,6 +54,7 @@ import fr.acinq.eclair.wallet.actors.NodeSupervisor;
 import fr.acinq.eclair.wallet.actors.RefreshScheduler;
 import fr.acinq.eclair.wallet.databinding.ActivityStartupBinding;
 import fr.acinq.eclair.wallet.fragments.PinDialog;
+import fr.acinq.eclair.wallet.services.BackupUtils;
 import fr.acinq.eclair.wallet.services.CheckElectrumWorker;
 import fr.acinq.eclair.wallet.services.NetworkSyncWorker;
 import fr.acinq.eclair.wallet.utils.Constants;
@@ -259,31 +260,18 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
     }
   }
 
-  private boolean checkChannelsBackupRestore() {
-    if (!WalletUtils.getEclairDBFile(getApplicationContext()).exists()) {
-      log.debug("could not find eclair DB file in datadir, attempting to restore backup");
-      final int connectionResult = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(getApplicationContext());
-      if (connectionResult != ConnectionResult.SUCCESS) {
-        return true;
-      } else {
-        final Intent intent = new Intent(getBaseContext(), RestoreChannelsBackupActivity.class);
-        startActivity(intent);
+  private boolean shouldRestoreChannelsBackup(final SharedPreferences prefs) {
+    if (prefs.getInt(Constants.SETTING_WALLET_ORIGIN, Constants.WALLET_ORIGIN_RESTORED_FROM_SEED) == Constants.WALLET_ORIGIN_RESTORED_FROM_SEED
+      && !prefs.getBoolean(Constants.SETTING_CHANNELS_RESTORE_DONE, false)) {
+      if (WalletUtils.getEclairDBFile(getApplicationContext()).exists()) {
+        log.warn("inconsistent state: wallet file exists but prefs want to restore backup");
         return false;
+      } else {
+        return true;
       }
-    }
-    return true;
-  }
-
-  private boolean checkChannelsBackup(final SharedPreferences prefs) {
-    final int connectionResult = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(getApplicationContext());
-    if (connectionResult == ConnectionResult.SUCCESS
-      && !prefs.getBoolean(Constants.SETTING_CHANNELS_RESTORE_DONE, false)
-      && !prefs.getBoolean(Constants.SETTING_CHANNELS_BACKUP_SEEN_ONCE, false)
-      && !prefs.getBoolean(Constants.SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_ENABLED, false)) {
-      startActivity(new Intent(getBaseContext(), SetupChannelsBackupActivity.class));
+    } else {
       return false;
     }
-    return true;
   }
 
   /**
@@ -346,22 +334,25 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
           final DeterministicWallet.ExtendedPrivateKey pk = DeterministicWallet.derivePrivateKey(
             DeterministicWallet.generate(seed), LocalKeyManager.nodeKeyBasePath(WalletUtils.getChainHash()));
           app.pin.set(password);
-          app.seedHash.set(pk.privateKey().publicKey().hash160().toString());
+          app.seedHash.set(pk.privateKey().publicKey().hash160().toHex());
           app.backupKey_v1.set(EncryptedBackup.generateBackupKey_v1(pk));
           app.backupKey_v2.set(EncryptedBackup.generateBackupKey_v2(pk));
 
-          if (!prefs.getBoolean(Constants.SETTING_HAS_STARTED_ONCE, false)) {
-            // restore channels only if the seed itself was restored
-            if (prefs.getInt(Constants.SETTING_WALLET_ORIGIN, 0) == Constants.WALLET_ORIGIN_RESTORED_FROM_SEED
-              && !prefs.getBoolean(Constants.SETTING_CHANNELS_RESTORE_DONE, false)) {
-              if (!checkChannelsBackupRestore()) return;
-            }
-
-            // check that a backup type has been set and required authorizations are granted
-            if (!prefs.getBoolean(Constants.SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_ENABLED, false)) {
-              if (!checkChannelsBackup(prefs)) return;
-            }
+          // stop if we need to restore channels backup
+          if (shouldRestoreChannelsBackup(prefs)) {
+            startActivity(new Intent(getBaseContext(), RestoreChannelsBackupActivity.class));
+            return;
           }
+          // stop if no access to local storage for local backup
+          if (!BackupUtils.Local.hasLocalAccess(getApplicationContext())) {
+            final Intent backupSetupIntent = new Intent(getBaseContext(), SetupChannelsBackupActivity.class);
+            if (prefs.getBoolean(Constants.SETTING_HAS_STARTED_ONCE, false)) {
+              backupSetupIntent.putExtra(SetupChannelsBackupActivity.EXTRA_SETUP_IGNORE_GDRIVE_BACKUP, true);
+            }
+            startActivity(backupSetupIntent);
+            return;
+          }
+
           runOnUiThread(() -> mBinding.startupLog.setText(getString(R.string.start_log_seed_ok)));
           isStartingNode = true;
           new StartupTask().execute(app, seed);

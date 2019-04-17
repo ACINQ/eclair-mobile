@@ -25,6 +25,7 @@ import fr.acinq.eclair.SyncLiteSetup;
 import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.utils.Constants;
+import fr.acinq.eclair.wallet.utils.WalletUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,6 +81,12 @@ public class NetworkSyncWorker extends Worker {
   public Result doWork() {
     log.info("NetworkSyncWorker has started");
     final Context context = getApplicationContext();
+
+    if (!WalletUtils.getEclairDBFile(context).exists()) {
+      log.info("no eclair db file yet...");
+      return Result.success();
+    }
+
     if (((App) context).appKit != null) {
       log.info("application is running (appkit not null)");
       return Result.success();

@@ -493,7 +493,7 @@
               android:background="@drawable/bg_circle_transparent_grey"
               android:contentDescription="@string/receivepayment_lightning_max_what_title"
               android:padding="@dimen/space_xs"
-              android:src="@drawable/ic_info_outline_black_20dp"
+              android:src="@drawable/ic_info_black_18dp"
               app:layout_constrainedWidth="true"
               app:layout_constraintStart_toEndOf="@id/lightning_max_receivable"
               app:layout_constraintTop_toTopOf="@id/lightning_max_receivable" />

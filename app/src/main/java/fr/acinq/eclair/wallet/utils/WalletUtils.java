@@ -320,9 +320,12 @@ public class WalletUtils {
     return "mainnet".equals(BuildConfig.CHAIN) ? Block.LivenetGenesisBlock().hash() : Block.TestnetGenesisBlock().hash();
   }
 
+  public static File getDatadir(final Context context) {
+    return new File(context.getFilesDir(), Constants.ECLAIR_DATADIR);
+  }
+
   public static File getChainDatadir(final Context context) {
-    final File datadir = new File(context.getFilesDir(), Constants.ECLAIR_DATADIR);
-    return new File(datadir, BuildConfig.CHAIN);
+    return new File(getDatadir(context), BuildConfig.CHAIN);
   }
 
   public static File getWalletDBFile(final Context context) {

@@ -37,6 +37,16 @@
     <attr name="action_label" format="string" />
     <attr name="action_text_color" format="color" />
   </declare-styleable>
+  <declare-styleable name="CustomButton">
+    <attr name="text" format="string" />
+    <attr name="text_color" format="color" />
+    <attr name="sub_text" format="string" />
+    <attr name="sub_text_color" format="color" />
+    <attr name="image" format="reference" />
+    <attr name="image_tint" format="color" />
+    <attr name="background" format="reference" />
+    <attr name="is_pending" format="boolean" />
+  </declare-styleable>
   <declare-styleable name="FabText">
     <attr name="label" />
     <attr name="icon" format="reference" />

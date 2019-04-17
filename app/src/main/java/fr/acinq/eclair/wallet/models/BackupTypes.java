@@ -14,31 +14,11 @@
  * limitations under the License.
  */
 
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
+package fr.acinq.eclair.wallet.models;
 
-buildscript {
-  repositories {
-    jcenter()
-    mavenCentral()
-    google()
-  }
-  dependencies {
-    classpath 'com.android.tools.build:gradle:3.4.1'
-    classpath 'org.greenrobot:greendao-gradle-plugin:3.2.2'
-  }
-}
-
-allprojects {
-  repositories {
-    jcenter()
-    mavenCentral()
-    mavenLocal()
-    maven {
-      url "https://maven.google.com"
-    }
-  }
-}
-
-task clean(type: Delete) {
-  delete rootProject.buildDir
+/**
+ * Created by DPA on 16/05/19.
+ */
+public enum BackupTypes {
+  LOCAL, GDRIVE
 }

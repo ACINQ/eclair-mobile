@@ -14,7 +14,8 @@
   ~ limitations under the License.
   -->
 
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto">
 
   <data>
 
@@ -23,200 +24,344 @@
     <import type="fr.acinq.eclair.wallet.utils.Constants" />
 
     <variable
+      name="localBackupStep"
+      type="int" />
+
+    <variable
+      name="gdriveBackupStep"
+      type="int" />
+
+    <variable
       name="restoreStep"
       type="int" />
+
+    <variable
+      name="isRestoring"
+      type="boolean" />
+
   </data>
 
-  <RelativeLayout
+  <ScrollView
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/primary">
+    android:background="@drawable/bg_primary_gradient"
+    android:fillViewport="true">
 
-    <ScrollView
+    <LinearLayout
       android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      android:layout_centerInParent="true"
-      android:layout_margin="@dimen/space_lg"
-      android:visibility="@{restoreStep == Constants.RESTORE_BACKUP_INIT ? View.VISIBLE : View.GONE}">
+      android:layout_height="wrap_content"
+      android:gravity="center"
+      android:orientation="vertical"
+      android:padding="@dimen/space_lg">
 
-      <LinearLayout
+      <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:orientation="vertical">
+        android:background="@drawable/rounded_corner_white">
+
+        <TextView
+          android:id="@+id/title"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:background="@drawable/rounded_corner_grey_top"
+          android:paddingStart="@dimen/space_lg"
+          android:paddingTop="@dimen/space_lg"
+          android:paddingEnd="@dimen/space_lg"
+          android:text="@string/restorechannels_title"
+          android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+          android:visibility="@{restoreStep == Constants.RESTORE_BACKUP_INIT ? View.VISIBLE : View.GONE}"
+          app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+          android:id="@+id/subtitle1"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:background="@color/grey_0_light_x2"
+          android:paddingStart="@dimen/space_lg"
+          android:paddingTop="@dimen/space_md"
+          android:paddingEnd="@dimen/space_lg"
+          android:paddingBottom="@dimen/space_lg"
+          android:text="@string/restorechannels_explanations"
+          android:visibility="@{restoreStep == Constants.RESTORE_BACKUP_INIT ? View.VISIBLE : View.GONE}"
+          app:layout_constraintTop_toBottomOf="@+id/title" />
+
+        <CheckBox
+          android:id="@+id/request_local_access_checkbox"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginStart="@dimen/space_lg"
+          android:layout_marginTop="@dimen/space_md"
+          android:layout_marginEnd="@dimen/space_lg"
+          android:alpha=".5"
+          android:buttonTint="@color/primary"
+          android:checked="true"
+          android:enabled="false"
+          android:text="@string/restorechannels_request_local_access"
+          android:textColor="@color/grey_4"
+          android:visibility="@{restoreStep == Constants.RESTORE_BACKUP_INIT ? View.VISIBLE : View.GONE}"
+          app:layout_constrainedWidth="true"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintHorizontal_bias="0"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toBottomOf="@+id/subtitle1" />
+
+        <CheckBox
+          android:id="@+id/request_gdrive_access_checkbox"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginStart="@dimen/space_lg"
+          android:layout_marginTop="@dimen/space_xs"
+          android:layout_marginEnd="@dimen/space_lg"
+          android:buttonTint="@color/primary"
+          android:checked="true"
+          android:text="@string/restorechannels_request_gdrive_access"
+          android:textColor="@color/grey_4"
+          android:visibility="@{restoreStep == Constants.RESTORE_BACKUP_INIT ? View.VISIBLE : View.GONE}"
+          app:layout_constrainedWidth="true"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintHorizontal_bias="0"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toBottomOf="@+id/request_local_access_checkbox" />
+
+        <View
+          android:id="@+id/scan_separator"
+          style="@style/HLineSeparator"
+          android:layout_marginTop="@dimen/space_md"
+          android:visibility="@{restoreStep == Constants.RESTORE_BACKUP_INIT ? View.VISIBLE : View.GONE}"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toBottomOf="@+id/request_gdrive_access_checkbox" />
+
+        <fr.acinq.eclair.wallet.customviews.CustomButton
+          android:id="@+id/scan_button"
+          style="@style/ClickableLayout"
+          android:padding="@dimen/space_md_p"
+          android:visibility="@{restoreStep == Constants.RESTORE_BACKUP_INIT ? View.VISIBLE : View.GONE}"
+          app:image="@drawable/ic_radio_black_24dp"
+          app:layout_constrainedWidth="true"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintHorizontal_bias="0"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toBottomOf="@+id/scan_separator"
+          app:text="@string/restorechannels_check_button" />
+
+        <TextView
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:drawableStart="@drawable/ic_shield_white_24dp"
+          android:drawablePadding="@dimen/space_xs"
+          android:drawableTint="@color/grey_4"
+          android:fontFamily="sans-serif-medium"
+          android:gravity="start|center"
+          android:padding="@dimen/space_lg"
+          android:text="@string/restorechannels_requesting_access"
+          android:visibility="@{restoreStep == Constants.RESTORE_BACKUP_REQUESTING_ACCESS ? View.VISIBLE : View.GONE}"
+          app:layout_constrainedWidth="true"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toBottomOf="@+id/subtitle1" />
+
+        <ProgressBar
+          android:id="@+id/scanning_progress_bar"
+          android:layout_width="24dp"
+          android:layout_height="24dp"
+          android:layout_marginStart="@dimen/space_lg"
+          android:indeterminateTint="@color/green"
+          android:visibility="@{restoreStep == Constants.RESTORE_BACKUP_SCANNING ? View.VISIBLE : View.GONE}"
+          app:layout_constrainedWidth="true"
+          app:layout_constraintBottom_toBottomOf="@id/scanning_progress_label"
+          app:layout_constraintEnd_toStartOf="@id/scanning_progress_label"
+          app:layout_constraintHorizontal_chainStyle="packed"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toTopOf="@id/scanning_progress_label" />
+
+        <TextView
+          android:id="@+id/scanning_progress_label"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginStart="@dimen/space_md"
+          android:layout_marginEnd="@dimen/space_lg"
+          android:fontFamily="sans-serif-medium"
+          android:paddingTop="@dimen/space_lg"
+          android:paddingBottom="@dimen/space_lg"
+          android:text="@string/restorechannels_scan_wait"
+          android:visibility="@{restoreStep == Constants.RESTORE_BACKUP_SCANNING ? View.VISIBLE : View.GONE}"
+          app:layout_constrainedWidth="true"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintHorizontal_chainStyle="packed"
+          app:layout_constraintStart_toEndOf="@id/scanning_progress_bar"
+          app:layout_constraintTop_toBottomOf="@+id/subtitle1" />
+
+        <TextView
+          android:id="@+id/found_backup_title"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_marginStart="@dimen/space_lg"
+          android:layout_marginTop="@dimen/space_lg"
+          android:layout_marginEnd="@dimen/space_lg"
+          android:text="@string/restorechannels_found_title"
+          android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+          android:visibility="@{restoreStep == Constants.RESTORE_BACKUP_FOUND || restoreStep == Constants.RESTORE_BACKUP_FOUND_WITH_CONFLICT ? View.VISIBLE : View.GONE}"
+          app:layout_constrainedWidth="true"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintHorizontal_bias="0"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toBottomOf="@+id/subtitle1" />
+
+        <View
+          android:id="@+id/found_title_separator"
+          style="@style/HSeparator"
+          android:layout_marginStart="@dimen/space_lg"
+          android:layout_marginTop="@dimen/space_xs"
+          android:visibility="@{restoreStep == Constants.RESTORE_BACKUP_FOUND || restoreStep == Constants.RESTORE_BACKUP_FOUND_WITH_CONFLICT ? View.VISIBLE : View.GONE}"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toBottomOf="@+id/found_backup_title" />
+
+        <TextView
+          android:id="@+id/found_backup_text_desc"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_marginStart="@dimen/space_lg"
+          android:layout_marginTop="@dimen/space_xs"
+          android:layout_marginEnd="@dimen/space_lg"
+          android:text="@string/restorechannels_found_desc"
+          android:visibility="@{restoreStep == Constants.RESTORE_BACKUP_FOUND || restoreStep == Constants.RESTORE_BACKUP_FOUND_WITH_CONFLICT ? View.VISIBLE : View.GONE}"
+          app:layout_constrainedWidth="true"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintHorizontal_bias="0"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toBottomOf="@+id/found_title_separator" />
+
+        <TextView
+          android:id="@+id/found_backup_text_conflict"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginStart="@dimen/space_lg"
+          android:layout_marginTop="@dimen/space_sm"
+          android:layout_marginEnd="@dimen/space_lg"
+          android:text="@string/restorechannels_found_with_conflict"
+          android:textColor="@color/grey_2"
+          android:textSize="@dimen/text_sm"
+          android:visibility="@{restoreStep == Constants.RESTORE_BACKUP_FOUND_WITH_CONFLICT ? View.VISIBLE : View.GONE}"
+          app:layout_constrainedWidth="true"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintHorizontal_bias="0"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toBottomOf="@id/found_backup_text_desc" />
+
+        <TextView
+          android:id="@+id/not_found_backup_text"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:padding="@dimen/space_lg"
+          android:text="@string/restorechannels_notfound"
+          android:visibility="@{restoreStep == Constants.RESTORE_BACKUP_NOT_FOUND ? View.VISIBLE : View.GONE}"
+          app:layout_constrainedWidth="true"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintHorizontal_bias="0"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toBottomOf="@+id/subtitle1" />
+
+        <android.support.constraint.Barrier
+          android:id="@+id/found_or_not_barrier"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          app:barrierDirection="bottom"
+          app:constraint_referenced_ids="found_backup_title, found_backup_text_conflict, not_found_backup_text" />
+
+        <View
+          android:id="@+id/confirm_separator"
+          style="@style/HLineSeparator"
+          android:layout_marginTop="@dimen/space_md_p"
+          android:visibility="@{restoreStep == Constants.RESTORE_BACKUP_FOUND || restoreStep == Constants.RESTORE_BACKUP_FOUND_WITH_CONFLICT ? View.VISIBLE : View.GONE}"
+          app:layout_constraintTop_toBottomOf="@+id/found_or_not_barrier" />
+
+        <fr.acinq.eclair.wallet.customviews.CustomButton
+          android:id="@+id/confirm_restore_button"
+          style="@style/ClickableLayout"
+          android:visibility="@{(restoreStep == Constants.RESTORE_BACKUP_FOUND || restoreStep == Constants.RESTORE_BACKUP_FOUND_WITH_CONFLICT) &amp;&amp; !isRestoring ? View.VISIBLE : View.GONE}"
+          app:image="@drawable/ic_circle_check_green_24dp"
+          app:layout_constrainedWidth="true"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintHorizontal_bias="0"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toBottomOf="@+id/confirm_separator"
+          app:text="@string/restorechannels_confirm_button" />
+
+        <View
+          android:id="@+id/skip_separator"
+          style="@style/HLineSeparator"
+          android:visibility="@{restoreStep == Constants.RESTORE_BACKUP_FOUND || restoreStep == Constants.RESTORE_BACKUP_FOUND_WITH_CONFLICT || restoreStep == Constants.RESTORE_BACKUP_NOT_FOUND ? View.VISIBLE : View.GONE}"
+          app:layout_constraintTop_toBottomOf="@+id/confirm_restore_button" />
+
+        <fr.acinq.eclair.wallet.customviews.CustomButton
+          android:id="@+id/not_found_skip_button"
+          style="@style/ClickableLayout"
+          android:padding="@dimen/space_md"
+          android:visibility="@{restoreStep == Constants.RESTORE_BACKUP_FOUND || restoreStep == Constants.RESTORE_BACKUP_FOUND_WITH_CONFLICT || restoreStep == Constants.RESTORE_BACKUP_NOT_FOUND ? View.VISIBLE : View.GONE}"
+          app:image="@drawable/ic_alert_triangle_white_24dp"
+          app:image_tint="@color/grey_4"
+          app:layout_constraintTop_toBottomOf="@id/skip_separator"
+          app:text="@string/restorechannels_skip_backup" />
+
+        <View
+          android:id="@+id/retry_separator"
+          style="@style/HLineSeparator"
+          android:visibility="@{(restoreStep == Constants.RESTORE_BACKUP_FOUND || restoreStep == Constants.RESTORE_BACKUP_FOUND_WITH_CONFLICT || restoreStep == Constants.RESTORE_BACKUP_NOT_FOUND) &amp;&amp; !isRestoring ? View.VISIBLE : View.GONE}"
+          app:layout_constraintTop_toBottomOf="@+id/not_found_skip_button" />
+
+        <fr.acinq.eclair.wallet.customviews.CustomButton
+          android:id="@+id/try_again_button"
+          style="@style/ClickableLayout"
+          android:visibility="@{(restoreStep == Constants.RESTORE_BACKUP_FOUND || restoreStep == Constants.RESTORE_BACKUP_FOUND_WITH_CONFLICT || restoreStep == Constants.RESTORE_BACKUP_NOT_FOUND) &amp;&amp; !isRestoring ? View.VISIBLE : View.GONE}"
+          app:image="@drawable/ic_chevron_left_black_24dp"
+          app:layout_constrainedWidth="true"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintHorizontal_bias="0"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toBottomOf="@+id/retry_separator"
+          app:text="@string/restorechannels_try_again_button" />
+
+        <ProgressBar
+          android:id="@+id/restoring_progress_bar"
+          android:layout_width="24dp"
+          android:layout_height="24dp"
+          android:layout_marginStart="@dimen/space_lg"
+          android:indeterminateTint="@color/green"
+          android:visibility="@{(restoreStep == Constants.RESTORE_BACKUP_FOUND || restoreStep == Constants.RESTORE_BACKUP_FOUND_WITH_CONFLICT) &amp;&amp; isRestoring ? View.VISIBLE : View.GONE}"
+          app:layout_constrainedWidth="true"
+          app:layout_constraintBottom_toBottomOf="@id/restoring_progress_label"
+          app:layout_constraintEnd_toStartOf="@id/restoring_progress_label"
+          app:layout_constraintHorizontal_chainStyle="packed"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toTopOf="@id/restoring_progress_label" />
+
+        <TextView
+          android:id="@+id/restoring_progress_label"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginStart="@dimen/space_xs"
+          android:layout_marginEnd="@dimen/space_lg"
+          android:paddingTop="@dimen/space_lg"
+          android:paddingBottom="@dimen/space_lg"
+          android:text="@string/restorechannels_restoring_wait"
+          android:visibility="@{(restoreStep == Constants.RESTORE_BACKUP_FOUND || restoreStep == Constants.RESTORE_BACKUP_FOUND_WITH_CONFLICT) &amp;&amp; isRestoring ? View.VISIBLE : View.GONE}"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintStart_toEndOf="@+id/restoring_progress_bar"
+          app:layout_constraintTop_toBottomOf="@id/confirm_separator" />
 
         <TextView
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:background="@drawable/rounded_corner_green_top"
-          android:padding="@dimen/space_lg"
-          android:text="@string/restorechannels_title"
-          android:textColor="@color/white" />
-
-        <LinearLayout
-          style="@style/ClickableLayout"
-          android:background="@drawable/rounded_corner_white_bottom"
-          android:onClick="requestAccess"
-          android:padding="@dimen/space_lg">
-
-          <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_marginEnd="@dimen/space_xs"
-            android:src="@drawable/ic_cloud_download_black_24dp" />
-
-          <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/restorechannels_check_button"
-            android:textAllCaps="true" />
-        </LinearLayout>
-
-        <Button
-          style="@style/ButtonStyle"
-          android:layout_gravity="center"
-          android:layout_marginTop="@dimen/space_md"
+          android:drawableStart="@drawable/ic_circle_check_green_24dp"
           android:drawablePadding="@dimen/space_xs"
-          android:drawableStart="@drawable/ic_alert_triangle_white_24dp"
-          android:onClick="skipRestore"
-          android:text="@string/restorechannels_skip_backup"
-          android:textColor="@color/white" />
+          android:gravity="start|center"
+          android:padding="@dimen/space_lg"
+          android:text="@string/restorechannels_restoring_success"
+          android:visibility="@{restoreStep == Constants.RESTORE_BACKUP_RESTORE_DONE ? View.VISIBLE : View.GONE}"
+          app:layout_constraintTop_toTopOf="parent" />
 
-      </LinearLayout>
-    </ScrollView>
-
-    <TextView
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:layout_centerInParent="true"
-      android:layout_margin="@dimen/space_lg"
-      android:background="@drawable/rounded_corner_white"
-      android:drawablePadding="@dimen/space_sm"
-      android:drawableStart="@drawable/ic_circle_check_green_24dp"
-      android:padding="@dimen/space_lg"
-      android:text="@string/restorechannels_success"
-      android:visibility="@{restoreStep == Constants.RESTORE_BACKUP_SUCCESS ? View.VISIBLE : View.GONE}" />
-
-    <TextView
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:layout_centerInParent="true"
-      android:layout_margin="@dimen/space_lg"
-      android:background="@drawable/rounded_corner_white"
-      android:padding="@dimen/space_lg"
-      android:text="@string/restorechannels_permissions_error"
-      android:visibility="@{restoreStep == Constants.RESTORE_BACKUP_ERROR_PERMISSIONS ? View.VISIBLE : View.GONE}" />
-
-    <TextView
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:layout_centerInParent="true"
-      android:layout_margin="@dimen/space_lg"
-      android:background="@drawable/rounded_corner_white"
-      android:padding="@dimen/space_lg"
-      android:text="@string/restorechannels_failure"
-      android:visibility="@{restoreStep == Constants.RESTORE_BACKUP_FAILURE ? View.VISIBLE : View.GONE}" />
-
-    <LinearLayout
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:layout_centerInParent="true"
-      android:layout_margin="@dimen/space_lg"
-      android:background="@drawable/rounded_corner_white"
-      android:orientation="vertical"
-      android:visibility="@{restoreStep == Constants.RESTORE_BACKUP_NO_BACKUP_FOUND ? View.VISIBLE : View.GONE}">
-
-      <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="@dimen/space_lg"
-        android:text="@string/restorechannels_no_backup" />
-
-      <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="end"
-        android:layout_marginTop="@dimen/space_md"
-        android:background="@android:color/transparent"
-        android:foreground="?android:attr/selectableItemBackground"
-        android:onClick="requestAccess"
-        android:padding="@dimen/space_md"
-        android:text="@string/restorechannels_no_backup_try_again" />
-
-      <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="end"
-        android:layout_marginTop="@dimen/space_md"
-        android:background="@android:color/transparent"
-        android:foreground="?android:attr/selectableItemBackground"
-        android:onClick="skipRestore"
-        android:padding="@dimen/space_md"
-        android:text="@string/restorechannels_no_backup_and_finish"
-        android:textColor="@color/red_faded" />
+      </android.support.constraint.ConstraintLayout>
 
     </LinearLayout>
-
-    <LinearLayout
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:layout_centerInParent="true"
-      android:layout_margin="@dimen/space_lg"
-      android:background="@drawable/rounded_corner_white"
-      android:orientation="vertical"
-      android:visibility="@{restoreStep == Constants.RESTORE_BACKUP_DEVICE_ORIGIN_CONFLICT ? View.VISIBLE : View.GONE}">
-
-      <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="@dimen/space_lg"
-        android:text="@string/restorechannels_device_conflict" />
-
-      <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="end"
-        android:orientation="horizontal">
-
-        <Button
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:background="@android:color/transparent"
-          android:foreground="?android:attr/selectableItemBackground"
-          android:onClick="backToInit"
-          android:padding="@dimen/space_md"
-          android:text="@string/btn_cancel" />
-
-        <Button
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:background="@android:color/transparent"
-          android:foreground="?android:attr/selectableItemBackground"
-          android:onClick="restoreIfAppIdConflict"
-          android:padding="@dimen/space_md"
-          android:text="@string/restorechannels_device_conflict_confirm" />
-      </LinearLayout>
-    </LinearLayout>
-
-    <TextView
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:layout_centerInParent="true"
-      android:layout_margin="@dimen/space_lg"
-      android:background="@drawable/rounded_corner_white"
-      android:padding="@dimen/space_lg"
-      android:text="@string/restorechannels_looking_for_backup"
-      android:visibility="@{restoreStep == Constants.RESTORE_BACKUP_SEARCHING ? View.VISIBLE : View.GONE}" />
-
-    <TextView
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:layout_centerInParent="true"
-      android:layout_margin="@dimen/space_lg"
-      android:background="@drawable/rounded_corner_white"
-      android:padding="@dimen/space_lg"
-      android:text="@string/restorechannels_sync_rate_limit"
-      android:visibility="@{restoreStep == Constants.RESTORE_BACKUP_SYNC_RATELIMIT ? View.VISIBLE : View.GONE}" />
-
-  </RelativeLayout>
+  </ScrollView>
 </layout>

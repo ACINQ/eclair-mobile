@@ -43,4 +43,10 @@ public interface EclairException {
       super(s, throwable);
     }
   }
+
+  class NoExternalStorageException extends Exception {
+    public NoExternalStorageException(String detailMessage) {
+      super(detailMessage);
+    }
+  }
 }
