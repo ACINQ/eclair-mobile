@@ -26,13 +26,13 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-
 import fr.acinq.bitcoin.ByteVector32;
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.CoinUnit;
 import fr.acinq.eclair.CoinUtils;
+import fr.acinq.eclair.Globals;
 import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.BuildConfig;
@@ -50,7 +50,6 @@ import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.TechnicalHelper;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 import org.bitcoinj.uri.BitcoinURI;
-import org.greenrobot.eventbus.util.AsyncExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.Option;
@@ -63,7 +62,7 @@ import java.util.Date;
 import java.util.List;
 
 public class SendPaymentActivity extends EclairActivity
-    implements LNInvoiceReaderTask.AsyncInvoiceReaderTaskResponse, BitcoinInvoiceReaderTask.AsyncInvoiceReaderTaskResponse {
+  implements LNInvoiceReaderTask.AsyncInvoiceReaderTaskResponse, BitcoinInvoiceReaderTask.AsyncInvoiceReaderTaskResponse {
 
   private final Logger log = LoggerFactory.getLogger(SendPaymentActivity.class);
 
@@ -151,13 +150,28 @@ public class SendPaymentActivity extends EclairActivity
     return true;
   }
 
-  private void checkLightningChannelsReady() {
-    // send button is enabled only if there is at least 1 channel capable of processing the payment.
-    mBinding.setEnableSendButton(NodeSupervisor.hasOneNormalChannel());
-    new Handler().postDelayed(this::checkLightningChannelsReady, 1000);
+  /**
+   * Checks if the wallet is ready to send a payment.
+   * <p>
+   * - Wallet's block height must be reasonably close to the expected min height.
+   * - Wallet must be connected to an electrum server
+   * <p>
+   * Furthermore, if this is a LN payment, at least 1 lightning channel must be active.
+   *
+   * @return true if wallet is ready, false otherwise
+   */
+  private boolean checkWalletReady() {
+    // check that wallet is not desync, or very late compared to chain
+    final boolean isBlockHeightCorrect = Globals.blockCount().get() > Constants.MIN_BLOCK_HEIGHT;
+    // if this is a LN payment, send button is enabled only if there is at least 1 channel capable of processing the payment.
+    final boolean isWalletReady = app.getElectrumState().isConnected && isBlockHeightCorrect && (!isLightningInvoice() || NodeSupervisor.hasOneNormalChannel());
+    mBinding.setEnableSendButton(isWalletReady);
+    new Handler().postDelayed(this::checkWalletReady, 1000);
+    return isWalletReady;
   }
 
   private void setupOnchainPaymentForm(final BitcoinURI bitcoinURI) {
+    checkWalletReady();
     if (bitcoinURI.getAmount() != null) {
       final MilliSatoshi amountMsat = package$.MODULE$.satoshi2millisatoshi(bitcoinURI.getAmount());
       mBinding.amountEditableHint.setVisibility(View.GONE);
@@ -175,7 +189,7 @@ public class SendPaymentActivity extends EclairActivity
 
   private void setupLightningPaymentForm(final PaymentRequest paymentRequest) {
     if (checkPaymentRequestValid(paymentRequest)) {
-      checkLightningChannelsReady();
+      checkWalletReady();
       if (!capLightningFees) {
         mBinding.feesWarning.setText(R.string.payment_fees_not_capped);
         mBinding.feesWarning.setVisibility(View.VISIBLE);
@@ -286,7 +300,7 @@ public class SendPaymentActivity extends EclairActivity
    */
   public void confirmPayment(final View view) {
 
-    if (isLightningInvoice() && !NodeSupervisor.hasOneNormalChannel()) {
+    if (!checkWalletReady()) {
       mBinding.setEnableSendButton(false);
       return;
     }

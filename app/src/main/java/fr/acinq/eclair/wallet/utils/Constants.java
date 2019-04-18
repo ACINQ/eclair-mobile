@@ -18,7 +18,6 @@ package fr.acinq.eclair.wallet.utils;
 
 import fr.acinq.eclair.io.NodeURI;
 import fr.acinq.eclair.wallet.BuildConfig;
-import fr.acinq.eclair.wallet.models.FeeRating;
 
 public interface Constants {
 
@@ -35,6 +34,15 @@ public interface Constants {
   long ONE_MIN_MS = 1000L * 60;
   long ONE_HOUR_MS = ONE_MIN_MS * 60;
   long ONE_DAY_MS = ONE_HOUR_MS * 24;
+
+  /* ----------- CHAIN CONSTANTS ------------- */
+
+  /**
+   * Minimal blockchain height that the wallet should reach before being considered ready (value depends on the chain used).
+   */
+  long MIN_BLOCK_HEIGHT = BuildConfig.CHAIN == "mainnet" ? 500 * 1000L
+    : BuildConfig.CHAIN == "testnet" ? 1000 * 1000L
+    : 0;
 
   /* ----------- PERMISSIONS & REQUEST CODES ------------ */
 

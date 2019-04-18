@@ -333,7 +333,7 @@
   <string name="payment_tx_failed">Transaction failed</string>
   <string name="payment_toast_failure">Could not send transaction: %1$s</string>
   <string name="payment_do_send">Pay</string>
-  <string name="payment_do_send_wait">Channels not ready…</string>
+  <string name="payment_do_send_wait">Wallet not ready…</string>
 
   <string name="payment_error">This payment is not valid.</string>
   <string name="payment_error_fees_onchain">The fees value is not valid.</string>
