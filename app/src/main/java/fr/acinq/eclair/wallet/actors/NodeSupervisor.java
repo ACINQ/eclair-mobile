@@ -154,6 +154,7 @@ public class NodeSupervisor extends UntypedActor {
         }
       }
       c.htlcsInFlightCount = htlcsCount;
+      c.sendableBalanceMsat = event.currentData().commitments().availableBalanceForSendMsat();
 
       // restore data from DB that were sent only once by the node and may have be persisted
       final LocalChannel channelInDB = dbHelper.getLocalChannel(c.getChannelId());
@@ -215,6 +216,7 @@ public class NodeSupervisor extends UntypedActor {
         c.setChannelReserveSat(event.commitments().localParams().channelReserveSatoshis());
         c.setMinimumHtlcAmountMsat(event.commitments().localParams().htlcMinimumMsat());
         c.htlcsInFlightCount = localCommit.spec().htlcs().iterator().size();
+        c.sendableBalanceMsat = event.commitments().availableBalanceForSendMsat();
         c.setBalanceMsat(localCommit.spec().toLocalMsat());
         c.setCapacityMsat(localCommit.spec().totalFunds());
         balanceRefreshScheduler.tell(Constants.REFRESH, null);
@@ -321,6 +323,7 @@ public class NodeSupervisor extends UntypedActor {
           c.setChannelReserveSat(commitments.localParams().channelReserveSatoshis());
           c.setMinimumHtlcAmountMsat(commitments.localParams().htlcMinimumMsat());
           c.setFundingTxId(commitments.commitInput().outPoint().txid().toString());
+          c.sendableBalanceMsat = commitments.availableBalanceForSendMsat();
           c.setBalanceMsat(commitments.localCommit().spec().toLocalMsat());
           c.setCapacityMsat(commitments.localCommit().spec().totalFunds());
         }

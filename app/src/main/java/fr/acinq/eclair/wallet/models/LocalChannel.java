@@ -47,6 +47,12 @@ public class LocalChannel {
   @NotNull
   private long balanceMsat;
 
+  /**
+   * Does not take into account the state of the channel!
+   */
+  @Transient
+  public long sendableBalanceMsat;
+
   private long refundAtBlock;
 
   private long channelReserveSat;
@@ -111,13 +117,6 @@ public class LocalChannel {
    */
   public long getReceivableMsat() {
     return Math.max(this.getCapacityMsat() - this.getBalanceMsat() - (this.getChannelReserveSat() * 1000), 0);
-  }
-
-  /**
-   * This does not take into account the state of the channel!
-   */
-  public long getSendableMsat() {
-    return Math.max(this.getBalanceMsat() - (this.getChannelReserveSat() * 1000), 0);
   }
 
   /**

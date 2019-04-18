@@ -126,7 +126,7 @@ public class ChannelsListFragment extends Fragment {
           for (LocalChannel c : channels) {
             if (c.fundsAreUsable()) {
               totalReceivableMsat += c.getReceivableMsat();
-              totalSendableMsat += c.getSendableMsat();
+              totalSendableMsat += Math.max(c.sendableBalanceMsat, 0);
             }
           }
 
