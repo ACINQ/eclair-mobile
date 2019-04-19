@@ -590,7 +590,7 @@ public class SendPaymentActivity extends EclairActivity
 
     // --- read invoice from intent
     final Intent intent = getIntent();
-    invoiceAsString = intent.getStringExtra(EXTRA_INVOICE).trim();
+    invoiceAsString = intent.getStringExtra(EXTRA_INVOICE).replaceAll("\\u00A0", "").trim();
     log.info("initializing payment with invoice={}", invoiceAsString);
     if (invoiceAsString != null) {
       for (String prefix : LIGHTNING_PREFIXES) {
