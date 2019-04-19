@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ACINQ SAS
+ * Copyright 2019 ACINQ SAS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -150,6 +150,16 @@ public class DBHelper {
   public void cleanUpZeroConfs() {
     daoSession.getPaymentDao().queryBuilder()
       .where(PaymentDao.Properties.Type.eq(PaymentType.BTC_ONCHAIN), PaymentDao.Properties.ConfidenceBlocks.eq(0))
+      .buildDelete().executeDeleteWithoutDetachingEntities();
+    daoSession.clear();
+  }
+
+  /**
+   * This will delete all on-chain txs from the application DB. This should only be done when resyncing wallet.
+   */
+  public void deleteAllOnchainTxs() {
+    daoSession.getPaymentDao().queryBuilder()
+      .where(PaymentDao.Properties.Type.eq(PaymentType.BTC_ONCHAIN))
       .buildDelete().executeDeleteWithoutDetachingEntities();
     daoSession.clear();
   }

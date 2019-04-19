@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ACINQ SAS
+ * Copyright 2019 ACINQ SAS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,21 +50,19 @@ import com.typesafe.config.ConfigFactory;
 import fr.acinq.bitcoin.*;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.CoinUnit;
-import fr.acinq.eclair.io.NodeURI;
 import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.services.ChannelsBackupWorker;
 import okhttp3.ResponseBody;
-import scala.collection.JavaConverters;
-import scodec.bits.ByteVector;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.productivity.java.syslog4j.impl.net.tcp.ssl.SSLTCPNetSyslogConfig;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
+import scala.collection.JavaConverters;
+import scodec.bits.ByteVector;
 
 import java.io.File;
 import java.io.IOException;
@@ -327,6 +325,10 @@ public class WalletUtils {
     return new File(datadir, BuildConfig.CHAIN);
   }
 
+  public static File getWalletDBFile(final Context context) {
+    return new File(getChainDatadir(context), Constants.WALLET_DB_FILE);
+  }
+
   public static File getNetworkDBFile(final Context context) {
     return new File(getChainDatadir(context), Constants.NETWORK_DB_FILE);
   }
@@ -493,7 +495,6 @@ public class WalletUtils {
       lc.getLogger("io.netty").setLevel(Level.DEBUG);
     } else {
       lc.getLogger("io.netty").setLevel(Level.WARN);
-      lc.getLogger("fr.acinq.eclair.blockchain.electrum").setLevel(Level.WARN);
     }
     final Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
     root.setLevel(BuildConfig.DEBUG ? Level.DEBUG : Level.INFO);

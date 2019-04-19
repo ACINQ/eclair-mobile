@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ACINQ SAS
+ * Copyright 2019 ACINQ SAS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -110,6 +110,9 @@ public class DataRow extends ConstraintLayout {
     }
   }
 
+  /**
+   * Do not use to display value coming from external sources.
+   */
   public void setHtmlValue(final String value) {
     valueTextView.setVisibility(VISIBLE);
     valueTextView.setText(Html.fromHtml(value));

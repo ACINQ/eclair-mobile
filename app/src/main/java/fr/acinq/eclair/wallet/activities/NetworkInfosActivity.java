@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ACINQ SAS
+ * Copyright 2019 ACINQ SAS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,12 +67,11 @@ public class NetworkInfosActivity extends EclairActivity implements SwipeRefresh
     ActionBar ab = getSupportActionBar();
     ab.setDisplayHomeAsUpEnabled(true);
 
-    // refresh
     mBinding.swipeRefresh.setColorSchemeResources(R.color.primary, R.color.green, R.color.accent);
     mBinding.swipeRefresh.setOnRefreshListener(this);
-    // delete db
     mBinding.networkChannelsCount.actionButton.setOnClickListener(v -> deleteNetworkDB());
     mBinding.electrumAddress.actionButton.setOnClickListener(v -> setCustomElectrum());
+    mBinding.xpub.actionButton.setOnClickListener(v -> deleteElectrumDB());
   }
 
   @Override
@@ -187,5 +186,26 @@ public class NetworkInfosActivity extends EclairActivity implements SwipeRefresh
       : getString(R.string.networkinfos_electrum_confirm_message, serverAddress);
     getCustomDialog(message).setCancelable(false).show();
     new Handler().postDelayed(this::restart, 3000);
+  }
+
+  private void deleteElectrumDB() {
+    final Dialog confirm = getCustomDialog(R.string.networkinfos_electrumdb_confirm)
+      .setPositiveButton(R.string.btn_ok, (dialog, which) ->
+        new Thread() {
+          @Override
+          public void run() {
+            final File walletDB = WalletUtils.getWalletDBFile(getApplicationContext());
+            if (walletDB.delete()) {
+              runOnUiThread(() -> {
+                app.getDBHelper().deleteAllOnchainTxs();
+                Toast.makeText(getApplicationContext(), R.string.networkinfos_electrumdb_toast, Toast.LENGTH_SHORT).show();
+                restart();
+              });
+            }
+          }
+        }.start())
+      .setNegativeButton(R.string.btn_cancel, (dialog, which) -> {
+      }).create();
+    confirm.show();
   }
 }

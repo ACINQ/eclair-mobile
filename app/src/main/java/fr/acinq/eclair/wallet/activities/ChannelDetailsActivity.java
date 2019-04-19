@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ACINQ SAS
+ * Copyright 2019 ACINQ SAS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,7 +64,7 @@ public class ChannelDetailsActivity extends EclairActivity {
   private final Logger log = LoggerFactory.getLogger(ChannelDetailsActivity.class);
 
   public static final Set<String> STATE_MUTUAL_CLOSE = new HashSet<>(Arrays.asList(WAIT_FOR_INIT_INTERNAL$.MODULE$.toString(), WAIT_FOR_OPEN_CHANNEL$.MODULE$.toString(), WAIT_FOR_ACCEPT_CHANNEL$.MODULE$.toString(), WAIT_FOR_FUNDING_INTERNAL$.MODULE$.toString(), WAIT_FOR_FUNDING_CREATED$.MODULE$.toString(), WAIT_FOR_FUNDING_SIGNED$.MODULE$.toString(), NORMAL$.MODULE$.toString()));
-  public static final Set<String> STATE_FORCE_CLOSE = new HashSet<>(Arrays.asList(WAIT_FOR_FUNDING_CONFIRMED$.MODULE$.toString(), WAIT_FOR_FUNDING_LOCKED$.MODULE$.toString(), NORMAL$.MODULE$.toString(), SHUTDOWN$.MODULE$.toString(), NEGOTIATING$.MODULE$.toString(), OFFLINE$.MODULE$.toString(), SYNCING$.MODULE$.toString()));
+  public static final Set<String> STATE_FORCE_CLOSE = new HashSet<>(Arrays.asList(WAIT_FOR_FUNDING_LOCKED$.MODULE$.toString(), NORMAL$.MODULE$.toString(), SHUTDOWN$.MODULE$.toString(), NEGOTIATING$.MODULE$.toString(), OFFLINE$.MODULE$.toString(), SYNCING$.MODULE$.toString()));
 
   private CloseChannelDialog mCloseChannelDialog;
   private ActivityChannelDetailsBinding mBinding;
@@ -137,18 +137,16 @@ public class ChannelDetailsActivity extends EclairActivity {
     if (channel.getIsActive()) {
       mBinding.balance.setValue(getString(R.string.channeldetails_balance_value,
         CoinUtils.formatAmountInUnit(new MilliSatoshi(channel.getBalanceMsat()), prefUnit, true),
-        WalletUtils.formatMsatToFiatWithUnit(channel.getBalanceMsat(), fiatUnit))
-      );
+        WalletUtils.formatMsatToFiatWithUnit(channel.getBalanceMsat(), fiatUnit)));
       mBinding.capacity.setValue(getString(R.string.channeldetails_balance_value,
         CoinUtils.formatAmountInUnit(new MilliSatoshi(channel.getCapacityMsat()), prefUnit, true),
-        WalletUtils.formatMsatToFiatWithUnit(channel.getCapacityMsat(), fiatUnit))
-      );
+        WalletUtils.formatMsatToFiatWithUnit(channel.getCapacityMsat(), fiatUnit)));
       final double progress = channel.getCapacityMsat() != 0 ? (double) channel.getBalanceMsat() / channel.getCapacityMsat() * 100 : 0;
       mBinding.balanceProgress.setProgress(100 - (int) progress);
       mBinding.maxReceivable.setText(CoinUtils.formatAmountInUnit(new MilliSatoshi(channel.getReceivableMsat()), prefUnit, true));
       mBinding.maxReceivableFiat.setText(getString(R.string.amount_to_fiat, WalletUtils.formatMsatToFiatWithUnit(channel.getReceivableMsat(), fiatUnit)));
-      mBinding.maxSendable.setText(CoinUtils.formatAmountInUnit(new MilliSatoshi(channel.getSendableMsat()), prefUnit, true));
-      mBinding.maxSendableFiat.setText(getString(R.string.amount_to_fiat, WalletUtils.formatMsatToFiatWithUnit(channel.getSendableMsat(), fiatUnit)));
+      mBinding.maxSendable.setText(CoinUtils.formatAmountInUnit(new MilliSatoshi(Math.max(channel.sendableBalanceMsat, 0)), prefUnit, true));
+      mBinding.maxSendableFiat.setText(getString(R.string.amount_to_fiat, WalletUtils.formatMsatToFiatWithUnit(Math.max(channel.sendableBalanceMsat, 0), fiatUnit)));
 
       mBinding.state.setText(channel.state);
 
@@ -207,7 +205,7 @@ public class ChannelDetailsActivity extends EclairActivity {
 
     if (CLOSING$.MODULE$.toString().equals(channel.state) || !channel.getIsActive()) {
       if (!Strings.isNullOrEmpty(channel.getClosingErrorMessage())) {
-        mBinding.closingCause.setValue(channel.getClosingErrorMessage());
+        mBinding.closingCause.setValue(Html.escapeHtml(channel.getClosingErrorMessage()));
       }
       mBinding.closingCause.setVisibility(View.VISIBLE);
       mBinding.closingSection.setVisibility(View.VISIBLE);

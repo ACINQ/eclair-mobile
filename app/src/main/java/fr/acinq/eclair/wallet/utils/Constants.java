@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ACINQ SAS
+ * Copyright 2019 ACINQ SAS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package fr.acinq.eclair.wallet.utils;
 
 import fr.acinq.eclair.io.NodeURI;
 import fr.acinq.eclair.wallet.BuildConfig;
-import fr.acinq.eclair.wallet.models.FeeRating;
 
 public interface Constants {
 
@@ -36,6 +35,15 @@ public interface Constants {
   long ONE_HOUR_MS = ONE_MIN_MS * 60;
   long ONE_DAY_MS = ONE_HOUR_MS * 24;
 
+  /* ----------- CHAIN CONSTANTS ------------- */
+
+  /**
+   * Minimal blockchain height that the wallet should reach before being considered ready (value depends on the chain used).
+   */
+  long MIN_BLOCK_HEIGHT = BuildConfig.CHAIN == "mainnet" ? 500 * 1000L
+    : BuildConfig.CHAIN == "testnet" ? 1000 * 1000L
+    : 0;
+
   /* ----------- PERMISSIONS & REQUEST CODES ------------ */
 
   int CAMERA_PERMISSION_REQUEST = 0;
@@ -50,6 +58,7 @@ public interface Constants {
   String ECLAIR_DATADIR = "eclair-wallet-data";
   String ECLAIR_DB_FILE = "eclair.sqlite";
   String NETWORK_DB_FILE = "network.sqlite";
+  String WALLET_DB_FILE = "wallet.sqlite";
   String LOGS_DIR = "logs";
   String CURRENT_LOG_FILE = "eclair-wallet.log";
   String ARCHIVED_LOG_FILE = "eclair-wallet.archive-%i.log";

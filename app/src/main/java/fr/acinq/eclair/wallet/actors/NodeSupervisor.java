@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ACINQ SAS
+ * Copyright 2019 ACINQ SAS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +47,6 @@ import org.greenrobot.eventbus.EventBus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
-
 import scala.collection.Iterator;
 import scala.collection.JavaConverters;
 import scala.collection.Seq;
@@ -98,7 +97,8 @@ public class NodeSupervisor extends UntypedActor {
     final List<scala.collection.immutable.List<PaymentRequest.ExtraHop>> routes = new ArrayList<>();
     final Set<String> peersInRoute = new HashSet<>();
     for (LocalChannel channel : getChannelsMap().values()) {
-      if (!Strings.isNullOrEmpty(channel.getShortChannelId()) && !peersInRoute.contains(channel.getPeerNodeId()) && routes.size() < 5) {
+      if (!Strings.isNullOrEmpty(channel.getShortChannelId()) && !peersInRoute.contains(channel.getPeerNodeId()) && routes.size() < 5
+        && channel.receivedChannelUpdate()) {
         routes.add(getExtraHops(channel));
         peersInRoute.add(channel.getPeerNodeId());
       }
@@ -141,7 +141,7 @@ public class NodeSupervisor extends UntypedActor {
       c.isFunder = event.isFunder();
       final Iterator<DirectedHtlc> it = event.currentData().commitments().localCommit().spec().htlcs().iterator();
       int htlcsCount = 0;
-      while(it.hasNext()) {
+      while (it.hasNext()) {
         final DirectedHtlc htlc = it.next();
         htlcsCount++;
         if (htlc.direction() instanceof OUT$) {
@@ -154,6 +154,7 @@ public class NodeSupervisor extends UntypedActor {
         }
       }
       c.htlcsInFlightCount = htlcsCount;
+      c.sendableBalanceMsat = event.currentData().commitments().availableBalanceForSendMsat();
 
       // restore data from DB that were sent only once by the node and may have be persisted
       final LocalChannel channelInDB = dbHelper.getLocalChannel(c.getChannelId());
@@ -215,6 +216,7 @@ public class NodeSupervisor extends UntypedActor {
         c.setChannelReserveSat(event.commitments().localParams().channelReserveSatoshis());
         c.setMinimumHtlcAmountMsat(event.commitments().localParams().htlcMinimumMsat());
         c.htlcsInFlightCount = localCommit.spec().htlcs().iterator().size();
+        c.sendableBalanceMsat = event.commitments().availableBalanceForSendMsat();
         c.setBalanceMsat(localCommit.spec().toLocalMsat());
         c.setCapacityMsat(localCommit.spec().totalFunds());
         balanceRefreshScheduler.tell(Constants.REFRESH, null);
@@ -321,6 +323,7 @@ public class NodeSupervisor extends UntypedActor {
           c.setChannelReserveSat(commitments.localParams().channelReserveSatoshis());
           c.setMinimumHtlcAmountMsat(commitments.localParams().htlcMinimumMsat());
           c.setFundingTxId(commitments.commitInput().outPoint().txid().toString());
+          c.sendableBalanceMsat = commitments.availableBalanceForSendMsat();
           c.setBalanceMsat(commitments.localCommit().spec().toLocalMsat());
           c.setCapacityMsat(commitments.localCommit().spec().totalFunds());
         }

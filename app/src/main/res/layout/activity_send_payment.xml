@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?><!--
-  ~ Copyright 2018 ACINQ SAS
+  ~ Copyright 2019 ACINQ SAS
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -489,8 +489,8 @@
             android:id="@+id/btn_send"
             style="@style/ButtonStyle"
             android:layout_width="0dp"
-            android:clickable="true"
-            android:focusable="true"
+            android:clickable="@{enableSendButton}"
+            android:focusable="@{enableSendButton}"
             android:gravity="center"
             android:onClick="confirmPayment"
             android:orientation="horizontal"

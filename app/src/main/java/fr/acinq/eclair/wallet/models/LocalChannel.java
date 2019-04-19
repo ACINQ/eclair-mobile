@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ACINQ SAS
+ * Copyright 2019 ACINQ SAS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,6 +46,12 @@ public class LocalChannel {
   private long capacityMsat;
   @NotNull
   private long balanceMsat;
+
+  /**
+   * Does not take into account the state of the channel!
+   */
+  @Transient
+  public long sendableBalanceMsat;
 
   private long refundAtBlock;
 
@@ -114,10 +120,11 @@ public class LocalChannel {
   }
 
   /**
-   * This does not take into account the state of the channel!
+   * Return true if there has been a {@link LocalChannelUpdate} for this channel, false otherwise.
+   * Based on the channel's fees and expiry.
    */
-  public long getSendableMsat() {
-    return Math.max(this.getBalanceMsat() - (this.getChannelReserveSat() * 1000), 0);
+  public boolean receivedChannelUpdate() {
+    return feeBaseMsat != null && feeProportionalMillionths != null && cltvExpiryDelta != null;
   }
 
   /**

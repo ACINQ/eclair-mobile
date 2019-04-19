@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?><!--
-  ~ Copyright 2018 ACINQ SAS
+  ~ Copyright 2019 ACINQ SAS
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -101,6 +101,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:label="@string/networkinfos_xpub_label"
+            app:has_action="true"
+            app:action_label="@string/networkinfos_electrumdb_action"
             app:has_border="true"
             app:value="@string/unknown" />
         </LinearLayout>

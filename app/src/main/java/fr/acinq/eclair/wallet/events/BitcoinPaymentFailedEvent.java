@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ACINQ SAS
+ * Copyright 2019 ACINQ SAS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 
 package fr.acinq.eclair.wallet.events;
 
+import android.text.Html;
+
 public class BitcoinPaymentFailedEvent {
   private final String message;
 
@@ -24,8 +26,8 @@ public class BitcoinPaymentFailedEvent {
   }
 
   public String getMessage() {
-    if (message.length() > 20) {
-      return message.substring(17) + "...";
+    if (message.length() > 40) {
+      return Html.escapeHtml(message).substring(0, 37) + "...";
     }
     return message;
   }
