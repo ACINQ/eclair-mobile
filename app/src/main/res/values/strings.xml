@@ -387,7 +387,7 @@
   <string name="about_version">Current version</string>
   <string name="about_faq"><![CDATA[
     <p>Any questions? Check <a href="https://github.com/ACINQ/eclair-mobile/wiki/FAQ">the FAQ</a></p>
-    You can also join <a href="https://gitter.im/ACINQ/eclair">our Gitter chat</a>.
+    You can also join <a href="https://gitter.im/ACINQ/eclair-mobile">our Gitter chat</a>.
   ]]></string>
   <string name="about_acinq_title">About ACINQ</string>
   <string name="about_acinq_text"><![CDATA[
