@@ -500,8 +500,8 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
         publishProgress(app.getString(R.string.start_log_setting_up));
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(app.getBaseContext());
         Class.forName("org.sqlite.JDBC");
-        final Setup setup = new Setup(datadir, WalletUtils.getOverrideConfig(prefs), Option.apply(seed), app.system);
-        setup.nodeParams().peersDb().addOrUpdatePeer(Constants.ACINQ_NODE_URI.nodeId(),
+        final Setup setup = new Setup(datadir, WalletUtils.getOverrideConfig(prefs), Option.apply(seed), Option.empty(), app.system);
+        setup.nodeParams().db().peers().addOrUpdatePeer(Constants.ACINQ_NODE_URI.nodeId(),
           NodeAddress$.MODULE$.fromParts(Constants.ACINQ_NODE_URI.address().getHost(), Constants.ACINQ_NODE_URI.address().getPort()).get());
 
         // ui refresh schedulers

@@ -206,7 +206,7 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
   private void doOpenChannel(final NodeURI nodeURI, final Satoshi capacity, final Long feesSatPerKW, final MilliSatoshi push) {
     try {
       log.info("opening channel with {} with capacity={} fees={} push={}", nodeURI, capacity, feesSatPerKW, push);
-      final Peer.OpenChannel open = new Peer.OpenChannel(nodeURI.nodeId(), capacity, push, scala.Option.apply(feesSatPerKW), scala.Option.apply(null));
+      final Peer.OpenChannel open = new Peer.OpenChannel(nodeURI.nodeId(), capacity, push, scala.Option.apply(feesSatPerKW), scala.Option.empty(), scala.Option.empty());
       AsyncExecutor.create().execute(
         () -> {
           final Timeout timeout = new Timeout(Duration.create(30, "seconds"));
