@@ -386,10 +386,10 @@ JNIEXPORT jint JNICALL Java_org_sqlite_core_NativeDB_value_1type
 /*
  * Class:     org_sqlite_core_NativeDB
  * Method:    create_function_utf8
- * Signature: ([BLorg/sqlite/Function;)I
+ * Signature: ([BLorg/sqlite/Function;I)I
  */
 JNIEXPORT jint JNICALL Java_org_sqlite_core_NativeDB_create_1function_1utf8
-  (JNIEnv *, jobject, jbyteArray, jobject);
+  (JNIEnv *, jobject, jbyteArray, jobject, jint);
 
 /*
  * Class:     org_sqlite_core_NativeDB
