@@ -77,6 +77,7 @@ import scodec.bits.ByteVector$;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.UnknownHostException;
 import java.security.GeneralSecurityException;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -92,7 +93,6 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
   private boolean isStartingNode = false;
   public final static String ORIGIN = BuildConfig.APPLICATION_ID + "ORIGIN";
   public final static String ORIGIN_EXTRA = BuildConfig.APPLICATION_ID + "ORIGIN_EXTRA";
-  private static final HashSet<Integer> BREAKING_VERSIONS = new HashSet<>(Arrays.asList(14));
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -125,11 +125,6 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
   protected void onDestroy() {
     EventBus.getDefault().unregister(this);
     super.onDestroy();
-  }
-
-  private void showBreaking() {
-    mBinding.startupError.setVisibility(View.VISIBLE);
-    mBinding.startupErrorText.setText(Html.fromHtml(getString(R.string.start_error_breaking_changes)));
   }
 
   private void showError(final String message, final boolean showRestart, final boolean showFAQ) {
@@ -177,15 +172,8 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
   private boolean checkAppVersion(final File datadir, final SharedPreferences prefs) {
     final int lastUsedVersion = prefs.getInt(Constants.SETTING_LAST_USED_VERSION, 0);
     final boolean startedOnce = prefs.getBoolean(Constants.SETTING_HAS_STARTED_ONCE, false);
-    if (lastUsedVersion > 0 && startedOnce) { // only for
-      if (lastUsedVersion < BuildConfig.VERSION_CODE) {
-        if (BREAKING_VERSIONS.contains(BuildConfig.VERSION_CODE)) {
-          log.error("version {} cannot migrate from {}", BuildConfig.VERSION_CODE, lastUsedVersion);
-          showBreaking();
-          return false;
-        }
-      }
-      // migration scripts based on last used version
+    // migration script only if app has already been started
+    if (lastUsedVersion > 0 && startedOnce) {
       if (lastUsedVersion <= 15 && "testnet".equals(BuildConfig.CHAIN)) {
         // version 16 breaks the application's data folder structure
         migrateTestnetSqlite(datadir);
@@ -521,7 +509,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
         publishProgress(app.getString(R.string.start_log_done));
         return SUCCESS;
 
-      } catch (EclairException.NetworkException t) {
+      } catch (EclairException.NetworkException | UnknownHostException t) {
         return NETWORK_ERROR;
       } catch (Throwable t) {
         log.error("failed to start eclair", t);
