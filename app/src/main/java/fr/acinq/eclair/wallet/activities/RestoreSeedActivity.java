@@ -30,6 +30,7 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
+import com.google.android.gms.common.util.Strings;
 import fr.acinq.bitcoin.MnemonicCode;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.adapters.SimplePagerAdapter;
@@ -40,6 +41,7 @@ import fr.acinq.eclair.wallet.fragments.WalletPassphraseFragment;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -125,21 +127,30 @@ public class RestoreSeedActivity extends EclairActivity implements EclairActivit
     if (mWalletImportSeedFragment != null && mWalletEncryptFragment.mBinding != null) {
       mWalletImportSeedFragment.mBinding.mnemonicsInput.clearAnimation();
     }
-    seedErrorHandler.removeCallbacks(null);
+    seedErrorHandler.removeCallbacksAndMessages(null);
+
     try {
       final String mnemonics = mWalletImportSeedFragment.mBinding.mnemonicsInput.getText().toString().trim().toLowerCase();
-      MnemonicCode.validate(mnemonics);
-      goToPassphrase();
+      if (Strings.isEmptyOrWhitespace(mnemonics)) {
+        handleSeedError(R.string.importwallet_seed_empty, null);
+      } else {
+        MnemonicCode.validate(mnemonics);
+        goToPassphrase();
+      }
     } catch (Exception e) {
       handleSeedError(R.string.importwallet_seed_error, e.getLocalizedMessage());
     }
   }
 
-  private void handleSeedError(final int errorCode, final String message) {
+  private void handleSeedError(final int errorCode, @Nullable final String message) {
     if (mWalletImportSeedFragment != null && mWalletImportSeedFragment.mBinding != null) {
       TransitionManager.beginDelayedTransition(mWalletImportSeedFragment.mBinding.transitionsLayout);
       mWalletImportSeedFragment.mBinding.mnemonicsInput.startAnimation(mErrorAnimation);
-      mWalletImportSeedFragment.mBinding.seedError.setText(getString(errorCode, message));
+      if (message != null) {
+        mWalletImportSeedFragment.mBinding.seedError.setText(getString(errorCode, message));
+      } else {
+        mWalletImportSeedFragment.mBinding.seedError.setText(errorCode);
+      }
       mWalletImportSeedFragment.mBinding.seedError.setVisibility(View.VISIBLE);
       seedErrorHandler.postDelayed(() -> {
         TransitionManager.beginDelayedTransition(mWalletImportSeedFragment.mBinding.transitionsLayout);

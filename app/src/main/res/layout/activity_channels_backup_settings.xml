@@ -93,7 +93,6 @@
 
         <android.support.v7.widget.SwitchCompat
           android:id="@+id/request_local_access_switch"
-          style="@style/SwitchStyle"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:alpha="@{hasLocalAccess ? 0.5f : 1f}"
@@ -160,7 +159,6 @@
 
         <android.support.v7.widget.SwitchCompat
           android:id="@+id/request_gdrive_access_switch"
-          style="@style/SwitchStyle"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:alpha="@{requestingGDriveAccess ? 0.5f : 1f}"

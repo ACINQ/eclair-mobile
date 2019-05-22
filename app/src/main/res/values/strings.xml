@@ -154,6 +154,7 @@
   <string name="importwallet_mnemonics_label">Use the keyboard below to type the seed:</string>
   <string name="importwallet_next_button">Next</string>
   <string name="importwallet_seed_error">This seed is invalid:\n%1$s</string>
+  <string name="importwallet_seed_empty">Please enter a seed recovery phrase with the virtual keyboard.</string>
   <string name="importwallet_error">Could not import this seed/passphrase</string>
   <string name="importwallet_success">Seed has been restored and encrypted.</string>
 
