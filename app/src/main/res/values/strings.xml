@@ -165,8 +165,10 @@
   <string name="restorechannels_restoring_success">Channels successfully restored!</string>
   <string name="restorechannels_restoring_error">Error when restoring this backup. Please try again.</string>
   <string name="restorechannels_request_local_access">Check on device</string>
+  <string name="restorechannels_request_local_externalstorage_error">External storage is not available!</string>
   <string name="restorechannels_local_wait">Accessing local disk…</string>
   <string name="restorechannels_request_gdrive_access">Check on Google Drive</string>
+  <string name="restorechannels_request_gdrive_unavailable">Google Drive is not available on this device.</string>
   <string name="restorechannels_gdrive_wait">Requesting access to Google Drive…</string>
   <string name="restorechannels_error">A backup was found but could not be read.\n\nOrigin: %1$s\nError: %2$s\n\nContact support at mobile@acinq.co</string>
   <string name="restorechannels_error_generic">There was an error when looking for backup. Please try again.</string>

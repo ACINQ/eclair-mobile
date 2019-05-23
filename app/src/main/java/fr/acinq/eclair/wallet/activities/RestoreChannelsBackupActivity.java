@@ -71,9 +71,6 @@ public class RestoreChannelsBackupActivity extends ChannelsBackupBaseActivity {
     mBinding = DataBindingUtil.setContentView(this, R.layout.activity_restore_channels_backup);
     mBinding.notFoundSkipButton.setOnClickListener(v -> ignoreRestoreAndBeDone());
 
-    mBinding.requestLocalAccessCheckbox.setChecked(true);
-    mBinding.requestGdriveAccessCheckbox.setChecked(true);
-
     mBinding.scanButton.setOnClickListener(v -> {
       if (mBinding.requestLocalAccessCheckbox.isChecked() || mBinding.requestGdriveAccessCheckbox.isChecked()) {
         mBinding.setRestoreStep(Constants.RESTORE_BACKUP_REQUESTING_ACCESS);
@@ -91,6 +88,12 @@ public class RestoreChannelsBackupActivity extends ChannelsBackupBaseActivity {
     if (app == null || app.seedHash == null || app.seedHash.get() == null) {
       finish();
     } else {
+      mBinding.requestLocalAccessCheckbox.setChecked(BackupUtils.Local.isExternalStorageWritable());
+      mBinding.setExternalStorageAvailable(BackupUtils.Local.isExternalStorageWritable());
+
+      mBinding.requestGdriveAccessCheckbox.setChecked(BackupUtils.GoogleDrive.isGDriveAvailable(getApplicationContext()));
+      mBinding.setGdriveAvailable(BackupUtils.GoogleDrive.isGDriveAvailable(getApplicationContext()));
+
       mBinding.seedHash.setText(getString(R.string.restorechannels_hash, app.seedHash.get()));
     }
   }
@@ -242,7 +245,7 @@ public class RestoreChannelsBackupActivity extends ChannelsBackupBaseActivity {
       }
     } catch (EclairException.ExternalStorageUnavailableException e) {
       log.error("external storage not available: ", e);
-      Toast.makeText(this, R.string.restorechannels_error_external_storage_toast, Toast.LENGTH_LONG).show();
+      runOnUiThread(() -> Toast.makeText(this, R.string.restorechannels_error_external_storage_toast, Toast.LENGTH_LONG).show());
       mExpectedBackupsMap.put(BackupTypes.LOCAL, Option.apply(null));
     } catch (Throwable t) {
       log.error("could not read local backup file: ", t);

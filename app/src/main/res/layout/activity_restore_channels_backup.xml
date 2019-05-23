@@ -24,19 +24,19 @@
     <import type="fr.acinq.eclair.wallet.utils.Constants" />
 
     <variable
-      name="localBackupStep"
-      type="int" />
-
-    <variable
-      name="gdriveBackupStep"
-      type="int" />
-
-    <variable
       name="restoreStep"
       type="int" />
 
     <variable
       name="isRestoring"
+      type="boolean" />
+
+    <variable
+      name="externalStorageAvailable"
+      type="boolean" />
+
+    <variable
+      name="gdriveAvailable"
       type="boolean" />
 
   </data>
@@ -94,7 +94,6 @@
           android:layout_marginEnd="@dimen/space_lg"
           android:alpha=".5"
           android:buttonTint="@color/primary"
-          android:checked="true"
           android:enabled="false"
           android:text="@string/restorechannels_request_local_access"
           android:textColor="@color/grey_4"
@@ -105,6 +104,20 @@
           app:layout_constraintStart_toStartOf="parent"
           app:layout_constraintTop_toBottomOf="@+id/subtitle1" />
 
+        <TextView
+          android:id="@+id/local_external_storage_warning"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_marginStart="40dp"
+          android:layout_marginEnd="@dimen/space_lg"
+          android:drawableStart="@drawable/ic_alert_triangle_orange_18dp"
+          android:drawablePadding="@dimen/space_xs"
+          android:paddingBottom="@dimen/space_sm"
+          android:text="@string/restorechannels_request_local_externalstorage_error"
+          android:textSize="@dimen/text_sm"
+          android:visibility="@{restoreStep == Constants.RESTORE_BACKUP_INIT &amp;&amp; !externalStorageAvailable ? View.VISIBLE : View.GONE}"
+          app:layout_constraintTop_toBottomOf="@id/request_local_access_checkbox" />
+
         <CheckBox
           android:id="@+id/request_gdrive_access_checkbox"
           android:layout_width="wrap_content"
@@ -112,8 +125,9 @@
           android:layout_marginStart="@dimen/space_lg"
           android:layout_marginTop="@dimen/space_xs"
           android:layout_marginEnd="@dimen/space_lg"
+          android:alpha="@{gdriveAvailable ? 1f : 0.5f}"
           android:buttonTint="@color/primary"
-          android:checked="true"
+          android:enabled="@{gdriveAvailable}"
           android:text="@string/restorechannels_request_gdrive_access"
           android:textColor="@color/grey_4"
           android:visibility="@{restoreStep == Constants.RESTORE_BACKUP_INIT ? View.VISIBLE : View.GONE}"
@@ -121,7 +135,20 @@
           app:layout_constraintEnd_toEndOf="parent"
           app:layout_constraintHorizontal_bias="0"
           app:layout_constraintStart_toStartOf="parent"
-          app:layout_constraintTop_toBottomOf="@+id/request_local_access_checkbox" />
+          app:layout_constraintTop_toBottomOf="@+id/local_external_storage_warning" />
+
+        <TextView
+          android:id="@+id/gdrive_unavailable"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_marginStart="40dp"
+          android:layout_marginEnd="@dimen/space_lg"
+          android:drawableStart="@drawable/ic_alert_triangle_orange_18dp"
+          android:drawablePadding="@dimen/space_xs"
+          android:text="@string/restorechannels_request_gdrive_unavailable"
+          android:textSize="@dimen/text_sm"
+          android:visibility="@{restoreStep == Constants.RESTORE_BACKUP_INIT &amp;&amp; !gdriveAvailable ? View.VISIBLE : View.GONE}"
+          app:layout_constraintTop_toBottomOf="@id/request_gdrive_access_checkbox" />
 
         <View
           android:id="@+id/scan_separator"
@@ -129,7 +156,7 @@
           android:layout_marginTop="@dimen/space_md"
           android:visibility="@{restoreStep == Constants.RESTORE_BACKUP_INIT ? View.VISIBLE : View.GONE}"
           app:layout_constraintStart_toStartOf="parent"
-          app:layout_constraintTop_toBottomOf="@+id/request_gdrive_access_checkbox" />
+          app:layout_constraintTop_toBottomOf="@+id/gdrive_unavailable" />
 
         <fr.acinq.eclair.wallet.customviews.CustomButton
           android:id="@+id/scan_button"
