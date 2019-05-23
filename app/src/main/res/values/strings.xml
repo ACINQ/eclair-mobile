@@ -553,16 +553,15 @@
   <string name="backupsettings_instructions">This wallet supports payments over Lightning and needs to regularly backup data. Without a backup, you will be unable to restore active Lightning channels if you need to, and Lightning funds will not be recoverable.
     \n\nNote that channels are also backed up on-device, although it will not help if you lose your phone. We strongly recommend to enable a cloud-based backup option.</string>
   <string name="backupsettings_local_title">Local save (required)</string>
-  <!--<string name="backupsettings_local_status_wait">Requesting access to storage…</string>-->
-  <!--<string name="backupsettings_local_status_denied">Please grant access to the device\'s local storage.</string>-->
-  <!--<string name="backupsettings_local_status_result">Backup found, last modified %1$s</string>-->
-  <!--<string name="backupsettings_local_status_not_found">No backup yet…</string>-->
-  <!--<string name="backupsettings_local_desc">Channels are saved on disk, in the %1$s folder.</string>-->
+  <string name="backupsettings_local_status_wait">Requesting access to storage…</string>
+  <string name="backupsettings_local_status_denied">Please grant access to the device\'s local storage.</string>
+  <string name="backupsettings_local_status_result">Last modified: %1$s</string>
+  <string name="backupsettings_local_status_not_found">No backup yet…</string>
 
   <string name="backupsettings_drive_title">Google Drive backup</string>
   <string name="backupsettings_drive_state_wait">Retrieving data from Google Drive…</string>
   <string name="backupsettings_drive_state">Account: &lt;%1$s&gt;\nLast backup: %2$s</string>
-  <string name="backupsettings_drive_state_nobackup">Account: &lt;%1$s&gt;\nNo backup found yet…</string>
+  <string name="backupsettings_drive_state_nobackup">Account: &lt;%1$s&gt;\nNo backup yet…</string>
   <string name="backupsettings_drive_state_no_access">No access to Google Drive</string>
   <string name="backupsettings_drive_more_button">How it works</string>
   <string name="backupsettings_drive_revoke_button">Are you sure you want to disable the Google Drive backup feature?\n\nA local backup only will not help if you lose your phone.</string>

@@ -22,6 +22,7 @@ import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.MotionEvent;
+import android.view.View;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.common.api.ApiException;
@@ -29,9 +30,12 @@ import com.google.android.gms.common.api.CommonStatusCodes;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.databinding.ActivityChannelsBackupSettingsBinding;
 import fr.acinq.eclair.wallet.services.BackupUtils;
+import fr.acinq.eclair.wallet.utils.EclairException;
+import fr.acinq.eclair.wallet.utils.WalletUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.text.DateFormat;
 
 public class ChannelsBackupSettingsActivity extends ChannelsBackupBaseActivity { //implements SharedPreferences.OnSharedPreferenceChangeListener {
@@ -62,7 +66,7 @@ public class ChannelsBackupSettingsActivity extends ChannelsBackupBaseActivity {
     mBinding.requestGdriveAccessSwitch.setOnTouchListener((v, event) -> {
       if (event.getAction() == MotionEvent.ACTION_DOWN && !mBinding.getRequestingGDriveAccess()) {
         mBinding.setRequestingGDriveAccess(true);
-        mBinding.gdriveBackupStatus.setText(getString(R.string.backupsettings_drive_state_wait));
+        mBinding.gdriveBackupStatus.setVisibility(View.GONE);
         if (mBinding.requestGdriveAccessSwitch.isChecked()) {
           log.info("revoking access to gdrive");
           GoogleSignIn.getClient(getApplicationContext(), getGoogleSigninOptions()).revokeAccess()
@@ -76,7 +80,7 @@ public class ChannelsBackupSettingsActivity extends ChannelsBackupBaseActivity {
       }
       return true; // consumes touch event
     });
-    mBinding.gdriveShowDetails.setOnClickListener(v -> gdriveBackupDetailsDialog.show());
+    mBinding.gdriveHelp.setOnClickListener(v -> gdriveBackupDetailsDialog.show());
   }
 
   @Override
@@ -114,7 +118,7 @@ public class ChannelsBackupSettingsActivity extends ChannelsBackupBaseActivity {
   protected void applyGdriveAccessDenied() {
     super.applyGdriveAccessDenied();
     BackupUtils.GoogleDrive.disableGDriveBackup(getApplicationContext());
-    mBinding.gdriveBackupStatus.setText(getString(R.string.backupsettings_drive_state_no_access));
+    mBinding.gdriveBackupStatus.setVisibility(View.GONE);
     mBinding.requestGdriveAccessSwitch.setChecked(false);
     mBinding.setRequestingGDriveAccess(false);
   }
@@ -125,6 +129,7 @@ public class ChannelsBackupSettingsActivity extends ChannelsBackupBaseActivity {
       @Override
       public void run() {
         retrieveEclairBackupTask().addOnSuccessListener(metadataBuffer -> runOnUiThread(() -> {
+          mBinding.gdriveBackupStatus.setVisibility(View.VISIBLE);
           if (metadataBuffer.getCount() == 0) {
             mBinding.gdriveBackupStatus.setText(getString(R.string.backupsettings_drive_state_nobackup, signInAccount.getEmail()));
           } else {
@@ -149,23 +154,26 @@ public class ChannelsBackupSettingsActivity extends ChannelsBackupBaseActivity {
   @Override
   protected void applyLocalAccessDenied() {
     super.applyLocalAccessDenied();
+    mBinding.localBackupStatus.setVisibility(View.GONE);
     mBinding.setHasLocalAccess(false);
   }
 
   @Override
   protected void applyLocalAccessGranted() {
     super.applyLocalAccessGranted();
-    //    try {
-    //      final File found = BackupUtils.Local.getBackupFile(WalletUtils.getEclairBackupFileName(app.seedHash.get()));
-    //      if (found.exists()) {
-    //        mBinding.localBackupStatus.setText(getString(R.string.backupsettings_local_status_result, DateFormat.getDateTimeInstance().format(found.lastModified())));
-    //      } else {
-    //        mBinding.localBackupStatus.setText(getString(R.string.backupsettings_local_status_not_found));
-    //      }
-    mBinding.setHasLocalAccess(true);
-    //    } catch (EclairException.NoExternalStorageException e) {
-    //      log.error("could not access storage: ", e);
-    //      applyLocalAccessDenied();
-    //    }
+    try {
+      final File found = BackupUtils.Local.getBackupFile(WalletUtils.getEclairBackupFileName(app.seedHash.get()));
+      if (found.exists()) {
+        mBinding.localBackupStatus.setVisibility(View.VISIBLE);
+        mBinding.localBackupStatus.setText(getString(R.string.backupsettings_local_status_result, DateFormat.getDateTimeInstance().format(found.lastModified())));
+      } else {
+        mBinding.localBackupStatus.setVisibility(View.VISIBLE);
+        mBinding.localBackupStatus.setText(getString(R.string.backupsettings_local_status_not_found));
+      }
+      mBinding.setHasLocalAccess(true);
+    } catch (EclairException.NoExternalStorageException e) {
+      log.error("could not access storage: ", e);
+      applyLocalAccessDenied();
+    }
   }
 }

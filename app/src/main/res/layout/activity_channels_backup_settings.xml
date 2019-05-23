@@ -103,33 +103,24 @@
           app:layout_constraintEnd_toEndOf="parent"
           app:layout_constraintTop_toTopOf="@id/local_title" />
 
-        <!--<TextView-->
-        <!--android:id="@+id/local_backup_status"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_marginStart="@dimen/space_md"-->
-        <!--android:layout_marginTop="@dimen/space_xxs"-->
-        <!--android:layout_marginEnd="@dimen/space_md"-->
-        <!--app:layout_constraintTop_toBottomOf="@id/local_title" />-->
-
-        <!--<TextView-->
-        <!--android:id="@+id/local_desc"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_marginStart="@dimen/space_md"-->
-        <!--android:layout_marginTop="@dimen/space_xs"-->
-        <!--android:layout_marginEnd="@dimen/space_md"-->
-        <!--android:text="@string/backupsettings_local_desc"-->
-        <!--android:textColor="@color/grey_1"-->
-        <!--android:textSize="@dimen/text_sm"-->
-        <!--app:layout_constraintTop_toBottomOf="@id/local_backup_status" />-->
+        <TextView
+          android:id="@+id/local_backup_status"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_marginStart="@dimen/space_md"
+          android:layout_marginTop="@dimen/space_xxs"
+          android:layout_marginEnd="@dimen/space_md"
+          android:alpha="@{hasLocalAccess ? 0.3f : 1f}"
+          android:textSize="@dimen/text_sm"
+          android:visibility="gone"
+          app:layout_constraintTop_toBottomOf="@id/local_title" />
 
         <View
           android:id="@+id/gdrive_separator"
           style="@style/HLineSeparator"
           android:layout_marginTop="@dimen/space_md"
           app:layout_constraintStart_toStartOf="parent"
-          app:layout_constraintTop_toBottomOf="@id/local_title" />
+          app:layout_constraintTop_toBottomOf="@id/local_backup_status" />
 
         <TextView
           android:id="@+id/gdrive_title"
@@ -176,25 +167,34 @@
           android:layout_marginStart="@dimen/space_md"
           android:layout_marginTop="@dimen/space_xxs"
           android:layout_marginEnd="@dimen/space_md"
+          android:lineSpacingMultiplier="1.2"
           android:text="@string/backupsettings_drive_state_wait"
+          android:textColor="@color/grey_1"
+          android:textSize="@dimen/text_sm"
           android:visibility="@{googleDriveAvailable ? View.VISIBLE : View.GONE}"
           app:layout_constraintTop_toBottomOf="@id/gdrive_title" />
 
-        <Button
-          android:id="@+id/gdrive_show_details"
-          style="@style/ButtonStyle"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:drawableStart="@drawable/ic_info_black_18dp"
-          android:drawablePadding="@dimen/space_xxs"
-          android:padding="@dimen/space_xs"
-          android:text="@string/backupsettings_drive_more_button"
-          android:textAllCaps="false"
-          android:textSize="@dimen/text_xs"
-          android:textStyle="normal"
+        <View
+          android:id="@+id/gdrive_help_separator"
+          style="@style/HSeparator"
+          android:layout_marginStart="@dimen/space_md"
+          android:layout_marginTop="@dimen/space_xs"
           android:visibility="@{googleDriveAvailable ? View.VISIBLE : View.GONE}"
           app:layout_constraintStart_toStartOf="parent"
           app:layout_constraintTop_toBottomOf="@id/gdrive_backup_status" />
+
+        <Button
+          android:id="@+id/gdrive_help"
+          style="@style/ButtonStyle"
+          android:layout_marginStart="@dimen/space_md"
+          android:layout_marginTop="@dimen/space_xs"
+          android:background="@drawable/rounded_corner_grey"
+          android:padding="@dimen/space_xs"
+          android:text="@string/backupsettings_drive_more_button"
+          android:textSize="@dimen/text_xs"
+          android:visibility="@{googleDriveAvailable ? View.VISIBLE : View.GONE}"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toBottomOf="@id/gdrive_help_separator" />
 
         <TextView
           android:id="@+id/gdrive_not_available"
