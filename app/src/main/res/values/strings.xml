@@ -537,6 +537,13 @@
   <string name="setupbackup_gdrive">Upload on Google Drive</string>
   <string name="setupbackup_submit">Continue</string>
   <string name="setupbackup_requesting_access">Requesting access…</string>
+  <string name="backup_external_storage_error"><![CDATA[
+    The device\'s external storage is not available.
+    <br /><br />
+    If you have an external SD card, make sure it\'s properly mounted. You can also check if you have enough memory.
+    <br /><br />
+    Some features like <b>local channels backup</b> will not work properly.
+  ]]></string>
   <string name="backup_about"><![CDATA[
     <p><b>How does it work?</b></p>
     <p>Channels are encrypted and saved to your Google Drive account. When you restore the seed, you can also restore the last known state of your channels and retrieve funds that may have stayed in these channels.</p>

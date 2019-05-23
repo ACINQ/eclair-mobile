@@ -41,24 +41,32 @@ import java.util.Set;
 public interface BackupUtils {
 
   interface Local {
+
+    static boolean isExternalStorageWritable() {
+      return Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState());
+    }
+
     static boolean hasLocalAccess(final Context context) {
       return ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
     }
 
-    static File getBackupFile(final String backupFileName) throws EclairException.NoExternalStorageException {
-      final File storage = Environment.getExternalStorageDirectory();
-
-      if (!storage.canWrite()) {
-        throw new EclairException.NoExternalStorageException("cannot write in storage");
+    static File getBackupFile(final String backupFileName) throws EclairException.ExternalStorageUnavailableException {
+      if (!isExternalStorageWritable()) {
+        throw new EclairException.ExternalStorageUnavailableException();
       }
 
-      final File publicDir = new File(storage, "Eclair Mobile");
+      final File storage = Environment.getExternalStorageDirectory();
+      if (!storage.canWrite()) {
+        throw new EclairException.ExternalStorageUnavailableException();
+      }
+
+      final File publicDir = new File(storage, Constants.ECLAIR_BACKUP_DIR);
       final File chainDir = new File(publicDir, BuildConfig.CHAIN);
       final File backup = new File(chainDir, backupFileName);
 
       if (!backup.exists()) {
         if (!chainDir.exists() && !chainDir.mkdirs()) {
-          throw new EclairException.NoExternalStorageException("unable to create Eclair Mobile directory");
+          throw new EclairException.ExternalStorageUnavailableException();
         }
       }
 

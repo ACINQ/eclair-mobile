@@ -26,6 +26,7 @@ import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.text.Html;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -375,7 +376,11 @@ public class WalletUtils {
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
     switch (prefs.getString(Constants.SETTING_LOGS_OUTPUT, Constants.LOGS_OUTPUT_NONE)) {
       case Constants.LOGS_OUTPUT_LOCAL:
-        setupLocalLogging(context);
+        try {
+          setupLocalLogging(context);
+        } catch (EclairException.ExternalStorageUnavailableException e) {
+          Log.e("WalletUtils", "external storage is not available, cannot enable local logging");
+        }
         break;
       case Constants.LOGS_OUTPUT_PAPERTRAIL:
         setupPapertrailLogging(prefs.getString(Constants.SETTING_PAPERTRAIL_HOST, ""),
@@ -423,9 +428,9 @@ public class WalletUtils {
   /**
    * Sets up an index-based rolling policy with a max file size of 4MB.
    */
-  public static void setupLocalLogging(final Context context) throws EclairException.ExternalStorageNotAvailableException {
+  public static void setupLocalLogging(final Context context) throws EclairException.ExternalStorageUnavailableException {
     if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-      throw new EclairException.ExternalStorageNotAvailableException();
+      throw new EclairException.ExternalStorageUnavailableException();
     }
 
     final LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();

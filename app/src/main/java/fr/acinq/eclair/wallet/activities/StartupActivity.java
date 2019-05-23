@@ -89,6 +89,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
   private boolean isStartingNode = false;
   public final static String ORIGIN = BuildConfig.APPLICATION_ID + "ORIGIN";
   public final static String ORIGIN_EXTRA = BuildConfig.APPLICATION_ID + "ORIGIN_EXTRA";
+  private boolean checkExternalStorageState = true;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -158,6 +159,14 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
     // check that wallet data are correct
     if (!checkWalletDatadir(datadir)) {
       log.debug("wallet datadir checked failed");
+      return;
+    }
+    // check that external storage is available ; if not, print a warning
+    if (prefs.getBoolean(Constants.SETTING_HAS_STARTED_ONCE, false) && checkExternalStorageState && !BackupUtils.Local.isExternalStorageWritable()) {
+      getCustomDialog(getString(R.string.backup_external_storage_error)).setPositiveButton(R.string.btn_ok, (dialog, which) -> {
+        checkExternalStorageState = false; // let the user start the app anyway
+        checkup();
+      }).show();
       return;
     }
 
@@ -348,11 +357,16 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
             showError(getString(R.string.start_error_wrong_password));
             new Handler().postDelayed(() -> startNode(datadir, prefs), 1400);
           });
-        } catch (Throwable t) {
-          log.error("seed is unreadable", t);
+        } catch (IOException | IllegalAccessException e) {
+          log.error("seed file unreadable");
           clearApp();
           isStartingNode = false;
           runOnUiThread(() -> showError(getString(R.string.start_error_unreadable_seed), true, true));
+        } catch (Throwable t) {
+          log.error("could not start eclair startup task: ", t);
+          clearApp();
+          isStartingNode = false;
+          runOnUiThread(() -> showError(getString(R.string.start_error_generic), true, true));
         }
       }
     }.start();

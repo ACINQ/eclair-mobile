@@ -110,7 +110,7 @@ public class LogsSettingsActivity extends EclairActivity implements SharedPrefer
         prefs.edit().putString(Constants.SETTING_LOGS_OUTPUT, Constants.LOGS_OUTPUT_NONE).apply();
       }
       Toast.makeText(this, R.string.logging_toast_update_success, Toast.LENGTH_SHORT).show();
-    } catch (EclairException.ExternalStorageNotAvailableException e) {
+    } catch (EclairException.ExternalStorageUnavailableException e) {
       Toast.makeText(this, R.string.logging_toast_error_external_storage, Toast.LENGTH_SHORT).show();
     } catch (Throwable t) {
       log.error("could not update logs settings", t);

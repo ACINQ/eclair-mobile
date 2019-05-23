@@ -23,9 +23,6 @@ public interface EclairException {
   class NetworkException extends RuntimeException {
   }
 
-  class ExternalStorageNotAvailableException extends RuntimeException {
-  }
-
   /**
    * <p>Exception to provide the following to {@link BitcoinURI}:</p>
    * <ul>
@@ -45,10 +42,7 @@ public interface EclairException {
     }
   }
 
-  class NoExternalStorageException extends Exception {
-    public NoExternalStorageException(String detailMessage) {
-      super(detailMessage);
-    }
+  class ExternalStorageUnavailableException extends Exception {
   }
 
   class UnreadableBackupException extends RuntimeException {

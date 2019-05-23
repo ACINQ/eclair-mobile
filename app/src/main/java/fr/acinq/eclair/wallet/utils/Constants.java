@@ -56,6 +56,7 @@ public interface Constants {
 
   /* ----------- DIR & FILES NAMES ------------ */
 
+  String ECLAIR_BACKUP_DIR = "Eclair Mobile";
   String ECLAIR_DATADIR = "eclair-wallet-data";
   String ECLAIR_DB_FILE = "eclair.sqlite";
   String ECLAIR_DB_FILE_BAK = "eclair.sqlite.bak";
