@@ -157,7 +157,6 @@
         android:id="@+id/balance_onchain_icon"
         android:layout_width="10dp"
         android:layout_height="10dp"
-        android:layout_marginStart="@dimen/space_xs"
         android:src="@drawable/ic_chain_white_24dp"
         android:tint="@color/primary_light_x2"
         app:layout_constraintBottom_toBottomOf="@id/balance_onchain"
