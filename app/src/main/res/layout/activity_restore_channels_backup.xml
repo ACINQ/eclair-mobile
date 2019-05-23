@@ -191,6 +191,13 @@
           app:layout_constraintStart_toEndOf="@id/scanning_progress_bar"
           app:layout_constraintTop_toBottomOf="@+id/subtitle1" />
 
+        <android.support.constraint.Group
+          android:id="@+id/found_group"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:visibility="@{restoreStep == Constants.RESTORE_BACKUP_FOUND || restoreStep == Constants.RESTORE_BACKUP_FOUND_WITH_CONFLICT ? View.VISIBLE : View.GONE}"
+          app:constraint_referenced_ids="found_backup_title, found_title_separator, found_backup_text_desc_origin, found_backup_text_desc_channels_count, found_backup_text_desc_max_comm, found_backup_text_desc_modified" />
+
         <TextView
           android:id="@+id/found_backup_title"
           android:layout_width="match_parent"
@@ -198,9 +205,11 @@
           android:layout_marginStart="@dimen/space_lg"
           android:layout_marginTop="@dimen/space_lg"
           android:layout_marginEnd="@dimen/space_lg"
+          android:drawableTop="@drawable/ic_check_green_48dp"
+          android:drawablePadding="@dimen/space_xxs"
           android:text="@string/restorechannels_found_title"
-          android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-          android:visibility="@{restoreStep == Constants.RESTORE_BACKUP_FOUND || restoreStep == Constants.RESTORE_BACKUP_FOUND_WITH_CONFLICT ? View.VISIBLE : View.GONE}"
+          android:textAlignment="center"
+          android:textAppearance="@style/TextAppearance.AppCompat.Large"
           app:layout_constrainedWidth="true"
           app:layout_constraintEnd_toEndOf="parent"
           app:layout_constraintHorizontal_bias="0"
@@ -210,26 +219,46 @@
         <View
           android:id="@+id/found_title_separator"
           style="@style/HSeparator"
-          android:layout_marginStart="@dimen/space_lg"
-          android:layout_marginTop="@dimen/space_xs"
-          android:visibility="@{restoreStep == Constants.RESTORE_BACKUP_FOUND || restoreStep == Constants.RESTORE_BACKUP_FOUND_WITH_CONFLICT ? View.VISIBLE : View.GONE}"
+          android:layout_marginTop="@dimen/space_md"
+          app:layout_constraintEnd_toEndOf="parent"
           app:layout_constraintStart_toStartOf="parent"
           app:layout_constraintTop_toBottomOf="@+id/found_backup_title" />
 
         <TextView
-          android:id="@+id/found_backup_text_desc"
+          android:id="@+id/found_backup_text_desc_origin"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:layout_marginStart="@dimen/space_lg"
-          android:layout_marginTop="@dimen/space_xs"
+          android:layout_marginTop="@dimen/space_md"
           android:layout_marginEnd="@dimen/space_lg"
-          android:text="@string/restorechannels_found_desc"
-          android:visibility="@{restoreStep == Constants.RESTORE_BACKUP_FOUND || restoreStep == Constants.RESTORE_BACKUP_FOUND_WITH_CONFLICT ? View.VISIBLE : View.GONE}"
-          app:layout_constrainedWidth="true"
-          app:layout_constraintEnd_toEndOf="parent"
-          app:layout_constraintHorizontal_bias="0"
-          app:layout_constraintStart_toStartOf="parent"
           app:layout_constraintTop_toBottomOf="@+id/found_title_separator" />
+
+        <TextView
+          android:id="@+id/found_backup_text_desc_channels_count"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_marginStart="@dimen/space_lg"
+          android:layout_marginTop="@dimen/space_xxxs"
+          android:layout_marginEnd="@dimen/space_lg"
+          app:layout_constraintTop_toBottomOf="@+id/found_backup_text_desc_origin" />
+
+        <TextView
+          android:id="@+id/found_backup_text_desc_max_comm"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_marginStart="@dimen/space_lg"
+          android:layout_marginTop="@dimen/space_xxxs"
+          android:layout_marginEnd="@dimen/space_lg"
+          app:layout_constraintTop_toBottomOf="@+id/found_backup_text_desc_channels_count" />
+
+        <TextView
+          android:id="@+id/found_backup_text_desc_modified"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_marginStart="@dimen/space_lg"
+          android:layout_marginTop="@dimen/space_xxxs"
+          android:layout_marginEnd="@dimen/space_lg"
+          app:layout_constraintTop_toBottomOf="@+id/found_backup_text_desc_max_comm" />
 
         <TextView
           android:id="@+id/found_backup_text_conflict"
@@ -246,7 +275,7 @@
           app:layout_constraintEnd_toEndOf="parent"
           app:layout_constraintHorizontal_bias="0"
           app:layout_constraintStart_toStartOf="parent"
-          app:layout_constraintTop_toBottomOf="@id/found_backup_text_desc" />
+          app:layout_constraintTop_toBottomOf="@id/found_backup_text_desc_modified" />
 
         <TextView
           android:id="@+id/not_found_backup_text"
@@ -261,12 +290,25 @@
           app:layout_constraintStart_toStartOf="parent"
           app:layout_constraintTop_toBottomOf="@+id/subtitle1" />
 
+        <TextView
+          android:id="@+id/error_text"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:padding="@dimen/space_lg"
+          android:text="@string/restorechannels_error"
+          android:visibility="@{restoreStep == Constants.RESTORE_BACKUP_FOUND_ERROR ? View.VISIBLE : View.GONE}"
+          app:layout_constrainedWidth="true"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintHorizontal_bias="0"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toBottomOf="@+id/subtitle1" />
+
         <android.support.constraint.Barrier
           android:id="@+id/found_or_not_barrier"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           app:barrierDirection="bottom"
-          app:constraint_referenced_ids="found_backup_title, found_backup_text_conflict, not_found_backup_text" />
+          app:constraint_referenced_ids="found_backup_title, found_backup_text_conflict, not_found_backup_text, error_text" />
 
         <View
           android:id="@+id/confirm_separator"
@@ -290,14 +332,14 @@
         <View
           android:id="@+id/skip_separator"
           style="@style/HLineSeparator"
-          android:visibility="@{restoreStep == Constants.RESTORE_BACKUP_FOUND || restoreStep == Constants.RESTORE_BACKUP_FOUND_WITH_CONFLICT || restoreStep == Constants.RESTORE_BACKUP_NOT_FOUND ? View.VISIBLE : View.GONE}"
+          android:visibility="@{(restoreStep == Constants.RESTORE_BACKUP_FOUND || restoreStep == Constants.RESTORE_BACKUP_FOUND_WITH_CONFLICT || restoreStep == Constants.RESTORE_BACKUP_NOT_FOUND) &amp;&amp; !isRestoring ? View.VISIBLE : View.GONE}"
           app:layout_constraintTop_toBottomOf="@+id/confirm_restore_button" />
 
         <fr.acinq.eclair.wallet.customviews.CustomButton
           android:id="@+id/not_found_skip_button"
           style="@style/ClickableLayout"
           android:padding="@dimen/space_md"
-          android:visibility="@{restoreStep == Constants.RESTORE_BACKUP_FOUND || restoreStep == Constants.RESTORE_BACKUP_FOUND_WITH_CONFLICT || restoreStep == Constants.RESTORE_BACKUP_NOT_FOUND ? View.VISIBLE : View.GONE}"
+          android:visibility="@{(restoreStep == Constants.RESTORE_BACKUP_FOUND || restoreStep == Constants.RESTORE_BACKUP_FOUND_WITH_CONFLICT || restoreStep == Constants.RESTORE_BACKUP_NOT_FOUND) &amp;&amp; !isRestoring ? View.VISIBLE : View.GONE}"
           app:image="@drawable/ic_alert_triangle_white_24dp"
           app:image_tint="@color/grey_4"
           app:layout_constraintTop_toBottomOf="@id/skip_separator"
@@ -306,13 +348,13 @@
         <View
           android:id="@+id/retry_separator"
           style="@style/HLineSeparator"
-          android:visibility="@{(restoreStep == Constants.RESTORE_BACKUP_FOUND || restoreStep == Constants.RESTORE_BACKUP_FOUND_WITH_CONFLICT || restoreStep == Constants.RESTORE_BACKUP_NOT_FOUND) &amp;&amp; !isRestoring ? View.VISIBLE : View.GONE}"
+          android:visibility="@{(restoreStep == Constants.RESTORE_BACKUP_FOUND || restoreStep == Constants.RESTORE_BACKUP_FOUND_WITH_CONFLICT || restoreStep == Constants.RESTORE_BACKUP_NOT_FOUND || restoreStep == Constants.RESTORE_BACKUP_FOUND_ERROR) &amp;&amp; !isRestoring ? View.VISIBLE : View.GONE}"
           app:layout_constraintTop_toBottomOf="@+id/not_found_skip_button" />
 
         <fr.acinq.eclair.wallet.customviews.CustomButton
           android:id="@+id/try_again_button"
           style="@style/ClickableLayout"
-          android:visibility="@{(restoreStep == Constants.RESTORE_BACKUP_FOUND || restoreStep == Constants.RESTORE_BACKUP_FOUND_WITH_CONFLICT || restoreStep == Constants.RESTORE_BACKUP_NOT_FOUND) &amp;&amp; !isRestoring ? View.VISIBLE : View.GONE}"
+          android:visibility="@{(restoreStep == Constants.RESTORE_BACKUP_FOUND || restoreStep == Constants.RESTORE_BACKUP_FOUND_WITH_CONFLICT || restoreStep == Constants.RESTORE_BACKUP_NOT_FOUND || restoreStep == Constants.RESTORE_BACKUP_FOUND_ERROR) &amp;&amp; !isRestoring ? View.VISIBLE : View.GONE}"
           app:image="@drawable/ic_chevron_left_black_24dp"
           app:layout_constrainedWidth="true"
           app:layout_constraintEnd_toEndOf="parent"
@@ -361,6 +403,20 @@
           app:layout_constraintTop_toTopOf="parent" />
 
       </android.support.constraint.ConstraintLayout>
+
+      <TextView
+        android:id="@+id/seed_hash"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_md"
+        android:alpha=".8"
+        android:ellipsize="middle"
+        android:maxWidth="180dp"
+        android:singleLine="true"
+        android:textAlignment="center"
+        android:textColor="@color/primary_light_x1"
+        android:textSize="@dimen/text_xs"
+        android:visibility="@{restoreStep == Constants.RESTORE_BACKUP_INIT || restoreStep == Constants.RESTORE_BACKUP_NOT_FOUND ? View.VISIBLE : View.GONE}" />
 
     </LinearLayout>
   </ScrollView>

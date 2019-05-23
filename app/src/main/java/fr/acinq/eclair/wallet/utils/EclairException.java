@@ -16,6 +16,7 @@
 
 package fr.acinq.eclair.wallet.utils;
 
+import fr.acinq.eclair.wallet.models.BackupTypes;
 import org.bitcoinj.uri.BitcoinURI;
 
 public interface EclairException {
@@ -49,4 +50,14 @@ public interface EclairException {
       super(detailMessage);
     }
   }
+
+  class UnreadableBackupException extends RuntimeException {
+    public final BackupTypes type;
+
+    public UnreadableBackupException(final BackupTypes type, final String message) {
+      super(message);
+      this.type = type;
+    }
+  }
+
 }

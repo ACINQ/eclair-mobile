@@ -155,10 +155,11 @@
 
   <string name="restorechannels_title">Restore Lightning channels</string>
   <string name="restorechannels_explanations">If you already used Eclair Mobile with this seed, you may have residual active channels that could be restored.</string>
+  <string name="restorechannels_hash">[hash]: %1$s</string>
   <string name="restorechannels_check_button">Scan for backup</string>
   <string name="restorechannels_confirm_button">Restore this backup</string>
   <string name="restorechannels_try_again_button">Try again</string>
-  <string name="restorechannels_requesting_access">Requesting access…</string>
+  <string name="restorechannels_requesting_access">Granting access…</string>
   <string name="restorechannels_scan_wait">Searching, please hold…</string>
   <string name="restorechannels_restoring_wait">Restoring channels…</string>
   <string name="restorechannels_restoring_success">Channels successfully restored!</string>
@@ -167,12 +168,16 @@
   <string name="restorechannels_local_wait">Accessing local disk…</string>
   <string name="restorechannels_request_gdrive_access">Check on Google Drive</string>
   <string name="restorechannels_gdrive_wait">Requesting access to Google Drive…</string>
+  <string name="restorechannels_error">A backup was found but could not be read.\n\nOrigin: %1$s\nError: %2$s\n\nContact support at mobile@acinq.co</string>
+  <string name="restorechannels_error_generic">There was an error when looking for backup. Please try again.</string>
   <string name="restorechannels_notfound">We could not find any Lightning channels backups for this seed.\n\nYou can try again if needed, or proceed to use this seed without restoring lightning backups.</string>
-  <string name="restorechannels_found_title">A valid backup has been found.</string>
-  <string name="restorechannels_found_desc">Origin: %1$s\nNumber of channels: %2$d\nMax commitment: #%3$d\nLast modified: %4$s</string>
+  <string name="restorechannels_found_title">Backup found!</string>
+  <string name="restorechannels_found_desc_origin"><![CDATA[<b>Origin:</b> %1$s]]></string>
+  <string name="restorechannels_found_desc_channels_count"><![CDATA[<b>Number of channels:</b> %1$d]]></string>
+  <string name="restorechannels_found_desc_max_comm"><![CDATA[<b>Max commitment:</b> %1$d]]></string>
+  <string name="restorechannels_found_desc_modified"><![CDATA[<b>Last modified:</b> %1$s]]></string>
   <string name="restore_channels_origin_local">device\'s file system</string>
   <string name="restore_channels_origin_gdrive">Google Drive (account: %1$s)</string>
-
   <string name="restorechannels_found_with_conflict">Note: this backup was created by another device. If the app is still running on that device, channels will conflict and automatically close.</string>
   <string name="restorechannels_skip_backup">Continue without restoring</string>
   <string name="restorechannels_skip_backup_confirmation"><![CDATA[
