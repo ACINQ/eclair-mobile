@@ -170,6 +170,7 @@
   <string name="restorechannels_gdrive_wait">Requesting access to Google Drive…</string>
   <string name="restorechannels_error">A backup was found but could not be read.\n\nOrigin: %1$s\nError: %2$s\n\nContact support at mobile@acinq.co</string>
   <string name="restorechannels_error_generic">There was an error when looking for backup. Please try again.</string>
+  <string name="restorechannels_error_external_storage_toast">External storage is not available! Could not check for local backup.</string>
   <string name="restorechannels_notfound">We could not find any Lightning channels backups for this seed.\n\nYou can try again if needed, or proceed to use this seed without restoring lightning backups.</string>
   <string name="restorechannels_found_title">Backup found!</string>
   <string name="restorechannels_found_desc_origin"><![CDATA[<b>Origin:</b> %1$s]]></string>

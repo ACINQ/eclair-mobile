@@ -240,6 +240,10 @@ public class RestoreChannelsBackupActivity extends ChannelsBackupBaseActivity {
         log.debug("successfully retrieved local backup file");
         mExpectedBackupsMap.put(BackupTypes.LOCAL, Option.apply(localBackup));
       }
+    } catch (EclairException.ExternalStorageUnavailableException e) {
+      log.error("external storage not available: ", e);
+      Toast.makeText(this, R.string.restorechannels_error_external_storage_toast, Toast.LENGTH_LONG).show();
+      mExpectedBackupsMap.put(BackupTypes.LOCAL, Option.apply(null));
     } catch (Throwable t) {
       log.error("could not read local backup file: ", t);
       mExpectedBackupsMap.put(BackupTypes.LOCAL, Option.apply(new BackupScanFailure(t.getLocalizedMessage())));
