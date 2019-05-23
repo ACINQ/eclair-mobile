@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.text.DateFormat;
 
-public class ChannelsBackupSettingsActivity extends ChannelsBackupBaseActivity { //implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class ChannelsBackupSettingsActivity extends ChannelsBackupBaseActivity {
 
   private final Logger log = LoggerFactory.getLogger(ChannelsBackupSettingsActivity.class);
   private ActivityChannelsBackupSettingsBinding mBinding;

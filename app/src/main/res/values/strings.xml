@@ -550,8 +550,8 @@
     Yes, a backup is linked to a seed with a hash, and several backups can coexist.
     ]]></string>
 
-  <string name="backupsettings_instructions">This wallet supports payments over Lightning and needs to regularly backup data. Without a backup, you will be unable to restore active Lightning channels if you need to, and Lightning funds will not be recoverable.
-    \n\nNote that channels are also backed up on-device, although it will not help if you lose your phone. We strongly recommend to enable a cloud-based backup option.</string>
+  <string name="backupsettings_instructions">If you were to uninstall the app without closing your Lightning channels, you\'ll need a backup to be able to recover your channels and the funds on it.
+    \n\nWe strongly recommend enabling a cloud-based backup option in case you lose your phone.</string>
   <string name="backupsettings_local_title">Local save (required)</string>
   <string name="backupsettings_local_status_wait">Requesting access to storage…</string>
   <string name="backupsettings_local_status_denied">Please grant access to the device\'s local storage.</string>
