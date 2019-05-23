@@ -198,7 +198,7 @@ public class RestoreChannelsBackupActivity extends ChannelsBackupBaseActivity {
         final BackupScan backup = backup_opt.get();
         final long commitmentsIndexCount = Collections.max(backup.commitmentCounts);
         log.info("we have backup from {} with {} channels and {} max commitment", backup_opt.get().type, backup.channelsCount, commitmentsIndexCount);
-        if (commitmentsIndexCount > maxCommitmentIndex) {
+        if (commitmentsIndexCount >= maxCommitmentIndex) {
           maxCommitmentIndex = commitmentsIndexCount;
           bestBackupYet = backup;
         }
