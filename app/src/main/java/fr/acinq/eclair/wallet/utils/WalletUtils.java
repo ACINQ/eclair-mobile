@@ -340,6 +340,13 @@ public class WalletUtils {
     return new File(getChainDatadir(context), Constants.ECLAIR_DB_FILE);
   }
 
+  /**
+   * Retrieve the actual eclair backup file created by eclair core. This is the file that should be backed up.
+   */
+  public static File getEclairDBFileBak(final Context context) {
+    return new File(getChainDatadir(context), Constants.ECLAIR_DB_FILE_BAK);
+  }
+
   public static String getEclairBackupFileName(final String seedHash) {
     return "eclair_" + BuildConfig.CHAIN + "_" + seedHash + ".bkup";
   }

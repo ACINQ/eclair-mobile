@@ -48,6 +48,10 @@ import java.io.InputStream;
 import java.security.GeneralSecurityException;
 import java.util.Objects;
 
+/**
+ * Saves the eclair.sqlite backup file to an external storage folder (root/Eclair Mobile) and/or to Google Drive,
+ * depending on the user's preferences. Local backup is mandatory.
+ */
 public class ChannelsBackupWorker extends Worker {
   private final Logger log = LoggerFactory.getLogger(ChannelsBackupWorker.class);
   public final static String BACKUP_NAME_INPUT = BuildConfig.APPLICATION_ID + ".BACKUP_NAME";
@@ -63,7 +67,6 @@ public class ChannelsBackupWorker extends Worker {
 
     final String backupFileName = getInputData().getString(BACKUP_NAME_INPUT);
     final String key = getInputData().getString(BACKUP_KEY_INPUT);
-    final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
     if (!WalletUtils.getEclairDBFile(getApplicationContext()).exists()) {
       log.info("no eclair db file yet...");
@@ -89,7 +92,7 @@ public class ChannelsBackupWorker extends Worker {
       final boolean shouldBackupToDrive = BackupUtils.GoogleDrive.isGDriveAvailable(getApplicationContext()) && BackupUtils.GoogleDrive.getSigninAccount(getApplicationContext()) != null;
       boolean driveBackupSuccessful = true;
       if (shouldBackupToDrive) {
-        driveBackupSuccessful = saveToGoogleDrive(prefs, getApplicationContext(), encryptedBackup, backupFileName);
+        driveBackupSuccessful = saveToGoogleDrive(getApplicationContext(), encryptedBackup, backupFileName);
       }
 
       // 3 - save to local
@@ -108,19 +111,19 @@ public class ChannelsBackupWorker extends Worker {
     }
   }
 
+  /**
+   * This method creates an encrypted byte array from the eclair DB backup file (.bak) created by the eclair-core backup mechanism.
+   * <p>
+   * This backup is encrypted with the wallet's pk.
+   *
+   * @throws IOException
+   * @throws GeneralSecurityException
+   */
   private byte[] getEncryptedBackup(final Context context, final AesCbcWithIntegrity.SecretKeys sk) throws IOException, GeneralSecurityException {
-    final File eclairDBFile = WalletUtils.getEclairDBFile(context);
+    final File eclairDBFile = WalletUtils.getEclairDBFileBak(context);
     final EncryptedBackup backup = EncryptedBackup.encrypt(Files.toByteArray(eclairDBFile), sk, EncryptedBackup.BACKUP_VERSION_2);
     return backup.write();
   }
-//
-//  public static File getLocalBackupDir() {
-//    return new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), Constants.LOCAL_BACKUP_DIR);
-//  }
-//
-//  public static File getLocalBackup(final Context context, final String backupFileName) {
-//    return new File(getLocalBackupDir(), backupFileName);
-//  }
 
   private boolean saveToLocal(final byte[] encryptedBackup, final String backupFileName) {
     try {
@@ -133,22 +136,7 @@ public class ChannelsBackupWorker extends Worker {
     }
   }
 
-//  /**
-//   * Checks if external storage is available for read and write
-//   */
-//  public boolean isExternalStorageWritable() {
-//    return Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState());
-//  }
-//
-//  /**
-//   * Checks if external storage is available to at least read
-//   */
-//  public boolean isExternalStorageReadable() {
-//    final String state = Environment.getExternalStorageState();
-//    return Environment.MEDIA_MOUNTED.equals(state) || Environment.MEDIA_MOUNTED_READ_ONLY.equals(state);
-//  }
-
-  private boolean saveToGoogleDrive(final SharedPreferences prefs, final Context context, final byte[] encryptedBackup, final String backupFileName) {
+  private boolean saveToGoogleDrive(final Context context, final byte[] encryptedBackup, final String backupFileName) {
     try {
       // 1 - retrieve existing backup so we know whether we have to create a new one, or update existing file
       final DriveResourceClient driveResourceClient = Drive.getDriveResourceClient(context, Objects.requireNonNull(BackupUtils.GoogleDrive.getSigninAccount(context)));

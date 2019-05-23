@@ -27,6 +27,7 @@ import fr.acinq.bitcoin.*;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.ShortChannelId;
 import fr.acinq.eclair.channel.*;
+import fr.acinq.eclair.db.BackupCompleted;
 import fr.acinq.eclair.payment.PaymentLifecycle;
 import fr.acinq.eclair.payment.PaymentReceived;
 import fr.acinq.eclair.payment.PaymentRequest;
@@ -223,8 +224,8 @@ public class NodeSupervisor extends UntypedActor {
         channelsRefreshScheduler.tell(Constants.REFRESH, null);
       }
     }
-    // ---- channel must be saved
-    else if (message instanceof ChannelPersisted) {
+    // ---- backup file must be saved (on disk/gdrive) after backup by eclair-core is done. We save the .bak file.
+    else if (message instanceof BackupCompleted) {
       WorkManager.getInstance()
         .beginUniqueWork("ChannelsBackup", ExistingWorkPolicy.REPLACE, channelsBackupWork)
         .enqueue();

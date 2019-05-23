@@ -30,12 +30,9 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.text.Html;
 import android.view.View;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.common.io.Files;
 import fr.acinq.bitcoin.DeterministicWallet;
 import fr.acinq.eclair.Kit;
@@ -43,6 +40,7 @@ import fr.acinq.eclair.Setup;
 import fr.acinq.eclair.blockchain.electrum.ElectrumEclairWallet;
 import fr.acinq.eclair.channel.ChannelEvent;
 import fr.acinq.eclair.crypto.LocalKeyManager;
+import fr.acinq.eclair.db.BackupEvent;
 import fr.acinq.eclair.payment.PaymentEvent;
 import fr.acinq.eclair.payment.PaymentLifecycle;
 import fr.acinq.eclair.router.SyncProgress;
@@ -79,8 +77,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.security.GeneralSecurityException;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 
@@ -491,6 +487,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
         // gui updater actor
         final ActorRef nodeSupervisor = app.system.actorOf(Props.create(NodeSupervisor.class, app.getDBHelper(),
           app.seedHash.get(), app.backupKey_v2.get(), paymentsRefreshScheduler, channelsRefreshScheduler, balanceRefreshScheduler), "NodeSupervisor");
+        app.system.eventStream().subscribe(nodeSupervisor, BackupEvent.class);
         app.system.eventStream().subscribe(nodeSupervisor, ChannelEvent.class);
         app.system.eventStream().subscribe(nodeSupervisor, SyncProgress.class);
         app.system.eventStream().subscribe(nodeSupervisor, PaymentEvent.class);

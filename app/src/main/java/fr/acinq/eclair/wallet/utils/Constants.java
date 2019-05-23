@@ -58,6 +58,7 @@ public interface Constants {
 
   String ECLAIR_DATADIR = "eclair-wallet-data";
   String ECLAIR_DB_FILE = "eclair.sqlite";
+  String ECLAIR_DB_FILE_BAK = "eclair.sqlite.bak";
   String NETWORK_DB_FILE = "network.sqlite";
   String WALLET_DB_FILE = "wallet.sqlite";
   String LOGS_DIR = "logs";
