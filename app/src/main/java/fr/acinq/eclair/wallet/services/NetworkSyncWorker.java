@@ -66,9 +66,9 @@ public class NetworkSyncWorker extends Worker {
     }
     if (liteSetup != null && liteSetup.nodeParams() != null) {
       try {
-        liteSetup.nodeParams().channelsDb().close(); // eclair.sqlite
-        liteSetup.nodeParams().networkDb().close(); // network.sqlite
-        liteSetup.nodeParams().auditDb().close(); // audit.sqlite
+        liteSetup.nodeParams().db().channels().close(); // eclair.sqlite
+        liteSetup.nodeParams().db().network().close(); // network.sqlite
+        liteSetup.nodeParams().db().audit().close(); // audit.sqlite
       } catch (Throwable t) {
         log.error("could not close at least one database connection opened by litesetup", t);
       }
@@ -86,7 +86,7 @@ public class NetworkSyncWorker extends Worker {
     } else {
       try {
         Class.forName("org.sqlite.JDBC");
-        liteSetup = new SyncLiteSetup(new File(context.getFilesDir(), Constants.ECLAIR_DATADIR), ConfigFactory.empty(), Constants.ACINQ_NODE_URI, system);
+        liteSetup = new SyncLiteSetup(new File(context.getFilesDir(), Constants.ECLAIR_DATADIR), ConfigFactory.empty(), Constants.ACINQ_NODE_URI, Option.empty(), system);
         Await.result(liteSetup.sync(), Duration.Inf());
         log.info("sync has completed");
         return Result.success();
