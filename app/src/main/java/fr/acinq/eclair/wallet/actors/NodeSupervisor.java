@@ -245,8 +245,8 @@ public class NodeSupervisor extends UntypedActor {
       channelsRefreshScheduler.tell(Constants.REFRESH, null);
     }
     // ---- channel is in error
-    else if (message instanceof ChannelFailed) {
-      final ChannelFailed event = (ChannelFailed) message;
+    else if (message instanceof ChannelErrorOccured) {
+      final ChannelErrorOccured event = (ChannelErrorOccured) message;
       final LocalChannel c = activeChannelsMap.get(event.channel());
       if (c != null) {
         if (event.error() instanceof Channel.LocalError) {

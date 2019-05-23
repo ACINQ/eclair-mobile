@@ -245,7 +245,6 @@ public class RestoreChannelsBackupActivity extends ChannelsBackupBaseActivity {
                 final byte[] content = new byte[driveInputStream.available()];
                 driveInputStream.read(content);
                 // decrypt content
-
                 final BackupScan gdriveBackup = decryptFile(content, modifiedDate, BackupTypes.GDRIVE);
                 gdriveBackup.setIsFromDevice(remoteDeviceId == null || deviceId.equals(remoteDeviceId));
                 expectedBackupsMap.put(BackupTypes.GDRIVE, Option.apply(gdriveBackup));
@@ -282,7 +281,7 @@ public class RestoreChannelsBackupActivity extends ChannelsBackupBaseActivity {
     Files.write(decryptedContent, decryptedFile);
     final Connection decryptedFileConn = DriverManager.getConnection("jdbc:sqlite:" + decryptedFile.getPath());
     final ChannelsDb db = new SqliteChannelsDb(decryptedFileConn);
-    final Seq<HasCommitments> commitments = db.listChannels();
+    final Seq<HasCommitments> commitments = db.listLocalChannels();
     final int channelsCount = commitments.size();
     final List<Long> indexes = new ArrayList<>();
     final Iterator<HasCommitments> commitmentsIt = commitments.iterator();
