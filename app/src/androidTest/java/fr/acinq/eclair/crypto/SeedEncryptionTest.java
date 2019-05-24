@@ -17,7 +17,8 @@
 package fr.acinq.eclair.crypto;
 
 import com.tozny.crypto.android.AesCbcWithIntegrity;
-
+import fr.acinq.eclair.wallet.utils.WalletUtils;
+import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -27,8 +28,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
-
-import fr.acinq.eclair.wallet.utils.WalletUtils;
 
 public class SeedEncryptionTest {
 
@@ -44,7 +43,7 @@ public class SeedEncryptionTest {
     AesCbcWithIntegrity.SecretKeys keys = AesCbcWithIntegrity.generateKeyFromPassword(password, salt);
     AesCbcWithIntegrity.CipherTextIvMac civ = AesCbcWithIntegrity.encrypt(plaintext, keys);
     byte[] decrypted = AesCbcWithIntegrity.decrypt(civ, keys);
-    assert (AesCbcWithIntegrity.constantTimeEq(plaintext, decrypted));
+    Assert.assertTrue(AesCbcWithIntegrity.constantTimeEq(plaintext, decrypted));
   }
 
   @Test
@@ -54,7 +53,7 @@ public class SeedEncryptionTest {
     final File datadir = temp.newFolder("datadir_temp");
     WalletUtils.writeSeedFile(datadir, seed, password);
     final byte[] decrypted = WalletUtils.readSeedFile(datadir, password);
-    assert (AesCbcWithIntegrity.constantTimeEq(seed, decrypted));
+    Assert.assertTrue(AesCbcWithIntegrity.constantTimeEq(seed, decrypted));
   }
 
   @Test(expected = GeneralSecurityException.class)

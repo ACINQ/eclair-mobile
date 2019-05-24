@@ -17,16 +17,15 @@
 package fr.acinq.eclair.crypto;
 
 import com.tozny.crypto.android.AesCbcWithIntegrity;
-
-import org.junit.Test;
-
-import java.security.GeneralSecurityException;
-import java.security.SecureRandom;
-
 import fr.acinq.bitcoin.DeterministicWallet;
 import fr.acinq.eclair.wallet.utils.EncryptedBackup;
 import fr.acinq.eclair.wallet.utils.EncryptedData;
+import org.junit.Assert;
+import org.junit.Test;
 import scodec.bits.ByteVector;
+
+import java.security.GeneralSecurityException;
+import java.security.SecureRandom;
 
 public class BackupEncryptionTest {
 
@@ -50,7 +49,7 @@ public class BackupEncryptionTest {
     EncryptedBackup encrypted = EncryptedBackup.encrypt(plaintext, key, EncryptedBackup.BACKUP_VERSION_1);
     byte[] decrypted = encrypted.decrypt(key);
 
-    assert (AesCbcWithIntegrity.constantTimeEq(plaintext, decrypted));
+    Assert.assertTrue(AesCbcWithIntegrity.constantTimeEq(plaintext, decrypted));
   }
 
   @Test
@@ -73,7 +72,7 @@ public class BackupEncryptionTest {
     EncryptedBackup encrypted = EncryptedBackup.encrypt(plaintext, key, EncryptedBackup.BACKUP_VERSION_2);
     byte[] decrypted = encrypted.decrypt(key);
 
-    assert (AesCbcWithIntegrity.constantTimeEq(plaintext, decrypted));
+    Assert.assertTrue(AesCbcWithIntegrity.constantTimeEq(plaintext, decrypted));
   }
 
 }
