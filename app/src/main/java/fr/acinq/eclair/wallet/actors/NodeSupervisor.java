@@ -28,6 +28,7 @@ import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.ShortChannelId;
 import fr.acinq.eclair.channel.*;
 import fr.acinq.eclair.db.BackupCompleted;
+import fr.acinq.eclair.db.BackupCompleted$;
 import fr.acinq.eclair.payment.PaymentLifecycle;
 import fr.acinq.eclair.payment.PaymentReceived;
 import fr.acinq.eclair.payment.PaymentRequest;
@@ -64,7 +65,7 @@ public class NodeSupervisor extends UntypedActor {
 
   private final static Logger log = LoggerFactory.getLogger(NodeSupervisor.class);
   private DBHelper dbHelper;
-  private OneTimeWorkRequest channelsBackupWork;
+  private OneTimeWorkRequest channelsBackupRequest;
   private ActorRef paymentRefreshScheduler;
   private ActorRef channelsRefreshScheduler;
   private ActorRef balanceRefreshScheduler;
@@ -72,7 +73,7 @@ public class NodeSupervisor extends UntypedActor {
   public NodeSupervisor(final DBHelper dbHelper, final String seedHash, final ByteVector32 backupKey,
                         final ActorRef paymentRefreshScheduler, final ActorRef channelsRefreshScheduler, final ActorRef balanceRefreshScheduler) {
     this.dbHelper = dbHelper;
-    this.channelsBackupWork = WalletUtils.generateBackupRequest(seedHash, backupKey);
+    this.channelsBackupRequest = WalletUtils.generateBackupRequest(seedHash, backupKey);
     this.paymentRefreshScheduler = paymentRefreshScheduler;
     this.channelsRefreshScheduler = channelsRefreshScheduler;
     this.balanceRefreshScheduler = balanceRefreshScheduler;
@@ -225,9 +226,10 @@ public class NodeSupervisor extends UntypedActor {
       }
     }
     // ---- backup file must be saved (on disk/gdrive) after backup by eclair-core is done. We save the .bak file.
-    else if (message instanceof BackupCompleted) {
+    else if (message instanceof BackupCompleted$) {
+      log.info("received BackupCompleted event, scheduling backup work");
       WorkManager.getInstance()
-        .beginUniqueWork("ChannelsBackup", ExistingWorkPolicy.REPLACE, channelsBackupWork)
+        .beginUniqueWork("ChannelsBackup", ExistingWorkPolicy.REPLACE, channelsBackupRequest)
         .enqueue();
     }
     // ---- network map syncing
