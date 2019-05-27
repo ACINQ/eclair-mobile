@@ -153,7 +153,7 @@ public class CreateSeedActivity extends EclairActivity implements EclairActivity
   }
 
   public void goToVerificationStep(final View view) {
-    verifHandler.removeCallbacks(null);
+    verifHandler.removeCallbacksAndMessages(null);
     if (mWalletCheckWordsFragment != null && mWalletCheckWordsFragment.mBinding != null) {
       mWalletCheckWordsFragment.mBinding.verificationError.setVisibility(View.GONE);
       mWalletCheckWordsFragment.mBinding.inputGrid.clearAnimation();
@@ -188,7 +188,7 @@ public class CreateSeedActivity extends EclairActivity implements EclairActivity
    * Check that the user has correctly backed up the mMnemonics.
    */
   public void verifyUserBackup(View view) {
-    verifHandler.removeCallbacks(null);
+    verifHandler.removeCallbacksAndMessages(null);
     if (mWalletCheckWordsFragment != null && mWalletCheckWordsFragment.mBinding != null) {
       mWalletCheckWordsFragment.mBinding.inputGrid.clearAnimation();
       mWalletCheckWordsFragment.mBinding.verificationError.setVisibility(View.GONE);
@@ -213,14 +213,12 @@ public class CreateSeedActivity extends EclairActivity implements EclairActivity
       }
     } catch (Exception e) {
       if (mWalletCheckWordsFragment != null && mWalletCheckWordsFragment.mBinding != null) {
-        TransitionManager.beginDelayedTransition(mWalletCheckWordsFragment.mBinding.transitionsLayout);
         mWalletCheckWordsFragment.mBinding.inputGrid.startAnimation(mErrorAnimation);
         mWalletCheckWordsFragment.mBinding.verificationError.setVisibility(View.VISIBLE);
       }
       verifHandler.postDelayed(() -> {
         setUpCheckWords();
         if (mWalletCheckWordsFragment != null && mWalletCheckWordsFragment.mBinding != null) {
-          TransitionManager.beginDelayedTransition(mWalletCheckWordsFragment.mBinding.transitionsLayout);
           mWalletCheckWordsFragment.mBinding.verificationError.setVisibility(View.GONE);
         }
       }, 2000);
@@ -235,7 +233,6 @@ public class CreateSeedActivity extends EclairActivity implements EclairActivity
 
   public void goToPassphraseConfirmStep(final View view) {
     if (mWalletPassphraseFragment != null && mWalletPassphraseFragment.mBinding != null) {
-      TransitionManager.beginDelayedTransition(mWalletPassphraseFragment.mBinding.transitionsLayout);
       mWalletPassphraseFragment.mBinding.passphraseError.setVisibility(View.GONE);
     }
     if (mWalletPassphraseConfirmFragment != null && mWalletPassphraseConfirmFragment.mBinding != null) {
@@ -268,7 +265,6 @@ public class CreateSeedActivity extends EclairActivity implements EclairActivity
       } else {
         goToPassphraseStep(view);
         if (mWalletPassphraseFragment != null && mWalletPassphraseFragment.mBinding != null) {
-          TransitionManager.beginDelayedTransition(mWalletPassphraseFragment.mBinding.transitionsLayout);
           mWalletPassphraseFragment.mBinding.passphraseError.setVisibility(View.VISIBLE);
           mWalletPassphraseFragment.mBinding.passphraseInput.startAnimation(mErrorAnimation);
         }
@@ -279,9 +275,6 @@ public class CreateSeedActivity extends EclairActivity implements EclairActivity
   }
 
   public void encryptSeed(final View view) {
-    if (mWalletPassphraseFragment != null && mWalletPassphraseFragment.mBinding != null) {
-      TransitionManager.beginDelayedTransition(mWalletPassphraseFragment.mBinding.transitionsLayout);
-    }
     if (mWalletEncryptFragment != null && mWalletEncryptFragment.mBinding != null) {
       mWalletEncryptFragment.mBinding.encryptionError.setVisibility(View.GONE);
     }
@@ -335,7 +328,6 @@ public class CreateSeedActivity extends EclairActivity implements EclairActivity
     if (mWalletEncryptFragment != null && mWalletEncryptFragment.mBinding != null) {
       mWalletEncryptFragment.mBinding.encryptionError.setVisibility(View.VISIBLE);
       mWalletEncryptFragment.mBinding.encryptionError.setText(message);
-      TransitionManager.beginDelayedTransition(mWalletEncryptFragment.mBinding.transitionsLayout);
     }
     mBinding.setCreationStep(4);
     goToEncryptionStep(null);

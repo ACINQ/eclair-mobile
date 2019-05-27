@@ -143,7 +143,6 @@ public class RestoreSeedActivity extends EclairActivity implements EclairActivit
 
   private void handleSeedError(final int errorCode, @Nullable final String message) {
     if (mWalletImportSeedFragment != null && mWalletImportSeedFragment.mBinding != null) {
-      TransitionManager.beginDelayedTransition(mWalletImportSeedFragment.mBinding.transitionsLayout);
       mWalletImportSeedFragment.mBinding.mnemonicsInput.startAnimation(mErrorAnimation);
       if (message != null) {
         mWalletImportSeedFragment.mBinding.seedError.setText(getString(errorCode, message));
@@ -152,7 +151,6 @@ public class RestoreSeedActivity extends EclairActivity implements EclairActivit
       }
       mWalletImportSeedFragment.mBinding.seedError.setVisibility(View.VISIBLE);
       seedErrorHandler.postDelayed(() -> {
-        TransitionManager.beginDelayedTransition(mWalletImportSeedFragment.mBinding.transitionsLayout);
         mWalletImportSeedFragment.mBinding.seedError.setVisibility(View.GONE);
       }, 5000);
     } else {
@@ -177,9 +175,6 @@ public class RestoreSeedActivity extends EclairActivity implements EclairActivit
   }
 
   public void encryptSeed(final View view) {
-    if (mWalletPassphraseFragment != null && mWalletPassphraseFragment.mBinding != null) {
-      TransitionManager.beginDelayedTransition(mWalletPassphraseFragment.mBinding.transitionsLayout);
-    }
     if (mWalletEncryptFragment != null && mWalletEncryptFragment.mBinding != null) {
       mWalletEncryptFragment.mBinding.encryptionError.setVisibility(View.GONE);
     }
@@ -212,7 +207,6 @@ public class RestoreSeedActivity extends EclairActivity implements EclairActivit
   public void onEncryptSeedFailure(String message) {
     if (mWalletEncryptFragment != null && mWalletEncryptFragment.mBinding != null) {
       mBinding.setImportStep(2);
-      TransitionManager.beginDelayedTransition(mWalletEncryptFragment.mBinding.transitionsLayout);
       goToEncryption();
       mWalletEncryptFragment.mBinding.encryptionError.setText(message);
       mWalletEncryptFragment.mBinding.encryptionError.setVisibility(View.VISIBLE);

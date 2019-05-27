@@ -16,7 +16,7 @@
 
 <set xmlns:android="http://schemas.android.com/apk/res/android">
   <translate
-    android:duration="40"
+    android:duration="20"
     android:fromXDelta="-7"
     android:repeatCount="5"
     android:repeatMode="reverse"
