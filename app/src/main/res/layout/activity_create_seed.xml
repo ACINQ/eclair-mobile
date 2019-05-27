@@ -32,7 +32,6 @@
   <android.support.constraint.ConstraintLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/primary"
     tools:context=".activities.CreateSeedActivity">
 
     <fr.acinq.eclair.wallet.customviews.CustomViewPager
@@ -47,12 +46,11 @@
       android:id="@+id/progress"
       android:layout_width="wrap_content"
       android:layout_height="0dp"
-      android:layout_marginBottom="@dimen/space_xs"
       android:layout_marginTop="@dimen/space_xs"
-      android:background="@drawable/rounded_corner_primary"
       android:gravity="center"
-      android:paddingEnd="@dimen/space_xs"
       android:paddingStart="@dimen/space_xs"
+      android:paddingEnd="@dimen/space_xs"
+      android:paddingBottom="@dimen/space_xxs"
       android:visibility="@{creationStep &lt; Constants.SEED_SPAWN_COMPLETE ? View.VISIBLE : View.GONE}"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintEnd_toEndOf="parent"

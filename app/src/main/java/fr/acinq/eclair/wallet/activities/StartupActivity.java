@@ -30,12 +30,9 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.text.Html;
 import android.view.View;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.common.io.Files;
 import fr.acinq.bitcoin.DeterministicWallet;
 import fr.acinq.eclair.Kit;
@@ -43,6 +40,7 @@ import fr.acinq.eclair.Setup;
 import fr.acinq.eclair.blockchain.electrum.ElectrumEclairWallet;
 import fr.acinq.eclair.channel.ChannelEvent;
 import fr.acinq.eclair.crypto.LocalKeyManager;
+import fr.acinq.eclair.db.BackupEvent;
 import fr.acinq.eclair.payment.PaymentEvent;
 import fr.acinq.eclair.payment.PaymentLifecycle;
 import fr.acinq.eclair.router.SyncProgress;
@@ -54,6 +52,7 @@ import fr.acinq.eclair.wallet.actors.NodeSupervisor;
 import fr.acinq.eclair.wallet.actors.RefreshScheduler;
 import fr.acinq.eclair.wallet.databinding.ActivityStartupBinding;
 import fr.acinq.eclair.wallet.fragments.PinDialog;
+import fr.acinq.eclair.wallet.services.BackupUtils;
 import fr.acinq.eclair.wallet.services.CheckElectrumWorker;
 import fr.acinq.eclair.wallet.services.NetworkSyncWorker;
 import fr.acinq.eclair.wallet.utils.Constants;
@@ -76,9 +75,8 @@ import scodec.bits.ByteVector$;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.UnknownHostException;
 import java.security.GeneralSecurityException;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 
@@ -91,7 +89,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
   private boolean isStartingNode = false;
   public final static String ORIGIN = BuildConfig.APPLICATION_ID + "ORIGIN";
   public final static String ORIGIN_EXTRA = BuildConfig.APPLICATION_ID + "ORIGIN_EXTRA";
-  private static final HashSet<Integer> BREAKING_VERSIONS = new HashSet<>(Arrays.asList(14));
+  private boolean checkExternalStorageState = true;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -124,11 +122,6 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
   protected void onDestroy() {
     EventBus.getDefault().unregister(this);
     super.onDestroy();
-  }
-
-  private void showBreaking() {
-    mBinding.startupError.setVisibility(View.VISIBLE);
-    mBinding.startupErrorText.setText(Html.fromHtml(getString(R.string.start_error_breaking_changes)));
   }
 
   private void showError(final String message, final boolean showRestart, final boolean showFAQ) {
@@ -168,6 +161,14 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
       log.debug("wallet datadir checked failed");
       return;
     }
+    // check that external storage is available ; if not, print a warning
+    if (prefs.getBoolean(Constants.SETTING_HAS_STARTED_ONCE, false) && checkExternalStorageState && !BackupUtils.Local.isExternalStorageWritable()) {
+      getCustomDialog(getString(R.string.backup_external_storage_error)).setPositiveButton(R.string.btn_ok, (dialog, which) -> {
+        checkExternalStorageState = false; // let the user start the app anyway
+        checkup();
+      }).show();
+      return;
+    }
 
     startNode(datadir, prefs);
   }
@@ -176,15 +177,8 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
   private boolean checkAppVersion(final File datadir, final SharedPreferences prefs) {
     final int lastUsedVersion = prefs.getInt(Constants.SETTING_LAST_USED_VERSION, 0);
     final boolean startedOnce = prefs.getBoolean(Constants.SETTING_HAS_STARTED_ONCE, false);
-    if (lastUsedVersion > 0 && startedOnce) { // only for
-      if (lastUsedVersion < BuildConfig.VERSION_CODE) {
-        if (BREAKING_VERSIONS.contains(BuildConfig.VERSION_CODE)) {
-          log.error("version {} cannot migrate from {}", BuildConfig.VERSION_CODE, lastUsedVersion);
-          showBreaking();
-          return false;
-        }
-      }
-      // migration scripts based on last used version
+    // migration script only if app has already been started
+    if (lastUsedVersion > 0 && startedOnce) {
       if (lastUsedVersion <= 15 && "testnet".equals(BuildConfig.CHAIN)) {
         // version 16 breaks the application's data folder structure
         migrateTestnetSqlite(datadir);
@@ -259,31 +253,18 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
     }
   }
 
-  private boolean checkChannelsBackupRestore() {
-    if (!WalletUtils.getEclairDBFile(getApplicationContext()).exists()) {
-      log.debug("could not find eclair DB file in datadir, attempting to restore backup");
-      final int connectionResult = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(getApplicationContext());
-      if (connectionResult != ConnectionResult.SUCCESS) {
-        return true;
-      } else {
-        final Intent intent = new Intent(getBaseContext(), RestoreChannelsBackupActivity.class);
-        startActivity(intent);
+  private boolean shouldRestoreChannelsBackup(final SharedPreferences prefs) {
+    if (prefs.getInt(Constants.SETTING_WALLET_ORIGIN, Constants.WALLET_ORIGIN_RESTORED_FROM_SEED) == Constants.WALLET_ORIGIN_RESTORED_FROM_SEED
+      && !prefs.getBoolean(Constants.SETTING_CHANNELS_RESTORE_DONE, false)) {
+      if (WalletUtils.getEclairDBFile(getApplicationContext()).exists()) {
+        log.warn("inconsistent state: wallet file exists but prefs want to restore backup");
         return false;
+      } else {
+        return true;
       }
-    }
-    return true;
-  }
-
-  private boolean checkChannelsBackup(final SharedPreferences prefs) {
-    final int connectionResult = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(getApplicationContext());
-    if (connectionResult == ConnectionResult.SUCCESS
-      && !prefs.getBoolean(Constants.SETTING_CHANNELS_RESTORE_DONE, false)
-      && !prefs.getBoolean(Constants.SETTING_CHANNELS_BACKUP_SEEN_ONCE, false)
-      && !prefs.getBoolean(Constants.SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_ENABLED, false)) {
-      startActivity(new Intent(getBaseContext(), SetupChannelsBackupActivity.class));
+    } else {
       return false;
     }
-    return true;
   }
 
   /**
@@ -346,22 +327,25 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
           final DeterministicWallet.ExtendedPrivateKey pk = DeterministicWallet.derivePrivateKey(
             DeterministicWallet.generate(seed), LocalKeyManager.nodeKeyBasePath(WalletUtils.getChainHash()));
           app.pin.set(password);
-          app.seedHash.set(pk.privateKey().publicKey().hash160().toString());
+          app.seedHash.set(pk.privateKey().publicKey().hash160().toHex());
           app.backupKey_v1.set(EncryptedBackup.generateBackupKey_v1(pk));
           app.backupKey_v2.set(EncryptedBackup.generateBackupKey_v2(pk));
 
-          if (!prefs.getBoolean(Constants.SETTING_HAS_STARTED_ONCE, false)) {
-            // restore channels only if the seed itself was restored
-            if (prefs.getInt(Constants.SETTING_WALLET_ORIGIN, 0) == Constants.WALLET_ORIGIN_RESTORED_FROM_SEED
-              && !prefs.getBoolean(Constants.SETTING_CHANNELS_RESTORE_DONE, false)) {
-              if (!checkChannelsBackupRestore()) return;
-            }
-
-            // check that a backup type has been set and required authorizations are granted
-            if (!prefs.getBoolean(Constants.SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_ENABLED, false)) {
-              if (!checkChannelsBackup(prefs)) return;
-            }
+          // stop if we need to restore channels backup
+          if (shouldRestoreChannelsBackup(prefs)) {
+            startActivity(new Intent(getBaseContext(), RestoreChannelsBackupActivity.class));
+            return;
           }
+          // stop if no access to local storage for local backup
+          if (!BackupUtils.Local.hasLocalAccess(getApplicationContext())) {
+            final Intent backupSetupIntent = new Intent(getBaseContext(), SetupChannelsBackupActivity.class);
+            if (prefs.getBoolean(Constants.SETTING_HAS_STARTED_ONCE, false)) {
+              backupSetupIntent.putExtra(SetupChannelsBackupActivity.EXTRA_SETUP_IGNORE_GDRIVE_BACKUP, true);
+            }
+            startActivity(backupSetupIntent);
+            return;
+          }
+
           runOnUiThread(() -> mBinding.startupLog.setText(getString(R.string.start_log_seed_ok)));
           isStartingNode = true;
           new StartupTask().execute(app, seed);
@@ -373,11 +357,16 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
             showError(getString(R.string.start_error_wrong_password));
             new Handler().postDelayed(() -> startNode(datadir, prefs), 1400);
           });
-        } catch (Throwable t) {
-          log.error("seed is unreadable", t);
+        } catch (IOException | IllegalAccessException e) {
+          log.error("seed file unreadable");
           clearApp();
           isStartingNode = false;
           runOnUiThread(() -> showError(getString(R.string.start_error_unreadable_seed), true, true));
+        } catch (Throwable t) {
+          log.error("could not start eclair startup task: ", t);
+          clearApp();
+          isStartingNode = false;
+          runOnUiThread(() -> showError(getString(R.string.start_error_generic), true, true));
         }
       }
     }.start();
@@ -512,6 +501,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
         // gui updater actor
         final ActorRef nodeSupervisor = app.system.actorOf(Props.create(NodeSupervisor.class, app.getDBHelper(),
           app.seedHash.get(), app.backupKey_v2.get(), paymentsRefreshScheduler, channelsRefreshScheduler, balanceRefreshScheduler), "NodeSupervisor");
+        app.system.eventStream().subscribe(nodeSupervisor, BackupEvent.class);
         app.system.eventStream().subscribe(nodeSupervisor, ChannelEvent.class);
         app.system.eventStream().subscribe(nodeSupervisor, SyncProgress.class);
         app.system.eventStream().subscribe(nodeSupervisor, PaymentEvent.class);
@@ -530,7 +520,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
         publishProgress(app.getString(R.string.start_log_done));
         return SUCCESS;
 
-      } catch (EclairException.NetworkException t) {
+      } catch (EclairException.NetworkException | UnknownHostException t) {
         return NETWORK_ERROR;
       } catch (Throwable t) {
         log.error("failed to start eclair", t);

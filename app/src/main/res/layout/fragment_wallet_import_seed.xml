@@ -136,7 +136,7 @@
         android:layout_width="6dp"
         android:layout_height="@dimen/space_md"
         android:layout_gravity="center"
-        android:background="@color/primary_dark_x1"
+        android:background="@color/black_low_op"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/mnemonics_layout" />

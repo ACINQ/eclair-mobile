@@ -55,6 +55,7 @@ import fr.acinq.eclair.wallet.events.*;
 import fr.acinq.eclair.wallet.fragments.ChannelsListFragment;
 import fr.acinq.eclair.wallet.fragments.PaymentsListFragment;
 import fr.acinq.eclair.wallet.fragments.ReceivePaymentFragment;
+import fr.acinq.eclair.wallet.services.BackupUtils;
 import fr.acinq.eclair.wallet.services.CheckElectrumWorker;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.TechnicalHelper;
@@ -268,7 +269,7 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
     mBinding.balanceTotal.refreshUnits();
     mBinding.balanceOnchain.refreshUnits();
     mBinding.balanceLightning.refreshUnits();
-    refreshChannelsBackupWarning(PreferenceManager.getDefaultSharedPreferences(this));
+    refreshChannelsBackupWarning();
   }
 
   @Override
@@ -364,7 +365,7 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
   @Override
   public void onSharedPreferenceChanged(final SharedPreferences prefs, final String key) {
     if (Constants.SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_ENABLED.equals(key)) {
-      refreshChannelsBackupWarning(prefs);
+      refreshChannelsBackupWarning();
     } else if (Constants.SETTING_BTC_UNIT.equals(key) || Constants.SETTING_SELECTED_FIAT_CURRENCY.equals(key)) {
       mBinding.balanceTotal.refreshUnits();
       mBinding.balanceOnchain.refreshUnits();
@@ -372,14 +373,22 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
     }
   }
 
-  private void refreshChannelsBackupWarning(SharedPreferences prefs) {
-    final boolean isBackupEnabled = prefs.getBoolean(Constants.SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_ENABLED, false);
-    if (!isBackupEnabled) {
-      mBinding.channelsBackupWarning.startAnimation(mBlinkingAnimation);
+  private void refreshChannelsBackupWarning() {
+    final boolean isBackupEnabled = BackupUtils.GoogleDrive.isGDriveEnabled(getApplicationContext());
+    if (isBackupEnabled) {
+      // check that we also have access
+      if (BackupUtils.GoogleDrive.getSigninAccount(getApplicationContext()) == null) {
+        mBinding.channelsBackupWarning.startAnimation(mBlinkingAnimation);
+        mBinding.setChannelsBackupEnabled(false);
+        BackupUtils.GoogleDrive.disableGDriveBackup(getApplicationContext());
+      } else {
+        mBinding.channelsBackupWarning.clearAnimation();
+        mBinding.setChannelsBackupEnabled(true);
+      }
     } else {
-      mBinding.channelsBackupWarning.clearAnimation();
+      mBinding.channelsBackupWarning.startAnimation(mBlinkingAnimation);
+      mBinding.setChannelsBackupEnabled(false);
     }
-    mBinding.setChannelsBackupEnabled(isBackupEnabled);
   }
 
   private void displayIntro(final SharedPreferences prefs) {

@@ -448,7 +448,7 @@ public class SendPaymentActivity extends EclairActivity {
       app.sendAllOnchain(bitcoinURI.address, feesPerKw);
     } else {
       log.info("(on-chain) sending {} msat for uri {}", amountSat, bitcoinURI.toString());
-      app.sendBitcoinPayment(amountSat, bitcoinURI.address, feesPerKw);
+      app.sendOnchain(amountSat, bitcoinURI.address, feesPerKw);
     }
   }
 

@@ -14,11 +14,16 @@
   ~ limitations under the License.
   -->
 
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
-  <item>
-    <shape android:shape="rectangle">
-      <solid android:color="@color/grey_0_light_x2"/>
-      <corners android:bottomLeftRadius="4dp" android:bottomRightRadius="4dp" />
-    </shape>
-  </item>
-</selector>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+  android:width="24dp"
+  android:height="24dp"
+  android:viewportWidth="24"
+  android:viewportHeight="24">
+  <path
+    android:fillColor="#00000000"
+    android:pathData="M22,19a2,2 0,0 1,-2 2H4a2,2 0,0 1,-2 -2V5a2,2 0,0 1,2 -2h5l2,3h9a2,2 0,0 1,2 2z"
+    android:strokeWidth="2"
+    android:strokeColor="@color/grey_4"
+    android:strokeLineCap="round"
+    android:strokeLineJoin="round" />
+</vector>

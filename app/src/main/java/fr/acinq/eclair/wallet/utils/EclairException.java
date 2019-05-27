@@ -16,13 +16,11 @@
 
 package fr.acinq.eclair.wallet.utils;
 
+import fr.acinq.eclair.wallet.models.BackupTypes;
 import fr.acinq.eclair.wallet.models.BitcoinURI;
 
 public interface EclairException {
   class NetworkException extends RuntimeException {
-  }
-
-  class ExternalStorageNotAvailableException extends RuntimeException {
   }
 
   /**
@@ -43,4 +41,17 @@ public interface EclairException {
       super(s, throwable);
     }
   }
+
+  class ExternalStorageUnavailableException extends Exception {
+  }
+
+  class UnreadableBackupException extends RuntimeException {
+    public final BackupTypes type;
+
+    public UnreadableBackupException(final BackupTypes type, final String message) {
+      super(message);
+      this.type = type;
+    }
+  }
+
 }

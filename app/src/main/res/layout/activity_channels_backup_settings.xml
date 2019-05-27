@@ -27,110 +27,191 @@
       type="boolean" />
 
     <variable
-      name="accessDenied"
+      name="hasLocalAccess"
+      type="boolean" />
+
+    <variable
+      name="requestingGDriveAccess"
       type="boolean" />
 
   </data>
 
-  <ScrollView
+  <android.support.constraint.ConstraintLayout
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/white"
+    android:layout_height="wrap_content"
     tools:context=".activities.ChannelsBackupSettingsActivity">
 
-    <LinearLayout
+    <!-- Custom toolbar -->
+    <include
+      android:id="@+id/custom_toolbar"
+      layout="@layout/toolbar"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:orientation="vertical">
+      app:layout_constraintTop_toTopOf="parent" />
 
-      <!-- Custom toolbar -->
-      <include layout="@layout/toolbar" />
+    <ScrollView
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      app:layout_constrainedHeight="true"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintTop_toBottomOf="@+id/custom_toolbar">
 
-      <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:drawablePadding="@dimen/space_sm"
-        android:drawableStart="@drawable/ic_warning_tri"
-        android:padding="@dimen/space_md"
-        android:text="@string/backup_drive_unavailable"
-        android:visibility="@{!googleDriveAvailable ? View.VISIBLE : View.GONE}" />
+      <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-      <RelativeLayout
-        style="@style/ClickableLayout"
-        android:onClick="switchAccess"
-        android:padding="@dimen/space_md"
-        android:visibility="@{googleDriveAvailable ? View.VISIBLE : View.GONE}">
+        <TextView
+          android:id="@+id/instructions"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:lineSpacingMultiplier="1.1"
+          android:textColor="@color/grey_3"
+          android:padding="@dimen/space_md"
+          android:background="@color/grey_0_light_x2"
+          android:text="@string/backupsettings_instructions"
+          app:layout_constraintTop_toTopOf="parent" />
 
-        <LinearLayout
+        <View
+          android:id="@+id/local_separator"
+          style="@style/HLineSeparator"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toBottomOf="@id/instructions" />
+
+        <TextView
+          android:id="@+id/local_title"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
-          android:layout_alignParentStart="true"
+          android:layout_marginStart="@dimen/space_md"
+          android:layout_marginTop="@dimen/space_md"
           android:layout_marginEnd="@dimen/space_md"
-          android:layout_toStartOf="@+id/switch_button"
-          android:orientation="vertical">
+          android:alpha="@{hasLocalAccess ? 0.3f : 1f}"
+          android:text="@string/backupsettings_local_title"
+          android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+          app:layout_constrainedWidth="true"
+          app:layout_constraintEnd_toStartOf="@id/request_local_access_switch"
+          app:layout_constraintHorizontal_bias="0"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toBottomOf="@id/local_separator" />
 
-          <TextView
-            android:id="@+id/switch_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/backup_switch_button"
-            android:textSize="16sp" />
-
-          <TextView
-            android:id="@+id/switch_desc"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/setupbackup_subtitle_1"
-            android:textColor="@color/grey_2" />
-
-        </LinearLayout>
-
-        <Switch
-          android:id="@+id/switch_button"
+        <android.support.v7.widget.SwitchCompat
+          android:id="@+id/request_local_access_switch"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
-          android:layout_alignParentEnd="true"
-          android:clickable="false"
-          android:focusable="false" />
-
-      </RelativeLayout>
-
-      <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:visibility="@{!googleDriveAvailable || accessDenied ? View.GONE : View.VISIBLE}">
+          android:alpha="@{hasLocalAccess ? 0.5f : 1f}"
+          android:checked="@{hasLocalAccess}"
+          android:enabled="@{!hasLocalAccess}"
+          android:padding="@dimen/space_md"
+          app:layout_constraintBottom_toBottomOf="@id/local_title"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintTop_toTopOf="@id/local_title" />
 
         <TextView
-          android:id="@+id/existing_backup_state"
+          android:id="@+id/local_backup_status"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:layout_marginBottom="@dimen/space_xxs"
-          android:paddingEnd="@dimen/space_md"
-          android:paddingStart="@dimen/space_md"
-          android:text="@string/backup_drive_retrieving_meta"
-          android:textColor="@color/grey_2"
-          android:textSize="12sp"
-          android:textStyle="italic" />
+          android:layout_marginStart="@dimen/space_md"
+          android:layout_marginTop="@dimen/space_xxs"
+          android:layout_marginEnd="@dimen/space_md"
+          android:alpha="@{hasLocalAccess ? 0.3f : 1f}"
+          android:textSize="@dimen/text_sm"
+          android:visibility="gone"
+          app:layout_constraintTop_toBottomOf="@id/local_title" />
+
+        <View
+          android:id="@+id/gdrive_separator"
+          style="@style/HLineSeparator"
+          android:layout_marginTop="@dimen/space_md"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toBottomOf="@id/local_backup_status" />
 
         <TextView
-          android:id="@+id/access_account"
+          android:id="@+id/gdrive_title"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginStart="@dimen/space_md"
+          android:layout_marginTop="@dimen/space_md"
+          android:layout_marginEnd="@dimen/space_md"
+          android:text="@string/backupsettings_drive_title"
+          android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+          app:layout_constrainedWidth="true"
+          app:layout_constraintEnd_toStartOf="@id/request_gdrive_access_switch"
+          app:layout_constraintHorizontal_bias="0"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toBottomOf="@id/gdrive_separator" />
+
+        <ProgressBar
+          android:id="@+id/gdrive_access_progress_bar"
+          android:layout_width="24dp"
+          android:layout_height="24dp"
+          android:layout_marginEnd="@dimen/space_md_p"
+          android:indeterminateTint="@color/green"
+          android:visibility="@{requestingGDriveAccess ? View.VISIBLE : View.GONE}"
+          app:layout_constraintBottom_toBottomOf="@id/gdrive_title"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintTop_toTopOf="@id/gdrive_title" />
+
+        <android.support.v7.widget.SwitchCompat
+          android:id="@+id/request_gdrive_access_switch"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:alpha="@{requestingGDriveAccess ? 0.5f : 1f}"
+          android:enabled="@{!requestingGDriveAccess}"
+          android:padding="@dimen/space_md"
+          android:visibility="@{!requestingGDriveAccess &amp;&amp; googleDriveAvailable ? View.VISIBLE : View.GONE}"
+          app:layout_constraintBottom_toBottomOf="@id/gdrive_title"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintTop_toTopOf="@id/gdrive_title" />
+
+        <TextView
+          android:id="@+id/gdrive_backup_status"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:layout_marginBottom="@dimen/space_md"
-          android:paddingEnd="@dimen/space_md"
-          android:paddingStart="@dimen/space_md"
-          android:textColor="@color/grey_2"
-          android:textSize="12sp"
-          android:textStyle="italic" />
+          android:layout_marginStart="@dimen/space_md"
+          android:layout_marginTop="@dimen/space_xxs"
+          android:layout_marginEnd="@dimen/space_md"
+          android:lineSpacingMultiplier="1.2"
+          android:text="@string/backupsettings_drive_state_wait"
+          android:textColor="@color/grey_1"
+          android:textSize="@dimen/text_sm"
+          android:visibility="@{googleDriveAvailable ? View.VISIBLE : View.GONE}"
+          app:layout_constraintTop_toBottomOf="@id/gdrive_title" />
 
-      </LinearLayout>
+        <View
+          android:id="@+id/gdrive_help_separator"
+          style="@style/HSeparator"
+          android:layout_marginStart="@dimen/space_md"
+          android:layout_marginTop="@dimen/space_xs"
+          android:visibility="@{googleDriveAvailable ? View.VISIBLE : View.GONE}"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toBottomOf="@id/gdrive_backup_status" />
 
-      <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/grey_0" />
+        <Button
+          android:id="@+id/gdrive_help"
+          style="@style/ButtonStyle"
+          android:layout_marginStart="@dimen/space_md"
+          android:layout_marginTop="@dimen/space_xs"
+          android:background="@drawable/rounded_corner_grey"
+          android:padding="@dimen/space_xs"
+          android:text="@string/backupsettings_drive_more_button"
+          android:textSize="@dimen/text_xs"
+          android:visibility="@{googleDriveAvailable ? View.VISIBLE : View.GONE}"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toBottomOf="@id/gdrive_help_separator" />
 
-    </LinearLayout>
-  </ScrollView>
+        <TextView
+          android:id="@+id/gdrive_not_available"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_marginStart="@dimen/space_md"
+          android:layout_marginTop="@dimen/space_sm"
+          android:layout_marginEnd="@dimen/space_md"
+          android:drawableStart="@drawable/ic_alert_triangle_orange_18dp"
+          android:drawablePadding="@dimen/space_xs"
+          android:text="@string/backupsettings_drive_unavailable"
+          android:visibility="@{!googleDriveAvailable ? View.VISIBLE : View.GONE}"
+          app:layout_constraintTop_toBottomOf="@id/gdrive_title" />
+
+      </android.support.constraint.ConstraintLayout>
+    </ScrollView>
+  </android.support.constraint.ConstraintLayout>
 </layout>

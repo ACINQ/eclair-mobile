@@ -104,7 +104,7 @@ public class ScanActivity extends Activity {
     }
 
     if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-      ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, Constants.CAMERA_PERMISSION_REQUEST);
+      ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, Constants.PERMISSION_CAMERA_REQUEST);
     } else {
       startScanning();
     }
@@ -116,7 +116,7 @@ public class ScanActivity extends Activity {
 
   @Override
   public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-    if (requestCode == Constants.CAMERA_PERMISSION_REQUEST) {
+    if (requestCode == Constants.PERMISSION_CAMERA_REQUEST) {
       if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
         startScanning();
       } else {

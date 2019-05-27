@@ -26,6 +26,7 @@ import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.text.Html;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -320,9 +321,12 @@ public class WalletUtils {
     return "mainnet".equals(BuildConfig.CHAIN) ? Block.LivenetGenesisBlock().hash() : Block.TestnetGenesisBlock().hash();
   }
 
+  public static File getDatadir(final Context context) {
+    return new File(context.getFilesDir(), Constants.ECLAIR_DATADIR);
+  }
+
   public static File getChainDatadir(final Context context) {
-    final File datadir = new File(context.getFilesDir(), Constants.ECLAIR_DATADIR);
-    return new File(datadir, BuildConfig.CHAIN);
+    return new File(getDatadir(context), BuildConfig.CHAIN);
   }
 
   public static File getWalletDBFile(final Context context) {
@@ -335,6 +339,13 @@ public class WalletUtils {
 
   public static File getEclairDBFile(final Context context) {
     return new File(getChainDatadir(context), Constants.ECLAIR_DB_FILE);
+  }
+
+  /**
+   * Retrieve the actual eclair backup file created by eclair core. This is the file that should be backed up.
+   */
+  public static File getEclairDBFileBak(final Context context) {
+    return new File(getChainDatadir(context), Constants.ECLAIR_DB_FILE_BAK);
   }
 
   public static String getEclairBackupFileName(final String seedHash) {
@@ -365,7 +376,11 @@ public class WalletUtils {
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
     switch (prefs.getString(Constants.SETTING_LOGS_OUTPUT, Constants.LOGS_OUTPUT_NONE)) {
       case Constants.LOGS_OUTPUT_LOCAL:
-        setupLocalLogging(context);
+        try {
+          setupLocalLogging(context);
+        } catch (EclairException.ExternalStorageUnavailableException e) {
+          Log.e("WalletUtils", "external storage is not available, cannot enable local logging");
+        }
         break;
       case Constants.LOGS_OUTPUT_PAPERTRAIL:
         setupPapertrailLogging(prefs.getString(Constants.SETTING_PAPERTRAIL_HOST, ""),
@@ -413,9 +428,9 @@ public class WalletUtils {
   /**
    * Sets up an index-based rolling policy with a max file size of 4MB.
    */
-  public static void setupLocalLogging(final Context context) throws EclairException.ExternalStorageNotAvailableException {
+  public static void setupLocalLogging(final Context context) throws EclairException.ExternalStorageUnavailableException {
     if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-      throw new EclairException.ExternalStorageNotAvailableException();
+      throw new EclairException.ExternalStorageUnavailableException();
     }
 
     final LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();

@@ -18,89 +18,108 @@
   xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools">
 
+  <data>
+
+    <import type="android.view.View" />
+
+    <import type="fr.acinq.eclair.wallet.utils.Constants" />
+
+    <variable
+      name="setupBackupStep"
+      type="int" />
+
+  </data>
+
   <ScrollView
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/primary"
     tools:context=".activities.SetupChannelsBackupActivity">
 
-    <LinearLayout
+    <android.support.constraint.ConstraintLayout
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:layout_gravity="center"
-      android:layout_margin="@dimen/space_lg"
-      android:orientation="vertical">
+      android:layout_gravity="center">
 
-      <LinearLayout
+      <ImageView
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_marginStart="@dimen/space_md"
+        android:src="@drawable/ic_shield_white_24dp_thin"
+        android:alpha="0.12"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+      <TextView
+        android:id="@+id/title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/rounded_corner_green_top"
-        android:orientation="vertical"
-        android:padding="@dimen/space_lg">
+        android:layout_marginStart="@dimen/space_xl"
+        android:layout_marginTop="@dimen/space_lg"
+        android:layout_marginEnd="@dimen/space_xl"
+        android:text="@string/setupbackup_title"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:layout_marginBottom="@dimen/space_md"
-          android:text="@string/setupbackup_title"
-          android:textSize="18sp"
-          android:textColor="@color/white" />
+      <TextView
+        android:id="@+id/instructions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/space_xl"
+        android:layout_marginTop="@dimen/space_md"
+        android:layout_marginEnd="@dimen/space_xl"
+        android:text="@string/setupbackup_instructions"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintTop_toBottomOf="@id/title" />
 
-        <TextView
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:layout_marginBottom="@dimen/space_md"
-          android:text="@string/setupbackup_subtitle_1"
-          android:textColor="@color/white" />
+      <CheckBox
+        android:id="@+id/request_local_access_checkbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/space_xl"
+        android:layout_marginTop="@dimen/space_md_p"
+        android:layout_marginEnd="@dimen/space_xl"
+        android:alpha="0.4"
+        android:buttonTint="@color/white"
+        android:enabled="false"
+        android:text="@string/setupbackup_local"
+        android:textColor="@color/white"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/instructions" />
 
-        <TextView
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:layout_marginBottom="@dimen/space_md"
-          android:text="@string/setupbackup_subtitle_2"
-          android:textColor="@color/white" />
-
-        <Button
-          android:layout_width="wrap_content"
-          android:layout_height="24dp"
-          android:background="@android:color/transparent"
-          android:drawablePadding="@dimen/space_xs"
-          android:drawableStart="@drawable/ic_info_outline_white_24dp"
-          android:onClick="showDetails"
-          android:padding="0dp"
-          android:text="@string/backup_drive_details_more_button"
-          android:textColor="@color/white"
-          android:textSize="10sp" />
-
-      </LinearLayout>
-
-      <LinearLayout
-        style="@style/ClickableLayout"
-        android:background="@drawable/rounded_corner_white_bottom"
-        android:onClick="grantAccess"
-        android:padding="@dimen/space_lg">
-
-        <ImageView
-          android:layout_width="wrap_content"
-          android:layout_height="match_parent"
-          android:layout_marginEnd="@dimen/space_xs"
-          android:src="@drawable/ic_cloud_queue_black_24dp" />
-
-        <TextView
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:text="@string/backup_drive_grant_access"
-          android:textAllCaps="true" />
-
-      </LinearLayout>
+      <CheckBox
+        android:id="@+id/request_gdrive_access_checkbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/space_xl"
+        android:layout_marginTop="@dimen/space_xs"
+        android:layout_marginEnd="@dimen/space_xl"
+        android:alpha="@{setupBackupStep == Constants.SETUP_BACKUP_INIT ? 1.0f : 0.6f}"
+        android:buttonTint="@color/white"
+        android:enabled="@{setupBackupStep == Constants.SETUP_BACKUP_INIT}"
+        android:text="@string/setupbackup_gdrive"
+        android:textColor="@color/white"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/request_local_access_checkbox" />
 
       <Button
-        style="@style/EndButtonStyle"
-        android:layout_gravity="center"
-        android:layout_marginTop="@dimen/space_md"
-        android:text="@string/setupbackup_skip"
-        android:onClick="skipBackupSetup"
-        android:textColor="@color/white" />
-    </LinearLayout>
+        android:id="@+id/submit_button"
+        style="@style/WhiteBgButtonStyle"
+        android:layout_marginTop="@dimen/space_lg"
+        android:drawableEnd="@drawable/ic_chevron_right_black_24dp"
+        android:drawableTint="@color/white"
+        android:enabled="@{setupBackupStep == Constants.SETUP_BACKUP_INIT}"
+        android:text="@{setupBackupStep == Constants.SETUP_BACKUP_INIT ? @string/setupbackup_submit : @string/setupbackup_requesting_access}"
+        android:textAllCaps="false"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/request_gdrive_access_checkbox" />
+    </android.support.constraint.ConstraintLayout>
   </ScrollView>
 </layout>

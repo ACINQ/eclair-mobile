@@ -305,7 +305,7 @@ public class App extends Application {
    * @param address   recipient of the tx
    * @param feesPerKw fees for the tx
    */
-  public void sendBitcoinPayment(final Satoshi amountSat, final String address, final long feesPerKw) {
+  public void sendOnchain(final Satoshi amountSat, final String address, final long feesPerKw) {
     try {
       Future<String> fBitcoinPayment = appKit.electrumWallet.sendPayment(amountSat, address, feesPerKw);
       fBitcoinPayment.onComplete(new OnComplete<String>() {

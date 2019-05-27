@@ -16,63 +16,311 @@
 
 package fr.acinq.eclair.wallet.activities;
 
-import android.content.SharedPreferences;
+import android.annotation.SuppressLint;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.WorkerThread;
-import android.view.View;
-
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import android.text.Html;
+import android.widget.Toast;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.drive.DriveFile;
 import com.google.android.gms.drive.Metadata;
 import com.google.android.gms.drive.metadata.CustomPropertyKey;
 import com.google.common.io.Files;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import androidx.work.ExistingWorkPolicy;
-import androidx.work.WorkManager;
+import fr.acinq.eclair.channel.HasCommitments;
+import fr.acinq.eclair.db.ChannelsDb;
+import fr.acinq.eclair.db.sqlite.SqliteChannelsDb;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.databinding.ActivityRestoreChannelsBackupBinding;
-import fr.acinq.eclair.wallet.utils.Constants;
-import fr.acinq.eclair.wallet.utils.EncryptedBackup;
-import fr.acinq.eclair.wallet.utils.EncryptedData;
-import fr.acinq.eclair.wallet.utils.WalletUtils;
+import fr.acinq.eclair.wallet.models.BackupTypes;
+import fr.acinq.eclair.wallet.services.BackupUtils;
+import fr.acinq.eclair.wallet.utils.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import scala.Option;
+import scala.collection.Iterator;
+import scala.collection.Seq;
 
-public class RestoreChannelsBackupActivity extends GoogleDriveBaseActivity {
+import javax.annotation.Nullable;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.GeneralSecurityException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.text.DateFormat;
+import java.util.*;
+
+public class RestoreChannelsBackupActivity extends ChannelsBackupBaseActivity {
 
   private final Logger log = LoggerFactory.getLogger(RestoreChannelsBackupActivity.class);
-
   private ActivityRestoreChannelsBackupBinding mBinding;
 
+  final static int SCAN_PING_INTERVAL = 2000;
+
+  private Map<BackupTypes, Option<BackupScanResult>> mExpectedBackupsMap = new HashMap<>();
+  private BackupScanOk mBestBackup = null;
+
+  @SuppressLint("ClickableViewAccessibility")
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     mBinding = DataBindingUtil.setContentView(this, R.layout.activity_restore_channels_backup);
-    mBinding.setRestoreStep(Constants.RESTORE_BACKUP_INIT);
+    mBinding.notFoundSkipButton.setOnClickListener(v -> ignoreRestoreAndBeDone());
+
+    mBinding.scanButton.setOnClickListener(v -> {
+      if (mBinding.requestLocalAccessCheckbox.isChecked() || mBinding.requestGdriveAccessCheckbox.isChecked()) {
+        mBinding.setRestoreStep(Constants.RESTORE_BACKUP_REQUESTING_ACCESS);
+        new Handler().postDelayed(() -> requestAccess(mBinding.requestLocalAccessCheckbox.isChecked(), mBinding.requestGdriveAccessCheckbox.isChecked()), ACCESS_REQUEST_PING_INTERVAL);
+      }
+    });
+
+    mBinding.tryAgainButton.setOnClickListener(v -> mBinding.setRestoreStep(Constants.RESTORE_BACKUP_INIT));
+    mBinding.confirmRestoreButton.setOnClickListener(v -> restoreBestBackup());
   }
 
-  public void requestAccess(final View view) {
-    final GoogleSignInAccount signInAccount = getSigninAccount(getApplicationContext());
-    if (signInAccount == null) {
-      final GoogleSignInClient googleSignInClient = GoogleSignIn.getClient(this, getGoogleSigninOptions());
-      startActivityForResult(googleSignInClient.getSignInIntent(), REQUEST_CODE_SIGN_IN);
+  @Override
+  protected void onResume() {
+    super.onResume();
+    if (app == null || app.seedHash == null || app.seedHash.get() == null) {
+      finish();
     } else {
-      final GoogleSignInClient googleSignInClient = GoogleSignIn.getClient(this, getGoogleSigninOptions());
-      googleSignInClient.revokeAccess()
-        .addOnSuccessListener(aVoid -> initOrSignInGoogleDrive())
-        .addOnFailureListener(e -> {
-          log.error("could not revoke access to drive", e);
-        });
+      mBinding.requestLocalAccessCheckbox.setChecked(BackupUtils.Local.isExternalStorageWritable());
+      mBinding.setExternalStorageAvailable(BackupUtils.Local.isExternalStorageWritable());
+
+      mBinding.requestGdriveAccessCheckbox.setChecked(BackupUtils.GoogleDrive.isGDriveAvailable(getApplicationContext()));
+      mBinding.setGdriveAvailable(BackupUtils.GoogleDrive.isGDriveAvailable(getApplicationContext()));
+
+      mBinding.seedHash.setText(getString(R.string.restorechannels_hash, app.seedHash.get()));
     }
   }
 
-  public void skipRestore(final View view) {
+  @Override
+  public void onBackPressed() {
+    // user must no be able to go back if the backup has been restored
+    if (!mBinding.getIsRestoring() || mBinding.getRestoreStep() != Constants.RESTORE_BACKUP_RESTORE_DONE) {
+      super.onBackPressed();
+    }
+  }
+
+  private void startScanning() {
+    mBestBackup = null;
+    mExpectedBackupsMap.clear();
+    if (!accessRequestsMap.isEmpty()) {
+      new Thread() {
+        @Override
+        public void run() {
+          mBinding.setRestoreStep(Constants.RESTORE_BACKUP_SCANNING);
+          if (accessRequestsMap.get(BackupTypes.LOCAL) != null && accessRequestsMap.get(BackupTypes.LOCAL).isDefined() && accessRequestsMap.get(BackupTypes.LOCAL).get()) {
+            mExpectedBackupsMap.put(BackupTypes.LOCAL, null);
+            scanLocalDevice();
+          }
+          if (accessRequestsMap.get(BackupTypes.GDRIVE) != null && accessRequestsMap.get(BackupTypes.GDRIVE).isDefined() && accessRequestsMap.get(BackupTypes.GDRIVE).get()) {
+            mExpectedBackupsMap.put(BackupTypes.GDRIVE, null);
+            scanGoogleDrive();
+          }
+          runOnUiThread(() -> new Handler().postDelayed(() -> checkScanningDone(), SCAN_PING_INTERVAL));
+        }
+      }.start();
+    } else {
+      mBinding.setRestoreStep(Constants.RESTORE_BACKUP_INIT);
+    }
+  }
+
+  private void checkScanningDone() {
+    mBestBackup = null;
+    if (mExpectedBackupsMap.isEmpty()) {
+      mBinding.setRestoreStep(Constants.RESTORE_BACKUP_NOT_FOUND);
+    } else {
+      if (!mExpectedBackupsMap.containsValue(null)) { // scanning is done
+        try {
+          final BackupScanOk found = getBestBackupScan();
+          if (found != null) {
+            String origin = "";
+            switch (found.type) {
+              case LOCAL:
+                origin = getString(R.string.restore_channels_origin_local);
+                break;
+              case GDRIVE:
+                final GoogleSignInAccount gdriveAccount = BackupUtils.GoogleDrive.getSigninAccount(getApplicationContext());
+                origin = getString(R.string.restore_channels_origin_gdrive,
+                  gdriveAccount != null && gdriveAccount.getAccount() != null ? gdriveAccount.getAccount().name : getString(R.string.unknown));
+                break;
+            }
+            mBinding.foundBackupTextDescOrigin.setText(Html.fromHtml(getString(R.string.restorechannels_found_desc_origin, origin)));
+            mBinding.foundBackupTextDescChannelsCount.setText(Html.fromHtml(getString(R.string.restorechannels_found_desc_channels_count, found.channelsCount)));
+            mBinding.foundBackupTextDescMaxComm.setText(Html.fromHtml(getString(R.string.restorechannels_found_desc_max_comm, Collections.max(found.commitmentCounts))));
+            mBinding.foundBackupTextDescModified.setText(Html.fromHtml(getString(R.string.restorechannels_found_desc_modified, DateFormat.getDateTimeInstance().format(found.lastModified))));
+            mBinding.setRestoreStep(found.isFromDevice ? Constants.RESTORE_BACKUP_FOUND : Constants.RESTORE_BACKUP_FOUND_WITH_CONFLICT);
+          } else {
+            mBinding.setRestoreStep(Constants.RESTORE_BACKUP_NOT_FOUND);
+          }
+          mBestBackup = found;
+        } catch (EclairException.UnreadableBackupException e) {
+          log.error("a backup file could not be read", e);
+          mBinding.setRestoreStep(Constants.RESTORE_BACKUP_FOUND_ERROR);
+          mBinding.errorText.setText(getString(R.string.restorechannels_error, e.type, e.getLocalizedMessage()));
+        } catch (Throwable t) {
+          log.error("error when handling scanning result", t);
+          Toast.makeText(this, R.string.restorechannels_error_generic, Toast.LENGTH_LONG).show();
+          mBinding.setRestoreStep(Constants.RESTORE_BACKUP_INIT);
+        }
+      } else {
+        new Handler().postDelayed(this::checkScanningDone, SCAN_PING_INTERVAL);
+      }
+    }
+  }
+
+  private void restoreBestBackup() {
+    if (mBestBackup != null && mBestBackup.file != null && mBestBackup.file.exists()) {
+      mBinding.setIsRestoring(true);
+      new Handler().postDelayed(() -> {
+        new Thread() {
+          @Override
+          public void run() {
+            try {
+              WalletUtils.getChainDatadir(getApplicationContext()).mkdirs();
+              Files.move(mBestBackup.file, WalletUtils.getEclairDBFile(getApplicationContext()));
+              PreferenceManager.getDefaultSharedPreferences(getBaseContext())
+                .edit()
+                .putBoolean(Constants.SETTING_CHANNELS_RESTORE_DONE, true)
+                .apply();
+              mBinding.setRestoreStep(Constants.RESTORE_BACKUP_RESTORE_DONE);
+              runOnUiThread(() -> new Handler().postDelayed(() -> finish(), 4000));
+            } catch (IOException e) {
+              log.error("error when moving " + mBestBackup.type + " backup file to eclair datadir: ", e);
+              runOnUiThread(() -> Toast.makeText(getApplicationContext(), getString(R.string.restorechannels_restoring_error), Toast.LENGTH_LONG).show());
+            } finally {
+              mBinding.setIsRestoring(false);
+            }
+          }
+        }.start();
+      }, 750);
+    } else {
+      log.warn("best backup is empty or does not exist, and cannot be restored!");
+    }
+  }
+
+  @Nullable
+  private BackupScanOk getBestBackupScan() throws EclairException.UnreadableBackupException {
+    long maxCommitmentIndex = 0;
+    BackupScanOk bestBackupYet = null;
+    for (final Map.Entry<BackupTypes, Option<BackupScanResult>> scan : mExpectedBackupsMap.entrySet()) {
+      final BackupTypes type = scan.getKey();
+      final Option<BackupScanResult> result_opt = scan.getValue();
+      if (result_opt != null && result_opt.isDefined()) {
+        final BackupScanResult result = result_opt.get();
+        if (result instanceof BackupScanOk) {
+          final BackupScanOk backup = (BackupScanOk) result;
+          final long commitmentsIndexCount = Collections.max(backup.commitmentCounts);
+          log.info("we have backup from {} with {} channels and {} max commitment", backup.type, backup.channelsCount, commitmentsIndexCount);
+          if (commitmentsIndexCount >= maxCommitmentIndex) {
+            maxCommitmentIndex = commitmentsIndexCount;
+            bestBackupYet = backup;
+          }
+        } else if (result instanceof BackupScanFailure){
+          final BackupScanFailure failure = (BackupScanFailure) result;
+          throw new EclairException.UnreadableBackupException(type, failure.message);
+        } else {
+          throw new RuntimeException("unhandled backup result: " + result);
+        }
+      }
+    }
+    return bestBackupYet;
+  }
+
+  private void scanLocalDevice() {
+    try {
+      final File backup = BackupUtils.Local.getBackupFile(WalletUtils.getEclairBackupFileName(app.seedHash.get()));
+      if (!backup.exists()) {
+        log.info("no local backup file found for this seed");
+        mExpectedBackupsMap.put(BackupTypes.LOCAL, Option.apply(null));
+      } else {
+        final BackupScanOk localBackup = decryptFile(Files.toByteArray(backup), new Date(backup.lastModified()), BackupTypes.LOCAL);
+        log.debug("successfully retrieved local backup file");
+        mExpectedBackupsMap.put(BackupTypes.LOCAL, Option.apply(localBackup));
+      }
+    } catch (EclairException.ExternalStorageUnavailableException e) {
+      log.error("external storage not available: ", e);
+      runOnUiThread(() -> Toast.makeText(this, R.string.restorechannels_error_external_storage_toast, Toast.LENGTH_LONG).show());
+      mExpectedBackupsMap.put(BackupTypes.LOCAL, Option.apply(null));
+    } catch (Throwable t) {
+      log.error("could not read local backup file: ", t);
+      mExpectedBackupsMap.put(BackupTypes.LOCAL, Option.apply(new BackupScanFailure(t.getLocalizedMessage())));
+    }
+  }
+
+  @WorkerThread
+  private void scanGoogleDrive() {
+    getDriveClient().requestSync()
+      .continueWithTask(aVoid -> retrieveEclairBackupTask())
+      .addOnSuccessListener(metadataBuffer -> {
+        if (metadataBuffer.getCount() > 0) {
+          final Metadata metadata = metadataBuffer.get(0);
+          final Date modifiedDate = metadata.getModifiedDate();
+          final String remoteDeviceId = metadata.getCustomProperties().get(new CustomPropertyKey(Constants.BACKUP_META_DEVICE_ID, CustomPropertyKey.PUBLIC));
+          final String deviceId = WalletUtils.getDeviceId(getApplicationContext());
+          getDriveResourceClient().openFile(metadata.getDriveId().asDriveFile(), DriveFile.MODE_READ_ONLY)
+            .addOnSuccessListener(driveFileContents -> {
+              try {
+                // read file content
+                final InputStream driveInputStream = driveFileContents.getInputStream();
+                final byte[] content = new byte[driveInputStream.available()];
+                driveInputStream.read(content);
+                // decrypt content
+                final BackupScanOk gdriveBackup = decryptFile(content, modifiedDate, BackupTypes.GDRIVE);
+                gdriveBackup.setIsFromDevice(remoteDeviceId == null || deviceId.equals(remoteDeviceId));
+                mExpectedBackupsMap.put(BackupTypes.GDRIVE, Option.apply(gdriveBackup));
+                log.debug("successfully retrieved backup file from gdrive");
+              } catch (Throwable t) {
+                log.error("could not read backup file from gdrive: ", t);
+                mExpectedBackupsMap.put(BackupTypes.GDRIVE, Option.apply(new BackupScanFailure(t.getLocalizedMessage())));
+              } finally {
+                log.debug("finished scan gdrive");
+                getDriveResourceClient().discardContents(driveFileContents);
+              }
+            });
+        } else {
+          log.info("no backup file found on gdrive for this seed");
+          mExpectedBackupsMap.put(BackupTypes.GDRIVE, Option.apply(null));
+        }
+      })
+      .addOnFailureListener(e -> {
+        log.error("could not retrieve data from gdrive: ", e);
+        mExpectedBackupsMap.put(BackupTypes.GDRIVE, Option.apply(null));
+      });
+  }
+
+  @WorkerThread
+  private BackupScanOk decryptFile(final byte[] content, final Date modified, final BackupTypes type) throws IOException, GeneralSecurityException, SQLException {
+    log.debug("decrypting backup file from {}", type);
+    final EncryptedBackup encryptedContent = EncryptedBackup.read(content);
+    final byte[] decryptedContent = encryptedContent.decrypt(EncryptedData.secretKeyFromBinaryKey(
+      // backward compatibility code for v0.3.6-TESTNET which uses backup version 1
+      EncryptedBackup.BACKUP_VERSION_1 == encryptedContent.getVersion() ? app.backupKey_v1.get() : app.backupKey_v2.get()));
+
+    final File datadir = WalletUtils.getDatadir(getApplicationContext());
+    final File decryptedFile = new File(datadir, type.toString() + "-restore.sqlite.tmp");
+    Files.write(decryptedContent, decryptedFile);
+    final Connection decryptedFileConn = DriverManager.getConnection("jdbc:sqlite:" + decryptedFile.getPath());
+    final ChannelsDb db = new SqliteChannelsDb(decryptedFileConn);
+    final Seq<HasCommitments> commitments = db.listLocalChannels();
+    final int channelsCount = commitments.size();
+    final List<Long> indexes = new ArrayList<>();
+    final Iterator<HasCommitments> commitmentsIt = commitments.iterator();
+    while (commitmentsIt.hasNext()) {
+      final HasCommitments hc = commitmentsIt.next();
+      indexes.add(Math.max(hc.commitments().localCommit().index(), hc.commitments().remoteCommit().index()));
+    }
+    db.close();
+    log.info("found {} channels in backup file from {}", channelsCount, type);
+    return new BackupScanOk(type, indexes, channelsCount, modified, decryptedFile);
+  }
+
+  private void ignoreRestoreAndBeDone() {
     getCustomDialog(R.string.restorechannels_skip_backup_confirmation)
       .setPositiveButton(R.string.btn_confirm, (dialog, which) -> {
         PreferenceManager.getDefaultSharedPreferences(getBaseContext()).edit()
@@ -84,135 +332,50 @@ public class RestoreChannelsBackupActivity extends GoogleDriveBaseActivity {
       .show();
   }
 
-  public void backToInit(final View view) {
-    mBinding.setRestoreStep(Constants.RESTORE_BACKUP_INIT);
-  }
-
-  public void finishRestore(final View view) {
-    final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-    final GoogleSignInAccount signInAccount = getSigninAccount(getApplicationContext());
-    final boolean hasDriveAccess = signInAccount != null && !signInAccount.isExpired();
-    prefs.edit()
-      .putBoolean(Constants.SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_ENABLED, hasDriveAccess)
-      .putBoolean(Constants.SETTING_CHANNELS_RESTORE_DONE, true).commit();
-    if (app.seedHash.get() != null) {
-      WorkManager.getInstance()
-        .beginUniqueWork("ChannelsBackup", ExistingWorkPolicy.REPLACE,
-          WalletUtils.generateBackupRequest(app.seedHash.get(), app.backupKey_v2.get()))
-        .enqueue();
-    }
-    this.finish();
+  @Override
+  protected void applyAccessRequestDone() {
+    startScanning();
   }
 
   @Override
-  void onDriveClientReady(final GoogleSignInAccount signInAccount) {
-    applyAccessGranted(signInAccount);
-    new Thread() {
-      @Override
-      public void run() {
-        getDriveClient().requestSync()
-          .continueWithTask(aVoid -> retrieveEclairBackupTask())
-          .addOnSuccessListener(metadataBuffer -> {
-            if (metadataBuffer.getCount() == 0) {
-              log.info("backup file could not be found in drive");
-              runOnUiThread(() -> mBinding.setRestoreStep(Constants.RESTORE_BACKUP_NO_BACKUP_FOUND));
-            } else {
-              final Metadata metadata = metadataBuffer.get(0);
-              final String remoteDeviceId = metadata.getCustomProperties().get(
-                new CustomPropertyKey(Constants.BACKUP_META_DEVICE_ID, CustomPropertyKey.PUBLIC));
-              final String deviceId = WalletUtils.getDeviceId(getApplicationContext());
-              if (remoteDeviceId == null || deviceId.equals(remoteDeviceId)) {
-                restoreBackup(metadata.getDriveId().asDriveFile());
-              } else {
-                log.info("remote backup device id is different from current device id");
-                runOnUiThread(() -> mBinding.setRestoreStep(Constants.RESTORE_BACKUP_DEVICE_ORIGIN_CONFLICT));
-              }
-            }
-          })
-          .addOnFailureListener(e -> {
-            log.error("could not sync app folder", e);
-            mBinding.setRestoreStep(Constants.RESTORE_BACKUP_SYNC_RATELIMIT);
-            new Handler().postDelayed(() -> backToInit(null), 1700);
-          });
-      }
-    }.start();
+  protected void applyGdriveAccessDenied() {
+    super.applyGdriveAccessDenied();
+    BackupUtils.GoogleDrive.disableGDriveBackup(getApplicationContext());
   }
 
-  @WorkerThread
-  private void restoreBackup(final DriveFile file) {
-    getDriveResourceClient().openFile(file, DriveFile.MODE_READ_ONLY)
-      .addOnSuccessListener(driveFileContents -> {
-        try {
-          WalletUtils.getChainDatadir(getApplicationContext()).mkdirs();
-
-          // decrypt file content
-          final EncryptedBackup encryptedContent = EncryptedBackup.read(getBytesFromDriveContents(driveFileContents));
-
-          // decrypt and write backup
-          Files.write(encryptedContent.decrypt(EncryptedData.secretKeyFromBinaryKey(
-            // backward compatibility code for v0.3.6-TESTNET which uses backup version 1
-            EncryptedBackup.BACKUP_VERSION_1 == encryptedContent.getVersion() ? app.backupKey_v1.get() : app.backupKey_v2.get())),
-            WalletUtils.getEclairDBFile(getApplicationContext()));
-
-          // celebrate
-          runOnUiThread(() -> {
-            mBinding.setRestoreStep(Constants.RESTORE_BACKUP_SUCCESS);
-            new Handler().postDelayed(() -> finishRestore(null), 1700);
-          });
-        } catch (Throwable t) {
-          log.error("could not copy remote file backup to datadir", t);
-          runOnUiThread(() -> {
-            mBinding.setRestoreStep(Constants.RESTORE_BACKUP_FAILURE);
-            new Handler().postDelayed(() -> backToInit(null), 1700);
-          });
-        }
-        getDriveResourceClient().discardContents(driveFileContents);
-      })
-      .addOnFailureListener(e -> runOnUiThread(() -> {
-        log.error("backup file could not be restored from drive", e);
-        mBinding.setRestoreStep(Constants.RESTORE_BACKUP_FAILURE);
-        new Handler().postDelayed(() -> backToInit(null), 1700);
-      }));
+  @Override
+  protected void applyGdriveAccessGranted(GoogleSignInAccount signIn) {
+    super.applyGdriveAccessGranted(signIn);
+    BackupUtils.GoogleDrive.enableGDriveBackup(getApplicationContext());
   }
 
-  public void restoreIfAppIdConflict(final View view) {
-    final GoogleSignInAccount signInAccount = getSigninAccount(getApplicationContext());
-    if (signInAccount == null) {
-      requestAccess(null);
-    } else {
-      mBinding.setRestoreStep(Constants.RESTORE_BACKUP_SEARCHING);
-      new Thread() {
-        @Override
-        public void run() {
-          retrieveEclairBackupTask()
-            .addOnSuccessListener(metadataBuffer -> {
-              if (metadataBuffer.getCount() == 0) {
-                runOnUiThread(() -> {
-                  log.info("backup file could not be found in drive");
-                  mBinding.setRestoreStep(Constants.RESTORE_BACKUP_NO_BACKUP_FOUND);
-                });
-              } else {
-                restoreBackup(metadataBuffer.get(0).getDriveId().asDriveFile());
-              }
-            })
-            .addOnFailureListener(e -> {
-              log.error("could not sync app folder", e);
-              mBinding.setRestoreStep(Constants.RESTORE_BACKUP_SYNC_RATELIMIT);
-              new Handler().postDelayed(() -> backToInit(null), 1700);
-            });
-        }
-      }.start();
+  private interface BackupScanResult {}
+
+  private static class BackupScanFailure implements BackupScanResult {
+    final String message;
+    BackupScanFailure(final String message) {
+      this.message = message;
     }
   }
 
-  @Override
-  void applyAccessDenied() {
-    mBinding.setRestoreStep(Constants.RESTORE_BACKUP_ERROR_PERMISSIONS);
-    new Handler().postDelayed(() -> backToInit(null), 2000);
-  }
+  private static class BackupScanOk implements BackupScanResult {
+    public final BackupTypes type;
+    public final List<Long> commitmentCounts;
+    public final int channelsCount;
+    public final Date lastModified;
+    public final File file;
+    private boolean isFromDevice = true;
 
-  @Override
-  void applyAccessGranted(GoogleSignInAccount signIn) {
-    mBinding.setRestoreStep(Constants.RESTORE_BACKUP_SEARCHING);
+    BackupScanOk(final BackupTypes type, final List<Long> commitmentCounts, int channelsCount, final Date lastModified, final File file) {
+      this.type = type;
+      this.commitmentCounts = commitmentCounts;
+      this.channelsCount = channelsCount;
+      this.lastModified = lastModified;
+      this.file = file;
+    }
+
+    void setIsFromDevice(final boolean isFromDevice) {
+      this.isFromDevice = isFromDevice;
+    }
   }
 }
