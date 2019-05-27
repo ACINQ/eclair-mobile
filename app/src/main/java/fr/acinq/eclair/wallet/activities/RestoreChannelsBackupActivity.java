@@ -17,11 +17,11 @@
 package fr.acinq.eclair.wallet.activities;
 
 import android.annotation.SuppressLint;
-import android.databinding.DataBindingUtil;
+import androidx.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.support.annotation.WorkerThread;
+import androidx.annotation.WorkerThread;
 import android.text.Html;
 import android.widget.Toast;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;

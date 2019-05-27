@@ -62,7 +62,7 @@
     android:layout_height="match_parent"
     android:fillViewport="true">
 
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
       android:layout_width="match_parent"
       android:layout_height="wrap_content">
 
@@ -152,14 +152,14 @@
 
       </LinearLayout>
 
-      <android.support.constraint.Guideline
+      <androidx.constraintlayout.widget.Guideline
         android:id="@+id/label_guideline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.25" />
 
-      <android.support.constraint.Guideline
+      <androidx.constraintlayout.widget.Guideline
         android:id="@+id/mid_guideline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -396,6 +396,6 @@
           tools:ignore="RtlSymmetry" />
 
       </FrameLayout>
-    </android.support.constraint.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
   </ScrollView>
 </layout>

@@ -19,7 +19,7 @@ package fr.acinq.eclair.wallet.fragments;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.databinding.DataBindingUtil;
+import androidx.databinding.DataBindingUtil;
 import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.TextWatcher;

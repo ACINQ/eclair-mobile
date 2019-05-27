@@ -461,12 +461,12 @@
           android:visibility="gone" />
 
         <!-- buttons -->
-        <android.support.constraint.ConstraintLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:layout_marginTop="@dimen/space_md">
 
-          <android.support.constraint.Guideline
+          <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -521,7 +521,7 @@
               android:textSize="@{enableSendButton ? @dimen/text_md : @dimen/text_xs}" />
 
           </LinearLayout>
-        </android.support.constraint.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
       </LinearLayout>
     </ScrollView>
   </RelativeLayout>

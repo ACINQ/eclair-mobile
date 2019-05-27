@@ -18,7 +18,7 @@
   xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools">
 
-  <android.support.constraint.ConstraintLayout
+  <androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="activities.StartupActivity">
@@ -47,7 +47,7 @@
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent" />
 
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
       android:id="@+id/startup_error"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
@@ -102,6 +102,6 @@
         android:textSize="@dimen/text_xs"
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/startup_restart" />
-    </android.support.constraint.ConstraintLayout>
-  </android.support.constraint.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+  </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

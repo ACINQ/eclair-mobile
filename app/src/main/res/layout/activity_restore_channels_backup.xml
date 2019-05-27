@@ -54,7 +54,7 @@
       android:orientation="vertical"
       android:padding="@dimen/space_lg">
 
-      <android.support.constraint.ConstraintLayout
+      <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/rounded_corner_white">
@@ -218,7 +218,7 @@
           app:layout_constraintStart_toEndOf="@id/scanning_progress_bar"
           app:layout_constraintTop_toBottomOf="@+id/subtitle1" />
 
-        <android.support.constraint.Group
+        <androidx.constraintlayout.widget.Group
           android:id="@+id/found_group"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
@@ -330,7 +330,7 @@
           app:layout_constraintStart_toStartOf="parent"
           app:layout_constraintTop_toBottomOf="@+id/subtitle1" />
 
-        <android.support.constraint.Barrier
+        <androidx.constraintlayout.widget.Barrier
           android:id="@+id/found_or_not_barrier"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
@@ -429,7 +429,7 @@
           android:visibility="@{restoreStep == Constants.RESTORE_BACKUP_RESTORE_DONE ? View.VISIBLE : View.GONE}"
           app:layout_constraintTop_toTopOf="parent" />
 
-      </android.support.constraint.ConstraintLayout>
+      </androidx.constraintlayout.widget.ConstraintLayout>
 
       <TextView
         android:id="@+id/seed_hash"

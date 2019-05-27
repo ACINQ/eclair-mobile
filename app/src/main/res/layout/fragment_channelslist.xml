@@ -37,7 +37,7 @@
 
   </data>
 
-  <android.support.v4.widget.NestedScrollView
+  <androidx.core.widget.NestedScrollView
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:clipToPadding="false"
@@ -45,7 +45,7 @@
     android:paddingBottom="88dp"
     android:scrollbars="none">
 
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:layout_marginStart="@dimen/space_md_p"
@@ -152,14 +152,14 @@
         app:layout_constraintVertical_chainStyle="packed"
         app:unit_size="@dimen/text_xs" />
 
-      <android.support.constraint.Barrier
+      <androidx.constraintlayout.widget.Barrier
         android:id="@+id/barrier"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:barrierDirection="bottom"
         app:constraint_referenced_ids="total_receivable, total_sendable, balance_progress, no_active_channels" />
 
-      <android.support.v7.widget.RecyclerView
+      <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/active_channels_list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -196,7 +196,7 @@
         android:visibility="@{inactiveSize == 0 &amp;&amp; showInactive ? View.VISIBLE : View.GONE}"
         app:layout_constraintTop_toBottomOf="@id/toggle_inactive" />
 
-      <android.support.v7.widget.RecyclerView
+      <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/inactive_channels_list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -205,6 +205,6 @@
         android:visibility="@{inactiveSize > 0 &amp;&amp; showInactive ? View.VISIBLE : View.GONE}"
         app:layout_constraintTop_toBottomOf="@id/toggle_inactive" />
 
-    </android.support.constraint.ConstraintLayout>
-  </android.support.v4.widget.NestedScrollView>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+  </androidx.core.widget.NestedScrollView>
 </layout>

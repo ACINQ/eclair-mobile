@@ -17,7 +17,7 @@
 package fr.acinq.eclair.wallet.activities;
 
 import android.content.Intent;
-import android.databinding.DataBindingUtil;
+import androidx.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
@@ -37,7 +37,6 @@ import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.databinding.ActivityOpenConnectionBinding;
 import fr.acinq.eclair.wallet.utils.Constants;
-import scala.Option;
 import scala.concurrent.duration.Duration;
 
 public class OpenConnectionActivity extends EclairActivity {

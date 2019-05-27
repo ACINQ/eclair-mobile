@@ -213,29 +213,29 @@
             android:textColor="@color/grey_2"
             android:visibility="@{Constants.LOGS_OUTPUT_PAPERTRAIL.equals(logsOutputMode) ? View.VISIBLE : View.GONE}" />
 
-          <android.support.design.widget.TextInputLayout
+          <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/space_md"
             android:hint="@string/logging_papertrailapp_host_hint"
             android:visibility="@{Constants.LOGS_OUTPUT_PAPERTRAIL.equals(logsOutputMode) ? View.VISIBLE : View.GONE}">
 
-            <android.support.design.widget.TextInputEditText
+            <com.google.android.material.textfield.TextInputEditText
               android:id="@+id/papertrail_host_input"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:backgroundTint="@color/primary"
               android:textSize="14sp" />
 
-          </android.support.design.widget.TextInputLayout>
+          </com.google.android.material.textfield.TextInputLayout>
 
-          <android.support.design.widget.TextInputLayout
+          <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/logging_papertrailapp_port_hint"
             android:visibility="@{Constants.LOGS_OUTPUT_PAPERTRAIL.equals(logsOutputMode) ? View.VISIBLE : View.GONE}">
 
-            <android.support.design.widget.TextInputEditText
+            <com.google.android.material.textfield.TextInputEditText
               android:id="@+id/papertrail_port_input"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
@@ -244,7 +244,7 @@
               android:inputType="number"
               android:textSize="14sp" />
 
-          </android.support.design.widget.TextInputLayout>
+          </com.google.android.material.textfield.TextInputLayout>
         </LinearLayout>
       </LinearLayout>
 

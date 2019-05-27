@@ -16,18 +16,14 @@
 
 package fr.acinq.eclair.wallet.activities;
 
-import android.databinding.DataBindingUtil;
+import androidx.databinding.DataBindingUtil;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.Toast;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GoogleApiAvailability;
 import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.databinding.ActivitySetupChannelsBackupBinding;
-import fr.acinq.eclair.wallet.models.BackupTypes;
 import fr.acinq.eclair.wallet.services.BackupUtils;
 import fr.acinq.eclair.wallet.utils.Constants;
 import org.slf4j.Logger;

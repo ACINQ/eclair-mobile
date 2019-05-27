@@ -16,7 +16,7 @@
 
 package fr.acinq.eclair.wallet.fragments.channelsbackup;
 
-import android.support.v4.app.Fragment;
+import androidx.fragment.app.Fragment;
 
 /**
  * This fragment help managing the current settings of the "lightning channels backup" feature.

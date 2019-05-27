@@ -72,12 +72,12 @@
       android:paddingEnd="@dimen/space_md_p"
       android:paddingBottom="@dimen/space_xl">
 
-      <android.support.constraint.ConstraintLayout
+      <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/rounded_corner_white">
 
-        <android.support.constraint.Guideline
+        <androidx.constraintlayout.widget.Guideline
           android:id="@+id/mid_guideline"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
@@ -138,7 +138,7 @@
 
         </RelativeLayout>
 
-        <android.support.constraint.ConstraintLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:padding="@dimen/space_lg"
@@ -210,7 +210,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@id/onchain_address_value" />
 
-        </android.support.constraint.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <TextView
           android:layout_width="match_parent"
@@ -228,7 +228,7 @@
           android:visibility="@{paymentType == 1 &amp;&amp; isLightningInboundEnabled &amp;&amp; hasNoLightningChannels ? View.VISIBLE : View.GONE}"
           app:layout_constraintTop_toBottomOf="@id/pick_lightning_button" />
 
-        <android.support.constraint.ConstraintLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
           android:id="@+id/lightning_view"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
@@ -263,7 +263,7 @@
             app:layout_constraintStart_toStartOf="@id/lightning_qr"
             app:layout_constraintTop_toTopOf="@id/lightning_qr" />
 
-          <android.support.constraint.Barrier
+          <androidx.constraintlayout.widget.Barrier
             android:id="@+id/pr_barrier"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -375,7 +375,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/lightning_pr" />
 
-          <android.support.constraint.Barrier
+          <androidx.constraintlayout.widget.Barrier
             android:id="@+id/label_barrier"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -499,8 +499,8 @@
               app:layout_constraintTop_toTopOf="@id/lightning_max_receivable" />
 
           </LinearLayout>
-        </android.support.constraint.ConstraintLayout>
-      </android.support.constraint.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+      </androidx.constraintlayout.widget.ConstraintLayout>
     </FrameLayout>
   </ScrollView>
 </layout>

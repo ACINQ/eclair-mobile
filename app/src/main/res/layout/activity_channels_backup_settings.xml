@@ -36,7 +36,7 @@
 
   </data>
 
-  <android.support.constraint.ConstraintLayout
+  <androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     tools:context=".activities.ChannelsBackupSettingsActivity">
@@ -56,7 +56,7 @@
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintTop_toBottomOf="@+id/custom_toolbar">
 
-      <android.support.constraint.ConstraintLayout
+      <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -93,7 +93,7 @@
           app:layout_constraintStart_toStartOf="parent"
           app:layout_constraintTop_toBottomOf="@id/local_separator" />
 
-        <android.support.v7.widget.SwitchCompat
+        <androidx.appcompat.widget.SwitchCompat
           android:id="@+id/request_local_access_switch"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
@@ -150,7 +150,7 @@
           app:layout_constraintEnd_toEndOf="parent"
           app:layout_constraintTop_toTopOf="@id/gdrive_title" />
 
-        <android.support.v7.widget.SwitchCompat
+        <androidx.appcompat.widget.SwitchCompat
           android:id="@+id/request_gdrive_access_switch"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
@@ -211,7 +211,7 @@
           android:visibility="@{!googleDriveAvailable ? View.VISIBLE : View.GONE}"
           app:layout_constraintTop_toBottomOf="@id/gdrive_title" />
 
-      </android.support.constraint.ConstraintLayout>
+      </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
-  </android.support.constraint.ConstraintLayout>
+  </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
