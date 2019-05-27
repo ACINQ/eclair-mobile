@@ -24,8 +24,11 @@ import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.annotation.UiThread;
+import android.support.annotation.WorkerThread;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import com.google.common.base.Strings;
 import fr.acinq.bitcoin.ByteVector32;
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.bitcoin.Satoshi;
@@ -44,12 +47,10 @@ import fr.acinq.eclair.wallet.models.Payment;
 import fr.acinq.eclair.wallet.models.PaymentDirection;
 import fr.acinq.eclair.wallet.models.PaymentStatus;
 import fr.acinq.eclair.wallet.models.PaymentType;
-import fr.acinq.eclair.wallet.tasks.BitcoinInvoiceReaderTask;
-import fr.acinq.eclair.wallet.tasks.LNInvoiceReaderTask;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.TechnicalHelper;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
-import org.bitcoinj.uri.BitcoinURI;
+import fr.acinq.eclair.wallet.models.BitcoinURI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.Option;
@@ -61,13 +62,13 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-public class SendPaymentActivity extends EclairActivity
-  implements LNInvoiceReaderTask.AsyncInvoiceReaderTaskResponse, BitcoinInvoiceReaderTask.AsyncInvoiceReaderTaskResponse {
+public class SendPaymentActivity extends EclairActivity {
 
   private final Logger log = LoggerFactory.getLogger(SendPaymentActivity.class);
 
   public static final String EXTRA_INVOICE = BuildConfig.APPLICATION_ID + ".EXTRA_INVOICE";
-  private final static List<String> LIGHTNING_PREFIXES = Arrays.asList("lightning:", "lightning://");
+  private final static List<String> LIGHTNING_SCHEMES = Arrays.asList("lightning://", "lightning:");
+  final String chain = Character.toUpperCase(BuildConfig.CHAIN.charAt(0)) +  BuildConfig.CHAIN.substring(1);
 
   public enum Steps {
     LOADING,
@@ -90,26 +91,6 @@ public class SendPaymentActivity extends EclairActivity
   private boolean capLightningFees = true;
   private PinDialog pinDialog;
 
-  @Override
-  public void processBitcoinInvoiceFinish(final BitcoinURI bitcoinURI) {
-    if (bitcoinURI == null || bitcoinURI.getAddress() == null) {
-      canNotHandlePayment(getString(R.string.payment_invalid_address, BuildConfig.CHAIN.toUpperCase()));
-    } else {
-      invoiceReadSuccessfully(Left.apply(bitcoinURI));
-    }
-  }
-
-  @SuppressLint("SetTextI18n")
-  @Override
-  public void processLNInvoiceFinish(final PaymentRequest paymentRequest) {
-    if (paymentRequest == null) {
-      // try reading invoice as a bitcoin uri
-      new BitcoinInvoiceReaderTask(this, invoiceAsString).execute();
-    } else {
-      invoiceReadSuccessfully(Right.apply(paymentRequest));
-    }
-  }
-
   /**
    * Checks if a payment request is correct; if not, display a message.
    *
@@ -119,7 +100,7 @@ public class SendPaymentActivity extends EclairActivity
     // check payment request chain
     final Option<String> acceptedPrefix = PaymentRequest.prefixes().get(WalletUtils.getChainHash());
     if (acceptedPrefix.isEmpty() || !acceptedPrefix.get().equals(paymentRequest.prefix())) {
-      canNotHandlePayment(getString(R.string.payment_ln_invalid_chain, BuildConfig.CHAIN.toUpperCase()));
+      canNotHandlePayment(getString(R.string.payment_ln_invalid_chain, chain));
       return false;
     }
     // check that payment is not already processed
@@ -172,8 +153,8 @@ public class SendPaymentActivity extends EclairActivity
 
   private void setupOnchainPaymentForm(final BitcoinURI bitcoinURI) {
     checkWalletReady();
-    if (bitcoinURI.getAmount() != null) {
-      final MilliSatoshi amountMsat = package$.MODULE$.satoshi2millisatoshi(bitcoinURI.getAmount());
+    if (bitcoinURI.amount != null) {
+      final MilliSatoshi amountMsat = package$.MODULE$.satoshi2millisatoshi(bitcoinURI.amount);
       mBinding.amountEditableHint.setVisibility(View.GONE);
       mBinding.amountEditableValue.setText(CoinUtils.rawAmountInUnit(amountMsat, preferredBitcoinUnit).bigDecimal().toPlainString());
       mBinding.amountFiat.setText(WalletUtils.formatMsatToFiatWithUnit(amountMsat.amount(), preferredFiatCurrency));
@@ -182,7 +163,7 @@ public class SendPaymentActivity extends EclairActivity
       forceFocusAmount(null);
     }
     setFeesToDefault();
-    mBinding.recipientValue.setText(bitcoinURI.getAddress());
+    mBinding.recipientValue.setText(bitcoinURI.address);
     mBinding.setPaymentStep(Steps.ON_CHAIN_PAYMENT);
     invoice = Left.apply(bitcoinURI);
   }
@@ -216,6 +197,7 @@ public class SendPaymentActivity extends EclairActivity
     canNotHandlePayment(getString(messageId));
   }
 
+  @UiThread
   private void canNotHandlePayment(final String message) {
     mBinding.readError.setText(message);
     mBinding.setPaymentStep(Steps.INVOICE_READING_ERROR);
@@ -228,15 +210,14 @@ public class SendPaymentActivity extends EclairActivity
     if (pInvoice != null && pInvoice.isLeft() && pInvoice.left().get() != null) {
       final BitcoinURI bitcoinURI = pInvoice.left().get();
       // bitcoin uri with an embedded lightning invoice => user must choose
-      if (bitcoinURI.getLightningPaymentRequest() != null) {
-        final PaymentRequest paymentRequest = bitcoinURI.getLightningPaymentRequest();
+      if (bitcoinURI.lightning != null) {
         if (NodeSupervisor.getChannelsMap().isEmpty()) {
           mBinding.pickLightningError.setText(R.string.payment_error_ln_pick_no_channels);
           mBinding.pickLightningError.setVisibility(View.VISIBLE);
           mBinding.pickLightningImage.setAlpha(0.3f);
           mBinding.pickLightning.setEnabled(false);
         } else {
-          mBinding.pickLightning.setOnClickListener(v -> setupLightningPaymentForm(paymentRequest));
+          mBinding.pickLightning.setOnClickListener(v -> setupLightningPaymentForm(bitcoinURI.lightning));
         }
         mBinding.pickOnchain.setOnClickListener(v -> setupOnchainPaymentForm(bitcoinURI));
         mBinding.setPaymentStep(Steps.PICK_PAYMENT_SETTLEMENT_TYPE);
@@ -464,10 +445,10 @@ public class SendPaymentActivity extends EclairActivity
   private void sendBitcoinPayment(final Satoshi amountSat, final Long feesPerKw, final BitcoinURI bitcoinURI, final boolean emptyWallet) {
     if (emptyWallet) {
       log.info("(on-chain) emptying wallet for {} msat, destination={}", amountSat, bitcoinURI.toString());
-      app.sendAllOnchain(bitcoinURI.getAddress(), feesPerKw);
+      app.sendAllOnchain(bitcoinURI.address, feesPerKw);
     } else {
       log.info("(on-chain) sending {} msat for uri {}", amountSat, bitcoinURI.toString());
-      app.sendOnchain(amountSat, bitcoinURI.getAddress(), feesPerKw);
+      app.sendOnchain(amountSat, bitcoinURI.address, feesPerKw);
     }
   }
 
@@ -587,22 +568,66 @@ public class SendPaymentActivity extends EclairActivity
         }
       }
     });
+  }
 
-    // --- read invoice from intent
+  @Override
+  protected void onStart() {
+    super.onStart();
+    new Thread() {
+      @Override
+      public void run() {
+        readInvoiceIntent();
+      }
+    }.start();
+  }
+
+  @WorkerThread
+  private void readInvoiceIntent() {
     final Intent intent = getIntent();
     invoiceAsString = intent.getStringExtra(EXTRA_INVOICE).replaceAll("\\u00A0", "").trim();
     log.info("initializing payment with invoice={}", invoiceAsString);
-    if (invoiceAsString != null) {
-      for (String prefix : LIGHTNING_PREFIXES) {
-        if (invoiceAsString.toLowerCase().startsWith(prefix)) {
-          invoiceAsString = invoiceAsString.substring(prefix.length());
-          break;
+
+    if (Strings.isNullOrEmpty(invoiceAsString)) {
+      runOnUiThread(() -> canNotHandlePayment(getString(R.string.payment_invalid_generic, chain)));
+      return;
+    }
+
+    try {
+      // -- try to read it as a lightning PR
+      final PaymentRequest request = PaymentRequest.read(stripLightningScheme(invoiceAsString));
+      runOnUiThread(() -> invoiceReadSuccessfully(Right.apply(request)));
+    } catch (Throwable lightningThrow) {
+      if (invoiceAsString.matches("(lightning:)(//){0,1}.*")) {
+        // invoice was intended as a lightning payment
+        log.debug("could not read lightning invoice {}", invoiceAsString, lightningThrow);
+        runOnUiThread(() -> canNotHandlePayment(getString(R.string.payment_invalid_lightning, chain)));
+      } else {
+        try {
+          // -- try to read invoice as an onchain URI
+          final BitcoinURI uri = new BitcoinURI(invoiceAsString);
+          runOnUiThread(() -> invoiceReadSuccessfully(Left.apply(uri)));
+        } catch (Throwable onchainThrow) {
+          if (invoiceAsString.matches("(bitcoin:)(//){0,1}.*")) {
+            // invoice was intended as an onchain payment
+            log.debug("could not read on-chain uri {}", invoiceAsString, onchainThrow);
+            runOnUiThread(() -> canNotHandlePayment(getString(R.string.payment_invalid_onchain, chain)));
+          } else {
+            // -- cannot read and no info about recipient intention, print generic message
+            log.debug("could not read this invoice either as an onchain or a lightning payment{}", invoiceAsString);
+            runOnUiThread(() -> canNotHandlePayment(getString(R.string.payment_invalid_generic, chain)));
+          }
         }
       }
-      new LNInvoiceReaderTask(this, invoiceAsString).execute();
-    } else {
-      canNotHandlePayment(getString(R.string.payment_invalid_address, BuildConfig.CHAIN.toUpperCase()));
     }
+  }
+
+  private String stripLightningScheme(final String invoice) {
+    for (final String scheme : LIGHTNING_SCHEMES) {
+      if (invoice.toLowerCase().startsWith(scheme)) {
+        return invoice.substring(scheme.length());
+      }
+    }
+    return invoice;
   }
 
   @Override

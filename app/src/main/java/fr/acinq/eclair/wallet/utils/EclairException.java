@@ -17,7 +17,7 @@
 package fr.acinq.eclair.wallet.utils;
 
 import fr.acinq.eclair.wallet.models.BackupTypes;
-import org.bitcoinj.uri.BitcoinURI;
+import fr.acinq.eclair.wallet.models.BitcoinURI;
 
 public interface EclairException {
   class NetworkException extends RuntimeException {

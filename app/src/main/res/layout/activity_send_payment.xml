@@ -79,7 +79,7 @@
       android:elevation="4dp"
       android:gravity="start|center"
       android:padding="@dimen/space_md"
-      android:text="@string/payment_invalid_address"
+      android:text="@string/payment_invalid_generic"
       android:textColor="@color/grey_4"
       android:textIsSelectable="true"
       android:visibility="@{paymentStep == Steps.INVOICE_READING_ERROR ? View.VISIBLE : View.GONE}" />
