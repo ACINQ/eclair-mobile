@@ -50,8 +50,7 @@
         android:id="@+id/instructions"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/space_lg"
-        android:text="@string/createwallet_init_instructions" />
+        android:layout_marginBottom="@dimen/space_lg" />
 
       <TableLayout
         android:id="@+id/words_table"

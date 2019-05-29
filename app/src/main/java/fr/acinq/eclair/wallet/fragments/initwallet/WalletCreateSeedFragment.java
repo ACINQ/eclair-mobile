@@ -52,6 +52,7 @@ public class WalletCreateSeedFragment extends Fragment {
   @Override
   public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     mBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_wallet_create_seed, container, false);
+    mBinding.instructions.setText(Html.fromHtml(getString(R.string.createwallet_init_instructions)));
 
     try {
       final Bundle args = getArguments();
