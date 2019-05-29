@@ -122,8 +122,12 @@
 
   <!-- //////////////// Create Seed /////////////////// -->
 
-  <string name="createwallet_init_title">Recovery Words</string>
-  <string name="createwallet_init_instructions">Please backup this 12 words list in a secure location (not on this phone).\n\nIf you lose your device, this list is the only way to recover your funds.</string>
+  <string name="createwallet_init_title">Seed Recovery Phrase</string>
+  <string name="createwallet_init_instructions"><![CDATA[
+    This phrase stores the information about your wallet. It is the <u><b>only way to recover your funds</b></u> if you lose your phone.
+    <br /><br />
+    Please backup this phrase in a secure location (not on this phone).
+  ]]></string>
   <string name="createwallet_single_word_display"><![CDATA[<small>#%1$d</small> <b>%2$s</b>]]></string>
   <string name="createwallet_check_skip">Skip this step</string>
   <string name="createwallet_check_input_hint">Word #%1$d</string>
