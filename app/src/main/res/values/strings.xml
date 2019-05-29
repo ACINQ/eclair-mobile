@@ -508,9 +508,10 @@
   <string name="dialog_close_channel_force_warning"><![CDATA[
   <b>Warning!</b>
   <br /><br />
-  Force-close is more expensive than a regular close and will incur <b>a much longer</b> delay before you get your funds back.
+  Force-close is <b>more expensive</b> than a regular close and will incur <b>a much longer</b> delay before you get your funds back.
   <br /><br />
-  Only use force-close if the channel is stuck or if your peer is not responding.]]></string>
+  Only use force-close if your peer is not responding.
+  ]]></string>
   <string name="dialog_close_channel_force_checkbox_opt">I want to force-close this channel.</string>
   <string name="dialog_close_channel_failure">Error when trying to close channel</string>
   <string name="dialog_close_channel_close">Close channel</string>
