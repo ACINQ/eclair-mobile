@@ -34,9 +34,9 @@ import fr.acinq.bitcoin.MnemonicCode;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.adapters.SimplePagerAdapter;
 import fr.acinq.eclair.wallet.databinding.ActivityRestoreSeedBinding;
-import fr.acinq.eclair.wallet.fragments.WalletEncryptFragment;
-import fr.acinq.eclair.wallet.fragments.WalletImportSeedFragment;
-import fr.acinq.eclair.wallet.fragments.WalletPassphraseFragment;
+import fr.acinq.eclair.wallet.fragments.initwallet.WalletEncryptFragment;
+import fr.acinq.eclair.wallet.fragments.initwallet.WalletImportSeedFragment;
+import fr.acinq.eclair.wallet.fragments.initwallet.WalletPassphraseFragment;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 

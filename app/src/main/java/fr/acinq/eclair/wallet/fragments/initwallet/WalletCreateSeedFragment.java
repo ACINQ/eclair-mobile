@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.acinq.eclair.wallet.fragments;
+package fr.acinq.eclair.wallet.fragments.initwallet;
 
 import androidx.databinding.DataBindingUtil;
 import android.os.Bundle;

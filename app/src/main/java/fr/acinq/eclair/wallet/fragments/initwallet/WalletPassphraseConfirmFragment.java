@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package fr.acinq.eclair.wallet.fragments;
+package fr.acinq.eclair.wallet.fragments.initwallet;
 
 import androidx.databinding.DataBindingUtil;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
@@ -29,12 +28,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fr.acinq.eclair.wallet.R;
-import fr.acinq.eclair.wallet.databinding.FragmentWalletCheckWordsBinding;
+import fr.acinq.eclair.wallet.databinding.FragmentWalletPassphraseConfirmBinding;
 
-public class WalletCheckWordsFragment extends Fragment {
+public class WalletPassphraseConfirmFragment extends Fragment {
 
-  private final Logger log = LoggerFactory.getLogger(WalletCheckWordsFragment.class);
-  public FragmentWalletCheckWordsBinding mBinding;
+  private final Logger log = LoggerFactory.getLogger(WalletPassphraseConfirmFragment.class);
+  public FragmentWalletPassphraseConfirmBinding mBinding;
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -43,8 +42,8 @@ public class WalletCheckWordsFragment extends Fragment {
   }
 
   @Override
-  public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-    mBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_wallet_check_words, container, false);
+  public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    mBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_wallet_passphrase_confirm, container, false);
     return mBinding.getRoot();
   }
 
