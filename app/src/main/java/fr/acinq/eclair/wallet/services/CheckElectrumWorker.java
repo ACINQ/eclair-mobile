@@ -111,6 +111,12 @@ public class CheckElectrumWorker extends Worker {
   @Override
   public Result doWork() {
     final Context context = getApplicationContext();
+
+    if (!WalletUtils.getEclairDBFile(context).exists()) {
+      log.info("no eclair db file yet, aborting...");
+      return Result.success();
+    }
+
     log.info("worker has started");
     // -- if app is running in foreground, check is not possible
     if (((App) context).appKit != null) {

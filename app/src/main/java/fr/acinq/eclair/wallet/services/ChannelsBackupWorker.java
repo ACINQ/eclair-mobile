@@ -72,6 +72,12 @@ public class ChannelsBackupWorker extends Worker {
 
     final String backupFileName = getInputData().getString(BACKUP_NAME_INPUT);
     final String key = getInputData().getString(BACKUP_KEY_INPUT);
+
+    if (!WalletUtils.getEclairDBFile(getApplicationContext()).exists()) {
+      log.info("no eclair db file yet, aborting...");
+      return Result.success();
+    }
+
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
     if (!prefs.getBoolean(Constants.SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_ENABLED, false) || backupFileName == null) {
       return Result.success();
