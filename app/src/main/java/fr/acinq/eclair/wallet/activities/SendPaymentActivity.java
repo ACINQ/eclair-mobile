@@ -103,6 +103,11 @@ public class SendPaymentActivity extends EclairActivity {
       canNotHandlePayment(getString(R.string.payment_ln_invalid_chain, chain));
       return false;
     }
+    // cannot route to self
+    if (paymentRequest.nodeId().toString().equals(app.nodePublicKey())) {
+      canNotHandlePayment(R.string.payment_error_same_node);
+      return false;
+    }
     // check that payment is not already processed
     final Payment paymentInDB = app.getDBHelper().getPayment(paymentRequest.paymentHash().toString(), PaymentType.BTC_LN);
     if (paymentInDB != null && paymentInDB.getStatus() == PaymentStatus.PENDING) {
@@ -193,6 +198,7 @@ public class SendPaymentActivity extends EclairActivity {
     }
   }
 
+  @UiThread
   private void canNotHandlePayment(final int messageId) {
     canNotHandlePayment(getString(messageId));
   }
@@ -206,6 +212,7 @@ public class SendPaymentActivity extends EclairActivity {
   /**
    * Displays the various fields in the payment form, depending on the payment type.
    */
+  @UiThread
   private void invoiceReadSuccessfully(final Either<BitcoinURI, PaymentRequest> pInvoice) {
     if (pInvoice != null && pInvoice.isLeft() && pInvoice.left().get() != null) {
       final BitcoinURI bitcoinURI = pInvoice.left().get();
@@ -318,7 +325,6 @@ public class SendPaymentActivity extends EclairActivity {
           pinDialog.show();
         } else {
           sendLNPayment(amountMsat, paymentRequest, invoiceAsString);
-          closeAndGoHome();
         }
       } else if (isOnchainInvoice()) {
         final BitcoinURI bitcoinURI = invoice.left().get();
@@ -335,7 +341,6 @@ public class SendPaymentActivity extends EclairActivity {
               public void onPinConfirm(final PinDialog dialog, final String pinValue) {
                 if (isPinCorrect(pinValue, dialog)) {
                   sendBitcoinPayment(amountSat, feesPerKw, bitcoinURI, emptyWallet);
-                  closeAndGoHome();
                 } else {
                   handlePaymentError(R.string.payment_error_incorrect_pin);
                 }
@@ -350,7 +355,6 @@ public class SendPaymentActivity extends EclairActivity {
             pinDialog.show();
           } else {
             sendBitcoinPayment(amountSat, feesPerKw, bitcoinURI, emptyWallet);
-            closeAndGoHome();
           }
         } catch (NumberFormatException e) {
           handlePaymentError(R.string.payment_error_fees_onchain);
@@ -369,6 +373,7 @@ public class SendPaymentActivity extends EclairActivity {
    *
    * @param messageId resource id of the the message
    */
+  @UiThread
   private void handlePaymentError(final int messageId) {
     isProcessingPayment = false;
     toggleForm();
@@ -392,12 +397,12 @@ public class SendPaymentActivity extends EclairActivity {
 
         // 1 - check if payment exists in DB
         if (p != null && (p.getStatus() == PaymentStatus.INIT || p.getStatus() == PaymentStatus.PENDING)) {
-          // Payment is already initializing (~ computing route) or pending (~ en route in netwok), abort payment.
-          canNotHandlePayment(R.string.payment_error_pending);
+          // Payment is already initializing (~ computing route) or pending (~ en route in network), abort payment.
+          runOnUiThread(() -> canNotHandlePayment(R.string.payment_error_pending));
           return;
         } else if (p != null && p.getStatus() == PaymentStatus.PAID) {
           // Payment already paid, abort payment.
-          canNotHandlePayment(R.string.payment_error_paid);
+          runOnUiThread(() -> canNotHandlePayment(R.string.payment_error_paid));
           return;
         } else if (p != null && p.getStatus() == PaymentStatus.FAILED) {
           // Payment exists but has failed, retry it with new amount.
@@ -424,7 +429,7 @@ public class SendPaymentActivity extends EclairActivity {
           app.getDBHelper().insertOrUpdatePayment(newPayment);
         } else {
           log.warn("unable to handle state of payment {}", p);
-          canNotHandlePayment(R.string.payment_error_unhandled_state);
+          runOnUiThread(() -> canNotHandlePayment(R.string.payment_error_unhandled_state));
           return;
         }
 
@@ -450,6 +455,7 @@ public class SendPaymentActivity extends EclairActivity {
       log.info("(on-chain) sending {} msat for uri {}", amountSat, bitcoinURI.toString());
       app.sendBitcoinPayment(amountSat, bitcoinURI.address, feesPerKw);
     }
+    closeAndGoHome();
   }
 
   public void cancelPayment(View view) {
