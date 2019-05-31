@@ -337,7 +337,7 @@
   <string name="payment_amount_to_send">Amount in </string>
   <string name="payment_tx_creation_error">Transaction is invalid</string>
   <string name="payment_tx_failed">Transaction failed</string>
-  <string name="payment_toast_failure">Could not send transaction: %1$s</string>
+  <string name="payment_toast_failure">Could not send transaction</string>
   <string name="payment_do_send">Pay</string>
   <string name="payment_do_send_wait">Wallet not ready…</string>
 
