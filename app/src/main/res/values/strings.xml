@@ -361,6 +361,7 @@
   <string name="payment_error_ln_pick_no_channels">You need Lightning channels for this option.</string>
   <string name="payment_error_ln_no_channels">You first need to open a Lightning channel to process this payment.\n\nDo this by swiping right to left from the home view, and tapping the green "+" button.</string>
   <string name="payment_error_ln_insufficient_funds">Your Lightning channels do not have enough balance to process this payment.</string>
+  <string name="payment_error_same_node">You cannot pay yourself.</string>
   <string name="payment_error_pending">This payment is already processing.</string>
   <string name="payment_error_paid">This payment has already been paid.</string>
   <string name="payment_error_unhandled_state">This payment cannot be sent. Try again later…</string>
