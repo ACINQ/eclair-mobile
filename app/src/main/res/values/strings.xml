@@ -286,6 +286,7 @@
   <string name="channeldetails_min_htlc_amount_label">Minimum payment amount</string>
   <string name="channeldetails_closing_section">Closing information</string>
   <string name="channeldetails_closing_cause_label">Cause of closing</string>
+  <string name="channeldetails_closing_cause_error_remote_disclaimer">Reason cited by the peer (may not be accurate):\n\n%1$s</string>
   <string name="channeldetails_refund_block_label">Refund block height</string>
   <string name="channeldetails_refund_block_value">%1$s (current is %2$s)</string>
   <string name="channeldetails_nodeid_label">Peer Node Id</string>

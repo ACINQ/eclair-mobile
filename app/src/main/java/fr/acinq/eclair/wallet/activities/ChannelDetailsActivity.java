@@ -205,7 +205,11 @@ public class ChannelDetailsActivity extends EclairActivity {
 
     if (CLOSING$.MODULE$.toString().equals(channel.state) || !channel.getIsActive()) {
       if (!Strings.isNullOrEmpty(channel.getClosingErrorMessage())) {
-        mBinding.closingCause.setValue(Html.escapeHtml(channel.getClosingErrorMessage()));
+        if (channel.getClosingType() == ClosingType.REMOTE) {
+          mBinding.closingCause.setValue(getString(R.string.channeldetails_closing_cause_error_remote_disclaimer, Html.escapeHtml(channel.getClosingErrorMessage())));
+        } else {
+          mBinding.closingCause.setValue(Html.escapeHtml(channel.getClosingErrorMessage()));
+        }
       }
       mBinding.closingCause.setVisibility(View.VISIBLE);
       mBinding.closingSection.setVisibility(View.VISIBLE);
