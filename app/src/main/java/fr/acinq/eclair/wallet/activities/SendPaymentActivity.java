@@ -222,7 +222,7 @@ public class SendPaymentActivity extends EclairActivity {
         if (NodeSupervisor.getChannelsMap().isEmpty()) {
           mBinding.pickLightningError.setText(R.string.payment_error_ln_pick_no_channels);
           mBinding.pickLightningError.setVisibility(View.VISIBLE);
-          mBinding.pickLightningImage.setAlpha(0.3f);
+          mBinding.pickLightning.setAlpha(0.4f);
           mBinding.pickLightning.setEnabled(false);
         } else {
           mBinding.pickLightning.setOnClickListener(v -> setupLightningPaymentForm(bitcoinURI.lightning));

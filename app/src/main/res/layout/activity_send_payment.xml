@@ -95,7 +95,7 @@
       <LinearLayout
         android:id="@+id/pick_onchain"
         android:layout_width="0dp"
-        android:layout_height="200dp"
+        android:layout_height="160dp"
         android:layout_weight="0.5"
         android:background="?android:attr/selectableItemBackground"
         android:clickable="true"
@@ -105,9 +105,9 @@
         android:padding="@dimen/space_md">
 
         <ImageView
-          android:layout_width="28dp"
-          android:layout_height="28dp"
-          android:src="@drawable/ic_bitcoin_circle" />
+          android:layout_width="22dp"
+          android:layout_height="22dp"
+          android:src="@drawable/ic_chain_orange_24dp" />
 
         <TextView
           android:layout_width="match_parent"
@@ -126,7 +126,7 @@
       <LinearLayout
         android:id="@+id/pick_lightning"
         android:layout_width="0dp"
-        android:layout_height="200dp"
+        android:layout_height="160dp"
         android:layout_weight="0.5"
         android:background="?android:attr/selectableItemBackground"
         android:clickable="true"
@@ -137,9 +137,9 @@
 
         <ImageView
           android:id="@+id/pick_lightning_image"
-          android:layout_width="28dp"
-          android:layout_height="28dp"
-          android:src="@drawable/ic_bolt_circle" />
+          android:layout_width="22dp"
+          android:layout_height="22dp"
+          android:src="@drawable/ic_bolt_blue_24dp" />
 
         <TextView
           android:layout_width="match_parent"
@@ -155,7 +155,7 @@
           android:layout_marginTop="@dimen/space_xs"
           android:textAlignment="center"
           android:textColor="@color/grey_4"
-          android:textSize="10sp"
+          android:textSize="@dimen/text_xs"
           android:visibility="gone" />
       </LinearLayout>
     </LinearLayout>
