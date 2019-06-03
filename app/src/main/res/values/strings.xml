@@ -336,6 +336,7 @@
   <string name="payment_fees_veryhigh">Fees seem very high, you may be overpaying.</string>
   <string name="payment_loading_pleasewait">Reading invoice, please wait…</string>
   <string name="payment_amount_to_send">Amount in </string>
+  <string name="payment_fiat_btc_switch">Switch fiat/btc</string>
   <string name="payment_tx_creation_error">Transaction is invalid</string>
   <string name="payment_tx_failed">Transaction failed</string>
   <string name="payment_toast_failure">Could not send transaction</string>

@@ -31,6 +31,10 @@
       type="fr.acinq.eclair.wallet.activities.SendPaymentActivity.Steps" />
 
     <variable
+      name="isBtcInputMaster"
+      type="boolean" />
+
+    <variable
       name="enableSendButton"
       type="boolean" />
 
@@ -179,11 +183,11 @@
           android:layout_height="wrap_content"
           android:background="@color/grey_0"
           android:clickable="true"
+          android:clipToPadding="false"
           android:focusable="true"
           android:onClick="forceFocusAmount"
-          android:paddingBottom="@dimen/space_sm">
+          android:paddingBottom="@dimen/space_lg">
 
-          <!-- payment type: onchain or lightning -->
           <TextView
             android:id="@+id/payment_type"
             android:layout_width="wrap_content"
@@ -203,69 +207,130 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-          <EditText
-            android:id="@+id/amount_editable_value"
+          <android.support.constraint.ConstraintLayout
+            android:id="@+id/amount_editable_btc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_md"
+            android:clickable="false"
+            android:focusable="false"
+            app:layout_constraintTop_toBottomOf="@id/payment_type">
+
+            <EditText
+              android:id="@+id/amount_editable_btc_value"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:background="@android:color/transparent"
+              android:clickable="false"
+              android:fontFamily="sans-serif-light"
+              android:hint=""
+              android:importantForAutofill="no"
+              android:inputType="numberDecimal"
+              android:maxLines="1"
+              android:minWidth="36dp"
+              android:overScrollMode="always"
+              android:textAlignment="viewEnd"
+              android:textColor="@color/grey_4"
+              android:textColorHint="@color/grey_1"
+              android:textCursorDrawable="@drawable/cursor_grey"
+              android:textSize="@dimen/amount_input_size_default"
+              app:layout_constrainedWidth="true"
+              app:layout_constraintEnd_toStartOf="@+id/amount_editable_btc_unit"
+              app:layout_constraintHorizontal_chainStyle="packed"
+              app:layout_constraintStart_toStartOf="parent"
+              app:layout_constraintTop_toTopOf="parent"
+              tools:ignore="UnusedAttribute" />
+
+            <TextView
+              android:id="@+id/amount_editable_btc_hint"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_marginEnd="@dimen/space_xs"
+              android:layout_toStartOf="@+id/amount_editable_btc_unit"
+              android:fontFamily="sans-serif-light"
+              android:text="@string/payment_amount_to_send"
+              android:textColor="@color/grey_1"
+              app:layout_constraintBaseline_toBaselineOf="@+id/amount_editable_btc_value"
+              app:layout_constraintEnd_toEndOf="@+id/amount_editable_btc_value"
+              app:layout_constraintHorizontal_bias="1" />
+
+            <TextView
+              android:id="@+id/amount_editable_btc_unit"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_marginStart="@dimen/space_xxs"
+              android:fontFamily="sans-serif-light"
+              android:maxLines="1"
+              android:textSize="@dimen/text_lg"
+              app:layout_constraintBaseline_toBaselineOf="@+id/amount_editable_btc_value"
+              app:layout_constraintEnd_toEndOf="parent"
+              app:layout_constraintStart_toEndOf="@id/amount_editable_btc_value" />
+
+          </android.support.constraint.ConstraintLayout>
+
+          <android.support.constraint.ConstraintLayout
+            android:id="@+id/amount_editable_fiat"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:alpha="0.3"
+            android:clickable="false"
+            android:focusable="false"
+            android:scaleX="0.7"
+            android:scaleY="0.7"
+            android:translationY="@dimen/amount_y_offset"
+            app:layout_constraintTop_toTopOf="@id/amount_editable_btc">
+
+            <EditText
+              android:id="@+id/amount_editable_fiat_value"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:background="@android:color/transparent"
+              android:clickable="false"
+              android:fontFamily="sans-serif-light"
+              android:hint=""
+              android:importantForAutofill="no"
+              android:inputType="numberDecimal"
+              android:maxLines="1"
+              android:minWidth="36dp"
+              android:overScrollMode="always"
+              android:textAlignment="viewEnd"
+              android:textColor="@color/grey_4"
+              android:textColorHint="@color/grey_1"
+              android:textCursorDrawable="@drawable/cursor_grey"
+              android:textSize="@dimen/amount_input_size_sm"
+              app:layout_constrainedWidth="true"
+              app:layout_constraintEnd_toStartOf="@+id/amount_editable_fiat_unit"
+              app:layout_constraintHorizontal_chainStyle="packed"
+              app:layout_constraintStart_toStartOf="parent"
+              app:layout_constraintTop_toTopOf="parent"
+              tools:ignore="UnusedAttribute" />
+
+            <TextView
+              android:id="@+id/amount_editable_fiat_unit"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_marginStart="@dimen/space_xxs"
+              android:fontFamily="sans-serif-light"
+              android:maxLines="1"
+              android:textSize="@dimen/text_lg"
+              app:layout_constraintBaseline_toBaselineOf="@+id/amount_editable_fiat_value"
+              app:layout_constraintEnd_toEndOf="parent"
+              app:layout_constraintStart_toEndOf="@id/amount_editable_fiat_value" />
+          </android.support.constraint.ConstraintLayout>
+
+          <ImageButton
+            android:id="@+id/switch_amount_input_unit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="@drawable/bg_half_circle_white"
+            android:contentDescription="@string/payment_fiat_btc_switch"
+            android:padding="@dimen/space_xs"
             android:layout_marginTop="@dimen/space_md_p"
-            android:background="@android:color/transparent"
-            android:fontFamily="sans-serif-light"
-            android:hint=""
-            android:importantForAutofill="no"
-            android:inputType="numberDecimal"
-            android:maxLines="1"
-            android:minWidth="36dp"
-            android:overScrollMode="always"
-            android:textAlignment="viewEnd"
-            android:textColor="@color/grey_4"
-            android:textColorHint="@color/grey_0_dark_x2"
-            android:textCursorDrawable="@drawable/cursor_grey"
-            android:textSize="40sp"
-            app:layout_constrainedWidth="true"
-            app:layout_constraintEnd_toStartOf="@+id/amount_editable_unit"
-            app:layout_constraintHorizontal_chainStyle="packed"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/payment_type"
-            tools:ignore="UnusedAttribute" />
-
-          <TextView
-            android:id="@+id/amount_editable_hint"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/space_xs"
-            android:layout_toStartOf="@+id/amount_editable_unit"
-            android:fontFamily="sans-serif-light"
-            android:text="@string/payment_amount_to_send"
-            android:textColor="@color/grey_1"
-            app:layout_constraintBaseline_toBaselineOf="@+id/amount_editable_value"
-            app:layout_constraintEnd_toEndOf="@+id/amount_editable_value"
-            app:layout_constraintHorizontal_bias="1" />
-
-          <TextView
-            android:id="@+id/amount_editable_unit"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="6dp"
-            android:fontFamily="sans-serif-light"
-            android:maxLines="1"
-            app:layout_constraintBaseline_toBaselineOf="@+id/amount_editable_value"
+            android:src="@drawable/ic_switch2_black_24dp"
+            android:tint="@color/grey_1"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0"
-            app:layout_constraintStart_toEndOf="@id/amount_editable_value" />
-
-          <TextView
-            android:id="@+id/amount_fiat"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/space_xs"
-            android:layout_marginBottom="6dp"
-            android:fontFamily="sans-serif-light"
-            android:maxLines="1"
-            android:textColor="@color/grey_2"
-            android:textSize="12sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/amount_editable_value" />
+            app:layout_constraintTop_toBottomOf="@id/payment_type" />
 
         </android.support.constraint.ConstraintLayout>
 
