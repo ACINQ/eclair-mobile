@@ -26,6 +26,7 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.UiThread;
 import android.support.annotation.WorkerThread;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import com.google.common.base.Strings;
@@ -500,6 +501,15 @@ public class SendPaymentActivity extends EclairActivity {
     return invoice != null && invoice.isRight() && invoice.right().get() != null;
   }
 
+  private void adaptAmountTextSize() {
+    final String amountString = mBinding.amountEditableValue.getText().toString();
+    if (amountString.length() > 10) {
+      mBinding.amountEditableValue.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.amount_input_size_sm));
+    } else {
+      mBinding.amountEditableValue.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.amount_input_size_default));
+    }
+  }
+
   @Override
   protected void onCreate(final Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -519,6 +529,7 @@ public class SendPaymentActivity extends EclairActivity {
       public void onTextChanged(CharSequence s, int start, int before, int count) {
         // toggle hint depending on amount input
         mBinding.amountEditableHint.setVisibility(s == null || s.length() == 0 ? View.VISIBLE : View.GONE);
+        adaptAmountTextSize();
         try {
           final MilliSatoshi amountMsat = CoinUtils.convertStringAmountToMsat(s.toString(), preferredBitcoinUnit.code());
           mBinding.amountFiat.setText(WalletUtils.formatMsatToFiatWithUnit(amountMsat.amount(), preferredFiatCurrency));

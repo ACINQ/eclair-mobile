@@ -22,6 +22,9 @@
   <dimen name="text_sm">12sp</dimen>
   <dimen name="text_xs">10sp</dimen>
 
+  <dimen name="amount_input_size_default">40sp</dimen>
+  <dimen name="amount_input_size_sm">34sp</dimen>
+
   <dimen name="space_xxl">96dp</dimen>
   <dimen name="space_xl">64dp</dimen>
   <dimen name="space_lg_p">48dp</dimen>
