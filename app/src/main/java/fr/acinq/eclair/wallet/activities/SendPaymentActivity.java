@@ -317,6 +317,10 @@ public class SendPaymentActivity extends EclairActivity {
       if (isLightningInvoice()) {
         final PaymentRequest paymentRequest = invoice.right().get();
         final long amountMsat = CoinUtils.convertStringAmountToMsat(mBinding.amountEditableBtcValue.getText().toString(), preferredBitcoinUnit.code()).amount();
+        if (amountMsat <= 0) {
+          handlePaymentError(R.string.payment_error_amount_zero_or_less);
+          return;
+        }
         if (isPinRequired()) {
           pinDialog = new PinDialog(SendPaymentActivity.this, R.style.FullScreenDialog, new PinDialog.PinDialogCallback() {
             @Override
@@ -343,6 +347,9 @@ public class SendPaymentActivity extends EclairActivity {
         final Satoshi amountSat = CoinUtils.convertStringAmountToSat(mBinding.amountEditableBtcValue.getText().toString(), preferredBitcoinUnit.code());
         if (amountSat.$greater(app.getOnchainBalance())) {
           handlePaymentError(R.string.payment_error_amount_onchain_insufficient_funds);
+          return;
+        } else if (amountSat.amount() <= 0) {
+          handlePaymentError(R.string.payment_error_amount_zero_or_less);
           return;
         }
         try {
