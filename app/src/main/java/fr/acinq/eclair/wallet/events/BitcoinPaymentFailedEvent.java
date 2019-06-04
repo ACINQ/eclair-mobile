@@ -25,8 +25,8 @@ public class BitcoinPaymentFailedEvent {
     this.message = message;
   }
 
-  public String getMessage() {
-    if (message.length() > 40) {
+  private String getMessage() {
+    if (message != null && message.length() > 40) {
       return Html.escapeHtml(message).substring(0, 37) + "...";
     }
     return message;

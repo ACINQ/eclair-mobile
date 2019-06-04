@@ -122,8 +122,12 @@
 
   <!-- //////////////// Create Seed /////////////////// -->
 
-  <string name="createwallet_init_title">Recovery Words</string>
-  <string name="createwallet_init_instructions">Please backup this 12 words list in a secure location (not on this phone).\n\nIf you lose your device, this list is the only way to recover your funds.</string>
+  <string name="createwallet_init_title">Seed Recovery Phrase</string>
+  <string name="createwallet_init_instructions"><![CDATA[
+    This phrase stores the information about your wallet. It is the <u><b>only way to recover your funds</b></u> if you lose your phone.
+    <br /><br />
+    Please backup this phrase in a secure location (not on this phone).
+  ]]></string>
   <string name="createwallet_single_word_display"><![CDATA[<small>#%1$d</small> <b>%2$s</b>]]></string>
   <string name="createwallet_check_skip">Skip this step</string>
   <string name="createwallet_check_input_hint">Word #%1$d</string>
@@ -282,6 +286,7 @@
   <string name="channeldetails_min_htlc_amount_label">Minimum payment amount</string>
   <string name="channeldetails_closing_section">Closing information</string>
   <string name="channeldetails_closing_cause_label">Cause of closing</string>
+  <string name="channeldetails_closing_cause_error_remote_disclaimer">Reason cited by the peer (may not be accurate):\n\n%1$s</string>
   <string name="channeldetails_refund_block_label">Refund block height</string>
   <string name="channeldetails_refund_block_value">%1$s (current is %2$s)</string>
   <string name="channeldetails_nodeid_label">Peer Node Id</string>
@@ -308,8 +313,10 @@
 
   <!-- //////////////// Send Payment //////////////////// -->
 
-  <string name="payment_invalid_address">This is not a valid payment address.\n\nPlease use a %1$s Bitcoin address or Lightning payment request to initiate a payment.</string>
-  <string name="payment_ln_invalid_chain">This payment request is not valid for %1$s.\n\nPlease make sure that you are on the correct blockchain.</string>
+  <string name="payment_invalid_lightning">This is not a valid %1$s Lightning payment request.</string>
+  <string name="payment_invalid_onchain">This is not a valid %1$s Bitcoin address.</string>
+  <string name="payment_invalid_generic">This is not a valid payment address.\n\nPlease use a %1$s Bitcoin or Lightning payment request.</string>
+  <string name="payment_ln_invalid_chain">This Lightning payment request is not valid on %1$s.</string>
   <string name="payment_ln_expiry_outdated">This payment has expired.</string>
   <string name="payment_pick_onchain">Pay on-chain</string>
   <string name="payment_pick_lightning">Pay with Lightning</string>
@@ -329,9 +336,10 @@
   <string name="payment_fees_veryhigh">Fees seem very high, you may be overpaying.</string>
   <string name="payment_loading_pleasewait">Reading invoice, please wait…</string>
   <string name="payment_amount_to_send">Amount in </string>
+  <string name="payment_fiat_btc_switch">Switch fiat/btc</string>
   <string name="payment_tx_creation_error">Transaction is invalid</string>
   <string name="payment_tx_failed">Transaction failed</string>
-  <string name="payment_toast_failure">Could not send transaction: %1$s</string>
+  <string name="payment_toast_failure">Could not send transaction</string>
   <string name="payment_do_send">Pay</string>
   <string name="payment_do_send_wait">Wallet not ready…</string>
 
@@ -339,9 +347,11 @@
   <string name="payment_error_fees_onchain">The fees value is not valid.</string>
   <string name="payment_error_amount_onchain_insufficient_funds">Payment amount exceeds your balance.</string>
   <string name="payment_error_amount">Payment amount is not valid.</string>
-  <string name="payment_error_ln_pick_no_channels">You need Lightning channels for this option.</string>
+  <string name="payment_error_amount_zero_or_less">Amount must be greater than 0</string>
+  <string name="payment_error_ln_pick_no_channels">You need Lightning channels for this feature.</string>
   <string name="payment_error_ln_no_channels">You first need to open a Lightning channel to process this payment.\n\nDo this by swiping right to left from the home view, and tapping the green "+" button.</string>
   <string name="payment_error_ln_insufficient_funds">Your Lightning channels do not have enough balance to process this payment.</string>
+  <string name="payment_error_same_node">You cannot pay yourself.</string>
   <string name="payment_error_pending">This payment is already processing.</string>
   <string name="payment_error_paid">This payment has already been paid.</string>
   <string name="payment_error_unhandled_state">This payment cannot be sent. Try again later…</string>
@@ -502,9 +512,10 @@
   <string name="dialog_close_channel_force_warning"><![CDATA[
   <b>Warning!</b>
   <br /><br />
-  Force-close is more expensive than a regular close and will incur <b>a much longer</b> delay before you get your funds back.
+  Force-close is <b>more expensive</b> than a regular close and will incur <b>a much longer</b> delay before you get your funds back.
   <br /><br />
-  Only use force-close if the channel is stuck or if your peer is not responding.]]></string>
+  Only use force-close if your peer is not responding.
+  ]]></string>
   <string name="dialog_close_channel_force_checkbox_opt">I want to force-close this channel.</string>
   <string name="dialog_close_channel_failure">Error when trying to close channel</string>
   <string name="dialog_close_channel_close">Close channel</string>
@@ -638,6 +649,5 @@
   <string name="dialog_prparams_amount_hint">No amount requested</string>
   <string name="dialog_prparams_amount_error_generic">Invalid amount</string>
   <string name="dialog_prparams_amount_error_excessive">Requested amount exceeds your current capacity and may fail</string>
-  <string name="dialog_prparams_amount_error_excessive_absolute">Payments over Lightning cannot exceed %1$s</string>
 
 </resources>

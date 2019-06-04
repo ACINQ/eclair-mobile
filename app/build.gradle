@@ -24,8 +24,8 @@ android {
     applicationId "fr.acinq.eclair.wallet.mainnet2"
     minSdkVersion 21
     targetSdkVersion 28
-    versionCode 45
-    versionName "0.4.5"
+    versionCode 46
+    versionName "0.4.6-DEV"
     testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     multiDexEnabled true
   }
@@ -88,7 +88,7 @@ dependencies {
   implementation 'com.android.support:support-v4:28.0.0'
   implementation 'com.android.support.constraint:constraint-layout:1.1.3'
   implementation 'com.google.code.findbugs:jsr305:3.0.2'
-  implementation 'com.google.android.gms:play-services-drive:16.0.0'
+  implementation 'com.google.android.gms:play-services-drive:16.1.0'
   implementation 'com.google.android.gms:play-services-auth:16.0.1'
   implementation('android.arch.work:work-runtime:1.0.0') {
     exclude group: 'com.google.guava', module: 'listenablefuture'
@@ -100,7 +100,7 @@ dependencies {
     exclude group: 'ch.qos.logback'
   }
   // eclair core
-  implementation 'fr.acinq.eclair:eclair-core_2.11:0.2-android-beta22'
+  implementation 'fr.acinq.eclair:eclair-core_2.11:0.3.1-android'
   // database orm
   implementation 'org.greenrobot:greendao:3.2.2'
   // required for greendao encryption, disabled for now

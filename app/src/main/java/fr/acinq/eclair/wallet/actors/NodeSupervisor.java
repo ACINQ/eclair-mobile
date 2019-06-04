@@ -245,8 +245,8 @@ public class NodeSupervisor extends UntypedActor {
       channelsRefreshScheduler.tell(Constants.REFRESH, null);
     }
     // ---- channel is in error
-    else if (message instanceof ChannelFailed) {
-      final ChannelFailed event = (ChannelFailed) message;
+    else if (message instanceof ChannelErrorOccured) {
+      final ChannelErrorOccured event = (ChannelErrorOccured) message;
       final LocalChannel c = activeChannelsMap.get(event.channel());
       if (c != null) {
         if (event.error() instanceof Channel.LocalError) {
@@ -416,8 +416,6 @@ public class NodeSupervisor extends UntypedActor {
   /**
    * Optimistically estimates the maximum amount that this node can receive. OFFLINE/SYNCING channels' balances are accounted
    * for in order to smooth this estimation if the connection is flaky.
-   * <p>
-   * Returned amount will never exceed {@link PaymentRequest#MAX_AMOUNT()}.
    */
   public static MilliSatoshi getMaxReceivable() {
     long max_msat = 0;
@@ -426,7 +424,7 @@ public class NodeSupervisor extends UntypedActor {
         max_msat = Math.max(max_msat, d.getReceivableMsat());
       }
     }
-    return new MilliSatoshi(Math.min(PaymentRequest.MAX_AMOUNT().amount(), max_msat));
+    return new MilliSatoshi(max_msat);
   }
 
   public final static int MIN_REMOTE_TO_SELF_DELAY = 2016;

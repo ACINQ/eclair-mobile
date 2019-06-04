@@ -25,6 +25,7 @@ import fr.acinq.eclair.SyncLiteSetup;
 import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.utils.Constants;
+import fr.acinq.eclair.wallet.utils.WalletUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,9 +67,9 @@ public class NetworkSyncWorker extends Worker {
     }
     if (liteSetup != null && liteSetup.nodeParams() != null) {
       try {
-        liteSetup.nodeParams().channelsDb().close(); // eclair.sqlite
-        liteSetup.nodeParams().networkDb().close(); // network.sqlite
-        liteSetup.nodeParams().auditDb().close(); // audit.sqlite
+        liteSetup.nodeParams().db().channels().close(); // eclair.sqlite
+        liteSetup.nodeParams().db().network().close(); // network.sqlite
+        liteSetup.nodeParams().db().audit().close(); // audit.sqlite
       } catch (Throwable t) {
         log.error("could not close at least one database connection opened by litesetup", t);
       }
@@ -80,13 +81,19 @@ public class NetworkSyncWorker extends Worker {
   public Result doWork() {
     log.info("NetworkSyncWorker has started");
     final Context context = getApplicationContext();
+
+    if (!WalletUtils.getEclairDBFile(context).exists()) {
+      log.info("no eclair db file yet, aborting...");
+      return Result.success();
+    }
+
     if (((App) context).appKit != null) {
       log.info("application is running (appkit not null)");
       return Result.success();
     } else {
       try {
         Class.forName("org.sqlite.JDBC");
-        liteSetup = new SyncLiteSetup(new File(context.getFilesDir(), Constants.ECLAIR_DATADIR), ConfigFactory.empty(), Constants.ACINQ_NODE_URI, system);
+        liteSetup = new SyncLiteSetup(new File(context.getFilesDir(), Constants.ECLAIR_DATADIR), ConfigFactory.empty(), Constants.ACINQ_NODE_URI, Option.empty(), system);
         Await.result(liteSetup.sync(), Duration.Inf());
         log.info("sync has completed");
         return Result.success();

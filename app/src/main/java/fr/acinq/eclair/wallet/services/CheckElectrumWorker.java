@@ -98,9 +98,9 @@ public class CheckElectrumWorker extends Worker {
     }
     if (setup != null && setup.nodeParams() != null) {
       try {
-        setup.nodeParams().channelsDb().close(); // eclair.sqlite
-        setup.nodeParams().networkDb().close(); // network.sqlite
-        setup.nodeParams().auditDb().close(); // audit.sqlite
+        setup.nodeParams().db().channels().close(); // eclair.sqlite
+        setup.nodeParams().db().network().close(); // network.sqlite
+        setup.nodeParams().db().audit().close(); // audit.sqlite
       } catch (Throwable t) {
         log.error("could not close at least one database connection opened by check electrum setup", t);
       }
@@ -111,6 +111,12 @@ public class CheckElectrumWorker extends Worker {
   @Override
   public Result doWork() {
     final Context context = getApplicationContext();
+
+    if (!WalletUtils.getEclairDBFile(context).exists()) {
+      log.info("no eclair db file yet, aborting...");
+      return Result.success();
+    }
+
     log.info("worker has started");
     // -- if app is running in foreground, check is not possible
     if (((App) context).appKit != null) {
@@ -158,8 +164,8 @@ public class CheckElectrumWorker extends Worker {
 
   private WatchListener.WatchResult startElectrumCheck(@NonNull final Context context) throws Exception {
     Class.forName("org.sqlite.JDBC");
-    setup = new CheckElectrumSetup(new File(context.getFilesDir(), Constants.ECLAIR_DATADIR), WalletUtils.getOverrideConfig(PreferenceManager.getDefaultSharedPreferences(context)), system);
-    if (setup.nodeParams().channelsDb().listChannels().isEmpty()) {
+    setup = new CheckElectrumSetup(new File(context.getFilesDir(), Constants.ECLAIR_DATADIR), WalletUtils.getOverrideConfig(PreferenceManager.getDefaultSharedPreferences(context)), Option.empty(), system);
+    if (setup.nodeParams().db().channels().listLocalChannels().isEmpty()) {
       log.info("no active channels found");
       return WatchListener.Ok$.MODULE$;
     } else {

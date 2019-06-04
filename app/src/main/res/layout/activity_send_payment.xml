@@ -15,7 +15,8 @@
   -->
 
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:app="http://schemas.android.com/apk/res-auto">
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools">
 
   <data>
 
@@ -28,6 +29,10 @@
     <variable
       name="paymentStep"
       type="fr.acinq.eclair.wallet.activities.SendPaymentActivity.Steps" />
+
+    <variable
+      name="isBtcInputMaster"
+      type="boolean" />
 
     <variable
       name="enableSendButton"
@@ -79,7 +84,7 @@
       android:elevation="4dp"
       android:gravity="start|center"
       android:padding="@dimen/space_md"
-      android:text="@string/payment_invalid_address"
+      android:text="@string/payment_invalid_generic"
       android:textColor="@color/grey_4"
       android:textIsSelectable="true"
       android:visibility="@{paymentStep == Steps.INVOICE_READING_ERROR ? View.VISIBLE : View.GONE}" />
@@ -94,7 +99,7 @@
       <LinearLayout
         android:id="@+id/pick_onchain"
         android:layout_width="0dp"
-        android:layout_height="200dp"
+        android:layout_height="160dp"
         android:layout_weight="0.5"
         android:background="?android:attr/selectableItemBackground"
         android:clickable="true"
@@ -104,9 +109,9 @@
         android:padding="@dimen/space_md">
 
         <ImageView
-          android:layout_width="28dp"
-          android:layout_height="28dp"
-          android:src="@drawable/ic_bitcoin_circle" />
+          android:layout_width="22dp"
+          android:layout_height="22dp"
+          android:src="@drawable/ic_chain_orange_24dp" />
 
         <TextView
           android:layout_width="match_parent"
@@ -125,7 +130,7 @@
       <LinearLayout
         android:id="@+id/pick_lightning"
         android:layout_width="0dp"
-        android:layout_height="200dp"
+        android:layout_height="160dp"
         android:layout_weight="0.5"
         android:background="?android:attr/selectableItemBackground"
         android:clickable="true"
@@ -136,9 +141,9 @@
 
         <ImageView
           android:id="@+id/pick_lightning_image"
-          android:layout_width="28dp"
-          android:layout_height="28dp"
-          android:src="@drawable/ic_bolt_circle" />
+          android:layout_width="22dp"
+          android:layout_height="22dp"
+          android:src="@drawable/ic_bolt_blue_24dp" />
 
         <TextView
           android:layout_width="match_parent"
@@ -154,7 +159,7 @@
           android:layout_marginTop="@dimen/space_xs"
           android:textAlignment="center"
           android:textColor="@color/grey_4"
-          android:textSize="10sp"
+          android:textSize="@dimen/text_xs"
           android:visibility="gone" />
       </LinearLayout>
     </LinearLayout>
@@ -173,107 +178,165 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <LinearLayout
+        <android.support.constraint.ConstraintLayout
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:background="@color/grey_0"
           android:clickable="true"
+          android:clipToPadding="false"
           android:focusable="true"
-          android:gravity="center"
           android:onClick="forceFocusAmount"
-          android:orientation="vertical"
-          android:paddingBottom="10dp">
+          android:paddingBottom="@dimen/space_lg">
 
-          <!-- payment type: onchain -->
-          <LinearLayout
+          <TextView
+            android:id="@+id/payment_type"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="6dp"
             android:background="@drawable/rounded_corner_grey_bottom"
-            android:gravity="center"
-            android:orientation="horizontal"
-            android:paddingLeft="6dp"
-            android:paddingTop="2dp"
-            android:paddingRight="6dp"
-            android:paddingBottom="3dp">
+            android:drawableStart="@{paymentStep == Steps.ON_CHAIN_PAYMENT ? @drawable/ic_chain_orange_14dp : @drawable/ic_bolt_blue_14dp}"
+            android:drawablePadding="@dimen/space_xxs"
+            android:gravity="start|center"
+            android:paddingLeft="@dimen/space_xs"
+            android:paddingTop="@dimen/space_xxs"
+            android:paddingRight="@dimen/space_xs"
+            android:paddingBottom="@dimen/space_xxs"
+            android:text="@{paymentStep == Steps.ON_CHAIN_PAYMENT ? @string/payment_type_onchain :  @string/payment_type_lightning}"
+            android:textColor="@color/grey_2"
+            android:textSize="@dimen/text_xs"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-            <ImageView
-              android:layout_width="16dp"
-              android:layout_height="16dp"
-              android:layout_marginEnd="4dp"
-              android:src="@{paymentStep == Steps.ON_CHAIN_PAYMENT ? @drawable/ic_bitcoin_circle : @drawable/ic_bolt_circle}" />
-
-            <TextView
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:text="@{paymentStep == Steps.ON_CHAIN_PAYMENT ? @string/payment_type_onchain :  @string/payment_type_lightning}"
-              android:textColor="@color/grey_2"
-              android:textSize="10sp" />
-          </LinearLayout>
-
-          <!-- EDITABLE payment amount -->
-          <RelativeLayout
-            android:id="@+id/amount_editable"
-            android:layout_width="wrap_content"
+          <android.support.constraint.ConstraintLayout
+            android:id="@+id/amount_editable_btc"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="4dp"
-            android:gravity="center">
+            android:layout_marginTop="@dimen/space_md"
+            android:clickable="false"
+            android:focusable="false"
+            android:paddingStart="@dimen/space_xxs"
+            android:paddingEnd="@dimen/space_xxs"
+            app:layout_constraintTop_toBottomOf="@id/payment_type">
 
             <EditText
-              android:id="@+id/amount_editable_value"
+              android:id="@+id/amount_editable_btc_value"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
-              android:layout_toStartOf="@+id/amount_editable_unit"
               android:background="@android:color/transparent"
+              android:clickable="false"
               android:fontFamily="sans-serif-light"
               android:hint=""
+              android:importantForAutofill="no"
               android:inputType="numberDecimal"
               android:maxLines="1"
               android:minWidth="36dp"
               android:overScrollMode="always"
               android:textAlignment="viewEnd"
               android:textColor="@color/grey_4"
-              android:textColorHint="@color/grey_0_dark_x2"
+              android:textColorHint="@color/grey_1"
               android:textCursorDrawable="@drawable/cursor_grey"
-              android:textSize="40sp" />
+              android:textSize="@dimen/amount_input_size_default"
+              app:layout_constrainedWidth="true"
+              app:layout_constraintEnd_toStartOf="@+id/amount_editable_btc_unit"
+              app:layout_constraintHorizontal_chainStyle="packed"
+              app:layout_constraintStart_toStartOf="parent"
+              app:layout_constraintTop_toTopOf="parent"
+              tools:ignore="UnusedAttribute" />
 
             <TextView
-              android:id="@+id/amount_editable_hint"
+              android:id="@+id/amount_editable_btc_hint"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
-              android:layout_alignBaseline="@+id/amount_editable_unit"
-              android:layout_marginEnd="8dp"
-              android:layout_toStartOf="@+id/amount_editable_unit"
+              android:layout_marginEnd="@dimen/space_xs"
+              android:layout_toStartOf="@+id/amount_editable_btc_unit"
               android:fontFamily="sans-serif-light"
               android:text="@string/payment_amount_to_send"
-              android:textColor="@color/grey_1" />
+              android:textColor="@color/grey_1"
+              app:layout_constraintBaseline_toBaselineOf="@+id/amount_editable_btc_value"
+              app:layout_constraintEnd_toEndOf="@+id/amount_editable_btc_value"
+              app:layout_constraintHorizontal_bias="1" />
 
             <TextView
-              android:id="@+id/amount_editable_unit"
+              android:id="@+id/amount_editable_btc_unit"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
-              android:layout_alignBaseline="@+id/amount_editable_value"
-              android:layout_alignParentEnd="true"
+              android:layout_marginStart="@dimen/space_xxs"
               android:fontFamily="sans-serif-light"
               android:maxLines="1"
-              android:paddingStart="6dp"
-              android:paddingEnd="0dp" />
-          </RelativeLayout>
+              android:textSize="@dimen/text_lg"
+              app:layout_constraintBaseline_toBaselineOf="@+id/amount_editable_btc_value"
+              app:layout_constraintEnd_toEndOf="parent"
+              app:layout_constraintStart_toEndOf="@id/amount_editable_btc_value" />
 
-          <TextView
-            android:id="@+id/amount_fiat"
+          </android.support.constraint.ConstraintLayout>
+
+          <android.support.constraint.ConstraintLayout
+            android:id="@+id/amount_editable_fiat"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:alpha="0.3"
+            android:clickable="false"
+            android:focusable="false"
+            android:paddingStart="@dimen/space_xxs"
+            android:paddingEnd="@dimen/space_xxs"
+            android:scaleX="0.7"
+            android:scaleY="0.7"
+            android:translationY="@dimen/amount_y_offset"
+            app:layout_constraintTop_toTopOf="@id/amount_editable_btc">
+
+            <EditText
+              android:id="@+id/amount_editable_fiat_value"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:background="@android:color/transparent"
+              android:clickable="false"
+              android:fontFamily="sans-serif-light"
+              android:hint=""
+              android:importantForAutofill="no"
+              android:inputType="numberDecimal"
+              android:maxLines="1"
+              android:minWidth="36dp"
+              android:overScrollMode="always"
+              android:textAlignment="viewEnd"
+              android:textColor="@color/grey_4"
+              android:textColorHint="@color/grey_1"
+              android:textCursorDrawable="@drawable/cursor_grey"
+              android:textSize="@dimen/amount_input_size_sm"
+              app:layout_constrainedWidth="true"
+              app:layout_constraintEnd_toStartOf="@+id/amount_editable_fiat_unit"
+              app:layout_constraintHorizontal_chainStyle="packed"
+              app:layout_constraintStart_toStartOf="parent"
+              app:layout_constraintTop_toTopOf="parent"
+              tools:ignore="UnusedAttribute" />
+
+            <TextView
+              android:id="@+id/amount_editable_fiat_unit"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_marginStart="@dimen/space_xxs"
+              android:fontFamily="sans-serif-light"
+              android:maxLines="1"
+              android:textSize="@dimen/text_lg"
+              app:layout_constraintBaseline_toBaselineOf="@+id/amount_editable_fiat_value"
+              app:layout_constraintEnd_toEndOf="parent"
+              app:layout_constraintStart_toEndOf="@id/amount_editable_fiat_value" />
+          </android.support.constraint.ConstraintLayout>
+
+          <ImageButton
+            android:id="@+id/switch_amount_input_unit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="6dp"
-            android:fontFamily="sans-serif-light"
-            android:maxLines="1"
-            android:textColor="@color/grey_2"
-            android:textSize="12sp" />
+            android:layout_marginTop="@dimen/space_md_p"
+            android:background="@drawable/bg_half_circle_white"
+            android:contentDescription="@string/payment_fiat_btc_switch"
+            android:padding="6dp"
+            android:src="@drawable/ic_switch_black_16dp"
+            android:tint="@color/grey_1"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/payment_type" />
 
-        </LinearLayout>
+        </android.support.constraint.ConstraintLayout>
 
         <!-- payment recipient: on chain address or LN public id -->
         <LinearLayout

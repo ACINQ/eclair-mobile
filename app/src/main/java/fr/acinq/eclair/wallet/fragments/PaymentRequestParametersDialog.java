@@ -18,22 +18,14 @@ package fr.acinq.eclair.wallet.fragments;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
-import android.support.design.widget.TextInputLayout;
 import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.SeekBar;
-import android.widget.TextView;
 import com.google.common.base.Strings;
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.eclair.CoinUnit;
 import fr.acinq.eclair.CoinUtils;
-import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.actors.NodeSupervisor;
 import fr.acinq.eclair.wallet.databinding.DialogPaymentRequestParametersBinding;
@@ -93,8 +85,6 @@ public class PaymentRequestParametersDialog extends Dialog {
       final MilliSatoshi amountMsat = amountString.length() == 0 ? null : new MilliSatoshi(CoinUtils.convertStringAmountToMsat(amountString, prefUnit.code()).amount());
       if (amountMsat != null && amountMsat.amount() < 0) {
         mBinding.setAmountError(getContext().getString(R.string.dialog_prparams_amount_error_generic));
-      } else if (amountMsat != null && amountMsat.amount() > PaymentRequest.MAX_AMOUNT().amount()) {
-        mBinding.setAmountError(getContext().getString(R.string.dialog_prparams_amount_error_excessive_absolute, CoinUtils.formatAmountInUnit(PaymentRequest.MAX_AMOUNT(), prefUnit, true)));
       } else {
         if (amountMsat.amount() > maxReceivableAmount.amount()) {
           mBinding.setAmountWarning(getContext().getString(R.string.dialog_prparams_amount_error_excessive));
