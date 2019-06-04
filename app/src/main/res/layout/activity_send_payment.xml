@@ -214,6 +214,8 @@
             android:layout_marginTop="@dimen/space_md"
             android:clickable="false"
             android:focusable="false"
+            android:paddingStart="@dimen/space_xxs"
+            android:paddingEnd="@dimen/space_xxs"
             app:layout_constraintTop_toBottomOf="@id/payment_type">
 
             <EditText
@@ -275,6 +277,8 @@
             android:alpha="0.3"
             android:clickable="false"
             android:focusable="false"
+            android:paddingStart="@dimen/space_xxs"
+            android:paddingEnd="@dimen/space_xxs"
             android:scaleX="0.7"
             android:scaleY="0.7"
             android:translationY="@dimen/amount_y_offset"
@@ -322,10 +326,10 @@
             android:id="@+id/switch_amount_input_unit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_md_p"
             android:background="@drawable/bg_half_circle_white"
             android:contentDescription="@string/payment_fiat_btc_switch"
             android:padding="@dimen/space_xs"
-            android:layout_marginTop="@dimen/space_md_p"
             android:src="@drawable/ic_switch2_black_24dp"
             android:tint="@color/grey_1"
             app:layout_constraintBottom_toBottomOf="parent"

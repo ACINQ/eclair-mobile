@@ -26,6 +26,7 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.UiThread;
 import android.support.annotation.WorkerThread;
+import android.text.format.DateUtils;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -588,13 +589,17 @@ public class SendPaymentActivity extends EclairActivity {
     setFeesToDefault();
     mBinding.setPaymentStep(Steps.LOADING);
     mBinding.setEnableSendButton(true);
-    final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-    preferredBitcoinUnit = WalletUtils.getPreferredCoinUnit(sharedPref);
-    preferredFiatCurrency = WalletUtils.getPreferredFiat(sharedPref);
-    capLightningFees = sharedPref.getBoolean(Constants.SETTING_CAP_LIGHTNING_FEES, true);
+    final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+    preferredBitcoinUnit = WalletUtils.getPreferredCoinUnit(prefs);
+    preferredFiatCurrency = WalletUtils.getPreferredFiat(prefs);
+    capLightningFees = prefs.getBoolean(Constants.SETTING_CAP_LIGHTNING_FEES, true);
     mBinding.amountEditableBtcUnit.setText(preferredBitcoinUnit.shortLabel());
     mBinding.amountEditableFiatUnit.setText(preferredFiatCurrency.toUpperCase());
+
     mBinding.setIsBtcInputMaster(true);
+    if (System.currentTimeMillis() - prefs.getLong(Constants.SETTING_LAST_KNOWN_RATE_TIMESTAMP, 0) > DateUtils.DAY_IN_MILLIS * 2) {
+      mBinding.switchAmountInputUnit.setVisibility(View.GONE);
+    }
 
     mBinding.amountEditableBtcValue.addTextChangedListener(new TechnicalHelper.SimpleTextWatcher() {
       @SuppressLint("SetTextI18n")

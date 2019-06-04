@@ -477,6 +477,7 @@ public class App extends Application {
               if (body != null) {
                 try {
                   WalletUtils.handleExchangeRateResponse(prefs, body);
+                  prefs.edit().putLong(Constants.SETTING_LAST_KNOWN_RATE_TIMESTAMP, System.currentTimeMillis()).apply();
                 } catch (Throwable t) {
                   log.error("could not read exchange rate response body", t);
                 } finally {
