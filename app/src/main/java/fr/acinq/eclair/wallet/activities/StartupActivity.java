@@ -76,6 +76,7 @@ import scodec.bits.ByteVector$;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.UnknownHostException;
 import java.security.GeneralSecurityException;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -530,7 +531,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
         publishProgress(app.getString(R.string.start_log_done));
         return SUCCESS;
 
-      } catch (EclairException.NetworkException t) {
+      } catch (EclairException.NetworkException | UnknownHostException t) {
         return NETWORK_ERROR;
       } catch (Throwable t) {
         log.error("failed to start eclair", t);
