@@ -86,8 +86,6 @@ public class PaymentRequestParametersDialog extends Dialog {
       final MilliSatoshi amountMsat = amountString.length() == 0 ? null : new MilliSatoshi(CoinUtils.convertStringAmountToMsat(amountString, prefUnit.code()).amount());
       if (amountMsat != null && amountMsat.amount() < 0) {
         mBinding.setAmountError(getContext().getString(R.string.dialog_prparams_amount_error_generic));
-      } else if (amountMsat != null && amountMsat.amount() > PaymentRequest.MAX_AMOUNT().amount()) {
-        mBinding.setAmountError(getContext().getString(R.string.dialog_prparams_amount_error_excessive_absolute, CoinUtils.formatAmountInUnit(PaymentRequest.MAX_AMOUNT(), prefUnit, true)));
       } else {
         if (amountMsat.amount() > maxReceivableAmount.amount()) {
           mBinding.setAmountWarning(getContext().getString(R.string.dialog_prparams_amount_error_excessive));
