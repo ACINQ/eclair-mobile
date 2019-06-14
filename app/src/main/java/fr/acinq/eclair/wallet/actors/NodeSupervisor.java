@@ -190,7 +190,7 @@ public class NodeSupervisor extends UntypedActor {
     // ---- we sent a channel sig => update corresponding payment to PENDING in app's DB
     else if (message instanceof ChannelSignatureSent) {
       final ChannelSignatureSent event = (ChannelSignatureSent) message;
-      final Either<WaitingForRevocation, Crypto.Point> nextCommitInfo = event.commitments().remoteNextCommitInfo();
+      final Either<WaitingForRevocation, Crypto.PublicKey> nextCommitInfo = event.commitments().remoteNextCommitInfo();
       if (nextCommitInfo.isLeft()) {
         final RemoteCommit commit = nextCommitInfo.left().get().nextRemoteCommit();
         final Iterator<DirectedHtlc> htlcsIterator = commit.spec().htlcs().iterator();
@@ -419,8 +419,6 @@ public class NodeSupervisor extends UntypedActor {
   /**
    * Optimistically estimates the maximum amount that this node can receive. OFFLINE/SYNCING channels' balances are accounted
    * for in order to smooth this estimation if the connection is flaky.
-   * <p>
-   * Returned amount will never exceed {@link PaymentRequest#MAX_AMOUNT()}.
    */
   public static MilliSatoshi getMaxReceivable() {
     long max_msat = 0;
@@ -429,7 +427,7 @@ public class NodeSupervisor extends UntypedActor {
         max_msat = Math.max(max_msat, d.getReceivableMsat());
       }
     }
-    return new MilliSatoshi(Math.min(PaymentRequest.MAX_AMOUNT().amount(), max_msat));
+    return new MilliSatoshi(max_msat);
   }
 
   public final static int MIN_REMOTE_TO_SELF_DELAY = 2016;

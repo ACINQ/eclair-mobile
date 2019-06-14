@@ -72,7 +72,7 @@ public class OpenConnectionActivity extends EclairActivity {
       try {
         final Timeout timeout = new Timeout(Duration.create(10, "seconds"));
         final NodeURI nodeUri = NodeURI.parse(expectedNodeId + "@" + mBinding.nodeAddress.getText().toString());
-        Patterns.ask(app.appKit.eclairKit.switchboard(), new Peer.Connect(nodeUri), timeout)
+        Patterns.ask(app.appKit.eclairKit.switchboard(), Peer.Connect$.MODULE$.apply(nodeUri), timeout)
           .onComplete(new OnComplete<Object>() {
             @Override
             public void onComplete(Throwable failure, Object success) {

@@ -412,7 +412,7 @@ public class App extends Application {
         Duration.Zero(), Duration.create(10, TimeUnit.MINUTES),
         () -> {
           if (appKit != null && appKit.eclairKit != null && appKit.eclairKit.switchboard() != null) {
-            appKit.eclairKit.switchboard().tell(new Peer.Connect(Constants.ACINQ_NODE_URI), ActorRef.noSender());
+            appKit.eclairKit.switchboard().tell(Peer.Connect$.MODULE$.apply(Constants.ACINQ_NODE_URI), ActorRef.noSender());
           }
         },
         system.dispatcher());
