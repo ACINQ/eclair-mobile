@@ -600,7 +600,7 @@ public class App extends Application {
       startAppReminder.setDescription(getString(R.string.notification_channel_restart_desc));
       final NotificationChannel receivedLNPayment = new NotificationChannel(Constants.NOTIF_CHANNEL_RECEIVED_LN_PAYMENT_ID,
         getString(R.string.notification_channel_received_ln_payment_name), NotificationManager.IMPORTANCE_DEFAULT);
-      startAppReminder.setDescription(getString(R.string.notification_channel_received_ln_payment_desc));
+      receivedLNPayment.setDescription(getString(R.string.notification_channel_received_ln_payment_desc));
       // Register the channel with the system
       final NotificationManager notificationManager = getSystemService(NotificationManager.class);
       if (notificationManager != null) {
