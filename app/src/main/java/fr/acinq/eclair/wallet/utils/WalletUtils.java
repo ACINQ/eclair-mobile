@@ -63,6 +63,8 @@ import org.productivity.java.syslog4j.impl.net.tcp.ssl.SSLTCPNetSyslogConfig;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
 import scala.collection.JavaConverters;
+import scala.math.BigDecimal;
+import scala.math.BigDecimal$;
 import scodec.bits.ByteVector;
 
 import java.io.File;
@@ -253,20 +255,32 @@ public class WalletUtils {
    * @param fiatCode   fiat currency code (USD, EUR, RUB, JPY, ...)
    * @return localized formatted string of the converted amount
    */
-  public static double convertMsatToFiat(final long amountMsat, final String fiatCode) {
+  public static BigDecimal convertMsatToFiat(final long amountMsat, final String fiatCode) {
     final double rate = App.RATES.containsKey(fiatCode) ? App.RATES.get(fiatCode) : -1.0f;
-    return package$.MODULE$.millisatoshi2btc(new MilliSatoshi(amountMsat)).amount().doubleValue() * rate;
+    return package$.MODULE$.millisatoshi2btc(new MilliSatoshi(amountMsat)).amount().$times(BigDecimal.decimal(rate));
   }
 
   /**
-   * Converts bitcoin amount to the fiat currency preferred by the user.
+   * Converts fiat amount to bitcoin amount in Msat.
+   *
+   * @param fiatAmount amount in fiat
+   * @param fiatCode   fiat currency code (USD, EUR, RUB, JPY, ...)
+   * @return localized formatted string of the converted amount
+   */
+  public static MilliSatoshi convertFiatToMsat(final String fiatAmount, final String fiatCode) {
+    final double rate = App.RATES.containsKey(fiatCode) ? App.RATES.get(fiatCode) : -1.0f;
+    return package$.MODULE$.btc2millisatoshi(new Btc(BigDecimal$.MODULE$.apply(fiatAmount).$div(BigDecimal.decimal(rate))));
+  }
+
+  /**
+   * Prints bitcoin amount to the fiat currency preferred by the user. Output is a pretty localized print.
    *
    * @param amountMsat amount in milli satoshis
    * @param fiatCode   fiat currency code (USD, EUR, RUB, JPY, ...)
    * @return localized formatted string of the converted amount
    */
   public static String formatMsatToFiat(final long amountMsat, final String fiatCode) {
-    final double fiatValue = convertMsatToFiat(amountMsat, fiatCode);
+    final double fiatValue = convertMsatToFiat(amountMsat, fiatCode).doubleValue();
     if (fiatValue < 0) return NO_FIAT_RATE;
     return getFiatFormat().format(fiatValue);
   }

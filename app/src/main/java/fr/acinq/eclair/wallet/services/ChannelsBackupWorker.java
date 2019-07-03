@@ -67,7 +67,7 @@ public class ChannelsBackupWorker extends Worker {
     final String key = getInputData().getString(BACKUP_KEY_INPUT);
 
     if (!WalletUtils.getEclairDBFile(getApplicationContext()).exists()) {
-      log.info("no eclair db file yet...");
+      log.info("no eclair db file yet, aborting...");
       return Result.success();
     }
 

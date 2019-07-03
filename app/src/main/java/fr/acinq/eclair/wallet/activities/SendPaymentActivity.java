@@ -20,6 +20,8 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.text.format.DateUtils;
+import android.util.TypedValue;
 import androidx.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.os.Handler;
@@ -27,7 +29,9 @@ import android.preference.PreferenceManager;
 import androidx.annotation.UiThread;
 import androidx.annotation.WorkerThread;
 import android.view.View;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.TextView;
 import com.google.common.base.Strings;
 import fr.acinq.bitcoin.ByteVector32;
 import fr.acinq.bitcoin.MilliSatoshi;
@@ -43,14 +47,10 @@ import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.actors.NodeSupervisor;
 import fr.acinq.eclair.wallet.databinding.ActivitySendPaymentBinding;
 import fr.acinq.eclair.wallet.fragments.PinDialog;
-import fr.acinq.eclair.wallet.models.Payment;
-import fr.acinq.eclair.wallet.models.PaymentDirection;
-import fr.acinq.eclair.wallet.models.PaymentStatus;
-import fr.acinq.eclair.wallet.models.PaymentType;
+import fr.acinq.eclair.wallet.models.*;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.TechnicalHelper;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
-import fr.acinq.eclair.wallet.models.BitcoinURI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.Option;
@@ -58,6 +58,7 @@ import scala.util.Either;
 import scala.util.Left;
 import scala.util.Right;
 
+import java.math.RoundingMode;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -68,7 +69,7 @@ public class SendPaymentActivity extends EclairActivity {
 
   public static final String EXTRA_INVOICE = BuildConfig.APPLICATION_ID + ".EXTRA_INVOICE";
   private final static List<String> LIGHTNING_SCHEMES = Arrays.asList("lightning://", "lightning:");
-  final String chain = Character.toUpperCase(BuildConfig.CHAIN.charAt(0)) +  BuildConfig.CHAIN.substring(1);
+  final String chain = Character.toUpperCase(BuildConfig.CHAIN.charAt(0)) + BuildConfig.CHAIN.substring(1);
 
   public enum Steps {
     LOADING,
@@ -160,9 +161,9 @@ public class SendPaymentActivity extends EclairActivity {
     checkWalletReady();
     if (bitcoinURI.amount != null) {
       final MilliSatoshi amountMsat = package$.MODULE$.satoshi2millisatoshi(bitcoinURI.amount);
-      mBinding.amountEditableHint.setVisibility(View.GONE);
-      mBinding.amountEditableValue.setText(CoinUtils.rawAmountInUnit(amountMsat, preferredBitcoinUnit).bigDecimal().toPlainString());
-      mBinding.amountFiat.setText(WalletUtils.formatMsatToFiatWithUnit(amountMsat.amount(), preferredFiatCurrency));
+      mBinding.amountEditableBtcHint.setVisibility(View.GONE);
+      mBinding.amountEditableBtcValue.setText(CoinUtils.rawAmountInUnit(amountMsat, preferredBitcoinUnit).bigDecimal().toPlainString());
+      mBinding.amountEditableFiatValue.setText(WalletUtils.formatMsatToFiat(amountMsat.amount(), preferredFiatCurrency));
     } else {
       // only open the keyboard forcibly if no amount was set in the URI. This makes for a cleaner initial display.
       forceFocusAmount(null);
@@ -182,8 +183,8 @@ public class SendPaymentActivity extends EclairActivity {
       }
       if (paymentRequest.amount().isDefined()) {
         final MilliSatoshi amountMsat = WalletUtils.getAmountFromInvoice(paymentRequest);
-        mBinding.amountEditableValue.setText(CoinUtils.rawAmountInUnit(amountMsat, preferredBitcoinUnit).bigDecimal().toPlainString());
-        mBinding.amountFiat.setText(WalletUtils.formatMsatToFiatWithUnit(amountMsat.amount(), preferredFiatCurrency));
+        mBinding.amountEditableBtcValue.setText(CoinUtils.rawAmountInUnit(amountMsat, preferredBitcoinUnit).bigDecimal().toPlainString());
+        mBinding.amountEditableFiatValue.setText(WalletUtils.formatMsatToFiat(amountMsat.amount(), preferredFiatCurrency));
       }
       mBinding.recipientValue.setText(paymentRequest.nodeId().toString());
       final Either<String, ByteVector32> desc = paymentRequest.description();
@@ -221,7 +222,7 @@ public class SendPaymentActivity extends EclairActivity {
         if (NodeSupervisor.getChannelsMap().isEmpty()) {
           mBinding.pickLightningError.setText(R.string.payment_error_ln_pick_no_channels);
           mBinding.pickLightningError.setVisibility(View.VISIBLE);
-          mBinding.pickLightningImage.setAlpha(0.3f);
+          mBinding.pickLightning.setAlpha(0.4f);
           mBinding.pickLightning.setEnabled(false);
         } else {
           mBinding.pickLightning.setOnClickListener(v -> setupLightningPaymentForm(bitcoinURI.lightning));
@@ -239,10 +240,21 @@ public class SendPaymentActivity extends EclairActivity {
   }
 
   public void forceFocusAmount(final View view) {
-    mBinding.amountEditableValue.requestFocus();
+    if (mBinding.getIsBtcInputMaster()) {
+      focusView(mBinding.amountEditableBtcValue);
+    } else {
+      focusView(mBinding.amountEditableFiatValue);
+    }
+  }
+
+  private void focusView(final TextView v) {
+    v.requestFocus();
     final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
     if (imm != null) {
-      imm.showSoftInput(mBinding.amountEditableValue, 0);
+      imm.showSoftInput(v, 0);
+    }
+    if (getString(R.string.unknown).equals(v.getText().toString())) {
+      v.setText("");
     }
   }
 
@@ -304,7 +316,11 @@ public class SendPaymentActivity extends EclairActivity {
     try {
       if (isLightningInvoice()) {
         final PaymentRequest paymentRequest = invoice.right().get();
-        final long amountMsat = CoinUtils.convertStringAmountToMsat(mBinding.amountEditableValue.getText().toString(), preferredBitcoinUnit.code()).amount();
+        final long amountMsat = CoinUtils.convertStringAmountToMsat(mBinding.amountEditableBtcValue.getText().toString(), preferredBitcoinUnit.code()).amount();
+        if (amountMsat <= 0) {
+          handlePaymentError(R.string.payment_error_amount_zero_or_less);
+          return;
+        }
         if (isPinRequired()) {
           pinDialog = new PinDialog(SendPaymentActivity.this, R.style.FullScreenDialog, new PinDialog.PinDialogCallback() {
             @Override
@@ -328,9 +344,12 @@ public class SendPaymentActivity extends EclairActivity {
         }
       } else if (isOnchainInvoice()) {
         final BitcoinURI bitcoinURI = invoice.left().get();
-        final Satoshi amountSat = CoinUtils.convertStringAmountToSat(mBinding.amountEditableValue.getText().toString(), preferredBitcoinUnit.code());
+        final Satoshi amountSat = CoinUtils.convertStringAmountToSat(mBinding.amountEditableBtcValue.getText().toString(), preferredBitcoinUnit.code());
         if (amountSat.$greater(app.getOnchainBalance())) {
           handlePaymentError(R.string.payment_error_amount_onchain_insufficient_funds);
+          return;
+        } else if (amountSat.amount() <= 0) {
+          handlePaymentError(R.string.payment_error_amount_zero_or_less);
           return;
         }
         try {
@@ -475,7 +494,7 @@ public class SendPaymentActivity extends EclairActivity {
    */
   private void toggleForm() {
     if (isProcessingPayment) {
-      mBinding.amountEditableValue.setEnabled(false);
+      mBinding.amountEditableBtcValue.setEnabled(false);
       mBinding.feesValue.setEnabled(false);
       mBinding.feesRating.setEnabled(false);
       mBinding.btnSend.setEnabled(false);
@@ -483,7 +502,7 @@ public class SendPaymentActivity extends EclairActivity {
       mBinding.btnSend.setAlpha(0.3f);
       mBinding.paymentError.setVisibility(View.GONE);
     } else {
-      mBinding.amountEditableValue.setEnabled(true);
+      mBinding.amountEditableBtcValue.setEnabled(true);
       mBinding.feesValue.setEnabled(true);
       mBinding.feesRating.setEnabled(true);
       mBinding.btnSend.setEnabled(true);
@@ -500,6 +519,76 @@ public class SendPaymentActivity extends EclairActivity {
     return invoice != null && invoice.isRight() && invoice.right().get() != null;
   }
 
+  private void adaptAmountTextSize() {
+    final String amountString = mBinding.amountEditableBtcValue.getText().toString();
+    if (amountString.length() > 10) {
+      mBinding.amountEditableBtcValue.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.amount_input_size_sm));
+    } else {
+      mBinding.amountEditableBtcValue.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.amount_input_size_default));
+    }
+  }
+
+  private void switchAmountInputUnit() {
+    final boolean isBtcInputMaster = !mBinding.getIsBtcInputMaster();
+    mBinding.setIsBtcInputMaster(isBtcInputMaster);
+    final float yDistance = getResources().getDimensionPixelSize(R.dimen.amount_y_offset);
+    mBinding.amountEditableBtc
+      .animate()
+      .scaleX(isBtcInputMaster ? 1f : 0.7f).scaleY(isBtcInputMaster ? 1f : 0.7f)
+      .translationY(isBtcInputMaster ? 0 : yDistance)
+      .alpha(isBtcInputMaster ? 1f : 0.3f)
+      .setDuration(250)
+      .setInterpolator(new AccelerateDecelerateInterpolator())
+      .start();
+    mBinding.amountEditableFiat
+      .animate()
+      .scaleX(!isBtcInputMaster ? 1f : 0.7f).scaleY(!isBtcInputMaster ? 1f : 0.7f)
+      .translationY(!isBtcInputMaster ? 0 : yDistance)
+      .alpha(!isBtcInputMaster ? 1f : 0.3f)
+      .setDuration(250)
+      .setInterpolator(new AccelerateDecelerateInterpolator())
+      .start();
+    forceFocusAmount(null);
+    mBinding.amountEditableBtcValue.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(isBtcInputMaster ? R.dimen.amount_input_size_default : R.dimen.amount_input_size_sm));
+    mBinding.amountEditableFiatValue.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(!isBtcInputMaster ? R.dimen.amount_input_size_default : R.dimen.amount_input_size_sm));
+  }
+
+  private void checkOnchainBalance(final MilliSatoshi amountMsat) {
+    if (invoice != null && invoice.isLeft()) {
+      if (package$.MODULE$.millisatoshi2satoshi(amountMsat).$greater(app.getOnchainBalance())) {
+        handlePaymentError(R.string.payment_error_amount_onchain_insufficient_funds);
+      } else {
+        mBinding.paymentError.setVisibility(View.GONE);
+      }
+    }
+  }
+
+  private void refreshAmounts() {
+    if (mBinding.getIsBtcInputMaster()) {
+      try {
+        final String btcAmountString = mBinding.amountEditableBtcValue.getText().toString();
+        final MilliSatoshi amountMsat = CoinUtils.convertStringAmountToMsat(btcAmountString, preferredBitcoinUnit.code());
+        mBinding.amountEditableFiatValue.setText(WalletUtils.convertMsatToFiat(amountMsat.amount(), preferredFiatCurrency).bigDecimal().setScale(4, RoundingMode.CEILING).toPlainString());
+        mBinding.amountEditableBtcHint.setVisibility(Strings.isNullOrEmpty(btcAmountString) ? View.VISIBLE : View.GONE);
+        checkOnchainBalance(amountMsat);
+      } catch (Exception e) {
+        log.debug("could not convert btc -> fiat amount with cause {}", e.getMessage());
+        mBinding.amountEditableFiatValue.setText(R.string.unknown);
+      }
+    } else {
+      mBinding.amountEditableBtcHint.setVisibility(View.GONE);
+      try {
+        final String fiatAmountString = mBinding.amountEditableFiatValue.getText().toString();
+        final MilliSatoshi amountMsat = WalletUtils.convertFiatToMsat(fiatAmountString, preferredFiatCurrency);
+        mBinding.amountEditableBtcValue.setText(CoinUtils.rawAmountInUnit(amountMsat, preferredBitcoinUnit).bigDecimal().toPlainString());
+        checkOnchainBalance(amountMsat);
+      } catch (Exception e) {
+        log.debug("could not convert fiat -> btc amount with cause {}", e);
+        mBinding.amountEditableBtcValue.setText(R.string.unknown);
+      }
+    }
+  }
+
   @Override
   protected void onCreate(final Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -507,31 +596,34 @@ public class SendPaymentActivity extends EclairActivity {
     setFeesToDefault();
     mBinding.setPaymentStep(Steps.LOADING);
     mBinding.setEnableSendButton(true);
-    final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-    preferredBitcoinUnit = WalletUtils.getPreferredCoinUnit(sharedPref);
-    preferredFiatCurrency = WalletUtils.getPreferredFiat(sharedPref);
-    capLightningFees = sharedPref.getBoolean(Constants.SETTING_CAP_LIGHTNING_FEES, true);
-    mBinding.amountEditableUnit.setText(preferredBitcoinUnit.shortLabel());
+    final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+    preferredBitcoinUnit = WalletUtils.getPreferredCoinUnit(prefs);
+    preferredFiatCurrency = WalletUtils.getPreferredFiat(prefs);
+    capLightningFees = prefs.getBoolean(Constants.SETTING_CAP_LIGHTNING_FEES, true);
+    mBinding.amountEditableBtcUnit.setText(preferredBitcoinUnit.shortLabel());
+    mBinding.amountEditableFiatUnit.setText(preferredFiatCurrency.toUpperCase());
 
-    mBinding.amountEditableValue.addTextChangedListener(new TechnicalHelper.SimpleTextWatcher() {
+    mBinding.setIsBtcInputMaster(true);
+    if (System.currentTimeMillis() - prefs.getLong(Constants.SETTING_LAST_KNOWN_RATE_TIMESTAMP, 0) > DateUtils.DAY_IN_MILLIS * 2) {
+      mBinding.switchAmountInputUnit.setVisibility(View.GONE);
+    }
+
+    mBinding.amountEditableBtcValue.addTextChangedListener(new TechnicalHelper.SimpleTextWatcher() {
       @SuppressLint("SetTextI18n")
       @Override
       public void onTextChanged(CharSequence s, int start, int before, int count) {
-        // toggle hint depending on amount input
-        mBinding.amountEditableHint.setVisibility(s == null || s.length() == 0 ? View.VISIBLE : View.GONE);
-        try {
-          final MilliSatoshi amountMsat = CoinUtils.convertStringAmountToMsat(s.toString(), preferredBitcoinUnit.code());
-          mBinding.amountFiat.setText(WalletUtils.formatMsatToFiatWithUnit(amountMsat.amount(), preferredFiatCurrency));
-          if (invoice != null && invoice.isLeft()) {
-            if (package$.MODULE$.millisatoshi2satoshi(amountMsat).$greater(app.getOnchainBalance())) {
-              handlePaymentError(R.string.payment_error_amount_onchain_insufficient_funds);
-            } else {
-              mBinding.paymentError.setVisibility(View.GONE);
-            }
-          }
-        } catch (Exception e) {
-          log.debug("could not read amount with cause {}", e.getMessage());
-          mBinding.amountFiat.setText("0 " + preferredFiatCurrency.toUpperCase());
+        if (mBinding.getIsBtcInputMaster()) {
+          refreshAmounts();
+        }
+      }
+    });
+
+    mBinding.amountEditableFiatValue.addTextChangedListener(new TechnicalHelper.SimpleTextWatcher() {
+      @SuppressLint("SetTextI18n")
+      @Override
+      public void onTextChanged(CharSequence s, int start, int before, int count) {
+        if (!mBinding.getIsBtcInputMaster()) {
+          refreshAmounts();
         }
       }
     });
@@ -566,14 +658,16 @@ public class SendPaymentActivity extends EclairActivity {
       if (invoice != null && invoice.isLeft()) {
         if (isChecked) {
           mBinding.emptyWalletDisclaimer.setVisibility(View.VISIBLE);
-          mBinding.amountEditableValue.setEnabled(false);
-          mBinding.amountEditableValue.setText(CoinUtils.rawAmountInUnit(app.getOnchainBalance(), preferredBitcoinUnit).bigDecimal().toPlainString());
+          mBinding.amountEditableBtcValue.setEnabled(false);
+          mBinding.amountEditableBtcValue.setText(CoinUtils.rawAmountInUnit(app.getOnchainBalance(), preferredBitcoinUnit).bigDecimal().toPlainString());
         } else {
           mBinding.emptyWalletDisclaimer.setVisibility(View.GONE);
-          mBinding.amountEditableValue.setEnabled(true);
+          mBinding.amountEditableBtcValue.setEnabled(true);
         }
       }
     });
+
+    mBinding.switchAmountInputUnit.setOnClickListener(v -> switchAmountInputUnit());
   }
 
   @Override

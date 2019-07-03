@@ -20,6 +20,7 @@ import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Cancellable;
 import akka.dispatch.OnComplete;
+import akka.pattern.AskTimeoutException;
 import akka.pattern.Patterns;
 import akka.util.Timeout;
 import android.app.Application;
@@ -41,16 +42,13 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import fr.acinq.bitcoin.*;
-import fr.acinq.bitcoin.package$;
-import fr.acinq.eclair.CoinUtils;
-import fr.acinq.eclair.Globals;
-import fr.acinq.eclair.JsonSerializers$;
-import fr.acinq.eclair.Kit;
+import fr.acinq.eclair.*;
 import fr.acinq.eclair.blockchain.electrum.ElectrumClient;
 import fr.acinq.eclair.blockchain.electrum.ElectrumEclairWallet;
 import fr.acinq.eclair.blockchain.electrum.ElectrumWallet;
 import fr.acinq.eclair.channel.*;
 import fr.acinq.eclair.io.Peer;
+import fr.acinq.eclair.package$;
 import fr.acinq.eclair.payment.PaymentLifecycle;
 import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.router.RouteParams;
@@ -78,6 +76,7 @@ import scala.Symbol;
 import scala.Tuple2;
 import scala.collection.Iterable;
 import scala.collection.Iterator;
+import scala.collection.Seq;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
@@ -88,9 +87,11 @@ import upickle.default$;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.text.DateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -286,7 +287,7 @@ public class App extends Application {
       ? Option.apply(null) // when fee protection is enabled, use the default RouteParams with reasonable values
       : Option.apply(RouteParams.apply( // otherwise, let's build a "no limit" RouteParams
       false, // never randomize on mobile
-      package$.MODULE$.millibtc2millisatoshi(new MilliBtc(BigDecimal.exact(1))).amount(), // at most 1mBTC base fee
+      fr.acinq.bitcoin.package$.MODULE$.millibtc2millisatoshi(new MilliBtc(BigDecimal.exact(1))).amount(), // at most 1mBTC base fee
       1d, // at most 100%
       4,
       Router.DEFAULT_ROUTE_MAX_CLTV(),
@@ -313,7 +314,9 @@ public class App extends Application {
         public void onComplete(final Throwable t, final String txId) {
           if (t != null) {
             log.warn("could not send bitcoin tx {} with cause {}", txId, t.getMessage());
-            EventBus.getDefault().post(new BitcoinPaymentFailedEvent(t.getLocalizedMessage()));
+            if (!(t instanceof AskTimeoutException)) {
+              EventBus.getDefault().post(new BitcoinPaymentFailedEvent(t.getLocalizedMessage()));
+            }
           }
         }
       }, this.system.dispatcher());
@@ -344,7 +347,9 @@ public class App extends Application {
                 public void onComplete(Throwable failure, Boolean success) {
                   if (failure != null) {
                     log.warn("error in send_all tx", failure);
-                    EventBus.getDefault().post(new BitcoinPaymentFailedEvent(failure.getLocalizedMessage()));
+                    if (!(failure instanceof AskTimeoutException)) {
+                      EventBus.getDefault().post(new BitcoinPaymentFailedEvent(failure.getLocalizedMessage()));
+                    }
                   } else if (success == null || !success) {
                     log.warn("send_all tx has failed");
                     EventBus.getDefault().post(new BitcoinPaymentFailedEvent(getString(R.string.payment_tx_failed)));
@@ -357,7 +362,9 @@ public class App extends Application {
             }
           } else {
             log.warn("could not send all balance with cause {}", t.getMessage());
-            EventBus.getDefault().post(new BitcoinPaymentFailedEvent(t.getLocalizedMessage()));
+            if (!(t instanceof AskTimeoutException)) {
+              EventBus.getDefault().post(new BitcoinPaymentFailedEvent(t.getLocalizedMessage()));
+            }
           }
         }
       }, this.system.dispatcher());
@@ -470,6 +477,7 @@ public class App extends Application {
               if (body != null) {
                 try {
                   WalletUtils.handleExchangeRateResponse(prefs, body);
+                  prefs.edit().putLong(Constants.SETTING_LAST_KNOWN_RATE_TIMESTAMP, System.currentTimeMillis()).apply();
                 } catch (Throwable t) {
                   log.error("could not read exchange rate response body", t);
                 } finally {
@@ -607,7 +615,7 @@ public class App extends Application {
     // if electrum has not send any data, fetch last known onchain balance from DB
     if (this.electrumState.get() == null
       || this.electrumState.get().confirmedBalance == null || this.electrumState.get().unconfirmedBalance == null) {
-      return package$.MODULE$.millisatoshi2satoshi(new MilliSatoshi(dbHelper.getOnchainBalanceMsat()));
+      return fr.acinq.bitcoin.package$.MODULE$.millisatoshi2satoshi(new MilliSatoshi(dbHelper.getOnchainBalanceMsat()));
     } else {
       final Satoshi confirmed = electrumState.get().confirmedBalance;
       final Satoshi unconfirmed = electrumState.get().unconfirmedBalance;

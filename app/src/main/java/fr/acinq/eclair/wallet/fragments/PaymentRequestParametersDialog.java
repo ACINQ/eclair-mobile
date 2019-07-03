@@ -26,7 +26,6 @@ import com.google.common.base.Strings;
 import fr.acinq.bitcoin.MilliSatoshi;
 import fr.acinq.eclair.CoinUnit;
 import fr.acinq.eclair.CoinUtils;
-import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.actors.NodeSupervisor;
 import fr.acinq.eclair.wallet.databinding.DialogPaymentRequestParametersBinding;

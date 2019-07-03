@@ -553,7 +553,7 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
 
   @Subscribe(threadMode = ThreadMode.MAIN)
   public void handleBitcoinPaymentFailedEvent(BitcoinPaymentFailedEvent event) {
-    Toast.makeText(getApplicationContext(), getString(R.string.payment_toast_failure, event.getMessage()), Toast.LENGTH_LONG).show();
+    Toast.makeText(getApplicationContext(), getString(R.string.payment_toast_failure), Toast.LENGTH_LONG).show();
   }
 
   @Subscribe(threadMode = ThreadMode.MAIN)

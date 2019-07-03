@@ -299,6 +299,7 @@
   <string name="channeldetails_min_htlc_amount_label">Minimum payment amount</string>
   <string name="channeldetails_closing_section">Closing information</string>
   <string name="channeldetails_closing_cause_label">Cause of closing</string>
+  <string name="channeldetails_closing_cause_error_remote_disclaimer">Reason cited by the peer (may not be accurate):\n\n%1$s</string>
   <string name="channeldetails_refund_block_label">Refund block height</string>
   <string name="channeldetails_refund_block_value">%1$s (current is %2$s)</string>
   <string name="channeldetails_nodeid_label">Peer Node Id</string>
@@ -348,9 +349,10 @@
   <string name="payment_fees_veryhigh">Fees seem very high, you may be overpaying.</string>
   <string name="payment_loading_pleasewait">Reading invoice, please wait…</string>
   <string name="payment_amount_to_send">Amount in </string>
+  <string name="payment_fiat_btc_switch">Switch fiat/btc</string>
   <string name="payment_tx_creation_error">Transaction is invalid</string>
   <string name="payment_tx_failed">Transaction failed</string>
-  <string name="payment_toast_failure">Could not send transaction: %1$s</string>
+  <string name="payment_toast_failure">Could not send transaction</string>
   <string name="payment_do_send">Pay</string>
   <string name="payment_do_send_wait">Wallet not ready…</string>
 
@@ -358,7 +360,8 @@
   <string name="payment_error_fees_onchain">The fees value is not valid.</string>
   <string name="payment_error_amount_onchain_insufficient_funds">Payment amount exceeds your balance.</string>
   <string name="payment_error_amount">Payment amount is not valid.</string>
-  <string name="payment_error_ln_pick_no_channels">You need Lightning channels for this option.</string>
+  <string name="payment_error_amount_zero_or_less">Amount must be greater than 0</string>
+  <string name="payment_error_ln_pick_no_channels">You need Lightning channels for this feature.</string>
   <string name="payment_error_ln_no_channels">You first need to open a Lightning channel to process this payment.\n\nDo this by swiping right to left from the home view, and tapping the green "+" button.</string>
   <string name="payment_error_ln_insufficient_funds">Your Lightning channels do not have enough balance to process this payment.</string>
   <string name="payment_error_same_node">You cannot pay yourself.</string>
@@ -679,6 +682,5 @@
   <string name="dialog_prparams_amount_hint">No amount requested</string>
   <string name="dialog_prparams_amount_error_generic">Invalid amount</string>
   <string name="dialog_prparams_amount_error_excessive">Requested amount exceeds your current capacity and may fail</string>
-  <string name="dialog_prparams_amount_error_excessive_absolute">Payments over Lightning cannot exceed %1$s</string>
 
 </resources>

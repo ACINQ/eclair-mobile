@@ -113,7 +113,7 @@ public class CheckElectrumWorker extends Worker {
     final Context context = getApplicationContext();
 
     if (!WalletUtils.getEclairDBFile(context).exists()) {
-      log.info("no eclair db file yet...");
+      log.info("no eclair db file yet, aborting...");
       return Result.success();
     }
 
