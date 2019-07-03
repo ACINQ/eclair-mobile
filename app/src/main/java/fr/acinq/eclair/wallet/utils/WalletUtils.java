@@ -40,6 +40,7 @@ import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.rolling.FixedWindowRollingPolicy;
 import ch.qos.logback.core.rolling.RollingFileAppender;
 import ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy;
+import ch.qos.logback.core.util.FileSize;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
@@ -472,7 +473,7 @@ public class WalletUtils {
 
     final SizeBasedTriggeringPolicy<ILoggingEvent> triggeringPolicy = new SizeBasedTriggeringPolicy<>();
     triggeringPolicy.setContext(lc);
-    triggeringPolicy.setMaxFileSize("4mb");
+    triggeringPolicy.setMaxFileSize(FileSize.valueOf("4mb"));
     triggeringPolicy.start();
 
     rollingFileAppender.setEncoder(encoder);
