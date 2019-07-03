@@ -17,18 +17,21 @@
 package fr.acinq.eclair.wallet.activities;
 
 import android.annotation.SuppressLint;
-import androidx.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import androidx.annotation.WorkerThread;
 import android.text.Html;
 import android.widget.Toast;
+import androidx.annotation.WorkerThread;
+import androidx.databinding.DataBindingUtil;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.drive.DriveFile;
 import com.google.android.gms.drive.Metadata;
 import com.google.android.gms.drive.metadata.CustomPropertyKey;
+import com.google.common.collect.MapDifference;
+import com.google.common.collect.Maps;
 import com.google.common.io.Files;
+import fr.acinq.bitcoin.ByteVector32;
 import fr.acinq.eclair.channel.HasCommitments;
 import fr.acinq.eclair.db.ChannelsDb;
 import fr.acinq.eclair.db.sqlite.SqliteChannelsDb;
@@ -74,7 +77,7 @@ public class RestoreChannelsBackupActivity extends ChannelsBackupBaseActivity {
     mBinding.scanButton.setOnClickListener(v -> {
       if (mBinding.requestLocalAccessCheckbox.isChecked() || mBinding.requestGdriveAccessCheckbox.isChecked()) {
         mBinding.setRestoreStep(Constants.RESTORE_BACKUP_REQUESTING_ACCESS);
-        new Handler().postDelayed(() -> requestAccess(mBinding.requestLocalAccessCheckbox.isChecked(), mBinding.requestGdriveAccessCheckbox.isChecked()), ACCESS_REQUEST_PING_INTERVAL);
+        requestAccess(mBinding.requestLocalAccessCheckbox.isChecked(), mBinding.requestGdriveAccessCheckbox.isChecked());
       }
     });
 
@@ -110,21 +113,26 @@ public class RestoreChannelsBackupActivity extends ChannelsBackupBaseActivity {
     mBestBackup = null;
     mExpectedBackupsMap.clear();
     if (!accessRequestsMap.isEmpty()) {
-      new Thread() {
-        @Override
-        public void run() {
-          mBinding.setRestoreStep(Constants.RESTORE_BACKUP_SCANNING);
-          if (accessRequestsMap.get(BackupTypes.LOCAL) != null && accessRequestsMap.get(BackupTypes.LOCAL).isDefined() && accessRequestsMap.get(BackupTypes.LOCAL).get()) {
+      final boolean hasLocalAccess = accessRequestsMap.get(BackupTypes.LOCAL) != null && accessRequestsMap.get(BackupTypes.LOCAL).isDefined() && accessRequestsMap.get(BackupTypes.LOCAL).get();
+      final boolean hasGdriveAccess = accessRequestsMap.get(BackupTypes.GDRIVE) != null && accessRequestsMap.get(BackupTypes.GDRIVE).isDefined() && accessRequestsMap.get(BackupTypes.GDRIVE).get();
+      if (hasLocalAccess) {
+        new Thread() {
+          @Override
+          public void run() {
+            mBinding.setRestoreStep(Constants.RESTORE_BACKUP_SCANNING);
             mExpectedBackupsMap.put(BackupTypes.LOCAL, null);
             scanLocalDevice();
+            if (hasGdriveAccess) {
+              mExpectedBackupsMap.put(BackupTypes.GDRIVE, null);
+              scanGoogleDrive();
+            }
+            runOnUiThread(() -> new Handler().postDelayed(() -> checkScanningDone(), SCAN_PING_INTERVAL));
           }
-          if (accessRequestsMap.get(BackupTypes.GDRIVE) != null && accessRequestsMap.get(BackupTypes.GDRIVE).isDefined() && accessRequestsMap.get(BackupTypes.GDRIVE).get()) {
-            mExpectedBackupsMap.put(BackupTypes.GDRIVE, null);
-            scanGoogleDrive();
-          }
-          runOnUiThread(() -> new Handler().postDelayed(() -> checkScanningDone(), SCAN_PING_INTERVAL));
-        }
-      }.start();
+        }.start();
+      } else {
+        mBinding.setRestoreStep(Constants.RESTORE_BACKUP_INIT);
+        Toast.makeText(this, R.string.restorechannels_error_no_local_access_toast, Toast.LENGTH_LONG).show();
+      }
     } else {
       mBinding.setRestoreStep(Constants.RESTORE_BACKUP_INIT);
     }
@@ -152,7 +160,7 @@ public class RestoreChannelsBackupActivity extends ChannelsBackupBaseActivity {
             }
             mBinding.foundBackupTextDescOrigin.setText(Html.fromHtml(getString(R.string.restorechannels_found_desc_origin, origin)));
             mBinding.foundBackupTextDescChannelsCount.setText(Html.fromHtml(getString(R.string.restorechannels_found_desc_channels_count, found.channelsCount)));
-            mBinding.foundBackupTextDescMaxComm.setText(Html.fromHtml(getString(R.string.restorechannels_found_desc_max_comm, Collections.max(found.commitmentCounts))));
+//            mBinding.foundBackupTextDescMaxComm.setText(Html.fromHtml(getString(R.string.restorechannels_found_desc_max_comm, Collections.max(found.localCommitIndexMap))));
             mBinding.foundBackupTextDescModified.setText(Html.fromHtml(getString(R.string.restorechannels_found_desc_modified, DateFormat.getDateTimeInstance().format(found.lastModified))));
             mBinding.setRestoreStep(found.isFromDevice ? Constants.RESTORE_BACKUP_FOUND : Constants.RESTORE_BACKUP_FOUND_WITH_CONFLICT);
           } else {
@@ -160,11 +168,11 @@ public class RestoreChannelsBackupActivity extends ChannelsBackupBaseActivity {
           }
           mBestBackup = found;
         } catch (EclairException.UnreadableBackupException e) {
-          log.error("a backup file could not be read", e);
+          log.error("a backup file could not be read: ", e);
           mBinding.setRestoreStep(Constants.RESTORE_BACKUP_FOUND_ERROR);
           mBinding.errorText.setText(getString(R.string.restorechannels_error, e.type, e.getLocalizedMessage()));
         } catch (Throwable t) {
-          log.error("error when handling scanning result", t);
+          log.error("error when handling scanning result: ", t);
           Toast.makeText(this, R.string.restorechannels_error_generic, Toast.LENGTH_LONG).show();
           mBinding.setRestoreStep(Constants.RESTORE_BACKUP_INIT);
         }
@@ -206,7 +214,6 @@ public class RestoreChannelsBackupActivity extends ChannelsBackupBaseActivity {
 
   @Nullable
   private BackupScanOk getBestBackupScan() throws EclairException.UnreadableBackupException {
-    long maxCommitmentIndex = 0;
     BackupScanOk bestBackupYet = null;
     for (final Map.Entry<BackupTypes, Option<BackupScanResult>> scan : mExpectedBackupsMap.entrySet()) {
       final BackupTypes type = scan.getKey();
@@ -214,14 +221,28 @@ public class RestoreChannelsBackupActivity extends ChannelsBackupBaseActivity {
       if (result_opt != null && result_opt.isDefined()) {
         final BackupScanResult result = result_opt.get();
         if (result instanceof BackupScanOk) {
-          final BackupScanOk backup = (BackupScanOk) result;
-          final long commitmentsIndexCount = Collections.max(backup.commitmentCounts);
-          log.info("we have backup from {} with {} channels and {} max commitment", backup.type, backup.channelsCount, commitmentsIndexCount);
-          if (commitmentsIndexCount >= maxCommitmentIndex) {
-            maxCommitmentIndex = commitmentsIndexCount;
-            bestBackupYet = backup;
+          final BackupScanOk challenger = (BackupScanOk) result;
+          if (bestBackupYet == null) {
+            bestBackupYet = challenger; // nothing yet, best by default
+          } else {
+            // compare current backup with the best option. Comparison uses an `int` score ; if score > 0, current backup is better
+            short score = 0;
+            final MapDifference<ByteVector32, Long> diff = Maps.difference(bestBackupYet.localCommitIndexMap, challenger.localCommitIndexMap);
+            for (MapDifference.ValueDifference<Long> d : diff.entriesDiffering().values()) {
+              if (d.leftValue() > d.rightValue()) score -= 1;
+              else score += 1;
+            }
+            log.info("relative difference between (best) {} and (challenger) {} = {}", bestBackupYet.type, challenger.type, score);
+            log.info("only in (best) {} -> {}", bestBackupYet.type, diff.entriesOnlyOnLeft().size());
+            score -= diff.entriesOnlyOnLeft().size();
+            log.info("only in (challenger) {} -> {}", challenger.type, diff.entriesOnlyOnRight().size());
+            score += diff.entriesOnlyOnRight().size();
+            log.info("final score {} for {}", score, challenger.type);
+            if (score > 0) {
+              bestBackupYet = challenger;
+            }
           }
-        } else if (result instanceof BackupScanFailure){
+        } else if (result instanceof BackupScanFailure) {
           final BackupScanFailure failure = (BackupScanFailure) result;
           throw new EclairException.UnreadableBackupException(type, failure.message);
         } else {
@@ -297,27 +318,29 @@ public class RestoreChannelsBackupActivity extends ChannelsBackupBaseActivity {
   @WorkerThread
   private BackupScanOk decryptFile(final byte[] content, final Date modified, final BackupTypes type) throws IOException, GeneralSecurityException, SQLException {
     log.debug("decrypting backup file from {}", type);
-    final EncryptedBackup encryptedContent = EncryptedBackup.read(content);
-    final byte[] decryptedContent = encryptedContent.decrypt(EncryptedData.secretKeyFromBinaryKey(
-      // backward compatibility code for v0.3.6-TESTNET which uses backup version 1
-      EncryptedBackup.BACKUP_VERSION_1 == encryptedContent.getVersion() ? app.backupKey_v1.get() : app.backupKey_v2.get()));
 
-    final File datadir = WalletUtils.getDatadir(getApplicationContext());
-    final File decryptedFile = new File(datadir, type.toString() + "-restore.sqlite.tmp");
+    // 1 - retrieve, decrypt and write backup file to datadir
+    final EncryptedBackup encryptedContent = EncryptedBackup.read(content);
+    final byte[] decryptedContent = encryptedContent.decrypt(EncryptedData.secretKeyFromBinaryKey(EncryptedBackup.BACKUP_VERSION_1 == encryptedContent.getVersion() ? app.backupKey_v1.get() : app.backupKey_v2.get()));
+    final File decryptedFile = new File(WalletUtils.getDatadir(getApplicationContext()), type.toString() + "-restore.sqlite.tmp");
     Files.write(decryptedContent, decryptedFile);
+
+    // 2 - read backup file and extracts relevant data (channels count + commitments)
     final Connection decryptedFileConn = DriverManager.getConnection("jdbc:sqlite:" + decryptedFile.getPath());
     final ChannelsDb db = new SqliteChannelsDb(decryptedFileConn);
     final Seq<HasCommitments> commitments = db.listLocalChannels();
     final int channelsCount = commitments.size();
-    final List<Long> indexes = new ArrayList<>();
-    final Iterator<HasCommitments> commitmentsIt = commitments.iterator();
-    while (commitmentsIt.hasNext()) {
-      final HasCommitments hc = commitmentsIt.next();
-      indexes.add(Math.max(hc.commitments().localCommit().index(), hc.commitments().remoteCommit().index()));
+    final Map<ByteVector32, Long> localCommitIndexMap = new HashMap<>();
+    final Iterator<HasCommitments> iterator = commitments.iterator();
+    while (iterator.hasNext()) {
+      final HasCommitments hc = iterator.next();
+      localCommitIndexMap.put(hc.channelId(), hc.commitments().localCommit().index());
     }
     db.close();
+
+    // 3 - returns a successfully read backup object
     log.info("found {} channels in backup file from {}", channelsCount, type);
-    return new BackupScanOk(type, indexes, channelsCount, modified, decryptedFile);
+    return new BackupScanOk(type, localCommitIndexMap, channelsCount, modified, decryptedFile);
   }
 
   private void ignoreRestoreAndBeDone() {
@@ -349,10 +372,12 @@ public class RestoreChannelsBackupActivity extends ChannelsBackupBaseActivity {
     BackupUtils.GoogleDrive.enableGDriveBackup(getApplicationContext());
   }
 
-  private interface BackupScanResult {}
+  private interface BackupScanResult {
+  }
 
   private static class BackupScanFailure implements BackupScanResult {
     final String message;
+
     BackupScanFailure(final String message) {
       this.message = message;
     }
@@ -360,18 +385,22 @@ public class RestoreChannelsBackupActivity extends ChannelsBackupBaseActivity {
 
   private static class BackupScanOk implements BackupScanResult {
     public final BackupTypes type;
-    public final List<Long> commitmentCounts;
-    public final int channelsCount;
-    public final Date lastModified;
+    final Map<ByteVector32, Long> localCommitIndexMap;
+    final int channelsCount;
+    final Date lastModified;
     public final File file;
     private boolean isFromDevice = true;
 
-    BackupScanOk(final BackupTypes type, final List<Long> commitmentCounts, int channelsCount, final Date lastModified, final File file) {
+    BackupScanOk(final BackupTypes type, final Map<ByteVector32, Long> localCommitIndexMap, int channelsCount, final Date lastModified, final File file) {
       this.type = type;
-      this.commitmentCounts = commitmentCounts;
+      this.localCommitIndexMap = localCommitIndexMap;
       this.channelsCount = channelsCount;
       this.lastModified = lastModified;
       this.file = file;
+    }
+
+    String printLocalCommitIndexMap() {
+      return Arrays.toString(localCommitIndexMap.entrySet().toArray());
     }
 
     void setIsFromDevice(final boolean isFromDevice) {

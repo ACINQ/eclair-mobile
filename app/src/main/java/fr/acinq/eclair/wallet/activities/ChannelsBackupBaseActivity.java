@@ -44,7 +44,7 @@ import java.util.Map;
 
 public abstract class ChannelsBackupBaseActivity extends EclairActivity {
 
-  final static int ACCESS_REQUEST_PING_INTERVAL = 800;
+  final static int ACCESS_REQUEST_PING_INTERVAL = 500;
   static final int GDRIVE_REQUEST_CODE_SIGN_IN = 0;
   private final Logger log = LoggerFactory.getLogger(ChannelsBackupBaseActivity.class);
   protected Map<BackupTypes, Option<Boolean>> accessRequestsMap = new HashMap<>();
