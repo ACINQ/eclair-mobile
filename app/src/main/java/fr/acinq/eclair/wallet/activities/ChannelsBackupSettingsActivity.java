@@ -30,6 +30,7 @@ import com.google.android.gms.common.api.CommonStatusCodes;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.databinding.ActivityChannelsBackupSettingsBinding;
 import fr.acinq.eclair.wallet.services.BackupUtils;
+import fr.acinq.eclair.wallet.services.ChannelsBackupWorker;
 import fr.acinq.eclair.wallet.utils.EclairException;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 import org.slf4j.Logger;
@@ -128,6 +129,9 @@ public class ChannelsBackupSettingsActivity extends ChannelsBackupBaseActivity {
     new Thread() {
       @Override
       public void run() {
+        if (app != null) {
+          ChannelsBackupWorker.scheduleWorkASAP(app.seedHash.get(), app.backupKey_v2.get());
+        }
         retrieveEclairBackupTask().addOnSuccessListener(metadataBuffer -> runOnUiThread(() -> {
           mBinding.gdriveBackupStatus.setVisibility(View.VISIBLE);
           if (metadataBuffer.getCount() == 0) {
