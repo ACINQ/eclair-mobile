@@ -32,6 +32,7 @@ import akka.testkit.JavaTestKit;
 import fr.acinq.bitcoin.ByteVector32;
 import fr.acinq.bitcoin.Crypto;
 import fr.acinq.bitcoin.Transaction;
+import scala.Option;
 
 public class ElectrumClientTest {
 
@@ -65,7 +66,7 @@ public class ElectrumClientTest {
 
       new Within(duration("3 seconds")) {
         protected void run() {
-          subject.tell(new ElectrumClient.GetTransaction(ByteVector32.fromValidHex("c5efb5cbd35a44ba956b18100be0a91c9c33af4c7f31be20e33741d95f04e202")), getRef());
+          subject.tell(new ElectrumClient.GetTransaction(ByteVector32.fromValidHex("c5efb5cbd35a44ba956b18100be0a91c9c33af4c7f31be20e33741d95f04e202"), Option.empty()), getRef());
           ElectrumClient.GetTransactionResponse response = expectMsgClass(duration("1 second"), ElectrumClient.GetTransactionResponse.class);
           Assert.assertEquals(response.tx().txid().toString(), "c5efb5cbd35a44ba956b18100be0a91c9c33af4c7f31be20e33741d95f04e202");
         }
@@ -73,7 +74,7 @@ public class ElectrumClientTest {
 
       new Within(duration("3 seconds")) {
         protected void run() {
-          subject.tell(new ElectrumClient.GetMerkle(ByteVector32.fromValidHex("c5efb5cbd35a44ba956b18100be0a91c9c33af4c7f31be20e33741d95f04e202"), 1210223), getRef());
+          subject.tell(new ElectrumClient.GetMerkle(ByteVector32.fromValidHex("c5efb5cbd35a44ba956b18100be0a91c9c33af4c7f31be20e33741d95f04e202"), 1210223, Option.empty()), getRef());
           ElectrumClient.GetMerkleResponse response = expectMsgClass(duration("1 second"), ElectrumClient.GetMerkleResponse.class);
           Assert.assertEquals(response.txid(), ByteVector32.fromValidHex("c5efb5cbd35a44ba956b18100be0a91c9c33af4c7f31be20e33741d95f04e202"));
           Assert.assertEquals(response.block_height(), 1210223L);

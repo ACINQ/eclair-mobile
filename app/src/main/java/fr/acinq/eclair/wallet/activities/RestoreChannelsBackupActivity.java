@@ -16,12 +16,12 @@
 
 package fr.acinq.eclair.wallet.activities;
 
-import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.text.Html;
 import android.widget.Toast;
+import androidx.annotation.UiThread;
 import androidx.annotation.WorkerThread;
 import androidx.databinding.DataBindingUtil;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -30,6 +30,7 @@ import com.google.android.gms.drive.Metadata;
 import com.google.android.gms.drive.metadata.CustomPropertyKey;
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.google.common.io.Files;
 import fr.acinq.bitcoin.ByteVector32;
 import fr.acinq.eclair.channel.HasCommitments;
@@ -59,7 +60,7 @@ import java.util.*;
 
 public class RestoreChannelsBackupActivity extends ChannelsBackupBaseActivity {
 
-  private final Logger log = LoggerFactory.getLogger(RestoreChannelsBackupActivity.class);
+  private static final Logger log = LoggerFactory.getLogger(RestoreChannelsBackupActivity.class);
   private ActivityRestoreChannelsBackupBinding mBinding;
 
   final static int SCAN_PING_INTERVAL = 2000;
@@ -67,7 +68,6 @@ public class RestoreChannelsBackupActivity extends ChannelsBackupBaseActivity {
   private Map<BackupTypes, Option<BackupScanResult>> mExpectedBackupsMap = new HashMap<>();
   private BackupScanOk mBestBackup = null;
 
-  @SuppressLint("ClickableViewAccessibility")
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -138,6 +138,7 @@ public class RestoreChannelsBackupActivity extends ChannelsBackupBaseActivity {
     }
   }
 
+  @UiThread
   private void checkScanningDone() {
     mBestBackup = null;
     if (mExpectedBackupsMap.isEmpty()) {
@@ -145,7 +146,7 @@ public class RestoreChannelsBackupActivity extends ChannelsBackupBaseActivity {
     } else {
       if (!mExpectedBackupsMap.containsValue(null)) { // scanning is done
         try {
-          final BackupScanOk found = getBestBackupScan();
+          final BackupScanOk found = findBestBackup(mExpectedBackupsMap);
           if (found != null) {
             String origin = "";
             switch (found.type) {
@@ -159,8 +160,7 @@ public class RestoreChannelsBackupActivity extends ChannelsBackupBaseActivity {
                 break;
             }
             mBinding.foundBackupTextDescOrigin.setText(Html.fromHtml(getString(R.string.restorechannels_found_desc_origin, origin)));
-            mBinding.foundBackupTextDescChannelsCount.setText(Html.fromHtml(getString(R.string.restorechannels_found_desc_channels_count, found.channelsCount)));
-//            mBinding.foundBackupTextDescMaxComm.setText(Html.fromHtml(getString(R.string.restorechannels_found_desc_max_comm, Collections.max(found.localCommitIndexMap))));
+            mBinding.foundBackupTextDescChannelsCount.setText(Html.fromHtml(getString(R.string.restorechannels_found_desc_channels_count, found.localCommitIndexMap.size())));
             mBinding.foundBackupTextDescModified.setText(Html.fromHtml(getString(R.string.restorechannels_found_desc_modified, DateFormat.getDateTimeInstance().format(found.lastModified))));
             mBinding.setRestoreStep(found.isFromDevice ? Constants.RESTORE_BACKUP_FOUND : Constants.RESTORE_BACKUP_FOUND_WITH_CONFLICT);
           } else {
@@ -212,10 +212,26 @@ public class RestoreChannelsBackupActivity extends ChannelsBackupBaseActivity {
     }
   }
 
+  public static List<Map.Entry<BackupTypes, Option<BackupScanResult>>> sortBackupDateDesc(List<Map.Entry<BackupTypes, Option<BackupScanResult>>> set) {
+    Collections.sort(set, (b1, b2) -> {
+      if (b1.getValue().isDefined() && b1.getValue().get() instanceof BackupScanOk) {
+        if (b2.getValue().isDefined() && b2.getValue().get() instanceof BackupScanOk) {
+          return ((BackupScanOk) b2.getValue().get()).lastModified.compareTo(((BackupScanOk) b1.getValue().get()).lastModified);
+        } else {
+          return -1;
+        }
+      } else {
+        return 1;
+      }
+    });
+    return set;
+  }
+
   @Nullable
-  private BackupScanOk getBestBackupScan() throws EclairException.UnreadableBackupException {
+  public static BackupScanOk findBestBackup(Map<BackupTypes, Option<BackupScanResult>> backupsSet) throws EclairException.UnreadableBackupException {
     BackupScanOk bestBackupYet = null;
-    for (final Map.Entry<BackupTypes, Option<BackupScanResult>> scan : mExpectedBackupsMap.entrySet()) {
+    final List<Map.Entry<BackupTypes, Option<BackupScanResult>>> sortedBackups = sortBackupDateDesc(new ArrayList<>(backupsSet.entrySet()));
+    for (final Map.Entry<BackupTypes, Option<BackupScanResult>> scan : sortedBackups) {
       final BackupTypes type = scan.getKey();
       final Option<BackupScanResult> result_opt = scan.getValue();
       if (result_opt != null && result_opt.isDefined()) {
@@ -223,23 +239,23 @@ public class RestoreChannelsBackupActivity extends ChannelsBackupBaseActivity {
         if (result instanceof BackupScanOk) {
           final BackupScanOk challenger = (BackupScanOk) result;
           if (bestBackupYet == null) {
-            bestBackupYet = challenger; // nothing yet, best by default
+            bestBackupYet = challenger; // first element is best by default (it's the most recent backup)
           } else {
-            // compare current backup with the best option. Comparison uses an `int` score ; if score > 0, current backup is better
-            short score = 0;
-            final MapDifference<ByteVector32, Long> diff = Maps.difference(bestBackupYet.localCommitIndexMap, challenger.localCommitIndexMap);
-            for (MapDifference.ValueDifference<Long> d : diff.entriesDiffering().values()) {
-              if (d.leftValue() > d.rightValue()) score -= 1;
-              else score += 1;
-            }
-            log.info("relative difference between (best) {} and (challenger) {} = {}", bestBackupYet.type, challenger.type, score);
-            log.info("only in (best) {} -> {}", bestBackupYet.type, diff.entriesOnlyOnLeft().size());
-            score -= diff.entriesOnlyOnLeft().size();
-            log.info("only in (challenger) {} -> {}", challenger.type, diff.entriesOnlyOnRight().size());
-            score += diff.entriesOnlyOnRight().size();
-            log.info("final score {} for {}", score, challenger.type);
-            if (score > 0) {
-              bestBackupYet = challenger;
+            final Sets.SetView<ByteVector32> channelsIntersection = Sets.intersection(bestBackupYet.localCommitIndexMap.keySet(), challenger.localCommitIndexMap.keySet());
+            if (channelsIntersection.size() < bestBackupYet.localCommitIndexMap.size()) {
+              log.info("(best) {} and (challenger) {} have only {} channels in common, challenger is ignored", bestBackupYet.type, challenger.type, channelsIntersection.size());
+            } else {
+              // Compare current backup with the current best option by using a score ; if score > 0, challenger becomes the new best.
+              short score = 0;
+              final MapDifference<ByteVector32, Long> diff = Maps.difference(bestBackupYet.localCommitIndexMap, challenger.localCommitIndexMap);
+              for (MapDifference.ValueDifference<Long> d : diff.entriesDiffering().values()) {
+                if (d.leftValue() >= d.rightValue()) score -= 1;
+                else score += 1;
+              }
+              log.info("relative difference between (best) {} and (challenger) {} = {}", bestBackupYet.type, challenger.type, score);
+              if (score > 0) {
+                bestBackupYet = challenger;
+              }
             }
           }
         } else if (result instanceof BackupScanFailure) {
@@ -329,7 +345,6 @@ public class RestoreChannelsBackupActivity extends ChannelsBackupBaseActivity {
     final Connection decryptedFileConn = DriverManager.getConnection("jdbc:sqlite:" + decryptedFile.getPath());
     final ChannelsDb db = new SqliteChannelsDb(decryptedFileConn);
     final Seq<HasCommitments> commitments = db.listLocalChannels();
-    final int channelsCount = commitments.size();
     final Map<ByteVector32, Long> localCommitIndexMap = new HashMap<>();
     final Iterator<HasCommitments> iterator = commitments.iterator();
     while (iterator.hasNext()) {
@@ -339,8 +354,8 @@ public class RestoreChannelsBackupActivity extends ChannelsBackupBaseActivity {
     db.close();
 
     // 3 - returns a successfully read backup object
-    log.info("found {} channels in backup file from {}", channelsCount, type);
-    return new BackupScanOk(type, localCommitIndexMap, channelsCount, modified, decryptedFile);
+    log.info("found {} channels in backup file from {}", localCommitIndexMap.size(), type);
+    return new BackupScanOk(type, localCommitIndexMap, modified, decryptedFile);
   }
 
   private void ignoreRestoreAndBeDone() {
@@ -372,29 +387,27 @@ public class RestoreChannelsBackupActivity extends ChannelsBackupBaseActivity {
     BackupUtils.GoogleDrive.enableGDriveBackup(getApplicationContext());
   }
 
-  private interface BackupScanResult {
+  public interface BackupScanResult {
   }
 
-  private static class BackupScanFailure implements BackupScanResult {
+  public static class BackupScanFailure implements BackupScanResult {
     final String message;
 
-    BackupScanFailure(final String message) {
+    public BackupScanFailure(final String message) {
       this.message = message;
     }
   }
 
-  private static class BackupScanOk implements BackupScanResult {
+  public static class BackupScanOk implements BackupScanResult {
     public final BackupTypes type;
-    final Map<ByteVector32, Long> localCommitIndexMap;
-    final int channelsCount;
-    final Date lastModified;
+    public final Map<ByteVector32, Long> localCommitIndexMap;
+    public final Date lastModified;
     public final File file;
     private boolean isFromDevice = true;
 
-    BackupScanOk(final BackupTypes type, final Map<ByteVector32, Long> localCommitIndexMap, int channelsCount, final Date lastModified, final File file) {
+    public BackupScanOk(final BackupTypes type, final Map<ByteVector32, Long> localCommitIndexMap, final Date lastModified, final File file) {
       this.type = type;
       this.localCommitIndexMap = localCommitIndexMap;
-      this.channelsCount = channelsCount;
       this.lastModified = lastModified;
       this.file = file;
     }

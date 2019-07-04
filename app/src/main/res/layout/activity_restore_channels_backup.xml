@@ -270,22 +270,13 @@
           app:layout_constraintTop_toBottomOf="@+id/found_backup_text_desc_origin" />
 
         <TextView
-          android:id="@+id/found_backup_text_desc_max_comm"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:layout_marginStart="@dimen/space_lg"
-          android:layout_marginTop="@dimen/space_xxxs"
-          android:layout_marginEnd="@dimen/space_lg"
-          app:layout_constraintTop_toBottomOf="@+id/found_backup_text_desc_channels_count" />
-
-        <TextView
           android:id="@+id/found_backup_text_desc_modified"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:layout_marginStart="@dimen/space_lg"
           android:layout_marginTop="@dimen/space_xxxs"
           android:layout_marginEnd="@dimen/space_lg"
-          app:layout_constraintTop_toBottomOf="@+id/found_backup_text_desc_max_comm" />
+          app:layout_constraintTop_toBottomOf="@+id/found_backup_text_desc_channels_count" />
 
         <TextView
           android:id="@+id/found_backup_text_conflict"
