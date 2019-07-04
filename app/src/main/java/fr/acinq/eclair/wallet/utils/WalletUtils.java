@@ -24,14 +24,12 @@ import android.net.Uri;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
-import androidx.annotation.NonNull;
 import android.text.Html;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
-import androidx.work.Data;
-import androidx.work.OneTimeWorkRequest;
+import androidx.annotation.NonNull;
 import ch.qos.logback.classic.*;
 import ch.qos.logback.classic.android.LogcatAppender;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
@@ -56,7 +54,6 @@ import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.R;
-import fr.acinq.eclair.wallet.services.ChannelsBackupWorker;
 import okhttp3.ResponseBody;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -77,7 +74,6 @@ import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 public class WalletUtils {
@@ -365,17 +361,6 @@ public class WalletUtils {
 
   public static String getEclairBackupFileName(final String seedHash) {
     return "eclair_" + BuildConfig.CHAIN + "_" + seedHash + ".bkup";
-  }
-
-  public static OneTimeWorkRequest generateBackupRequest(final String seedHash, final ByteVector32 backupKey) {
-    return new OneTimeWorkRequest.Builder(ChannelsBackupWorker.class)
-      .setInputData(new Data.Builder()
-        .putString(ChannelsBackupWorker.BACKUP_NAME_INPUT, WalletUtils.getEclairBackupFileName(seedHash))
-        .putString(ChannelsBackupWorker.BACKUP_KEY_INPUT, backupKey.toString())
-        .build())
-      .setInitialDelay(2, TimeUnit.SECONDS)
-      .addTag("ChannelsBackupWork")
-      .build();
   }
 
   public static String toAscii(final ByteVector b) {

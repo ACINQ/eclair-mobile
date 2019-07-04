@@ -18,8 +18,7 @@ package fr.acinq.eclair.wallet.services;
 
 import android.content.Context;
 import androidx.annotation.NonNull;
-import androidx.work.Worker;
-import androidx.work.WorkerParameters;
+import androidx.work.*;
 import com.google.android.gms.drive.*;
 import com.google.android.gms.drive.metadata.CustomPropertyKey;
 import com.google.android.gms.tasks.Task;
@@ -45,6 +44,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.GeneralSecurityException;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Saves the eclair.sqlite backup file to an external storage folder (root/Eclair Mobile) and/or to Google Drive,
@@ -196,5 +196,22 @@ public class ChannelsBackupWorker extends Worker {
 
       return driveResourceClient.updateMetadata(driveFile, changeSet);
     });
+  }
+
+  public static void scheduleWorkASAP(final String seedHash, final ByteVector32 backupKey) {
+    WorkManager.getInstance()
+      .beginUniqueWork("ChannelsBackup", ExistingWorkPolicy.REPLACE, getOneTimeBackupRequest(seedHash, backupKey))
+      .enqueue();
+  }
+
+  private static OneTimeWorkRequest getOneTimeBackupRequest(final String seedHash, final ByteVector32 backupKey) {
+    return new OneTimeWorkRequest.Builder(ChannelsBackupWorker.class)
+      .setInputData(new Data.Builder()
+        .putString(ChannelsBackupWorker.BACKUP_NAME_INPUT, WalletUtils.getEclairBackupFileName(seedHash))
+        .putString(ChannelsBackupWorker.BACKUP_KEY_INPUT, backupKey.toString())
+        .build())
+      .setInitialDelay(2, TimeUnit.SECONDS)
+      .addTag("ChannelsBackupWork")
+      .build();
   }
 }
