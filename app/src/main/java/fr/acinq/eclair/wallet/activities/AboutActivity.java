@@ -40,5 +40,7 @@ public class AboutActivity extends EclairActivity {
     binding.faq.setText(Html.fromHtml(getString(R.string.about_faq)));
     binding.faq.setMovementMethod(LinkMovementMethod.getInstance());
     binding.about.setText(Html.fromHtml(getString(R.string.about_acinq_text)));
+    binding.lnstores.setText(Html.fromHtml(getString(R.string.about_lightning_network_stores)));
+    binding.lnstores.setMovementMethod(LinkMovementMethod.getInstance());
   }
 }

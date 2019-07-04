@@ -67,6 +67,16 @@
 
         <TextView
           style="@style/TitleBar"
+          android:text="@string/about_stores" />
+
+        <TextView
+          android:id="@+id/lnstores"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:padding="@dimen/space_md" />
+
+        <TextView
+          style="@style/TitleBar"
           android:text="@string/about_acinq_title" />
 
         <TextView
