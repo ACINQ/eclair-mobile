@@ -72,6 +72,12 @@ public class RestoreBackupTest {
     return map;
   }
 
+  private Map<ByteVector32, Long> getIndexMap_2_fork() {
+    final Map<ByteVector32, Long> map = getIndexMap_2();
+    map.put(c3, 16L);
+    return map;
+  }
+
   private RestoreChannelsBackupActivity.BackupScanOk getOld(final BackupTypes t) throws IOException, ParseException {
     return new RestoreChannelsBackupActivity.BackupScanOk(t, getIndexMap_1(), sdf.parse("2019-07-01 01:02:03"), temp.newFile());
   }
@@ -82,10 +88,6 @@ public class RestoreBackupTest {
 
   private RestoreChannelsBackupActivity.BackupScanOk getRecentUpdated(final BackupTypes t) throws IOException, ParseException {
     return new RestoreChannelsBackupActivity.BackupScanOk(t, getIndexMap_2_updated(), sdf.parse("2019-07-04 06:59:59"), temp.newFile());
-  }
-
-  private RestoreChannelsBackupActivity.BackupScanOk getOldUpdated(final BackupTypes t) throws IOException, ParseException {
-    return new RestoreChannelsBackupActivity.BackupScanOk(t, getIndexMap_2_updated(), sdf.parse("2019-07-01 01:02:03"), temp.newFile());
   }
 
   @Test
@@ -103,8 +105,9 @@ public class RestoreBackupTest {
   }
 
   @Test
-  public void test_findBest_newest_timestamp() throws IOException, ParseException {
+  public void test_findBest_newer_timestamp() throws IOException, ParseException {
     final Map<BackupTypes, Option<RestoreChannelsBackupActivity.BackupScanResult>> backups = new HashMap<>();
+    // local has the most recent timestamp and different channels
     backups.put(BackupTypes.GDRIVE, Option.apply(getOld(BackupTypes.GDRIVE)));
     backups.put(BackupTypes.LOCAL, Option.apply(getRecent(BackupTypes.LOCAL)));
     final RestoreChannelsBackupActivity.BackupScanOk best = RestoreChannelsBackupActivity.findBestBackup(backups);
@@ -112,25 +115,49 @@ public class RestoreBackupTest {
     Assert.assertSame(best.type, BackupTypes.LOCAL);
   }
 
-//  @Test
-//  public void test_findBest_prefer_timestamp_over_commitment() throws IOException, ParseException {
-//    final Map<BackupTypes, Option<RestoreChannelsBackupActivity.BackupScanResult>> backups = new HashMap<>();
-//    backups.put(BackupTypes.LOCAL, Option.apply(getRecent(BackupTypes.LOCAL)));
-//    backups.put(BackupTypes.GDRIVE, Option.apply(getOldUpdated(BackupTypes.GDRIVE)));
-//    final RestoreChannelsBackupActivity.BackupScanOk best = RestoreChannelsBackupActivity.findBestBackup(backups);
-//    Assert.assertNotNull(best);
-//    Assert.assertSame(best.type, BackupTypes.LOCAL);
-//  }
-
   @Test
   public void test_findBest_newer_commitments() throws IOException, ParseException {
     final Map<BackupTypes, Option<RestoreChannelsBackupActivity.BackupScanResult>> backups = new HashMap<>();
+    // both have the same channels, but gdrive commitments are more recent
     backups.put(BackupTypes.LOCAL, Option.apply(getRecent(BackupTypes.LOCAL)));
     backups.put(BackupTypes.GDRIVE, Option.apply(getRecentUpdated(BackupTypes.GDRIVE)));
     final RestoreChannelsBackupActivity.BackupScanOk best = RestoreChannelsBackupActivity.findBestBackup(backups);
     Assert.assertNotNull(best);
     Assert.assertSame(best.type, BackupTypes.GDRIVE);
     Assert.assertEquals(Objects.requireNonNull(best.localCommitIndexMap.get(c7)).longValue(), 9L);
+  }
+
+  @Test
+  public void test_findBest_prefer_timestamp_if_same_commitments() throws IOException, ParseException {
+    final Map<BackupTypes, Option<RestoreChannelsBackupActivity.BackupScanResult>> backups = new HashMap<>();
+    // local and gdrive both have the same commitments, but gdrive has a more recent timestamp
+    backups.put(BackupTypes.LOCAL, Option.apply(new RestoreChannelsBackupActivity.BackupScanOk(BackupTypes.LOCAL, getIndexMap_2(), sdf.parse("2019-07-08 10:10:10"), temp.newFile())));
+    backups.put(BackupTypes.GDRIVE, Option.apply(new RestoreChannelsBackupActivity.BackupScanOk(BackupTypes.GDRIVE, getIndexMap_2(), sdf.parse("2019-07-08 11:11:10"), temp.newFile())));
+    final RestoreChannelsBackupActivity.BackupScanOk best = RestoreChannelsBackupActivity.findBestBackup(backups);
+    Assert.assertNotNull(best);
+    Assert.assertSame(best.type, BackupTypes.GDRIVE);
+  }
+
+  @Test
+  public void test_findBest_prefer_commitments_over_timestamp_if_same_channels() throws IOException, ParseException {
+    final Map<BackupTypes, Option<RestoreChannelsBackupActivity.BackupScanResult>> backups = new HashMap<>();
+    // local has an older timestamp, but newer commitments => should be the best one
+    backups.put(BackupTypes.LOCAL, Option.apply(new RestoreChannelsBackupActivity.BackupScanOk(BackupTypes.LOCAL, getIndexMap_2_updated(), sdf.parse("2019-07-08 09:28:51"), temp.newFile())));
+    backups.put(BackupTypes.GDRIVE, Option.apply(new RestoreChannelsBackupActivity.BackupScanOk(BackupTypes.GDRIVE, getIndexMap_2(), sdf.parse("2019-07-08 11:06:03"), temp.newFile())));
+    final RestoreChannelsBackupActivity.BackupScanOk best = RestoreChannelsBackupActivity.findBestBackup(backups);
+    Assert.assertNotNull(best);
+    Assert.assertSame(best.type, BackupTypes.LOCAL);
+  }
+
+  @Test
+  public void test_findBest_prefer_timestamp_if_different_channels() throws IOException, ParseException {
+    final Map<BackupTypes, Option<RestoreChannelsBackupActivity.BackupScanResult>> backups = new HashMap<>();
+    // gdrive has less channels/commitments than local but is more recent
+    backups.put(BackupTypes.LOCAL, Option.apply(new RestoreChannelsBackupActivity.BackupScanOk(BackupTypes.LOCAL, getIndexMap_2_fork(), sdf.parse("2019-07-08 10:10:10"), temp.newFile())));
+    backups.put(BackupTypes.GDRIVE, Option.apply(new RestoreChannelsBackupActivity.BackupScanOk(BackupTypes.GDRIVE, getIndexMap_2(), sdf.parse("2019-07-08 11:11:10"), temp.newFile())));
+    final RestoreChannelsBackupActivity.BackupScanOk best = RestoreChannelsBackupActivity.findBestBackup(backups);
+    Assert.assertNotNull(best);
+    Assert.assertSame(best.type, BackupTypes.GDRIVE);
   }
 
   @Test(expected = EclairException.UnreadableBackupException.class)
