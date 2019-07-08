@@ -100,6 +100,7 @@
         android:hint="@string/dialog_prparams_amount_hint"
         android:importantForAutofill="no"
         android:inputType="numberDecimal"
+        android:maxLength="12"
         android:textSize="@dimen/text_md"
         android:translationX="-4dp"
         app:layout_constraintEnd_toStartOf="@id/amount_unit"
@@ -116,17 +117,30 @@
         app:layout_constraintEnd_toEndOf="parent" />
 
       <TextView
+        android:id="@+id/amount_fiat"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/space_lg"
+        android:layout_marginEnd="@dimen/space_lg"
+        android:textColor="@color/grey_1"
+        android:textSize="@dimen/text_sm"
+        app:layout_constraintTop_toBottomOf="@id/amount" />
+
+      <TextView
         android:id="@+id/amount_warning_view"
         style="@style/WarningMessage"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/space_lg"
         android:layout_marginTop="@dimen/space_md"
-        android:layout_marginEnd="@dimen/space_lg"
+        android:background="@color/yellow_light_x3"
+        android:paddingStart="@dimen/space_lg"
+        android:paddingTop="@dimen/space_xs"
+        android:paddingEnd="@dimen/space_lg"
+        android:paddingBottom="@dimen/space_xs"
         android:text="@{amountWarning}"
         android:textSize="@dimen/text_sm"
         android:visibility="@{amountWarning != null ? View.VISIBLE : View.GONE}"
-        app:layout_constraintTop_toBottomOf="@id/amount" />
+        app:layout_constraintTop_toBottomOf="@id/amount_fiat" />
 
       <TextView
         android:id="@+id/amount_error_view"
@@ -148,7 +162,6 @@
         android:background="@color/white"
         android:singleLine="true"
         android:text="@string/btn_cancel"
-        android:textColor="@color/grey_1"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/mid_guideline"
         app:layout_constraintStart_toStartOf="parent"

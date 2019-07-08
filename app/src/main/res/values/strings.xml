@@ -685,9 +685,9 @@
 
   <string name="dialog_prparams_description_title">Description</string>
   <string name="dialog_prparams_description_hint">No description…</string>
-  <string name="dialog_prparams_amount_title">Amount (max %1$s).</string>
+  <string name="dialog_prparams_amount_title">Amount</string>
   <string name="dialog_prparams_amount_hint">No amount requested</string>
   <string name="dialog_prparams_amount_error_generic">Invalid amount</string>
-  <string name="dialog_prparams_amount_error_excessive">Requested amount exceeds your current capacity and may fail</string>
+  <string name="dialog_prparams_amount_error_excessive">Requested amount exceeds your current inbound capacity (%1$s), and may fail.</string>
 
 </resources>
