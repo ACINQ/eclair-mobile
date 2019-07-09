@@ -45,9 +45,9 @@ android {
     applicationVariants.all { variant ->
       variant.outputs.all { output ->
         def abi = output.getFilter(com.android.build.OutputFile.ABI)
-        final String architecture = abi == null ? "" : "$abi-"
+        final String architecture = abi == null ? "universal" : abi
         final String chain = variant.buildType.resValues.get("CHAIN").value // careful, contains " characters...
-        outputFileName = "${defaultConfig.versionCode}-v${defaultConfig.versionName}-${chain.substring(1, chain.length() - 1)}-$architecture${variant.buildType.name}.apk"
+        outputFileName = "${defaultConfig.versionCode}-v${defaultConfig.versionName}-${chain.substring(1, chain.length() - 1)}-$architecture-${variant.buildType.name}.apk"
       }
     }
   }
