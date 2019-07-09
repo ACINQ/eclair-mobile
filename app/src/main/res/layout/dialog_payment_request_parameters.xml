@@ -95,7 +95,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/space_lg"
-        android:layout_marginEnd="@dimen/space_xs"
+        android:layout_marginEnd="@dimen/space_xxs"
         android:backgroundTint="@color/primary"
         android:hint="@string/dialog_prparams_amount_hint"
         android:importantForAutofill="no"
@@ -103,7 +103,11 @@
         android:maxLength="12"
         android:textSize="@dimen/text_md"
         android:translationX="-4dp"
+        app:layout_constrainedHeight="true"
+        app:layout_constrainedWidth="true"
         app:layout_constraintEnd_toStartOf="@id/amount_unit"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/amount_title" />
 
@@ -114,7 +118,9 @@
         android:layout_marginTop="@dimen/space_md_p"
         android:layout_marginEnd="@dimen/space_lg"
         app:layout_constraintBaseline_toBaselineOf="@id/amount"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintStart_toEndOf="@id/amount" />
 
       <TextView
         android:id="@+id/amount_fiat"
@@ -133,9 +139,9 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/space_md"
         android:background="@color/yellow_light_x3"
-        android:paddingStart="@dimen/space_lg"
+        android:paddingStart="@dimen/space_md"
         android:paddingTop="@dimen/space_xs"
-        android:paddingEnd="@dimen/space_lg"
+        android:paddingEnd="@dimen/space_md"
         android:paddingBottom="@dimen/space_xs"
         android:text="@{amountWarning}"
         android:textSize="@dimen/text_sm"
