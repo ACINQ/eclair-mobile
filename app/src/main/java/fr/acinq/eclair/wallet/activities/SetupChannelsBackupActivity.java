@@ -34,7 +34,6 @@ public class SetupChannelsBackupActivity extends ChannelsBackupBaseActivity {
   private final Logger log = LoggerFactory.getLogger(SetupChannelsBackupActivity.class);
   public final static String EXTRA_SETUP_IGNORE_GDRIVE_BACKUP = BuildConfig.APPLICATION_ID + ".SETUP_IGNORE_GDRIVE_BACKUP";
   private ActivitySetupChannelsBackupBinding mBinding;
-  //  private Dialog backupAbout;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -73,7 +72,7 @@ public class SetupChannelsBackupActivity extends ChannelsBackupBaseActivity {
 
   @Override
   protected void applyAccessRequestDone() {
-    if (!BackupUtils.Local.hasLocalAccess(getApplicationContext())) { // accessRequestsMap.get(BackupTypes.LOCAL) == null || accessRequestsMap.get(BackupTypes.LOCAL).isEmpty() || !accessRequestsMap.get(BackupTypes.LOCAL).get()) {
+    if (!BackupUtils.Local.hasLocalAccess(getApplicationContext())) {
       log.info("access to local drive denied!");
       mBinding.setSetupBackupStep(Constants.SETUP_BACKUP_INIT);
       Toast.makeText(this, getString(R.string.setupbackup_local_required), Toast.LENGTH_LONG).show();

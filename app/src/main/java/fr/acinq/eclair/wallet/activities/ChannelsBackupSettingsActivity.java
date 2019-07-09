@@ -18,19 +18,19 @@ package fr.acinq.eclair.wallet.activities;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
-import androidx.databinding.DataBindingUtil;
 import android.os.Bundle;
-import androidx.appcompat.widget.Toolbar;
 import android.view.MotionEvent;
 import android.view.View;
+import androidx.appcompat.widget.Toolbar;
+import androidx.databinding.DataBindingUtil;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.CommonStatusCodes;
+import fr.acinq.eclair.channel.ChannelPersisted;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.databinding.ActivityChannelsBackupSettingsBinding;
 import fr.acinq.eclair.wallet.services.BackupUtils;
-import fr.acinq.eclair.wallet.services.ChannelsBackupWorker;
 import fr.acinq.eclair.wallet.utils.EclairException;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 import org.slf4j.Logger;
@@ -129,8 +129,9 @@ public class ChannelsBackupSettingsActivity extends ChannelsBackupBaseActivity {
     new Thread() {
       @Override
       public void run() {
-        if (app != null) {
-          ChannelsBackupWorker.scheduleWorkASAP(app.seedHash.get(), app.backupKey_v2.get());
+        if (app != null && !BackupUtils.GoogleDrive.isGDriveEnabled(getApplicationContext())) {
+          // access is explicitly granted from a revoked state
+          app.system.eventStream().publish(ChannelPersisted.apply(null, null, null, null));
         }
         retrieveEclairBackupTask().addOnSuccessListener(metadataBuffer -> runOnUiThread(() -> {
           mBinding.gdriveBackupStatus.setVisibility(View.VISIBLE);
