@@ -332,7 +332,7 @@ public class RestoreChannelsBackupActivity extends ChannelsBackupBaseActivity {
   }
 
   @WorkerThread
-  private BackupScanOk decryptFile(final byte[] content, final Date modified, final BackupTypes type) throws IOException, GeneralSecurityException, SQLException {
+  private BackupScanOk decryptFile(final byte[] content, final Date modified, final BackupTypes type) throws IOException, GeneralSecurityException, SQLException, ClassNotFoundException {
     log.debug("decrypting backup file from {}", type);
 
     // 1 - retrieve, decrypt and write backup file to datadir
@@ -342,6 +342,7 @@ public class RestoreChannelsBackupActivity extends ChannelsBackupBaseActivity {
     Files.write(decryptedContent, decryptedFile);
 
     // 2 - read backup file and extracts relevant data (channels count + commitments)
+    Class.forName("org.sqlite.JDBC");
     final Connection decryptedFileConn = DriverManager.getConnection("jdbc:sqlite:" + decryptedFile.getPath());
     final ChannelsDb db = new SqliteChannelsDb(decryptedFileConn);
     final Seq<HasCommitments> commitments = db.listLocalChannels();
