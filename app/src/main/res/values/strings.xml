@@ -158,7 +158,7 @@
   <!-- //////////////// Restore Channels /////////////////// -->
 
   <string name="restorechannels_title">Restore Lightning channels</string>
-  <string name="restorechannels_explanations">If you already used Eclair Mobile with this seed, you may have residual active channels that could be restored.</string>
+  <string name="restorechannels_explanations">If you already used Eclair Mobile with this seed, you may have remaining active channels that could be restored.</string>
   <string name="restorechannels_hash">[hash]: %1$s</string>
   <string name="restorechannels_check_button">Scan for backup</string>
   <string name="restorechannels_confirm_button">Restore this backup</string>
@@ -580,7 +580,7 @@
 
   <string name="backupsettings_instructions">If you were to uninstall the app without closing your Lightning channels, you\'ll need a backup to be able to recover your channels and the funds on it.
     \n\nWe strongly recommend enabling a cloud-based backup option in case you lose your phone.</string>
-  <string name="backupsettings_local_title">Local save (required)</string>
+  <string name="backupsettings_local_title">Local backup (required)</string>
   <string name="backupsettings_local_status_wait">Requesting access to storage…</string>
   <string name="backupsettings_local_status_denied">Please grant access to the device\'s local storage.</string>
   <string name="backupsettings_local_status_result">Last modified: %1$s</string>
