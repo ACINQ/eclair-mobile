@@ -60,4 +60,8 @@
   <color name="almost_white">#fbfbfb</color>
   <color name="intro">#ffe785</color>
   <color name="black_overlay">#10000000</color>
+  <!-- low opacity -->
+  <color name="white_low_op">#11ffffff</color>
+  <color name="white_low_op_x1">#22ffffff</color>
+  <color name="black_low_op">#1a000000</color>
 </resources>

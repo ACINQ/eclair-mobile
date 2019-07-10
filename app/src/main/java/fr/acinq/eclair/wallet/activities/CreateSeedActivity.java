@@ -19,13 +19,12 @@ package fr.acinq.eclair.wallet.activities;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.databinding.DataBindingUtil;
+import androidx.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.support.v4.app.Fragment;
-import android.support.v4.view.ViewPager;
-import android.transition.TransitionManager;
+import androidx.fragment.app.Fragment;
+import androidx.viewpager.widget.ViewPager;
 import android.view.HapticFeedbackConstants;
 import android.view.View;
 import android.view.animation.Animation;
@@ -34,7 +33,6 @@ import android.view.inputmethod.InputMethodManager;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.spongycastle.util.encoders.Hex;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -46,11 +44,11 @@ import fr.acinq.bitcoin.MnemonicCode;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.adapters.SimplePagerAdapter;
 import fr.acinq.eclair.wallet.databinding.ActivityCreateSeedBinding;
-import fr.acinq.eclair.wallet.fragments.WalletCheckWordsFragment;
-import fr.acinq.eclair.wallet.fragments.WalletCreateSeedFragment;
-import fr.acinq.eclair.wallet.fragments.WalletEncryptFragment;
-import fr.acinq.eclair.wallet.fragments.WalletPassphraseConfirmFragment;
-import fr.acinq.eclair.wallet.fragments.WalletPassphraseFragment;
+import fr.acinq.eclair.wallet.fragments.initwallet.WalletCheckWordsFragment;
+import fr.acinq.eclair.wallet.fragments.initwallet.WalletCreateSeedFragment;
+import fr.acinq.eclair.wallet.fragments.initwallet.WalletEncryptFragment;
+import fr.acinq.eclair.wallet.fragments.initwallet.WalletPassphraseConfirmFragment;
+import fr.acinq.eclair.wallet.fragments.initwallet.WalletPassphraseFragment;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 import scala.collection.JavaConverters;
@@ -155,7 +153,7 @@ public class CreateSeedActivity extends EclairActivity implements EclairActivity
   }
 
   public void goToVerificationStep(final View view) {
-    verifHandler.removeCallbacks(null);
+    verifHandler.removeCallbacksAndMessages(null);
     if (mWalletCheckWordsFragment != null && mWalletCheckWordsFragment.mBinding != null) {
       mWalletCheckWordsFragment.mBinding.verificationError.setVisibility(View.GONE);
       mWalletCheckWordsFragment.mBinding.inputGrid.clearAnimation();
@@ -190,7 +188,7 @@ public class CreateSeedActivity extends EclairActivity implements EclairActivity
    * Check that the user has correctly backed up the mMnemonics.
    */
   public void verifyUserBackup(View view) {
-    verifHandler.removeCallbacks(null);
+    verifHandler.removeCallbacksAndMessages(null);
     if (mWalletCheckWordsFragment != null && mWalletCheckWordsFragment.mBinding != null) {
       mWalletCheckWordsFragment.mBinding.inputGrid.clearAnimation();
       mWalletCheckWordsFragment.mBinding.verificationError.setVisibility(View.GONE);
@@ -215,14 +213,12 @@ public class CreateSeedActivity extends EclairActivity implements EclairActivity
       }
     } catch (Exception e) {
       if (mWalletCheckWordsFragment != null && mWalletCheckWordsFragment.mBinding != null) {
-        TransitionManager.beginDelayedTransition(mWalletCheckWordsFragment.mBinding.transitionsLayout);
         mWalletCheckWordsFragment.mBinding.inputGrid.startAnimation(mErrorAnimation);
         mWalletCheckWordsFragment.mBinding.verificationError.setVisibility(View.VISIBLE);
       }
       verifHandler.postDelayed(() -> {
         setUpCheckWords();
         if (mWalletCheckWordsFragment != null && mWalletCheckWordsFragment.mBinding != null) {
-          TransitionManager.beginDelayedTransition(mWalletCheckWordsFragment.mBinding.transitionsLayout);
           mWalletCheckWordsFragment.mBinding.verificationError.setVisibility(View.GONE);
         }
       }, 2000);
@@ -237,7 +233,6 @@ public class CreateSeedActivity extends EclairActivity implements EclairActivity
 
   public void goToPassphraseConfirmStep(final View view) {
     if (mWalletPassphraseFragment != null && mWalletPassphraseFragment.mBinding != null) {
-      TransitionManager.beginDelayedTransition(mWalletPassphraseFragment.mBinding.transitionsLayout);
       mWalletPassphraseFragment.mBinding.passphraseError.setVisibility(View.GONE);
     }
     if (mWalletPassphraseConfirmFragment != null && mWalletPassphraseConfirmFragment.mBinding != null) {
@@ -270,7 +265,6 @@ public class CreateSeedActivity extends EclairActivity implements EclairActivity
       } else {
         goToPassphraseStep(view);
         if (mWalletPassphraseFragment != null && mWalletPassphraseFragment.mBinding != null) {
-          TransitionManager.beginDelayedTransition(mWalletPassphraseFragment.mBinding.transitionsLayout);
           mWalletPassphraseFragment.mBinding.passphraseError.setVisibility(View.VISIBLE);
           mWalletPassphraseFragment.mBinding.passphraseInput.startAnimation(mErrorAnimation);
         }
@@ -281,9 +275,6 @@ public class CreateSeedActivity extends EclairActivity implements EclairActivity
   }
 
   public void encryptSeed(final View view) {
-    if (mWalletPassphraseFragment != null && mWalletPassphraseFragment.mBinding != null) {
-      TransitionManager.beginDelayedTransition(mWalletPassphraseFragment.mBinding.transitionsLayout);
-    }
     if (mWalletEncryptFragment != null && mWalletEncryptFragment.mBinding != null) {
       mWalletEncryptFragment.mBinding.encryptionError.setVisibility(View.GONE);
     }
@@ -337,7 +328,6 @@ public class CreateSeedActivity extends EclairActivity implements EclairActivity
     if (mWalletEncryptFragment != null && mWalletEncryptFragment.mBinding != null) {
       mWalletEncryptFragment.mBinding.encryptionError.setVisibility(View.VISIBLE);
       mWalletEncryptFragment.mBinding.encryptionError.setText(message);
-      TransitionManager.beginDelayedTransition(mWalletEncryptFragment.mBinding.transitionsLayout);
     }
     mBinding.setCreationStep(4);
     goToEncryptionStep(null);

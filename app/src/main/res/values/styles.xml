@@ -142,7 +142,7 @@
   </style>
 
   <style name="PinButtonCircleStyle" parent="@style/PinButtonStyle">
-    <item name="android:background">@drawable/circle_pin</item>
+    <item name="android:background">@drawable/btn_circle_pin</item>
   </style>
 
   <style name="VirtualKey" parent="@style/Widget.AppCompat.Button.Borderless.Colored">
@@ -176,9 +176,31 @@
     <item name="android:layout_width">wrap_content</item>
     <item name="android:layout_height">wrap_content</item>
     <item name="android:minHeight">0dp</item>
-    <item name="android:padding">@dimen/space_md</item>
+    <item name="android:paddingStart">@dimen/space_md</item>
+    <item name="android:paddingEnd">@dimen/space_md</item>
+    <item name="android:paddingTop">@dimen/space_md</item>
+    <item name="android:paddingBottom">@dimen/space_md</item>
     <item name="android:background">@android:color/transparent</item>
     <item name="android:foreground">?android:attr/selectableItemBackground</item>
+    <item name="android:drawablePadding">@dimen/space_xs</item>
+  </style>
+
+  <style name="InlineButtonStyle" parent="ButtonStyle">
+    <item name="android:textAllCaps">false</item>
+    <item name="android:paddingStart">0dp</item>
+    <item name="android:paddingEnd">0dp</item>
+    <item name="android:paddingTop">0dp</item>
+    <item name="android:paddingBottom">0dp</item>
+    <item name="android:background">@null</item>
+    <item name="android:foreground">@null</item>
+  </style>
+
+  <style name="WhiteBgButtonStyle" parent="ButtonStyle">
+    <item name="android:paddingTop">@dimen/space_xs</item>
+    <item name="android:paddingBottom">@dimen/space_xs</item>
+    <item name="android:textAllCaps">false</item>
+    <item name="android:background">@drawable/btn_white_bg</item>
+    <item name="android:foreground">@null</item>
   </style>
 
   <style name="EndButtonStyle" parent="ButtonStyle">
@@ -224,9 +246,14 @@
     <item name="android:textSize">18sp</item>
   </style>
 
-  <style name="HSeparator">
-    <item name="android:layout_width">50dp</item>
+  <style name="HLineSeparator">
+    <item name="android:layout_width">match_parent</item>
     <item name="android:layout_height">1dp</item>
+    <item name="android:background">@color/grey_0_light_x1</item>
+  </style>
+
+  <style name="HSeparator" parent="HLineSeparator">
+    <item name="android:layout_width">50dp</item>
     <item name="android:background">@color/grey_0</item>
   </style>
 

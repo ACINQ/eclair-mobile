@@ -18,7 +18,7 @@ package fr.acinq.eclair.wallet.services;
 
 import akka.actor.ActorSystem;
 import android.content.Context;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import androidx.work.*;
 import com.typesafe.config.ConfigFactory;
 import fr.acinq.eclair.SyncLiteSetup;

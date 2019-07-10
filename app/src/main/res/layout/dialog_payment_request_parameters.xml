@@ -29,12 +29,6 @@
       type="String" />
   </data>
 
-  <!--<android.support.constraint.ConstraintLayout-->
-  <!--android:layout_width="match_parent"-->
-  <!--android:layout_height="wrap_content"-->
-  <!--android:background="@color/white">-->
-
-
   <ScrollView
     android:id="@+id/scrollView2"
     android:layout_width="match_parent"
@@ -46,11 +40,11 @@
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toTopOf="parent">
 
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
       android:layout_width="match_parent"
       android:layout_height="wrap_content">
 
-      <android.support.constraint.Guideline
+      <androidx.constraintlayout.widget.Guideline
         android:id="@+id/mid_guideline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -101,14 +95,19 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/space_lg"
-        android:layout_marginEnd="@dimen/space_xs"
+        android:layout_marginEnd="@dimen/space_xxs"
         android:backgroundTint="@color/primary"
         android:hint="@string/dialog_prparams_amount_hint"
         android:importantForAutofill="no"
         android:inputType="numberDecimal"
+        android:maxLength="12"
         android:textSize="@dimen/text_md"
         android:translationX="-4dp"
+        app:layout_constrainedHeight="true"
+        app:layout_constrainedWidth="true"
         app:layout_constraintEnd_toStartOf="@id/amount_unit"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/amount_title" />
 
@@ -119,20 +118,35 @@
         android:layout_marginTop="@dimen/space_md_p"
         android:layout_marginEnd="@dimen/space_lg"
         app:layout_constraintBaseline_toBaselineOf="@id/amount"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintStart_toEndOf="@id/amount" />
+
+      <TextView
+        android:id="@+id/amount_fiat"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/space_lg"
+        android:layout_marginEnd="@dimen/space_lg"
+        android:textColor="@color/grey_1"
+        android:textSize="@dimen/text_sm"
+        app:layout_constraintTop_toBottomOf="@id/amount" />
 
       <TextView
         android:id="@+id/amount_warning_view"
         style="@style/WarningMessage"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/space_lg"
         android:layout_marginTop="@dimen/space_md"
-        android:layout_marginEnd="@dimen/space_lg"
+        android:background="@color/yellow_light_x3"
+        android:paddingStart="@dimen/space_md"
+        android:paddingTop="@dimen/space_xs"
+        android:paddingEnd="@dimen/space_md"
+        android:paddingBottom="@dimen/space_xs"
         android:text="@{amountWarning}"
         android:textSize="@dimen/text_sm"
         android:visibility="@{amountWarning != null ? View.VISIBLE : View.GONE}"
-        app:layout_constraintTop_toBottomOf="@id/amount" />
+        app:layout_constraintTop_toBottomOf="@id/amount_fiat" />
 
       <TextView
         android:id="@+id/amount_error_view"
@@ -154,7 +168,6 @@
         android:background="@color/white"
         android:singleLine="true"
         android:text="@string/btn_cancel"
-        android:textColor="@color/grey_1"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/mid_guideline"
         app:layout_constraintStart_toStartOf="parent"
@@ -174,9 +187,6 @@
         app:layout_constraintStart_toEndOf="@id/mid_guideline"
         app:layout_constraintTop_toBottomOf="@+id/amount_error_view" />
 
-    </android.support.constraint.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
   </ScrollView>
-
-
-  <!--</android.support.constraint.ConstraintLayout>-->
 </layout>

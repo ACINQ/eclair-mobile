@@ -17,9 +17,8 @@
 package fr.acinq.eclair.wallet.utils;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.design.widget.TabLayout;
-import android.support.v4.view.ViewPager;
+import androidx.annotation.NonNull;
+import androidx.viewpager.widget.ViewPager;
 import android.text.Editable;
 import android.view.GestureDetector;
 import android.view.MotionEvent;

@@ -20,14 +20,14 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.databinding.DataBindingUtil;
+import android.text.format.DateUtils;
+import android.util.TypedValue;
+import androidx.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.support.annotation.UiThread;
-import android.support.annotation.WorkerThread;
-import android.text.format.DateUtils;
-import android.util.TypedValue;
+import androidx.annotation.UiThread;
+import androidx.annotation.WorkerThread;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
@@ -472,7 +472,7 @@ public class SendPaymentActivity extends EclairActivity {
       app.sendAllOnchain(bitcoinURI.address, feesPerKw);
     } else {
       log.info("(on-chain) sending {} msat for uri {}", amountSat, bitcoinURI.toString());
-      app.sendBitcoinPayment(amountSat, bitcoinURI.address, feesPerKw);
+      app.sendOnchain(amountSat, bitcoinURI.address, feesPerKw);
     }
     closeAndGoHome();
   }

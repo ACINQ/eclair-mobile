@@ -85,27 +85,27 @@
             android:textSize="12sp" />
         </LinearLayout>
 
-        <android.support.constraint.ConstraintLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:padding="@dimen/space_md"
           android:visibility="@{isActive ? View.VISIBLE : View.GONE}">
 
-          <android.support.constraint.Guideline
+          <androidx.constraintlayout.widget.Guideline
             android:id="@+id/mid_guideline"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             app:layout_constraintGuide_percent="0.5" />
 
-          <android.support.constraint.Guideline
+          <androidx.constraintlayout.widget.Guideline
             android:id="@+id/balance_left_guideline"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             app:layout_constraintGuide_percent="0.4" />
 
-          <android.support.constraint.Guideline
+          <androidx.constraintlayout.widget.Guideline
             android:id="@+id/balance_right_guideline"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -322,7 +322,7 @@
               android:textColor="@color/red_faded"
               android:textSize="@dimen/text_sm" />
           </FrameLayout>
-        </android.support.constraint.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <TextView
           android:id="@+id/closing_section"

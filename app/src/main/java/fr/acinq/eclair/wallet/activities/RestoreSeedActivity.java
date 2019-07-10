@@ -19,27 +19,28 @@ package fr.acinq.eclair.wallet.activities;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.support.v4.app.Fragment;
-import android.support.v4.view.ViewPager;
-import android.transition.TransitionManager;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
+import androidx.databinding.DataBindingUtil;
+import androidx.fragment.app.Fragment;
+import androidx.viewpager.widget.ViewPager;
+import com.google.android.gms.common.util.Strings;
 import fr.acinq.bitcoin.MnemonicCode;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.adapters.SimplePagerAdapter;
 import fr.acinq.eclair.wallet.databinding.ActivityRestoreSeedBinding;
-import fr.acinq.eclair.wallet.fragments.WalletEncryptFragment;
-import fr.acinq.eclair.wallet.fragments.WalletImportSeedFragment;
-import fr.acinq.eclair.wallet.fragments.WalletPassphraseFragment;
+import fr.acinq.eclair.wallet.fragments.initwallet.WalletEncryptFragment;
+import fr.acinq.eclair.wallet.fragments.initwallet.WalletImportSeedFragment;
+import fr.acinq.eclair.wallet.fragments.initwallet.WalletPassphraseFragment;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -125,24 +126,31 @@ public class RestoreSeedActivity extends EclairActivity implements EclairActivit
     if (mWalletImportSeedFragment != null && mWalletEncryptFragment.mBinding != null) {
       mWalletImportSeedFragment.mBinding.mnemonicsInput.clearAnimation();
     }
-    seedErrorHandler.removeCallbacks(null);
+    seedErrorHandler.removeCallbacksAndMessages(null);
+
     try {
       final String mnemonics = mWalletImportSeedFragment.mBinding.mnemonicsInput.getText().toString().trim().toLowerCase();
-      MnemonicCode.validate(mnemonics);
-      goToPassphrase();
+      if (Strings.isEmptyOrWhitespace(mnemonics)) {
+        handleSeedError(R.string.importwallet_seed_empty, null);
+      } else {
+        MnemonicCode.validate(mnemonics);
+        goToPassphrase();
+      }
     } catch (Exception e) {
       handleSeedError(R.string.importwallet_seed_error, e.getLocalizedMessage());
     }
   }
 
-  private void handleSeedError(final int errorCode, final String message) {
+  private void handleSeedError(final int errorCode, @Nullable final String message) {
     if (mWalletImportSeedFragment != null && mWalletImportSeedFragment.mBinding != null) {
-      TransitionManager.beginDelayedTransition(mWalletImportSeedFragment.mBinding.transitionsLayout);
       mWalletImportSeedFragment.mBinding.mnemonicsInput.startAnimation(mErrorAnimation);
-      mWalletImportSeedFragment.mBinding.seedError.setText(getString(errorCode, message));
+      if (message != null) {
+        mWalletImportSeedFragment.mBinding.seedError.setText(getString(errorCode, message));
+      } else {
+        mWalletImportSeedFragment.mBinding.seedError.setText(errorCode);
+      }
       mWalletImportSeedFragment.mBinding.seedError.setVisibility(View.VISIBLE);
       seedErrorHandler.postDelayed(() -> {
-        TransitionManager.beginDelayedTransition(mWalletImportSeedFragment.mBinding.transitionsLayout);
         mWalletImportSeedFragment.mBinding.seedError.setVisibility(View.GONE);
       }, 5000);
     } else {
@@ -167,9 +175,6 @@ public class RestoreSeedActivity extends EclairActivity implements EclairActivit
   }
 
   public void encryptSeed(final View view) {
-    if (mWalletPassphraseFragment != null && mWalletPassphraseFragment.mBinding != null) {
-      TransitionManager.beginDelayedTransition(mWalletPassphraseFragment.mBinding.transitionsLayout);
-    }
     if (mWalletEncryptFragment != null && mWalletEncryptFragment.mBinding != null) {
       mWalletEncryptFragment.mBinding.encryptionError.setVisibility(View.GONE);
     }
@@ -202,7 +207,6 @@ public class RestoreSeedActivity extends EclairActivity implements EclairActivit
   public void onEncryptSeedFailure(String message) {
     if (mWalletEncryptFragment != null && mWalletEncryptFragment.mBinding != null) {
       mBinding.setImportStep(2);
-      TransitionManager.beginDelayedTransition(mWalletEncryptFragment.mBinding.transitionsLayout);
       goToEncryption();
       mWalletEncryptFragment.mBinding.encryptionError.setText(message);
       mWalletEncryptFragment.mBinding.encryptionError.setVisibility(View.VISIBLE);

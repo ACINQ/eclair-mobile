@@ -24,13 +24,12 @@ import android.net.Uri;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
-import android.support.annotation.NonNull;
 import android.text.Html;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
-import androidx.work.Data;
-import androidx.work.OneTimeWorkRequest;
+import androidx.annotation.NonNull;
 import ch.qos.logback.classic.*;
 import ch.qos.logback.classic.android.LogcatAppender;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
@@ -39,6 +38,7 @@ import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.rolling.FixedWindowRollingPolicy;
 import ch.qos.logback.core.rolling.RollingFileAppender;
 import ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy;
+import ch.qos.logback.core.util.FileSize;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
@@ -54,7 +54,6 @@ import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.R;
-import fr.acinq.eclair.wallet.services.ChannelsBackupWorker;
 import okhttp3.ResponseBody;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -75,7 +74,6 @@ import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 public class WalletUtils {
@@ -334,9 +332,12 @@ public class WalletUtils {
     return "mainnet".equals(BuildConfig.CHAIN) ? Block.LivenetGenesisBlock().hash() : Block.TestnetGenesisBlock().hash();
   }
 
+  public static File getDatadir(final Context context) {
+    return new File(context.getFilesDir(), Constants.ECLAIR_DATADIR);
+  }
+
   public static File getChainDatadir(final Context context) {
-    final File datadir = new File(context.getFilesDir(), Constants.ECLAIR_DATADIR);
-    return new File(datadir, BuildConfig.CHAIN);
+    return new File(getDatadir(context), BuildConfig.CHAIN);
   }
 
   public static File getWalletDBFile(final Context context) {
@@ -351,19 +352,15 @@ public class WalletUtils {
     return new File(getChainDatadir(context), Constants.ECLAIR_DB_FILE);
   }
 
-  public static String getEclairBackupFileName(final String seedHash) {
-    return "eclair_" + BuildConfig.CHAIN + "_" + seedHash + ".bkup";
+  /**
+   * Retrieve the actual eclair backup file created by eclair core. This is the file that should be backed up.
+   */
+  public static File getEclairDBFileBak(final Context context) {
+    return new File(getChainDatadir(context), Constants.ECLAIR_DB_FILE_BAK);
   }
 
-  public static OneTimeWorkRequest generateBackupRequest(final String seedHash, final ByteVector32 backupKey) {
-    return new OneTimeWorkRequest.Builder(ChannelsBackupWorker.class)
-      .setInputData(new Data.Builder()
-        .putString(ChannelsBackupWorker.BACKUP_NAME_INPUT, WalletUtils.getEclairBackupFileName(seedHash))
-        .putString(ChannelsBackupWorker.BACKUP_KEY_INPUT, backupKey.toString())
-        .build())
-      .setInitialDelay(2, TimeUnit.SECONDS)
-      .addTag("ChannelsBackupWork")
-      .build();
+  public static String getEclairBackupFileName(final String seedHash) {
+    return "eclair_" + BuildConfig.CHAIN + "_" + seedHash + ".bkup";
   }
 
   public static String toAscii(final ByteVector b) {
@@ -379,7 +376,11 @@ public class WalletUtils {
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
     switch (prefs.getString(Constants.SETTING_LOGS_OUTPUT, Constants.LOGS_OUTPUT_NONE)) {
       case Constants.LOGS_OUTPUT_LOCAL:
-        setupLocalLogging(context);
+        try {
+          setupLocalLogging(context);
+        } catch (EclairException.ExternalStorageUnavailableException e) {
+          Log.e("WalletUtils", "external storage is not available, cannot enable local logging");
+        }
         break;
       case Constants.LOGS_OUTPUT_PAPERTRAIL:
         setupPapertrailLogging(prefs.getString(Constants.SETTING_PAPERTRAIL_HOST, ""),
@@ -427,9 +428,9 @@ public class WalletUtils {
   /**
    * Sets up an index-based rolling policy with a max file size of 4MB.
    */
-  public static void setupLocalLogging(final Context context) throws EclairException.ExternalStorageNotAvailableException {
+  public static void setupLocalLogging(final Context context) throws EclairException.ExternalStorageUnavailableException {
     if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-      throw new EclairException.ExternalStorageNotAvailableException();
+      throw new EclairException.ExternalStorageUnavailableException();
     }
 
     final LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
@@ -457,7 +458,7 @@ public class WalletUtils {
 
     final SizeBasedTriggeringPolicy<ILoggingEvent> triggeringPolicy = new SizeBasedTriggeringPolicy<>();
     triggeringPolicy.setContext(lc);
-    triggeringPolicy.setMaxFileSize("4mb");
+    triggeringPolicy.setMaxFileSize(FileSize.valueOf("4mb"));
     triggeringPolicy.start();
 
     rollingFileAppender.setEncoder(encoder);

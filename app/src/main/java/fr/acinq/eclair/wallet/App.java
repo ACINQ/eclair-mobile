@@ -37,10 +37,10 @@ import android.net.NetworkCapabilities;
 import android.net.NetworkRequest;
 import android.os.Build;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationManagerCompat;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import fr.acinq.bitcoin.*;
 import fr.acinq.eclair.*;
 import fr.acinq.eclair.blockchain.electrum.ElectrumClient;
@@ -306,7 +306,7 @@ public class App extends Application {
    * @param address   recipient of the tx
    * @param feesPerKw fees for the tx
    */
-  public void sendBitcoinPayment(final Satoshi amountSat, final String address, final long feesPerKw) {
+  public void sendOnchain(final Satoshi amountSat, final String address, final long feesPerKw) {
     try {
       Future<String> fBitcoinPayment = appKit.electrumWallet.sendPayment(amountSat, address, feesPerKw);
       fBitcoinPayment.onComplete(new OnComplete<String>() {
@@ -419,7 +419,7 @@ public class App extends Application {
         Duration.Zero(), Duration.create(10, TimeUnit.MINUTES),
         () -> {
           if (appKit != null && appKit.eclairKit != null && appKit.eclairKit.switchboard() != null) {
-            appKit.eclairKit.switchboard().tell(new Peer.Connect(Constants.ACINQ_NODE_URI), ActorRef.noSender());
+            appKit.eclairKit.switchboard().tell(Peer.Connect$.MODULE$.apply(Constants.ACINQ_NODE_URI), ActorRef.noSender());
           }
         },
         system.dispatcher());
@@ -600,7 +600,7 @@ public class App extends Application {
       startAppReminder.setDescription(getString(R.string.notification_channel_restart_desc));
       final NotificationChannel receivedLNPayment = new NotificationChannel(Constants.NOTIF_CHANNEL_RECEIVED_LN_PAYMENT_ID,
         getString(R.string.notification_channel_received_ln_payment_name), NotificationManager.IMPORTANCE_DEFAULT);
-      startAppReminder.setDescription(getString(R.string.notification_channel_received_ln_payment_desc));
+      receivedLNPayment.setDescription(getString(R.string.notification_channel_received_ln_payment_desc));
       // Register the channel with the system
       final NotificationManager notificationManager = getSystemService(NotificationManager.class);
       if (notificationManager != null) {

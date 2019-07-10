@@ -17,18 +17,16 @@
 package fr.acinq.eclair.wallet.fragments;
 
 import android.content.SharedPreferences;
-import android.databinding.DataBindingUtil;
+import androidx.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v7.widget.LinearLayoutManager;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import fr.acinq.bitcoin.MilliSatoshi;
-import fr.acinq.eclair.CoinUnit;
-import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.DBHelper;
 import fr.acinq.eclair.wallet.R;

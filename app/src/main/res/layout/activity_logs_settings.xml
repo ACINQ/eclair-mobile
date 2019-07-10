@@ -48,9 +48,8 @@
       <!-- Custom toolbar -->
       <include layout="@layout/toolbar" />
 
-      <LinearLayout
+      <androidx.constraintlayout.widget.ConstraintLayout
         style="@style/ClickableLayout"
-        android:gravity="start|center"
         android:onClick="handleNoneRadioClick"
         android:padding="@dimen/space_sm">
 
@@ -62,45 +61,43 @@
           android:checked="@{Constants.LOGS_OUTPUT_NONE.equals(logsOutputMode)}"
           android:clickable="false"
           android:focusable="false"
-          android:text=""
           app:layout_constraintStart_toStartOf="parent"
           app:layout_constraintTop_toTopOf="parent" />
 
-        <LinearLayout
+        <TextView
+          android:id="@+id/disabled_label"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:layout_marginStart="@dimen/space_sm"
-          android:orientation="vertical"
+          android:text="@string/logging_disabled_label"
+          android:textSize="16sp"
           app:layout_constrainedWidth="true"
+          app:layout_constraintBottom_toBottomOf="@id/radio_none"
           app:layout_constraintEnd_toEndOf="parent"
           app:layout_constraintHorizontal_bias="0"
           app:layout_constraintStart_toEndOf="@+id/radio_none"
-          app:layout_constraintTop_toTopOf="parent">
+          app:layout_constraintTop_toTopOf="@id/radio_none" />
 
-          <TextView
-            android:id="@+id/disabled_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/logging_disabled_label"
-            android:textSize="16sp" />
-
-          <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/logging_disabled_desc"
-            android:textColor="@color/grey_2"
-            android:visibility="@{Constants.LOGS_OUTPUT_NONE.equals(logsOutputMode) ? View.VISIBLE : View.GONE}" />
-        </LinearLayout>
-      </LinearLayout>
+        <TextView
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="@string/logging_disabled_desc"
+          android:textColor="@color/grey_2"
+          android:visibility="@{Constants.LOGS_OUTPUT_NONE.equals(logsOutputMode) ? View.VISIBLE : View.GONE}"
+          app:layout_constrainedWidth="true"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintHorizontal_bias="0"
+          app:layout_constraintStart_toStartOf="@+id/disabled_label"
+          app:layout_constraintTop_toBottomOf="@id/disabled_label" />
+      </androidx.constraintlayout.widget.ConstraintLayout>
 
       <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="@color/grey_0" />
 
-      <LinearLayout
+      <androidx.constraintlayout.widget.ConstraintLayout
         style="@style/ClickableLayout"
-        android:gravity="start|center"
         android:onClick="handleLocalRadioClick"
         android:padding="@dimen/space_sm">
 
@@ -116,52 +113,81 @@
           app:layout_constraintStart_toStartOf="parent"
           app:layout_constraintTop_toTopOf="parent" />
 
-        <LinearLayout
+        <TextView
+          android:id="@+id/local_label"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:layout_marginStart="@dimen/space_sm"
-          android:orientation="vertical"
+          android:text="@string/logging_local_label"
+          android:textSize="16sp"
           app:layout_constrainedWidth="true"
+          app:layout_constraintBottom_toBottomOf="@id/radio_local"
           app:layout_constraintEnd_toEndOf="parent"
           app:layout_constraintHorizontal_bias="0"
           app:layout_constraintStart_toEndOf="@+id/radio_local"
-          app:layout_constraintTop_toTopOf="parent">
+          app:layout_constraintTop_toTopOf="@id/radio_local" />
 
-          <TextView
-            android:id="@+id/local_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/logging_local_label"
-            android:textSize="16sp" />
+        <TextView
+          android:id="@+id/local_text1"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="@string/logging_local_desc"
+          android:textColor="@color/grey_2"
+          android:visibility="@{Constants.LOGS_OUTPUT_LOCAL.equals(logsOutputMode) ? View.VISIBLE : View.GONE}"
+          app:layout_constrainedWidth="true"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintHorizontal_bias="0"
+          app:layout_constraintStart_toStartOf="@+id/local_label"
+          app:layout_constraintTop_toBottomOf="@id/local_label" />
 
-          <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/logging_local_desc"
-            android:textColor="@color/grey_2"
-            android:visibility="@{Constants.LOGS_OUTPUT_LOCAL.equals(logsOutputMode) ? View.VISIBLE : View.GONE}" />
+        <TextView
+          android:id="@+id/local_directory_view"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginTop="@dimen/space_md"
+          android:text="@string/logging_local_directory"
+          android:textColor="@color/grey_2"
+          android:visibility="@{Constants.LOGS_OUTPUT_LOCAL.equals(logsOutputMode) ? View.VISIBLE : View.GONE}"
+          app:layout_constrainedWidth="true"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintHorizontal_bias="0"
+          app:layout_constraintStart_toStartOf="@+id/local_label"
+          app:layout_constraintTop_toBottomOf="@id/local_text1" />
 
-          <TextView
-            android:id="@+id/local_directory_view"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/space_md"
-            android:text="@string/logging_local_directory"
-            android:textColor="@color/grey_2"
-            android:visibility="@{Constants.LOGS_OUTPUT_LOCAL.equals(logsOutputMode) ? View.VISIBLE : View.GONE}" />
+        <Button
+          android:id="@+id/local_view_button"
+          style="@style/ButtonStyle"
+          android:layout_marginTop="@dimen/space_md"
+          android:background="@drawable/rounded_corner_grey"
+          android:onClick="viewLocalLogs"
+          android:padding="@dimen/space_sm"
+          android:text="@string/logging_local_view_logs"
+          android:textSize="@dimen/text_sm"
+          android:visibility="@{Constants.LOGS_OUTPUT_LOCAL.equals(logsOutputMode) ? View.VISIBLE : View.GONE}"
+          app:layout_constrainedWidth="true"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintHorizontal_bias="0"
+          app:layout_constraintStart_toStartOf="@+id/local_label"
+          app:layout_constraintTop_toBottomOf="@id/local_directory_view" />
 
-          <Button
-            style="@style/ButtonStyle"
-            android:layout_marginTop="@dimen/space_md"
-            android:background="@color/grey_0"
-            android:onClick="viewLocalLogs"
-            android:padding="@dimen/space_sm"
-            android:text="@string/logging_local_view_logs"
-            android:textSize="12sp"
-            android:visibility="@{Constants.LOGS_OUTPUT_LOCAL.equals(logsOutputMode) ? View.VISIBLE : View.GONE}" />
+        <Button
+          android:id="@+id/local_share_button"
+          style="@style/ButtonStyle"
+          android:layout_marginStart="@dimen/space_md"
+          android:background="@drawable/rounded_corner_grey"
+          android:drawableStart="@drawable/ic_share_black_18dp"
+          android:onClick="shareLocalLogs"
+          android:padding="@dimen/space_sm"
+          android:text="@string/logging_local_share_logs"
+          android:textSize="@dimen/text_sm"
+          android:visibility="@{Constants.LOGS_OUTPUT_LOCAL.equals(logsOutputMode) ? View.VISIBLE : View.GONE}"
+          app:layout_constrainedWidth="true"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintHorizontal_bias="0"
+          app:layout_constraintStart_toEndOf="@+id/local_view_button"
+          app:layout_constraintTop_toTopOf="@id/local_view_button" />
 
-        </LinearLayout>
-      </LinearLayout>
+      </androidx.constraintlayout.widget.ConstraintLayout>
 
       <View
         android:layout_width="match_parent"
@@ -169,9 +195,8 @@
         android:background="@color/grey_0"
         android:visibility="@{showPapertrail ? View.VISIBLE : View.GONE}" />
 
-      <LinearLayout
+      <androidx.constraintlayout.widget.ConstraintLayout
         style="@style/ClickableLayout"
-        android:gravity="start|center"
         android:onClick="handlePapertrailRadioClick"
         android:padding="@dimen/space_sm"
         android:visibility="@{showPapertrail ? View.VISIBLE : View.GONE}">
@@ -188,65 +213,78 @@
           app:layout_constraintStart_toStartOf="parent"
           app:layout_constraintTop_toTopOf="parent" />
 
-        <LinearLayout
+        <TextView
+          android:id="@+id/papertrail_label"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:layout_marginStart="@dimen/space_sm"
-          android:orientation="vertical"
+          android:text="@string/logging_papertrailapp_label"
+          android:textSize="16sp"
           app:layout_constrainedWidth="true"
+          app:layout_constraintBottom_toBottomOf="@id/radio_papertrail"
           app:layout_constraintEnd_toEndOf="parent"
           app:layout_constraintHorizontal_bias="0"
           app:layout_constraintStart_toEndOf="@+id/radio_papertrail"
-          app:layout_constraintTop_toTopOf="parent">
+          app:layout_constraintTop_toTopOf="@id/radio_papertrail" />
 
-          <TextView
-            android:id="@+id/papertrail_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/logging_papertrailapp_label"
-            android:textSize="16sp" />
+        <TextView
+          android:id="@+id/papertrail_text1"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="@string/logging_papertrailapp_desc"
+          android:textColor="@color/grey_2"
+          android:visibility="@{Constants.LOGS_OUTPUT_PAPERTRAIL.equals(logsOutputMode) ? View.VISIBLE : View.GONE}"
+          app:layout_constrainedWidth="true"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintHorizontal_bias="0"
+          app:layout_constraintStart_toStartOf="@+id/papertrail_label"
+          app:layout_constraintTop_toBottomOf="@id/papertrail_label" />
 
-          <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/logging_papertrailapp_desc"
-            android:textColor="@color/grey_2"
-            android:visibility="@{Constants.LOGS_OUTPUT_PAPERTRAIL.equals(logsOutputMode) ? View.VISIBLE : View.GONE}" />
+        <com.google.android.material.textfield.TextInputLayout
+          android:id="@+id/papertrail_host_layout"
+          android:layout_width="0dp"
+          android:layout_height="wrap_content"
+          android:layout_marginTop="@dimen/space_md"
+          android:layout_marginEnd="@dimen/space_md"
+          android:hint="@string/logging_papertrailapp_host_hint"
+          android:visibility="@{Constants.LOGS_OUTPUT_PAPERTRAIL.equals(logsOutputMode) ? View.VISIBLE : View.GONE}"
+          app:layout_constrainedWidth="true"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintStart_toStartOf="@+id/papertrail_label"
+          app:layout_constraintTop_toBottomOf="@id/papertrail_text1">
 
-          <android.support.design.widget.TextInputLayout
+          <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/papertrail_host_input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/space_md"
-            android:hint="@string/logging_papertrailapp_host_hint"
-            android:visibility="@{Constants.LOGS_OUTPUT_PAPERTRAIL.equals(logsOutputMode) ? View.VISIBLE : View.GONE}">
+            android:backgroundTint="@color/primary"
+            android:textSize="@dimen/text_md" />
 
-            <android.support.design.widget.TextInputEditText
-              android:id="@+id/papertrail_host_input"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:backgroundTint="@color/primary"
-              android:textSize="14sp" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-          </android.support.design.widget.TextInputLayout>
+        <com.google.android.material.textfield.TextInputLayout
+          android:id="@+id/papertrail_port_layout"
+          android:layout_width="0dp"
+          android:layout_height="wrap_content"
+          android:layout_marginEnd="@dimen/space_md"
+          android:hint="@string/logging_papertrailapp_port_hint"
+          android:visibility="@{Constants.LOGS_OUTPUT_PAPERTRAIL.equals(logsOutputMode) ? View.VISIBLE : View.GONE}"
+          app:layout_constrainedWidth="true"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintStart_toStartOf="@+id/papertrail_label"
+          app:layout_constraintTop_toBottomOf="@id/papertrail_host_layout">
 
-          <android.support.design.widget.TextInputLayout
+          <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/papertrail_port_input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/logging_papertrailapp_port_hint"
-            android:visibility="@{Constants.LOGS_OUTPUT_PAPERTRAIL.equals(logsOutputMode) ? View.VISIBLE : View.GONE}">
+            android:backgroundTint="@color/primary"
+            android:digits="0123456789"
+            android:inputType="number"
+            android:textSize="@dimen/text_md" />
 
-            <android.support.design.widget.TextInputEditText
-              android:id="@+id/papertrail_port_input"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:backgroundTint="@color/primary"
-              android:digits="0123456789"
-              android:inputType="number"
-              android:textSize="14sp" />
-
-          </android.support.design.widget.TextInputLayout>
-        </LinearLayout>
-      </LinearLayout>
+        </com.google.android.material.textfield.TextInputLayout>
+      </androidx.constraintlayout.widget.ConstraintLayout>
 
       <View
         android:layout_width="match_parent"
@@ -255,10 +293,10 @@
 
       <Button
         style="@style/EndButtonStyle"
-        android:layout_marginEnd="@dimen/space_md"
         android:layout_marginTop="@dimen/space_md"
-        android:drawablePadding="@dimen/space_xs"
+        android:layout_marginEnd="@dimen/space_md"
         android:drawableStart="@drawable/ic_circle_check_green_14dp"
+        android:drawablePadding="@dimen/space_xs"
         android:onClick="saveOutput"
         android:text="@string/logging_save_output" />
     </LinearLayout>

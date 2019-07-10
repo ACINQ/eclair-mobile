@@ -17,7 +17,7 @@
 package fr.acinq.eclair.wallet.activities;
 
 import android.content.Intent;
-import android.databinding.DataBindingUtil;
+import androidx.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
@@ -37,7 +37,6 @@ import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.databinding.ActivityOpenConnectionBinding;
 import fr.acinq.eclair.wallet.utils.Constants;
-import scala.Option;
 import scala.concurrent.duration.Duration;
 
 public class OpenConnectionActivity extends EclairActivity {
@@ -73,7 +72,7 @@ public class OpenConnectionActivity extends EclairActivity {
       try {
         final Timeout timeout = new Timeout(Duration.create(10, "seconds"));
         final NodeURI nodeUri = NodeURI.parse(expectedNodeId + "@" + mBinding.nodeAddress.getText().toString());
-        Patterns.ask(app.appKit.eclairKit.switchboard(), new Peer.Connect(nodeUri), timeout)
+        Patterns.ask(app.appKit.eclairKit.switchboard(), Peer.Connect$.MODULE$.apply(nodeUri), timeout)
           .onComplete(new OnComplete<Object>() {
             @Override
             public void onComplete(Throwable failure, Object success) {

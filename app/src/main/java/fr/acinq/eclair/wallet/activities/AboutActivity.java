@@ -16,10 +16,10 @@
 
 package fr.acinq.eclair.wallet.activities;
 
-import android.databinding.DataBindingUtil;
+import androidx.databinding.DataBindingUtil;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
-import android.support.v7.widget.Toolbar;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.widget.Toolbar;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import fr.acinq.eclair.wallet.R;
@@ -40,5 +40,7 @@ public class AboutActivity extends EclairActivity {
     binding.faq.setText(Html.fromHtml(getString(R.string.about_faq)));
     binding.faq.setMovementMethod(LinkMovementMethod.getInstance());
     binding.about.setText(Html.fromHtml(getString(R.string.about_acinq_text)));
+    binding.lnstores.setText(Html.fromHtml(getString(R.string.about_lightning_network_stores)));
+    binding.lnstores.setMovementMethod(LinkMovementMethod.getInstance());
   }
 }

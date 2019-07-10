@@ -18,12 +18,20 @@ package fr.acinq.eclair.wallet.fragments;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.databinding.DataBindingUtil;
+import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
+
+import androidx.annotation.NonNull;
+import androidx.databinding.DataBindingUtil;
+
 import com.google.common.base.Strings;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import fr.acinq.bitcoin.MilliSatoshi;
+import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.CoinUnit;
 import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.wallet.R;
@@ -31,14 +39,13 @@ import fr.acinq.eclair.wallet.actors.NodeSupervisor;
 import fr.acinq.eclair.wallet.databinding.DialogPaymentRequestParametersBinding;
 import fr.acinq.eclair.wallet.utils.TechnicalHelper;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import scala.Option;
 
 public class PaymentRequestParametersDialog extends Dialog {
   private final Logger log = LoggerFactory.getLogger(PaymentRequestParametersDialog.class);
   private DialogPaymentRequestParametersBinding mBinding;
-  private CoinUnit prefUnit = WalletUtils.getPreferredCoinUnit(PreferenceManager.getDefaultSharedPreferences(this.getContext()));
+  private CoinUnit prefUnit;
+  private String fiatUnit;
   private final MilliSatoshi maxReceivableAmount = NodeSupervisor.getMaxReceivable();
 
   public PaymentRequestParametersDialog(final Context context, final @NonNull PaymentRequestParametersDialogCallback callback) {
@@ -46,18 +53,17 @@ public class PaymentRequestParametersDialog extends Dialog {
     mBinding = DataBindingUtil.inflate(LayoutInflater.from(getContext()), R.layout.dialog_payment_request_parameters, null, false);
     setContentView(mBinding.getRoot());
 
+    final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this.getContext());
+    prefUnit = WalletUtils.getPreferredCoinUnit(prefs);
+    fiatUnit = WalletUtils.getPreferredFiat(prefs);
+
     setOnCancelListener(v -> dismiss());
-    mBinding.amountTitle.setText(context.getString(R.string.dialog_prparams_amount_title, CoinUtils.formatAmountInUnit(maxReceivableAmount, prefUnit, true)));
+    mBinding.amountTitle.setText(context.getString(R.string.dialog_prparams_amount_title));
     mBinding.amountUnit.setText(prefUnit.shortLabel());
     mBinding.amount.addTextChangedListener(new TechnicalHelper.SimpleTextWatcher() {
       @Override
       public void onTextChanged(CharSequence s, int start, int before, int count) {
-        if (s == null || Strings.isNullOrEmpty(s.toString())) {
-          mBinding.setAmountWarning(null);
-          mBinding.setAmountError(null);
-        } else {
-          extractAmount(s.toString());
-        }
+        extractAmount(s.toString());
       }
     });
     mBinding.cancel.setOnClickListener(v -> dismiss());
@@ -78,33 +84,37 @@ public class PaymentRequestParametersDialog extends Dialog {
    * Extracts amount from input and converts it to MilliSatoshi. If amount is invalid, updates error binding to show
    * an error message and returns null.
    */
-  private MilliSatoshi extractAmount(@NonNull final String amountString) {
+  private MilliSatoshi extractAmount(final String amountString) {
     try {
       mBinding.setAmountWarning(null);
       mBinding.setAmountError(null);
-      final MilliSatoshi amountMsat = amountString.length() == 0 ? null : new MilliSatoshi(CoinUtils.convertStringAmountToMsat(amountString, prefUnit.code()).amount());
-      if (amountMsat != null && amountMsat.amount() < 0) {
-        mBinding.setAmountError(getContext().getString(R.string.dialog_prparams_amount_error_generic));
+
+      if (Strings.isNullOrEmpty(amountString)) {
+        mBinding.amountFiat.setText("");
       } else {
-        if (amountMsat.amount() > maxReceivableAmount.amount()) {
-          mBinding.setAmountWarning(getContext().getString(R.string.dialog_prparams_amount_error_excessive));
+        final MilliSatoshi amount = new MilliSatoshi(CoinUtils.convertStringAmountToMsat(amountString, prefUnit.code()).amount());
+        package$.MODULE$.millisatoshi2btc(amount);
+        mBinding.amountFiat.setText(getContext().getString(R.string.amount_to_fiat, WalletUtils.formatMsatToFiatWithUnit(amount.amount(), fiatUnit)));
+        if (amount.amount() > maxReceivableAmount.amount()) {
+          mBinding.setAmountWarning(getContext().getString(R.string.dialog_prparams_amount_error_excessive, CoinUtils.formatAmountInUnit(maxReceivableAmount, prefUnit, true)));
         } else {
           mBinding.setAmountError(null);
           mBinding.setAmountWarning(null);
         }
-        return amountMsat;
+        return amount;
       }
     } catch (Throwable t) {
-      log.info("could not read payment amount with cause=" + t.getLocalizedMessage());
+      log.info("could not read requested payment amount: ", t);
       mBinding.setAmountError(getContext().getString(R.string.dialog_prparams_amount_error_generic));
+      mBinding.amountFiat.setText("");
     }
     return null;
   }
 
-  void setParams(final String description, final Option<MilliSatoshi> amountMsat) {
+  void setParams(final String description, final Option<MilliSatoshi> amount) {
     mBinding.description.setText(description);
-    if (amountMsat.isDefined()) {
-      mBinding.amount.setText(CoinUtils.rawAmountInUnit(amountMsat.get(), prefUnit).bigDecimal().toPlainString());
+    if (amount.isDefined()) {
+      mBinding.amount.setText(CoinUtils.rawAmountInUnit(amount.get(), prefUnit).bigDecimal().toPlainString());
     } else {
       mBinding.amount.setText("");
     }

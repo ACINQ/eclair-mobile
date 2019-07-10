@@ -16,74 +16,69 @@
 
 package fr.acinq.eclair.wallet.activities;
 
-import android.app.Dialog;
-import android.databinding.DataBindingUtil;
+import androidx.databinding.DataBindingUtil;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.view.View;
-
+import android.widget.Toast;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-
-import androidx.work.ExistingWorkPolicy;
-import androidx.work.WorkManager;
+import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.databinding.ActivitySetupChannelsBackupBinding;
+import fr.acinq.eclair.wallet.services.BackupUtils;
 import fr.acinq.eclair.wallet.utils.Constants;
-import fr.acinq.eclair.wallet.utils.WalletUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class SetupChannelsBackupActivity extends GoogleDriveBaseActivity {
+public class SetupChannelsBackupActivity extends ChannelsBackupBaseActivity {
 
+  private final Logger log = LoggerFactory.getLogger(SetupChannelsBackupActivity.class);
+  public final static String EXTRA_SETUP_IGNORE_GDRIVE_BACKUP = BuildConfig.APPLICATION_ID + ".SETUP_IGNORE_GDRIVE_BACKUP";
   private ActivitySetupChannelsBackupBinding mBinding;
-  private Dialog backupAbout;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     mBinding = DataBindingUtil.setContentView(this, R.layout.activity_setup_channels_backup);
-    backupAbout = getCustomDialog(R.string.backup_about).setPositiveButton(R.string.btn_ok, null).create();
-  }
+    mBinding.submitButton.setOnClickListener(v -> {
+      mBinding.setSetupBackupStep(Constants.SETUP_BACKUP_REQUESTING_ACCESS);
+      requestAccess(true, mBinding.requestGdriveAccessCheckbox.isChecked());
+    });
+    mBinding.requestLocalAccessCheckbox.setChecked(true);
+    mBinding.setSetupBackupStep(Constants.SETUP_BACKUP_INIT);
 
-  public void grantAccess(final View view) {
-    new Thread() {
-      @Override
-      public void run() {
-        initOrSignInGoogleDrive();
-      }
-    }.start();
-  }
-
-  public void showDetails(final View view) {
-    if (backupAbout != null) backupAbout.show();
-  }
-
-  public void skipBackupSetup(final View view) {
-    PreferenceManager.getDefaultSharedPreferences(getBaseContext()).edit()
-      .putBoolean(Constants.SETTING_CHANNELS_BACKUP_SEEN_ONCE, true).apply();
-    finish();
-  }
-
-  @Override
-  void applyAccessDenied() {
-    PreferenceManager.getDefaultSharedPreferences(getBaseContext()).edit()
-      .putBoolean(Constants.SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_ENABLED, false).apply();
-  }
-
-  @Override
-  void applyAccessGranted(final GoogleSignInAccount signIn) {
-    PreferenceManager.getDefaultSharedPreferences(getBaseContext()).edit()
-      .putBoolean(Constants.SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_ENABLED, true)
-      .putBoolean(Constants.SETTING_CHANNELS_BACKUP_SEEN_ONCE, true).apply();
-    if (app.seedHash.get() != null) {
-      WorkManager.getInstance()
-        .beginUniqueWork("ChannelsBackup", ExistingWorkPolicy.REPLACE,
-          WalletUtils.generateBackupRequest(app.seedHash.get(), app.backupKey_v2.get()))
-        .enqueue();
+    // only show gdrive box if necessary
+    if (!getIntent().getBooleanExtra(EXTRA_SETUP_IGNORE_GDRIVE_BACKUP, false) && BackupUtils.GoogleDrive.isGDriveAvailable(getApplicationContext())) {
+      mBinding.requestGdriveAccessCheckbox.setVisibility(View.VISIBLE);
+    } else {
+      mBinding.requestGdriveAccessCheckbox.setEnabled(false);
+      mBinding.requestGdriveAccessCheckbox.setChecked(false);
+      mBinding.requestGdriveAccessCheckbox.setVisibility(View.GONE);
     }
-    finish();
   }
 
   @Override
-  void onDriveClientReady(final GoogleSignInAccount signInAccount) {
-    applyAccessGranted(signInAccount);
+  protected void applyGdriveAccessDenied() {
+    super.applyGdriveAccessDenied();
+    BackupUtils.GoogleDrive.disableGDriveBackup(getApplicationContext());
+    mBinding.requestGdriveAccessCheckbox.setChecked(false);
   }
+
+  @Override
+  protected void applyGdriveAccessGranted(final GoogleSignInAccount signIn) {
+    super.applyGdriveAccessGranted(signIn);
+    BackupUtils.GoogleDrive.enableGDriveBackup(getApplicationContext());
+    mBinding.requestGdriveAccessCheckbox.setChecked(true);
+  }
+
+  @Override
+  protected void applyAccessRequestDone() {
+    if (!BackupUtils.Local.hasLocalAccess(getApplicationContext())) {
+      log.info("access to local drive denied!");
+      mBinding.setSetupBackupStep(Constants.SETUP_BACKUP_INIT);
+      Toast.makeText(this, getString(R.string.setupbackup_local_required), Toast.LENGTH_LONG).show();
+    } else {
+      finish();
+    }
+  }
+
 }

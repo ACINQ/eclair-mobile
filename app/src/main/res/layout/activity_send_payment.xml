@@ -111,7 +111,7 @@
         <ImageView
           android:layout_width="22dp"
           android:layout_height="22dp"
-          android:src="@drawable/ic_chain_orange_24dp" />
+          android:src="@drawable/ic_chain_orange_14dp" />
 
         <TextView
           android:layout_width="match_parent"
@@ -143,7 +143,7 @@
           android:id="@+id/pick_lightning_image"
           android:layout_width="22dp"
           android:layout_height="22dp"
-          android:src="@drawable/ic_bolt_blue_24dp" />
+          android:src="@drawable/ic_bolt_blue_14dp" />
 
         <TextView
           android:layout_width="match_parent"
@@ -178,7 +178,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <android.support.constraint.ConstraintLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:background="@color/grey_0"
@@ -207,7 +207,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-          <android.support.constraint.ConstraintLayout
+          <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/amount_editable_btc"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -268,9 +268,9 @@
               app:layout_constraintEnd_toEndOf="parent"
               app:layout_constraintStart_toEndOf="@id/amount_editable_btc_value" />
 
-          </android.support.constraint.ConstraintLayout>
+          </androidx.constraintlayout.widget.ConstraintLayout>
 
-          <android.support.constraint.ConstraintLayout
+          <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/amount_editable_fiat"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -320,7 +320,7 @@
               app:layout_constraintBaseline_toBaselineOf="@+id/amount_editable_fiat_value"
               app:layout_constraintEnd_toEndOf="parent"
               app:layout_constraintStart_toEndOf="@id/amount_editable_fiat_value" />
-          </android.support.constraint.ConstraintLayout>
+          </androidx.constraintlayout.widget.ConstraintLayout>
 
           <ImageButton
             android:id="@+id/switch_amount_input_unit"
@@ -336,7 +336,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/payment_type" />
 
-        </android.support.constraint.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <!-- payment recipient: on chain address or LN public id -->
         <LinearLayout
@@ -524,12 +524,12 @@
           android:visibility="gone" />
 
         <!-- buttons -->
-        <android.support.constraint.ConstraintLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:layout_marginTop="@dimen/space_md">
 
-          <android.support.constraint.Guideline
+          <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -584,7 +584,7 @@
               android:textSize="@{enableSendButton ? @dimen/text_md : @dimen/text_xs}" />
 
           </LinearLayout>
-        </android.support.constraint.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
       </LinearLayout>
     </ScrollView>
   </RelativeLayout>

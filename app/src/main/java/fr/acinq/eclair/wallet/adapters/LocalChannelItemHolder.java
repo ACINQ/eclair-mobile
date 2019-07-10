@@ -18,8 +18,8 @@ package fr.acinq.eclair.wallet.adapters;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.RecyclerView;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.RecyclerView;
 import android.text.format.DateUtils;
 import android.view.View;
 import android.widget.ProgressBar;

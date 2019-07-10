@@ -15,9 +15,10 @@
   -->
 
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools">
 
-  <RelativeLayout
+  <androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="activities.StartupActivity">
@@ -27,66 +28,74 @@
       android:id="@+id/stub_pick_init_wallet"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
-      android:layout="@layout/stub_wallet_pick_init_mode" />
+      android:layout="@layout/stub_wallet_pick_init_mode"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
       android:id="@+id/startup_log"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:layout_alignParentBottom="true"
-      android:layout_centerHorizontal="true"
-      android:layout_margin="16dp"
+      android:layout_margin="@dimen/space_md"
       android:textAlignment="center"
       android:textColor="@color/primary_light_x3"
-      android:textSize="12sp" />
+      android:textSize="@dimen/text_sm"
+      app:layout_constrainedWidth="true"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent" />
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
       android:id="@+id/startup_error"
-      android:layout_width="wrap_content"
+      android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:layout_centerInParent="true"
       android:layout_margin="@dimen/space_lg"
       android:background="@drawable/rounded_corner_white"
-      android:orientation="vertical"
-      android:textAlignment="center"
-      android:visibility="gone">
+      android:visibility="gone"
+      app:layout_constrainedWidth="true"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent">
 
       <TextView
         android:id="@+id/startup_error_text"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="@dimen/space_lg"
         android:text="@string/start_error_timeout"
-        android:textAlignment="center"
-        android:textColor="@color/grey_4" />
+        android:textColor="@color/grey_4"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintTop_toTopOf="parent" />
 
       <Button
         android:id="@+id/startup_restart"
-        style="@style/EndButtonStyle"
-        android:layout_gravity="center"
-        android:layout_marginBottom="@dimen/space_md"
-        android:drawablePadding="@dimen/space_xs"
+        style="@style/ButtonStyle"
         android:drawableStart="@drawable/ic_refresh_black_24dp"
+        android:drawablePadding="@dimen/space_xs"
         android:onClick="restart"
         android:text="@string/start_error_restart"
         android:textColor="@color/grey_4"
-        android:translationY="-12dp" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/startup_error_text" />
 
       <Button
         android:id="@+id/startup_error_faq"
         style="@style/Base.Widget.AppCompat.Button.Borderless"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/grey_0_light_x2"
+        android:layout_marginTop="@dimen/space_md"
+        android:background="@drawable/rounded_corner_grey_bottom"
         android:onClick="openFAQ"
-        android:paddingBottom="8dp"
-        android:paddingEnd="@dimen/space_lg"
-        android:paddingStart="@dimen/space_lg"
-        android:paddingTop="8dp"
+        android:padding="@dimen/space_xs"
         android:text="@string/start_error_faq_link"
         android:textColor="@color/grey_2"
-        android:textSize="12sp"
-        android:visibility="gone" />
-    </LinearLayout>
-  </RelativeLayout>
+        android:textSize="@dimen/text_xs"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/startup_restart" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+  </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

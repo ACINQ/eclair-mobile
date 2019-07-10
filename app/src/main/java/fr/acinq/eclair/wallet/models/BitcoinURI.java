@@ -17,7 +17,7 @@
 package fr.acinq.eclair.wallet.models;
 
 import android.net.Uri;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import com.google.common.base.Strings;
 import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.eclair.CoinUtils;

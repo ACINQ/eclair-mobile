@@ -92,21 +92,14 @@
   <!-- //////////////// Startup /////////////////// -->
 
   <string name="startup_update_wallet_title">Update available</string>
-  <string name="startup_update_wallet_message">An new version of Eclair Mobile has been released.\n\nPlease keep this app up-to-date to enjoy the latest bug fixes and improvements!</string>
+  <string name="startup_update_wallet_message">An new version of Eclair Mobile has been released.\n\nPlease keep this app up to date to enjoy the latest features, bug fixes, and improvements!</string>
 
   <string name="start_enter_password">Enter PIN to unlock</string>
-  <string name="start_error_breaking_changes"><![CDATA[
-    <h3>Breaking changes</h3>
-    This new version requires a clean data directory. Please reset the app\'s data.
-    <br />
-    <br />
-    From now on next versions should be backward compatible.
-  ]]></string>
   <string name="start_error_restart">Restart</string>
   <string name="start_error_faq_link">Check our FAQ for help.</string>
   <string name="start_error_unreadable_seed">Seed is not readable; eclair can not start.</string>
-  <string name="start_error_connectivity">Your device is not connected to the internet. Please check your network settings.</string>
-  <string name="start_error_timeout">Could not start eclair within a reasonable time frame. Your network connection may be offline or very slow.</string>
+  <string name="start_error_connectivity">Your device is not connected to the internet, or has a very slow connection. Please check your network settings.</string>
+  <string name="start_error_timeout">Eclair could not start within a reasonable time frame. Please check your network settings.</string>
   <string name="start_error_wrong_password">Wrong PIN.</string>
   <string name="start_error_improper">App did not initialize properly, restarting…</string>
   <string name="start_error_generic">Could not start eclair.</string>
@@ -133,7 +126,7 @@
   <string name="createwallet_check_input_hint">Word #%1$d</string>
   <string name="createwallet_check_title">Backup verification</string>
   <string name="createwallet_check_instructions">What are the #%1$d, #%2$d and #%3$d words of the recovery phrase?</string>
-  <string name="createwallet_check_failed">Wrong words!\nCheck the seed again.</string>
+  <string name="createwallet_check_failed">At least one word does not match.</string>
   <string name="createwallet_error_write_seed">The seed could not be saved on disk.\n\nCause: %1$s</string>
   <string name="createwallet_invalid_seed">Error in wallet creation, aborting…</string>
   <string name="createwallet_error_seed_generation">Could not generate the recovery phrase…</string>
@@ -158,29 +151,50 @@
   <string name="importwallet_mnemonics_label">Use the keyboard below to type the seed:</string>
   <string name="importwallet_next_button">Next</string>
   <string name="importwallet_seed_error">This seed is invalid:\n%1$s</string>
+  <string name="importwallet_seed_empty">Please enter the recovery phrase of your wallet using the virtual keyboard.</string>
   <string name="importwallet_error">Could not import this seed/passphrase</string>
   <string name="importwallet_success">Seed has been restored and encrypted.</string>
 
   <!-- //////////////// Restore Channels /////////////////// -->
 
-  <string name="restorechannels_title">If you already used Eclair Mobile with this seed, you may have a backup on Google Drive.\n\nDo you want to attempt to restore these channels?</string>
-  <string name="restorechannels_check_button">Check for backup</string>
-  <string name="restorechannels_permissions_error">Permission was not granted.</string>
-  <string name="restorechannels_failure">There was an error when restoring backup. Please try again.</string>
-  <string name="restorechannels_success">Backup was successfully restored!</string>
-  <string name="restorechannels_no_backup">No backup was found.</string>
-  <string name="restorechannels_no_backup_try_again">Try again</string>
-  <string name="restorechannels_no_backup_and_finish">Abort and proceed</string>
-  <string name="restorechannels_looking_for_backup">Please wait…</string>
-  <string name="restorechannels_sync_rate_limit">Drive sync rate limit! Try again later</string>
-  <string name="restorechannels_skip_backup">Ignore (no backup)</string>
+  <string name="restorechannels_title">Restore Lightning channels</string>
+  <string name="restorechannels_explanations">If you already used Eclair Mobile with this seed, you may have remaining active channels that could be restored.</string>
+  <string name="restorechannels_hash">[hash]: %1$s</string>
+  <string name="restorechannels_check_button">Scan for backup</string>
+  <string name="restorechannels_confirm_button">Restore this backup</string>
+  <string name="restorechannels_try_again_button">Try again</string>
+  <string name="restorechannels_requesting_access">Granting access…</string>
+  <string name="restorechannels_scan_wait">Searching, please hold…</string>
+  <string name="restorechannels_restoring_wait">Restoring channels…</string>
+  <string name="restorechannels_restoring_success">Channels successfully restored!</string>
+  <string name="restorechannels_restoring_error">Error when restoring this backup. Please try again.</string>
+  <string name="restorechannels_request_local_access">Check on device</string>
+  <string name="restorechannels_request_local_externalstorage_error">External storage is not available!</string>
+  <string name="restorechannels_local_wait">Accessing local disk…</string>
+  <string name="restorechannels_request_gdrive_access">Check on Google Drive</string>
+  <string name="restorechannels_request_gdrive_unavailable">Google Drive is not available on this device.</string>
+  <string name="restorechannels_gdrive_wait">Requesting access to Google Drive…</string>
+  <string name="restorechannels_error">A backup was found but could not be read.\n\nOrigin: %1$s\nError: %2$s\n\nContact support at mobile@acinq.co</string>
+  <string name="restorechannels_error_generic">There was an error when looking for backup. Please try again.</string>
+  <string name="restorechannels_error_no_local_access_toast">Please grant access to your disk to check for local backups.</string>
+  <string name="restorechannels_error_external_storage_toast">External storage is not available! Could not check for local backup.</string>
+  <string name="restorechannels_notfound">We could not find any Lightning channels backups for this seed.\n\nYou can try again if needed, or proceed to use this seed without restoring lightning backups.</string>
+  <string name="restorechannels_found_title">Backup found!</string>
+  <string name="restorechannels_found_desc_origin"><![CDATA[<b>Origin:</b> %1$s]]></string>
+  <string name="restorechannels_found_desc_channels_count"><![CDATA[<b>Number of channels:</b> %1$d]]></string>
+  <string name="restorechannels_found_desc_max_comm"><![CDATA[<b>Max commitment:</b> %1$d]]></string>
+  <string name="restorechannels_found_desc_modified"><![CDATA[<b>Last modified:</b> %1$s]]></string>
+  <string name="restore_channels_origin_local">device\'s file system</string>
+  <string name="restore_channels_origin_gdrive">Google Drive (account: %1$s)</string>
+  <string name="restorechannels_found_with_conflict">Note: this backup was created by another device. If the app is still running on that device, channels will conflict and automatically close.</string>
+  <string name="restorechannels_skip_backup">Continue without restoring</string>
   <string name="restorechannels_skip_backup_confirmation"><![CDATA[
-    Are you sure you want to skip this step?
-    <br><br>
-    Any Lightning backups that would currently exist will be overwritten, and you <strong>will not be able to restore them later</strong>.
+    Are you sure you want to proceed?
+    <br /><br />
+    Any Lightning backups that would now exist for this seed will be overwritten, and you <strong>will not be able to restore them later</strong>.
+    <br /><br />
+    Lightning funds on lingering backups <strong>will be lost</strong>.
   ]]></string>
-  <string name="restorechannels_device_conflict">We found a backup for this seed, but it looks like it was created by another android device (or the same device that you\'ve upgraded to Android 8+).\n\nPlease make sure that you do not simultaneously use the same channels on different devices, otherwise they will conflict and close.</string>
-  <string name="restorechannels_device_conflict_confirm">I Understand.</string>
 
   <!-- //////////////// Open Connection /////////////////// -->
 
@@ -407,6 +421,12 @@
     https://github.com/ACINQ/eclair-mobile
     ]]>
   </string>
+  <string name="about_stores">Looking for something to buy?</string>
+  <string name="about_lightning_network_stores"><![CDATA[
+    <a href="https://acinq.co/mobile/lightningnetworkstores/?safemode=true">Lightning Network Stores</a>
+    <br />
+    This independent service lists and ranks shops that accept Lightning payments.
+  ]]></string>
 
   <!-- //////////////// Network Infos //////////////////// -->
 
@@ -531,10 +551,20 @@
 
   <!-- //////////////// Setup Channels Backup /////////////////// -->
 
-  <string name="setupbackup_skip">Skip</string>
-  <string name="setupbackup_title">Lightning Channels Backup</string>
-  <string name="setupbackup_subtitle_1">Active channels can be saved in Google Drive. If you lose access to your phone, by restoring the same seed, you will be able to restore your lightning channels.</string>
-  <string name="setupbackup_subtitle_2">To enable this feature, you have to give this app access to Google Drive.</string>
+  <string name="setupbackup_title">Safety first!</string>
+  <string name="setupbackup_instructions">Eclair Mobile needs write access to your device to make secure local backups.\n\nThis makes your wallet survive an app uninstall.</string>
+  <string name="setupbackup_local">Enable local backups (required)</string>
+  <string name="setupbackup_local_required">App needs access to the disk to create backups</string>
+  <string name="setupbackup_gdrive">Backup on Google Drive</string>
+  <string name="setupbackup_submit">Continue</string>
+  <string name="setupbackup_requesting_access">Requesting access…</string>
+  <string name="backup_external_storage_error"><![CDATA[
+    The device\'s external storage is not available.
+    <br /><br />
+    If you have an external SD card, make sure it\'s properly mounted. You can also check if you have enough memory.
+    <br /><br />
+    Some features like <b>local channels backup</b> will not work properly.
+  ]]></string>
   <string name="backup_about"><![CDATA[
     <p><b>How does it work?</b></p>
     <p>Channels are encrypted and saved to your Google Drive account. When you restore the seed, you can also restore the last known state of your channels and retrieve funds that may have stayed in these channels.</p>
@@ -548,15 +578,22 @@
     Yes, a backup is linked to a seed with a hash, and several backups can coexist.
     ]]></string>
 
-  <string name="backup_switch_button">Enable Channels Backup</string>
-  <string name="backup_drive_unavailable">Google Drive is not available on your phone. Your lightning channels cannot be backed up.</string>
-  <string name="backup_drive_details_more_button">More info</string>
-  <string name="backup_drive_retrieving_meta">Retrieving backup details…</string>
-  <string name="backup_drive_last_backup">Last backup: %1$s</string>
-  <string name="backup_drive_no_backup">No backup yet…</string>
-  <string name="backup_drive_account">Account: &lt;%1$s&gt;</string>
-  <string name="backup_drive_grant_access">Grant Access</string>
-  <string name="backup_drive_revoke_confirm">Are you sure you want to disable the backup feature?\n\nYou will not be able to restore your lightning funds if you lose your phone.</string>
+  <string name="backupsettings_instructions">If you were to uninstall the app without closing your Lightning channels, you\'ll need a backup to be able to recover your channels and the funds on it.
+    \n\nWe strongly recommend enabling a cloud-based backup option in case you lose your phone.</string>
+  <string name="backupsettings_local_title">Local backup (required)</string>
+  <string name="backupsettings_local_status_wait">Requesting access to storage…</string>
+  <string name="backupsettings_local_status_denied">Please grant access to the device\'s local storage.</string>
+  <string name="backupsettings_local_status_result">Last modified: %1$s</string>
+  <string name="backupsettings_local_status_not_found">No backup yet…</string>
+
+  <string name="backupsettings_drive_title">Google Drive backup</string>
+  <string name="backupsettings_drive_state_wait">Retrieving data from Google Drive…</string>
+  <string name="backupsettings_drive_state">Account: &lt;%1$s&gt;\nLast backup: %2$s</string>
+  <string name="backupsettings_drive_state_nobackup">Account: &lt;%1$s&gt;\nNo backup yet…</string>
+  <string name="backupsettings_drive_state_no_access">No access to Google Drive</string>
+  <string name="backupsettings_drive_more_button">How it works</string>
+  <string name="backupsettings_drive_revoke_button">Are you sure you want to disable the Google Drive backup feature?\n\nA local backup only will not help if you lose your phone.</string>
+  <string name="backupsettings_drive_unavailable">Google Drive is not available on this phone.</string>
 
   <!-- //////////////// Logging configuration //////////////////// -->
 
@@ -572,11 +609,14 @@
   <string name="logging_local_desc">Logs will be written in a rolling file on your phone.</string>
   <string name="logging_local_directory">Files are stored in %1$s</string>
   <string name="logging_local_view_logs">View logs</string>
+  <string name="logging_local_share_logs">Share…</string>
+  <string name="logging_local_share_logs_title">Share Eclair Mobile logs</string>
+  <string name="logging_local_share_logs_subject">Eclair Mobile logs</string>
   <string name="logging_papertrailapp_label">PaperTrail</string>
   <string name="logging_papertrailapp_desc">Logs will be sent over to your Papertrailapp account. Not great for privacy, but real handy for debugging.</string>
   <string name="logging_papertrailapp_host_hint">Papertrail host</string>
   <string name="logging_papertrailapp_port_hint">Papertrail port</string>
-  <string name="logging_save_output">Save changes</string>
+  <string name="logging_save_output">Save</string>
 
   <!-- //////////////// Wallet //////////////////// -->
 
@@ -645,9 +685,9 @@
 
   <string name="dialog_prparams_description_title">Description</string>
   <string name="dialog_prparams_description_hint">No description…</string>
-  <string name="dialog_prparams_amount_title">Amount (max %1$s).</string>
+  <string name="dialog_prparams_amount_title">Amount requested</string>
   <string name="dialog_prparams_amount_hint">No amount requested</string>
   <string name="dialog_prparams_amount_error_generic">Invalid amount</string>
-  <string name="dialog_prparams_amount_error_excessive">Requested amount exceeds your current capacity and may fail</string>
+  <string name="dialog_prparams_amount_error_excessive">Requested amount exceeds your current inbound capacity (%1$s). Payment will probably fail.</string>
 
 </resources>

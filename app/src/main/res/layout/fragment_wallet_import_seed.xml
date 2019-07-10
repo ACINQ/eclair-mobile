@@ -32,22 +32,23 @@
     android:clipToPadding="false"
     android:fillViewport="true">
 
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
       android:id="@+id/transitions_layout"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:clipToPadding="false"
       android:gravity="start|center"
-      android:paddingStart="@dimen/space_lg"
       android:paddingTop="@dimen/space_xl"
-      android:paddingEnd="@dimen/space_lg"
       android:paddingBottom="@dimen/space_xl">
 
       <TextView
         android:id="@+id/title"
         style="@style/TitleCapsIcon"
+        android:layout_marginStart="@dimen/space_lg"
+        android:layout_marginEnd="@dimen/space_lg"
         android:drawableStart="@drawable/ic_key_white_24dp"
         android:text="@string/importwallet_init_title"
+        app:layout_constrainedWidth="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0"
         app:layout_constraintStart_toStartOf="parent"
@@ -57,18 +58,24 @@
         android:id="@+id/instructions"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/space_lg"
         android:layout_marginTop="@dimen/space_sm"
+        android:layout_marginEnd="@dimen/space_lg"
         android:text="@string/importwallet_init_instructions"
+        app:layout_constrainedWidth="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/title" />
 
-      <android.support.constraint.ConstraintLayout
+      <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/mnemonics_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/space_lg"
+        app:layout_constrainedWidth="true"
+        android:layout_marginStart="@dimen/space_lg"
+        android:layout_marginEnd="@dimen/space_lg"
         android:background="@drawable/rounded_corner_primary_dark_x4"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -129,14 +136,14 @@
             android:textSize="@dimen/text_sm" />
         </HorizontalScrollView>
 
-      </android.support.constraint.ConstraintLayout>
+      </androidx.constraintlayout.widget.ConstraintLayout>
 
       <View
         android:id="@+id/keyboard_separator"
         android:layout_width="6dp"
         android:layout_height="@dimen/space_md"
         android:layout_gravity="center"
-        android:background="@color/primary_dark_x1"
+        android:background="@color/black_low_op"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/mnemonics_layout" />
@@ -152,6 +159,8 @@
       <TextView
         android:id="@+id/seed_error"
         style="@style/RoundedWhitePanel"
+        android:layout_marginStart="@dimen/space_lg"
+        android:layout_marginEnd="@dimen/space_lg"
         android:clickable="true"
         android:elevation="8dp"
         android:focusable="true"
@@ -166,11 +175,12 @@
       <Button
         style="@style/EndButtonStyle"
         android:layout_marginTop="@dimen/space_md_p"
+        android:layout_marginEnd="@dimen/space_lg"
         android:onClick="importMnemonics"
         android:text="@string/importwallet_next_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/virtual_keyboard" />
 
-    </android.support.constraint.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
   </ScrollView>
 </layout>

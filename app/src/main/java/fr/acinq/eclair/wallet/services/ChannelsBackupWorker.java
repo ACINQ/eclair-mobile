@@ -17,50 +17,43 @@
 package fr.acinq.eclair.wallet.services;
 
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
-
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.drive.Drive;
-import com.google.android.gms.drive.DriveContents;
-import com.google.android.gms.drive.DriveFile;
-import com.google.android.gms.drive.DriveFolder;
-import com.google.android.gms.drive.DriveResourceClient;
-import com.google.android.gms.drive.Metadata;
-import com.google.android.gms.drive.MetadataBuffer;
-import com.google.android.gms.drive.MetadataChangeSet;
+import androidx.annotation.NonNull;
+import androidx.work.*;
+import com.google.android.gms.drive.*;
 import com.google.android.gms.drive.metadata.CustomPropertyKey;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
 import com.tozny.crypto.android.AesCbcWithIntegrity;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.spongycastle.util.encoders.Hex;
-
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.InputStream;
-
-import androidx.work.Worker;
-import androidx.work.WorkerParameters;
 import fr.acinq.bitcoin.ByteVector32;
 import fr.acinq.eclair.wallet.BuildConfig;
-import fr.acinq.eclair.wallet.activities.GoogleDriveBaseActivity;
+import fr.acinq.eclair.wallet.activities.ChannelsBackupBaseActivity;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.EncryptedBackup;
 import fr.acinq.eclair.wallet.utils.EncryptedData;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.spongycastle.util.encoders.Hex;
 import scodec.bits.ByteVector;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.GeneralSecurityException;
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
+
+/**
+ * Saves the eclair.sqlite backup file to an external storage folder (root/Eclair Mobile) and/or to Google Drive,
+ * depending on the user's preferences. Local backup is mandatory.
+ */
 public class ChannelsBackupWorker extends Worker {
   private final Logger log = LoggerFactory.getLogger(ChannelsBackupWorker.class);
   public final static String BACKUP_NAME_INPUT = BuildConfig.APPLICATION_ID + ".BACKUP_NAME";
   public final static String BACKUP_KEY_INPUT = BuildConfig.APPLICATION_ID + ".BACKUP_KEY_INPUT";
-  private static final String TAG = ChannelsBackupWorker.class.getSimpleName();
 
   public ChannelsBackupWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
     super(context, workerParams);
@@ -78,62 +71,99 @@ public class ChannelsBackupWorker extends Worker {
       return Result.success();
     }
 
-    final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-    if (!prefs.getBoolean(Constants.SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_ENABLED, false) || backupFileName == null) {
-      return Result.success();
-    }
-
-    final Context context = getApplicationContext();
-    final GoogleSignInAccount signInAccount = GoogleDriveBaseActivity.getSigninAccount(context);
-
-    // --- check authorization
-    if (signInAccount == null) {
+    if (backupFileName == null) {
+      log.error("backup file name is null, aborting job");
       return Result.failure();
     }
 
-    final DriveResourceClient driveResourceClient = Drive.getDriveResourceClient(context, signInAccount);
-    final Task<DriveFolder> appFolderTask = driveResourceClient.getAppFolder();
-    final Task<MetadataBuffer> metadataBufferTask = appFolderTask
-      .continueWithTask(t -> GoogleDriveBaseActivity.retrieveEclairBackupTask(appFolderTask, driveResourceClient, backupFileName));
+    if (key == null) {
+      log.error("backup key is null, aborting job");
+      return Result.failure();
+    }
 
     try {
-      final MetadataBuffer buffer = Tasks.await(metadataBufferTask);
+      // 1 - generate encrypted backup file
       final AesCbcWithIntegrity.SecretKeys sk = EncryptedData.secretKeyFromBinaryKey(ByteVector32.apply(ByteVector.view(Hex.decode(key))));
-      if (buffer.getCount() == 0) {
-        Tasks.await(createBackup(context, driveResourceClient, backupFileName, sk));
-      } else {
-        Tasks.await(updateBackup(context, driveResourceClient, buffer.get(0).getDriveId().asDriveFile(), sk));
+      final byte[] encryptedBackup = getEncryptedBackup(getApplicationContext(), sk);
+
+      // 2 - save to drive
+      final boolean shouldBackupToDrive = BackupUtils.GoogleDrive.isGDriveAvailable(getApplicationContext()) && BackupUtils.GoogleDrive.getSigninAccount(getApplicationContext()) != null;
+      boolean driveBackupSuccessful = true;
+      if (shouldBackupToDrive) {
+        driveBackupSuccessful = saveToGoogleDrive(getApplicationContext(), encryptedBackup, backupFileName);
       }
-      prefs.edit()
-        .putBoolean(Constants.SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_ENABLED, true)
-        .putBoolean(Constants.SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_HAS_FAILED, false)
-        .apply();
-      return Result.success();
+
+      // 3 - save to local
+      final boolean localBackupSuccessful = saveToLocal(encryptedBackup, backupFileName);
+
+      // 4 - handle result
+      if (localBackupSuccessful || (shouldBackupToDrive && driveBackupSuccessful)) {
+        return Result.success();
+      } else {
+        log.info("failing backup worker: local ? {} ; drive ? {}", localBackupSuccessful, driveBackupSuccessful);
+        return Result.failure();
+      }
     } catch (Throwable t) {
-      log.error(TAG, "failed to save channels backup", t);
-      prefs.edit()
-        .putBoolean(Constants.SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_ENABLED, false)
-        .putBoolean(Constants.SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_HAS_FAILED, true)
-        .apply();
+      log.error("error when generating channels backup", t);
       return Result.failure();
     }
   }
 
-  private Task<DriveFile> createBackup(final Context context, final DriveResourceClient driveResourceClient, final String backupFileName,
-                                       final AesCbcWithIntegrity.SecretKeys sk) {
+  /**
+   * This method creates an encrypted byte array from the eclair DB backup file (.bak) created by the eclair-core backup mechanism.
+   * <p>
+   * This backup is encrypted with the wallet's pk.
+   *
+   * @throws IOException
+   * @throws GeneralSecurityException
+   */
+  private byte[] getEncryptedBackup(final Context context, final AesCbcWithIntegrity.SecretKeys sk) throws IOException, GeneralSecurityException {
+    final File eclairDBFile = WalletUtils.getEclairDBFileBak(context);
+    final EncryptedBackup backup = EncryptedBackup.encrypt(Files.toByteArray(eclairDBFile), sk, EncryptedBackup.BACKUP_VERSION_2);
+    return backup.write();
+  }
+
+  private boolean saveToLocal(final byte[] encryptedBackup, final String backupFileName) {
+    try {
+      final File backupFile = BackupUtils.Local.getBackupFile(backupFileName);
+      Files.write(encryptedBackup, backupFile);
+      return true;
+    } catch (Throwable t) {
+      log.error("failed to save channels backup on local disk", t);
+      return false;
+    }
+  }
+
+  private boolean saveToGoogleDrive(final Context context, final byte[] encryptedBackup, final String backupFileName) {
+    try {
+      // 1 - retrieve existing backup so we know whether we have to create a new one, or update existing file
+      final DriveResourceClient driveResourceClient = Drive.getDriveResourceClient(context, Objects.requireNonNull(BackupUtils.GoogleDrive.getSigninAccount(context)));
+      final Task<DriveFolder> appFolderTask = driveResourceClient.getAppFolder();
+      final Task<MetadataBuffer> metadataBufferTask = appFolderTask.continueWithTask(t ->
+        ChannelsBackupBaseActivity.retrieveEclairBackupTask(appFolderTask, driveResourceClient, backupFileName));
+      final MetadataBuffer buffer = Tasks.await(metadataBufferTask);
+
+      // 2 - create or update backup file
+      if (buffer.getCount() == 0) {
+        Tasks.await(createBackupOnDrive(encryptedBackup, driveResourceClient, backupFileName));
+      } else {
+        Tasks.await(updateBackupOnDrive(encryptedBackup, driveResourceClient, buffer.get(0).getDriveId().asDriveFile()));
+      }
+      return true;
+    } catch (Throwable t) {
+      log.error("failed to save channels backup in google drive", t);
+      return false;
+    }
+  }
+
+  private Task<DriveFile> createBackupOnDrive(final byte[] encryptedBackup, final DriveResourceClient driveResourceClient, final String backupFileName) {
     final Task<DriveFolder> appFolderTask = driveResourceClient.getAppFolder();
     final Task<DriveContents> contentsTask = driveResourceClient.createContents();
-
     return Tasks.whenAll(appFolderTask, contentsTask).continueWithTask(task -> {
-      final File eclairDBFile = WalletUtils.getEclairDBFile(context);
-      final DriveContents contents = contentsTask.getResult();
-
-      // encrypt backup
-      final EncryptedBackup backup = EncryptedBackup.encrypt(
-        Files.toByteArray(eclairDBFile), sk, EncryptedBackup.BACKUP_VERSION_2);
 
       // write encrypted backup as file content
-      final InputStream i = new ByteArrayInputStream(backup.write());
+      final DriveContents contents = contentsTask.getResult();
+      final InputStream i = new ByteArrayInputStream(encryptedBackup);
       ByteStreams.copy(i, contents.getOutputStream());
       i.close();
 
@@ -148,18 +178,12 @@ public class ChannelsBackupWorker extends Worker {
     });
   }
 
-  private Task<Metadata> updateBackup(final Context context, final DriveResourceClient driveResourceClient,
-                                      final DriveFile driveFile, final AesCbcWithIntegrity.SecretKeys sk) {
+  private Task<Metadata> updateBackupOnDrive(final byte[] encryptedBackup, final DriveResourceClient driveResourceClient, final DriveFile driveFile) {
     return driveResourceClient.openFile(driveFile, DriveFile.MODE_WRITE_ONLY).continueWithTask(contentsTask -> {
-      final File eclairDBFile = WalletUtils.getEclairDBFile(context);
-      final DriveContents contents = contentsTask.getResult();
-
-      // encrypt backup
-      final EncryptedBackup backup = EncryptedBackup.encrypt(
-        Files.toByteArray(eclairDBFile), sk, EncryptedBackup.BACKUP_VERSION_2);
 
       // write encrypted backup as file content
-      final InputStream i = new ByteArrayInputStream(backup.write());
+      final DriveContents contents = contentsTask.getResult();
+      final InputStream i = new ByteArrayInputStream(encryptedBackup);
       ByteStreams.copy(i, contents.getOutputStream());
       i.close();
 
@@ -172,5 +196,22 @@ public class ChannelsBackupWorker extends Worker {
 
       return driveResourceClient.updateMetadata(driveFile, changeSet);
     });
+  }
+
+  public static void scheduleWorkASAP(final String seedHash, final ByteVector32 backupKey) {
+    WorkManager.getInstance()
+      .beginUniqueWork("ChannelsBackup", ExistingWorkPolicy.REPLACE, getOneTimeBackupRequest(seedHash, backupKey))
+      .enqueue();
+  }
+
+  private static OneTimeWorkRequest getOneTimeBackupRequest(final String seedHash, final ByteVector32 backupKey) {
+    return new OneTimeWorkRequest.Builder(ChannelsBackupWorker.class)
+      .setInputData(new Data.Builder()
+        .putString(ChannelsBackupWorker.BACKUP_NAME_INPUT, WalletUtils.getEclairBackupFileName(seedHash))
+        .putString(ChannelsBackupWorker.BACKUP_KEY_INPUT, backupKey.toString())
+        .build())
+      .setInitialDelay(2, TimeUnit.SECONDS)
+      .addTag("ChannelsBackupWork")
+      .build();
   }
 }

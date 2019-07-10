@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright 2019 ACINQ SAS
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,35 +14,49 @@
   ~ limitations under the License.
   -->
 
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto">
 
-  <LinearLayout
+  <androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/primary"
-    android:elevation="10dp"
-    android:gravity="center"
-    android:orientation="vertical"
-    android:padding="32dp">
+    android:background="@drawable/bg_primary_gradient"
+    android:padding="@dimen/space_lg">
 
     <Button
+      android:id="@+id/create_wallet"
       style="@style/ButtonStyle"
       android:onClick="pickCreateNewWallet"
       android:text="@string/wallet_init_create_new"
-      android:textColor="@color/white" />
+      android:textColor="@color/white"
+      app:layout_constraintBottom_toTopOf="@id/separator"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent"
+      app:layout_constraintVertical_chainStyle="packed" />
 
     <View
+      android:id="@+id/separator"
       android:layout_width="96dp"
       android:layout_height="1dp"
-      android:layout_marginBottom="8dp"
-      android:layout_marginTop="8dp"
-      android:background="@color/primary_light_x1" />
+      android:layout_marginTop="@dimen/space_xs"
+      android:background="@color/primary_light_x1"
+      app:layout_constraintBottom_toTopOf="@id/restore_wallet"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@id/create_wallet" />
 
     <Button
+      android:id="@+id/restore_wallet"
       style="@style/ButtonStyle"
+      android:layout_marginTop="@dimen/space_xs"
       android:onClick="pickImportExistingWallet"
       android:text="@string/wallet_init_import_existing"
-      android:textColor="@color/white" />
+      android:textColor="@color/white"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@id/separator" />
 
-  </LinearLayout>
+  </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

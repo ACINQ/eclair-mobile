@@ -19,27 +19,25 @@ package fr.acinq.eclair.wallet.activities;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v4.content.FileProvider;
-import android.support.v7.app.ActionBar;
-import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Toast;
-
-import fr.acinq.eclair.wallet.utils.EclairException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.File;
-
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.FileProvider;
+import androidx.databinding.DataBindingUtil;
 import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.databinding.ActivityLogsSettingsBinding;
 import fr.acinq.eclair.wallet.utils.Constants;
+import fr.acinq.eclair.wallet.utils.EclairException;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
 
 public class LogsSettingsActivity extends EclairActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
   private final Logger log = LoggerFactory.getLogger(LogsSettingsActivity.class);
@@ -110,7 +108,7 @@ public class LogsSettingsActivity extends EclairActivity implements SharedPrefer
         prefs.edit().putString(Constants.SETTING_LOGS_OUTPUT, Constants.LOGS_OUTPUT_NONE).apply();
       }
       Toast.makeText(this, R.string.logging_toast_update_success, Toast.LENGTH_SHORT).show();
-    } catch (EclairException.ExternalStorageNotAvailableException e) {
+    } catch (EclairException.ExternalStorageUnavailableException e) {
       Toast.makeText(this, R.string.logging_toast_error_external_storage, Toast.LENGTH_SHORT).show();
     } catch (Throwable t) {
       log.error("could not update logs settings", t);
@@ -159,17 +157,41 @@ public class LogsSettingsActivity extends EclairActivity implements SharedPrefer
   }
 
   public void viewLocalLogs(final View view) {
-    final File logsDir = getApplicationContext().getExternalFilesDir(Constants.LOGS_DIR);
-    if (!logsDir.exists()) logsDir.mkdirs();
-    final File logs = new File(logsDir, Constants.CURRENT_LOG_FILE);
-    if (logs.exists()) {
-      final Uri logFileURI = FileProvider.getUriForFile(getApplicationContext(), BuildConfig.APPLICATION_ID + ".provider", logs);
+    final Uri uri = getCurrentLogFileUri();
+    if (uri != null) {
       final Intent viewIntent = new Intent(Intent.ACTION_VIEW);
-      viewIntent.setDataAndType(logFileURI, "text/plain").addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+      viewIntent.setDataAndType(uri, "text/plain").addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
       final Intent externalAppIntent = Intent.createChooser(viewIntent, getString(R.string.logging_external_app_intent));
       startActivity(externalAppIntent);
     } else {
       Toast.makeText(this, R.string.logging_toast_error_file_not_found, Toast.LENGTH_SHORT).show();
+    }
+  }
+
+  public void shareLocalLogs(final View view) {
+    final Uri uri = getCurrentLogFileUri();
+    if (uri != null) {
+      final Intent shareIntent = new Intent(Intent.ACTION_SEND);
+      shareIntent.setType("text/plain");
+      shareIntent.putExtra(Intent.EXTRA_STREAM, uri);
+      shareIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.logging_local_share_logs_subject));
+      startActivity(Intent.createChooser(shareIntent, getString(R.string.logging_local_share_logs_title)));
+    }
+  }
+
+  private Uri getCurrentLogFileUri() {
+    final File logsDir = getApplicationContext().getExternalFilesDir(Constants.LOGS_DIR);
+    if (!logsDir.exists()) logsDir.mkdirs();
+    final File logFile = new File(logsDir, Constants.CURRENT_LOG_FILE);
+    if (logFile.exists()) {
+      try {
+        return FileProvider.getUriForFile(getApplicationContext(), BuildConfig.APPLICATION_ID + ".provider", logFile);
+      } catch (IllegalArgumentException e) {
+        log.error("could not open local log file: ", e);
+        return null;
+      }
+    } else {
+      return null;
     }
   }
 }

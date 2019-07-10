@@ -20,10 +20,10 @@ import akka.dispatch.OnComplete;
 import akka.pattern.Patterns;
 import akka.util.Timeout;
 import android.content.Context;
-import android.databinding.DataBindingUtil;
+import androidx.databinding.DataBindingUtil;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 import fr.acinq.bitcoin.MilliSatoshi;
@@ -230,7 +230,7 @@ public class OpenChannelActivity extends EclairActivity implements NodeURIReader
               }
             }
           };
-          Patterns.ask(app.appKit.eclairKit.switchboard(), new Peer.Connect(nodeURI), timeout)
+          Patterns.ask(app.appKit.eclairKit.switchboard(), Peer.Connect$.MODULE$.apply(nodeURI), timeout)
             .onComplete(onConnectComplete, app.system.dispatcher());
         });
       finish();

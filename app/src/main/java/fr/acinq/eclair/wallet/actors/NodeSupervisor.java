@@ -19,14 +19,12 @@ package fr.acinq.eclair.wallet.actors;
 import akka.actor.ActorRef;
 import akka.actor.Terminated;
 import akka.actor.UntypedActor;
-import androidx.work.ExistingWorkPolicy;
-import androidx.work.OneTimeWorkRequest;
-import androidx.work.WorkManager;
 import com.google.common.base.Strings;
 import fr.acinq.bitcoin.*;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.ShortChannelId;
 import fr.acinq.eclair.channel.*;
+import fr.acinq.eclair.db.BackupCompleted$;
 import fr.acinq.eclair.payment.PaymentLifecycle;
 import fr.acinq.eclair.payment.PaymentReceived;
 import fr.acinq.eclair.payment.PaymentRequest;
@@ -41,6 +39,7 @@ import fr.acinq.eclair.wallet.events.LNPaymentFailedEvent;
 import fr.acinq.eclair.wallet.events.LNPaymentSuccessEvent;
 import fr.acinq.eclair.wallet.events.ReceivedLNPaymentNotificationEvent;
 import fr.acinq.eclair.wallet.models.*;
+import fr.acinq.eclair.wallet.services.ChannelsBackupWorker;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 import org.greenrobot.eventbus.EventBus;
@@ -63,15 +62,17 @@ public class NodeSupervisor extends UntypedActor {
 
   private final static Logger log = LoggerFactory.getLogger(NodeSupervisor.class);
   private DBHelper dbHelper;
-  private OneTimeWorkRequest channelsBackupWork;
   private ActorRef paymentRefreshScheduler;
   private ActorRef channelsRefreshScheduler;
   private ActorRef balanceRefreshScheduler;
+  private final String seedHash;
+  private final ByteVector32 backupKey;
 
   public NodeSupervisor(final DBHelper dbHelper, final String seedHash, final ByteVector32 backupKey,
                         final ActorRef paymentRefreshScheduler, final ActorRef channelsRefreshScheduler, final ActorRef balanceRefreshScheduler) {
     this.dbHelper = dbHelper;
-    this.channelsBackupWork = WalletUtils.generateBackupRequest(seedHash, backupKey);
+    this.seedHash = seedHash;
+    this.backupKey = backupKey;
     this.paymentRefreshScheduler = paymentRefreshScheduler;
     this.channelsRefreshScheduler = channelsRefreshScheduler;
     this.balanceRefreshScheduler = balanceRefreshScheduler;
@@ -188,7 +189,7 @@ public class NodeSupervisor extends UntypedActor {
     // ---- we sent a channel sig => update corresponding payment to PENDING in app's DB
     else if (message instanceof ChannelSignatureSent) {
       final ChannelSignatureSent event = (ChannelSignatureSent) message;
-      final Either<WaitingForRevocation, Crypto.Point> nextCommitInfo = event.commitments().remoteNextCommitInfo();
+      final Either<WaitingForRevocation, Crypto.PublicKey> nextCommitInfo = event.commitments().remoteNextCommitInfo();
       if (nextCommitInfo.isLeft()) {
         final RemoteCommit commit = nextCommitInfo.left().get().nextRemoteCommit();
         final Iterator<DirectedHtlc> htlcsIterator = commit.spec().htlcs().iterator();
@@ -223,11 +224,10 @@ public class NodeSupervisor extends UntypedActor {
         channelsRefreshScheduler.tell(Constants.REFRESH, null);
       }
     }
-    // ---- channel must be saved
-    else if (message instanceof ChannelPersisted) {
-      WorkManager.getInstance()
-        .beginUniqueWork("ChannelsBackup", ExistingWorkPolicy.REPLACE, channelsBackupWork)
-        .enqueue();
+    // ---- backup file must be saved (on disk/gdrive) after backup by eclair-core is done. We save the .bak file.
+    else if (message instanceof BackupCompleted$) {
+      log.info("received BackupCompleted event, scheduling backup work");
+      ChannelsBackupWorker.scheduleWorkASAP(seedHash, backupKey);
     }
     // ---- network map syncing
     else if (message instanceof SyncProgress) {

@@ -19,7 +19,7 @@ package fr.acinq.eclair.wallet.fragments;
 import akka.actor.ActorRef;
 import android.app.Dialog;
 import android.content.Context;
-import android.support.v4.content.ContextCompat;
+import androidx.core.content.ContextCompat;
 import android.text.Html;
 import android.view.View;
 import android.widget.Button;

@@ -19,11 +19,11 @@
   xmlns:tools="http://schemas.android.com/tools"
   tools:context="fr.acinq.eclair.wallet.activities.ScanActivity">
 
-  <android.support.constraint.ConstraintLayout
+  <androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <android.support.constraint.Guideline
+    <androidx.constraintlayout.widget.Guideline
       android:id="@+id/guideline"
       android:layout_width="wrap_content"
       android:layout_height="1dp"
@@ -81,5 +81,5 @@
       android:textSize="14sp"
       app:layout_constraintBottom_toBottomOf="parent" />
 
-  </android.support.constraint.ConstraintLayout>
+  </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

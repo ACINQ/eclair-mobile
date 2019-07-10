@@ -44,7 +44,7 @@
 
   </data>
 
-  <android.support.constraint.ConstraintLayout
+  <androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/bg_primary_gradient"
@@ -57,7 +57,7 @@
       android:layout="@layout/stub_tour_guide" />
 
 
-    <android.support.constraint.Guideline
+    <androidx.constraintlayout.widget.Guideline
       android:id="@+id/notifs_guideline"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
@@ -122,7 +122,7 @@
       app:layout_constraintStart_toEndOf="@id/sync_progress_label"
       app:layout_constraintTop_toTopOf="parent" />
 
-    <android.support.v7.widget.Toolbar
+    <androidx.appcompat.widget.Toolbar
       android:id="@+id/toolbar"
       android:layout_width="wrap_content"
       android:layout_height="@dimen/action_bar_height"
@@ -132,7 +132,7 @@
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintTop_toTopOf="parent" />
 
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
       android:id="@+id/balance"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
@@ -157,8 +157,7 @@
         android:id="@+id/balance_onchain_icon"
         android:layout_width="10dp"
         android:layout_height="10dp"
-        android:layout_marginStart="@dimen/space_xs"
-        android:src="@drawable/ic_chain_orange_24dp"
+        android:src="@drawable/ic_chain_orange_14dp"
         android:tint="@color/primary_light_x2"
         app:layout_constraintBottom_toBottomOf="@id/balance_onchain"
         app:layout_constraintEnd_toStartOf="@id/balance_onchain"
@@ -188,7 +187,7 @@
         android:id="@+id/balance_lightning_icon"
         android:layout_width="10dp"
         android:layout_height="10dp"
-        android:src="@drawable/ic_bolt_blue_24dp"
+        android:src="@drawable/ic_bolt_blue_14dp"
         android:tint="@color/primary_light_x2"
         app:layout_constraintBottom_toBottomOf="@id/balance_lightning"
         app:layout_constraintEnd_toStartOf="@id/balance_lightning"
@@ -214,10 +213,10 @@
         app:unit_color="@color/primary_light_x2"
         app:unit_size="@dimen/text_xs" />
 
-    </android.support.constraint.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- tabs + fragments -->
-    <android.support.design.widget.TabLayout
+    <com.google.android.material.tabs.TabLayout
       android:id="@+id/tabs"
       style="@style/CustomTabStyle"
       android:layout_width="match_parent"
@@ -229,7 +228,7 @@
       app:tabMode="fixed"
       app:tabRippleColor="@android:color/transparent" />
 
-    <android.support.v4.view.ViewPager
+    <androidx.viewpager.widget.ViewPager
       android:id="@+id/viewpager"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
@@ -284,7 +283,7 @@
 
       </LinearLayout>
 
-      <android.support.design.widget.FloatingActionButton
+      <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/sendpayment_toggler"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -362,7 +361,7 @@
 
       </LinearLayout>
 
-      <android.support.design.widget.FloatingActionButton
+      <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/home_openchannel_toggler"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -393,6 +392,6 @@
       android:visibility="@{electrumReady ? View.GONE : View.VISIBLE}"
       app:layout_constraintBottom_toBottomOf="parent" />
 
-  </android.support.constraint.ConstraintLayout>
+  </androidx.constraintlayout.widget.ConstraintLayout>
 
 </layout>

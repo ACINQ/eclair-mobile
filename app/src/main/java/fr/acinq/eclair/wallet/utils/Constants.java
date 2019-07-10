@@ -46,8 +46,9 @@ public interface Constants {
 
   /* ----------- PERMISSIONS & REQUEST CODES ------------ */
 
-  int CAMERA_PERMISSION_REQUEST = 0;
+  int PERMISSION_CAMERA_REQUEST = 0;
   int OPEN_CONNECTION_REQUEST_CODE = 42;
+  int PERMISSION_EXTERNAL_STORAGE_REQUEST = 43;
 
   /* ----------- STARTUP OPTION ----------- */
 
@@ -55,8 +56,10 @@ public interface Constants {
 
   /* ----------- DIR & FILES NAMES ------------ */
 
+  String ECLAIR_BACKUP_DIR = "Eclair Mobile";
   String ECLAIR_DATADIR = "eclair-wallet-data";
   String ECLAIR_DB_FILE = "eclair.sqlite";
+  String ECLAIR_DB_FILE_BAK = "eclair.sqlite.bak";
   String NETWORK_DB_FILE = "network.sqlite";
   String WALLET_DB_FILE = "wallet.sqlite";
   String LOGS_DIR = "logs";
@@ -69,7 +72,6 @@ public interface Constants {
   String SETTING_LAST_USED_VERSION = "last_used_version";
   String SETTING_HAS_STARTED_ONCE = "has_started_once";
   String SETTING_CHANNELS_RESTORE_DONE = "channels_restore_done";
-  String SETTING_CHANNELS_BACKUP_SEEN_ONCE = "channels_backup_seen_once";
   String SETTING_LAST_SUCCESSFUL_BOOT_DATE = "last_successful_boot_date";
   String SETTING_ELECTRUM_CHECK_LAST_ATTEMPT_TIMESTAMP = "electrum_check_last_attempt_timestamp";
   String SETTING_ELECTRUM_CHECK_LAST_OUTCOME_TIMESTAMP = "electrum_check_last_date";
@@ -117,7 +119,6 @@ public interface Constants {
   /* ----------- SETTINGS - CHANNELS BACKUP ------------ */
 
   String SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_ENABLED = "channels_backup_gdrive_enabled";
-  String SETTING_CHANNELS_BACKUP_GOOGLEDRIVE_HAS_FAILED = "channels_backup_gdrive_has_failed";
   String BACKUP_META_DEVICE_ID = "backup_device_id";
 
   /* ----------- SETTINGS - WALLET ORIGIN ------------ */
@@ -125,7 +126,6 @@ public interface Constants {
   String SETTING_WALLET_ORIGIN = "wallet_origin";
   int WALLET_ORIGIN_FROM_SCRATCH = 1;
   int WALLET_ORIGIN_RESTORED_FROM_SEED = 2;
-
 
   /* ----------- COINS ------------ */
 
@@ -139,16 +139,21 @@ public interface Constants {
   int FEE_RATING_FAST = 2;
   int FEE_RATING_CUSTOM = 3;
 
+  /* ----------- SETUP BACKUP LAYOUT STEPS ------------ */
+
+  int SETUP_BACKUP_INIT = 0;
+  int SETUP_BACKUP_REQUESTING_ACCESS = 1;
+
   /* ----------- RESTORE BACKUP LAYOUT STEPS ------------ */
 
-  int RESTORE_BACKUP_INIT = 1;
-  int RESTORE_BACKUP_ERROR_PERMISSIONS = 2;
-  int RESTORE_BACKUP_SEARCHING = 3;
-  int RESTORE_BACKUP_SUCCESS = 4;
-  int RESTORE_BACKUP_FAILURE = 5;
-  int RESTORE_BACKUP_NO_BACKUP_FOUND = 6;
-  int RESTORE_BACKUP_SYNC_RATELIMIT = 7;
-  int RESTORE_BACKUP_DEVICE_ORIGIN_CONFLICT = 8;
+  int RESTORE_BACKUP_INIT = 0;
+  int RESTORE_BACKUP_REQUESTING_ACCESS = 1;
+  int RESTORE_BACKUP_SCANNING = 2;
+  int RESTORE_BACKUP_FOUND_ERROR = 3;
+  int RESTORE_BACKUP_FOUND = 4;
+  int RESTORE_BACKUP_FOUND_WITH_CONFLICT = 5;
+  int RESTORE_BACKUP_NOT_FOUND = 6;
+  int RESTORE_BACKUP_RESTORE_DONE = 7;
 
   /* ----------- WALLET SEED SPAWN PROCESS ------------ */
 
