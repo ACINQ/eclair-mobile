@@ -423,7 +423,7 @@
   </string>
   <string name="about_stores">Looking for something to buy?</string>
   <string name="about_lightning_network_stores"><![CDATA[
-    <a href="https://acinq.co/mobile/lightningnetworkstores">Lightning Network Stores</a>
+    <a href="https://acinq.co/mobile/lightningnetworkstores/?safemode=true">Lightning Network Stores</a>
     <br />
     This independent service lists and ranks shops that accept Lightning payments.
   ]]></string>
