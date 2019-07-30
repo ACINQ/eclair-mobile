@@ -21,7 +21,7 @@
     android:centerX="80%"
     android:centerY="100%"
     android:endColor="@color/primary"
-    android:gradientRadius="160%"
+    android:gradientRadius="160%p"
     android:startColor="@color/primary_dark_x4"
     android:type="radial" />
 </shape>
