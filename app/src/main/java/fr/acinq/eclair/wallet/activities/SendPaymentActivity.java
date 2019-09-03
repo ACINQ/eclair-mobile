@@ -119,7 +119,7 @@ public class SendPaymentActivity extends EclairActivity {
       return false;
     }
     // check that the payment has not expired
-    if (hasInvoiceExpired(paymentRequest)) {
+    if (paymentRequest.isExpired()) {
       canNotHandlePayment(R.string.payment_ln_expiry_outdated);
       return false;
     }
@@ -155,11 +155,6 @@ public class SendPaymentActivity extends EclairActivity {
     mBinding.setEnableSendButton(isWalletReady);
     new Handler().postDelayed(this::checkWalletReady, 1000);
     return isWalletReady;
-  }
-
-  private boolean hasInvoiceExpired(final PaymentRequest pr) {
-    final long expirySecs = pr.expiry().isDefined() ? (Long) pr.expiry().get() : 60 * 60; // default expiry is 1 hour
-    return pr.timestamp() + expirySecs < System.currentTimeMillis() / 1000;
   }
 
   private void setupOnchainPaymentForm(final BitcoinURI bitcoinURI) {
@@ -326,7 +321,7 @@ public class SendPaymentActivity extends EclairActivity {
           handlePaymentError(R.string.payment_error_amount_zero_or_less);
           return;
         }
-        if (hasInvoiceExpired(paymentRequest)) {
+        if (paymentRequest.isExpired()) {
           canNotHandlePayment(R.string.payment_ln_expiry_outdated);
           return;
         }
