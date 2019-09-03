@@ -39,3 +39,4 @@ build/
 bin/
 app/release
 app/debug
+app/.cxx
