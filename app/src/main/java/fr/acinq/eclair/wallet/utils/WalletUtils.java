@@ -374,37 +374,33 @@ public class WalletUtils {
 
   public static void setupLogging(final Context context) {
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-    switch (prefs.getString(Constants.SETTING_LOGS_OUTPUT, Constants.LOGS_OUTPUT_NONE)) {
-      case Constants.LOGS_OUTPUT_LOCAL:
-        try {
-          setupLocalLogging(context);
-        } catch (EclairException.ExternalStorageUnavailableException e) {
-          Log.e("WalletUtils", "external storage is not available, cannot enable local logging");
-        }
+    switch (prefs.getString(Constants.SETTING_LOGS_OUTPUT, Constants.LOGS_OUTPUT_LOCAL)) {
+      case Constants.LOGS_OUTPUT_NONE:
+        disableLogging();
         break;
       case Constants.LOGS_OUTPUT_PAPERTRAIL:
         setupPapertrailLogging(prefs.getString(Constants.SETTING_PAPERTRAIL_HOST, ""),
           prefs.getInt(Constants.SETTING_PAPERTRAIL_PORT, 12345));
         break;
       default:
-        if (BuildConfig.DEBUG) {
-          setupLogcatLogging();
-        } else {
-          disableLogging();
+        try {
+          setupLocalLogging(context);
+        } catch (EclairException.ExternalStorageUnavailableException e) {
+          Log.e("WalletUtils", "external storage is not available, cannot enable local logging");
         }
         break;
+    }
+    if (!prefs.contains(Constants.SETTING_LOGS_OUTPUT)) {
+      prefs.edit().putString(Constants.SETTING_LOGS_OUTPUT, Constants.LOGS_OUTPUT_LOCAL).apply();
     }
   }
 
   public static void disableLogging() {
     final LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
-    lc.reset();
     lc.stop();
   }
 
-  private static void setupLogcatLogging() {
-    final LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
-    lc.reset();
+  private static LogcatAppender getLogcatAppender(final LoggerContext lc) {
 
     final PatternLayoutEncoder tagEncoder = new PatternLayoutEncoder();
     tagEncoder.setContext(lc);
@@ -422,7 +418,7 @@ public class WalletUtils {
     logcatAppender.setTagEncoder(tagEncoder);
     logcatAppender.start();
 
-    useAppender(lc, logcatAppender);
+    return logcatAppender;
   }
 
   /**
@@ -505,15 +501,25 @@ public class WalletUtils {
   }
 
   private static void useAppender(final LoggerContext lc, final Appender<ILoggingEvent> appender) {
+    // filter some classes
     lc.getLogger("fr.acinq.eclair.crypto").setLevel(Level.WARN); // ChaCha20Poly1305 spams a lot in debug
+    lc.getLogger("fr.acinq.eclair.payment.BalanceEventThrottler").setLevel(Level.WARN);
+    lc.getLogger("fr.acinq.eclair.db.BackupHandler").setLevel(Level.WARN);
     if (BuildConfig.DEBUG) {
       lc.getLogger("io.netty").setLevel(Level.DEBUG);
     } else {
       lc.getLogger("io.netty").setLevel(Level.WARN);
     }
+
+    // add requested appender
     final Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
     root.setLevel(BuildConfig.DEBUG ? Level.DEBUG : Level.INFO);
     root.addAppender(appender);
+
+    // add logcat if debug
+    if (BuildConfig.DEBUG) {
+      root.addAppender(getLogcatAppender(lc));
+    }
   }
 
   /**

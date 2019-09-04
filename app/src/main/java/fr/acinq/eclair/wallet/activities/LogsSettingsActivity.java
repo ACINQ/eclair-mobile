@@ -68,7 +68,7 @@ public class LogsSettingsActivity extends EclairActivity implements SharedPrefer
     ActionBar ab = getSupportActionBar();
     ab.setDisplayHomeAsUpEnabled(true);
 
-    mBinding.setLogsOutputMode(prefs.getString(Constants.SETTING_LOGS_OUTPUT, Constants.LOGS_OUTPUT_NONE));
+    mBinding.setLogsOutputMode(prefs.getString(Constants.SETTING_LOGS_OUTPUT, Constants.LOGS_OUTPUT_LOCAL));
     mBinding.papertrailHostInput.setText(prefs.getString(Constants.SETTING_PAPERTRAIL_HOST, ""));
     mBinding.papertrailPortInput.setText(Integer.toString(prefs.getInt(Constants.SETTING_PAPERTRAIL_PORT, 12345)));
     mBinding.setShowPapertrail(prefs.getBoolean(Constants.SETTING_PAPERTRAIL_VISIBLE, false));
@@ -126,7 +126,7 @@ public class LogsSettingsActivity extends EclairActivity implements SharedPrefer
   }
 
   private void refreshRadioDisplays(final SharedPreferences prefs) {
-    final String outputMode = prefs.getString(Constants.SETTING_LOGS_OUTPUT, Constants.LOGS_OUTPUT_NONE);
+    final String outputMode = prefs.getString(Constants.SETTING_LOGS_OUTPUT, Constants.LOGS_OUTPUT_LOCAL);
     // disabled
     mBinding.radioNone.setChecked(Constants.LOGS_OUTPUT_NONE.equals(outputMode));
     mBinding.disabledLabel.setText((Constants.LOGS_OUTPUT_NONE.equals(outputMode)

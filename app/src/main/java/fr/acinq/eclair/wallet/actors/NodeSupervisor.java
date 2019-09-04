@@ -195,7 +195,7 @@ public class NodeSupervisor extends UntypedActor {
         final Iterator<DirectedHtlc> htlcsIterator = commit.spec().htlcs().iterator();
         while (htlcsIterator.hasNext()) {
           final DirectedHtlc h = htlcsIterator.next();
-          log.info("sig sent for htlc={}", h);
+          log.debug("sig sent for htlc={}", h);
           // if htlc is outbound, move payment to PENDING (IN from remote commit means that payment is sent)
           if (h.direction() instanceof IN$) {
             final String htlcPaymentHash = h.add().paymentHash().toString();
@@ -226,7 +226,7 @@ public class NodeSupervisor extends UntypedActor {
     }
     // ---- backup file must be saved (on disk/gdrive) after backup by eclair-core is done. We save the .bak file.
     else if (message instanceof BackupCompleted$) {
-      log.info("received BackupCompleted event, scheduling backup work");
+      log.debug("received BackupCompleted event, scheduling backup work");
       ChannelsBackupWorker.scheduleWorkASAP(seedHash, backupKey);
     }
     // ---- network map syncing
@@ -269,7 +269,7 @@ public class NodeSupervisor extends UntypedActor {
     // ---- channel is closing and we know when the main output is refunded
     else if (message instanceof LocalCommitConfirmed) {
       final LocalCommitConfirmed event = (LocalCommitConfirmed) message;
-      log.info("received local commit confirmed for channel {}, refund at block {}", event.channelId(), event.refundAtBlock());
+      log.debug("received local commit confirmed for channel {}, refund at block {}", event.channelId(), event.refundAtBlock());
       final LocalChannel c = activeChannelsMap.get(event.channel());
       if (c != null) {
         c.setRefundAtBlock(event.refundAtBlock());
@@ -437,7 +437,7 @@ public class NodeSupervisor extends UntypedActor {
     for (LocalChannel d : activeChannelsMap.values()) {
       if (d.remoteToSelfDelayBlocks < MIN_REMOTE_TO_SELF_DELAY
         && !(CLOSING$.MODULE$.toString().equals(d.state) || SHUTDOWN$.MODULE$.toString().equals(d.state) || CLOSED$.MODULE$.toString().equals(d.state))) {
-        log.info("channel {} in state {} has remote toSelfDelay={}, node cannot receive ln payment", d.getChannelId(), d.state, d.remoteToSelfDelayBlocks);
+        log.debug("channel {} in state {} has remote toSelfDelay={}, node cannot receive ln payment", d.getChannelId(), d.state, d.remoteToSelfDelayBlocks);
         return false;
       }
     }

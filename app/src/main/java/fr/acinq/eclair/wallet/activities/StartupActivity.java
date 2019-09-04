@@ -523,7 +523,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
       } catch (EclairException.NetworkException | UnknownHostException t) {
         return NETWORK_ERROR;
       } catch (Throwable t) {
-        log.error("failed to start eclair", t);
+        log.error("failed to start eclair: ", t);
         if (t instanceof TimeoutException) {
           return TIMEOUT_ERROR;
         } else {
