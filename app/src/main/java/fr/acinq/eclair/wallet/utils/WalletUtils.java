@@ -30,6 +30,8 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
+import androidx.core.content.FileProvider;
+
 import ch.qos.logback.classic.*;
 import ch.qos.logback.classic.android.LogcatAppender;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
@@ -519,6 +521,24 @@ public class WalletUtils {
     // add logcat if debug
     if (BuildConfig.DEBUG) {
       root.addAppender(getLogcatAppender(lc));
+    }
+  }
+
+  public static Uri getLastLocalLogFileUri(final Context context) {
+    final File logsDir = context.getExternalFilesDir(Constants.LOGS_DIR);
+    if (logsDir != null && !logsDir.exists()) {
+      logsDir.mkdirs();
+    }
+    final File logFile = new File(logsDir, Constants.CURRENT_LOG_FILE);
+    if (logFile.exists()) {
+      try {
+        return FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", logFile);
+      } catch (Exception e) {
+        log.error("could not open local log file: ", e);
+        return null;
+      }
+    } else {
+      return null;
     }
   }
 

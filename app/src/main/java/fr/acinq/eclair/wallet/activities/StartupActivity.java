@@ -30,6 +30,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.text.Html;
+import android.text.method.LinkMovementMethod;
 import android.view.View;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
@@ -124,15 +126,39 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
     super.onDestroy();
   }
 
-  private void showError(final String message, final boolean showRestart, final boolean showFAQ) {
+  private void showError(final String message, final boolean showShareLogs, final boolean showRestart, final boolean showFAQ) {
     mBinding.startupError.setVisibility(View.VISIBLE);
-    mBinding.startupErrorFaq.setVisibility(showFAQ ? View.VISIBLE : View.GONE);
-    mBinding.startupRestart.setVisibility(showRestart ? View.VISIBLE : View.GONE);
     mBinding.startupErrorText.setText(message);
+
+    mBinding.startupShareLogsSep.setVisibility(showShareLogs ? View.VISIBLE : View.GONE);
+    mBinding.startupShareLogs.setVisibility(showShareLogs ? View.VISIBLE : View.GONE);
+    if (showShareLogs) {
+      mBinding.startupShareLogs.setOnClickListener(v -> {
+        final Uri uri = WalletUtils.getLastLocalLogFileUri(getApplicationContext());
+        if (uri != null) {
+          final Intent shareIntent = new Intent(Intent.ACTION_SEND);
+          shareIntent.setType("text/plain");
+          shareIntent.putExtra(Intent.EXTRA_STREAM, uri);
+          shareIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.logging_local_share_logs_subject));
+          startActivity(Intent.createChooser(shareIntent, getString(R.string.logging_local_share_logs_title)));
+        }
+      });
+    }
+
+    mBinding.startupFaqSep.setVisibility(showFAQ ? View.VISIBLE : View.GONE);
+    mBinding.startupFaq.setVisibility(showFAQ ? View.VISIBLE : View.GONE);
+    if (showFAQ) {
+      mBinding.startupFaq.setMovementMethod(LinkMovementMethod.getInstance());
+      mBinding.startupFaq.setText(Html.fromHtml(getString(R.string.start_error_faq_link)));
+    }
+
+    mBinding.startupRestartSep.setVisibility(showRestart ? View.VISIBLE : View.GONE);
+    mBinding.startupRestart.setVisibility(showRestart ? View.VISIBLE : View.GONE);
+    mBinding.startupRestart.setOnClickListener(v -> restart());
   }
 
   private void showError(final String message) {
-    showError(message, false, false);
+    showError(message, false, false, false);
   }
 
   private void goToHome() {
@@ -213,7 +239,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
         try {
           Files.move(eclairSqlite, eclairSqliteInTestnet);
         } catch (IOException e) {
-          showError(getString(R.string.start_error_generic), true, false);
+          showError(getString(R.string.start_error_generic), true, true, false);
         }
       }
     }
@@ -278,10 +304,10 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
     if (!isAppReady()) {
       if (datadir.exists() && !datadir.canRead()) {
         log.error("datadir is not readable. Aborting startup");
-        showError(getString(R.string.start_error_datadir_unreadable), true, true);
+        showError(getString(R.string.start_error_datadir_unreadable), true, true, true);
       } else if (datadir.exists() && !datadir.isDirectory()) {
         log.error("datadir is not a directory. Aborting startup");
-        showError(getString(R.string.start_error_datadir_not_directory), true, true);
+        showError(getString(R.string.start_error_datadir_not_directory), true, true, true);
       } else {
         final String currentPassword = app.pin.get();
         if (currentPassword == null) {
@@ -361,12 +387,12 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
           log.error("seed file unreadable");
           clearApp();
           isStartingNode = false;
-          runOnUiThread(() -> showError(getString(R.string.start_error_unreadable_seed), true, true));
+          runOnUiThread(() -> showError(getString(R.string.start_error_unreadable_seed), true, true, true));
         } catch (Throwable t) {
           log.error("could not start eclair startup task: ", t);
           clearApp();
           isStartingNode = false;
-          runOnUiThread(() -> showError(getString(R.string.start_error_generic), true, true));
+          runOnUiThread(() -> showError(getString(R.string.start_error_generic), true, true, true));
         }
       }
     }.start();
@@ -396,17 +422,17 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
       case StartupTask.NETWORK_ERROR:
         mBinding.startupLog.setText("");
         clearApp();
-        showError(getString(R.string.start_error_connectivity), true, false);
+        showError(getString(R.string.start_error_connectivity), true, true, false);
         break;
       case StartupTask.TIMEOUT_ERROR:
         mBinding.startupLog.setText("");
         clearApp();
-        showError(getString(R.string.start_error_timeout), true, true);
+        showError(getString(R.string.start_error_timeout), true, true, true);
         break;
       default:
         mBinding.startupLog.setText("");
         clearApp();
-        showError(getString(R.string.start_error_generic), true, true);
+        showError(getString(R.string.start_error_generic), true, true, true);
         break;
     }
     isStartingNode = false;
@@ -425,15 +451,6 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
   public void pickCreateNewWallet(View view) {
     Intent intent = new Intent(getBaseContext(), CreateSeedActivity.class);
     startActivity(intent);
-  }
-
-  public void openFAQ(View view) {
-    Intent faqIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/ACINQ/eclair-wallet/wiki/FAQ"));
-    startActivity(faqIntent);
-  }
-
-  public void restart(View view) {
-    restart();
   }
 
   @Override
