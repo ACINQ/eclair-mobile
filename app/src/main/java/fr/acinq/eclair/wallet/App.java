@@ -101,7 +101,7 @@ public class App extends Application {
 
   public final static Map<String, Float> RATES = new HashMap<>();
   public static @Nullable WalletContext walletContext = null;
-  public final ActorSystem system = ActorSystem.apply("system");
+  public ActorSystem system = ActorSystem.apply("system");
   private final Logger log = LoggerFactory.getLogger(App.class);
   public AtomicReference<String> pin = new AtomicReference<>(null);
   public AtomicReference<String> seedHash = new AtomicReference<>(null);
