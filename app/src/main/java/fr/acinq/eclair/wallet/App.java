@@ -390,9 +390,9 @@ public class App extends Application {
       long available = 0;
       Iterator<TxOut> it = tx_fee._1.txOut().iterator();
       while (it.hasNext()) {
+        // should be one output (the placeholder) with the total amount minus fees
         available += it.next().amount().amount();
       }
-      available -= tx_fee._2.amount();
       return new Satoshi(Math.max(0, available));
     } catch (Exception e) {
       log.error("could not retrieve max available funds after fees", e);
