@@ -60,6 +60,7 @@ import fr.acinq.eclair.Kit;
 import fr.acinq.eclair.Setup;
 import fr.acinq.eclair.blockchain.electrum.ElectrumEclairWallet;
 import fr.acinq.eclair.channel.ChannelEvent;
+import fr.acinq.eclair.channel.ChannelPersisted;
 import fr.acinq.eclair.crypto.LocalKeyManager;
 import fr.acinq.eclair.db.BackupEvent;
 import fr.acinq.eclair.payment.PaymentEvent;
@@ -73,7 +74,8 @@ import fr.acinq.eclair.wallet.actors.NodeSupervisor;
 import fr.acinq.eclair.wallet.actors.RefreshScheduler;
 import fr.acinq.eclair.wallet.databinding.ActivityStartupBinding;
 import fr.acinq.eclair.wallet.fragments.PinDialog;
-import fr.acinq.eclair.wallet.services.BackupUtils;
+import fr.acinq.eclair.wallet.services.ChannelsBackupWorker;
+import fr.acinq.eclair.wallet.utils.BackupHelper;
 import fr.acinq.eclair.wallet.services.CheckElectrumWorker;
 import fr.acinq.eclair.wallet.services.NetworkSyncWorker;
 import fr.acinq.eclair.wallet.utils.Constants;
@@ -167,7 +169,17 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
     showError(message, false, false, false);
   }
 
-  private void goToHome() {
+  private void finishAndGoToHome(final SharedPreferences prefs) {
+    app.scheduleExchangeRatePoll();
+    prefs.edit()
+      .putBoolean(Constants.SETTING_HAS_STARTED_ONCE, true)
+      .putLong(Constants.SETTING_LAST_SUCCESSFUL_BOOT_DATE, System.currentTimeMillis())
+      .apply();
+    NetworkSyncWorker.scheduleSync();
+    CheckElectrumWorker.schedule();
+    afterStartupMigration(prefs);
+
+    // -- close current page and open HomeActivity
     finish();
     final Intent originIntent = getIntent();
     final Intent homeIntent = new Intent(getBaseContext(), HomeActivity.class);
@@ -194,7 +206,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
       return;
     }
     // check that external storage is available ; if not, print a warning
-    if (prefs.getBoolean(Constants.SETTING_HAS_STARTED_ONCE, false) && checkExternalStorageState && !BackupUtils.Local.isExternalStorageWritable()) {
+    if (prefs.getBoolean(Constants.SETTING_HAS_STARTED_ONCE, false) && checkExternalStorageState && !BackupHelper.Local.isExternalStorageWritable()) {
       getCustomDialog(getString(R.string.backup_external_storage_error)).setPositiveButton(R.string.btn_ok, (dialog, which) -> {
         checkExternalStorageState = false; // let the user start the app anyway
         checkup();
@@ -209,7 +221,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
   private boolean checkAppVersion(final File datadir, final SharedPreferences prefs) {
     final int lastUsedVersion = prefs.getInt(Constants.SETTING_LAST_USED_VERSION, 0);
     final boolean startedOnce = prefs.getBoolean(Constants.SETTING_HAS_STARTED_ONCE, false);
-    // migration script only if app has already been started
+    // migration applies only if app has already been started
     if (lastUsedVersion > 0 && startedOnce) {
       if (lastUsedVersion <= 15 && "testnet".equals(BuildConfig.CHAIN)) {
         // version 16 breaks the application's data folder structure
@@ -229,8 +241,20 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
         }
       }
     }
-    prefs.edit().putInt(Constants.SETTING_LAST_USED_VERSION, BuildConfig.VERSION_CODE).commit();
     return true;
+  }
+
+  private void afterStartupMigration(final SharedPreferences prefs) {
+    final int lastUsedVersion = prefs.getInt(Constants.SETTING_LAST_USED_VERSION, 0);
+    final boolean startedOnce = prefs.getBoolean(Constants.SETTING_HAS_STARTED_ONCE, false);
+    // migration applies only if app has already been started
+    if (lastUsedVersion > 0 && startedOnce) {
+      if (lastUsedVersion <= 48) {
+        // forces the app to push backup to the new gdrive public folder
+        app.system.eventStream().publish(ChannelPersisted.apply(null, null, null, null));
+      }
+    }
+    prefs.edit().putInt(Constants.SETTING_LAST_USED_VERSION, BuildConfig.VERSION_CODE).apply();
   }
 
   private void migrateTestnetSqlite(final File datadir) {
@@ -341,7 +365,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
       }
     } else {
       // core is started, go to home and use it
-      goToHome();
+      finishAndGoToHome(prefs);
     }
   }
 
@@ -369,7 +393,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
             return;
           }
           // stop if no access to local storage for local backup
-          if (!BackupUtils.Local.hasLocalAccess(getApplicationContext())) {
+          if (!BackupHelper.Local.hasLocalAccess(getApplicationContext())) {
             final Intent backupSetupIntent = new Intent(getBaseContext(), SetupChannelsBackupActivity.class);
             if (prefs.getBoolean(Constants.SETTING_HAS_STARTED_ONCE, false)) {
               backupSetupIntent.putExtra(SetupChannelsBackupActivity.EXTRA_SETUP_IGNORE_GDRIVE_BACKUP, true);
@@ -411,14 +435,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
     switch (event.status) {
       case StartupTask.SUCCESS:
         if (isAppReady()) {
-          app.scheduleExchangeRatePoll();
-          prefs.edit()
-            .putBoolean(Constants.SETTING_HAS_STARTED_ONCE, true)
-            .putLong(Constants.SETTING_LAST_SUCCESSFUL_BOOT_DATE, System.currentTimeMillis())
-            .apply();
-          NetworkSyncWorker.scheduleSync();
-          CheckElectrumWorker.schedule();
-          goToHome();
+          finishAndGoToHome(prefs);
         } else {
           // empty appkit, something went wrong.
           showError(getString(R.string.start_error_improper));

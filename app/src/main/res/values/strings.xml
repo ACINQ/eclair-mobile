@@ -175,6 +175,7 @@
   <string name="restorechannels_request_gdrive_access">Check on Google Drive</string>
   <string name="restorechannels_request_gdrive_unavailable">Google Drive is not available on this device.</string>
   <string name="restorechannels_gdrive_wait">Requesting access to Google Drive…</string>
+  <string name="restorechannels_gdrive_scan_error">Could not access Google Drive!</string>
   <string name="restorechannels_error">A backup was found but could not be read.\n\nOrigin: %1$s\nError: %2$s\n\nContact support at mobile@acinq.co</string>
   <string name="restorechannels_error_generic">There was an error when looking for backup. Please try again.</string>
   <string name="restorechannels_error_no_local_access_toast">Please grant access to your disk to check for local backups.</string>

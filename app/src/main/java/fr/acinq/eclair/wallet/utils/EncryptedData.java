@@ -43,18 +43,6 @@ public abstract class EncryptedData {
     throw new UnsupportedOperationException();
   }
 
-  /**
-   * Decrypt an encrypted data object with a password and returns a byte array
-   *
-   * @param password password protecting the data
-   * @return a byte array containing the decrypted data
-   * @throws GeneralSecurityException if the password is not correct
-   */
-  public byte[] decrypt(final String password) throws GeneralSecurityException {
-    final AesCbcWithIntegrity.SecretKeys sk = AesCbcWithIntegrity.generateKeyFromPassword(password, salt);
-    return AesCbcWithIntegrity.decrypt(civ, sk);
-  }
-
   public static AesCbcWithIntegrity.SecretKeys secretKeyFromBinaryKey(final ByteVector32 key) {
     final byte[] keyBytes = key.bytes().toArray();
     final byte[] confidentialityKeyBytes = new byte[16];
@@ -67,7 +55,7 @@ public abstract class EncryptedData {
     return new AesCbcWithIntegrity.SecretKeys(confidentialityKey, integrityKey);
   }
 
-  public byte[] decrypt(final AesCbcWithIntegrity.SecretKeys key) throws GeneralSecurityException {
+  public byte[] decrypt(final AesCbcWithIntegrity.SecretKeys key) throws GeneralSecurityException, IOException {
     return AesCbcWithIntegrity.decrypt(civ, key);
   }
 
