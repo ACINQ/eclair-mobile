@@ -126,6 +126,9 @@ public abstract class EclairActivity extends AppCompatActivity {
     return true;
   }
 
+  /**
+   * Tells whether PIN code verification is required for sensitive actions (such as payment).
+   */
   protected boolean isPinRequired () {
     return EclairActivity.this.getSharedPreferences(Constants.SETTINGS_SECURITY_FILE, MODE_PRIVATE)
       .getBoolean(Constants.SETTING_ASK_PIN_FOR_SENSITIVE_ACTIONS, false);

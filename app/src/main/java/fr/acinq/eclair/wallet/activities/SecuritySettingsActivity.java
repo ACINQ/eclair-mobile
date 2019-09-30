@@ -53,28 +53,26 @@ public class SecuritySettingsActivity extends EclairActivity implements EclairAc
     ActionBar ab = getSupportActionBar();
     ab.setDisplayHomeAsUpEnabled(true);
 
-    // when the switch is clicked, start the according action (remove pin, create pin)
-    mBinding.pinSwitchWrapper.setOnClickListener(view -> {
+    mBinding.paymentPinSwitchWrapper.setOnClickListener(view -> {
       final boolean isPinDefined = isPinRequired();
-      if (isPinDefined && mBinding.pinSwitch.isChecked()) {
-        // The user wants to disable the PIN
-        removePinValue();
-      } else if (!isPinDefined && !mBinding.pinSwitch.isChecked()) {
+      if (isPinDefined && mBinding.paymentPinSwitch.isChecked()) {
+        disablePinSensitiveAction();
+      } else if (!isPinDefined && !mBinding.paymentPinSwitch.isChecked()) {
         getApplicationContext().getSharedPreferences(Constants.SETTINGS_SECURITY_FILE, MODE_PRIVATE).edit()
           .putBoolean(Constants.SETTING_ASK_PIN_FOR_SENSITIVE_ACTIONS, true).apply();
       } else {
-        mBinding.pinSwitch.setChecked(isPinRequired());
+        mBinding.paymentPinSwitch.setChecked(isPinRequired());
       }
     });
 
-    securityPrefsListener = (sharedPreferences, s) -> mBinding.pinSwitch.setChecked(isPinRequired());
+    securityPrefsListener = (sharedPreferences, s) -> mBinding.paymentPinSwitch.setChecked(isPinRequired());
   }
 
   @Override
   protected void onResume() {
     super.onResume();
     if (checkInit()) {
-      mBinding.pinSwitch.setChecked(isPinRequired());
+      mBinding.paymentPinSwitch.setChecked(isPinRequired());
       getSharedPreferences(Constants.SETTINGS_SECURITY_FILE, MODE_PRIVATE).registerOnSharedPreferenceChangeListener(securityPrefsListener);
     }
   }
@@ -86,12 +84,10 @@ public class SecuritySettingsActivity extends EclairActivity implements EclairAc
   }
 
   /**
-   * Removes the pin value in the preferences. The user has to confirm the previous PIN before the pin is
-   * removed from the preferences. If the PIN is incorrect, the action fails.
+   * Disable PIN verification for sensitive actions. User has to verify the PIN first.
    */
-  private void removePinValue() {
+  private void disablePinSensitiveAction() {
     final PinDialog removePinDialog = new PinDialog(SecuritySettingsActivity.this, R.style.FullScreenDialog, new PinDialog.PinDialogCallback() {
-      @SuppressLint("ApplySharedPref")
       @Override
       public void onPinConfirm(final PinDialog dialog, final String pinValue) {
         if (isPinCorrect(pinValue, dialog)) {
@@ -119,7 +115,7 @@ public class SecuritySettingsActivity extends EclairActivity implements EclairAc
           final byte[] seed = WalletUtils.readSeedFile(datadir, pinValue);
           encryptWallet(SecuritySettingsActivity.this, true, datadir, seed);
         } catch (GeneralSecurityException e) {
-          Toast.makeText(getApplicationContext(), getString(R.string.security_password_update_failure), Toast.LENGTH_SHORT).show();
+          Toast.makeText(getApplicationContext(), R.string.security_password_update_failure, Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
           log.error("failed to read seed");
           Toast.makeText(getApplicationContext(), R.string.seed_read_general_failure, Toast.LENGTH_SHORT).show();
