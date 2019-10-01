@@ -38,7 +38,7 @@ import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.util.Date;
 
-import fr.acinq.eclair.Globals;
+import fr.acinq.eclair.blockchain.fee.FeeEstimator;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.databinding.ActivityNetworkInfosBinding;
 import fr.acinq.eclair.wallet.events.NetworkChannelsCountEvent;
@@ -78,11 +78,12 @@ public class NetworkInfosActivity extends EclairActivity implements SwipeRefresh
   }
 
   private void refreshData() {
+    Long currentBlockHeight = app.appKit.eclairKit.nodeParams().currentBlockHeight();
     if (app.getBlockTimestamp() == 0) {
-      mBinding.blockCount.setValue(NumberFormat.getInstance().format(Globals.blockCount().get()));
+      mBinding.blockCount.setValue(NumberFormat.getInstance().format(currentBlockHeight));
     } else {
       mBinding.blockCount.setHtmlValue(getString(R.string.networkinfos_block,
-        NumberFormat.getInstance().format(Globals.blockCount().get()), // block height
+        NumberFormat.getInstance().format(currentBlockHeight), // block height
         DateFormat.getDateTimeInstance().format(new Date(app.getBlockTimestamp() * 1000)))); // block timestamp
     }
 
@@ -104,8 +105,8 @@ public class NetworkInfosActivity extends EclairActivity implements SwipeRefresh
     } else {
       mBinding.electrumAddress.setActionLabel(getString(R.string.networkinfos_electrum_address_change_custom));
     }
-
-    mBinding.feeRate.setValue(NumberFormat.getInstance().format(Globals.feeratesPerKw().get().block_1()) + " sat/kw");
+    FeeEstimator feeEstimator = app.appKit.eclairKit.nodeParams().onChainFeeConf().feeEstimator();
+    mBinding.feeRate.setValue(NumberFormat.getInstance().format(feeEstimator.getFeeratePerKw(1)) + " sat/kw");
     app.getNetworkChannelsCount();
     mBinding.swipeRefresh.setRefreshing(false);
   }

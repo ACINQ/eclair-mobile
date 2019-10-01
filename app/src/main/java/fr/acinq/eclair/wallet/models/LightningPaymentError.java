@@ -19,7 +19,11 @@ package fr.acinq.eclair.wallet.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 import fr.acinq.eclair.channel.ChannelException;
+import fr.acinq.eclair.payment.LocalFailure;
 import fr.acinq.eclair.payment.PaymentLifecycle;
+import fr.acinq.eclair.payment.PaymentFailure;
+import fr.acinq.eclair.payment.RemoteFailure;
+import fr.acinq.eclair.payment.UnreadableRemoteFailure;
 import fr.acinq.eclair.router.Hop;
 import fr.acinq.eclair.router.RouteNotFound$;
 import scala.collection.JavaConverters;
@@ -75,16 +79,16 @@ public class LightningPaymentError implements Parcelable {
   }
 
   /**
-   * Parses a {@link PaymentLifecycle.PaymentFailure} sent by eclair core and generates a {@link LightningPaymentError}.
+   * Parses a {@link PaymentFailure} sent by eclair core and generates a {@link LightningPaymentError}.
    * According to the failure type, the resulting error may contain a list of the nodes in the failed route.
    * The type of the error is always set, as well as the cause, be it unknown.
    *
    * @param failure failure in the payment route
    * @return
    */
-  public static LightningPaymentError generateDetailedErrorCause(final PaymentLifecycle.PaymentFailure failure) {
-    if (failure instanceof PaymentLifecycle.RemoteFailure) {
-      final PaymentLifecycle.RemoteFailure rf = (PaymentLifecycle.RemoteFailure) failure;
+  public static LightningPaymentError generateDetailedErrorCause(final PaymentFailure failure) {
+    if (failure instanceof RemoteFailure) {
+      final RemoteFailure rf = (RemoteFailure) failure;
       final String type = rf.getClass().getSimpleName();
       final String cause = rf.e().failureMessage().message();
       final String origin = rf.e().originNode().toString();
@@ -105,8 +109,8 @@ public class LightningPaymentError implements Parcelable {
       }
       return new LightningPaymentError(type, cause, origin, originChannelId, hopsNodesPK);
 
-    } else if (failure instanceof PaymentLifecycle.LocalFailure) {
-      final PaymentLifecycle.LocalFailure lf = (PaymentLifecycle.LocalFailure) failure;
+    } else if (failure instanceof LocalFailure) {
+      final LocalFailure lf = (LocalFailure) failure;
       final String type = "Local";
       String cause;
       String originChannelId = null;
@@ -121,8 +125,8 @@ public class LightningPaymentError implements Parcelable {
       }
       return new LightningPaymentError(type, cause, null, originChannelId, null);
 
-    } else if (failure instanceof PaymentLifecycle.UnreadableRemoteFailure) {
-      final PaymentLifecycle.UnreadableRemoteFailure unreadable = (PaymentLifecycle.UnreadableRemoteFailure) failure;
+    } else if (failure instanceof UnreadableRemoteFailure) {
+      final UnreadableRemoteFailure unreadable = (UnreadableRemoteFailure) failure;
       final String type = unreadable.getClass().getSimpleName();
       final String cause = "A peer on the route failed the payment with an non readable cause";
       final List<String> hopsNodesPK = new ArrayList<>();

@@ -27,7 +27,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import fr.acinq.bitcoin.MilliBtc;
-import fr.acinq.bitcoin.MilliSatoshi;
+import fr.acinq.eclair.MilliSatoshi;
 import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.CoinUnit;
@@ -60,7 +60,7 @@ public class OpenChannelLiquidityFragment extends Fragment {
     LIQUIDITY_REQUESTS(final long inboundCapacity_mbtc) {
       this.inboundCapacity = new MilliBtc(BigDecimal.exact(inboundCapacity_mbtc));
       if (App.walletContext != null) {
-        this.cost = package$.MODULE$.millibtc2millisatoshi(new MilliBtc(inboundCapacity.amount().$times(BigDecimal.double2bigDecimal(App.walletContext.liquidityRate))));
+        this.cost = MilliSatoshi.toMilliSatoshi(new MilliBtc(inboundCapacity.toBigDecimal().$times(BigDecimal.double2bigDecimal(App.walletContext.liquidityRate))));
       } else {
         this.cost = new MilliSatoshi(0);
       }
@@ -103,21 +103,21 @@ public class OpenChannelLiquidityFragment extends Fragment {
       CoinUtils.formatAmountInUnit(LIQUIDITY_REQUESTS._10_MBTC.inboundCapacity, preferredBitcoinUnit, true)));
     mBinding.liquidityOpt10Cost.setText(getString(R.string.openchannel_liquidity_cost,
       CoinUtils.formatAmountInUnit(LIQUIDITY_REQUESTS._10_MBTC.cost, preferredBitcoinUnit, true),
-      WalletUtils.formatMsatToFiatWithUnit(LIQUIDITY_REQUESTS._10_MBTC.cost.amount(), fiatUnit)));
+      WalletUtils.formatMsatToFiatWithUnit(LIQUIDITY_REQUESTS._10_MBTC.cost.toLong(), fiatUnit)));
 
     mBinding.liquidityOpt25.setOnClickListener(v -> mBinding.setLiquidityOpt(2));
     mBinding.liquidityOpt25Title.setText(getString(R.string.openchannel_liquidity_label,
       CoinUtils.formatAmountInUnit(LIQUIDITY_REQUESTS._25_MBTC.inboundCapacity, preferredBitcoinUnit, true)));
     mBinding.liquidityOpt25Cost.setText(getString(R.string.openchannel_liquidity_cost,
       CoinUtils.formatAmountInUnit(LIQUIDITY_REQUESTS._25_MBTC.cost, preferredBitcoinUnit, true),
-      WalletUtils.formatMsatToFiatWithUnit(LIQUIDITY_REQUESTS._25_MBTC.cost.amount(), fiatUnit)));
+      WalletUtils.formatMsatToFiatWithUnit(LIQUIDITY_REQUESTS._25_MBTC.cost.toLong(), fiatUnit)));
 
     mBinding.liquidityOpt50.setOnClickListener(v -> mBinding.setLiquidityOpt(3));
     mBinding.liquidityOpt50Title.setText(getString(R.string.openchannel_liquidity_label,
       CoinUtils.formatAmountInUnit(LIQUIDITY_REQUESTS._50_MBTC.inboundCapacity, preferredBitcoinUnit, true)));
     mBinding.liquidityOpt50Cost.setText(getString(R.string.openchannel_liquidity_cost,
       CoinUtils.formatAmountInUnit(LIQUIDITY_REQUESTS._50_MBTC.cost, preferredBitcoinUnit, true),
-      WalletUtils.formatMsatToFiatWithUnit(LIQUIDITY_REQUESTS._50_MBTC.cost.amount(), fiatUnit)));
+      WalletUtils.formatMsatToFiatWithUnit(LIQUIDITY_REQUESTS._50_MBTC.cost.toLong(), fiatUnit)));
 
     mBinding.buttonBack.setOnClickListener(v -> {
       mBinding.setLiquidityOpt(0);
