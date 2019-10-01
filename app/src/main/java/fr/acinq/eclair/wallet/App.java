@@ -527,10 +527,10 @@ public class App extends Application {
   }
 
   public long estimateMediumFees() {
-    return Math.max(appKit.eclairKit.nodeParams().onChainFeeConf().feeEstimator().getFeeratePerKb(12) / 1000, 3);  }
+    return Math.max(appKit.eclairKit.nodeParams().onChainFeeConf().feeEstimator().getFeeratePerKb(12) / 1000, estimateSlowFees());  }
 
   public long estimateFastFees() {
-    return Math.max(appKit.eclairKit.nodeParams().onChainFeeConf().feeEstimator().getFeeratePerKb(2) / 1000, 3);  }
+    return Math.max(appKit.eclairKit.nodeParams().onChainFeeConf().feeEstimator().getFeeratePerKb(2) / 1000, estimateMediumFees());  }
 
   /**
    * Asynchronously asks for the Lightning Network's channels count. Dispatch a {@link NetworkChannelsCountEvent} containing the channel count.
