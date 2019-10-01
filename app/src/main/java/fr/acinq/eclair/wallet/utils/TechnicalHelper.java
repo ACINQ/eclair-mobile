@@ -19,6 +19,8 @@ package fr.acinq.eclair.wallet.utils;
 import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.viewpager.widget.ViewPager;
+import scala.Function0;
+
 import android.text.Editable;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -151,6 +153,69 @@ public interface TechnicalHelper {
         // This page is way off-screen to the right.
         view.setAlpha(0f);
       }
+    }
+  }
+
+  class OrElse<T> implements Function0<T> {
+    private T t;
+
+    public OrElse(T someT){
+      this.t = someT;
+    }
+
+    @Override
+    public T apply() {
+      return t;
+    }
+
+    @Override
+    public String toString() {
+      return super.toString();
+    }
+
+    @Override
+    public boolean apply$mcZ$sp() {
+      return false;
+    }
+
+    @Override
+    public byte apply$mcB$sp() {
+      return 0;
+    }
+
+    @Override
+    public char apply$mcC$sp() {
+      return 0;
+    }
+
+    @Override
+    public double apply$mcD$sp() {
+      return 0;
+    }
+
+    @Override
+    public float apply$mcF$sp() {
+      return 0;
+    }
+
+    @Override
+    public int apply$mcI$sp() {
+      return 0;
+    }
+
+    @Override
+    public long apply$mcJ$sp() {
+      return 0;
+    }
+
+    @Override
+    public short apply$mcS$sp() {
+      return 0;
+    }
+
+    @Override
+    public void apply$mcV$sp() {
+
     }
   }
 

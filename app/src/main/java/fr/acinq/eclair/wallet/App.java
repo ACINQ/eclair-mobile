@@ -61,6 +61,7 @@ import fr.acinq.eclair.wallet.adapters.PaymentItemHolder;
 import fr.acinq.eclair.wallet.events.*;
 import fr.acinq.eclair.wallet.services.CheckElectrumWorker;
 import fr.acinq.eclair.wallet.utils.Constants;
+import fr.acinq.eclair.wallet.utils.TechnicalHelper;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 import okhttp3.*;
 import org.greenrobot.eventbus.EventBus;
@@ -92,7 +93,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -280,7 +280,7 @@ public class App extends Application {
    *                       If false, can lead the user to pay a lot of fees.
    */
   public void sendLNPayment(final PaymentRequest paymentRequest, final long amountMsat, final boolean checkFees) {
-    final long finalCltvExpiry = paymentRequest.minFinalCltvExpiryDelta().isDefined() ? paymentRequest.minFinalCltvExpiryDelta().get().toInt() : Channel.MIN_CLTV_EXPIRY_DELTA().toInt();
+    final long finalCltvExpiry = paymentRequest.minFinalCltvExpiryDelta().getOrElse(new TechnicalHelper.OrElse<>(Channel.MIN_CLTV_EXPIRY_DELTA().toInt()));
 
     final Option<RouteParams> routeParams = checkFees
       ? Option.apply(null) // when fee protection is enabled, use the default RouteParams with reasonable values
