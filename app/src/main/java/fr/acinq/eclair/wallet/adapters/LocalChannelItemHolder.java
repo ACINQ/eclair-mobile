@@ -73,7 +73,7 @@ public class LocalChannelItemHolder extends RecyclerView.ViewHolder implements V
   }
 
   @SuppressLint("SetTextI18n")
-  protected void bindItem(final LocalChannel item, final String fiatCode, final CoinUnit prefUnit, final boolean displayAmountAsFiat) {
+  protected void bindItem(final App.AppKit kit, final LocalChannel item, final String fiatCode, final CoinUnit prefUnit, final boolean displayAmountAsFiat) {
     this.channel = item;
     node.setText(itemView.getResources().getString(R.string.channelitem_with_node_funder, item.getPeerNodeId()));
 
@@ -110,7 +110,7 @@ public class LocalChannelItemHolder extends RecyclerView.ViewHolder implements V
       }
 
 
-      Long currentBlockHeight = 123L; //appKit.eclairKit.nodeParams().currentBlockHeight();
+      Long currentBlockHeight = kit.eclairKit.nodeParams().currentBlockHeight();
       // ---- additional dynamic info, such as delayed closing tx, inflight htlcs...
       if (CLOSING$.MODULE$.toString().equals(item.state) && ClosingType.LOCAL.equals(item.getClosingType())) {
         // TODO: get the exact block at which the closing tx will be broadcast

@@ -50,8 +50,9 @@ public class ChannelsListFragment extends Fragment {
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setHasOptionsMenu(false);
-    mActiveChannelsAdapter = new LocalChannelItemAdapter(new ArrayList<>());
-    mInactiveChannelsAdapter = new LocalChannelItemAdapter(new ArrayList<>());
+    App.AppKit kit = getApp() != null ? getApp().appKit : null;
+    mActiveChannelsAdapter = new LocalChannelItemAdapter(kit, new ArrayList<>());
+    mInactiveChannelsAdapter = new LocalChannelItemAdapter(kit, new ArrayList<>());
   }
 
   @Override
@@ -147,4 +148,9 @@ public class ChannelsListFragment extends Fragment {
       }
     }.start();
   }
+
+  private App getApp() {
+    return (getActivity() != null && getActivity().getApplication() != null) ? (App) getActivity().getApplication() : null;
+  }
+
 }
