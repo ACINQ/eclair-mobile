@@ -76,11 +76,14 @@ import fr.acinq.eclair.wallet.fragments.PinDialog;
 import fr.acinq.eclair.wallet.services.CheckElectrumWorker;
 import fr.acinq.eclair.wallet.services.NetworkSyncWorker;
 import fr.acinq.eclair.wallet.utils.BackupHelper;
+import fr.acinq.eclair.wallet.utils.BiometricHelper;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.EclairException;
 import fr.acinq.eclair.wallet.utils.EncryptedBackup;
+import fr.acinq.eclair.wallet.utils.KeystoreHelper;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 import fr.acinq.eclair.wire.NodeAddress$;
+import kotlin.text.Charsets;
 import scala.Option;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
@@ -103,6 +106,23 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     mBinding = DataBindingUtil.setContentView(this, R.layout.activity_startup);
+
+    final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+    final File datadir = new File(app.getFilesDir(), Constants.ECLAIR_DATADIR);
+    mPinDialog = new PinDialog(StartupActivity.this, R.style.FullScreenDialog,
+      new PinDialog.PinDialogCallback() {
+        @Override
+        public void onPinConfirm(final PinDialog dialog, final String pinValue) {
+          launchStartupTask(datadir, pinValue, prefs);
+          dialog.dismiss();
+        }
+
+        @Override
+        public void onPinCancel(PinDialog dialog) {
+        }
+      }, getString(R.string.start_enter_password));
+    mPinDialog.setCanceledOnTouchOutside(false);
+    mPinDialog.setCancelable(false);
   }
 
   @Override
@@ -336,24 +356,26 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
       } else {
         final String currentPassword = app.pin.get();
         if (currentPassword == null) {
-          if (mPinDialog != null) {
-            mPinDialog.dismiss();
+          if (BiometricHelper.canUseBiometric(getApplicationContext())) {
+            BiometricHelper.getBiometricAuth(this, R.string.biometricprompt_title, R.string.biometricprompt_negative, null, () -> {
+              showPinDialog();
+              return null;
+            }, () -> {
+              showPinDialog();
+              return null;
+            }, () -> {
+              try {
+                final byte[] rawPIN = KeystoreHelper.decryptPin(getApplicationContext());
+                launchStartupTask(datadir, new String(rawPIN, Charsets.UTF_8), prefs);
+              } catch (Exception e) {
+                log.error("could not decrypt pin: ", e);
+                showError(getString(R.string.start_error_biometric));
+              }
+              return null;
+            });
+          } else {
+            showPinDialog();
           }
-          mPinDialog = new PinDialog(StartupActivity.this, R.style.FullScreenDialog,
-            new PinDialog.PinDialogCallback() {
-              @Override
-              public void onPinConfirm(final PinDialog dialog, final String pinValue) {
-                launchStartupTask(datadir, pinValue, prefs);
-                dialog.dismiss();
-              }
-
-              @Override
-              public void onPinCancel(PinDialog dialog) {
-              }
-            }, getString(R.string.start_enter_password));
-          mPinDialog.setCanceledOnTouchOutside(false);
-          mPinDialog.setCancelable(false);
-          mPinDialog.show();
         } else {
           launchStartupTask(datadir, currentPassword, prefs);
         }
@@ -361,6 +383,14 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
     } else {
       // core is started, go to home and use it
       finishAndGoToHome(prefs);
+    }
+  }
+
+  private void showPinDialog() {
+    if (mPinDialog != null) {
+      mPinDialog.dismiss();
+      mPinDialog.reset();
+      mPinDialog.show();
     }
   }
 

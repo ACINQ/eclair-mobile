@@ -22,22 +22,27 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import android.text.Html;
 import android.view.View;
 import android.widget.TextView;
-import fr.acinq.eclair.wallet.App;
-import fr.acinq.eclair.wallet.R;
-import fr.acinq.eclair.wallet.fragments.PinDialog;
-import fr.acinq.eclair.wallet.utils.Constants;
-import fr.acinq.eclair.wallet.utils.WalletUtils;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.security.MessageDigest;
+
+import fr.acinq.eclair.wallet.App;
+import fr.acinq.eclair.wallet.R;
+import fr.acinq.eclair.wallet.fragments.PinDialog;
+import fr.acinq.eclair.wallet.utils.Constants;
+import fr.acinq.eclair.wallet.utils.KeystoreHelper;
+import fr.acinq.eclair.wallet.utils.Prefs;
+import fr.acinq.eclair.wallet.utils.WalletUtils;
 
 public abstract class EclairActivity extends AppCompatActivity {
   private final Logger log = LoggerFactory.getLogger(EclairActivity.class);
@@ -164,6 +169,8 @@ public abstract class EclairActivity extends AppCompatActivity {
               try {
                 WalletUtils.writeSeedFile(datadir, seed, confirmPinValue);
                 app.pin.set(confirmPinValue);
+                Prefs.useBiometrics(getApplicationContext(), false);
+                KeystoreHelper.deleteKeyForPin();
                 callback.onEncryptSeedSuccess();
               } catch (Throwable t) {
                 callback.onEncryptSeedFailure(getString(R.string.seed_encrypt_general_failure));

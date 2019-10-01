@@ -16,104 +16,160 @@
   ~ limitations under the License.
   -->
 
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto">
+
+  <data>
+
+    <variable
+      name="isUpdatingBiometrics"
+      type="boolean" />
+  </data>
 
   <ScrollView
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <!-- Custom toolbar -->
     <LinearLayout
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:orientation="vertical">
 
-      <!-- Custom toolbar -->
       <include layout="@layout/toolbar" />
 
+      <!-- Wraps the PIN switch to prevent manual input by intercepting click events -->
+      <!-- The switch value can only be set programmatically -->
       <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="@dimen/space_md"
         android:text="@string/prefs_security_title"
         android:textAppearance="@android:style/TextAppearance.Material.Body2"
-        android:textColor="?android:attr/colorAccent" />
+        android:textColor="?android:attr/colorPrimary" />
 
-      <!-- Wraps the PIN switch to prevent manual input by intercepting click events -->
-      <!-- The switch value can only be set programmatically -->
-      <RelativeLayout
-        android:id="@+id/payment_pin_switch_wrapper"
+      <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/pin_required_payment_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/space_md"
         android:clickable="true"
         android:focusable="true"
-        android:paddingEnd="@dimen/space_md"
-        android:paddingStart="@dimen/space_md">
+        android:padding="@dimen/space_md"
+        android:paddingStart="@dimen/space_md"
+        android:paddingEnd="@dimen/space_md">
 
         <Switch
-          android:id="@+id/payment_pin_switch"
+          android:id="@+id/pin_required_payment_switch"
           android:layout_width="wrap_content"
-          android:layout_alignParentEnd="true"
           android:layout_height="wrap_content"
           android:clickable="false"
-          android:focusable="false" />
+          android:focusable="false"
+          app:layout_constraintBottom_toBottomOf="parent"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-          android:id="@+id/pin_title"
+          android:id="@+id/pin_required_payment_title"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
-          android:layout_alignBaseline="@+id/payment_pin_switch"
-          android:layout_marginBottom="2dp"
-          android:layout_alignParentStart="true"
+          android:layout_alignBaseline="@+id/pin_required_payment_switch"
           android:layout_marginEnd="@dimen/space_md"
-          android:layout_toStartOf="@+id/payment_pin_switch"
-          android:text="@string/prefs_pin_title"
-          android:textSize="16sp" />
+          android:text="@string/security_pin_required_payment_title"
+          android:textSize="16sp"
+          app:layout_constrainedWidth="true"
+          app:layout_constraintEnd_toStartOf="@id/pin_required_payment_switch"
+          app:layout_constraintHorizontal_bias="0"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
           android:id="@+id/pin_info"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
-          android:layout_below="@+id/pin_title"
-          android:layout_alignParentStart="true"
           android:layout_marginEnd="@dimen/space_md"
-          android:layout_toStartOf="@id/payment_pin_switch"
-          android:text="@string/prefs_pin_default_info"
-          android:textColor="@color/grey_2" />
-      </RelativeLayout>
+          android:text="@string/security_pin_required_payment_desc"
+          android:textColor="@color/grey_2"
+          app:layout_constrainedWidth="true"
+          app:layout_constraintEnd_toStartOf="@id/pin_required_payment_switch"
+          app:layout_constraintHorizontal_bias="0"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toBottomOf="@id/pin_required_payment_title" />
+      </androidx.constraintlayout.widget.ConstraintLayout>
 
-      <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/grey_0_dark_x2" />
+      <View style="@style/HLineSeparator" />
 
-      <LinearLayout
+      <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/change_pin_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?android:attr/selectableItemBackground"
         android:clickable="true"
         android:focusable="true"
-        android:onClick="changePassword"
         android:orientation="vertical"
         android:padding="@dimen/space_md">
 
         <TextView
-          android:id="@+id/change_password_title"
-          android:layout_width="wrap_content"
+          android:id="@+id/change_pin_title"
+          android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:layout_marginBottom="2dp"
-          android:layout_marginEnd="@dimen/space_md"
-          android:text="@string/prefs_change_password"
-          android:textSize="16sp" />
+          android:text="@string/security_change_pin_title"
+          android:textSize="16sp"
+          app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:text="@string/security_change_pin_desc"
+          android:textColor="@color/grey_2"
+          app:layout_constraintTop_toBottomOf="@id/change_pin_title" />
+      </androidx.constraintlayout.widget.ConstraintLayout>
+
+      <View style="@style/HLineSeparator" />
+
+      <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/biometric_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:focusable="true"
+        android:padding="@dimen/space_md">
+
+        <Switch
+          android:id="@+id/biometric_switch"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:clickable="false"
+          android:focusable="false"
+          app:layout_constraintBottom_toBottomOf="parent"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+          android:id="@+id/biometric_title"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:layout_marginEnd="@dimen/space_md"
-          android:text="@string/prefs_change_password_desc"
-          android:textColor="@color/grey_2" />
-      </LinearLayout>
+          android:text="@string/security_biometric_title"
+          android:textSize="16sp"
+          app:layout_constrainedWidth="true"
+          app:layout_constraintEnd_toStartOf="@id/biometric_switch"
+          app:layout_constraintHorizontal_bias="0"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toTopOf="parent" />
 
+        <TextView
+          android:id="@+id/biometric_desc"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginEnd="@dimen/space_md"
+          android:text="@string/security_biometric_desc"
+          android:textColor="@color/grey_2"
+          app:layout_constrainedWidth="true"
+          app:layout_constraintEnd_toStartOf="@id/biometric_switch"
+          app:layout_constraintHorizontal_bias="0"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toBottomOf="@id/biometric_title" />
+      </androidx.constraintlayout.widget.ConstraintLayout>
     </LinearLayout>
   </ScrollView>
 </layout>
