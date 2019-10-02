@@ -148,7 +148,7 @@ public interface BackupHelper {
 
     String BACKUP_FOLDER_NAME = "eclair-mobile";
 
-    static com.google.api.services.drive.model.File createBackupFolderIfNeeded(@NonNull final Executor executor, @NonNull final Drive drive) throws IOException {
+    static com.google.api.services.drive.model.File createBackupFolderIfNeeded(@NonNull final Drive drive) throws IOException {
 
       // retrieve folder if it exists
       final FileList folders = drive.files().list()
@@ -158,10 +158,10 @@ public interface BackupHelper {
 
       if (folders.isEmpty() || folders.getFiles().isEmpty()) {
         final com.google.api.services.drive.model.File folderMeta = new com.google.api.services.drive.model.File();
-        folderMeta.setName("eclair-mobile")
-          .setSpaces(Collections.singletonList("drive"))
-          .setMimeType("application/vnd.google-apps.folder");
-        return drive.files().create(folderMeta).setFields("id").execute();
+        folderMeta.setParents(Collections.singletonList("root"))
+          .setMimeType("application/vnd.google-apps.folder")
+          .setName("eclair-mobile");
+        return drive.files().create(folderMeta).setFields("id,parents,mimeType").execute();
       } else {
         return folders.getFiles().get(0);
       }
@@ -173,7 +173,7 @@ public interface BackupHelper {
       return Tasks.call(executor, () -> {
 
         // 1 - create folder
-        final com.google.api.services.drive.model.File folder = createBackupFolderIfNeeded(executor, drive);
+        final com.google.api.services.drive.model.File folder = createBackupFolderIfNeeded(drive);
 
         // 2 - metadata
         final HashMap<String, String> props = new HashMap<>();

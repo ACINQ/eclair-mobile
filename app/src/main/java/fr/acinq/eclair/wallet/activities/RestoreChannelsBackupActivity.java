@@ -30,6 +30,7 @@ import androidx.databinding.DataBindingUtil;
 import com.google.android.gms.auth.GoogleAuthException;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.common.api.ApiException;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAuthIOException;
 import com.google.api.client.util.DateTime;
 import com.google.common.collect.MapDifference;
@@ -250,28 +251,21 @@ public class RestoreChannelsBackupActivity extends ChannelsBackupBaseActivity {
   protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
     super.onActivityResult(requestCode, resultCode, data);
     if (requestCode == GDRIVE_REQUEST_CODE_SIGN_IN) {
-      handleGdriveSigninResult(resultCode, data);
+      handleGdriveSigninResult(data);
     }
   }
 
-  protected void handleGdriveSigninResult(final int resultCode, final Intent data) {
-    if (resultCode != RESULT_OK) {
-      log.info("Google Drive sign-in failed with code {}", resultCode);
+  private void handleGdriveSigninResult(final Intent data) {
+    try {
+      final GoogleSignInAccount account = GoogleSignIn.getSignedInAccountFromIntent(data).getResult(ApiException.class);
+      if (account == null) {
+        throw new RuntimeException("empty account");
+      }
+      applyGdriveAccessGranted(account);
+    } catch (Exception e) {
+      log.error("Google Drive sign-in failed, could not get account: ", e);
+      Toast.makeText(this, "Sign-in failed.", Toast.LENGTH_SHORT).show();
       applyGdriveAccessDenied();
-    } else {
-      GoogleSignIn.getSignedInAccountFromIntent(data)
-        .addOnSuccessListener(signInAccount -> {
-          if (signInAccount == null) {
-            log.info("Google Drive sign-in account is empty, deny access");
-            applyGdriveAccessDenied();
-          } else {
-            applyGdriveAccessGranted(signInAccount);
-          }
-        })
-        .addOnFailureListener(e -> {
-          log.info("Google Drive sign-in failed, could not get account: ", e);
-          applyGdriveAccessDenied();
-        });
     }
   }
 

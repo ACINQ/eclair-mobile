@@ -22,14 +22,18 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.appcompat.widget.Toolbar;
 import androidx.databinding.DataBindingUtil;
 
+import com.google.android.gms.auth.UserRecoverableAuthException;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.CommonStatusCodes;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +41,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.text.DateFormat;
 import java.util.Date;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 
 import fr.acinq.eclair.channel.ChannelPersisted;
@@ -134,28 +139,21 @@ public class ChannelsBackupSettingsActivity extends ChannelsBackupBaseActivity {
   protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
     super.onActivityResult(requestCode, resultCode, data);
     if (requestCode == GDRIVE_REQUEST_CODE_SIGN_IN) {
-      handleGdriveSigninResult(resultCode, data);
+      handleGdriveSigninResult(data);
     }
   }
 
-  private void handleGdriveSigninResult(final int resultCode, final Intent data) {
-    if (resultCode != RESULT_OK) {
-      log.info("Google Drive sign-in failed with code {}", resultCode);
+  private void handleGdriveSigninResult(final Intent data) {
+    try {
+      final GoogleSignInAccount account = GoogleSignIn.getSignedInAccountFromIntent(data).getResult(ApiException.class);
+      if (account == null) {
+        throw new RuntimeException("empty account");
+      }
+      applyGdriveAccessGranted(account);
+    } catch (Exception e) {
+      log.error("Google Drive sign-in failed, could not get account: ", e);
+      Toast.makeText(this, "Sign-in failed.", Toast.LENGTH_SHORT).show();
       applyGdriveAccessDenied();
-    } else {
-      GoogleSignIn.getSignedInAccountFromIntent(data)
-        .addOnSuccessListener(signInAccount -> {
-          if (signInAccount == null) {
-            log.info("Google Drive sign-in account is empty, deny access");
-            applyGdriveAccessDenied();
-          } else {
-            applyGdriveAccessGranted(signInAccount);
-          }
-        })
-        .addOnFailureListener(e -> {
-          log.info("Google Drive sign-in failed, could not get account: ", e);
-          applyGdriveAccessDenied();
-        });
     }
   }
 
@@ -177,6 +175,7 @@ public class ChannelsBackupSettingsActivity extends ChannelsBackupBaseActivity {
               mBinding.gdriveBackupStatus.setText(getString(R.string.backupsettings_drive_state, signInAccount.getEmail(),
                 DateFormat.getDateTimeInstance().format(new Date(backup.getModifiedTime().getValue()))));
             }
+            mBinding.gdriveBackupStatus.setVisibility(View.VISIBLE);
             mBinding.requestGdriveAccessSwitch.setChecked(true);
             mBinding.setRequestingGDriveAccess(false);
             BackupHelper.GoogleDrive.enableGDriveBackup(getApplicationContext());
@@ -187,6 +186,9 @@ public class ChannelsBackupSettingsActivity extends ChannelsBackupBaseActivity {
               if (((ApiException) e).getStatusCode() == CommonStatusCodes.SIGN_IN_REQUIRED) {
                 GoogleSignIn.getClient(getApplicationContext(), BackupHelper.GoogleDrive.getGoogleSigninOptions()).revokeAccess();
               }
+            }
+            if (e instanceof UserRecoverableAuthException) {
+              GoogleSignIn.getClient(getApplicationContext(), BackupHelper.GoogleDrive.getGoogleSigninOptions()).revokeAccess();
             }
             applyGdriveAccessDenied();
           });
