@@ -17,14 +17,20 @@
 package fr.acinq.eclair.wallet.activities;
 
 import androidx.databinding.DataBindingUtil;
+
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
+
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.common.api.ApiException;
+
 import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.databinding.ActivitySetupChannelsBackupBinding;
-import fr.acinq.eclair.wallet.services.BackupUtils;
+import fr.acinq.eclair.wallet.utils.BackupHelper;
 import fr.acinq.eclair.wallet.utils.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +53,7 @@ public class SetupChannelsBackupActivity extends ChannelsBackupBaseActivity {
     mBinding.setSetupBackupStep(Constants.SETUP_BACKUP_INIT);
 
     // only show gdrive box if necessary
-    if (!getIntent().getBooleanExtra(EXTRA_SETUP_IGNORE_GDRIVE_BACKUP, false) && BackupUtils.GoogleDrive.isGDriveAvailable(getApplicationContext())) {
+    if (!getIntent().getBooleanExtra(EXTRA_SETUP_IGNORE_GDRIVE_BACKUP, false) && BackupHelper.GoogleDrive.isGDriveAvailable(getApplicationContext())) {
       mBinding.requestGdriveAccessCheckbox.setVisibility(View.VISIBLE);
     } else {
       mBinding.requestGdriveAccessCheckbox.setEnabled(false);
@@ -59,25 +65,47 @@ public class SetupChannelsBackupActivity extends ChannelsBackupBaseActivity {
   @Override
   protected void applyGdriveAccessDenied() {
     super.applyGdriveAccessDenied();
-    BackupUtils.GoogleDrive.disableGDriveBackup(getApplicationContext());
+    BackupHelper.GoogleDrive.disableGDriveBackup(getApplicationContext());
     mBinding.requestGdriveAccessCheckbox.setChecked(false);
   }
 
   @Override
   protected void applyGdriveAccessGranted(final GoogleSignInAccount signIn) {
     super.applyGdriveAccessGranted(signIn);
-    BackupUtils.GoogleDrive.enableGDriveBackup(getApplicationContext());
+    BackupHelper.GoogleDrive.enableGDriveBackup(getApplicationContext());
     mBinding.requestGdriveAccessCheckbox.setChecked(true);
   }
 
   @Override
   protected void applyAccessRequestDone() {
-    if (!BackupUtils.Local.hasLocalAccess(getApplicationContext())) {
+    if (!BackupHelper.Local.hasLocalAccess(getApplicationContext())) {
       log.info("access to local drive denied!");
       mBinding.setSetupBackupStep(Constants.SETUP_BACKUP_INIT);
       Toast.makeText(this, getString(R.string.setupbackup_local_required), Toast.LENGTH_LONG).show();
     } else {
       finish();
+    }
+  }
+
+  @Override
+  protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
+    super.onActivityResult(requestCode, resultCode, data);
+    if (requestCode == GDRIVE_REQUEST_CODE_SIGN_IN) {
+      handleGdriveSigninResult(data);
+    }
+  }
+
+  private void handleGdriveSigninResult(final Intent data) {
+    try {
+      final GoogleSignInAccount account = GoogleSignIn.getSignedInAccountFromIntent(data).getResult(ApiException.class);
+      if (account == null) {
+        throw new RuntimeException("empty account");
+      }
+      applyGdriveAccessGranted(account);
+    } catch (Exception e) {
+      log.error("Google Drive sign-in failed, could not get account: ", e);
+      Toast.makeText(this, "Sign-in failed.", Toast.LENGTH_SHORT).show();
+      applyGdriveAccessDenied();
     }
   }
 

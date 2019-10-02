@@ -20,8 +20,13 @@ import com.tozny.crypto.android.AesCbcWithIntegrity;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.util.zip.Deflater;
+import java.util.zip.DeflaterOutputStream;
+import java.util.zip.Inflater;
+import java.util.zip.InflaterOutputStream;
 
 import fr.acinq.bitcoin.ByteVector32;
 import fr.acinq.bitcoin.DeterministicWallet;
@@ -45,6 +50,11 @@ public class EncryptedBackup extends EncryptedData {
    */
   public final static byte BACKUP_VERSION_2 = 2;
 
+  /**
+   * Version 3 compresses the data content before encrypting (uses ZLIB, see {@link Deflater}).
+   */
+  public final static byte BACKUP_VERSION_3 = 3;
+
   private static final int IV_LENGTH_V1 = 16;
   private static final int MAC_LENGTH_V1 = 32;
 
@@ -61,9 +71,66 @@ public class EncryptedBackup extends EncryptedData {
    * @return a encrypted backup object ready to be serialized
    * @throws GeneralSecurityException
    */
-  public static EncryptedBackup encrypt(final byte[] data, final AesCbcWithIntegrity.SecretKeys key, final int version) throws GeneralSecurityException {
-    final AesCbcWithIntegrity.CipherTextIvMac civ = AesCbcWithIntegrity.encrypt(data, key);
+  public static EncryptedBackup encrypt(final byte[] data, final AesCbcWithIntegrity.SecretKeys key, final int version) throws GeneralSecurityException, IOException {
+    final byte[] finalData = version >= BACKUP_VERSION_3 ? compressByteArray(data) : data;
+    final AesCbcWithIntegrity.CipherTextIvMac civ = AesCbcWithIntegrity.encrypt(finalData, key);
     return new EncryptedBackup(version, civ);
+  }
+
+  /**
+   * Decrypt an encrypted backup object with a password and returns a byte array. If version >= 3, this
+   * method also unzips the decrypted data.
+   *
+   * @param key key encrypting the data
+   * @return a byte array containing the decrypted data
+   * @throws GeneralSecurityException if the password is not correct
+   */
+  public byte[] decrypt(final AesCbcWithIntegrity.SecretKeys key) throws GeneralSecurityException, IOException {
+    final byte[] decryptedData = AesCbcWithIntegrity.decrypt(civ, key);
+    return getVersion() >= BACKUP_VERSION_3 ? decompressByteArray(decryptedData) : decryptedData;
+  }
+
+  private static byte[] compressByteArray(final byte[] data) throws IOException {
+    byte[] result = data;
+    final ByteArrayOutputStream baos = new ByteArrayOutputStream(data.length);
+    final Deflater deflater = new Deflater();
+    final DeflaterOutputStream dos = new DeflaterOutputStream(baos, deflater);
+    try {
+      dos.write(data);
+      dos.finish();
+      dos.close();
+      result = baos.toByteArray();
+    } finally {
+      deflater.end();
+      closeSilent(dos);
+    }
+    return result;
+  }
+
+  private static byte[] decompressByteArray(final byte[] data) throws IOException {
+    byte[] result = data;
+    final ByteArrayOutputStream baos = new ByteArrayOutputStream(data.length);
+    final Inflater inflater = new Inflater();
+    final InflaterOutputStream ios = new InflaterOutputStream(baos, inflater);
+    try {
+      ios.write(data);
+      ios.finish();
+      ios.close();
+      result = baos.toByteArray();
+    } finally {
+      inflater.end();
+      closeSilent(ios);
+    }
+    return result;
+  }
+
+  private static void closeSilent(final Closeable closeable) {
+    try {
+      if (closeable != null) {
+        closeable.close();
+      }
+    } catch (IOException ignored) {
+    }
   }
 
   /**
@@ -75,7 +142,7 @@ public class EncryptedBackup extends EncryptedData {
   public static EncryptedBackup read(final byte[] serialized) {
     final ByteArrayInputStream stream = new ByteArrayInputStream(serialized);
     final int version = stream.read();
-    if (version == BACKUP_VERSION_1 || version == BACKUP_VERSION_2) {
+    if (version == BACKUP_VERSION_1 || version == BACKUP_VERSION_2 || version == BACKUP_VERSION_3) {
       final byte[] iv = new byte[IV_LENGTH_V1];
       stream.read(iv, 0, IV_LENGTH_V1);
       final byte[] mac = new byte[MAC_LENGTH_V1];
@@ -113,7 +180,7 @@ public class EncryptedBackup extends EncryptedData {
    */
   @Override
   public byte[] write() throws IOException {
-    if (version == BACKUP_VERSION_1 || version == BACKUP_VERSION_2) {
+    if (version == BACKUP_VERSION_1 || version == BACKUP_VERSION_2 || version == BACKUP_VERSION_3) {
       if (civ.getIv().length != IV_LENGTH_V1 || civ.getMac().length != MAC_LENGTH_V1) {
         throw new RuntimeException("could not serialize backup because fields are not of the correct length");
       }

@@ -18,26 +18,38 @@ package fr.acinq.eclair.wallet.activities;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Toast;
+
 import androidx.appcompat.widget.Toolbar;
 import androidx.databinding.DataBindingUtil;
+
+import com.google.android.gms.auth.UserRecoverableAuthException;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.CommonStatusCodes;
-import fr.acinq.eclair.channel.ChannelPersisted;
-import fr.acinq.eclair.wallet.R;
-import fr.acinq.eclair.wallet.databinding.ActivityChannelsBackupSettingsBinding;
-import fr.acinq.eclair.wallet.services.BackupUtils;
-import fr.acinq.eclair.wallet.utils.EclairException;
-import fr.acinq.eclair.wallet.utils.WalletUtils;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.text.DateFormat;
+import java.util.Date;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+
+import fr.acinq.eclair.channel.ChannelPersisted;
+import fr.acinq.eclair.wallet.R;
+import fr.acinq.eclair.wallet.databinding.ActivityChannelsBackupSettingsBinding;
+import fr.acinq.eclair.wallet.utils.BackupHelper;
+import fr.acinq.eclair.wallet.utils.EclairException;
+import fr.acinq.eclair.wallet.utils.WalletUtils;
 
 public class ChannelsBackupSettingsActivity extends ChannelsBackupBaseActivity {
 
@@ -55,7 +67,7 @@ public class ChannelsBackupSettingsActivity extends ChannelsBackupBaseActivity {
     getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
     gdriveBackupDetailsDialog = getCustomDialog(R.string.backup_about).setPositiveButton(R.string.btn_ok, null).create();
-    mBinding.setGoogleDriveAvailable(BackupUtils.GoogleDrive.isGDriveAvailable(getApplicationContext()));
+    mBinding.setGoogleDriveAvailable(BackupHelper.GoogleDrive.isGDriveAvailable(getApplicationContext()));
 
     mBinding.requestLocalAccessSwitch.setOnTouchListener((v, event) -> {
       if (event.getAction() == MotionEvent.ACTION_DOWN) {
@@ -69,14 +81,13 @@ public class ChannelsBackupSettingsActivity extends ChannelsBackupBaseActivity {
         mBinding.setRequestingGDriveAccess(true);
         mBinding.gdriveBackupStatus.setVisibility(View.GONE);
         if (mBinding.requestGdriveAccessSwitch.isChecked()) {
-          log.info("revoking access to gdrive");
-          GoogleSignIn.getClient(getApplicationContext(), getGoogleSigninOptions()).revokeAccess()
+          GoogleSignIn.getClient(getApplicationContext(), BackupHelper.GoogleDrive.getGoogleSigninOptions()).revokeAccess()
             .addOnCompleteListener(aVoid -> {
               applyGdriveAccessDenied();
               mBinding.setRequestingGDriveAccess(false);
             });
         } else {
-          requestGDriveAccess();
+          Executors.newSingleThreadExecutor().execute(this::requestGDriveAccess);
         }
       }
       return true; // consumes touch event
@@ -85,8 +96,8 @@ public class ChannelsBackupSettingsActivity extends ChannelsBackupBaseActivity {
   }
 
   @Override
-  protected void onResume() {
-    super.onResume();
+  protected void onStart() {
+    super.onStart();
     if (checkInit()) {
       checkGDriveAccess();
       checkLocalAccess();
@@ -94,7 +105,7 @@ public class ChannelsBackupSettingsActivity extends ChannelsBackupBaseActivity {
   }
 
   private void checkLocalAccess() {
-    if (app.seedHash != null && BackupUtils.Local.hasLocalAccess(getApplicationContext())) {
+    if (app.seedHash != null && BackupHelper.Local.hasLocalAccess(getApplicationContext())) {
       applyLocalAccessGranted();
     } else {
       applyLocalAccessDenied();
@@ -106,7 +117,7 @@ public class ChannelsBackupSettingsActivity extends ChannelsBackupBaseActivity {
     new Thread() {
       @Override
       public void run() {
-        final GoogleSignInAccount signInAccount = BackupUtils.GoogleDrive.getSigninAccount(getApplicationContext());
+        final GoogleSignInAccount signInAccount = BackupHelper.GoogleDrive.getSigninAccount(getApplicationContext());
         if (signInAccount != null) {
           runOnUiThread(() -> applyGdriveAccessGranted(signInAccount));
         } else {
@@ -118,10 +129,32 @@ public class ChannelsBackupSettingsActivity extends ChannelsBackupBaseActivity {
 
   protected void applyGdriveAccessDenied() {
     super.applyGdriveAccessDenied();
-    BackupUtils.GoogleDrive.disableGDriveBackup(getApplicationContext());
+    BackupHelper.GoogleDrive.disableGDriveBackup(getApplicationContext());
     mBinding.gdriveBackupStatus.setVisibility(View.GONE);
     mBinding.requestGdriveAccessSwitch.setChecked(false);
     mBinding.setRequestingGDriveAccess(false);
+  }
+
+  @Override
+  protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
+    super.onActivityResult(requestCode, resultCode, data);
+    if (requestCode == GDRIVE_REQUEST_CODE_SIGN_IN) {
+      handleGdriveSigninResult(data);
+    }
+  }
+
+  private void handleGdriveSigninResult(final Intent data) {
+    try {
+      final GoogleSignInAccount account = GoogleSignIn.getSignedInAccountFromIntent(data).getResult(ApiException.class);
+      if (account == null) {
+        throw new RuntimeException("empty account");
+      }
+      applyGdriveAccessGranted(account);
+    } catch (Exception e) {
+      log.error("Google Drive sign-in failed, could not get account: ", e);
+      Toast.makeText(this, "Sign-in failed.", Toast.LENGTH_SHORT).show();
+      applyGdriveAccessDenied();
+    }
   }
 
   protected void applyGdriveAccessGranted(final GoogleSignInAccount signInAccount) {
@@ -129,29 +162,36 @@ public class ChannelsBackupSettingsActivity extends ChannelsBackupBaseActivity {
     new Thread() {
       @Override
       public void run() {
-        if (app != null && !BackupUtils.GoogleDrive.isGDriveEnabled(getApplicationContext())) {
+        if (app != null && !BackupHelper.GoogleDrive.isGDriveEnabled(getApplicationContext())) {
           // access is explicitly granted from a revoked state
           app.system.eventStream().publish(ChannelPersisted.apply(null, null, null, null));
         }
-        retrieveEclairBackupTask().addOnSuccessListener(metadataBuffer -> runOnUiThread(() -> {
-          mBinding.gdriveBackupStatus.setVisibility(View.VISIBLE);
-          if (metadataBuffer.getCount() == 0) {
-            mBinding.gdriveBackupStatus.setText(getString(R.string.backupsettings_drive_state_nobackup, signInAccount.getEmail()));
-          } else {
-            mBinding.gdriveBackupStatus.setText(getString(R.string.backupsettings_drive_state, signInAccount.getEmail(), DateFormat.getDateTimeInstance().format(metadataBuffer.get(0).getModifiedDate())));
-          }
-          mBinding.requestGdriveAccessSwitch.setChecked(true);
-          mBinding.setRequestingGDriveAccess(false);
-          BackupUtils.GoogleDrive.enableGDriveBackup(getApplicationContext());
-        })).addOnFailureListener(e -> {
-          log.info("could not get backup metadata with cause {}", e.getLocalizedMessage());
-          if (e instanceof ApiException) {
-            if (((ApiException) e).getStatusCode() == CommonStatusCodes.SIGN_IN_REQUIRED) {
-              GoogleSignIn.getClient(getApplicationContext(), getGoogleSigninOptions()).revokeAccess();
+        BackupHelper.GoogleDrive.listBackups(Executors.newSingleThreadExecutor(), mDrive, WalletUtils.getEclairBackupFileName(app.seedHash.get()))
+          .addOnSuccessListener(filesList -> runOnUiThread(() -> {
+            final com.google.api.services.drive.model.File backup = BackupHelper.GoogleDrive.filterBestBackup(filesList);
+            if (backup == null) {
+              mBinding.gdriveBackupStatus.setText(getString(R.string.backupsettings_drive_state_nobackup, signInAccount.getEmail()));
+            } else {
+              mBinding.gdriveBackupStatus.setText(getString(R.string.backupsettings_drive_state, signInAccount.getEmail(),
+                DateFormat.getDateTimeInstance().format(new Date(backup.getModifiedTime().getValue()))));
             }
-          }
-          applyGdriveAccessDenied();
-        });
+            mBinding.gdriveBackupStatus.setVisibility(View.VISIBLE);
+            mBinding.requestGdriveAccessSwitch.setChecked(true);
+            mBinding.setRequestingGDriveAccess(false);
+            BackupHelper.GoogleDrive.enableGDriveBackup(getApplicationContext());
+          }))
+          .addOnFailureListener(e -> {
+            log.error("could not retrieve best backup from gdrive: ", e);
+            if (e instanceof ApiException) {
+              if (((ApiException) e).getStatusCode() == CommonStatusCodes.SIGN_IN_REQUIRED) {
+                GoogleSignIn.getClient(getApplicationContext(), BackupHelper.GoogleDrive.getGoogleSigninOptions()).revokeAccess();
+              }
+            }
+            if (e instanceof UserRecoverableAuthException) {
+              GoogleSignIn.getClient(getApplicationContext(), BackupHelper.GoogleDrive.getGoogleSigninOptions()).revokeAccess();
+            }
+            applyGdriveAccessDenied();
+          });
       }
     }.start();
   }
@@ -167,7 +207,7 @@ public class ChannelsBackupSettingsActivity extends ChannelsBackupBaseActivity {
   protected void applyLocalAccessGranted() {
     super.applyLocalAccessGranted();
     try {
-      final File found = BackupUtils.Local.getBackupFile(WalletUtils.getEclairBackupFileName(app.seedHash.get()));
+      final File found = BackupHelper.Local.getBackupFile(WalletUtils.getEclairBackupFileName(app.seedHash.get()));
       if (found.exists()) {
         mBinding.localBackupStatus.setVisibility(View.VISIBLE);
         mBinding.localBackupStatus.setText(getString(R.string.backupsettings_local_status_result, DateFormat.getDateTimeInstance().format(found.lastModified())));
