@@ -104,7 +104,9 @@ dependencies {
   def google_drive_rest_version = "v3-rev173-1.25.0"
   def google_play_auth_version = "17.0.0"
   def google_api_client_version = "1.26.0"
-  implementation "com.google.apis:google-api-services-drive:$google_drive_rest_version"
+  implementation ("com.google.apis:google-api-services-drive:$google_drive_rest_version") {
+    exclude group: 'org.apache.httpcomponents'
+  }
   implementation("com.google.android.gms:play-services-auth:$google_play_auth_version") {
     exclude group: 'org.apache.httpcomponents'
   }
