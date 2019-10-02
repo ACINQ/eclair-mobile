@@ -148,7 +148,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:barrierDirection="bottom"
-            app:constraint_referenced_ids="fees, status, retry_payment" />
+            app:constraint_referenced_ids="fees,status,retry_payment" />
 
           <TextView
             android:id="@+id/desc_title"

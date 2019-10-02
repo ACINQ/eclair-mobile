@@ -145,7 +145,7 @@ public class CheckElectrumWorker extends Worker {
 
   /**
    * Saving the timestamp of the last electrum check attempts lets the app know if the worker is able to run in background.
-   * See {@link App#detectBackgroundRunnable} method.
+   * See App.detectBackgroundRunnable method.
    */
   private void timestampAttempt(final Context context) {
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);

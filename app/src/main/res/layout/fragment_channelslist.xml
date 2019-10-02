@@ -157,7 +157,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:barrierDirection="bottom"
-        app:constraint_referenced_ids="total_receivable, total_sendable, balance_progress, no_active_channels" />
+        app:constraint_referenced_ids="total_receivable,total_sendable,balance_progress,no_active_channels" />
 
       <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/active_channels_list"

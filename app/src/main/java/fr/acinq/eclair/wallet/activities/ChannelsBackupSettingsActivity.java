@@ -32,8 +32,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.CommonStatusCodes;
-import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.Tasks;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +39,6 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.text.DateFormat;
 import java.util.Date;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 
 import fr.acinq.eclair.channel.ChannelPersisted;
