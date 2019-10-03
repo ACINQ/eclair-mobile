@@ -243,6 +243,7 @@ public interface BackupHelper {
       if (GoogleSignIn.hasPermissions(account, opts.getScopeArray())) {
         return account;
       } else {
+        log.info("gdrive sign-in account={} does not have correct permissions, revoking access", account);
         try {
           Tasks.await(Tasks.call(Executors.newSingleThreadExecutor(), () -> GoogleSignIn.getClient(context, opts).revokeAccess()));
         } catch (Exception e) {

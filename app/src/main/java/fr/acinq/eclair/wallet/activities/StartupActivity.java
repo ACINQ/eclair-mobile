@@ -249,7 +249,9 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
     final boolean startedOnce = prefs.getBoolean(Constants.SETTING_HAS_STARTED_ONCE, false);
     // migration applies only if app has already been started
     if (lastUsedVersion > 0 && startedOnce) {
+      log.info("after startup migration: version={}", lastUsedVersion);
       if (lastUsedVersion <= 48) {
+        log.info("<= v48: force channel persistence event");
         // forces the app to push backup to the new gdrive public folder
         app.system.eventStream().publish(ChannelPersisted.apply(null, null, null, null));
       }

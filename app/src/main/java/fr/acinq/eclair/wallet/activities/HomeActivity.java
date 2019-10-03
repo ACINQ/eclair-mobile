@@ -380,6 +380,7 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
       if (BackupHelper.GoogleDrive.getSigninAccount(getApplicationContext()) == null) {
         mBinding.channelsBackupWarning.startAnimation(mBlinkingAnimation);
         mBinding.setChannelsBackupEnabled(false);
+        log.info("gdrive sign-in account is null, disabling gdrive backup");
         BackupHelper.GoogleDrive.disableGDriveBackup(getApplicationContext());
       } else {
         mBinding.channelsBackupWarning.clearAnimation();
