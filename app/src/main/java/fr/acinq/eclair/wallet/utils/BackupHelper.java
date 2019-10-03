@@ -240,7 +240,8 @@ public interface BackupHelper {
     static GoogleSignInAccount getSigninAccount(final Context context) {
       final GoogleSignInOptions opts = getGoogleSigninOptions();
       final GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(context);
-      if (GoogleSignIn.hasPermissions(account, opts.getScopeArray())) {
+      final Scope[] permissions = new Scope[] { new Scope(DriveScopes.DRIVE_FILE), new Scope(DriveScopes.DRIVE_APPDATA) };
+      if (GoogleSignIn.hasPermissions(account, permissions)) {
         return account;
       } else {
         log.info("gdrive sign-in account={} does not have correct permissions, revoking access", account);
