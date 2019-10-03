@@ -26,7 +26,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
-import fr.acinq.bitcoin.MilliSatoshi;
+import fr.acinq.eclair.MilliSatoshi;
 import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.eclair.io.NodeURI;
 import fr.acinq.eclair.io.Peer;

@@ -28,7 +28,7 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
-import fr.acinq.bitcoin.MilliSatoshi;
+import fr.acinq.eclair.MilliSatoshi;
 import fr.acinq.eclair.CoinUnit;
 import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.wallet.R;
@@ -65,7 +65,7 @@ public class CoinAmountView extends ConstraintLayout {
     this.prefBtcUnit = WalletUtils.getPreferredCoinUnit(prefs);
     this.prefFiatCurrency = WalletUtils.getPreferredFiat(prefs);
     if (WalletUtils.shouldDisplayInFiat(prefs) && !forceBtcUnit) {
-      WalletUtils.printAmountInView(amountTextView, WalletUtils.formatMsatToFiat(amountMsat.amount(), prefFiatCurrency));
+      WalletUtils.printAmountInView(amountTextView, WalletUtils.formatMsatToFiat(amountMsat.toLong(), prefFiatCurrency));
       unitTextView.setText(prefFiatCurrency.toUpperCase());
     } else {
       WalletUtils.printAmountInView(amountTextView, CoinUtils.formatAmountInUnit(amountMsat, prefBtcUnit, false));

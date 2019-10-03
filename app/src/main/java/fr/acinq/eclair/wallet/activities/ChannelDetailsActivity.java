@@ -29,12 +29,11 @@ import android.text.Html;
 import android.view.View;
 import android.widget.Toast;
 import com.google.common.base.Strings;
-import fr.acinq.bitcoin.MilliSatoshi;
+import fr.acinq.eclair.MilliSatoshi;
 import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.eclair.CoinUnit;
 import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.Features;
-import fr.acinq.eclair.Globals;
 import fr.acinq.eclair.channel.*;
 import fr.acinq.eclair.router.NORMAL$;
 import fr.acinq.eclair.wallet.R;
@@ -219,7 +218,7 @@ public class ChannelDetailsActivity extends EclairActivity {
       if (channel.getRefundAtBlock() > 0) {
         mBinding.closingRefundBlock.setValue(getString(R.string.channeldetails_refund_block_value,
           NumberFormat.getInstance().format(channel.getRefundAtBlock()),
-          NumberFormat.getInstance().format(Globals.blockCount().get())));
+          NumberFormat.getInstance().format(this.app.appKit.eclairKit.nodeParams().currentBlockHeight())));
       }
       mBinding.closingRefundBlock.setVisibility(View.VISIBLE);
     }

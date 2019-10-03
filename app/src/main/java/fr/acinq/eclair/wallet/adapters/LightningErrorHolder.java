@@ -22,6 +22,7 @@ import android.text.Html;
 import android.view.View;
 import android.widget.TextView;
 
+import fr.acinq.eclair.payment.LocalFailure;
 import fr.acinq.eclair.payment.PaymentLifecycle;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.models.LightningPaymentError;
@@ -64,7 +65,7 @@ class LightningErrorHolder extends RecyclerView.ViewHolder {
       mErrorOriginLabel.setVisibility(View.VISIBLE);
       mErrorOrigin.setVisibility(View.VISIBLE);
       mErrorOrigin.setText(error.getOrigin());
-    } else if (error.getType().equals(PaymentLifecycle.LocalFailure.class.getSimpleName())) {
+    } else if (error.getType().equals(LocalFailure.class.getSimpleName())) {
       mErrorOriginLabel.setVisibility(View.VISIBLE);
       mErrorOrigin.setVisibility(View.VISIBLE);
       mErrorOrigin.setText("Your node");

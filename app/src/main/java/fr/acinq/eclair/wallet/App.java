@@ -62,6 +62,7 @@ import fr.acinq.eclair.wallet.events.*;
 import fr.acinq.eclair.wallet.services.CheckElectrumWorker;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
+import fr.acinq.eclair.wire.Onion;
 import okhttp3.*;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -279,24 +280,30 @@ public class App extends Application {
    *                       If false, can lead the user to pay a lot of fees.
    */
   public void sendLNPayment(final PaymentRequest paymentRequest, final long amountMsat, final boolean checkFees) {
-    final Long finalCltvExpiry = paymentRequest.minFinalCltvExpiry().isDefined() && paymentRequest.minFinalCltvExpiry().get() instanceof Long
-      ? (Long) paymentRequest.minFinalCltvExpiry().get()
-      : (Long) Channel.MIN_CLTV_EXPIRY();
+    final Long finalCltvExpiry = paymentRequest.expiry().isDefined() && paymentRequest.expiry().get() instanceof Long
+      ? (Long) paymentRequest.expiry().get()
+      : Channel.MAX_CLTV_EXPIRY_DELTA().toInt();
 
     final Option<RouteParams> routeParams = checkFees
       ? Option.apply(null) // when fee protection is enabled, use the default RouteParams with reasonable values
       : Option.apply(RouteParams.apply( // otherwise, let's build a "no limit" RouteParams
       false, // never randomize on mobile
-      fr.acinq.bitcoin.package$.MODULE$.millibtc2millisatoshi(new MilliBtc(BigDecimal.exact(1))).amount(), // at most 1mBTC base fee
+      MilliSatoshi.toMilliSatoshi(new MilliBtc(BigDecimal.exact(1))), // at most 1mBTC base fee
       1d, // at most 100%
       4,
       Router.DEFAULT_ROUTE_MAX_CLTV(),
       Option.empty()));
 
     log.info("(lightning) sending {} msat for invoice {}", amountMsat, paymentRequest.toString());
-    appKit.eclairKit.paymentInitiator().tell(new PaymentLifecycle.SendPayment(
-      amountMsat, paymentRequest.paymentHash(), paymentRequest.nodeId(), paymentRequest.routingInfo(),
-      finalCltvExpiry + 1, 10, routeParams), ActorRef.noSender());
+    appKit.eclairKit.paymentInitiator().tell(
+      new PaymentLifecycle.SendPayment(
+        paymentRequest.paymentHash(),
+        paymentRequest.nodeId(),
+        new Onion.FinalLegacyPayload(new MilliSatoshi(amountMsat), new CltvExpiry(finalCltvExpiry + 1)),
+        10,
+        paymentRequest.routingInfo(),
+        routeParams),
+      ActorRef.noSender());
   }
 
   /**
@@ -390,9 +397,8 @@ public class App extends Application {
       long available = 0;
       Iterator<TxOut> it = tx_fee._1.txOut().iterator();
       while (it.hasNext()) {
-        available += it.next().amount().amount();
+        available += it.next().amount().toLong();
       }
-      available -= tx_fee._2.amount();
       return new Satoshi(Math.max(0, available));
     } catch (Exception e) {
       log.error("could not retrieve max available funds after fees", e);
@@ -513,16 +519,16 @@ public class App extends Application {
     return appKit.eclairKit.nodeParams().privateKey().publicKey().toString();
   }
 
-  public static long estimateSlowFees() {
-    return Globals.feeratesPerKB() != null && Globals.feeratesPerKB().get() != null ? Math.max(Globals.feeratesPerKB().get().blocks_72() / 1000, 3) : 3;
+  public long estimateSlowFees() {
+    return Math.max(this.appKit.eclairKit.nodeParams().onChainFeeConf().feeEstimator().getFeeratePerKb(72) / 1000, 3);
   }
 
-  public static long estimateMediumFees() {
-    return Globals.feeratesPerKB() != null && Globals.feeratesPerKB().get() != null ? Math.max(Globals.feeratesPerKB().get().blocks_12() / 1000, estimateSlowFees()) : 18;
+  public long estimateMediumFees() {
+    return Math.max(this.appKit.eclairKit.nodeParams().onChainFeeConf().feeEstimator().getFeeratePerKb(12) / 1000, 3);
   }
 
-  public static long estimateFastFees() {
-    return Globals.feeratesPerKB() != null && Globals.feeratesPerKB().get() != null ? Math.max(Globals.feeratesPerKB().get().blocks_2() / 1000, estimateMediumFees()) : 108;
+  public long estimateFastFees() {
+    return Math.max(this.appKit.eclairKit.nodeParams().onChainFeeConf().feeEstimator().getFeeratePerKb(3) / 1000, 3);
   }
 
   /**
@@ -615,7 +621,7 @@ public class App extends Application {
     // if electrum has not send any data, fetch last known onchain balance from DB
     if (this.electrumState.get() == null
       || this.electrumState.get().confirmedBalance == null || this.electrumState.get().unconfirmedBalance == null) {
-      return fr.acinq.bitcoin.package$.MODULE$.millisatoshi2satoshi(new MilliSatoshi(dbHelper.getOnchainBalanceMsat()));
+      return new MilliSatoshi(dbHelper.getOnchainBalanceMsat()).truncateToSatoshi();
     } else {
       final Satoshi confirmed = electrumState.get().confirmedBalance;
       final Satoshi unconfirmed = electrumState.get().unconfirmedBalance;

@@ -41,7 +41,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.google.android.gms.common.util.Strings;
-import fr.acinq.bitcoin.MilliSatoshi;
+import fr.acinq.eclair.MilliSatoshi;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.blockchain.electrum.ElectrumClient;
 import fr.acinq.eclair.blockchain.electrum.ElectrumWallet;
@@ -573,8 +573,8 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
 
   private void updateBalance() {
     final MilliSatoshi lightningBalance = NodeSupervisor.getChannelsBalance();
-    final MilliSatoshi walletBalance = app == null ? new MilliSatoshi(0) : package$.MODULE$.satoshi2millisatoshi(app.getOnchainBalance());
-    mBinding.balanceTotal.setAmountMsat(new MilliSatoshi(lightningBalance.amount() + walletBalance.amount()));
+    final MilliSatoshi walletBalance = app == null ? new MilliSatoshi(0) : MilliSatoshi.toMilliSatoshi(app.getOnchainBalance());
+    mBinding.balanceTotal.setAmountMsat(lightningBalance.$plus(walletBalance));
     mBinding.balanceOnchain.setAmountMsat(walletBalance);
     mBinding.balanceLightning.setAmountMsat(lightningBalance);
   }

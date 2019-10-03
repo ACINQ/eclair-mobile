@@ -26,7 +26,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import fr.acinq.bitcoin.MilliSatoshi;
+import fr.acinq.eclair.MilliSatoshi;
 import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.DBHelper;
 import fr.acinq.eclair.wallet.R;

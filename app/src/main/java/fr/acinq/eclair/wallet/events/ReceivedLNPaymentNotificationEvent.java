@@ -16,7 +16,7 @@
 
 package fr.acinq.eclair.wallet.events;
 
-import fr.acinq.bitcoin.MilliSatoshi;
+import fr.acinq.eclair.MilliSatoshi;
 
 public class ReceivedLNPaymentNotificationEvent {
 

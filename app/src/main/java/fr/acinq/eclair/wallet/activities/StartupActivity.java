@@ -557,7 +557,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
         app.system.eventStream().subscribe(nodeSupervisor, ChannelEvent.class);
         app.system.eventStream().subscribe(nodeSupervisor, SyncProgress.class);
         app.system.eventStream().subscribe(nodeSupervisor, PaymentEvent.class);
-        app.system.eventStream().subscribe(nodeSupervisor, PaymentLifecycle.PaymentResult.class);
+        // TODO: Check this app.system.eventStream().subscribe(nodeSupervisor, PaymentLifecycle.PaymentResult.class);
 
         // electrum payment supervisor actor
         app.system.actorOf(Props.create(ElectrumSupervisor.class, app.getDBHelper(), paymentsRefreshScheduler, balanceRefreshScheduler), "ElectrumSupervisor");

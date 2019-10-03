@@ -25,10 +25,9 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import fr.acinq.bitcoin.MilliSatoshi;
+import fr.acinq.eclair.MilliSatoshi;
 import fr.acinq.eclair.CoinUnit;
 import fr.acinq.eclair.CoinUtils;
-import fr.acinq.eclair.Globals;
 import fr.acinq.eclair.channel.CLOSED$;
 import fr.acinq.eclair.channel.CLOSING$;
 import fr.acinq.eclair.channel.NORMAL$;
@@ -112,8 +111,9 @@ public class LocalChannelItemHolder extends RecyclerView.ViewHolder implements V
       // ---- additional dynamic info, such as delayed closing tx, inflight htlcs...
       if (CLOSING$.MODULE$.toString().equals(item.state) && ClosingType.LOCAL.equals(item.getClosingType())) {
         // TODO: get the exact block at which the closing tx will be broadcast
-        if (Globals.blockCount().get() > 0) {
-          final long remainingBlocks = item.getRefundAtBlock() - Globals.blockCount().get();
+        int blockHeight = 0; // TODO: FIXME
+        if (blockHeight > 0) {
+          final long remainingBlocks = item.getRefundAtBlock() - blockHeight;
           if (remainingBlocks > 0) {
             delayedClosing.setText(itemView.getResources().getString(R.string.channelitem_delayed_closing, remainingBlocks, remainingBlocks > 1 ? "s" : ""));
           } else {
