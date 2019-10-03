@@ -129,12 +129,15 @@ public interface BackupHelper {
      */
     static Task<FileList> listBackups(@NonNull final Executor executor, @NonNull final Drive drive, @NonNull final String fileName) {
       log.debug("retrieving list of backups from gdrive for name={}", fileName);
-      return Tasks.call(executor, () -> drive.files().list()
-        .setQ("name='" + fileName + "'")
-        .setSpaces("drive")
-        .setFields("files(id,name,modifiedTime,appProperties)")
-        .setOrderBy("modifiedTime desc")
-        .execute());
+      return Tasks.call(executor, () -> {
+        final com.google.api.services.drive.model.File folder = getOrCreateBackupFolder(drive);
+        return drive.files().list()
+          .setQ("name='" + fileName + "' and '" + folder.getId() + "' in parents")
+          .setSpaces("drive")
+          .setFields("files(id,name,modifiedTime,appProperties)")
+          .setOrderBy("modifiedTime desc")
+          .execute();
+      });
     }
 
     static Task<byte[]> getFileContent(@NonNull final Executor executor, @NonNull final Drive drive, @NonNull final String fileId) {
@@ -146,9 +149,9 @@ public interface BackupHelper {
       });
     }
 
-    String BACKUP_FOLDER_NAME = "eclair-mobile";
+    String BACKUP_FOLDER_NAME = "eclair-mobile" + ("testnet".equals(BuildConfig.CHAIN) ? "-testnet" : "");
 
-    static com.google.api.services.drive.model.File createBackupFolderIfNeeded(@NonNull final Drive drive) throws IOException {
+    static com.google.api.services.drive.model.File getOrCreateBackupFolder(@NonNull final Drive drive) throws IOException {
 
       // retrieve folder if it exists
       final FileList folders = drive.files().list()
@@ -160,7 +163,7 @@ public interface BackupHelper {
         final com.google.api.services.drive.model.File folderMeta = new com.google.api.services.drive.model.File();
         folderMeta.setParents(Collections.singletonList("root"))
           .setMimeType("application/vnd.google-apps.folder")
-          .setName("eclair-mobile");
+          .setName(BACKUP_FOLDER_NAME);
         return drive.files().create(folderMeta).setFields("id,parents,mimeType").execute();
       } else {
         return folders.getFiles().get(0);
@@ -173,7 +176,7 @@ public interface BackupHelper {
       return Tasks.call(executor, () -> {
 
         // 1 - create folder
-        final com.google.api.services.drive.model.File folder = createBackupFolderIfNeeded(drive);
+        final com.google.api.services.drive.model.File folder = getOrCreateBackupFolder(drive);
 
         // 2 - metadata
         final HashMap<String, String> props = new HashMap<>();
