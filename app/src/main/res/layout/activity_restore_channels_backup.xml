@@ -223,7 +223,7 @@
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:visibility="@{restoreStep == Constants.RESTORE_BACKUP_FOUND || restoreStep == Constants.RESTORE_BACKUP_FOUND_WITH_CONFLICT ? View.VISIBLE : View.GONE}"
-          app:constraint_referenced_ids="found_backup_title, found_title_separator, found_backup_text_desc_origin, found_backup_text_desc_channels_count, found_backup_text_desc_modified" />
+          app:constraint_referenced_ids="found_backup_title,found_title_separator,found_backup_text_desc_origin,found_backup_text_desc_channels_count,found_backup_text_desc_modified" />
 
         <TextView
           android:id="@+id/found_backup_title"
@@ -326,7 +326,7 @@
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           app:barrierDirection="bottom"
-          app:constraint_referenced_ids="found_backup_title, found_backup_text_conflict, not_found_backup_text, error_text" />
+          app:constraint_referenced_ids="found_backup_title,found_backup_text_conflict,not_found_backup_text,error_text" />
 
         <View
           android:id="@+id/confirm_separator"

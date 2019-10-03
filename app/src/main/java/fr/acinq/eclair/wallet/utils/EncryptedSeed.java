@@ -35,6 +35,18 @@ public class EncryptedSeed extends EncryptedData {
   }
 
   /**
+   * Decrypt an encrypted seed object with a password and returns a byte array.
+   *
+   * @param password password protecting the data
+   * @return a byte array containing the decrypted data
+   * @throws GeneralSecurityException if the password is not correct
+   */
+  public byte[] decrypt(final String password) throws GeneralSecurityException {
+    final AesCbcWithIntegrity.SecretKeys sk = AesCbcWithIntegrity.generateKeyFromPassword(password, salt);
+    return AesCbcWithIntegrity.decrypt(civ, sk);
+  }
+
+  /**
    * Encrypt a non encrypted seed with AES CBC and return an object containing the encrypted seed.
    *
    * @param seed     the seed to encrypt

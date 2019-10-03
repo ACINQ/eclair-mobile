@@ -17,6 +17,7 @@
 package fr.acinq.eclair.wallet.activities;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -68,7 +69,7 @@ public class LogsSettingsActivity extends EclairActivity implements SharedPrefer
     ActionBar ab = getSupportActionBar();
     ab.setDisplayHomeAsUpEnabled(true);
 
-    mBinding.setLogsOutputMode(prefs.getString(Constants.SETTING_LOGS_OUTPUT, Constants.LOGS_OUTPUT_NONE));
+    mBinding.setLogsOutputMode(prefs.getString(Constants.SETTING_LOGS_OUTPUT, Constants.LOGS_OUTPUT_LOCAL));
     mBinding.papertrailHostInput.setText(prefs.getString(Constants.SETTING_PAPERTRAIL_HOST, ""));
     mBinding.papertrailPortInput.setText(Integer.toString(prefs.getInt(Constants.SETTING_PAPERTRAIL_PORT, 12345)));
     mBinding.setShowPapertrail(prefs.getBoolean(Constants.SETTING_PAPERTRAIL_VISIBLE, false));
@@ -126,7 +127,7 @@ public class LogsSettingsActivity extends EclairActivity implements SharedPrefer
   }
 
   private void refreshRadioDisplays(final SharedPreferences prefs) {
-    final String outputMode = prefs.getString(Constants.SETTING_LOGS_OUTPUT, Constants.LOGS_OUTPUT_NONE);
+    final String outputMode = prefs.getString(Constants.SETTING_LOGS_OUTPUT, Constants.LOGS_OUTPUT_LOCAL);
     // disabled
     mBinding.radioNone.setChecked(Constants.LOGS_OUTPUT_NONE.equals(outputMode));
     mBinding.disabledLabel.setText((Constants.LOGS_OUTPUT_NONE.equals(outputMode)
@@ -157,7 +158,7 @@ public class LogsSettingsActivity extends EclairActivity implements SharedPrefer
   }
 
   public void viewLocalLogs(final View view) {
-    final Uri uri = getCurrentLogFileUri();
+    final Uri uri = WalletUtils.getLastLocalLogFileUri(getApplicationContext());
     if (uri != null) {
       final Intent viewIntent = new Intent(Intent.ACTION_VIEW);
       viewIntent.setDataAndType(uri, "text/plain").addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -169,7 +170,7 @@ public class LogsSettingsActivity extends EclairActivity implements SharedPrefer
   }
 
   public void shareLocalLogs(final View view) {
-    final Uri uri = getCurrentLogFileUri();
+    final Uri uri = WalletUtils.getLastLocalLogFileUri(getApplicationContext());
     if (uri != null) {
       final Intent shareIntent = new Intent(Intent.ACTION_SEND);
       shareIntent.setType("text/plain");
@@ -179,19 +180,5 @@ public class LogsSettingsActivity extends EclairActivity implements SharedPrefer
     }
   }
 
-  private Uri getCurrentLogFileUri() {
-    final File logsDir = getApplicationContext().getExternalFilesDir(Constants.LOGS_DIR);
-    if (!logsDir.exists()) logsDir.mkdirs();
-    final File logFile = new File(logsDir, Constants.CURRENT_LOG_FILE);
-    if (logFile.exists()) {
-      try {
-        return FileProvider.getUriForFile(getApplicationContext(), BuildConfig.APPLICATION_ID + ".provider", logFile);
-      } catch (IllegalArgumentException e) {
-        log.error("could not open local log file: ", e);
-        return null;
-      }
-    } else {
-      return null;
-    }
-  }
+
 }

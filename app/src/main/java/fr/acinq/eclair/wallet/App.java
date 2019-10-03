@@ -101,7 +101,7 @@ public class App extends Application {
 
   public final static Map<String, Float> RATES = new HashMap<>();
   public static @Nullable WalletContext walletContext = null;
-  public final ActorSystem system = ActorSystem.apply("system");
+  public ActorSystem system = ActorSystem.apply("system");
   private final Logger log = LoggerFactory.getLogger(App.class);
   public AtomicReference<String> pin = new AtomicReference<>(null);
   public AtomicReference<String> seedHash = new AtomicReference<>(null);
@@ -514,15 +514,15 @@ public class App extends Application {
   }
 
   public static long estimateSlowFees() {
-    return Globals.feeratesPerKB() != null ? Math.max(Globals.feeratesPerKB().get().blocks_72() / 1000, 3) : 3;
+    return Globals.feeratesPerKB() != null && Globals.feeratesPerKB().get() != null ? Math.max(Globals.feeratesPerKB().get().blocks_72() / 1000, 3) : 3;
   }
 
   public static long estimateMediumFees() {
-    return Globals.feeratesPerKB() != null ? Math.max(Globals.feeratesPerKB().get().blocks_12() / 1000, estimateSlowFees()) : 18;
+    return Globals.feeratesPerKB() != null && Globals.feeratesPerKB().get() != null ? Math.max(Globals.feeratesPerKB().get().blocks_12() / 1000, estimateSlowFees()) : 18;
   }
 
   public static long estimateFastFees() {
-    return Globals.feeratesPerKB() != null ? Math.max(Globals.feeratesPerKB().get().blocks_2() / 1000, estimateMediumFees()) : 108;
+    return Globals.feeratesPerKB() != null && Globals.feeratesPerKB().get() != null ? Math.max(Globals.feeratesPerKB().get().blocks_2() / 1000, estimateMediumFees()) : 108;
   }
 
   /**

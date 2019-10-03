@@ -70,32 +70,50 @@
         app:layout_constrainedWidth="true"
         app:layout_constraintTop_toTopOf="parent" />
 
-      <Button
-        android:id="@+id/startup_restart"
-        style="@style/ButtonStyle"
-        android:drawableStart="@drawable/ic_refresh_black_24dp"
-        android:drawablePadding="@dimen/space_xs"
-        android:onClick="restart"
-        android:text="@string/start_error_restart"
-        android:textColor="@color/grey_4"
+      <View
+        android:id="@+id/startup_share_logs_sep"
+        style="@style/HLineSeparator"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/startup_share_logs" />
+
+      <fr.acinq.eclair.wallet.customviews.CustomButton
+        android:id="@+id/startup_share_logs"
+        style="@style/ClickableLayout"
+        app:text="@string/start_error_share_logs"
+        app:image="@drawable/ic_share_black_18dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/startup_error_text" />
 
-      <Button
-        android:id="@+id/startup_error_faq"
-        style="@style/Base.Widget.AppCompat.Button.Borderless"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/space_md"
-        android:background="@drawable/rounded_corner_grey_bottom"
-        android:onClick="openFAQ"
-        android:padding="@dimen/space_xs"
-        android:text="@string/start_error_faq_link"
-        android:textColor="@color/grey_2"
-        android:textSize="@dimen/text_xs"
-        android:visibility="gone"
+      <View
+        android:id="@+id/startup_restart_sep"
+        style="@style/HLineSeparator"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/startup_share_logs" />
+
+      <fr.acinq.eclair.wallet.customviews.CustomButton
+        android:id="@+id/startup_restart"
+        style="@style/ClickableLayout"
+        app:text="@string/start_error_restart"
+        app:image="@drawable/ic_refresh_black_24dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/startup_share_logs" />
+
+      <View
+        android:id="@+id/startup_faq_sep"
+        style="@style/HLineSeparator"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/startup_restart" />
+
+      <TextView
+        android:id="@+id/startup_faq"
+        style="@style/ClickableLayout"
+        android:text="@string/start_error_faq_link"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/startup_restart" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
   </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

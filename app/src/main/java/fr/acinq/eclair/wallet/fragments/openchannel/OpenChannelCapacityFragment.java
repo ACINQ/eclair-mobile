@@ -176,7 +176,7 @@ public class OpenChannelCapacityFragment extends Fragment {
     try {
       final Satoshi capacity = CoinUtils.convertStringAmountToSat(amount, preferredBitcoinUnit.code());
       mBinding.capacityFiat.setText(getString(R.string.amount_to_fiat, WalletUtils.formatSatToFiatWithUnit(capacity, preferredFiatCurrency)));
-      if (capacity.amount() < minFunding.amount() || capacity.amount() >= maxFunding.amount()) {
+      if (capacity.amount() < minFunding.amount() || capacity.amount() > maxFunding.amount()) {
         mBinding.setAmountError(getString(R.string.openchannel_capacity_invalid, CoinUtils.formatAmountInUnit(minFunding, preferredBitcoinUnit, false),
           CoinUtils.formatAmountInUnit(maxFunding, preferredBitcoinUnit, true)));
         return null;

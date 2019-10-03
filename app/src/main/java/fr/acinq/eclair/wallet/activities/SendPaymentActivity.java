@@ -119,8 +119,7 @@ public class SendPaymentActivity extends EclairActivity {
       return false;
     }
     // check that the payment has not expired
-    long expirySecs = paymentRequest.expiry().isDefined() ? (Long) paymentRequest.expiry().get() : 60 * 60; // default expiry is 1 hour = 3600 seconds
-    if (paymentRequest.timestamp() + expirySecs < System.currentTimeMillis() / 1000) {
+    if (paymentRequest.isExpired()) {
       canNotHandlePayment(R.string.payment_ln_expiry_outdated);
       return false;
     }
@@ -320,6 +319,10 @@ public class SendPaymentActivity extends EclairActivity {
         final long amountMsat = CoinUtils.convertStringAmountToMsat(mBinding.amountEditableBtcValue.getText().toString(), preferredBitcoinUnit.code()).amount();
         if (amountMsat <= 0) {
           handlePaymentError(R.string.payment_error_amount_zero_or_less);
+          return;
+        }
+        if (paymentRequest.isExpired()) {
+          canNotHandlePayment(R.string.payment_ln_expiry_outdated);
           return;
         }
         if (isPinRequired()) {

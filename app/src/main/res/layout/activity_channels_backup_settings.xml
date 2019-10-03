@@ -64,11 +64,11 @@
           android:id="@+id/instructions"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:lineSpacingMultiplier="1.1"
-          android:textColor="@color/grey_3"
-          android:padding="@dimen/space_md"
           android:background="@color/grey_0_light_x2"
+          android:lineSpacingMultiplier="1.1"
+          android:padding="@dimen/space_md"
           android:text="@string/backupsettings_instructions"
+          android:textColor="@color/grey_3"
           app:layout_constraintTop_toTopOf="parent" />
 
         <View
@@ -180,7 +180,7 @@
           android:id="@+id/gdrive_help_separator"
           style="@style/HSeparator"
           android:layout_marginStart="@dimen/space_md"
-          android:layout_marginTop="@dimen/space_xs"
+          android:layout_marginTop="@dimen/space_sm"
           android:visibility="@{googleDriveAvailable ? View.VISIBLE : View.GONE}"
           app:layout_constraintStart_toStartOf="parent"
           app:layout_constraintTop_toBottomOf="@id/gdrive_backup_status" />
@@ -189,7 +189,7 @@
           android:id="@+id/gdrive_help"
           style="@style/ButtonStyle"
           android:layout_marginStart="@dimen/space_md"
-          android:layout_marginTop="@dimen/space_xs"
+          android:layout_marginTop="@dimen/space_sm"
           android:background="@drawable/rounded_corner_grey"
           android:padding="@dimen/space_xs"
           android:text="@string/backupsettings_drive_more_button"

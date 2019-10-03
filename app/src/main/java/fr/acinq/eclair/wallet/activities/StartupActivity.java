@@ -16,13 +16,10 @@
 
 package fr.acinq.eclair.wallet.activities;
 
-import akka.actor.ActorRef;
-import akka.actor.Props;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import androidx.databinding.DataBindingUtil;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -30,15 +27,40 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.text.Html;
+import android.text.method.LinkMovementMethod;
 import android.view.View;
+
+import androidx.databinding.DataBindingUtil;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
+
 import com.google.common.io.Files;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.spongycastle.util.encoders.Hex;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.UnknownHostException;
+import java.security.GeneralSecurityException;
+import java.util.List;
+import java.util.concurrent.TimeoutException;
+
+import akka.actor.ActorRef;
+import akka.actor.ActorSystem;
+import akka.actor.Props;
 import fr.acinq.bitcoin.DeterministicWallet;
+import fr.acinq.eclair.IncompatibleNetworkDBException$;
 import fr.acinq.eclair.Kit;
 import fr.acinq.eclair.Setup;
 import fr.acinq.eclair.blockchain.electrum.ElectrumEclairWallet;
 import fr.acinq.eclair.channel.ChannelEvent;
+import fr.acinq.eclair.channel.ChannelPersisted;
 import fr.acinq.eclair.crypto.LocalKeyManager;
 import fr.acinq.eclair.db.BackupEvent;
 import fr.acinq.eclair.payment.PaymentEvent;
@@ -52,7 +74,8 @@ import fr.acinq.eclair.wallet.actors.NodeSupervisor;
 import fr.acinq.eclair.wallet.actors.RefreshScheduler;
 import fr.acinq.eclair.wallet.databinding.ActivityStartupBinding;
 import fr.acinq.eclair.wallet.fragments.PinDialog;
-import fr.acinq.eclair.wallet.services.BackupUtils;
+import fr.acinq.eclair.wallet.services.ChannelsBackupWorker;
+import fr.acinq.eclair.wallet.utils.BackupHelper;
 import fr.acinq.eclair.wallet.services.CheckElectrumWorker;
 import fr.acinq.eclair.wallet.services.NetworkSyncWorker;
 import fr.acinq.eclair.wallet.utils.Constants;
@@ -60,25 +83,12 @@ import fr.acinq.eclair.wallet.utils.EclairException;
 import fr.acinq.eclair.wallet.utils.EncryptedBackup;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 import fr.acinq.eclair.wire.NodeAddress$;
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.spongycastle.util.encoders.Hex;
 import scala.Option;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
 import scodec.bits.ByteVector;
 import scodec.bits.ByteVector$;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.UnknownHostException;
-import java.security.GeneralSecurityException;
-import java.util.List;
-import java.util.concurrent.TimeoutException;
 
 public class StartupActivity extends EclairActivity implements EclairActivity.EncryptSeedCallback {
 
@@ -124,18 +134,52 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
     super.onDestroy();
   }
 
-  private void showError(final String message, final boolean showRestart, final boolean showFAQ) {
+  private void showError(final String message, final boolean showShareLogs, final boolean showRestart, final boolean showFAQ) {
     mBinding.startupError.setVisibility(View.VISIBLE);
-    mBinding.startupErrorFaq.setVisibility(showFAQ ? View.VISIBLE : View.GONE);
-    mBinding.startupRestart.setVisibility(showRestart ? View.VISIBLE : View.GONE);
     mBinding.startupErrorText.setText(message);
+
+    mBinding.startupShareLogsSep.setVisibility(showShareLogs ? View.VISIBLE : View.GONE);
+    mBinding.startupShareLogs.setVisibility(showShareLogs ? View.VISIBLE : View.GONE);
+    if (showShareLogs) {
+      mBinding.startupShareLogs.setOnClickListener(v -> {
+        final Uri uri = WalletUtils.getLastLocalLogFileUri(getApplicationContext());
+        if (uri != null) {
+          final Intent shareIntent = new Intent(Intent.ACTION_SEND);
+          shareIntent.setType("text/plain");
+          shareIntent.putExtra(Intent.EXTRA_STREAM, uri);
+          shareIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.logging_local_share_logs_subject));
+          startActivity(Intent.createChooser(shareIntent, getString(R.string.logging_local_share_logs_title)));
+        }
+      });
+    }
+
+    mBinding.startupFaqSep.setVisibility(showFAQ ? View.VISIBLE : View.GONE);
+    mBinding.startupFaq.setVisibility(showFAQ ? View.VISIBLE : View.GONE);
+    if (showFAQ) {
+      mBinding.startupFaq.setMovementMethod(LinkMovementMethod.getInstance());
+      mBinding.startupFaq.setText(Html.fromHtml(getString(R.string.start_error_faq_link)));
+    }
+
+    mBinding.startupRestartSep.setVisibility(showRestart ? View.VISIBLE : View.GONE);
+    mBinding.startupRestart.setVisibility(showRestart ? View.VISIBLE : View.GONE);
+    mBinding.startupRestart.setOnClickListener(v -> restart());
   }
 
   private void showError(final String message) {
-    showError(message, false, false);
+    showError(message, false, false, false);
   }
 
-  private void goToHome() {
+  private void finishAndGoToHome(final SharedPreferences prefs) {
+    app.scheduleExchangeRatePoll();
+    prefs.edit()
+      .putBoolean(Constants.SETTING_HAS_STARTED_ONCE, true)
+      .putLong(Constants.SETTING_LAST_SUCCESSFUL_BOOT_DATE, System.currentTimeMillis())
+      .apply();
+    NetworkSyncWorker.scheduleSync();
+    CheckElectrumWorker.schedule();
+    afterStartupMigration(prefs);
+
+    // -- close current page and open HomeActivity
     finish();
     final Intent originIntent = getIntent();
     final Intent homeIntent = new Intent(getBaseContext(), HomeActivity.class);
@@ -162,7 +206,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
       return;
     }
     // check that external storage is available ; if not, print a warning
-    if (prefs.getBoolean(Constants.SETTING_HAS_STARTED_ONCE, false) && checkExternalStorageState && !BackupUtils.Local.isExternalStorageWritable()) {
+    if (prefs.getBoolean(Constants.SETTING_HAS_STARTED_ONCE, false) && checkExternalStorageState && !BackupHelper.Local.isExternalStorageWritable()) {
       getCustomDialog(getString(R.string.backup_external_storage_error)).setPositiveButton(R.string.btn_ok, (dialog, which) -> {
         checkExternalStorageState = false; // let the user start the app anyway
         checkup();
@@ -177,7 +221,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
   private boolean checkAppVersion(final File datadir, final SharedPreferences prefs) {
     final int lastUsedVersion = prefs.getInt(Constants.SETTING_LAST_USED_VERSION, 0);
     final boolean startedOnce = prefs.getBoolean(Constants.SETTING_HAS_STARTED_ONCE, false);
-    // migration script only if app has already been started
+    // migration applies only if app has already been started
     if (lastUsedVersion > 0 && startedOnce) {
       if (lastUsedVersion <= 28) {
         log.debug("migrating network database from version {} <= 28", lastUsedVersion);
@@ -193,8 +237,22 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
         }
       }
     }
-    prefs.edit().putInt(Constants.SETTING_LAST_USED_VERSION, BuildConfig.VERSION_CODE).commit();
     return true;
+  }
+
+  private void afterStartupMigration(final SharedPreferences prefs) {
+    final int lastUsedVersion = prefs.getInt(Constants.SETTING_LAST_USED_VERSION, 0);
+    final boolean startedOnce = prefs.getBoolean(Constants.SETTING_HAS_STARTED_ONCE, false);
+    // migration applies only if app has already been started
+    if (lastUsedVersion > 0 && startedOnce) {
+      log.info("after startup migration: version={}", lastUsedVersion);
+      if (lastUsedVersion <= 48) {
+        log.info("<= v48: force channel persistence event");
+        // forces the app to push backup to the new gdrive public folder
+        app.system.eventStream().publish(ChannelPersisted.apply(null, null, null, null));
+      }
+    }
+    prefs.edit().putInt(Constants.SETTING_LAST_USED_VERSION, BuildConfig.VERSION_CODE).apply();
   }
 
   private boolean checkWalletDatadir(final File datadir) {
@@ -234,10 +292,10 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
     if (!isAppReady()) {
       if (datadir.exists() && !datadir.canRead()) {
         log.error("datadir is not readable. Aborting startup");
-        showError(getString(R.string.start_error_datadir_unreadable), true, true);
+        showError(getString(R.string.start_error_datadir_unreadable), true, true, true);
       } else if (datadir.exists() && !datadir.isDirectory()) {
         log.error("datadir is not a directory. Aborting startup");
-        showError(getString(R.string.start_error_datadir_not_directory), true, true);
+        showError(getString(R.string.start_error_datadir_not_directory), true, true, true);
       } else {
         final String currentPassword = app.pin.get();
         if (currentPassword == null) {
@@ -265,7 +323,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
       }
     } else {
       // core is started, go to home and use it
-      goToHome();
+      finishAndGoToHome(prefs);
     }
   }
 
@@ -293,7 +351,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
             return;
           }
           // stop if no access to local storage for local backup
-          if (!BackupUtils.Local.hasLocalAccess(getApplicationContext())) {
+          if (!BackupHelper.Local.hasLocalAccess(getApplicationContext())) {
             final Intent backupSetupIntent = new Intent(getBaseContext(), SetupChannelsBackupActivity.class);
             if (prefs.getBoolean(Constants.SETTING_HAS_STARTED_ONCE, false)) {
               backupSetupIntent.putExtra(SetupChannelsBackupActivity.EXTRA_SETUP_IGNORE_GDRIVE_BACKUP, true);
@@ -317,12 +375,12 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
           log.error("seed file unreadable");
           clearApp();
           isStartingNode = false;
-          runOnUiThread(() -> showError(getString(R.string.start_error_unreadable_seed), true, true));
+          runOnUiThread(() -> showError(getString(R.string.start_error_unreadable_seed), true, true, true));
         } catch (Throwable t) {
           log.error("could not start eclair startup task: ", t);
           clearApp();
           isStartingNode = false;
-          runOnUiThread(() -> showError(getString(R.string.start_error_generic), true, true));
+          runOnUiThread(() -> showError(getString(R.string.start_error_generic), true, true, true));
         }
       }
     }.start();
@@ -335,14 +393,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
     switch (event.status) {
       case StartupTask.SUCCESS:
         if (isAppReady()) {
-          app.scheduleExchangeRatePoll();
-          prefs.edit()
-            .putBoolean(Constants.SETTING_HAS_STARTED_ONCE, true)
-            .putLong(Constants.SETTING_LAST_SUCCESSFUL_BOOT_DATE, System.currentTimeMillis())
-            .apply();
-          NetworkSyncWorker.scheduleSync();
-          CheckElectrumWorker.schedule();
-          goToHome();
+          finishAndGoToHome(prefs);
         } else {
           // empty appkit, something went wrong.
           showError(getString(R.string.start_error_improper));
@@ -352,17 +403,27 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
       case StartupTask.NETWORK_ERROR:
         mBinding.startupLog.setText("");
         clearApp();
-        showError(getString(R.string.start_error_connectivity), true, false);
+        showError(getString(R.string.start_error_connectivity), true, true, false);
         break;
       case StartupTask.TIMEOUT_ERROR:
         mBinding.startupLog.setText("");
         clearApp();
-        showError(getString(R.string.start_error_timeout), true, true);
+        showError(getString(R.string.start_error_timeout), true, true, true);
+        break;
+      case StartupTask.NETWORK_DB_ERROR:
+        if (WalletUtils.getNetworkDBFile(getApplicationContext()).exists() && !WalletUtils.getNetworkDBFile(getApplicationContext()).delete()) {
+          log.warn("failed to delete network database");
+          clearApp();
+          showError(getString(R.string.start_error_generic), true, true, true);
+        } else {
+          log.info("network database successfully deleted");
+          checkup();
+        }
         break;
       default:
         mBinding.startupLog.setText("");
         clearApp();
-        showError(getString(R.string.start_error_generic), true, true);
+        showError(getString(R.string.start_error_generic), true, true, true);
         break;
     }
     isStartingNode = false;
@@ -381,15 +442,6 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
   public void pickCreateNewWallet(View view) {
     Intent intent = new Intent(getBaseContext(), CreateSeedActivity.class);
     startActivity(intent);
-  }
-
-  public void openFAQ(View view) {
-    Intent faqIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/ACINQ/eclair-wallet/wiki/FAQ"));
-    startActivity(faqIntent);
-  }
-
-  public void restart(View view) {
-    restart();
   }
 
   @Override
@@ -415,6 +467,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
     private final static int NETWORK_ERROR = 2;
     private final static int GENERIC_ERROR = 3;
     private final static int TIMEOUT_ERROR = 4;
+    private final static int NETWORK_DB_ERROR = 5;
 
     @Override
     protected void onProgressUpdate(String... status) {
@@ -424,8 +477,9 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
 
     @Override
     protected Integer doInBackground(Object... params) {
+      final App app = (App) params[0];
+      Setup setup = null;
       try {
-        App app = (App) params[0];
         final ByteVector seed = (ByteVector) params[1];
         final File datadir = new File(app.getFilesDir(), Constants.ECLAIR_DATADIR);
 
@@ -445,7 +499,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
         publishProgress(app.getString(R.string.start_log_setting_up));
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(app.getBaseContext());
         Class.forName("org.sqlite.JDBC");
-        final Setup setup = new Setup(datadir, WalletUtils.getOverrideConfig(prefs), Option.apply(seed), Option.empty(), app.system);
+        setup = new Setup(datadir, WalletUtils.getOverrideConfig(prefs), Option.apply(seed), Option.empty(), app.system);
         setup.nodeParams().db().peers().addOrUpdatePeer(Constants.ACINQ_NODE_URI.nodeId(),
           NodeAddress$.MODULE$.fromParts(Constants.ACINQ_NODE_URI.address().getHost(), Constants.ACINQ_NODE_URI.address().getPort()).get());
 
@@ -478,8 +532,12 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
 
       } catch (EclairException.NetworkException | UnknownHostException t) {
         return NETWORK_ERROR;
+      } catch (IncompatibleNetworkDBException$ e) {
+        log.error("network DB is incompatible and should be cleaned: ", e);
+        shutdown(app, setup);
+        return NETWORK_DB_ERROR;
       } catch (Throwable t) {
-        log.error("failed to start eclair", t);
+        log.error("failed to start eclair: ", t);
         if (t instanceof TimeoutException) {
           return TIMEOUT_ERROR;
         } else {
@@ -491,6 +549,21 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
     @Override
     protected void onPostExecute(Integer status) {
       EventBus.getDefault().post(new StartupCompleteEvent(status));
+    }
+
+    private void shutdown(final App app, final Setup setup) {
+      if (app.system != null) {
+        app.system.shutdown();
+        app.system.awaitTermination();
+        app.system = ActorSystem.apply("system");
+      }
+      if (setup != null && setup.nodeParams() != null) {
+        setup.nodeParams().db().audit().close();
+        setup.nodeParams().db().channels().close();
+        setup.nodeParams().db().network().close();
+        setup.nodeParams().db().peers().close();
+        setup.nodeParams().db().pendingRelay().close();
+      }
     }
 
     private void cancelBackgroundWorks() {

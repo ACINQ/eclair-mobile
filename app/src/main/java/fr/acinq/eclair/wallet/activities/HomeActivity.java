@@ -55,7 +55,7 @@ import fr.acinq.eclair.wallet.events.*;
 import fr.acinq.eclair.wallet.fragments.ChannelsListFragment;
 import fr.acinq.eclair.wallet.fragments.PaymentsListFragment;
 import fr.acinq.eclair.wallet.fragments.ReceivePaymentFragment;
-import fr.acinq.eclair.wallet.services.BackupUtils;
+import fr.acinq.eclair.wallet.utils.BackupHelper;
 import fr.acinq.eclair.wallet.services.CheckElectrumWorker;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.TechnicalHelper;
@@ -374,13 +374,14 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
   }
 
   private void refreshChannelsBackupWarning() {
-    final boolean isBackupEnabled = BackupUtils.GoogleDrive.isGDriveEnabled(getApplicationContext());
+    final boolean isBackupEnabled = BackupHelper.GoogleDrive.isGDriveEnabled(getApplicationContext());
     if (isBackupEnabled) {
       // check that we also have access
-      if (BackupUtils.GoogleDrive.getSigninAccount(getApplicationContext()) == null) {
+      if (BackupHelper.GoogleDrive.getSigninAccount(getApplicationContext()) == null) {
         mBinding.channelsBackupWarning.startAnimation(mBlinkingAnimation);
         mBinding.setChannelsBackupEnabled(false);
-        BackupUtils.GoogleDrive.disableGDriveBackup(getApplicationContext());
+        log.info("gdrive sign-in account is null, disabling gdrive backup");
+        BackupHelper.GoogleDrive.disableGDriveBackup(getApplicationContext());
       } else {
         mBinding.channelsBackupWarning.clearAnimation();
         mBinding.setChannelsBackupEnabled(true);
