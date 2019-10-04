@@ -242,23 +242,25 @@ public class OpenChannelCapacityFragment extends Fragment {
   }
 
   private void pickFees() {
-    if (feeRatingState == Constants.FEE_RATING_SLOW) {
-      feeRatingState = Constants.FEE_RATING_MEDIUM;
-      mBinding.fundingFeesValue.setText(String.valueOf(getApp().estimateMediumFees()));
-      mBinding.setFeeRatingState(feeRatingState);
-      mBinding.fundingFeesRating.setText(R.string.payment_fees_medium);
-    } else if (feeRatingState == Constants.FEE_RATING_MEDIUM) {
-      feeRatingState = Constants.FEE_RATING_FAST;
-      mBinding.fundingFeesValue.setText(String.valueOf(getApp().estimateFastFees()));
-      mBinding.setFeeRatingState(feeRatingState);
-      mBinding.fundingFeesRating.setText(R.string.payment_fees_fast);
-    } else if (feeRatingState == Constants.FEE_RATING_FAST) {
-      feeRatingState = Constants.FEE_RATING_SLOW;
-      mBinding.fundingFeesValue.setText(String.valueOf(getApp().estimateSlowFees()));
-      mBinding.setFeeRatingState(feeRatingState);
-      mBinding.fundingFeesRating.setText(R.string.payment_fees_slow);
-    } else {
-      setFeesToDefault();
+    if (getApp() != null) {
+      if (feeRatingState == Constants.FEE_RATING_SLOW) {
+        feeRatingState = Constants.FEE_RATING_MEDIUM;
+        mBinding.fundingFeesValue.setText(String.valueOf(getApp().estimateMediumFees()));
+        mBinding.setFeeRatingState(feeRatingState);
+        mBinding.fundingFeesRating.setText(R.string.payment_fees_medium);
+      } else if (feeRatingState == Constants.FEE_RATING_MEDIUM) {
+        feeRatingState = Constants.FEE_RATING_FAST;
+        mBinding.fundingFeesValue.setText(String.valueOf(getApp().estimateFastFees()));
+        mBinding.setFeeRatingState(feeRatingState);
+        mBinding.fundingFeesRating.setText(R.string.payment_fees_fast);
+      } else if (feeRatingState == Constants.FEE_RATING_FAST) {
+        feeRatingState = Constants.FEE_RATING_SLOW;
+        mBinding.fundingFeesValue.setText(String.valueOf(getApp().estimateSlowFees()));
+        mBinding.setFeeRatingState(feeRatingState);
+        mBinding.fundingFeesRating.setText(R.string.payment_fees_slow);
+      } else {
+        setFeesToDefault();
+      }
     }
   }
 

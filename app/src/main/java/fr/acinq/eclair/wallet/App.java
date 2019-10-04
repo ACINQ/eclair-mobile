@@ -551,15 +551,30 @@ public class App extends Application {
   }
 
   public long estimateSlowFees() {
-    return Math.max(this.appKit.eclairKit.nodeParams().onChainFeeConf().feeEstimator().getFeeratePerKb(72) / 1000, 3);
+    try {
+      return Math.max(this.appKit.eclairKit.nodeParams().onChainFeeConf().feeEstimator().getFeeratePerKb(72) / 1000, 3);
+    } catch (Throwable t) {
+      log.error("could not retrieve fee estimate with cause {}", t.getLocalizedMessage());
+      return 3;
+    }
   }
 
   public long estimateMediumFees() {
-    return Math.max(this.appKit.eclairKit.nodeParams().onChainFeeConf().feeEstimator().getFeeratePerKb(12) / 1000, 3);
+    try {
+      return Math.max(this.appKit.eclairKit.nodeParams().onChainFeeConf().feeEstimator().getFeeratePerKb(12) / 1000, estimateSlowFees());
+    } catch (Throwable t) {
+      log.error("could not retrieve fee estimate with cause {}", t.getLocalizedMessage());
+      return 18;
+    }
   }
 
   public long estimateFastFees() {
-    return Math.max(this.appKit.eclairKit.nodeParams().onChainFeeConf().feeEstimator().getFeeratePerKb(3) / 1000, 3);
+    try {
+      return Math.max(this.appKit.eclairKit.nodeParams().onChainFeeConf().feeEstimator().getFeeratePerKb(3) / 1000, estimateMediumFees());
+    } catch (Throwable t) {
+      log.error("could not retrieve fee estimate with cause {}", t.getLocalizedMessage());
+      return 108;
+    }
   }
 
   /**

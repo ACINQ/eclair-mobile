@@ -266,23 +266,25 @@ public class SendPaymentActivity extends EclairActivity {
   }
 
   public void pickFees(final View view) {
-    if (feeRatingState == Constants.FEE_RATING_SLOW) {
-      feeRatingState = Constants.FEE_RATING_MEDIUM;
-      mBinding.feesValue.setText(String.valueOf(app.estimateMediumFees()));
-      mBinding.setFeeRatingState(feeRatingState);
-      mBinding.feesRating.setText(R.string.payment_fees_medium);
-    } else if (feeRatingState == Constants.FEE_RATING_MEDIUM) {
-      feeRatingState = Constants.FEE_RATING_FAST;
-      mBinding.feesValue.setText(String.valueOf(app.estimateFastFees()));
-      mBinding.setFeeRatingState(feeRatingState);
-      mBinding.feesRating.setText(R.string.payment_fees_fast);
-    } else if (feeRatingState == Constants.FEE_RATING_FAST) {
-      feeRatingState = Constants.FEE_RATING_SLOW;
-      mBinding.feesValue.setText(String.valueOf(app.estimateSlowFees()));
-      mBinding.setFeeRatingState(feeRatingState);
-      mBinding.feesRating.setText(R.string.payment_fees_slow);
-    } else {
-      setFeesToDefault();
+    if (app != null) {
+      if (feeRatingState == Constants.FEE_RATING_SLOW) {
+        feeRatingState = Constants.FEE_RATING_MEDIUM;
+        mBinding.feesValue.setText(String.valueOf(app.estimateMediumFees()));
+        mBinding.setFeeRatingState(feeRatingState);
+        mBinding.feesRating.setText(R.string.payment_fees_medium);
+      } else if (feeRatingState == Constants.FEE_RATING_MEDIUM) {
+        feeRatingState = Constants.FEE_RATING_FAST;
+        mBinding.feesValue.setText(String.valueOf(app.estimateFastFees()));
+        mBinding.setFeeRatingState(feeRatingState);
+        mBinding.feesRating.setText(R.string.payment_fees_fast);
+      } else if (feeRatingState == Constants.FEE_RATING_FAST) {
+        feeRatingState = Constants.FEE_RATING_SLOW;
+        mBinding.feesValue.setText(String.valueOf(app.estimateSlowFees()));
+        mBinding.setFeeRatingState(feeRatingState);
+        mBinding.feesRating.setText(R.string.payment_fees_slow);
+      } else {
+        setFeesToDefault();
+      }
     }
   }
 
