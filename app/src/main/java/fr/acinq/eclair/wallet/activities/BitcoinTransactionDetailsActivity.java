@@ -86,7 +86,7 @@ public class BitcoinTransactionDetailsActivity extends EclairActivity {
       mRebroadcastDialog = builder.create();
 
       mBinding.setIsTxReceived(PaymentDirection.RECEIVED.equals(p.getDirection()));
-      mBinding.txAmount.setAmountMsat(new MilliSatoshi(p.getAmountPaidMsat()));
+      mBinding.txAmount.setAmount(new MilliSatoshi(p.getAmountPaidMsat()));
       mBinding.amountPaidFiat.setText(getString(R.string.paymentdetails_amount_fiat, WalletUtils.formatMsatToFiatWithUnit(new MilliSatoshi(p.getAmountPaidMsat()), WalletUtils.getPreferredFiat(prefs))));
       mBinding.fees.setText(CoinUtils.formatAmountInUnit(new MilliSatoshi(p.getFeesPaidMsat()), prefUnit, true));
       if (Strings.isNullOrEmpty(p.getReference())) {

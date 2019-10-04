@@ -136,8 +136,8 @@ public class ChannelsListFragment extends Fragment {
             getActivity().runOnUiThread(() -> {
               if (getContext() != null) {
                 mBinding.balanceProgress.setProgress(100 - (int) sendReceiveRelative);
-                mBinding.totalReceivable.setAmountMsat(totalReceivable);
-                mBinding.totalSendable.setAmountMsat(totalSendable);
+                mBinding.totalReceivable.setAmount(totalReceivable);
+                mBinding.totalSendable.setAmount(totalSendable);
                 mActiveChannelsAdapter.update(channels, WalletUtils.getPreferredFiat(prefs), WalletUtils.getPreferredCoinUnit(prefs), WalletUtils.shouldDisplayInFiat(prefs));
                 mBinding.setActiveSize(channels.size());
               }
