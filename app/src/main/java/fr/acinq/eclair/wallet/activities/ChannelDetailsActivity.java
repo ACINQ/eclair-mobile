@@ -218,7 +218,7 @@ public class ChannelDetailsActivity extends EclairActivity {
       if (channel.getRefundAtBlock() > 0) {
         mBinding.closingRefundBlock.setValue(getString(R.string.channeldetails_refund_block_value,
           NumberFormat.getInstance().format(channel.getRefundAtBlock()),
-          NumberFormat.getInstance().format(this.app.appKit.eclairKit.nodeParams().currentBlockHeight())));
+          NumberFormat.getInstance().format(WalletUtils.getBlockHeight(getApplicationContext()))));
       }
       mBinding.closingRefundBlock.setVisibility(View.VISIBLE);
     }

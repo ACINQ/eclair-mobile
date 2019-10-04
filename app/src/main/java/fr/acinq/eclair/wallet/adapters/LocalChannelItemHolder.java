@@ -17,6 +17,7 @@
 package fr.acinq.eclair.wallet.adapters;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
@@ -32,6 +33,7 @@ import fr.acinq.eclair.channel.CLOSED$;
 import fr.acinq.eclair.channel.CLOSING$;
 import fr.acinq.eclair.channel.NORMAL$;
 import fr.acinq.eclair.channel.OFFLINE$;
+import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.activities.ChannelDetailsActivity;
@@ -110,8 +112,8 @@ public class LocalChannelItemHolder extends RecyclerView.ViewHolder implements V
 
       // ---- additional dynamic info, such as delayed closing tx, inflight htlcs...
       if (CLOSING$.MODULE$.toString().equals(item.state) && ClosingType.LOCAL.equals(item.getClosingType())) {
+        final long blockHeight = WalletUtils.getBlockHeight(itemView.getContext());
         // TODO: get the exact block at which the closing tx will be broadcast
-        int blockHeight = 0; // TODO: FIXME
         if (blockHeight > 0) {
           final long remainingBlocks = item.getRefundAtBlock() - blockHeight;
           if (remainingBlocks > 0) {

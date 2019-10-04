@@ -77,11 +77,14 @@ public class NetworkInfosActivity extends EclairActivity implements SwipeRefresh
   }
 
   private void refreshData() {
-    if (app.getBlockTimestamp() == 0) {
-      mBinding.blockCount.setValue(NumberFormat.getInstance().format(this.app.appKit.eclairKit.nodeParams().currentBlockHeight()));
+    final long blockHeight = WalletUtils.getBlockHeight(getApplicationContext());
+    if (blockHeight == 0) {
+      mBinding.blockCount.setValue(getString(R.string.networkinfos_block_unknown));
+    } else if (app.getBlockTimestamp() == 0) {
+      mBinding.blockCount.setValue(NumberFormat.getInstance().format(blockHeight));
     } else {
       mBinding.blockCount.setHtmlValue(getString(R.string.networkinfos_block,
-        NumberFormat.getInstance().format(this.app.appKit.eclairKit.nodeParams().currentBlockHeight()), // block height
+        NumberFormat.getInstance().format(blockHeight), // block height
         DateFormat.getDateTimeInstance().format(new Date(app.getBlockTimestamp() * 1000)))); // block timestamp
     }
 

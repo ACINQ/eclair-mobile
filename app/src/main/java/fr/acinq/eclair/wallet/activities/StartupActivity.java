@@ -64,7 +64,6 @@ import fr.acinq.eclair.channel.ChannelPersisted;
 import fr.acinq.eclair.crypto.LocalKeyManager;
 import fr.acinq.eclair.db.BackupEvent;
 import fr.acinq.eclair.payment.PaymentEvent;
-import fr.acinq.eclair.payment.PaymentLifecycle;
 import fr.acinq.eclair.router.SyncProgress;
 import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.BuildConfig;
@@ -74,10 +73,9 @@ import fr.acinq.eclair.wallet.actors.NodeSupervisor;
 import fr.acinq.eclair.wallet.actors.RefreshScheduler;
 import fr.acinq.eclair.wallet.databinding.ActivityStartupBinding;
 import fr.acinq.eclair.wallet.fragments.PinDialog;
-import fr.acinq.eclair.wallet.services.ChannelsBackupWorker;
-import fr.acinq.eclair.wallet.utils.BackupHelper;
 import fr.acinq.eclair.wallet.services.CheckElectrumWorker;
 import fr.acinq.eclair.wallet.services.NetworkSyncWorker;
+import fr.acinq.eclair.wallet.utils.BackupHelper;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.EclairException;
 import fr.acinq.eclair.wallet.utils.EncryptedBackup;
@@ -195,9 +193,10 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
   private void checkup() {
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
     final File datadir = new File(app.getFilesDir(), Constants.ECLAIR_DATADIR);
-    // check version, apply migration script if required
-    if (!checkAppVersion(datadir, prefs)) {
-      log.info("check version failed");
+    try {
+      preStartMigration(datadir, prefs);
+    } catch (Throwable t) {
+      log.error("error in pre-start migration: ", t);
       return;
     }
     // check that wallet data are correct
@@ -218,30 +217,24 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
   }
 
   @SuppressLint("ApplySharedPref")
-  private boolean checkAppVersion(final File datadir, final SharedPreferences prefs) {
+  private void preStartMigration(final File datadir, final SharedPreferences prefs) {
     final int lastUsedVersion = prefs.getInt(Constants.SETTING_LAST_USED_VERSION, 0);
     final boolean startedOnce = prefs.getBoolean(Constants.SETTING_HAS_STARTED_ONCE, false);
     // migration applies only if app has already been started
     if (lastUsedVersion > 0 && startedOnce) {
+      log.info("pre-start migration script, last used version {}", lastUsedVersion);
       if (lastUsedVersion <= 15 && "testnet".equals(BuildConfig.CHAIN)) {
         // version 16 breaks the application's data folder structure
         migrateTestnetSqlite(datadir);
       }
-      if (lastUsedVersion <= 28) {
-        log.debug("migrating network database from version {} <= 28", lastUsedVersion);
-        // if last used version is 28 or earlier, we need to reset the network DB due to changes in DB structure
-        // see https://github.com/ACINQ/eclair/pull/738
-        // note that only the android branch breaks compatibility, due to the absence of a blob 'data' column
-        try {
-          if (WalletUtils.getNetworkDBFile(getApplicationContext()).exists() && !WalletUtils.getNetworkDBFile(getApplicationContext()).delete()) {
-            log.warn("failed to clear network database for <v28 migration");
-          }
-        } catch (Throwable t) {
-          log.error("could not clear network database for <v28 migration", t);
+      if (lastUsedVersion <= 49) {
+        log.info("clearing network database for version <= 49");
+        // v28: https://github.com/ACINQ/eclair/pull/738 change in DB structure
+        if (WalletUtils.getNetworkDBFile(getApplicationContext()).exists() && !WalletUtils.getNetworkDBFile(getApplicationContext()).delete()) {
+          throw new RuntimeException("failed to clear network database for version <= 49");
         }
       }
     }
-    return true;
   }
 
   private void afterStartupMigration(final SharedPreferences prefs) {

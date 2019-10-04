@@ -567,4 +567,18 @@ public class WalletUtils {
     }
     return ConfigFactory.empty();
   }
+
+  /**
+   * Retrieve blockheight from context, using eclair appkit in App.
+   *
+   * @return blockheight long, 0 if there was a problem and appkit is not available.
+   */
+  public static long getBlockHeight(final Context context) {
+    try {
+      return ((App) context).appKit.eclairKit.nodeParams().currentBlockHeight();
+    } catch (Throwable t) {
+      log.info("could not retrieve blockheight from app context");
+      return 0;
+    }
+  }
 }

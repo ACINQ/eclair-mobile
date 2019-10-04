@@ -147,7 +147,7 @@ public class SendPaymentActivity extends EclairActivity {
    */
   private boolean checkWalletReady() {
     // check that wallet is not desync, or very late compared to chain
-    final boolean isBlockHeightCorrect = this.app.appKit.eclairKit.nodeParams().currentBlockHeight() > Constants.MIN_BLOCK_HEIGHT;
+    final boolean isBlockHeightCorrect = WalletUtils.getBlockHeight(getApplicationContext()) > Constants.MIN_BLOCK_HEIGHT;
     // if this is a LN payment, send button is enabled only if there is at least 1 channel capable of processing the payment.
     if (app == null || app.getElectrumState() == null) return false;
     final boolean isWalletReady = app.getElectrumState().isConnected && isBlockHeightCorrect && (!isLightningInvoice() || NodeSupervisor.hasOneNormalChannel());
