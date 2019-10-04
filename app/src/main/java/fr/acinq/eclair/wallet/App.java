@@ -16,13 +16,6 @@
 
 package fr.acinq.eclair.wallet;
 
-import akka.actor.ActorRef;
-import akka.actor.ActorSystem;
-import akka.actor.Cancellable;
-import akka.dispatch.OnComplete;
-import akka.pattern.AskTimeoutException;
-import akka.pattern.Patterns;
-import akka.util.Timeout;
 import android.app.Application;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -37,18 +30,61 @@ import android.net.NetworkCapabilities;
 import android.net.NetworkRequest;
 import android.os.Build;
 import android.preference.PreferenceManager;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
-import fr.acinq.bitcoin.*;
-import fr.acinq.eclair.*;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.spongycastle.crypto.digests.SHA256Digest;
+
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.text.DateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
+
+import akka.actor.ActorRef;
+import akka.actor.ActorSystem;
+import akka.actor.Cancellable;
+import akka.dispatch.OnComplete;
+import akka.pattern.AskTimeoutException;
+import akka.pattern.Patterns;
+import akka.util.Timeout;
+import fr.acinq.bitcoin.Bech32;
+import fr.acinq.bitcoin.ByteVector32;
+import fr.acinq.bitcoin.Crypto;
+import fr.acinq.bitcoin.MilliBtc;
+import fr.acinq.bitcoin.Satoshi;
+import fr.acinq.bitcoin.Script;
+import fr.acinq.bitcoin.Transaction;
+import fr.acinq.bitcoin.TxOut;
+import fr.acinq.eclair.CltvExpiryDelta;
+import fr.acinq.eclair.CoinUtils;
+import fr.acinq.eclair.JsonSerializers$;
+import fr.acinq.eclair.Kit;
+import fr.acinq.eclair.MilliSatoshi;
 import fr.acinq.eclair.blockchain.electrum.ElectrumClient;
 import fr.acinq.eclair.blockchain.electrum.ElectrumEclairWallet;
 import fr.acinq.eclair.blockchain.electrum.ElectrumWallet;
-import fr.acinq.eclair.channel.*;
+import fr.acinq.eclair.channel.CMD_GETINFO$;
+import fr.acinq.eclair.channel.Channel;
+import fr.acinq.eclair.channel.HasCommitments;
+import fr.acinq.eclair.channel.RES_GETINFO;
+import fr.acinq.eclair.channel.Register;
 import fr.acinq.eclair.io.Peer;
-import fr.acinq.eclair.package$;
+import fr.acinq.eclair.payment.PaymentInitiator;
 import fr.acinq.eclair.payment.PaymentLifecycle;
 import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.router.RouteParams;
@@ -58,43 +94,33 @@ import fr.acinq.eclair.wallet.activities.ChannelDetailsActivity;
 import fr.acinq.eclair.wallet.activities.LNPaymentDetailsActivity;
 import fr.acinq.eclair.wallet.actors.NodeSupervisor;
 import fr.acinq.eclair.wallet.adapters.PaymentItemHolder;
-import fr.acinq.eclair.wallet.events.*;
+import fr.acinq.eclair.wallet.events.BitcoinPaymentFailedEvent;
+import fr.acinq.eclair.wallet.events.ChannelRawDataEvent;
+import fr.acinq.eclair.wallet.events.ClosingChannelNotificationEvent;
+import fr.acinq.eclair.wallet.events.NetworkChannelsCountEvent;
+import fr.acinq.eclair.wallet.events.ReceivedLNPaymentNotificationEvent;
+import fr.acinq.eclair.wallet.events.XpubEvent;
 import fr.acinq.eclair.wallet.services.CheckElectrumWorker;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
-import fr.acinq.eclair.wire.Onion;
-import okhttp3.*;
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.spongycastle.crypto.digests.SHA256Digest;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 import scala.Option;
 import scala.Symbol;
 import scala.Tuple2;
 import scala.collection.Iterable;
 import scala.collection.Iterator;
-import scala.collection.Seq;
+import scala.collection.JavaConverters;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
 import scala.math.BigDecimal;
 import scodec.bits.ByteVector;
 import upickle.default$;
-
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.text.DateFormat;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static fr.acinq.eclair.wallet.adapters.LocalChannelItemHolder.EXTRA_CHANNEL_ID;
 
@@ -295,12 +321,17 @@ public class App extends Application {
       Option.empty()));
 
     log.info("(lightning) sending {} msat for invoice {}", amountMsat, paymentRequest.toString());
+
     appKit.eclairKit.paymentInitiator().tell(
-      new PaymentLifecycle.SendPayment(
+      new PaymentInitiator.SendPaymentRequest(
+        new MilliSatoshi(amountMsat),
         paymentRequest.paymentHash(),
         paymentRequest.nodeId(),
-        new Onion.FinalLegacyPayload(new MilliSatoshi(amountMsat), new CltvExpiry(finalCltvExpiry + 1)),
         10,
+        new CltvExpiryDelta(10),
+        Option.apply(paymentRequest),
+        Option.empty(),
+        JavaConverters.asScalaIteratorConverter(new ArrayList<Crypto.PublicKey>().iterator()).asScala().toSeq(),
         paymentRequest.routingInfo(),
         routeParams),
       ActorRef.noSender());
