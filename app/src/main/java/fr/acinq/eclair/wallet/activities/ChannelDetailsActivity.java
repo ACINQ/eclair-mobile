@@ -136,16 +136,18 @@ public class ChannelDetailsActivity extends EclairActivity {
     if (channel.getIsActive()) {
       mBinding.balance.setValue(getString(R.string.channeldetails_balance_value,
         CoinUtils.formatAmountInUnit(new MilliSatoshi(channel.getBalanceMsat()), prefUnit, true),
-        WalletUtils.formatMsatToFiatWithUnit(channel.getBalanceMsat(), fiatUnit)));
+        WalletUtils.formatMsatToFiatWithUnit(new MilliSatoshi(channel.getBalanceMsat()), fiatUnit)));
       mBinding.capacity.setValue(getString(R.string.channeldetails_balance_value,
         CoinUtils.formatAmountInUnit(new MilliSatoshi(channel.getCapacityMsat()), prefUnit, true),
-        WalletUtils.formatMsatToFiatWithUnit(channel.getCapacityMsat(), fiatUnit)));
+        WalletUtils.formatMsatToFiatWithUnit(new MilliSatoshi(channel.getCapacityMsat()), fiatUnit)));
       final double progress = channel.getCapacityMsat() != 0 ? (double) channel.getBalanceMsat() / channel.getCapacityMsat() * 100 : 0;
       mBinding.balanceProgress.setProgress(100 - (int) progress);
       mBinding.maxReceivable.setText(CoinUtils.formatAmountInUnit(new MilliSatoshi(channel.getReceivableMsat()), prefUnit, true));
-      mBinding.maxReceivableFiat.setText(getString(R.string.amount_to_fiat, WalletUtils.formatMsatToFiatWithUnit(channel.getReceivableMsat(), fiatUnit)));
+      mBinding.maxReceivableFiat.setText(getString(R.string.amount_to_fiat,
+        WalletUtils.formatMsatToFiatWithUnit(new MilliSatoshi(channel.getReceivableMsat()), fiatUnit)));
       mBinding.maxSendable.setText(CoinUtils.formatAmountInUnit(new MilliSatoshi(Math.max(channel.sendableBalanceMsat, 0)), prefUnit, true));
-      mBinding.maxSendableFiat.setText(getString(R.string.amount_to_fiat, WalletUtils.formatMsatToFiatWithUnit(Math.max(channel.sendableBalanceMsat, 0), fiatUnit)));
+      mBinding.maxSendableFiat.setText(getString(R.string.amount_to_fiat,
+        WalletUtils.formatMsatToFiatWithUnit(new MilliSatoshi(Math.max(channel.sendableBalanceMsat, 0)), fiatUnit)));
 
       mBinding.state.setText(channel.state);
 

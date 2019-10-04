@@ -103,21 +103,21 @@ public class OpenChannelLiquidityFragment extends Fragment {
       CoinUtils.formatAmountInUnit(LIQUIDITY_REQUESTS._10_MBTC.inboundCapacity, preferredBitcoinUnit, true)));
     mBinding.liquidityOpt10Cost.setText(getString(R.string.openchannel_liquidity_cost,
       CoinUtils.formatAmountInUnit(LIQUIDITY_REQUESTS._10_MBTC.cost, preferredBitcoinUnit, true),
-      WalletUtils.formatMsatToFiatWithUnit(LIQUIDITY_REQUESTS._10_MBTC.cost.toLong(), fiatUnit)));
+      WalletUtils.formatMsatToFiatWithUnit(LIQUIDITY_REQUESTS._10_MBTC.cost, fiatUnit)));
 
     mBinding.liquidityOpt25.setOnClickListener(v -> mBinding.setLiquidityOpt(2));
     mBinding.liquidityOpt25Title.setText(getString(R.string.openchannel_liquidity_label,
       CoinUtils.formatAmountInUnit(LIQUIDITY_REQUESTS._25_MBTC.inboundCapacity, preferredBitcoinUnit, true)));
     mBinding.liquidityOpt25Cost.setText(getString(R.string.openchannel_liquidity_cost,
       CoinUtils.formatAmountInUnit(LIQUIDITY_REQUESTS._25_MBTC.cost, preferredBitcoinUnit, true),
-      WalletUtils.formatMsatToFiatWithUnit(LIQUIDITY_REQUESTS._25_MBTC.cost.toLong(), fiatUnit)));
+      WalletUtils.formatMsatToFiatWithUnit(LIQUIDITY_REQUESTS._25_MBTC.cost, fiatUnit)));
 
     mBinding.liquidityOpt50.setOnClickListener(v -> mBinding.setLiquidityOpt(3));
     mBinding.liquidityOpt50Title.setText(getString(R.string.openchannel_liquidity_label,
       CoinUtils.formatAmountInUnit(LIQUIDITY_REQUESTS._50_MBTC.inboundCapacity, preferredBitcoinUnit, true)));
     mBinding.liquidityOpt50Cost.setText(getString(R.string.openchannel_liquidity_cost,
       CoinUtils.formatAmountInUnit(LIQUIDITY_REQUESTS._50_MBTC.cost, preferredBitcoinUnit, true),
-      WalletUtils.formatMsatToFiatWithUnit(LIQUIDITY_REQUESTS._50_MBTC.cost.toLong(), fiatUnit)));
+      WalletUtils.formatMsatToFiatWithUnit(LIQUIDITY_REQUESTS._50_MBTC.cost, fiatUnit)));
 
     mBinding.buttonBack.setOnClickListener(v -> {
       mBinding.setLiquidityOpt(0);

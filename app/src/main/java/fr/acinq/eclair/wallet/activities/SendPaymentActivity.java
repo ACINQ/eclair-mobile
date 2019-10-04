@@ -162,7 +162,7 @@ public class SendPaymentActivity extends EclairActivity {
       final MilliSatoshi amountMsat = MilliSatoshi.toMilliSatoshi(bitcoinURI.amount);
       mBinding.amountEditableBtcHint.setVisibility(View.GONE);
       mBinding.amountEditableBtcValue.setText(CoinUtils.rawAmountInUnit(amountMsat, preferredBitcoinUnit).bigDecimal().toPlainString());
-      mBinding.amountEditableFiatValue.setText(WalletUtils.formatMsatToFiat(amountMsat.toLong(), preferredFiatCurrency));
+      mBinding.amountEditableFiatValue.setText(WalletUtils.formatMsatToFiat(amountMsat, preferredFiatCurrency));
     } else {
       // only open the keyboard forcibly if no amount was set in the URI. This makes for a cleaner initial display.
       forceFocusAmount(null);
@@ -183,7 +183,7 @@ public class SendPaymentActivity extends EclairActivity {
       if (paymentRequest.amount().isDefined()) {
         final MilliSatoshi amountMsat = WalletUtils.getAmountFromInvoice(paymentRequest);
         mBinding.amountEditableBtcValue.setText(CoinUtils.rawAmountInUnit(amountMsat, preferredBitcoinUnit).bigDecimal().toPlainString());
-        mBinding.amountEditableFiatValue.setText(WalletUtils.formatMsatToFiat(amountMsat.toLong(), preferredFiatCurrency));
+        mBinding.amountEditableFiatValue.setText(WalletUtils.formatMsatToFiat(amountMsat, preferredFiatCurrency));
       }
       mBinding.recipientValue.setText(paymentRequest.nodeId().toString());
       final Either<String, ByteVector32> desc = paymentRequest.description();
@@ -571,7 +571,7 @@ public class SendPaymentActivity extends EclairActivity {
       try {
         final String btcAmountString = mBinding.amountEditableBtcValue.getText().toString();
         final MilliSatoshi amountMsat = CoinUtils.convertStringAmountToMsat(btcAmountString, preferredBitcoinUnit.code());
-        mBinding.amountEditableFiatValue.setText(WalletUtils.convertMsatToFiat(amountMsat.toLong(), preferredFiatCurrency).bigDecimal().setScale(4, RoundingMode.CEILING).toPlainString());
+        mBinding.amountEditableFiatValue.setText(WalletUtils.convertMsatToFiat(amountMsat, preferredFiatCurrency).bigDecimal().setScale(4, RoundingMode.CEILING).toPlainString());
         mBinding.amountEditableBtcHint.setVisibility(Strings.isNullOrEmpty(btcAmountString) ? View.VISIBLE : View.GONE);
         checkOnchainBalance(amountMsat);
       } catch (Exception e) {
@@ -586,7 +586,7 @@ public class SendPaymentActivity extends EclairActivity {
         mBinding.amountEditableBtcValue.setText(CoinUtils.rawAmountInUnit(amountMsat, preferredBitcoinUnit).bigDecimal().toPlainString());
         checkOnchainBalance(amountMsat);
       } catch (Exception e) {
-        log.debug("could not convert fiat -> btc amount with cause {}", e);
+        log.debug("could not convert fiat -> btc amount with cause {}", e.getLocalizedMessage());
         mBinding.amountEditableBtcValue.setText(R.string.unknown);
       }
     }

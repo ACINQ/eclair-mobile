@@ -69,7 +69,8 @@ public class LNPaymentDetailsActivity extends EclairActivity {
       final CoinUnit prefUnit = WalletUtils.getPreferredCoinUnit(prefs);
 
       mBinding.amountPaid.setAmountMsat(new MilliSatoshi(p.getAmountPaidMsat()));
-      mBinding.amountPaidFiat.setText(getString(R.string.paymentdetails_amount_fiat, WalletUtils.formatMsatToFiatWithUnit(p.getAmountPaidMsat(), WalletUtils.getPreferredFiat(prefs))));
+      mBinding.amountPaidFiat.setText(getString(R.string.paymentdetails_amount_fiat,
+        WalletUtils.formatMsatToFiatWithUnit(new MilliSatoshi(p.getAmountPaidMsat()), WalletUtils.getPreferredFiat(prefs))));
 
       mBinding.fees.setText(CoinUtils.formatAmountInUnit(new MilliSatoshi(p.getFeesPaidMsat()), prefUnit, true));
       mBinding.status.setText(p.getStatus().toString());

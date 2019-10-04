@@ -93,7 +93,7 @@ public class PaymentRequestParametersDialog extends Dialog {
         mBinding.amountFiat.setText("");
       } else {
         final MilliSatoshi amount = CoinUtils.convertStringAmountToMsat(amountString, prefUnit.code());
-        mBinding.amountFiat.setText(getContext().getString(R.string.amount_to_fiat, WalletUtils.formatMsatToFiatWithUnit(amount.toLong(), fiatUnit)));
+        mBinding.amountFiat.setText(getContext().getString(R.string.amount_to_fiat, WalletUtils.formatMsatToFiatWithUnit(amount, fiatUnit)));
         if (amount.$greater(maxReceivableAmount)) {
           mBinding.setAmountWarning(getContext().getString(R.string.dialog_prparams_amount_error_excessive, CoinUtils.formatAmountInUnit(maxReceivableAmount, prefUnit, true)));
         } else {

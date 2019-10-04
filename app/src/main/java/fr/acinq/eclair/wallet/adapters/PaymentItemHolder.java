@@ -99,9 +99,9 @@ public class PaymentItemHolder extends RecyclerView.ViewHolder implements View.O
 
     // setting amount & unit with optional conversion to fiat
     if (displayAmountAsFiat) {
-      WalletUtils.printAmountInView(mAmountValue, WalletUtils.formatMsatToFiat(amountMsat, fiatCode), amountPrefix);
+      WalletUtils.printAmountInView(mAmountValue, WalletUtils.formatMsatToFiat(new MilliSatoshi(amountMsat), fiatCode), amountPrefix);
       mAmountUnit.setText(fiatCode.toUpperCase());
-      mFees.setText(WalletUtils.formatMsatToFiat(payment.getFeesPaidMsat(), fiatCode));
+      mFees.setText(WalletUtils.formatMsatToFiat(new MilliSatoshi(payment.getFeesPaidMsat()), fiatCode));
       mFeesUnit.setText(fiatCode.toUpperCase());
     } else {
       WalletUtils.printAmountInView(mAmountValue, CoinUtils.formatAmountInUnit(new MilliSatoshi(amountMsat), prefUnit, false), amountPrefix);

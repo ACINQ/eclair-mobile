@@ -65,7 +65,7 @@ public class CoinAmountView extends ConstraintLayout {
     this.prefBtcUnit = WalletUtils.getPreferredCoinUnit(prefs);
     this.prefFiatCurrency = WalletUtils.getPreferredFiat(prefs);
     if (WalletUtils.shouldDisplayInFiat(prefs) && !forceBtcUnit) {
-      WalletUtils.printAmountInView(amountTextView, WalletUtils.formatMsatToFiat(amountMsat.toLong(), prefFiatCurrency));
+      WalletUtils.printAmountInView(amountTextView, WalletUtils.formatMsatToFiat(amountMsat, prefFiatCurrency));
       unitTextView.setText(prefFiatCurrency.toUpperCase());
     } else {
       WalletUtils.printAmountInView(amountTextView, CoinUtils.formatAmountInUnit(amountMsat, prefBtcUnit, false));

@@ -346,7 +346,7 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
       mBinding.lightningAmountLabel.setVisibility(View.VISIBLE);
       mBinding.lightningAmount.setText(Html.fromHtml(getString(R.string.receivepayment_lightning_amount_value,
         CoinUtils.formatAmountInUnit(this.lightningAmount.get(), WalletUtils.getPreferredCoinUnit(prefs), true),
-        WalletUtils.formatMsatToFiatWithUnit(this.lightningAmount.get().toLong(), WalletUtils.getPreferredFiat(prefs)))));
+        WalletUtils.formatMsatToFiatWithUnit(this.lightningAmount.get(), WalletUtils.getPreferredFiat(prefs)))));
     }
   }
 

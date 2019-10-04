@@ -251,13 +251,13 @@ public class WalletUtils {
   /**
    * Converts bitcoin amount to the fiat currency preferred by the user.
    *
-   * @param amountMsat amount in milli satoshis
+   * @param amount amount to convert
    * @param fiatCode   fiat currency code (USD, EUR, RUB, JPY, ...)
    * @return localized formatted string of the converted amount
    */
-  public static BigDecimal convertMsatToFiat(final long amountMsat, final String fiatCode) {
+  public static BigDecimal convertMsatToFiat(final MilliSatoshi amount, final String fiatCode) {
     final double rate = App.RATES.containsKey(fiatCode) ? App.RATES.get(fiatCode) : -1.0f;
-    return package$.MODULE$.satoshi2btc(new MilliSatoshi(amountMsat).truncateToSatoshi()).toBigDecimal().$times(BigDecimal.decimal(rate));
+    return package$.MODULE$.satoshi2btc(amount.truncateToSatoshi()).toBigDecimal().$times(BigDecimal.decimal(rate));
   }
 
   /**
@@ -275,18 +275,18 @@ public class WalletUtils {
   /**
    * Prints bitcoin amount to the fiat currency preferred by the user. Output is a pretty localized print.
    *
-   * @param amountMsat amount in milli satoshis
+   * @param amount amount to format
    * @param fiatCode   fiat currency code (USD, EUR, RUB, JPY, ...)
    * @return localized formatted string of the converted amount
    */
-  public static String formatMsatToFiat(final long amountMsat, final String fiatCode) {
-    final double fiatValue = convertMsatToFiat(amountMsat, fiatCode).doubleValue();
+  public static String formatMsatToFiat(final MilliSatoshi amount, final String fiatCode) {
+    final double fiatValue = convertMsatToFiat(amount, fiatCode).doubleValue();
     if (fiatValue < 0) return NO_FIAT_RATE;
     return getFiatFormat().format(fiatValue);
   }
 
-  public static String formatMsatToFiatWithUnit(final long amountMsat, final String fiatCode) {
-    return formatMsatToFiat(amountMsat, fiatCode) + " " + fiatCode.toUpperCase();
+  public static String formatMsatToFiatWithUnit(final MilliSatoshi amount, final String fiatCode) {
+    return formatMsatToFiat(amount, fiatCode) + " " + fiatCode.toUpperCase();
   }
 
   public static String formatSatToFiat(final Satoshi amount, final String fiatCode) {
