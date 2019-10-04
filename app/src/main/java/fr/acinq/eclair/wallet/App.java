@@ -48,7 +48,6 @@ import org.spongycastle.crypto.digests.SHA256Digest;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.text.DateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -114,7 +113,8 @@ import scala.Symbol;
 import scala.Tuple2;
 import scala.collection.Iterable;
 import scala.collection.Iterator;
-import scala.collection.JavaConverters;
+import scala.collection.immutable.Seq;
+import scala.collection.immutable.Seq$;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
@@ -301,14 +301,13 @@ public class App extends Application {
    * Asks the eclair node to asynchronously execute a Lightning payment. Future failure is silent.
    *
    * @param paymentRequest Lightning payment request
-   * @param amountMsat     Amount of the payment in millisatoshis. Overrides the amount provided by the payment request!
+   * @param amount         Payment amount. Overrides the amount provided by the payment request!
    * @param checkFees      True if the user wants to use the default route parameters limiting the route fees to reasonable values.
    *                       If false, can lead the user to pay a lot of fees.
    */
-  public void sendLNPayment(final PaymentRequest paymentRequest, final long amountMsat, final boolean checkFees) {
-    final Long finalCltvExpiry = paymentRequest.expiry().isDefined() && paymentRequest.expiry().get() instanceof Long
-      ? (Long) paymentRequest.expiry().get()
-      : Channel.MAX_CLTV_EXPIRY_DELTA().toInt();
+  public void sendLNPayment(final PaymentRequest paymentRequest, final MilliSatoshi amount, final boolean checkFees) {
+    final CltvExpiryDelta cltvExpiryDelta = paymentRequest.minFinalCltvExpiryDelta().isDefined()
+      ? paymentRequest.minFinalCltvExpiryDelta().get() : Channel.MIN_CLTV_EXPIRY_DELTA();
 
     final Option<RouteParams> routeParams = checkFees
       ? Option.apply(null) // when fee protection is enabled, use the default RouteParams with reasonable values
@@ -320,18 +319,19 @@ public class App extends Application {
       Router.DEFAULT_ROUTE_MAX_CLTV(),
       Option.empty()));
 
-    log.info("(lightning) sending {} msat for invoice {}", amountMsat, paymentRequest.toString());
+    log.info("(lightning) sending {} for invoice {}", amount, paymentRequest.toString());
+    final Seq<Crypto.PublicKey> predefinedRoute = (Seq<Crypto.PublicKey>) Seq$.MODULE$.empty();
 
     appKit.eclairKit.paymentInitiator().tell(
       new PaymentInitiator.SendPaymentRequest(
-        new MilliSatoshi(amountMsat),
+        amount,
         paymentRequest.paymentHash(),
         paymentRequest.nodeId(),
         10,
-        new CltvExpiryDelta(10),
+        cltvExpiryDelta.$plus(1), // in case a block is mined
         Option.apply(paymentRequest),
         Option.empty(),
-        JavaConverters.asScalaIteratorConverter(new ArrayList<Crypto.PublicKey>().iterator()).asScala().toSeq(),
+        predefinedRoute,
         paymentRequest.routingInfo(),
         routeParams),
       ActorRef.noSender());

@@ -317,8 +317,8 @@ public class SendPaymentActivity extends EclairActivity {
     try {
       if (isLightningInvoice()) {
         final PaymentRequest paymentRequest = invoice.right().get();
-        final long amountMsat = CoinUtils.convertStringAmountToMsat(mBinding.amountEditableBtcValue.getText().toString(), preferredBitcoinUnit.code()).toLong();
-        if (amountMsat <= 0) {
+        final MilliSatoshi amount = CoinUtils.convertStringAmountToMsat(mBinding.amountEditableBtcValue.getText().toString(), preferredBitcoinUnit.code());
+        if (amount.toLong() <= 0) {
           handlePaymentError(R.string.payment_error_amount_zero_or_less);
           return;
         }
@@ -331,7 +331,7 @@ public class SendPaymentActivity extends EclairActivity {
             @Override
             public void onPinConfirm(final PinDialog dialog, final String pinValue) {
               if (isPinCorrect(pinValue, dialog)) {
-                sendLNPayment(amountMsat, paymentRequest, invoiceAsString);
+                sendLNPayment(amount, paymentRequest, invoiceAsString);
               } else {
                 handlePaymentError(R.string.payment_error_incorrect_pin);
               }
@@ -345,7 +345,7 @@ public class SendPaymentActivity extends EclairActivity {
           });
           pinDialog.show();
         } else {
-          sendLNPayment(amountMsat, paymentRequest, invoiceAsString);
+          sendLNPayment(amount, paymentRequest, invoiceAsString);
         }
       } else if (isOnchainInvoice()) {
         final BitcoinURI bitcoinURI = invoice.left().get();
@@ -408,11 +408,11 @@ public class SendPaymentActivity extends EclairActivity {
   /**
    * Executes a Lightning payment in an asynchronous task.
    *
-   * @param amountMsat amount of the payment in milli satoshis
+   * @param amount     payment amount
    * @param pr         lightning payment request
    * @param prAsString payment request as a string (used for display)
    */
-  private void sendLNPayment(final long amountMsat, final PaymentRequest pr, final String prAsString) {
+  private void sendLNPayment(final MilliSatoshi amount, final PaymentRequest pr, final String prAsString) {
     new Thread() {
       @Override
       public void run() {
@@ -430,7 +430,7 @@ public class SendPaymentActivity extends EclairActivity {
           return;
         } else if (p != null && p.getStatus() == PaymentStatus.FAILED) {
           // Payment exists but has failed, retry it with new amount.
-          p.setAmountSentMsat(amountMsat);
+          p.setAmountSentMsat(amount.toLong());
           p.setUpdated(new Date());
           p.setStatus(PaymentStatus.INIT);
           app.getDBHelper().insertOrUpdatePayment(p);
@@ -444,7 +444,7 @@ public class SendPaymentActivity extends EclairActivity {
           newPayment.setDirection(PaymentDirection.SENT);
           newPayment.setReference(paymentHash);
           newPayment.setAmountRequestedMsat(WalletUtils.getLongAmountFromInvoice(pr));
-          newPayment.setAmountSentMsat(amountMsat);
+          newPayment.setAmountSentMsat(amount.toLong());
           newPayment.setRecipient(pr.nodeId().toString());
           newPayment.setPaymentRequest(prAsString.toLowerCase());
           newPayment.setStatus(PaymentStatus.INIT);
@@ -458,7 +458,7 @@ public class SendPaymentActivity extends EclairActivity {
         }
 
         // 2 - send payment to the payment initiator
-        app.sendLNPayment(pr, amountMsat, capLightningFees);
+        app.sendLNPayment(pr, amount, capLightningFees);
         runOnUiThread(() -> closeAndGoHome());
       }
     }.start();
