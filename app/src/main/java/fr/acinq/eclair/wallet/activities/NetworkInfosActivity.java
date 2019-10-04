@@ -107,7 +107,9 @@ public class NetworkInfosActivity extends EclairActivity implements SwipeRefresh
       mBinding.electrumAddress.setActionLabel(getString(R.string.networkinfos_electrum_address_change_custom));
     }
 
-    mBinding.feeRate.setValue(NumberFormat.getInstance().format(this.app.appKit.eclairKit.nodeParams().onChainFeeConf().feeEstimator().getFeeratePerKw(1)) + " sat/kw");
+    if (app != null && app.appKit != null) {
+      mBinding.feeRate.setValue(NumberFormat.getInstance().format(app.appKit.eclairKit.nodeParams().onChainFeeConf().feeEstimator().getFeeratePerKw(1)) + " sat/kw");
+    }
     app.getNetworkChannelsCount();
     mBinding.swipeRefresh.setRefreshing(false);
   }
