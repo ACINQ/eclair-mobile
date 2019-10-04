@@ -29,6 +29,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import fr.acinq.bitcoin.Satoshi;
+import fr.acinq.bitcoin.Satoshi$;
 import fr.acinq.eclair.CoinUnit;
 import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.channel.Channel;
@@ -212,7 +213,7 @@ public class OpenChannelCapacityFragment extends Fragment {
       public void run() {
         try {
           if (getApp() != null) {
-            final Long feesPerKw = fr.acinq.eclair.package$.MODULE$.feerateByte2Kw(Long.parseLong(mBinding.fundingFeesValue.getText().toString()));
+            final long feesPerKw = fr.acinq.eclair.package$.MODULE$.feerateByte2Kw(Long.parseLong(mBinding.fundingFeesValue.getText().toString()));
             final long capacitySat = Math.min(getApp().getAvailableFundsAfterFees(feesPerKw).toLong(), Channel.MAX_FUNDING().toLong());
             runOnUiThread(() -> {
               mBinding.capacityValue.setText(CoinUtils.rawAmountInUnit(new Satoshi(capacitySat), preferredBitcoinUnit).bigDecimal().toPlainString());
@@ -265,10 +266,12 @@ public class OpenChannelCapacityFragment extends Fragment {
   }
 
   private void setFeesToDefault() {
-    feeRatingState = Constants.FEE_RATING_FAST;
-    mBinding.fundingFeesValue.setText(String.valueOf(getApp().estimateFastFees()));
-    mBinding.setFeeRatingState(feeRatingState);
-    mBinding.fundingFeesRating.setText(R.string.payment_fees_fast);
+    if (getApp() != null) {
+      feeRatingState = Constants.FEE_RATING_FAST;
+      mBinding.fundingFeesValue.setText(String.valueOf(getApp().estimateFastFees()));
+      mBinding.setFeeRatingState(feeRatingState);
+      mBinding.fundingFeesRating.setText(R.string.payment_fees_fast);
+    }
   }
 
   private void confirmOpenChannel() {
