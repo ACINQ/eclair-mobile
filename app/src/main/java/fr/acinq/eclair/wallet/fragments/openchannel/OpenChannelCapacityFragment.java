@@ -177,7 +177,7 @@ public class OpenChannelCapacityFragment extends Fragment {
     try {
       final Satoshi capacity = CoinUtils.convertStringAmountToSat(amount, preferredBitcoinUnit.code());
       mBinding.capacityFiat.setText(getString(R.string.amount_to_fiat, WalletUtils.formatSatToFiatWithUnit(capacity, preferredFiatCurrency)));
-      if (capacity.$less(minFunding )|| capacity.$greater(maxFunding)) {
+      if (capacity.$less(minFunding )|| capacity.$greater$eq(maxFunding)) {
         mBinding.setAmountError(getString(R.string.openchannel_capacity_invalid, CoinUtils.formatAmountInUnit(minFunding, preferredBitcoinUnit, false),
           CoinUtils.formatAmountInUnit(maxFunding, preferredBitcoinUnit, true)));
         return null;
@@ -214,7 +214,7 @@ public class OpenChannelCapacityFragment extends Fragment {
         try {
           if (getApp() != null) {
             final long feesPerKw = fr.acinq.eclair.package$.MODULE$.feerateByte2Kw(Long.parseLong(mBinding.fundingFeesValue.getText().toString()));
-            final long capacitySat = Math.min(getApp().getAvailableFundsAfterFees(feesPerKw).toLong(), Channel.MAX_FUNDING().toLong());
+            final long capacitySat = Math.min(getApp().getAvailableFundsAfterFees(feesPerKw).toLong(), Channel.MAX_FUNDING().toLong() - 1);
             runOnUiThread(() -> {
               mBinding.capacityValue.setText(CoinUtils.rawAmountInUnit(new Satoshi(capacitySat), preferredBitcoinUnit).bigDecimal().toPlainString());
               mBinding.capacityValue.setEnabled(false);
