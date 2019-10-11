@@ -254,7 +254,7 @@ public class NodeSupervisor extends UntypedActor {
     else if (message instanceof ChannelErrorOccurred) {
       final ChannelErrorOccurred event = (ChannelErrorOccurred) message;
       final LocalChannel c = activeChannelsMap.get(event.channel());
-      if (c != null) {
+      if (c != null && event.isFatal()) {
         if (event.error() instanceof Channel.LocalError) {
           final Channel.LocalError localError = (Channel.LocalError) event.error();
           if (localError.t() != null) {
