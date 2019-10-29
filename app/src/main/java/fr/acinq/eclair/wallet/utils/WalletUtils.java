@@ -556,8 +556,14 @@ public class WalletUtils {
         if (!Strings.isNullOrEmpty(address.getHost())) {
           conf.put("eclair.electrum.host", address.getHost());
           conf.put("eclair.electrum.port", address.getPort());
-          // custom server certificate must be valid
-          conf.put("eclair.electrum.ssl", "strict");
+
+          // custom server certificate must be valid when not using Tor
+          if (address.getHost().endsWith(".onion")) {
+            conf.put("eclair.electrum.ssl", "off");
+          } else {
+            conf.put("eclair.electrum.ssl", "strict");
+          }
+
           return ConfigFactory.parseMap(conf);
         }
       } catch (Exception e) {
