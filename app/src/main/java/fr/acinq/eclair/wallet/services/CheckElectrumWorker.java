@@ -50,7 +50,7 @@ import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 /**
- * This worker starts a light instance of the
+ * This worker starts a light instance of the node, including an electrum watcher. Watches the channel and notifies the user if any action is needed.
  */
 public class CheckElectrumWorker extends Worker {
   private static final Logger log = LoggerFactory.getLogger(CheckElectrumWorker.class);
@@ -90,6 +90,7 @@ public class CheckElectrumWorker extends Worker {
   }
 
   private void cleanup() {
+    log.info("cleaning up worker system");
     if (!system.isTerminated()) {
       system.shutdown();
       log.debug("system shutdown requested...");
@@ -101,15 +102,19 @@ public class CheckElectrumWorker extends Worker {
         setup.nodeParams().db().channels().close(); // eclair.sqlite
         setup.nodeParams().db().network().close(); // network.sqlite
         setup.nodeParams().db().audit().close(); // audit.sqlite
+        log.info("databases properly closed");
       } catch (Throwable t) {
-        log.error("could not close at least one database connection opened by check electrum setup", t);
+        log.error("could not close at least one database connection: ", t);
       }
+    } else {
+      log.info("no setup available");
     }
   }
 
   @NonNull
   @Override
   public Result doWork() {
+    log.info("watch worker started");
     final Context context = getApplicationContext();
 
     if (!WalletUtils.getEclairDBFile(context).exists()) {
@@ -117,7 +122,6 @@ public class CheckElectrumWorker extends Worker {
       return Result.success();
     }
 
-    log.info("worker has started");
     // -- if app is running in foreground, check is not possible
     if (((App) context).appKit != null) {
       log.info("application is already running (appkit not null), no need to check");
@@ -222,6 +226,11 @@ public class CheckElectrumWorker extends Worker {
     }
 
     return false;
+  }
+
+  public static void scheduleASAP() {
+    final OneTimeWorkRequest syncWork = new OneTimeWorkRequest.Builder(CheckElectrumWorker.class).addTag(ELECTRUM_CHECK_WORKER_TAG).build();
+    WorkManager.getInstance().enqueueUniqueWork(ELECTRUM_CHECK_WORKER_TAG, ExistingWorkPolicy.REPLACE, syncWork);
   }
 
   public static void schedule() {
