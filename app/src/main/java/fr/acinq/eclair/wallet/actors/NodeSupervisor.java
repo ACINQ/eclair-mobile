@@ -30,7 +30,7 @@ import fr.acinq.eclair.db.BackupCompleted$;
 import fr.acinq.eclair.payment.PaymentFailed;
 import fr.acinq.eclair.payment.PaymentFailure;
 import fr.acinq.eclair.payment.PaymentFailure$;
-import fr.acinq.eclair.payment.PaymentLifecycle;
+import fr.acinq.eclair.payment.send.PaymentLifecycle;
 import fr.acinq.eclair.payment.PaymentReceived;
 import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.payment.PaymentSent;

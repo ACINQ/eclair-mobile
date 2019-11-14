@@ -83,8 +83,9 @@ import fr.acinq.eclair.channel.HasCommitments;
 import fr.acinq.eclair.channel.RES_GETINFO;
 import fr.acinq.eclair.channel.Register;
 import fr.acinq.eclair.io.Peer;
-import fr.acinq.eclair.payment.PaymentInitiator;
-import fr.acinq.eclair.payment.PaymentLifecycle;
+import fr.acinq.eclair.payment.receive.MultiPartHandler;
+import fr.acinq.eclair.payment.send.PaymentInitiator;
+import fr.acinq.eclair.payment.send.PaymentLifecycle;
 import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.router.RouteParams;
 import fr.acinq.eclair.router.Router;
@@ -292,7 +293,7 @@ public class App extends Application {
    */
   public PaymentRequest generatePaymentRequest(final String description, final Option<MilliSatoshi> amountMsat_opt, final long expiry) throws Exception {
     Future<Object> f = Patterns.ask(appKit.eclairKit.paymentHandler(),
-      new PaymentLifecycle.ReceivePayment(amountMsat_opt, description, Option.apply(expiry), NodeSupervisor.getRoutes(), Option.empty(), Option.empty()),
+      new MultiPartHandler.ReceivePayment(amountMsat_opt, description, Option.apply(expiry), NodeSupervisor.getRoutes(), Option.empty(), Option.empty(), false),
       new Timeout(Duration.create(20, "seconds")));
     return (PaymentRequest) Await.result(f, Duration.create(30, "seconds"));
   }

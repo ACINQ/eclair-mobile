@@ -23,7 +23,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import fr.acinq.eclair.payment.LocalFailure;
-import fr.acinq.eclair.payment.PaymentLifecycle;
+import fr.acinq.eclair.payment.send.PaymentLifecycle;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.models.LightningPaymentError;
 
