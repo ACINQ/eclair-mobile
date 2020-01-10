@@ -595,11 +595,15 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
         app.system = ActorSystem.apply("system");
       }
       if (setup != null && setup.nodeParams() != null) {
-        setup.nodeParams().db().audit().close();
-        setup.nodeParams().db().channels().close();
-        setup.nodeParams().db().network().close();
-        setup.nodeParams().db().peers().close();
-        setup.nodeParams().db().pendingRelay().close();
+        try {
+          setup.nodeParams().db().audit().close();
+          setup.nodeParams().db().channels().close();
+          setup.nodeParams().db().network().close();
+          setup.nodeParams().db().peers().close();
+          setup.nodeParams().db().pendingRelay().close();
+        } catch (IOException e) {
+          log.warn("error closing databases", e);
+        }
       }
     }
 

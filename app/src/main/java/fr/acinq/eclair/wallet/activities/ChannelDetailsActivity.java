@@ -231,10 +231,8 @@ public class ChannelDetailsActivity extends EclairActivity {
     mBinding.funder.setValue(getString(channel.isFunder ? R.string.channeldetails_funder_you : R.string.channeldetails_funder_peer));
     if (channel.getLocalFeatures() != null) {
       final ByteVector localFeatures = ByteVector.view(Hex.decode(channel.getLocalFeatures()));
-      mBinding.setHasAdvancedRoutingSync(
-        Features.hasFeature(localFeatures, Features.CHANNEL_RANGE_QUERIES_BIT_OPTIONAL())
-          || Features.hasFeature(localFeatures, Features.CHANNEL_RANGE_QUERIES_BIT_MANDATORY()));
-      mBinding.setHasDataLossProtection(Features.hasFeature(localFeatures, Features.OPTION_DATA_LOSS_PROTECT_OPTIONAL()));
+      mBinding.setHasAdvancedRoutingSync(Features.hasFeature(localFeatures, Features.ChannelRangeQueries$.MODULE$));
+      mBinding.setHasDataLossProtection(Features.hasFeature(localFeatures, Features.OptionDataLossProtect$.MODULE$));
     }
     mBinding.toSelfDelay.setValue(getString(R.string.channeldetails_delay_value, channel.getToSelfDelayBlocks()));
     mBinding.remoteToSelfDelay.setValue(getString(R.string.channeldetails_delay_value, channel.remoteToSelfDelayBlocks));

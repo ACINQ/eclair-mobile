@@ -293,7 +293,7 @@ public class App extends Application {
    */
   public PaymentRequest generatePaymentRequest(final String description, final Option<MilliSatoshi> amountMsat_opt, final long expiry) throws Exception {
     Future<Object> f = Patterns.ask(appKit.eclairKit.paymentHandler(),
-      new MultiPartHandler.ReceivePayment(amountMsat_opt, description, Option.apply(expiry), NodeSupervisor.getRoutes(), Option.empty(), Option.empty(), false),
+      new MultiPartHandler.ReceivePayment(amountMsat_opt, description, Option.apply(expiry), NodeSupervisor.getRoutes(), Option.empty(), Option.empty()),
       new Timeout(Duration.create(20, "seconds")));
     return (PaymentRequest) Await.result(f, Duration.create(30, "seconds"));
   }
