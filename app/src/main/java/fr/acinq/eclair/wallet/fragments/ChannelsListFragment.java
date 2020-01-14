@@ -26,7 +26,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import fr.acinq.bitcoin.MilliSatoshi;
+import fr.acinq.eclair.MilliSatoshi;
 import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.DBHelper;
 import fr.acinq.eclair.wallet.R;
@@ -136,8 +136,8 @@ public class ChannelsListFragment extends Fragment {
             getActivity().runOnUiThread(() -> {
               if (getContext() != null) {
                 mBinding.balanceProgress.setProgress(100 - (int) sendReceiveRelative);
-                mBinding.totalReceivable.setAmountMsat(totalReceivable);
-                mBinding.totalSendable.setAmountMsat(totalSendable);
+                mBinding.totalReceivable.setAmount(totalReceivable);
+                mBinding.totalSendable.setAmount(totalSendable);
                 mActiveChannelsAdapter.update(channels, WalletUtils.getPreferredFiat(prefs), WalletUtils.getPreferredCoinUnit(prefs), WalletUtils.shouldDisplayInFiat(prefs));
                 mBinding.setActiveSize(channels.size());
               }

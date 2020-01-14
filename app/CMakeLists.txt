@@ -17,9 +17,9 @@ add_library( # Sets the name of the library.
              SHARED
 
              # Provides a relative path to your source file(s).
-             src/main/cpp/secp256k1/secp256k1.c
-             src/main/cpp/secp256k1/org_bitcoin_NativeSecp256k1.c
-             src/main/cpp/secp256k1/org_bitcoin_Secp256k1Context.c)
+             src/main/cpp/secp256k1/src/secp256k1.c
+             src/main/cpp/secp256k1/src/org_bitcoin_NativeSecp256k1.c
+             src/main/cpp/secp256k1/src/org_bitcoin_Secp256k1Context.c)
 
 add_library( # Sets the name of the library.
              sqlitejdbc
@@ -39,7 +39,8 @@ add_library( # Sets the name of the library.
 target_compile_options(secp256k1 PUBLIC -DHAVE_CONFIG_H)
 
 target_include_directories(secp256k1 PUBLIC
-  src/main/cpp/secp256k1/
+  src/main/cpp/secp256k1
+  src/main/cpp/secp256k1/src
 )
 
 

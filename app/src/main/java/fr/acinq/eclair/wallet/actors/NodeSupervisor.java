@@ -22,12 +22,18 @@ import akka.actor.UntypedActor;
 import com.google.common.base.Strings;
 import fr.acinq.bitcoin.*;
 import fr.acinq.bitcoin.package$;
+import fr.acinq.eclair.CltvExpiryDelta;
+import fr.acinq.eclair.MilliSatoshi;
 import fr.acinq.eclair.ShortChannelId;
 import fr.acinq.eclair.channel.*;
 import fr.acinq.eclair.db.BackupCompleted$;
-import fr.acinq.eclair.payment.PaymentLifecycle;
+import fr.acinq.eclair.payment.PaymentFailed;
+import fr.acinq.eclair.payment.PaymentFailure;
+import fr.acinq.eclair.payment.PaymentFailure$;
+import fr.acinq.eclair.payment.send.PaymentLifecycle;
 import fr.acinq.eclair.payment.PaymentReceived;
 import fr.acinq.eclair.payment.PaymentRequest;
+import fr.acinq.eclair.payment.PaymentSent;
 import fr.acinq.eclair.router.NORMAL$;
 import fr.acinq.eclair.router.SyncProgress;
 import fr.acinq.eclair.transactions.DirectedHtlc;
@@ -112,9 +118,9 @@ public class NodeSupervisor extends UntypedActor {
     final PaymentRequest.ExtraHop hop = new PaymentRequest.ExtraHop(
       Crypto.PublicKey$.MODULE$.apply(ByteVector.view(Hex.decode(channel.getPeerNodeId())), false),
       ShortChannelId.apply(channel.getShortChannelId()),
-      channel.feeBaseMsat,
+      new MilliSatoshi(channel.feeBaseMsat),
       channel.feeProportionalMillionths,
-      channel.cltvExpiryDelta);
+      new CltvExpiryDelta(channel.cltvExpiryDelta));
     hops.add(hop);
     return JavaConverters.asScalaIteratorConverter(hops.iterator()).asScala().toList();
   }
@@ -155,7 +161,7 @@ public class NodeSupervisor extends UntypedActor {
         }
       }
       c.htlcsInFlightCount = htlcsCount;
-      c.sendableBalanceMsat = event.currentData().commitments().availableBalanceForSendMsat();
+      c.sendableBalanceMsat = event.currentData().commitments().availableBalanceForSend().toLong();
 
       // restore data from DB that were sent only once by the node and may have be persisted
       final LocalChannel channelInDB = dbHelper.getLocalChannel(c.getChannelId());
@@ -214,12 +220,12 @@ public class NodeSupervisor extends UntypedActor {
       final LocalChannel c = activeChannelsMap.get(event.channel());
       if (c != null) {
         final LocalCommit localCommit = event.commitments().localCommit();
-        c.setChannelReserveSat(event.commitments().localParams().channelReserveSatoshis());
-        c.setMinimumHtlcAmountMsat(event.commitments().localParams().htlcMinimumMsat());
+        c.setChannelReserveSat(event.commitments().localParams().channelReserve().toLong());
+        c.setMinimumHtlcAmountMsat(event.commitments().localParams().htlcMinimum().toLong());
         c.htlcsInFlightCount = localCommit.spec().htlcs().iterator().size();
-        c.sendableBalanceMsat = event.commitments().availableBalanceForSendMsat();
-        c.setBalanceMsat(localCommit.spec().toLocalMsat());
-        c.setCapacityMsat(localCommit.spec().totalFunds());
+        c.sendableBalanceMsat = event.commitments().availableBalanceForSend().toLong();
+        c.setBalanceMsat(localCommit.spec().toLocal().toLong());
+        c.setCapacityMsat(localCommit.spec().totalFunds().toLong());
         balanceRefreshScheduler.tell(Constants.REFRESH, null);
         channelsRefreshScheduler.tell(Constants.REFRESH, null);
       }
@@ -245,10 +251,10 @@ public class NodeSupervisor extends UntypedActor {
       channelsRefreshScheduler.tell(Constants.REFRESH, null);
     }
     // ---- channel is in error
-    else if (message instanceof ChannelErrorOccured) {
-      final ChannelErrorOccured event = (ChannelErrorOccured) message;
+    else if (message instanceof ChannelErrorOccurred) {
+      final ChannelErrorOccurred event = (ChannelErrorOccurred) message;
       final LocalChannel c = activeChannelsMap.get(event.channel());
-      if (c != null) {
+      if (c != null && event.isFatal()) {
         if (event.error() instanceof Channel.LocalError) {
           final Channel.LocalError localError = (Channel.LocalError) event.error();
           if (localError.t() != null) {
@@ -308,7 +314,7 @@ public class NodeSupervisor extends UntypedActor {
           // Same thing for CLOSING -> CLOSED
           if (!CLOSED$.MODULE$.toString().equals(event.currentState().toString())
             && !WAIT_FOR_INIT_INTERNAL$.MODULE$.toString().equals(event.previousState().toString())) {
-            final MilliSatoshi balanceLeft = new MilliSatoshi(d.commitments().localCommit().spec().toLocalMsat());
+            final MilliSatoshi balanceLeft = d.commitments().localCommit().spec().toLocal();
             EventBus.getDefault().post(new ClosingChannelNotificationEvent(
               c.getChannelId(), c.getPeerNodeId(), ClosingType.LOCAL.equals(c.getClosingType()), balanceLeft, c.getToSelfDelayBlocks()));
           }
@@ -316,16 +322,16 @@ public class NodeSupervisor extends UntypedActor {
         c.state = event.currentState().toString();
         if (event.currentData() instanceof HasCommitments) {
           final Commitments commitments = ((HasCommitments) event.currentData()).commitments();
-          c.setLocalFeatures(commitments.remoteParams().localFeatures().toHex());
-          c.setToSelfDelayBlocks(commitments.remoteParams().toSelfDelay());
-          c.remoteToSelfDelayBlocks = commitments.localParams().toSelfDelay();
+          c.setLocalFeatures(commitments.remoteParams().features().toHex());
+          c.setToSelfDelayBlocks(commitments.remoteParams().toSelfDelay().toInt());
+          c.remoteToSelfDelayBlocks = commitments.localParams().toSelfDelay().toInt();
           c.htlcsInFlightCount = commitments.localCommit().spec().htlcs().iterator().size();
-          c.setChannelReserveSat(commitments.localParams().channelReserveSatoshis());
-          c.setMinimumHtlcAmountMsat(commitments.localParams().htlcMinimumMsat());
+          c.setChannelReserveSat(commitments.localParams().channelReserve().toLong());
+          c.setMinimumHtlcAmountMsat(commitments.localParams().htlcMinimum().toLong());
           c.setFundingTxId(commitments.commitInput().outPoint().txid().toString());
-          c.sendableBalanceMsat = commitments.availableBalanceForSendMsat();
-          c.setBalanceMsat(commitments.localCommit().spec().toLocalMsat());
-          c.setCapacityMsat(commitments.localCommit().spec().totalFunds());
+          c.sendableBalanceMsat = commitments.availableBalanceForSend().toLong();
+          c.setBalanceMsat(commitments.localCommit().spec().toLocal().toLong());
+          c.setCapacityMsat(commitments.localCommit().spec().totalFunds().toLong());
         }
 
         activeChannelsMap.put(event.channel(), c);
@@ -339,20 +345,20 @@ public class NodeSupervisor extends UntypedActor {
       final LocalChannelUpdate event = (LocalChannelUpdate) message;
       final LocalChannel c = activeChannelsMap.get(event.channel());
       if (event.channelUpdate() != null && c != null) {
-        c.feeBaseMsat = event.channelUpdate().feeBaseMsat();
+        c.feeBaseMsat = event.channelUpdate().feeBaseMsat().toLong();
         c.feeProportionalMillionths = event.channelUpdate().feeProportionalMillionths();
-        c.cltvExpiryDelta = event.channelUpdate().cltvExpiryDelta();
+        c.cltvExpiryDelta = event.channelUpdate().cltvExpiryDelta().toInt();
       }
     }
     // ---- failed outbound payment
-    else if (message instanceof PaymentLifecycle.PaymentFailed) {
-      final PaymentLifecycle.PaymentFailed event = (PaymentLifecycle.PaymentFailed) message;
+    else if (message instanceof PaymentFailed) {
+      final PaymentFailed event = (PaymentFailed) message;
       final Payment paymentInDB = dbHelper.getPayment(event.paymentHash().toString(), PaymentType.BTC_LN);
       if (paymentInDB != null) {
         dbHelper.updatePaymentFailed(paymentInDB);
         // extract failure cause to generate a pretty error message
         final ArrayList<LightningPaymentError> errorList = new ArrayList<>();
-        final Seq<PaymentLifecycle.PaymentFailure> failures = PaymentLifecycle.transformForUser(event.failures());
+        final Seq<PaymentFailure> failures = PaymentFailure$.MODULE$.transformForUser(event.failures());
         if (failures.size() > 0) {
           for (int i = 0; i < failures.size(); i++) {
             errorList.add(LightningPaymentError.generateDetailedErrorCause(failures.apply(i)));
@@ -365,11 +371,11 @@ public class NodeSupervisor extends UntypedActor {
       }
     }
     // ---- successful outbound payment
-    else if (message instanceof PaymentLifecycle.PaymentSucceeded) {
-      final PaymentLifecycle.PaymentSucceeded event = (PaymentLifecycle.PaymentSucceeded) message;
+    else if (message instanceof PaymentSent) {
+      final PaymentSent event = (PaymentSent) message;
       final Payment paymentInDB = dbHelper.getPayment(event.paymentHash().toString(), PaymentType.BTC_LN);
       if (paymentInDB != null) {
-        dbHelper.updatePaymentPaid(paymentInDB, event.amountMsat(), event.amountMsat() - paymentInDB.getAmountSentMsat(), event.paymentPreimage().toString());
+        dbHelper.updatePaymentPaid(paymentInDB, event.amount().toLong(), event.feesPaid().toLong(), event.paymentPreimage().toString());
         EventBus.getDefault().post(new LNPaymentSuccessEvent(paymentInDB));
         paymentRefreshScheduler.tell(Constants.REFRESH, null);
       } else {
@@ -383,13 +389,13 @@ public class NodeSupervisor extends UntypedActor {
       final Payment paymentInDB = dbHelper.getPayment(paymentHash, PaymentType.BTC_LN);
       log.debug("received a successful payment with hash={}", paymentHash);
       if (paymentInDB != null) {
-        dbHelper.updatePaymentReceived(paymentInDB, pr.amount().amount());
+        dbHelper.updatePaymentReceived(paymentInDB, pr.amount().toLong());
       } else {
         final Payment p = new Payment();
         p.setType(PaymentType.BTC_LN);
         p.setDirection(PaymentDirection.RECEIVED);
         p.setReference(paymentHash);
-        p.setAmountPaidMsat(pr.amount().amount());
+        p.setAmountPaidMsat(pr.amount().toLong());
         p.setStatus(PaymentStatus.PAID);
         p.setUpdated(new Date());
         dbHelper.insertOrUpdatePayment(p);
@@ -406,7 +412,7 @@ public class NodeSupervisor extends UntypedActor {
   public static boolean hasNormalChannelsWithBalance(final long requiredBalanceMsat) {
     for (LocalChannel d : activeChannelsMap.values()) {
       if ((NORMAL$.MODULE$.toString().equals(d.state) || OFFLINE$.MODULE$.toString().equals(d.state))
-        & d.getBalanceMsat() > requiredBalanceMsat + package$.MODULE$.satoshi2millisatoshi(new Satoshi(d.getChannelReserveSat())).amount()) {
+        & d.getBalanceMsat() > requiredBalanceMsat + MilliSatoshi.toMilliSatoshi(new Satoshi(d.getChannelReserveSat())).toLong()) {
         return true;
       }
     }

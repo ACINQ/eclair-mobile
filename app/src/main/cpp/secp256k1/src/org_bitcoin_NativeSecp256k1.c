@@ -86,15 +86,15 @@ SECP256K1_API jobjectArray JNICALL Java_org_bitcoin_NativeSecp256k1_secp256k1_1e
   jbyteArray sigArray, intsByteArray;
   unsigned char intsarray[2];
 
-  secp256k1_ecdsa_signature sig[72];
+  secp256k1_ecdsa_signature sig;
 
-  int ret = secp256k1_ecdsa_sign(ctx, sig, data, secKey, NULL, NULL);
+  int ret = secp256k1_ecdsa_sign(ctx, &sig, data, secKey, NULL, NULL);
 
   unsigned char outputSer[72];
   size_t outputLen = 72;
 
   if( ret ) {
-    int ret2 = secp256k1_ecdsa_signature_serialize_der(ctx,outputSer, &outputLen, sig ); (void)ret2;
+    int ret2 = secp256k1_ecdsa_signature_serialize_der(ctx,outputSer, &outputLen, &sig ); (void)ret2;
   }
 
   intsarray[0] = outputLen;
@@ -581,3 +581,50 @@ SECP256K1_API jobjectArray JNICALL Java_org_bitcoin_NativeSecp256k1_secp256k1_1e
 
   return retArray;
 }
+
+/*
+ * Class:     org_bitcoin_NativeSecp256k1
+ * Method:    secp256k1_ecdsa_recover
+ * Signature: (Ljava/nio/ByteBuffer;JI)[[B
+ */
+JNIEXPORT jobjectArray JNICALL Java_org_bitcoin_NativeSecp256k1_secp256k1_1ecdsa_1recover
+  (JNIEnv *env, jclass classObject, jobject byteBufferObject, jlong ctx_l, jint recid)
+{
+    secp256k1_context *ctx = (secp256k1_context*)(uintptr_t)ctx_l;
+    const unsigned char* sigdata = (*env)->GetDirectBufferAddress(env, byteBufferObject);
+    const unsigned char* msgdata = (const unsigned char*)(sigdata + 64);
+    secp256k1_ecdsa_recoverable_signature sig;
+    secp256k1_pubkey pub;
+    unsigned char outputSer[65];
+    size_t outputLen = 65;
+    jobjectArray retArray;
+    jbyteArray pubArray, intsByteArray;
+    unsigned char intsarray[1];
+
+    int ret = secp256k1_ecdsa_recoverable_signature_parse_compact(ctx, &sig, sigdata, recid);
+    if (ret) {
+        ret = secp256k1_ecdsa_recover(ctx, &pub, &sig, msgdata);
+        if (ret) {
+            ret = secp256k1_ec_pubkey_serialize(ctx, outputSer, &outputLen, &pub, SECP256K1_EC_UNCOMPRESSED );
+        }
+    }
+
+    intsarray[0] = ret;
+
+    retArray = (*env)->NewObjectArray(env, 2,
+      (*env)->FindClass(env, "[B"),
+      (*env)->NewByteArray(env, 1));
+
+    pubArray = (*env)->NewByteArray(env, outputLen);
+    (*env)->SetByteArrayRegion(env, pubArray, 0, outputLen, (jbyte*)outputSer);
+    (*env)->SetObjectArrayElement(env, retArray, 0, pubArray);
+
+    intsByteArray = (*env)->NewByteArray(env, 1);
+    (*env)->SetByteArrayRegion(env, intsByteArray, 0, 1, (jbyte*)intsarray);
+    (*env)->SetObjectArrayElement(env, retArray, 1, intsByteArray);
+
+    (void)classObject;
+
+    return retArray;
+}
+

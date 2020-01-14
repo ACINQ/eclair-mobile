@@ -17,6 +17,7 @@
 package fr.acinq.eclair.wallet.adapters;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
@@ -25,14 +26,14 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import fr.acinq.bitcoin.MilliSatoshi;
+import fr.acinq.eclair.MilliSatoshi;
 import fr.acinq.eclair.CoinUnit;
 import fr.acinq.eclair.CoinUtils;
-import fr.acinq.eclair.Globals;
 import fr.acinq.eclair.channel.CLOSED$;
 import fr.acinq.eclair.channel.CLOSING$;
 import fr.acinq.eclair.channel.NORMAL$;
 import fr.acinq.eclair.channel.OFFLINE$;
+import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.activities.ChannelDetailsActivity;
@@ -79,7 +80,7 @@ public class LocalChannelItemHolder extends RecyclerView.ViewHolder implements V
 
     // ---- setting amount & unit with optional conversion to fiat
     if (displayAmountAsFiat) {
-      WalletUtils.printAmountInView(balance, WalletUtils.formatMsatToFiat(item.getBalanceMsat(), fiatCode));
+      WalletUtils.printAmountInView(balance, WalletUtils.formatMsatToFiat(new MilliSatoshi(item.getBalanceMsat()), fiatCode));
       balanceUnit.setText(fiatCode.toUpperCase());
     } else {
       WalletUtils.printAmountInView(balance, CoinUtils.formatAmountInUnit(new MilliSatoshi(item.getBalanceMsat()), prefUnit, false));
@@ -111,9 +112,10 @@ public class LocalChannelItemHolder extends RecyclerView.ViewHolder implements V
 
       // ---- additional dynamic info, such as delayed closing tx, inflight htlcs...
       if (CLOSING$.MODULE$.toString().equals(item.state) && ClosingType.LOCAL.equals(item.getClosingType())) {
+        final long blockHeight = WalletUtils.getBlockHeight(itemView.getContext());
         // TODO: get the exact block at which the closing tx will be broadcast
-        if (Globals.blockCount().get() > 0) {
-          final long remainingBlocks = item.getRefundAtBlock() - Globals.blockCount().get();
+        if (blockHeight > 0) {
+          final long remainingBlocks = item.getRefundAtBlock() - blockHeight;
           if (remainingBlocks > 0) {
             delayedClosing.setText(itemView.getResources().getString(R.string.channelitem_delayed_closing, remainingBlocks, remainingBlocks > 1 ? "s" : ""));
           } else {

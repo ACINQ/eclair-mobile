@@ -52,7 +52,7 @@ public class BitcoinURITest {
     Assert.assertEquals(valid_address, new BitcoinURI(acceptable_scheme_ + valid_address).address);
 
     BitcoinURI uri = new BitcoinURI(valid_scheme + valid_address + "?amount=" + valid_amount);
-    Assert.assertEquals(CoinUtils.convertStringAmountToSat(valid_amount, BtcUnit.code()).amount(), uri.amount.amount());
+    Assert.assertEquals(CoinUtils.convertStringAmountToSat(valid_amount, BtcUnit.code()).toLong(), uri.amount.toLong());
 
     uri = new BitcoinURI(valid_scheme + valid_address + "?amount=" + valid_amount + "&lightning=" + valid_lightning);
     Assert.assertEquals(valid_lightning, PaymentRequest.write(uri.lightning));

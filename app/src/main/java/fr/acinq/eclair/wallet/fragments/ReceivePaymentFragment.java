@@ -33,7 +33,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 import com.google.common.base.Strings;
-import fr.acinq.bitcoin.MilliSatoshi;
+import fr.acinq.eclair.MilliSatoshi;
 import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.blockchain.electrum.ElectrumWallet;
 import fr.acinq.eclair.payment.PaymentRequest;
@@ -346,7 +346,7 @@ public class ReceivePaymentFragment extends Fragment implements QRCodeTask.Async
       mBinding.lightningAmountLabel.setVisibility(View.VISIBLE);
       mBinding.lightningAmount.setText(Html.fromHtml(getString(R.string.receivepayment_lightning_amount_value,
         CoinUtils.formatAmountInUnit(this.lightningAmount.get(), WalletUtils.getPreferredCoinUnit(prefs), true),
-        WalletUtils.formatMsatToFiatWithUnit(this.lightningAmount.get().amount(), WalletUtils.getPreferredFiat(prefs)))));
+        WalletUtils.formatMsatToFiatWithUnit(this.lightningAmount.get(), WalletUtils.getPreferredFiat(prefs)))));
     }
   }
 

@@ -30,7 +30,7 @@ import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import fr.acinq.bitcoin.MilliSatoshi;
+import fr.acinq.eclair.MilliSatoshi;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.CoinUnit;
 import fr.acinq.eclair.CoinUtils;
@@ -92,10 +92,9 @@ public class PaymentRequestParametersDialog extends Dialog {
       if (Strings.isNullOrEmpty(amountString)) {
         mBinding.amountFiat.setText("");
       } else {
-        final MilliSatoshi amount = new MilliSatoshi(CoinUtils.convertStringAmountToMsat(amountString, prefUnit.code()).amount());
-        package$.MODULE$.millisatoshi2btc(amount);
-        mBinding.amountFiat.setText(getContext().getString(R.string.amount_to_fiat, WalletUtils.formatMsatToFiatWithUnit(amount.amount(), fiatUnit)));
-        if (amount.amount() > maxReceivableAmount.amount()) {
+        final MilliSatoshi amount = CoinUtils.convertStringAmountToMsat(amountString, prefUnit.code());
+        mBinding.amountFiat.setText(getContext().getString(R.string.amount_to_fiat, WalletUtils.formatMsatToFiatWithUnit(amount, fiatUnit)));
+        if (amount.$greater(maxReceivableAmount)) {
           mBinding.setAmountWarning(getContext().getString(R.string.dialog_prparams_amount_error_excessive, CoinUtils.formatAmountInUnit(maxReceivableAmount, prefUnit, true)));
         } else {
           mBinding.setAmountError(null);
