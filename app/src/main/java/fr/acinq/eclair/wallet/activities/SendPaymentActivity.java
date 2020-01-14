@@ -365,7 +365,7 @@ public class SendPaymentActivity extends EclairActivity {
               }
               return null;
             }, () -> {
-              sendLNPayment(amountMsat, paymentRequest, invoiceAsString);
+              sendLNPayment(amount, paymentRequest, invoiceAsString);
               return null;
             });
           } else {
