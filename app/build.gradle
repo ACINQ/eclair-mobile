@@ -18,12 +18,12 @@ apply plugin: 'com.android.application'
 apply plugin: 'org.greenrobot.greendao'
 
 android {
-  compileSdkVersion 28
+  compileSdkVersion 29
   buildToolsVersion '28.0.3'
   defaultConfig {
     applicationId "fr.acinq.eclair.wallet.dev"
     minSdkVersion 21
-    targetSdkVersion 28
+    targetSdkVersion 29
     versionCode 50
     versionName "0.4.10-DEV"
     testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
