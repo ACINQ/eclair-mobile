@@ -120,7 +120,7 @@ dependencies {
     exclude group: 'ch.qos.logback'
   }
   // eclair core
-  implementation 'fr.acinq.eclair:eclair-core_2.11:0.3.6-android-RC2'
+  implementation 'fr.acinq.eclair:eclair-core_2.11:0.3.6-android'
   // database orm
   implementation 'org.greenrobot:greendao:3.2.2'
   // required for greendao encryption, disabled for now
