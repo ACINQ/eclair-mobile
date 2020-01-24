@@ -59,27 +59,31 @@ public class NetworkSyncWorker extends Worker {
   }
 
   private void cleanup() {
+    log.info("cleaning up worker system");
     if (!system.isTerminated()) {
       system.shutdown();
-      log.info("system shutdown requested...");
+      log.debug("system shutdown requested...");
       system.awaitTermination();
-      log.info("termination completed");
+      log.info("system termination completed");
     }
     if (liteSetup != null && liteSetup.nodeParams() != null) {
       try {
         liteSetup.nodeParams().db().channels().close(); // eclair.sqlite
         liteSetup.nodeParams().db().network().close(); // network.sqlite
         liteSetup.nodeParams().db().audit().close(); // audit.sqlite
+        log.info("databases properly closed");
       } catch (Throwable t) {
-        log.error("could not close at least one database connection opened by litesetup", t);
+        log.error("could not close at least one database connection: ", t);
       }
+    } else {
+      log.info("no setup available");
     }
   }
 
   @NonNull
   @Override
   public Result doWork() {
-    log.info("NetworkSyncWorker has started");
+    log.info("sync worker started");
     final Context context = getApplicationContext();
 
     if (!WalletUtils.getEclairDBFile(context).exists()) {
@@ -98,7 +102,7 @@ public class NetworkSyncWorker extends Worker {
         log.info("sync has completed");
         return Result.success();
       } catch (Exception e) {
-        log.error("network sync worker failed: ", e);
+        log.error("sync worker failed: ", e);
         return Result.failure();
       } finally {
         cleanup();

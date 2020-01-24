@@ -54,7 +54,7 @@
 
     <variable
       name="maxReceivable"
-      type="fr.acinq.bitcoin.MilliSatoshi" />
+      type="fr.acinq.eclair.MilliSatoshi" />
 
   </data>
 
@@ -281,7 +281,7 @@
             android:paddingTop="@dimen/space_xs"
             android:paddingEnd="@dimen/space_lg"
             android:paddingBottom="@dimen/space_sm"
-            android:visibility="@{!hasNormalChannels || excessiveLightningAmount || maxReceivable.amount == 0 ? View.VISIBLE : View.GONE}"
+            android:visibility="@{!hasNormalChannels || excessiveLightningAmount || maxReceivable.toLong == 0L ? View.VISIBLE : View.GONE}"
             app:layout_constrainedWidth="true"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -320,7 +320,7 @@
               android:layout_marginStart="27dp"
               android:text="@string/receivepayment_lightning_no_inbound"
               android:textSize="@dimen/text_xs"
-              android:visibility="@{maxReceivable.amount == 0 ? View.VISIBLE : View.GONE}" />
+              android:visibility="@{maxReceivable.toLong == 0L ? View.VISIBLE : View.GONE}" />
           </LinearLayout>
 
           <TextView

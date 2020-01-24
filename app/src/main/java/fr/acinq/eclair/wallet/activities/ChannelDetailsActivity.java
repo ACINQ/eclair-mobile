@@ -29,12 +29,11 @@ import android.text.Html;
 import android.view.View;
 import android.widget.Toast;
 import com.google.common.base.Strings;
-import fr.acinq.bitcoin.MilliSatoshi;
+import fr.acinq.eclair.MilliSatoshi;
 import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.eclair.CoinUnit;
 import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.Features;
-import fr.acinq.eclair.Globals;
 import fr.acinq.eclair.channel.*;
 import fr.acinq.eclair.router.NORMAL$;
 import fr.acinq.eclair.wallet.R;
@@ -137,16 +136,18 @@ public class ChannelDetailsActivity extends EclairActivity {
     if (channel.getIsActive()) {
       mBinding.balance.setValue(getString(R.string.channeldetails_balance_value,
         CoinUtils.formatAmountInUnit(new MilliSatoshi(channel.getBalanceMsat()), prefUnit, true),
-        WalletUtils.formatMsatToFiatWithUnit(channel.getBalanceMsat(), fiatUnit)));
+        WalletUtils.formatMsatToFiatWithUnit(new MilliSatoshi(channel.getBalanceMsat()), fiatUnit)));
       mBinding.capacity.setValue(getString(R.string.channeldetails_balance_value,
         CoinUtils.formatAmountInUnit(new MilliSatoshi(channel.getCapacityMsat()), prefUnit, true),
-        WalletUtils.formatMsatToFiatWithUnit(channel.getCapacityMsat(), fiatUnit)));
+        WalletUtils.formatMsatToFiatWithUnit(new MilliSatoshi(channel.getCapacityMsat()), fiatUnit)));
       final double progress = channel.getCapacityMsat() != 0 ? (double) channel.getBalanceMsat() / channel.getCapacityMsat() * 100 : 0;
       mBinding.balanceProgress.setProgress(100 - (int) progress);
       mBinding.maxReceivable.setText(CoinUtils.formatAmountInUnit(new MilliSatoshi(channel.getReceivableMsat()), prefUnit, true));
-      mBinding.maxReceivableFiat.setText(getString(R.string.amount_to_fiat, WalletUtils.formatMsatToFiatWithUnit(channel.getReceivableMsat(), fiatUnit)));
+      mBinding.maxReceivableFiat.setText(getString(R.string.amount_to_fiat,
+        WalletUtils.formatMsatToFiatWithUnit(new MilliSatoshi(channel.getReceivableMsat()), fiatUnit)));
       mBinding.maxSendable.setText(CoinUtils.formatAmountInUnit(new MilliSatoshi(Math.max(channel.sendableBalanceMsat, 0)), prefUnit, true));
-      mBinding.maxSendableFiat.setText(getString(R.string.amount_to_fiat, WalletUtils.formatMsatToFiatWithUnit(Math.max(channel.sendableBalanceMsat, 0), fiatUnit)));
+      mBinding.maxSendableFiat.setText(getString(R.string.amount_to_fiat,
+        WalletUtils.formatMsatToFiatWithUnit(new MilliSatoshi(Math.max(channel.sendableBalanceMsat, 0)), fiatUnit)));
 
       mBinding.state.setText(channel.state);
 
@@ -219,7 +220,7 @@ public class ChannelDetailsActivity extends EclairActivity {
       if (channel.getRefundAtBlock() > 0) {
         mBinding.closingRefundBlock.setValue(getString(R.string.channeldetails_refund_block_value,
           NumberFormat.getInstance().format(channel.getRefundAtBlock()),
-          NumberFormat.getInstance().format(Globals.blockCount().get())));
+          NumberFormat.getInstance().format(WalletUtils.getBlockHeight(getApplicationContext()))));
       }
       mBinding.closingRefundBlock.setVisibility(View.VISIBLE);
     }
@@ -230,10 +231,8 @@ public class ChannelDetailsActivity extends EclairActivity {
     mBinding.funder.setValue(getString(channel.isFunder ? R.string.channeldetails_funder_you : R.string.channeldetails_funder_peer));
     if (channel.getLocalFeatures() != null) {
       final ByteVector localFeatures = ByteVector.view(Hex.decode(channel.getLocalFeatures()));
-      mBinding.setHasAdvancedRoutingSync(
-        Features.hasFeature(localFeatures, Features.CHANNEL_RANGE_QUERIES_BIT_OPTIONAL())
-          || Features.hasFeature(localFeatures, Features.CHANNEL_RANGE_QUERIES_BIT_MANDATORY()));
-      mBinding.setHasDataLossProtection(Features.hasFeature(localFeatures, Features.OPTION_DATA_LOSS_PROTECT_OPTIONAL()));
+      mBinding.setHasAdvancedRoutingSync(Features.hasFeature(localFeatures, Features.ChannelRangeQueries$.MODULE$));
+      mBinding.setHasDataLossProtection(Features.hasFeature(localFeatures, Features.OptionDataLossProtect$.MODULE$));
     }
     mBinding.toSelfDelay.setValue(getString(R.string.channeldetails_delay_value, channel.getToSelfDelayBlocks()));
     mBinding.remoteToSelfDelay.setValue(getString(R.string.channeldetails_delay_value, channel.remoteToSelfDelayBlocks));

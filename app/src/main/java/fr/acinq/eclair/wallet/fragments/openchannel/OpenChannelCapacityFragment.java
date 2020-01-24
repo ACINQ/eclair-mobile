@@ -29,6 +29,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import fr.acinq.bitcoin.Satoshi;
+import fr.acinq.bitcoin.Satoshi$;
 import fr.acinq.eclair.CoinUnit;
 import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.channel.Channel;
@@ -66,7 +67,7 @@ public class OpenChannelCapacityFragment extends Fragment {
   }
 
   final Satoshi minFunding = new Satoshi(100000); // 1 mBTC
-  final Satoshi maxFunding = new Satoshi(Channel.MAX_FUNDING_SATOSHIS());
+  final Satoshi maxFunding = Channel.MAX_FUNDING();
   private int feeRatingState = Constants.FEE_RATING_FAST;
   private String preferredFiatCurrency = Constants.FIAT_USD;
   private CoinUnit preferredBitcoinUnit = CoinUtils.getUnitFromString(Constants.BTC_CODE);
@@ -135,14 +136,14 @@ public class OpenChannelCapacityFragment extends Fragment {
     mBinding.useAllFundsCheckbox.setChecked(false);
     try {
       final long feesSatPerByte = Long.parseLong(feesString);
-      if (feesSatPerByte != App.estimateSlowFees() && feesSatPerByte != App.estimateMediumFees() && feesSatPerByte != App.estimateFastFees()) {
+      if (feesSatPerByte != this.getApp().estimateSlowFees() && feesSatPerByte != this.getApp().estimateMediumFees() && feesSatPerByte != this.getApp().estimateFastFees()) {
         feeRatingState = Constants.FEE_RATING_CUSTOM;
         mBinding.setFeeRatingState(feeRatingState);
         mBinding.fundingFeesRating.setText(R.string.payment_fees_custom);
       }
-      if (feesSatPerByte <= App.estimateSlowFees() / 2) {
+      if (feesSatPerByte <= this.getApp().estimateSlowFees() / 2) {
         mBinding.setFeesWarning(getString(R.string.payment_fees_verylow));
-      } else if (feesSatPerByte >= App.estimateFastFees() * 2) {
+      } else if (feesSatPerByte >= this.getApp().estimateFastFees() * 2) {
         mBinding.setFeesWarning(getString(R.string.payment_fees_veryhigh));
       } else {
         mBinding.setFeesWarning(null);
@@ -176,11 +177,11 @@ public class OpenChannelCapacityFragment extends Fragment {
     try {
       final Satoshi capacity = CoinUtils.convertStringAmountToSat(amount, preferredBitcoinUnit.code());
       mBinding.capacityFiat.setText(getString(R.string.amount_to_fiat, WalletUtils.formatSatToFiatWithUnit(capacity, preferredFiatCurrency)));
-      if (capacity.amount() < minFunding.amount() || capacity.amount() > maxFunding.amount()) {
+      if (capacity.$less(minFunding )|| capacity.$greater$eq(maxFunding)) {
         mBinding.setAmountError(getString(R.string.openchannel_capacity_invalid, CoinUtils.formatAmountInUnit(minFunding, preferredBitcoinUnit, false),
           CoinUtils.formatAmountInUnit(maxFunding, preferredBitcoinUnit, true)));
         return null;
-      } else if (getApp() != null && capacity.amount() > getApp().getOnchainBalance().amount()) {
+      } else if (getApp() != null && capacity.$greater(getApp().getOnchainBalance())) {
         mBinding.setAmountError(getString(R.string.openchannel_capacity_notenoughfunds));
         return null;
       } else {
@@ -212,8 +213,8 @@ public class OpenChannelCapacityFragment extends Fragment {
       public void run() {
         try {
           if (getApp() != null) {
-            final Long feesPerKw = fr.acinq.eclair.package$.MODULE$.feerateByte2Kw(Long.parseLong(mBinding.fundingFeesValue.getText().toString()));
-            final long capacitySat = Math.min(getApp().getAvailableFundsAfterFees(feesPerKw).amount(), Channel.MAX_FUNDING_SATOSHIS());
+            final long feesPerKw = fr.acinq.eclair.package$.MODULE$.feerateByte2Kw(Long.parseLong(mBinding.fundingFeesValue.getText().toString()));
+            final long capacitySat = Math.min(getApp().getAvailableFundsAfterFees(feesPerKw).toLong(), Channel.MAX_FUNDING().toLong() - 1);
             runOnUiThread(() -> {
               mBinding.capacityValue.setText(CoinUtils.rawAmountInUnit(new Satoshi(capacitySat), preferredBitcoinUnit).bigDecimal().toPlainString());
               mBinding.capacityValue.setEnabled(false);
@@ -242,31 +243,35 @@ public class OpenChannelCapacityFragment extends Fragment {
   }
 
   private void pickFees() {
-    if (feeRatingState == Constants.FEE_RATING_SLOW) {
-      feeRatingState = Constants.FEE_RATING_MEDIUM;
-      mBinding.fundingFeesValue.setText(String.valueOf(App.estimateMediumFees()));
-      mBinding.setFeeRatingState(feeRatingState);
-      mBinding.fundingFeesRating.setText(R.string.payment_fees_medium);
-    } else if (feeRatingState == Constants.FEE_RATING_MEDIUM) {
-      feeRatingState = Constants.FEE_RATING_FAST;
-      mBinding.fundingFeesValue.setText(String.valueOf(App.estimateFastFees()));
-      mBinding.setFeeRatingState(feeRatingState);
-      mBinding.fundingFeesRating.setText(R.string.payment_fees_fast);
-    } else if (feeRatingState == Constants.FEE_RATING_FAST) {
-      feeRatingState = Constants.FEE_RATING_SLOW;
-      mBinding.fundingFeesValue.setText(String.valueOf(App.estimateSlowFees()));
-      mBinding.setFeeRatingState(feeRatingState);
-      mBinding.fundingFeesRating.setText(R.string.payment_fees_slow);
-    } else {
-      setFeesToDefault();
+    if (getApp() != null) {
+      if (feeRatingState == Constants.FEE_RATING_SLOW) {
+        feeRatingState = Constants.FEE_RATING_MEDIUM;
+        mBinding.fundingFeesValue.setText(String.valueOf(getApp().estimateMediumFees()));
+        mBinding.setFeeRatingState(feeRatingState);
+        mBinding.fundingFeesRating.setText(R.string.payment_fees_medium);
+      } else if (feeRatingState == Constants.FEE_RATING_MEDIUM) {
+        feeRatingState = Constants.FEE_RATING_FAST;
+        mBinding.fundingFeesValue.setText(String.valueOf(getApp().estimateFastFees()));
+        mBinding.setFeeRatingState(feeRatingState);
+        mBinding.fundingFeesRating.setText(R.string.payment_fees_fast);
+      } else if (feeRatingState == Constants.FEE_RATING_FAST) {
+        feeRatingState = Constants.FEE_RATING_SLOW;
+        mBinding.fundingFeesValue.setText(String.valueOf(getApp().estimateSlowFees()));
+        mBinding.setFeeRatingState(feeRatingState);
+        mBinding.fundingFeesRating.setText(R.string.payment_fees_slow);
+      } else {
+        setFeesToDefault();
+      }
     }
   }
 
   private void setFeesToDefault() {
-    feeRatingState = Constants.FEE_RATING_FAST;
-    mBinding.fundingFeesValue.setText(String.valueOf(App.estimateFastFees()));
-    mBinding.setFeeRatingState(feeRatingState);
-    mBinding.fundingFeesRating.setText(R.string.payment_fees_fast);
+    if (getApp() != null) {
+      feeRatingState = Constants.FEE_RATING_FAST;
+      mBinding.fundingFeesValue.setText(String.valueOf(getApp().estimateFastFees()));
+      mBinding.setFeeRatingState(feeRatingState);
+      mBinding.fundingFeesRating.setText(R.string.payment_fees_fast);
+    }
   }
 
   private void confirmOpenChannel() {

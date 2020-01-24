@@ -34,12 +34,11 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 import com.google.common.base.Strings;
 import fr.acinq.bitcoin.ByteVector32;
-import fr.acinq.bitcoin.MilliSatoshi;
+import fr.acinq.eclair.MilliSatoshi;
 import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.CoinUnit;
 import fr.acinq.eclair.CoinUtils;
-import fr.acinq.eclair.Globals;
 import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.BuildConfig;
@@ -129,7 +128,7 @@ public class SendPaymentActivity extends EclairActivity {
       return false;
     }
     // check channels balance is sufficient
-    if (paymentRequest.amount().isDefined() && !NodeSupervisor.hasNormalChannelsWithBalance(WalletUtils.getAmountFromInvoice(paymentRequest).amount())) {
+    if (paymentRequest.amount().isDefined() && !NodeSupervisor.hasNormalChannelsWithBalance(WalletUtils.getAmountFromInvoice(paymentRequest).toLong())) {
       canNotHandlePayment(getString(R.string.payment_error_ln_insufficient_funds));
       return false;
     }
@@ -148,7 +147,7 @@ public class SendPaymentActivity extends EclairActivity {
    */
   private boolean checkWalletReady() {
     // check that wallet is not desync, or very late compared to chain
-    final boolean isBlockHeightCorrect = Globals.blockCount().get() > Constants.MIN_BLOCK_HEIGHT;
+    final boolean isBlockHeightCorrect = WalletUtils.getBlockHeight(getApplicationContext()) > Constants.MIN_BLOCK_HEIGHT;
     // if this is a LN payment, send button is enabled only if there is at least 1 channel capable of processing the payment.
     if (app == null || app.getElectrumState() == null) return false;
     final boolean isWalletReady = app.getElectrumState().isConnected && isBlockHeightCorrect && (!isLightningInvoice() || NodeSupervisor.hasOneNormalChannel());
@@ -160,10 +159,10 @@ public class SendPaymentActivity extends EclairActivity {
   private void setupOnchainPaymentForm(final BitcoinURI bitcoinURI) {
     checkWalletReady();
     if (bitcoinURI.amount != null) {
-      final MilliSatoshi amountMsat = package$.MODULE$.satoshi2millisatoshi(bitcoinURI.amount);
+      final MilliSatoshi amountMsat = MilliSatoshi.toMilliSatoshi(bitcoinURI.amount);
       mBinding.amountEditableBtcHint.setVisibility(View.GONE);
       mBinding.amountEditableBtcValue.setText(CoinUtils.rawAmountInUnit(amountMsat, preferredBitcoinUnit).bigDecimal().toPlainString());
-      mBinding.amountEditableFiatValue.setText(WalletUtils.formatMsatToFiat(amountMsat.amount(), preferredFiatCurrency));
+      mBinding.amountEditableFiatValue.setText(WalletUtils.formatMsatToFiat(amountMsat, preferredFiatCurrency));
     } else {
       // only open the keyboard forcibly if no amount was set in the URI. This makes for a cleaner initial display.
       forceFocusAmount(null);
@@ -184,7 +183,7 @@ public class SendPaymentActivity extends EclairActivity {
       if (paymentRequest.amount().isDefined()) {
         final MilliSatoshi amountMsat = WalletUtils.getAmountFromInvoice(paymentRequest);
         mBinding.amountEditableBtcValue.setText(CoinUtils.rawAmountInUnit(amountMsat, preferredBitcoinUnit).bigDecimal().toPlainString());
-        mBinding.amountEditableFiatValue.setText(WalletUtils.formatMsatToFiat(amountMsat.amount(), preferredFiatCurrency));
+        mBinding.amountEditableFiatValue.setText(WalletUtils.formatMsatToFiat(amountMsat, preferredFiatCurrency));
       }
       mBinding.recipientValue.setText(paymentRequest.nodeId().toString());
       final Either<String, ByteVector32> desc = paymentRequest.description();
@@ -267,29 +266,31 @@ public class SendPaymentActivity extends EclairActivity {
   }
 
   public void pickFees(final View view) {
-    if (feeRatingState == Constants.FEE_RATING_SLOW) {
-      feeRatingState = Constants.FEE_RATING_MEDIUM;
-      mBinding.feesValue.setText(String.valueOf(App.estimateMediumFees()));
-      mBinding.setFeeRatingState(feeRatingState);
-      mBinding.feesRating.setText(R.string.payment_fees_medium);
-    } else if (feeRatingState == Constants.FEE_RATING_MEDIUM) {
-      feeRatingState = Constants.FEE_RATING_FAST;
-      mBinding.feesValue.setText(String.valueOf(App.estimateFastFees()));
-      mBinding.setFeeRatingState(feeRatingState);
-      mBinding.feesRating.setText(R.string.payment_fees_fast);
-    } else if (feeRatingState == Constants.FEE_RATING_FAST) {
-      feeRatingState = Constants.FEE_RATING_SLOW;
-      mBinding.feesValue.setText(String.valueOf(App.estimateSlowFees()));
-      mBinding.setFeeRatingState(feeRatingState);
-      mBinding.feesRating.setText(R.string.payment_fees_slow);
-    } else {
-      setFeesToDefault();
+    if (app != null) {
+      if (feeRatingState == Constants.FEE_RATING_SLOW) {
+        feeRatingState = Constants.FEE_RATING_MEDIUM;
+        mBinding.feesValue.setText(String.valueOf(app.estimateMediumFees()));
+        mBinding.setFeeRatingState(feeRatingState);
+        mBinding.feesRating.setText(R.string.payment_fees_medium);
+      } else if (feeRatingState == Constants.FEE_RATING_MEDIUM) {
+        feeRatingState = Constants.FEE_RATING_FAST;
+        mBinding.feesValue.setText(String.valueOf(app.estimateFastFees()));
+        mBinding.setFeeRatingState(feeRatingState);
+        mBinding.feesRating.setText(R.string.payment_fees_fast);
+      } else if (feeRatingState == Constants.FEE_RATING_FAST) {
+        feeRatingState = Constants.FEE_RATING_SLOW;
+        mBinding.feesValue.setText(String.valueOf(app.estimateSlowFees()));
+        mBinding.setFeeRatingState(feeRatingState);
+        mBinding.feesRating.setText(R.string.payment_fees_slow);
+      } else {
+        setFeesToDefault();
+      }
     }
   }
 
   private void setFeesToDefault() {
     feeRatingState = Constants.FEE_RATING_FAST;
-    mBinding.feesValue.setText(String.valueOf(App.estimateFastFees()));
+    mBinding.feesValue.setText(String.valueOf(app.estimateFastFees()));
     mBinding.setFeeRatingState(feeRatingState);
     mBinding.feesRating.setText(R.string.payment_fees_fast);
   }
@@ -316,8 +317,8 @@ public class SendPaymentActivity extends EclairActivity {
     try {
       if (isLightningInvoice()) {
         final PaymentRequest paymentRequest = invoice.right().get();
-        final long amountMsat = CoinUtils.convertStringAmountToMsat(mBinding.amountEditableBtcValue.getText().toString(), preferredBitcoinUnit.code()).amount();
-        if (amountMsat <= 0) {
+        final MilliSatoshi amount = CoinUtils.convertStringAmountToMsat(mBinding.amountEditableBtcValue.getText().toString(), preferredBitcoinUnit.code());
+        if (amount.toLong() <= 0) {
           handlePaymentError(R.string.payment_error_amount_zero_or_less);
           return;
         }
@@ -330,7 +331,7 @@ public class SendPaymentActivity extends EclairActivity {
             @Override
             public void onPinConfirm(final PinDialog dialog, final String pinValue) {
               if (isPinCorrect(pinValue, dialog)) {
-                sendLNPayment(amountMsat, paymentRequest, invoiceAsString);
+                sendLNPayment(amount, paymentRequest, invoiceAsString);
               } else {
                 handlePaymentError(R.string.payment_error_incorrect_pin);
               }
@@ -344,7 +345,7 @@ public class SendPaymentActivity extends EclairActivity {
           });
           pinDialog.show();
         } else {
-          sendLNPayment(amountMsat, paymentRequest, invoiceAsString);
+          sendLNPayment(amount, paymentRequest, invoiceAsString);
         }
       } else if (isOnchainInvoice()) {
         final BitcoinURI bitcoinURI = invoice.left().get();
@@ -352,7 +353,7 @@ public class SendPaymentActivity extends EclairActivity {
         if (amountSat.$greater(app.getOnchainBalance())) {
           handlePaymentError(R.string.payment_error_amount_onchain_insufficient_funds);
           return;
-        } else if (amountSat.amount() <= 0) {
+        } else if (amountSat.toLong() <= 0) {
           handlePaymentError(R.string.payment_error_amount_zero_or_less);
           return;
         }
@@ -407,11 +408,11 @@ public class SendPaymentActivity extends EclairActivity {
   /**
    * Executes a Lightning payment in an asynchronous task.
    *
-   * @param amountMsat amount of the payment in milli satoshis
+   * @param amount     payment amount
    * @param pr         lightning payment request
    * @param prAsString payment request as a string (used for display)
    */
-  private void sendLNPayment(final long amountMsat, final PaymentRequest pr, final String prAsString) {
+  private void sendLNPayment(final MilliSatoshi amount, final PaymentRequest pr, final String prAsString) {
     new Thread() {
       @Override
       public void run() {
@@ -429,7 +430,7 @@ public class SendPaymentActivity extends EclairActivity {
           return;
         } else if (p != null && p.getStatus() == PaymentStatus.FAILED) {
           // Payment exists but has failed, retry it with new amount.
-          p.setAmountSentMsat(amountMsat);
+          p.setAmountSentMsat(amount.toLong());
           p.setUpdated(new Date());
           p.setStatus(PaymentStatus.INIT);
           app.getDBHelper().insertOrUpdatePayment(p);
@@ -443,7 +444,7 @@ public class SendPaymentActivity extends EclairActivity {
           newPayment.setDirection(PaymentDirection.SENT);
           newPayment.setReference(paymentHash);
           newPayment.setAmountRequestedMsat(WalletUtils.getLongAmountFromInvoice(pr));
-          newPayment.setAmountSentMsat(amountMsat);
+          newPayment.setAmountSentMsat(amount.toLong());
           newPayment.setRecipient(pr.nodeId().toString());
           newPayment.setPaymentRequest(prAsString.toLowerCase());
           newPayment.setStatus(PaymentStatus.INIT);
@@ -457,7 +458,7 @@ public class SendPaymentActivity extends EclairActivity {
         }
 
         // 2 - send payment to the payment initiator
-        app.sendLNPayment(pr, amountMsat, capLightningFees);
+        app.sendLNPayment(pr, amount, capLightningFees);
         runOnUiThread(() -> closeAndGoHome());
       }
     }.start();
@@ -559,7 +560,7 @@ public class SendPaymentActivity extends EclairActivity {
 
   private void checkOnchainBalance(final MilliSatoshi amountMsat) {
     if (invoice != null && invoice.isLeft()) {
-      if (package$.MODULE$.millisatoshi2satoshi(amountMsat).$greater(app.getOnchainBalance())) {
+      if (amountMsat.truncateToSatoshi().$greater(app.getOnchainBalance())) {
         handlePaymentError(R.string.payment_error_amount_onchain_insufficient_funds);
       } else {
         mBinding.paymentError.setVisibility(View.GONE);
@@ -572,7 +573,7 @@ public class SendPaymentActivity extends EclairActivity {
       try {
         final String btcAmountString = mBinding.amountEditableBtcValue.getText().toString();
         final MilliSatoshi amountMsat = CoinUtils.convertStringAmountToMsat(btcAmountString, preferredBitcoinUnit.code());
-        mBinding.amountEditableFiatValue.setText(WalletUtils.convertMsatToFiat(amountMsat.amount(), preferredFiatCurrency).bigDecimal().setScale(4, RoundingMode.CEILING).toPlainString());
+        mBinding.amountEditableFiatValue.setText(WalletUtils.convertMsatToFiat(amountMsat, preferredFiatCurrency).bigDecimal().setScale(4, RoundingMode.CEILING).toPlainString());
         mBinding.amountEditableBtcHint.setVisibility(Strings.isNullOrEmpty(btcAmountString) ? View.VISIBLE : View.GONE);
         checkOnchainBalance(amountMsat);
       } catch (Exception e) {
@@ -587,7 +588,7 @@ public class SendPaymentActivity extends EclairActivity {
         mBinding.amountEditableBtcValue.setText(CoinUtils.rawAmountInUnit(amountMsat, preferredBitcoinUnit).bigDecimal().toPlainString());
         checkOnchainBalance(amountMsat);
       } catch (Exception e) {
-        log.debug("could not convert fiat -> btc amount with cause {}", e);
+        log.debug("could not convert fiat -> btc amount with cause {}", e.getLocalizedMessage());
         mBinding.amountEditableBtcValue.setText(R.string.unknown);
       }
     }
@@ -638,15 +639,15 @@ public class SendPaymentActivity extends EclairActivity {
       public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
         try {
           final long feesSatPerByte = Long.parseLong(s.toString());
-          if (feesSatPerByte != App.estimateSlowFees() && feesSatPerByte != App.estimateMediumFees() && feesSatPerByte != App.estimateFastFees()) {
+          if (feesSatPerByte != app.estimateSlowFees() && feesSatPerByte != app.estimateMediumFees() && feesSatPerByte != app.estimateFastFees()) {
             feeRatingState = Constants.FEE_RATING_CUSTOM;
             mBinding.setFeeRatingState(feeRatingState);
             mBinding.feesRating.setText(R.string.payment_fees_custom);
           }
-          if (feesSatPerByte <= App.estimateSlowFees() / 2) {
+          if (feesSatPerByte <= app.estimateSlowFees() / 2) {
             mBinding.feesWarning.setText(R.string.payment_fees_verylow);
             mBinding.feesWarning.setVisibility(View.VISIBLE);
-          } else if (feesSatPerByte >= App.estimateFastFees() * 2) {
+          } else if (feesSatPerByte >= app.estimateFastFees() * 2) {
             mBinding.feesWarning.setText(R.string.payment_fees_veryhigh);
             mBinding.feesWarning.setVisibility(View.VISIBLE);
           } else {

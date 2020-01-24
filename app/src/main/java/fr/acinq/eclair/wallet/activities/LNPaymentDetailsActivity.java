@@ -27,7 +27,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.Toolbar;
 import android.view.View;
 import com.google.android.gms.common.util.Strings;
-import fr.acinq.bitcoin.MilliSatoshi;
+import fr.acinq.eclair.MilliSatoshi;
 import fr.acinq.eclair.CoinUnit;
 import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.wallet.R;
@@ -68,8 +68,9 @@ public class LNPaymentDetailsActivity extends EclairActivity {
       final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
       final CoinUnit prefUnit = WalletUtils.getPreferredCoinUnit(prefs);
 
-      mBinding.amountPaid.setAmountMsat(new MilliSatoshi(p.getAmountPaidMsat()));
-      mBinding.amountPaidFiat.setText(getString(R.string.paymentdetails_amount_fiat, WalletUtils.formatMsatToFiatWithUnit(p.getAmountPaidMsat(), WalletUtils.getPreferredFiat(prefs))));
+      mBinding.amountPaid.setAmount(new MilliSatoshi(p.getAmountPaidMsat()));
+      mBinding.amountPaidFiat.setText(getString(R.string.paymentdetails_amount_fiat,
+        WalletUtils.formatMsatToFiatWithUnit(new MilliSatoshi(p.getAmountPaidMsat()), WalletUtils.getPreferredFiat(prefs))));
 
       mBinding.fees.setText(CoinUtils.formatAmountInUnit(new MilliSatoshi(p.getFeesPaidMsat()), prefUnit, true));
       mBinding.status.setText(p.getStatus().toString());

@@ -28,7 +28,7 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
-import fr.acinq.bitcoin.MilliSatoshi;
+import fr.acinq.eclair.MilliSatoshi;
 import fr.acinq.eclair.CoinUnit;
 import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.wallet.R;
@@ -38,7 +38,7 @@ public class CoinAmountView extends ConstraintLayout {
   private final SharedPreferences prefs;
   private TextView amountTextView;
   private TextView unitTextView;
-  private MilliSatoshi amountMsat = new MilliSatoshi(0);
+  private MilliSatoshi amount = new MilliSatoshi(0);
   private CoinUnit prefBtcUnit;
   private String prefFiatCurrency;
   private boolean forceBtcUnit;
@@ -65,10 +65,10 @@ public class CoinAmountView extends ConstraintLayout {
     this.prefBtcUnit = WalletUtils.getPreferredCoinUnit(prefs);
     this.prefFiatCurrency = WalletUtils.getPreferredFiat(prefs);
     if (WalletUtils.shouldDisplayInFiat(prefs) && !forceBtcUnit) {
-      WalletUtils.printAmountInView(amountTextView, WalletUtils.formatMsatToFiat(amountMsat.amount(), prefFiatCurrency));
+      WalletUtils.printAmountInView(amountTextView, WalletUtils.formatMsatToFiat(amount, prefFiatCurrency));
       unitTextView.setText(prefFiatCurrency.toUpperCase());
     } else {
-      WalletUtils.printAmountInView(amountTextView, CoinUtils.formatAmountInUnit(amountMsat, prefBtcUnit, false));
+      WalletUtils.printAmountInView(amountTextView, CoinUtils.formatAmountInUnit(amount, prefBtcUnit, false));
       unitTextView.setText(prefBtcUnit.shortLabel());
     }
     refreshView();
@@ -108,12 +108,12 @@ public class CoinAmountView extends ConstraintLayout {
     }
   }
 
-  public MilliSatoshi getAmountMsat() {
-    return this.amountMsat;
+  public MilliSatoshi getAmount() {
+    return this.amount;
   }
 
-  public void setAmountMsat(final MilliSatoshi amountMsat) {
-    this.amountMsat = amountMsat;
+  public void setAmount(final MilliSatoshi amount) {
+    this.amount = amount;
     refreshUnits();
   }
 

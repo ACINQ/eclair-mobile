@@ -30,6 +30,7 @@ import fr.acinq.bitcoin.Protocol;
 import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.bitcoin.Transaction;
 import fr.acinq.bitcoin.package$;
+import fr.acinq.eclair.MilliSatoshi;
 import fr.acinq.eclair.blockchain.electrum.ElectrumClient;
 import fr.acinq.eclair.blockchain.electrum.ElectrumWallet;
 import fr.acinq.eclair.wallet.DBHelper;
@@ -86,10 +87,10 @@ public class ElectrumSupervisor extends UntypedActor {
       paymentReceived.setDirection(direction);
       paymentReceived.setReference(walletTransactionReceive.tx().txid().toString());
       if (direction == PaymentDirection.SENT) { // fee makes sense only if the tx is sent by us
-        paymentReceived.setFeesPaidMsat(package$.MODULE$.satoshi2millisatoshi(fee).amount());
+        paymentReceived.setFeesPaidMsat(MilliSatoshi.toMilliSatoshi(fee).toLong());
       }
       paymentReceived.setTxPayload(Hex.toHexString(bos.toByteArray()));
-      paymentReceived.setAmountPaidMsat(package$.MODULE$.satoshi2millisatoshi(amount).amount());
+      paymentReceived.setAmountPaidMsat(MilliSatoshi.toMilliSatoshi(amount).toLong());
       paymentReceived.setConfidenceBlocks((int) walletTransactionReceive.depth());
       paymentReceived.setConfidenceType(0);
       

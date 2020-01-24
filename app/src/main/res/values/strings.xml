@@ -445,6 +445,7 @@
   <string name="networkinfos_electrum_confirm_message"><![CDATA[You will now connect to <b>%1$s</b><br/><br/>Restarting…]]></string>
   <string name="networkinfos_electrum_confirm_message_default"><![CDATA[Restarting with preset electrum…]]></string>
   <string name="networkinfos_block"><![CDATA[%1$s&nbsp;&nbsp;<font color="#888888"><small>//&nbsp;&nbsp;%2$s</small></font>]]></string>
+  <string name="networkinfos_block_unknown">Block height is not available yet…</string>
   <string name="networkinfos_networkchannels_label">Known channels in network</string>
   <string name="networkinfos_wallet_title">Wallet</string>
   <string name="networkinfos_networkdb_action">Reset Network Database…</string>

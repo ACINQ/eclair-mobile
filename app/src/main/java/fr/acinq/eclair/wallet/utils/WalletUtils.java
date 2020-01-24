@@ -52,6 +52,7 @@ import com.typesafe.config.ConfigFactory;
 import fr.acinq.bitcoin.*;
 import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.CoinUnit;
+import fr.acinq.eclair.MilliSatoshi;
 import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.BuildConfig;
@@ -250,13 +251,13 @@ public class WalletUtils {
   /**
    * Converts bitcoin amount to the fiat currency preferred by the user.
    *
-   * @param amountMsat amount in milli satoshis
+   * @param amount amount to convert
    * @param fiatCode   fiat currency code (USD, EUR, RUB, JPY, ...)
    * @return localized formatted string of the converted amount
    */
-  public static BigDecimal convertMsatToFiat(final long amountMsat, final String fiatCode) {
+  public static BigDecimal convertMsatToFiat(final MilliSatoshi amount, final String fiatCode) {
     final double rate = App.RATES.containsKey(fiatCode) ? App.RATES.get(fiatCode) : -1.0f;
-    return package$.MODULE$.millisatoshi2btc(new MilliSatoshi(amountMsat)).amount().$times(BigDecimal.decimal(rate));
+    return package$.MODULE$.satoshi2btc(amount.truncateToSatoshi()).toBigDecimal().$times(BigDecimal.decimal(rate));
   }
 
   /**
@@ -268,30 +269,30 @@ public class WalletUtils {
    */
   public static MilliSatoshi convertFiatToMsat(final String fiatAmount, final String fiatCode) {
     final double rate = App.RATES.containsKey(fiatCode) ? App.RATES.get(fiatCode) : -1.0f;
-    return package$.MODULE$.btc2millisatoshi(new Btc(BigDecimal$.MODULE$.apply(fiatAmount).$div(BigDecimal.decimal(rate))));
+    return MilliSatoshi.toMilliSatoshi(new Btc(BigDecimal$.MODULE$.apply(fiatAmount).$div(BigDecimal.decimal(rate))));
   }
 
   /**
    * Prints bitcoin amount to the fiat currency preferred by the user. Output is a pretty localized print.
    *
-   * @param amountMsat amount in milli satoshis
+   * @param amount amount to format
    * @param fiatCode   fiat currency code (USD, EUR, RUB, JPY, ...)
    * @return localized formatted string of the converted amount
    */
-  public static String formatMsatToFiat(final long amountMsat, final String fiatCode) {
-    final double fiatValue = convertMsatToFiat(amountMsat, fiatCode).doubleValue();
+  public static String formatMsatToFiat(final MilliSatoshi amount, final String fiatCode) {
+    final double fiatValue = convertMsatToFiat(amount, fiatCode).doubleValue();
     if (fiatValue < 0) return NO_FIAT_RATE;
     return getFiatFormat().format(fiatValue);
   }
 
-  public static String formatMsatToFiatWithUnit(final long amountMsat, final String fiatCode) {
-    return formatMsatToFiat(amountMsat, fiatCode) + " " + fiatCode.toUpperCase();
+  public static String formatMsatToFiatWithUnit(final MilliSatoshi amount, final String fiatCode) {
+    return formatMsatToFiat(amount, fiatCode) + " " + fiatCode.toUpperCase();
   }
 
   public static String formatSatToFiat(final Satoshi amount, final String fiatCode) {
     final double rate = App.RATES.containsKey(fiatCode) ? App.RATES.get(fiatCode) : -1.0f;
     if (rate < 0) return NO_FIAT_RATE;
-    return getFiatFormat().format(package$.MODULE$.satoshi2btc(amount).amount().doubleValue() * rate);
+    return getFiatFormat().format(package$.MODULE$.satoshi2btc(amount).toDouble() * rate);
   }
 
   public static String formatSatToFiatWithUnit(final Satoshi amount, final String fiatCode) {
@@ -323,7 +324,7 @@ public class WalletUtils {
    * Return amount as Long, in millisatoshi
    */
   public static long getLongAmountFromInvoice(PaymentRequest paymentRequest) {
-    return paymentRequest.amount().isEmpty() ? 0 : paymentRequest.amount().get().amount();
+    return paymentRequest.amount().isEmpty() ? 0 : paymentRequest.amount().get().toLong();
   }
 
   public static MilliSatoshi getAmountFromInvoice(PaymentRequest paymentRequest) {
@@ -565,5 +566,19 @@ public class WalletUtils {
       }
     }
     return ConfigFactory.empty();
+  }
+
+  /**
+   * Retrieve blockheight from context, using eclair appkit in App.
+   *
+   * @return blockheight long, 0 if there was a problem and appkit is not available.
+   */
+  public static long getBlockHeight(final Context context) {
+    try {
+      return ((App) context).appKit.eclairKit.nodeParams().currentBlockHeight();
+    } catch (Throwable t) {
+      log.info("could not retrieve blockheight from app context");
+      return 0;
+    }
   }
 }
