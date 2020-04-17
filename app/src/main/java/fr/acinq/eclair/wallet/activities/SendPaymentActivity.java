@@ -20,19 +20,30 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.text.format.DateUtils;
-import android.util.TypedValue;
-import androidx.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import androidx.annotation.UiThread;
-import androidx.annotation.WorkerThread;
+import android.text.format.DateUtils;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
+
+import androidx.annotation.UiThread;
+import androidx.annotation.WorkerThread;
+import androidx.databinding.DataBindingUtil;
+
 import com.google.common.base.Strings;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.math.RoundingMode;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+
 import fr.acinq.bitcoin.ByteVector32;
 import fr.acinq.eclair.MilliSatoshi;
 import fr.acinq.bitcoin.Satoshi;
@@ -44,21 +55,19 @@ import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.actors.NodeSupervisor;
 import fr.acinq.eclair.wallet.databinding.ActivitySendPaymentBinding;
 import fr.acinq.eclair.wallet.fragments.PinDialog;
-import fr.acinq.eclair.wallet.models.*;
+import fr.acinq.eclair.wallet.models.BitcoinURI;
+import fr.acinq.eclair.wallet.models.Payment;
+import fr.acinq.eclair.wallet.models.PaymentDirection;
+import fr.acinq.eclair.wallet.models.PaymentStatus;
+import fr.acinq.eclair.wallet.models.PaymentType;
+import fr.acinq.eclair.wallet.utils.BiometricHelper;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.TechnicalHelper;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import scala.Option;
 import scala.util.Either;
 import scala.util.Left;
 import scala.util.Right;
-
-import java.math.RoundingMode;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
 
 public class SendPaymentActivity extends EclairActivity {
 
@@ -87,7 +96,7 @@ public class SendPaymentActivity extends EclairActivity {
   // state of the fees, used with data binding
   private int feeRatingState = Constants.FEE_RATING_FAST;
   private boolean capLightningFees = true;
-  private PinDialog pinDialog;
+  private PinDialog mPinDialog;
 
   /**
    * Checks if a payment request is correct; if not, display a message.
@@ -325,7 +334,7 @@ public class SendPaymentActivity extends EclairActivity {
           return;
         }
         if (isPinRequired()) {
-          pinDialog = new PinDialog(SendPaymentActivity.this, R.style.FullScreenDialog, new PinDialog.PinDialogCallback() {
+          mPinDialog = new PinDialog(SendPaymentActivity.this, R.style.FullScreenDialog, new PinDialog.PinDialogCallback() {
             @Override
             public void onPinConfirm(final PinDialog dialog, final String pinValue) {
               if (isPinCorrect(pinValue, dialog)) {
@@ -341,7 +350,25 @@ public class SendPaymentActivity extends EclairActivity {
               toggleForm();
             }
           });
-          pinDialog.show();
+          if (BiometricHelper.canUseBiometric(getApplicationContext())) {
+            BiometricHelper.getBiometricAuth(this, R.string.payment_biometric_lock_title, R.string.biometricprompt_negative, null, () -> {
+              isProcessingPayment = false;
+              toggleForm();
+              return null;
+            }, () -> {
+              if (mPinDialog != null) {
+                mPinDialog.dismiss();
+                mPinDialog.reset();
+                mPinDialog.show();
+              }
+              return null;
+            }, () -> {
+              sendLNPayment(amount, paymentRequest, invoiceAsString);
+              return null;
+            });
+          } else {
+            mPinDialog.show();
+          }
         } else {
           sendLNPayment(amount, paymentRequest, invoiceAsString);
         }
@@ -359,7 +386,7 @@ public class SendPaymentActivity extends EclairActivity {
           final Long feesPerKw = fr.acinq.eclair.package$.MODULE$.feerateByte2Kw(Long.parseLong(mBinding.feesValue.getText().toString()));
           final boolean emptyWallet = mBinding.emptyOnchainWallet.isChecked();
           if (isPinRequired()) {
-            pinDialog = new PinDialog(SendPaymentActivity.this, R.style.FullScreenDialog, new PinDialog.PinDialogCallback() {
+            mPinDialog = new PinDialog(SendPaymentActivity.this, R.style.FullScreenDialog, new PinDialog.PinDialogCallback() {
               public void onPinConfirm(final PinDialog dialog, final String pinValue) {
                 if (isPinCorrect(pinValue, dialog)) {
                   sendBitcoinPayment(amountSat, feesPerKw, bitcoinURI, emptyWallet);
@@ -374,7 +401,7 @@ public class SendPaymentActivity extends EclairActivity {
                 toggleForm();
               }
             });
-            pinDialog.show();
+            mPinDialog.show();
           } else {
             sendBitcoinPayment(amountSat, feesPerKw, bitcoinURI, emptyWallet);
           }
@@ -742,8 +769,8 @@ public class SendPaymentActivity extends EclairActivity {
   @Override
   protected void onPause() {
     // dismiss the pin dialog if it exists to prevent leak.
-    if (pinDialog != null) {
-      pinDialog.dismiss();
+    if (mPinDialog != null) {
+      mPinDialog.dismiss();
     }
     super.onPause();
   }
