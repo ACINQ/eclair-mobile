@@ -20,6 +20,7 @@ import android.content.Context
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import androidx.biometric.BiometricConstants
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.fragment.app.FragmentActivity
@@ -36,7 +37,8 @@ object BiometricHelper {
 
 
   @JvmStatic
-  fun getBiometricAuth(activity: FragmentActivity, titleResId: Int = R.string.biometricprompt_title, negativeResId: Int = R.string.biometricprompt_negative, descResId: Int? = null, cancelCallback: () -> Unit, negativeCallback: () -> Unit, successCallback: () -> Unit): BiometricPrompt {
+  fun getBiometricAuth(activity: FragmentActivity, titleResId: Int = R.string.biometricprompt_title, negativeResId: Int = R.string.biometricprompt_negative, descResId: Int? = null,
+                       cancelCallback: () -> Unit, negativeCallback: () -> Unit, successCallback: () -> Unit): BiometricPrompt {
     val biometricPromptInfo = BiometricPrompt.PromptInfo.Builder()
         .setTitle(activity.getString(titleResId))
         .setDeviceCredentialAllowed(false)
@@ -50,7 +52,7 @@ object BiometricHelper {
         log.info("biometric auth error ($errorCode): $errString")
         if (errorCode == BiometricPrompt.ERROR_NEGATIVE_BUTTON) {
           negativeCallback()
-        } else {
+        } else if (errorCode == BiometricConstants.ERROR_USER_CANCELED) {
           cancelCallback()
         }
       }
