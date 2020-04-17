@@ -66,7 +66,9 @@ public interface BackupHelper {
     }
 
     static boolean hasLocalAccess(final Context context) {
-      return ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+      return ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+        && isExternalStorageWritable()
+        && Environment.getExternalStorageDirectory().canWrite();
     }
 
     static File getBackupFile(final String backupFileName) throws EclairException.ExternalStorageUnavailableException {

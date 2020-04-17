@@ -20,14 +20,14 @@ apply plugin: 'kotlin-android'
 apply plugin: 'org.greenrobot.greendao'
 
 android {
-  compileSdkVersion 28
+  compileSdkVersion 29
   buildToolsVersion '28.0.3'
   defaultConfig {
     applicationId "fr.acinq.eclair.wallet.dev"
     minSdkVersion 21
-    targetSdkVersion 28
-    versionCode 50
-    versionName "0.4.10-DEV"
+    targetSdkVersion 29
+    versionCode 51
+    versionName "0.4.11-DEV"
     testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     multiDexEnabled true
   }
@@ -105,7 +105,7 @@ dependencies {
 
   // gdrive api rest v3 + google auth
   def google_drive_rest_version = "v3-rev173-1.25.0"
-  def google_play_auth_version = "17.0.0"
+  def google_play_auth_version = "18.0.0"
   def google_api_client_version = "1.26.0"
   implementation "com.google.apis:google-api-services-drive:$google_drive_rest_version"
   implementation "com.google.android.gms:play-services-auth:$google_play_auth_version"
@@ -116,17 +116,17 @@ dependencies {
   def biometric_version = "1.0.1"
   implementation "androidx.biometric:biometric:$biometric_version"
 
-  implementation('androidx.work:work-runtime:2.0.1') {
+  implementation('androidx.work:work-runtime:2.3.4') {
     exclude group: 'com.google.guava', module: 'listenablefuture'
   }
   // logging
-  implementation 'org.slf4j:slf4j-api:1.7.25'
+  implementation 'org.slf4j:slf4j-api:1.7.29'
   implementation 'com.github.tony19:logback-android:2.0.0'
   implementation('com.papertrailapp:logback-syslog4j:1.0.0') {
     exclude group: 'ch.qos.logback'
   }
   // eclair core
-  implementation 'fr.acinq.eclair:eclair-core_2.11:0.3.4-android-SNAPSHOT'
+  implementation 'fr.acinq.eclair:eclair-core_2.11:0.3.6-android'
   // database orm
   implementation 'org.greenrobot:greendao:3.2.2'
   // required for greendao encryption, disabled for now
