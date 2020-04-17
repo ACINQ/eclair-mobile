@@ -34,7 +34,7 @@ object KeystoreHelper {
 
   private const val PIN_KEY_NAME = "ECLAIR_MOBILE_PIN_KEY"
 
-  @RequiresApi(Build.VERSION_CODES.M)
+  @RequiresApi(Build.VERSION_CODES.N)
   fun generateKeyForPin() {
     val keyStore = KeyStore.getInstance("AndroidKeyStore")
     keyStore.load(null)
@@ -62,7 +62,7 @@ object KeystoreHelper {
   }
 
   @JvmStatic
-  @RequiresApi(Build.VERSION_CODES.O)
+  @RequiresApi(Build.VERSION_CODES.N)
   fun encryptPin(context: Context, pin: String) {
     getKeyForPin()?.let { sk ->
       val cipher = Cipher.getInstance("${KeyProperties.KEY_ALGORITHM_AES}/${KeyProperties.BLOCK_MODE_CBC}/${KeyProperties.ENCRYPTION_PADDING_PKCS7}")
@@ -75,7 +75,7 @@ object KeystoreHelper {
   }
 
   @JvmStatic
-  @RequiresApi(Build.VERSION_CODES.O)
+  @RequiresApi(Build.VERSION_CODES.N)
   fun decryptPin(context: Context): ByteArray? {
     val sk = getKeyForPin() ?: throw RuntimeException("could not retrieve PIN key from keystore")
     val iv = Prefs.getEncryptedPINIV(context) ?: throw java.lang.RuntimeException("pin initialization vector is missing")

@@ -32,7 +32,7 @@ object BiometricHelper {
 
   @JvmStatic
   fun canUseBiometric(context: Context): Boolean =
-    Prefs.useBiometrics(context) && BiometricManager.from(context).canAuthenticate() == BiometricManager.BIOMETRIC_SUCCESS && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+    Prefs.useBiometrics(context) && BiometricManager.from(context).canAuthenticate() == BiometricManager.BIOMETRIC_SUCCESS && Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
 
 
   @JvmStatic

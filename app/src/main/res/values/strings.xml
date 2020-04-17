@@ -537,7 +537,7 @@
   <string name="security_biometric_disabled">Biometric authentication disabled</string>
   <string name="security_biometric_error">There was an error, please try again…</string>
 
-  <string name="security_biometric_unavailable">Available on Android 8+ only.</string>
+  <string name="security_biometric_unavailable">Available on Android 7.0+ only.</string>
   <string name="security_biometric_support_no_hw">Your device does not support biometric authentication.</string>
   <string name="security_biometric_support_hw_unavailable">Biometric hardware is not available. Try again later.</string>
   <string name="security_biometric_support_none_enrolled">Please enroll biometric first.</string>

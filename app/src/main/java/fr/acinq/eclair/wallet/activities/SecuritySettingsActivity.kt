@@ -75,7 +75,7 @@ class SecuritySettingsActivity : EclairActivity(), EclairActivity.EncryptSeedCal
       BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE -> unavailableBiometrics(R.string.security_biometric_support_no_hw)
       BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE -> unavailableBiometrics(R.string.security_biometric_support_hw_unavailable)
       BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> unavailableBiometrics(R.string.security_biometric_support_none_enrolled)
-      BiometricManager.BIOMETRIC_SUCCESS -> if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+      BiometricManager.BIOMETRIC_SUCCESS -> if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
         mBinding.biometricLayout.setOnClickListener { v ->
           if (mBinding.biometricSwitch.isChecked) {
             disableBiometrics(v.context)
@@ -148,7 +148,7 @@ class SecuritySettingsActivity : EclairActivity(), EclairActivity.EncryptSeedCal
 
   private var biometricPrompt: BiometricPrompt? = null
 
-  @RequiresApi(Build.VERSION_CODES.O)
+  @RequiresApi(Build.VERSION_CODES.N)
   private fun disableBiometrics(context: Context) {
     biometricPrompt = BiometricHelper.getBiometricAuth(this, R.string.security_biometric_disable_prompt_title, R.string.security_biometric_disable_prompt_negative, R.string.security_biometric_disable_prompt_desc, {
       mBinding.isUpdatingBiometrics = false
@@ -168,7 +168,7 @@ class SecuritySettingsActivity : EclairActivity(), EclairActivity.EncryptSeedCal
 
   private var promptPin: PinDialog? = null
 
-  @RequiresApi(Build.VERSION_CODES.O)
+  @RequiresApi(Build.VERSION_CODES.N)
   private fun enrollBiometrics(context: Context) {
     promptPin = PinDialog(this@SecuritySettingsActivity, R.style.FullScreenDialog, object : PinDialog.PinDialogCallback {
       override fun onPinConfirm(dialog: PinDialog, pinValue: String) {
