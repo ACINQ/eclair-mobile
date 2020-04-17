@@ -23,11 +23,11 @@ android {
   compileSdkVersion 29
   buildToolsVersion '28.0.3'
   defaultConfig {
-    applicationId "fr.acinq.eclair.wallet.dev"
+    applicationId "fr.acinq.eclair.wallet"
     minSdkVersion 21
     targetSdkVersion 29
     versionCode 51
-    versionName "0.4.11-DEV"
+    versionName "0.4.11"
     testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     multiDexEnabled true
   }
