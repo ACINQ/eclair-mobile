@@ -109,6 +109,11 @@ public class PinDialog extends Dialog {
     });
   }
 
+  public void reset() {
+    this.mPinValue = "";
+    this.mBinding.pinDisplay.setText("");
+  }
+
   public void animateSuccess() {
     this.dismiss();
   }

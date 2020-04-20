@@ -102,6 +102,7 @@
   <string name="start_error_connectivity">Your device is not connected to the internet, or has a very slow connection. Please check your network settings.</string>
   <string name="start_error_timeout">Eclair could not start within a reasonable time frame. Please check your network settings.</string>
   <string name="start_error_wrong_password">Wrong PIN.</string>
+  <string name="start_error_biometric">Authentication has failed, please try again or use the PIN code dialog.</string>
   <string name="start_error_improper">App did not initialize properly, restarting…</string>
   <string name="start_error_generic">There was an error when starting the wallet. If this error persists, you can check the application\'s logs and contact our support.</string>
   <string name="start_error_datadir_unreadable">Datadir is not readable.</string>
@@ -358,6 +359,7 @@
   <string name="payment_toast_failure">Could not send transaction</string>
   <string name="payment_do_send">Pay</string>
   <string name="payment_do_send_wait">Wallet not ready…</string>
+  <string name="payment_biometric_lock_title">Unlock to send payment</string>
 
   <string name="payment_error">This payment is not valid.</string>
   <string name="payment_error_fees_onchain">The fees value is not valid.</string>
@@ -487,6 +489,11 @@
   <string name="pindialog_error">PIN code must be a 6 digits number.</string>
   <string name="pindialog_error_donotmatch">PIN codes do not match.</string>
 
+  <!-- //////////////// Biometric default dialog //////////////////// -->
+
+  <string name="biometricprompt_title">Wallet is locked</string>
+  <string name="biometricprompt_negative">Unlock with PIN</string>
+
   <!-- //////////////// Preferences //////////////////// -->
 
   <string name="prefs_cat_general">General</string>
@@ -497,10 +504,6 @@
   <string name="prefs_fiat_currency_dialog">Display in fiat currency</string>
   <string name="prefs_btc_unit">Bitcoin unit</string>
   <string name="prefs_btc_decimals">Number of decimals shown</string>
-  <string name="prefs_change_password">Change the app PIN</string>
-  <string name="prefs_change_password_desc">Seed will be re-encrypted with a new PIN</string>
-  <string name="prefs_pin_title">Ask for PIN before payment</string>
-  <string name="prefs_pin_default_info">Uses the PIN encrypting your wallet</string>
   <string name="prefs_lightning_max_fee">Lightning Fee Protection</string>
   <string name="prefs_lightning_max_fee_desc">Prevent making a Lightning payment if the fee would be too high. Limit is set to 3% (with a tolerance if fee is smaller than 21 satoshis to allow tiny payments).</string>
   <string name="prefs_lightning_enable_inbound">Enable receive over Lightning</string>
@@ -521,8 +524,29 @@
 
   <!-- //////////////// Security Settings //////////////////// -->
 
-  <string name="security_password_update_success">PIN updated</string>
-  <string name="security_password_update_failure">Incorrect PIN</string>
+  <string name="security_pin_failure">Incorrect PIN</string>
+  <string name="security_change_pin_title">Change the app PIN</string>
+  <string name="security_change_pin_desc">Seed will be re-encrypted with a new PIN</string>
+  <string name="security_change_pin_success">PIN updated</string>
+  <string name="security_pin_required_payment_title">Ask for PIN before payment</string>
+  <string name="security_pin_required_payment_desc">Uses the PIN encrypting your wallet</string>
+
+  <string name="security_biometric_title">Biometric lock</string>
+  <string name="security_biometric_desc">Unlock your wallet with your fingerprint/iris/face</string>
+  <string name="security_biometric_enabled">Biometric authentication activated</string>
+  <string name="security_biometric_disabled">Biometric authentication disabled</string>
+  <string name="security_biometric_error">There was an error, please try again…</string>
+
+  <string name="security_biometric_unavailable">Available on Android 7.0+ only.</string>
+  <string name="security_biometric_support_no_hw">Your device does not support biometric authentication.</string>
+  <string name="security_biometric_support_hw_unavailable">Biometric hardware is not available. Try again later.</string>
+  <string name="security_biometric_support_none_enrolled">Please enroll biometric first.</string>
+
+  <string name="security_biometric_disable_prompt_title">Disable biometric lock</string>
+  <string name="security_biometric_disable_prompt_desc">You will have to use your PIN code from now</string>
+  <string name="security_biometric_disable_prompt_negative">Cancel</string>
+  <string name="security_biometric_enable_prompt_title">Enable biometric lock</string>
+  <string name="security_biometric_enable_prompt_negative">Cancel</string>
 
   <!-- //////////////// Scanner messages //////////////////// -->
 

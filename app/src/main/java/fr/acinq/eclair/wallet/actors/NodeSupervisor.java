@@ -16,21 +16,55 @@
 
 package fr.acinq.eclair.wallet.actors;
 
+import com.google.common.base.Strings;
+
+import org.greenrobot.eventbus.EventBus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.spongycastle.util.encoders.Hex;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
 import akka.actor.ActorRef;
 import akka.actor.Terminated;
 import akka.actor.UntypedActor;
-import com.google.common.base.Strings;
-import fr.acinq.bitcoin.*;
-import fr.acinq.bitcoin.package$;
+import fr.acinq.bitcoin.ByteVector32;
+import fr.acinq.bitcoin.Crypto;
 import fr.acinq.eclair.CltvExpiryDelta;
 import fr.acinq.eclair.MilliSatoshi;
 import fr.acinq.eclair.ShortChannelId;
-import fr.acinq.eclair.channel.*;
+import fr.acinq.eclair.channel.CLOSED$;
+import fr.acinq.eclair.channel.CLOSING$;
+import fr.acinq.eclair.channel.Channel;
+import fr.acinq.eclair.channel.ChannelCreated;
+import fr.acinq.eclair.channel.ChannelErrorOccurred;
+import fr.acinq.eclair.channel.ChannelIdAssigned;
+import fr.acinq.eclair.channel.ChannelRestored;
+import fr.acinq.eclair.channel.ChannelSignatureReceived;
+import fr.acinq.eclair.channel.ChannelSignatureSent;
+import fr.acinq.eclair.channel.ChannelStateChanged;
+import fr.acinq.eclair.channel.Commitments;
+import fr.acinq.eclair.channel.DATA_CLOSING;
+import fr.acinq.eclair.channel.HasCommitments;
+import fr.acinq.eclair.channel.LocalChannelUpdate;
+import fr.acinq.eclair.channel.LocalCommit;
+import fr.acinq.eclair.channel.LocalCommitConfirmed;
+import fr.acinq.eclair.channel.RemoteCommit;
+import fr.acinq.eclair.channel.SHUTDOWN$;
+import fr.acinq.eclair.channel.ShortChannelIdAssigned;
+import fr.acinq.eclair.channel.WAIT_FOR_INIT_INTERNAL$;
+import fr.acinq.eclair.channel.WaitingForRevocation;
 import fr.acinq.eclair.db.BackupCompleted$;
 import fr.acinq.eclair.payment.PaymentFailed;
 import fr.acinq.eclair.payment.PaymentFailure;
 import fr.acinq.eclair.payment.PaymentFailure$;
-import fr.acinq.eclair.payment.send.PaymentLifecycle;
 import fr.acinq.eclair.payment.PaymentReceived;
 import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.payment.PaymentSent;
@@ -44,22 +78,21 @@ import fr.acinq.eclair.wallet.events.ClosingChannelNotificationEvent;
 import fr.acinq.eclair.wallet.events.LNPaymentFailedEvent;
 import fr.acinq.eclair.wallet.events.LNPaymentSuccessEvent;
 import fr.acinq.eclair.wallet.events.ReceivedLNPaymentNotificationEvent;
-import fr.acinq.eclair.wallet.models.*;
+import fr.acinq.eclair.wallet.models.ClosingType;
+import fr.acinq.eclair.wallet.models.LightningPaymentError;
+import fr.acinq.eclair.wallet.models.LocalChannel;
+import fr.acinq.eclair.wallet.models.Payment;
+import fr.acinq.eclair.wallet.models.PaymentDirection;
+import fr.acinq.eclair.wallet.models.PaymentStatus;
+import fr.acinq.eclair.wallet.models.PaymentType;
 import fr.acinq.eclair.wallet.services.ChannelsBackupWorker;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
-import org.greenrobot.eventbus.EventBus;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.spongycastle.util.encoders.Hex;
 import scala.collection.Iterator;
 import scala.collection.JavaConverters;
 import scala.collection.Seq;
 import scala.util.Either;
 import scodec.bits.ByteVector;
-
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This actor handles the messages sent by the Eclair node.
@@ -407,21 +440,44 @@ public class NodeSupervisor extends UntypedActor {
   }
 
   /**
-   * Checks if the wallet has at least 1 NORMAL channel with enough balance (including channel reserve).
+   * Optimistically estimates the total amount that this node can send. OFFLINE/SYNCING channels' balances are accounted
+   * for in order to smooth this estimation if the connection is flaky.
+   * <p>
+   * The returned amount is an aggregate of all channels balance.
    */
-  public static boolean hasNormalChannelsWithBalance(final long requiredBalanceMsat) {
+  public static MilliSatoshi getTotalSendable() {
+    long sendableMsat = 0;
     for (LocalChannel d : activeChannelsMap.values()) {
-      if ((NORMAL$.MODULE$.toString().equals(d.state) || OFFLINE$.MODULE$.toString().equals(d.state))
-        & d.getBalanceMsat() > requiredBalanceMsat + MilliSatoshi.toMilliSatoshi(new Satoshi(d.getChannelReserveSat())).toLong()) {
-        return true;
+      if (d.fundsAreUsable()) {
+        sendableMsat += d.sendableBalanceMsat;
       }
     }
-    return false;
+    return new MilliSatoshi(sendableMsat);
   }
 
   /**
-   * Optimistically estimates the maximum amount that this node can receive. OFFLINE/SYNCING channels' balances are accounted
+   * Optimistically estimates the total amount that this node can receive. OFFLINE/SYNCING channels' balances are accounted
    * for in order to smooth this estimation if the connection is flaky.
+   * <p>
+   * The returned amount is an aggregate of all channels balance.
+   */
+  public static MilliSatoshi getTotalReceivable() {
+    long receivableMsat = 0;
+    for (LocalChannel d : activeChannelsMap.values()) {
+      if (d.fundsAreUsable()) {
+        receivableMsat += d.getReceivableMsat();
+      }
+    }
+    return new MilliSatoshi(receivableMsat);
+  }
+
+  /**
+   * Optimistically estimates the **maximum** amount that this node can receive. OFFLINE/SYNCING channels' balances are accounted
+   * for in order to smooth this estimation if the connection is flaky.
+   * <p>
+   * The amount returned is the highest inbound balance of all channels. It will be equal to or less than `getTotalReceivable()`.
+   * <p>
+   * This gives a more realistic estimation than `getTotalReceivable`, as long as basic mpp is not well supported.
    */
   public static MilliSatoshi getMaxReceivable() {
     long max_msat = 0;

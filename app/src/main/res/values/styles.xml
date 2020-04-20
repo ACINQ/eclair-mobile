@@ -106,6 +106,7 @@
   </style>
 
   <style name="SplashTheme" parent="PrimaryBgTheme">
+    <item name="android:textColor">@color/grey_4</item>
     <item name="android:windowBackground">@drawable/splash</item>
     <item name="android:background">@android:color/transparent</item>
   </style>

@@ -17,7 +17,6 @@
 package fr.acinq.eclair.wallet.activities;
 
 import android.Manifest;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Handler;
 
@@ -29,16 +28,11 @@ import androidx.core.app.ActivityCompat;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.tasks.Task;
-import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
-import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.drive.Drive;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -59,7 +53,7 @@ public abstract class ChannelsBackupBaseActivity extends EclairActivity {
    * - If the value is None, the source's access status is pending.
    * - If the value is Some(true), access is granted.
    * - If the value is Some(false), access is denied.
-   *
+   * <p>
    * Value should never be null.
    */
   protected Map<BackupTypes, Option<Boolean>> accessRequestsMap = new HashMap<>();

@@ -15,6 +15,8 @@
  */
 
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-android'
 apply plugin: 'org.greenrobot.greendao'
 
 android {
@@ -24,8 +26,8 @@ android {
     applicationId "fr.acinq.eclair.wallet.mainnet2"
     minSdkVersion 21
     targetSdkVersion 29
-    versionCode 50
-    versionName "0.4.10"
+    versionCode 51
+    versionName "0.4.11-DEV"
     testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     multiDexEnabled true
   }
@@ -103,18 +105,22 @@ dependencies {
 
   // gdrive api rest v3 + google auth
   def google_drive_rest_version = "v3-rev173-1.25.0"
-  def google_play_auth_version = "17.0.0"
+  def google_play_auth_version = "18.0.0"
   def google_api_client_version = "1.26.0"
   implementation "com.google.apis:google-api-services-drive:$google_drive_rest_version"
   implementation "com.google.android.gms:play-services-auth:$google_play_auth_version"
   implementation "com.google.http-client:google-http-client-gson:$google_api_client_version"
   implementation "com.google.api-client:google-api-client-android:$google_api_client_version"
 
-  implementation('androidx.work:work-runtime:2.0.1') {
+  // ANDROIDX - biometric
+  def biometric_version = "1.0.1"
+  implementation "androidx.biometric:biometric:$biometric_version"
+
+  implementation('androidx.work:work-runtime:2.3.4') {
     exclude group: 'com.google.guava', module: 'listenablefuture'
   }
   // logging
-  implementation 'org.slf4j:slf4j-api:1.7.25'
+  implementation 'org.slf4j:slf4j-api:1.7.29'
   implementation 'com.github.tony19:logback-android:2.0.0'
   implementation('com.papertrailapp:logback-syslog4j:1.0.0') {
     exclude group: 'ch.qos.logback'
@@ -134,4 +140,6 @@ dependencies {
   androidTestImplementation('com.typesafe.akka:akka-testkit_2.11:2.3.14') {
     exclude group: 'org.scala-lang', module: 'scala-library'
   }
+  implementation "androidx.core:core-ktx:1.1.0"
+  implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }
