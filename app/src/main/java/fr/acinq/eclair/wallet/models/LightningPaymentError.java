@@ -21,12 +21,10 @@ import android.os.Parcelable;
 import fr.acinq.eclair.channel.ChannelException;
 import fr.acinq.eclair.payment.LocalFailure;
 import fr.acinq.eclair.payment.PaymentFailure;
-import fr.acinq.eclair.payment.send.PaymentLifecycle;
 import fr.acinq.eclair.payment.RemoteFailure;
 import fr.acinq.eclair.payment.UnreadableRemoteFailure;
-import fr.acinq.eclair.router.ChannelHop;
-import fr.acinq.eclair.router.Hop;
 import fr.acinq.eclair.router.RouteNotFound$;
+import fr.acinq.eclair.router.Router;
 import scala.collection.JavaConverters;
 
 import java.util.ArrayList;
@@ -96,14 +94,14 @@ public class LightningPaymentError implements Parcelable {
       String originChannelId = null;
       final List<String> hopsNodesPK = new ArrayList<>();
       if (rf.route().size() > 0) {
-        final List<ChannelHop> hops = JavaConverters.seqAsJavaListConverter(rf.route()).asJava();
+        final List<Router.Hop> hops = JavaConverters.seqAsJavaListConverter(rf.route()).asJava();
         for (int hi = 0; hi < hops.size(); hi++) {
-          ChannelHop h = hops.get(hi);
+          Router.Hop h = hops.get(hi);
           if (hi == 0) {
             hopsNodesPK.add(h.nodeId().toString());
           }
-          if (origin.equals(h.nodeId().toString())) {
-            originChannelId = h.lastUpdate().shortChannelId().toString();
+          if (origin.equals(h.nodeId().toString()) && h instanceof Router.ChannelHop) {
+            originChannelId = ((Router.ChannelHop) h).lastUpdate().shortChannelId().toString();
           }
           hopsNodesPK.add(h.nextNodeId().toString());
         }
@@ -132,9 +130,9 @@ public class LightningPaymentError implements Parcelable {
       final String cause = "A peer on the route failed the payment with an non readable cause";
       final List<String> hopsNodesPK = new ArrayList<>();
       if (unreadable.route().size() > 0) {
-        final List<ChannelHop> hops = JavaConverters.seqAsJavaListConverter(unreadable.route()).asJava();
+        final List<Router.Hop> hops = JavaConverters.seqAsJavaListConverter(unreadable.route()).asJava();
         for (int hi = 0; hi < hops.size(); hi++) {
-          ChannelHop h = hops.get(hi);
+          Router.Hop h = hops.get(hi);
           if (hi == 0) {
             hopsNodesPK.add(h.nodeId().toString());
           }

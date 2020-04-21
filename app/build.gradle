@@ -15,8 +15,8 @@
  */
 
 apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
 apply plugin: 'org.greenrobot.greendao'
 
 android {
@@ -126,7 +126,7 @@ dependencies {
     exclude group: 'ch.qos.logback'
   }
   // eclair core
-  implementation 'fr.acinq.eclair:eclair-core_2.11:0.3.6-android'
+  implementation 'fr.acinq.eclair:eclair-core_2.11:0.3.7-android-SNAPSHOT'
   // database orm
   implementation 'org.greenrobot:greendao:3.2.2'
   // required for greendao encryption, disabled for now

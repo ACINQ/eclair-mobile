@@ -18,7 +18,6 @@ package fr.acinq.eclair.wallet.models;
 
 import fr.acinq.bitcoin.Transaction;
 import fr.acinq.eclair.channel.*;
-import fr.acinq.eclair.router.NORMAL$;
 import org.greenrobot.greendao.annotation.*;
 import scala.Option;
 

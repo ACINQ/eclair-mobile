@@ -82,12 +82,12 @@ import fr.acinq.eclair.channel.Channel;
 import fr.acinq.eclair.channel.HasCommitments;
 import fr.acinq.eclair.channel.RES_GETINFO;
 import fr.acinq.eclair.channel.Register;
+import fr.acinq.eclair.db.PaymentType;
 import fr.acinq.eclair.io.Peer;
+import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.payment.receive.MultiPartHandler;
 import fr.acinq.eclair.payment.send.PaymentInitiator;
-import fr.acinq.eclair.payment.send.PaymentLifecycle;
-import fr.acinq.eclair.payment.PaymentRequest;
-import fr.acinq.eclair.router.RouteParams;
+import fr.acinq.eclair.router.RouteCalculation;
 import fr.acinq.eclair.router.Router;
 import fr.acinq.eclair.transactions.Scripts;
 import fr.acinq.eclair.wallet.activities.ChannelDetailsActivity;
@@ -103,6 +103,7 @@ import fr.acinq.eclair.wallet.events.XpubEvent;
 import fr.acinq.eclair.wallet.services.CheckElectrumWorker;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
+import fr.acinq.eclair.wire.GenericTlv;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.OkHttpClient;
@@ -128,7 +129,8 @@ import static fr.acinq.eclair.wallet.adapters.LocalChannelItemHolder.EXTRA_CHANN
 public class App extends Application {
 
   public final static Map<String, Float> RATES = new HashMap<>();
-  public static @Nullable WalletContext walletContext = null;
+  public static @Nullable
+  WalletContext walletContext = null;
   public ActorSystem system = ActorSystem.apply("system");
   private final Logger log = LoggerFactory.getLogger(App.class);
   public AtomicReference<String> pin = new AtomicReference<>(null);
@@ -293,7 +295,7 @@ public class App extends Application {
    */
   public PaymentRequest generatePaymentRequest(final String description, final Option<MilliSatoshi> amountMsat_opt, final long expiry) throws Exception {
     Future<Object> f = Patterns.ask(appKit.eclairKit.paymentHandler(),
-      new MultiPartHandler.ReceivePayment(amountMsat_opt, description, Option.apply(expiry), NodeSupervisor.getRoutes(), Option.empty(), Option.empty()),
+      new MultiPartHandler.ReceivePayment(amountMsat_opt, description, Option.apply(expiry), NodeSupervisor.getRoutes(), Option.empty(), Option.empty(), PaymentType.Standard()),
       new Timeout(Duration.create(20, "seconds")));
     return (PaymentRequest) Await.result(f, Duration.create(30, "seconds"));
   }
@@ -310,18 +312,15 @@ public class App extends Application {
     final CltvExpiryDelta cltvExpiryDelta = paymentRequest.minFinalCltvExpiryDelta().isDefined()
       ? paymentRequest.minFinalCltvExpiryDelta().get() : Channel.MIN_CLTV_EXPIRY_DELTA();
 
-    final Option<RouteParams> routeParams = checkFees
-      ? Option.apply(null) // when fee protection is enabled, use the default RouteParams with reasonable values
-      : Option.apply(RouteParams.apply( // otherwise, let's build a "no limit" RouteParams
-      false, // never randomize on mobile
-      MilliSatoshi.toMilliSatoshi(new MilliBtc(BigDecimal.exact(1))), // at most 1mBTC base fee
-      1d, // at most 100%
-      4,
-      Router.DEFAULT_ROUTE_MAX_CLTV(),
-      Option.empty()));
+    final Option<Router.RouteParams> routeParams = checkFees
+      // when fee protection is enabled, use the default RouteParams with reasonable values
+      ? Option.empty()
+      // otherwise, let's build a "no limit" RouteParams with no randomize, 1mBTC base fee, 100% prop fee
+      : Option.apply(new Router.RouteParams(false, MilliSatoshi.toMilliSatoshi(new MilliBtc(BigDecimal.exact(1))), 1d,
+      4, RouteCalculation.DEFAULT_ROUTE_MAX_CLTV(), Option.empty()));
 
     log.info("(lightning) sending {} for invoice {}", amount, paymentRequest.toString());
-    final Seq<Crypto.PublicKey> predefinedRoute = (Seq<Crypto.PublicKey>) Seq$.MODULE$.empty();
+    final Seq<GenericTlv> customTlvs = (Seq<GenericTlv>) Seq$.MODULE$.empty();
 
     appKit.eclairKit.paymentInitiator().tell(
       new PaymentInitiator.SendPaymentRequest(
@@ -332,9 +331,10 @@ public class App extends Application {
         cltvExpiryDelta.$plus(1), // in case a block is mined
         Option.apply(paymentRequest),
         Option.empty(),
-        predefinedRoute,
         paymentRequest.routingInfo(),
-        routeParams),
+        routeParams,
+        customTlvs
+      ),
       ActorRef.noSender());
   }
 

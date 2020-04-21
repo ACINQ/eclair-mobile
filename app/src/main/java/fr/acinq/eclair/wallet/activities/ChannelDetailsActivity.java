@@ -35,7 +35,6 @@ import fr.acinq.eclair.CoinUnit;
 import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.Features;
 import fr.acinq.eclair.channel.*;
-import fr.acinq.eclair.router.NORMAL$;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.actors.NodeSupervisor;
 import fr.acinq.eclair.wallet.adapters.LocalChannelItemHolder;

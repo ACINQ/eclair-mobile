@@ -56,7 +56,10 @@ import fr.acinq.eclair.channel.HasCommitments;
 import fr.acinq.eclair.channel.LocalChannelUpdate;
 import fr.acinq.eclair.channel.LocalCommit;
 import fr.acinq.eclair.channel.LocalCommitConfirmed;
+import fr.acinq.eclair.channel.LocalError;
+import fr.acinq.eclair.channel.NORMAL$;
 import fr.acinq.eclair.channel.RemoteCommit;
+import fr.acinq.eclair.channel.RemoteError;
 import fr.acinq.eclair.channel.SHUTDOWN$;
 import fr.acinq.eclair.channel.ShortChannelIdAssigned;
 import fr.acinq.eclair.channel.WAIT_FOR_INIT_INTERNAL$;
@@ -68,11 +71,11 @@ import fr.acinq.eclair.payment.PaymentFailure$;
 import fr.acinq.eclair.payment.PaymentReceived;
 import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.payment.PaymentSent;
-import fr.acinq.eclair.router.NORMAL$;
 import fr.acinq.eclair.router.SyncProgress;
 import fr.acinq.eclair.transactions.DirectedHtlc;
-import fr.acinq.eclair.transactions.IN$;
-import fr.acinq.eclair.transactions.OUT$;
+import fr.acinq.eclair.transactions.IncomingHtlc;
+import fr.acinq.eclair.transactions.IncomingHtlc$;
+import fr.acinq.eclair.transactions.OutgoingHtlc;
 import fr.acinq.eclair.wallet.DBHelper;
 import fr.acinq.eclair.wallet.events.ClosingChannelNotificationEvent;
 import fr.acinq.eclair.wallet.events.LNPaymentFailedEvent;
@@ -184,7 +187,7 @@ public class NodeSupervisor extends UntypedActor {
       while (it.hasNext()) {
         final DirectedHtlc htlc = it.next();
         htlcsCount++;
-        if (htlc.direction() instanceof OUT$) {
+        if (htlc instanceof OutgoingHtlc) {
           final String htlcPaymentHash = htlc.add().paymentHash().toString();
           final Payment p = dbHelper.getPayment(htlcPaymentHash, PaymentType.BTC_LN);
           if (p != null && p.getStatus() == PaymentStatus.INIT) {
@@ -236,7 +239,7 @@ public class NodeSupervisor extends UntypedActor {
           final DirectedHtlc h = htlcsIterator.next();
           log.debug("sig sent for htlc={}", h);
           // if htlc is outbound, move payment to PENDING (IN from remote commit means that payment is sent)
-          if (h.direction() instanceof IN$) {
+          if (h instanceof IncomingHtlc) {
             final String htlcPaymentHash = h.add().paymentHash().toString();
             final Payment p = dbHelper.getPayment(htlcPaymentHash, PaymentType.BTC_LN);
             if (p != null && p.getStatus() == PaymentStatus.INIT) {
@@ -288,14 +291,14 @@ public class NodeSupervisor extends UntypedActor {
       final ChannelErrorOccurred event = (ChannelErrorOccurred) message;
       final LocalChannel c = activeChannelsMap.get(event.channel());
       if (c != null && event.isFatal()) {
-        if (event.error() instanceof Channel.LocalError) {
-          final Channel.LocalError localError = (Channel.LocalError) event.error();
+        if (event.error() instanceof LocalError) {
+          final LocalError localError = (LocalError) event.error();
           if (localError.t() != null) {
             c.setClosingErrorMessage(localError.t().getMessage());
             dbHelper.saveLocalChannel(c);
           }
-        } else if (event.error() instanceof Channel.RemoteError) {
-          final Channel.RemoteError remoteError = (Channel.RemoteError) event.error();
+        } else if (event.error() instanceof RemoteError) {
+          final RemoteError remoteError = (RemoteError) event.error();
           if (fr.acinq.eclair.package$.MODULE$.isAsciiPrintable(remoteError.e().data())) {
             c.setClosingErrorMessage(WalletUtils.toAscii(remoteError.e().data()));
           } else {
@@ -408,7 +411,7 @@ public class NodeSupervisor extends UntypedActor {
       final PaymentSent event = (PaymentSent) message;
       final Payment paymentInDB = dbHelper.getPayment(event.paymentHash().toString(), PaymentType.BTC_LN);
       if (paymentInDB != null) {
-        dbHelper.updatePaymentPaid(paymentInDB, event.amount().toLong(), event.feesPaid().toLong(), event.paymentPreimage().toString());
+        dbHelper.updatePaymentPaid(paymentInDB, event.amountWithFees().toLong(), event.feesPaid().toLong(), event.paymentPreimage().toString());
         EventBus.getDefault().post(new LNPaymentSuccessEvent(paymentInDB));
         paymentRefreshScheduler.tell(Constants.REFRESH, null);
       } else {
