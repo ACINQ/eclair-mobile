@@ -36,6 +36,7 @@ import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 
 import com.google.common.io.Files;
+import com.typesafe.config.Config;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -566,7 +567,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
         publishProgress(app.getString(R.string.start_log_setting_up));
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(app.getBaseContext());
         Class.forName("org.sqlite.JDBC");
-        setup = new Setup(datadir, WalletUtils.getOverrideConfig(prefs), Option.apply(seed), Option.empty(), app.system);
+        setup = new Setup(datadir, Option.apply(seed), Option.empty(), app.system);
         setup.nodeParams().db().peers().addOrUpdatePeer(Constants.ACINQ_NODE_URI.nodeId(),
           NodeAddress$.MODULE$.fromParts(Constants.ACINQ_NODE_URI.address().getHost(), Constants.ACINQ_NODE_URI.address().getPort()).get());
 

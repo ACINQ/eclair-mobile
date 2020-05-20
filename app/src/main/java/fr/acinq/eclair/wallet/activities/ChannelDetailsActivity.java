@@ -20,6 +20,7 @@ import akka.actor.ActorRef;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import androidx.databinding.DataBindingUtil;
+
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import androidx.core.content.ContextCompat;
@@ -43,6 +44,7 @@ import fr.acinq.eclair.wallet.fragments.CloseChannelDialog;
 import fr.acinq.eclair.wallet.models.ClosingType;
 import fr.acinq.eclair.wallet.models.LocalChannel;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
+import scala.Option;
 import scodec.bits.ByteVector;
 
 import org.slf4j.Logger;
@@ -229,9 +231,9 @@ public class ChannelDetailsActivity extends EclairActivity {
     mBinding.shortChannelId.setValue(channel.getShortChannelId());
     mBinding.funder.setValue(getString(channel.isFunder ? R.string.channeldetails_funder_you : R.string.channeldetails_funder_peer));
     if (channel.getLocalFeatures() != null) {
-      final ByteVector localFeatures = ByteVector.view(Hex.decode(channel.getLocalFeatures()));
-      mBinding.setHasAdvancedRoutingSync(Features.hasFeature(localFeatures, Features.ChannelRangeQueries$.MODULE$));
-      mBinding.setHasDataLossProtection(Features.hasFeature(localFeatures, Features.OptionDataLossProtect$.MODULE$));
+      final Features localFeatures = Features.apply(ByteVector.view(Hex.decode(channel.getLocalFeatures())));
+      mBinding.setHasAdvancedRoutingSync(localFeatures.hasFeature(Features.ChannelRangeQueriesExtended$.MODULE$, Option.empty()));
+      mBinding.setHasDataLossProtection(localFeatures.hasFeature(Features.OptionDataLossProtect$.MODULE$, Option.empty()));
     }
     mBinding.toSelfDelay.setValue(getString(R.string.channeldetails_delay_value, channel.getToSelfDelayBlocks()));
     mBinding.remoteToSelfDelay.setValue(getString(R.string.channeldetails_delay_value, channel.remoteToSelfDelayBlocks));
