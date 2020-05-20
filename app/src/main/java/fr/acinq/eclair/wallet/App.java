@@ -36,6 +36,9 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -131,7 +134,8 @@ public class App extends Application {
   public final static Map<String, Float> RATES = new HashMap<>();
   public static @Nullable
   WalletContext walletContext = null;
-  public ActorSystem system = ActorSystem.apply("system");
+
+  public ActorSystem system = null;
   private final Logger log = LoggerFactory.getLogger(App.class);
   public AtomicReference<String> pin = new AtomicReference<>(null);
   public AtomicReference<String> seedHash = new AtomicReference<>(null);
@@ -156,6 +160,11 @@ public class App extends Application {
       EventBus.getDefault().register(this);
     }
     super.onCreate();
+    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+    Config defaultConfig = ConfigFactory.load();
+    Config customConfig = WalletUtils.getOverrideConfig(prefs);
+    Config config = defaultConfig.withFallback(customConfig);
+    system = ActorSystem.apply("system", config);
     WalletUtils.setupLogging(getBaseContext());
     detectBackgroundRunnable();
     fetchWalletContext();
