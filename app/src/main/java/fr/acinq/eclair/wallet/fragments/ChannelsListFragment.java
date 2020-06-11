@@ -117,11 +117,20 @@ public class ChannelsListFragment extends Fragment {
           List<LocalChannel> channels = new ArrayList<>(NodeSupervisor.getChannelsMap().values());
           Collections.sort(channels, (c1, c2) -> Long.compare(c2.getCapacityMsat(), c1.getCapacityMsat()));
 
-          final MilliSatoshi totalReceivable = NodeSupervisor.getTotalReceivable();
-          final MilliSatoshi totalSendable = NodeSupervisor.getTotalSendable();
-          final double sendReceiveRelative = totalSendable.toLong() + totalReceivable.toLong() > 0
-            ? (double) totalSendable.toLong() / (totalSendable.toLong() + totalReceivable.toLong()) * 100
-            : 0;
+          // get sendable/receivable
+          long totalReceivableMsat = 0;
+          long totalSendableMsat = 0;
+
+          for (LocalChannel c : channels) {
+            if (c.fundsAreUsable()) {
+              totalReceivableMsat += c.getReceivableMsat();
+              totalSendableMsat += Math.max(c.sendableBalanceMsat, 0);
+            }
+          }
+
+          final MilliSatoshi totalReceivable = new MilliSatoshi(totalReceivableMsat);
+          final MilliSatoshi totalSendable = new MilliSatoshi(totalSendableMsat);
+          final double sendReceiveRelative = totalSendableMsat + totalReceivableMsat > 0 ? (double) totalSendableMsat / (totalSendableMsat + totalReceivableMsat) * 100 : 0;
 
           if (getActivity() != null && mBinding != null) {
             getActivity().runOnUiThread(() -> {
