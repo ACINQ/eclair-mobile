@@ -26,8 +26,8 @@ android {
     applicationId "fr.acinq.eclair.wallet.mainnet2"
     minSdkVersion 21
     targetSdkVersion 29
-    versionCode 51
-    versionName "0.4.11"
+    versionCode 52
+    versionName "0.4.12-DEV"
     testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     multiDexEnabled true
   }
@@ -95,7 +95,7 @@ dependencies {
   androidTestImplementation('androidx.test.espresso:espresso-core:3.1.0', {
     exclude group: 'com.android.support', module: 'support-annotations'
   })
-  implementation 'com.google.android.material:material:1.0.0'
+  implementation 'com.google.android.material:material:1.1.0'
   implementation 'androidx.preference:preference:1.1.0'
   implementation 'androidx.legacy:legacy-preference-v14:1.0.0'
   implementation 'androidx.media:media:1.1.0'
@@ -140,6 +140,6 @@ dependencies {
   androidTestImplementation('com.typesafe.akka:akka-testkit_2.11:2.3.14') {
     exclude group: 'org.scala-lang', module: 'scala-library'
   }
-  implementation "androidx.core:core-ktx:1.1.0"
+  implementation "androidx.core:core-ktx:1.2.0"
   implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }
