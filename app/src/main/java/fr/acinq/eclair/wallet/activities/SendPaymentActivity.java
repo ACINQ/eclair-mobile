@@ -47,9 +47,11 @@ import java.util.List;
 import fr.acinq.bitcoin.ByteVector32;
 import fr.acinq.eclair.MilliSatoshi;
 import fr.acinq.bitcoin.Satoshi;
+import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.CoinUnit;
 import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.payment.PaymentRequest;
+import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.actors.NodeSupervisor;
@@ -135,7 +137,7 @@ public class SendPaymentActivity extends EclairActivity {
       return false;
     }
     // check channels balance is sufficient
-    if (paymentRequest.amount().isDefined() && NodeSupervisor.getTotalSendable().$less(WalletUtils.getAmountFromInvoice(paymentRequest))) {
+    if (paymentRequest.amount().isDefined() && !NodeSupervisor.hasNormalChannelsWithBalance(WalletUtils.getAmountFromInvoice(paymentRequest).toLong())) {
       canNotHandlePayment(getString(R.string.payment_error_ln_insufficient_funds));
       return false;
     }
