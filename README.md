@@ -17,13 +17,12 @@ The wallet is available on [Google Play](https://play.google.com/store/apps/deta
 
 1. Make sure you have funds (swipe to the left from the home screen to display your address and receive funds).
 
-   On testnet, you can get bitcoins from [this faucet](https://testnet.manu.backend.hamburg/faucet).
-
 2. Swipe to the right from the home screen, and click on the green `+` button.
 
 3. You can now choose to scan/paste the adress of a Lightning Node.
 
    Alternatively, choose `Autoconnect` to initiate a connection with one of our nodes.
+
 4. Enter the capacity of the channel and click `Open`.
 
    A transaction will be sent to fund the channel. You can find it in the transactions list as an outbound Bitcoin transaction, with an amount corresponding to the channel's desired capacity.
