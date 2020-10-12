@@ -16,50 +16,86 @@
 
 package fr.acinq.eclair.wallet.actors;
 
+import com.google.common.base.Strings;
+
+import org.greenrobot.eventbus.EventBus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.spongycastle.util.encoders.Hex;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
 import akka.actor.ActorRef;
 import akka.actor.Terminated;
 import akka.actor.UntypedActor;
-import com.google.common.base.Strings;
-import fr.acinq.bitcoin.*;
-import fr.acinq.bitcoin.package$;
+import fr.acinq.bitcoin.ByteVector32;
+import fr.acinq.bitcoin.Crypto;
+import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.eclair.CltvExpiryDelta;
 import fr.acinq.eclair.MilliSatoshi;
 import fr.acinq.eclair.ShortChannelId;
-import fr.acinq.eclair.channel.*;
+import fr.acinq.eclair.channel.CLOSED$;
+import fr.acinq.eclair.channel.CLOSING$;
+import fr.acinq.eclair.channel.ChannelCreated;
+import fr.acinq.eclair.channel.ChannelErrorOccurred;
+import fr.acinq.eclair.channel.ChannelIdAssigned;
+import fr.acinq.eclair.channel.ChannelRestored;
+import fr.acinq.eclair.channel.ChannelSignatureReceived;
+import fr.acinq.eclair.channel.ChannelSignatureSent;
+import fr.acinq.eclair.channel.ChannelStateChanged;
+import fr.acinq.eclair.channel.Commitments;
+import fr.acinq.eclair.channel.DATA_CLOSING;
+import fr.acinq.eclair.channel.HasCommitments;
+import fr.acinq.eclair.channel.LocalChannelUpdate;
+import fr.acinq.eclair.channel.LocalCommit;
+import fr.acinq.eclair.channel.LocalCommitConfirmed;
+import fr.acinq.eclair.channel.LocalError;
+import fr.acinq.eclair.channel.NORMAL$;
+import fr.acinq.eclair.channel.OFFLINE$;
+import fr.acinq.eclair.channel.RemoteCommit;
+import fr.acinq.eclair.channel.RemoteError;
+import fr.acinq.eclair.channel.SHUTDOWN$;
+import fr.acinq.eclair.channel.ShortChannelIdAssigned;
+import fr.acinq.eclair.channel.WAIT_FOR_INIT_INTERNAL$;
+import fr.acinq.eclair.channel.WaitingForRevocation;
 import fr.acinq.eclair.db.BackupCompleted$;
 import fr.acinq.eclair.payment.PaymentFailed;
 import fr.acinq.eclair.payment.PaymentFailure;
 import fr.acinq.eclair.payment.PaymentFailure$;
-import fr.acinq.eclair.payment.send.PaymentLifecycle;
 import fr.acinq.eclair.payment.PaymentReceived;
 import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.payment.PaymentSent;
 import fr.acinq.eclair.router.SyncProgress;
 import fr.acinq.eclair.transactions.DirectedHtlc;
 import fr.acinq.eclair.transactions.IncomingHtlc;
-import fr.acinq.eclair.transactions.IncomingHtlc$;
 import fr.acinq.eclair.transactions.OutgoingHtlc;
 import fr.acinq.eclair.wallet.DBHelper;
 import fr.acinq.eclair.wallet.events.ClosingChannelNotificationEvent;
 import fr.acinq.eclair.wallet.events.LNPaymentFailedEvent;
 import fr.acinq.eclair.wallet.events.LNPaymentSuccessEvent;
 import fr.acinq.eclair.wallet.events.ReceivedLNPaymentNotificationEvent;
-import fr.acinq.eclair.wallet.models.*;
+import fr.acinq.eclair.wallet.models.ClosingType;
+import fr.acinq.eclair.wallet.models.LightningPaymentError;
+import fr.acinq.eclair.wallet.models.LocalChannel;
+import fr.acinq.eclair.wallet.models.Payment;
+import fr.acinq.eclair.wallet.models.PaymentDirection;
+import fr.acinq.eclair.wallet.models.PaymentStatus;
+import fr.acinq.eclair.wallet.models.PaymentType;
 import fr.acinq.eclair.wallet.services.ChannelsBackupWorker;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
-import org.greenrobot.eventbus.EventBus;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.spongycastle.util.encoders.Hex;
 import scala.collection.Iterator;
 import scala.collection.JavaConverters;
 import scala.collection.Seq;
 import scala.util.Either;
 import scodec.bits.ByteVector;
-
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This actor handles the messages sent by the Eclair node.
@@ -322,7 +358,7 @@ public class NodeSupervisor extends UntypedActor {
         c.state = event.currentState().toString();
         if (event.currentData() instanceof HasCommitments) {
           final Commitments commitments = ((HasCommitments) event.currentData()).commitments();
-          c.setLocalFeatures(commitments.remoteParams().features().toHex());
+          c.setLocalFeatures(commitments.remoteParams().features().toByteVector().toHex());
           c.setToSelfDelayBlocks(commitments.remoteParams().toSelfDelay().toInt());
           c.remoteToSelfDelayBlocks = commitments.localParams().toSelfDelay().toInt();
           c.htlcsInFlightCount = commitments.localCommit().spec().htlcs().iterator().size();

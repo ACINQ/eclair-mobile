@@ -36,6 +36,9 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -87,7 +90,7 @@ import fr.acinq.eclair.io.Peer;
 import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.payment.receive.MultiPartHandler;
 import fr.acinq.eclair.payment.send.PaymentInitiator;
-import fr.acinq.eclair.router.RouteCalculation;
+import fr.acinq.eclair.router.Graph;
 import fr.acinq.eclair.router.Router;
 import fr.acinq.eclair.transactions.Scripts;
 import fr.acinq.eclair.wallet.activities.ChannelDetailsActivity;
@@ -131,7 +134,7 @@ public class App extends Application {
   public final static Map<String, Float> RATES = new HashMap<>();
   public static @Nullable
   WalletContext walletContext = null;
-  public ActorSystem system = ActorSystem.apply("system");
+  public ActorSystem system = null;
   private final Logger log = LoggerFactory.getLogger(App.class);
   public AtomicReference<String> pin = new AtomicReference<>(null);
   public AtomicReference<String> seedHash = new AtomicReference<>(null);
@@ -156,9 +159,17 @@ public class App extends Application {
       EventBus.getDefault().register(this);
     }
     super.onCreate();
+    initSystem();
     WalletUtils.setupLogging(getBaseContext());
     detectBackgroundRunnable();
     fetchWalletContext();
+  }
+
+  public void initSystem() {
+    final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+    final Config defaultConfig = ConfigFactory.load();
+    final Config config = WalletUtils.getOverrideConfig(prefs).withFallback(defaultConfig);
+    system = ActorSystem.apply("system", config);
   }
 
   /**
@@ -312,12 +323,15 @@ public class App extends Application {
     final CltvExpiryDelta cltvExpiryDelta = paymentRequest.minFinalCltvExpiryDelta().isDefined()
       ? paymentRequest.minFinalCltvExpiryDelta().get() : Channel.MIN_CLTV_EXPIRY_DELTA();
 
+    final Router.RouterConf routerConf = appKit.eclairKit.nodeParams().routerConf();
     final Option<Router.RouteParams> routeParams = checkFees
       // when fee protection is enabled, use the default RouteParams with reasonable values
       ? Option.empty()
       // otherwise, let's build a "no limit" RouteParams with no randomize, 1mBTC base fee, 100% prop fee
-      : Option.apply(new Router.RouteParams(false, MilliSatoshi.toMilliSatoshi(new MilliBtc(BigDecimal.exact(1))), 1d,
-      4, RouteCalculation.DEFAULT_ROUTE_MAX_CLTV(), Option.empty()));
+      : Option.apply(new Router.RouteParams(routerConf.randomizeRouteSelection(), MilliSatoshi.toMilliSatoshi(MilliBtc.apply(BigDecimal.exact(1))), 1d,
+      routerConf.searchMaxRouteLength(), routerConf.searchMaxCltv(),
+      routerConf.searchHeuristicsEnabled() ? Option.apply(new Graph.WeightRatios(routerConf.searchRatioCltv(), routerConf.searchRatioChannelAge(), routerConf.searchRatioChannelCapacity())) : Option.empty(),
+      new Router.MultiPartParams(routerConf.mppMinPartAmount(), routerConf.mppMaxParts())));
 
     log.info("(lightning) sending {} for invoice {}", amount, paymentRequest.toString());
     final Seq<GenericTlv> customTlvs = (Seq<GenericTlv>) Seq$.MODULE$.empty();
@@ -358,7 +372,7 @@ public class App extends Application {
             }
           }
         }
-      }, this.system.dispatcher());
+      }, system.dispatcher());
     } catch (Throwable t) {
       log.warn("could not send bitcoin tx with cause {}", t.getMessage());
       EventBus.getDefault().post(new BitcoinPaymentFailedEvent(t.getLocalizedMessage()));
@@ -406,7 +420,7 @@ public class App extends Application {
             }
           }
         }
-      }, this.system.dispatcher());
+      }, system.dispatcher());
     } catch (Throwable t) {
       log.warn("could not send send all balance with cause {}", t.getMessage());
       EventBus.getDefault().post(new BitcoinPaymentFailedEvent(t.getLocalizedMessage()));
@@ -593,7 +607,7 @@ public class App extends Application {
           EventBus.getDefault().post(new NetworkChannelsCountEvent(-1));
         }
       }
-    }, this.system.dispatcher());
+    }, system.dispatcher());
   }
 
   /**
@@ -613,7 +627,7 @@ public class App extends Application {
           EventBus.getDefault().post(new ChannelRawDataEvent(null));
         }
       }
-    }, this.system.dispatcher());
+    }, system.dispatcher());
   }
 
   public void getXpubFromWallet() {
@@ -626,7 +640,7 @@ public class App extends Application {
           EventBus.getDefault().post(new XpubEvent(null));
         }
       }
-    }, this.system.dispatcher());
+    }, system.dispatcher());
   }
 
   public void checkupInit() {

@@ -52,7 +52,6 @@ import java.util.List;
 import java.util.concurrent.TimeoutException;
 
 import akka.actor.ActorRef;
-import akka.actor.ActorSystem;
 import akka.actor.Props;
 import fr.acinq.bitcoin.DeterministicWallet;
 import fr.acinq.eclair.IncompatibleNetworkDBException$;
@@ -266,7 +265,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
       if (lastUsedVersion <= 48) {
         log.info("<= v48: force channel persistence event");
         // forces the app to push backup to the new gdrive public folder
-        app.system.eventStream().publish(ChannelPersisted.apply(null, null, null, null));
+        app.appKit.eclairKit.system().eventStream().publish(ChannelPersisted.apply(null, null, null, null));
       }
     }
     prefs.edit().putInt(Constants.SETTING_LAST_USED_VERSION, BuildConfig.VERSION_CODE).apply();
@@ -564,11 +563,12 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
         cancelBackgroundWorks();
 
         publishProgress(app.getString(R.string.start_log_setting_up));
-        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(app.getBaseContext());
         Class.forName("org.sqlite.JDBC");
-        setup = new Setup(datadir, WalletUtils.getOverrideConfig(prefs), Option.apply(seed), Option.empty(), app.system);
-        setup.nodeParams().db().peers().addOrUpdatePeer(Constants.ACINQ_NODE_URI.nodeId(),
-          NodeAddress$.MODULE$.fromParts(Constants.ACINQ_NODE_URI.address().getHost(), Constants.ACINQ_NODE_URI.address().getPort()).get());
+        setup = new Setup(datadir, Option.apply(seed), Option.empty(), app.system);
+        if (setup.nodeParams().db().peers().getPeer(Constants.ACINQ_NODE_URI.nodeId()).isEmpty()) {
+          setup.nodeParams().db().peers().addOrUpdatePeer(Constants.ACINQ_NODE_URI.nodeId(),
+            NodeAddress$.MODULE$.fromParts(Constants.ACINQ_NODE_URI.address().getHost(), Constants.ACINQ_NODE_URI.address().getPort()).get());
+        }
 
         // ui refresh schedulers
         final ActorRef paymentsRefreshScheduler = app.system.actorOf(Props.create(RefreshScheduler.PaymentsRefreshScheduler.class), "PaymentsRefreshScheduler");
@@ -622,7 +622,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
       if (app.system != null) {
         app.system.shutdown();
         app.system.awaitTermination();
-        app.system = ActorSystem.apply("system");
+        app.initSystem();
       }
       if (setup != null && setup.nodeParams() != null) {
         try {
