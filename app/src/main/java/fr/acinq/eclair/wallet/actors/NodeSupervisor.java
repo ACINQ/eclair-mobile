@@ -457,16 +457,16 @@ public class NodeSupervisor extends UntypedActor {
 
   /**
    * Optimistically estimates the maximum amount that this node can receive. OFFLINE/SYNCING channels' balances are accounted
-   * for in order to smooth this estimation if the connection is flaky.
+   * for in order to smooth this estimation if the connection is flaky. With MPP, this amount aggregate the incoming capacity all channels.
    */
   public static MilliSatoshi getMaxReceivable() {
-    long max_msat = 0;
+    long totalMsat = 0;
     for (LocalChannel d : activeChannelsMap.values()) {
       if (d.fundsAreUsable()) {
-        max_msat = Math.max(max_msat, d.getReceivableMsat());
+        totalMsat += d.getReceivableMsat();
       }
     }
-    return new MilliSatoshi(max_msat);
+    return new MilliSatoshi(totalMsat);
   }
 
   public final static int MIN_REMOTE_TO_SELF_DELAY = 2016;
