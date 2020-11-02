@@ -35,7 +35,6 @@ import fr.acinq.eclair.CoinUnit;
 import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.Features;
 import fr.acinq.eclair.channel.*;
-import fr.acinq.eclair.router.NORMAL$;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.actors.NodeSupervisor;
 import fr.acinq.eclair.wallet.adapters.LocalChannelItemHolder;
@@ -44,6 +43,7 @@ import fr.acinq.eclair.wallet.fragments.CloseChannelDialog;
 import fr.acinq.eclair.wallet.models.ClosingType;
 import fr.acinq.eclair.wallet.models.LocalChannel;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
+import scala.Option;
 import scodec.bits.ByteVector;
 
 import org.slf4j.Logger;
@@ -230,9 +230,9 @@ public class ChannelDetailsActivity extends EclairActivity {
     mBinding.shortChannelId.setValue(channel.getShortChannelId());
     mBinding.funder.setValue(getString(channel.isFunder ? R.string.channeldetails_funder_you : R.string.channeldetails_funder_peer));
     if (channel.getLocalFeatures() != null) {
-      final ByteVector localFeatures = ByteVector.view(Hex.decode(channel.getLocalFeatures()));
-      mBinding.setHasAdvancedRoutingSync(Features.hasFeature(localFeatures, Features.ChannelRangeQueries$.MODULE$));
-      mBinding.setHasDataLossProtection(Features.hasFeature(localFeatures, Features.OptionDataLossProtect$.MODULE$));
+      final Features localFeatures = Features.apply(ByteVector.view(Hex.decode(channel.getLocalFeatures())));
+      mBinding.setHasAdvancedRoutingSync(localFeatures.hasFeature(Features.ChannelRangeQueries$.MODULE$, Option.empty()));
+      mBinding.setHasDataLossProtection(localFeatures.hasFeature(Features.OptionDataLossProtect$.MODULE$, Option.empty()));
     }
     mBinding.toSelfDelay.setValue(getString(R.string.channeldetails_delay_value, channel.getToSelfDelayBlocks()));
     mBinding.remoteToSelfDelay.setValue(getString(R.string.channeldetails_delay_value, channel.remoteToSelfDelayBlocks));

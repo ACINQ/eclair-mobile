@@ -18,18 +18,24 @@ package fr.acinq.eclair.wallet.fragments.openchannel;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import androidx.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.databinding.DataBindingUtil;
+import androidx.fragment.app.Fragment;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import fr.acinq.bitcoin.Btc;
+import fr.acinq.bitcoin.MilliBtc;
 import fr.acinq.bitcoin.Satoshi;
-import fr.acinq.bitcoin.Satoshi$;
 import fr.acinq.eclair.CoinUnit;
 import fr.acinq.eclair.CoinUtils;
 import fr.acinq.eclair.channel.Channel;
@@ -41,8 +47,7 @@ import fr.acinq.eclair.wallet.databinding.FragmentOpenChannelCapacityBinding;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.TechnicalHelper;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import scala.math.BigDecimal;
 
 public class OpenChannelCapacityFragment extends Fragment {
 
@@ -66,8 +71,8 @@ public class OpenChannelCapacityFragment extends Fragment {
     void onCapacityBack();
   }
 
-  final Satoshi minFunding = new Satoshi(100000); // 1 mBTC
-  final Satoshi maxFunding = Channel.MAX_FUNDING();
+  final Satoshi minFunding = MilliBtc.apply(BigDecimal.exact(1)).toSatoshi();
+  final Satoshi maxFunding = Btc.apply(BigDecimal.exact(0.5)).toSatoshi();
   private int feeRatingState = Constants.FEE_RATING_FAST;
   private String preferredFiatCurrency = Constants.FIAT_USD;
   private CoinUnit preferredBitcoinUnit = CoinUtils.getUnitFromString(Constants.BTC_CODE);
@@ -177,7 +182,7 @@ public class OpenChannelCapacityFragment extends Fragment {
     try {
       final Satoshi capacity = CoinUtils.convertStringAmountToSat(amount, preferredBitcoinUnit.code());
       mBinding.capacityFiat.setText(getString(R.string.amount_to_fiat, WalletUtils.formatSatToFiatWithUnit(capacity, preferredFiatCurrency)));
-      if (capacity.$less(minFunding )|| capacity.$greater$eq(maxFunding)) {
+      if (capacity.$less(minFunding) || capacity.$greater(maxFunding)) {
         mBinding.setAmountError(getString(R.string.openchannel_capacity_invalid, CoinUtils.formatAmountInUnit(minFunding, preferredBitcoinUnit, false),
           CoinUtils.formatAmountInUnit(maxFunding, preferredBitcoinUnit, true)));
         return null;

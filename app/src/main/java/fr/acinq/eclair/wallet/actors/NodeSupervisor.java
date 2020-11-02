@@ -16,50 +16,86 @@
 
 package fr.acinq.eclair.wallet.actors;
 
+import com.google.common.base.Strings;
+
+import org.greenrobot.eventbus.EventBus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.spongycastle.util.encoders.Hex;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
 import akka.actor.ActorRef;
 import akka.actor.Terminated;
 import akka.actor.UntypedActor;
-import com.google.common.base.Strings;
-import fr.acinq.bitcoin.*;
-import fr.acinq.bitcoin.package$;
+import fr.acinq.bitcoin.ByteVector32;
+import fr.acinq.bitcoin.Crypto;
+import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.eclair.CltvExpiryDelta;
 import fr.acinq.eclair.MilliSatoshi;
 import fr.acinq.eclair.ShortChannelId;
-import fr.acinq.eclair.channel.*;
+import fr.acinq.eclair.channel.CLOSED$;
+import fr.acinq.eclair.channel.CLOSING$;
+import fr.acinq.eclair.channel.ChannelCreated;
+import fr.acinq.eclair.channel.ChannelErrorOccurred;
+import fr.acinq.eclair.channel.ChannelIdAssigned;
+import fr.acinq.eclair.channel.ChannelRestored;
+import fr.acinq.eclair.channel.ChannelSignatureReceived;
+import fr.acinq.eclair.channel.ChannelSignatureSent;
+import fr.acinq.eclair.channel.ChannelStateChanged;
+import fr.acinq.eclair.channel.Commitments;
+import fr.acinq.eclair.channel.DATA_CLOSING;
+import fr.acinq.eclair.channel.HasCommitments;
+import fr.acinq.eclair.channel.LocalChannelUpdate;
+import fr.acinq.eclair.channel.LocalCommit;
+import fr.acinq.eclair.channel.LocalCommitConfirmed;
+import fr.acinq.eclair.channel.LocalError;
+import fr.acinq.eclair.channel.NORMAL$;
+import fr.acinq.eclair.channel.OFFLINE$;
+import fr.acinq.eclair.channel.RemoteCommit;
+import fr.acinq.eclair.channel.RemoteError;
+import fr.acinq.eclair.channel.SHUTDOWN$;
+import fr.acinq.eclair.channel.ShortChannelIdAssigned;
+import fr.acinq.eclair.channel.WAIT_FOR_INIT_INTERNAL$;
+import fr.acinq.eclair.channel.WaitingForRevocation;
 import fr.acinq.eclair.db.BackupCompleted$;
 import fr.acinq.eclair.payment.PaymentFailed;
 import fr.acinq.eclair.payment.PaymentFailure;
 import fr.acinq.eclair.payment.PaymentFailure$;
-import fr.acinq.eclair.payment.send.PaymentLifecycle;
 import fr.acinq.eclair.payment.PaymentReceived;
 import fr.acinq.eclair.payment.PaymentRequest;
 import fr.acinq.eclair.payment.PaymentSent;
-import fr.acinq.eclair.router.NORMAL$;
 import fr.acinq.eclair.router.SyncProgress;
 import fr.acinq.eclair.transactions.DirectedHtlc;
-import fr.acinq.eclair.transactions.IN$;
-import fr.acinq.eclair.transactions.OUT$;
+import fr.acinq.eclair.transactions.IncomingHtlc;
+import fr.acinq.eclair.transactions.OutgoingHtlc;
 import fr.acinq.eclair.wallet.DBHelper;
 import fr.acinq.eclair.wallet.events.ClosingChannelNotificationEvent;
 import fr.acinq.eclair.wallet.events.LNPaymentFailedEvent;
 import fr.acinq.eclair.wallet.events.LNPaymentSuccessEvent;
 import fr.acinq.eclair.wallet.events.ReceivedLNPaymentNotificationEvent;
-import fr.acinq.eclair.wallet.models.*;
+import fr.acinq.eclair.wallet.models.ClosingType;
+import fr.acinq.eclair.wallet.models.LightningPaymentError;
+import fr.acinq.eclair.wallet.models.LocalChannel;
+import fr.acinq.eclair.wallet.models.Payment;
+import fr.acinq.eclair.wallet.models.PaymentDirection;
+import fr.acinq.eclair.wallet.models.PaymentStatus;
+import fr.acinq.eclair.wallet.models.PaymentType;
 import fr.acinq.eclair.wallet.services.ChannelsBackupWorker;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
-import org.greenrobot.eventbus.EventBus;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.spongycastle.util.encoders.Hex;
 import scala.collection.Iterator;
 import scala.collection.JavaConverters;
 import scala.collection.Seq;
 import scala.util.Either;
 import scodec.bits.ByteVector;
-
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This actor handles the messages sent by the Eclair node.
@@ -151,7 +187,7 @@ public class NodeSupervisor extends UntypedActor {
       while (it.hasNext()) {
         final DirectedHtlc htlc = it.next();
         htlcsCount++;
-        if (htlc.direction() instanceof OUT$) {
+        if (htlc instanceof OutgoingHtlc) {
           final String htlcPaymentHash = htlc.add().paymentHash().toString();
           final Payment p = dbHelper.getPayment(htlcPaymentHash, PaymentType.BTC_LN);
           if (p != null && p.getStatus() == PaymentStatus.INIT) {
@@ -203,7 +239,7 @@ public class NodeSupervisor extends UntypedActor {
           final DirectedHtlc h = htlcsIterator.next();
           log.debug("sig sent for htlc={}", h);
           // if htlc is outbound, move payment to PENDING (IN from remote commit means that payment is sent)
-          if (h.direction() instanceof IN$) {
+          if (h instanceof IncomingHtlc) {
             final String htlcPaymentHash = h.add().paymentHash().toString();
             final Payment p = dbHelper.getPayment(htlcPaymentHash, PaymentType.BTC_LN);
             if (p != null && p.getStatus() == PaymentStatus.INIT) {
@@ -255,14 +291,14 @@ public class NodeSupervisor extends UntypedActor {
       final ChannelErrorOccurred event = (ChannelErrorOccurred) message;
       final LocalChannel c = activeChannelsMap.get(event.channel());
       if (c != null && event.isFatal()) {
-        if (event.error() instanceof Channel.LocalError) {
-          final Channel.LocalError localError = (Channel.LocalError) event.error();
+        if (event.error() instanceof LocalError) {
+          final LocalError localError = (LocalError) event.error();
           if (localError.t() != null) {
             c.setClosingErrorMessage(localError.t().getMessage());
             dbHelper.saveLocalChannel(c);
           }
-        } else if (event.error() instanceof Channel.RemoteError) {
-          final Channel.RemoteError remoteError = (Channel.RemoteError) event.error();
+        } else if (event.error() instanceof RemoteError) {
+          final RemoteError remoteError = (RemoteError) event.error();
           if (fr.acinq.eclair.package$.MODULE$.isAsciiPrintable(remoteError.e().data())) {
             c.setClosingErrorMessage(WalletUtils.toAscii(remoteError.e().data()));
           } else {
@@ -322,7 +358,7 @@ public class NodeSupervisor extends UntypedActor {
         c.state = event.currentState().toString();
         if (event.currentData() instanceof HasCommitments) {
           final Commitments commitments = ((HasCommitments) event.currentData()).commitments();
-          c.setLocalFeatures(commitments.remoteParams().features().toHex());
+          c.setLocalFeatures(commitments.remoteParams().features().toByteVector().toHex());
           c.setToSelfDelayBlocks(commitments.remoteParams().toSelfDelay().toInt());
           c.remoteToSelfDelayBlocks = commitments.localParams().toSelfDelay().toInt();
           c.htlcsInFlightCount = commitments.localCommit().spec().htlcs().iterator().size();
@@ -375,7 +411,7 @@ public class NodeSupervisor extends UntypedActor {
       final PaymentSent event = (PaymentSent) message;
       final Payment paymentInDB = dbHelper.getPayment(event.paymentHash().toString(), PaymentType.BTC_LN);
       if (paymentInDB != null) {
-        dbHelper.updatePaymentPaid(paymentInDB, event.amount().toLong(), event.feesPaid().toLong(), event.paymentPreimage().toString());
+        dbHelper.updatePaymentPaid(paymentInDB, event.amountWithFees().toLong(), event.feesPaid().toLong(), event.paymentPreimage().toString());
         EventBus.getDefault().post(new LNPaymentSuccessEvent(paymentInDB));
         paymentRefreshScheduler.tell(Constants.REFRESH, null);
       } else {
@@ -421,16 +457,16 @@ public class NodeSupervisor extends UntypedActor {
 
   /**
    * Optimistically estimates the maximum amount that this node can receive. OFFLINE/SYNCING channels' balances are accounted
-   * for in order to smooth this estimation if the connection is flaky.
+   * for in order to smooth this estimation if the connection is flaky. With MPP, this amount aggregate the incoming capacity all channels.
    */
   public static MilliSatoshi getMaxReceivable() {
-    long max_msat = 0;
+    long totalMsat = 0;
     for (LocalChannel d : activeChannelsMap.values()) {
       if (d.fundsAreUsable()) {
-        max_msat = Math.max(max_msat, d.getReceivableMsat());
+        totalMsat += d.getReceivableMsat();
       }
     }
-    return new MilliSatoshi(max_msat);
+    return new MilliSatoshi(totalMsat);
   }
 
   public final static int MIN_REMOTE_TO_SELF_DELAY = 2016;

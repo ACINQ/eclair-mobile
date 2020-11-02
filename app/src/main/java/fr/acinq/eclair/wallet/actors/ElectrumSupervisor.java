@@ -29,7 +29,6 @@ import akka.actor.UntypedActor;
 import fr.acinq.bitcoin.Protocol;
 import fr.acinq.bitcoin.Satoshi;
 import fr.acinq.bitcoin.Transaction;
-import fr.acinq.bitcoin.package$;
 import fr.acinq.eclair.MilliSatoshi;
 import fr.acinq.eclair.blockchain.electrum.ElectrumClient;
 import fr.acinq.eclair.blockchain.electrum.ElectrumWallet;
@@ -93,7 +92,7 @@ public class ElectrumSupervisor extends UntypedActor {
       paymentReceived.setAmountPaidMsat(MilliSatoshi.toMilliSatoshi(amount).toLong());
       paymentReceived.setConfidenceBlocks((int) walletTransactionReceive.depth());
       paymentReceived.setConfidenceType(0);
-      
+
       if (walletTransactionReceive.timestamp().isDefined() && (Long) walletTransactionReceive.timestamp().get() > 0) {
         // Tx is included in a block, its timestamp is the block's timestamp.
         // Note: on-chain payment timestamp is stored in the 'updated' field of the payment object, to facilitate integration
