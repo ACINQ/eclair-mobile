@@ -140,7 +140,7 @@
   <string name="createwallet_success">Your wallet has been successfully created!</string>
 
   <string name="wallet_passphrase_title">Passphrase</string>
-  <string name="wallet_passphrase_instructions">Eclair supports passphrase. If you don\'t know what this is, or if you wallet does not have a passphrase, leave this field blank, and click Next.</string>
+  <string name="wallet_passphrase_instructions">Eclair supports passphrase. If you don\'t know what this is, or if your wallet does not have a passphrase, leave this field blank, and click Next.</string>
   <string name="wallet_passphrase_confirm_title">Confirm Passphrase</string>
   <string name="wallet_passphrase_input_hint">Passphrase…</string>
   <string name="wallet_passphrase_confirm_input_hint">Confirm Passphrase…</string>
