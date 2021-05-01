@@ -44,6 +44,7 @@ import java.util.concurrent.Executors;
 import fr.acinq.eclair.channel.ChannelPersisted;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.databinding.ActivityChannelsBackupSettingsBinding;
+import fr.acinq.eclair.wallet.databinding.ToolbarBinding;
 import fr.acinq.eclair.wallet.utils.BackupHelper;
 import fr.acinq.eclair.wallet.utils.EclairException;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
@@ -60,7 +61,7 @@ public class ChannelsBackupSettingsActivity extends ChannelsBackupBaseActivity {
     super.onCreate(savedInstanceState);
     mBinding = DataBindingUtil.setContentView(this, R.layout.activity_channels_backup_settings);
 
-    setSupportActionBar((Toolbar) mBinding.customToolbar);
+    setSupportActionBar(mBinding.customToolbar.toolbar);
     getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
     gdriveBackupDetailsDialog = getCustomDialog(R.string.backup_about).setPositiveButton(R.string.btn_ok, null).create();

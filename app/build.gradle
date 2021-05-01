@@ -15,13 +15,14 @@
  */
 
 apply plugin: 'com.android.application'
+apply plugin: 'org.greenrobot.greendao'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
-apply plugin: 'org.greenrobot.greendao'
+apply plugin: 'kotlin-kapt'
 
 android {
   compileSdkVersion 29
-  buildToolsVersion '28.0.3'
+  ndkVersion "23.0.7196353"
   defaultConfig {
     applicationId "fr.acinq.eclair.wallet.dev"
     minSdkVersion 21
@@ -65,8 +66,9 @@ android {
     resolutionStrategy.force 'com.google.code.findbugs:jsr305:3.0.1'
     exclude group: "org.apache.httpcomponents", module: "httpclient"
   }
-  dataBinding {
-    enabled = true
+  buildFeatures {
+    dataBinding true
+    viewBinding true
   }
   packagingOptions {
     exclude 'META-INF/LICENSE*'
