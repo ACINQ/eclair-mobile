@@ -171,6 +171,25 @@
           app:layout_constraintTop_toBottomOf="@+id/scan_separator"
           app:text="@string/restorechannels_check_button" />
 
+        <View
+          android:id="@+id/browse_separator"
+          style="@style/HLineSeparator"
+          android:visibility="@{restoreStep == Constants.RESTORE_BACKUP_INIT ? View.VISIBLE : View.GONE}"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toBottomOf="@+id/scan_button" />
+
+        <fr.acinq.eclair.wallet.customviews.CustomButton
+          android:id="@+id/browse_button"
+          style="@style/ClickableLayout"
+          android:padding="@dimen/space_md_p"
+          android:visibility="@{restoreStep == Constants.RESTORE_BACKUP_INIT ? View.VISIBLE : View.GONE}"
+          app:image="@drawable/ic_folder_black_24dp"
+          app:layout_constrainedWidth="true"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toBottomOf="@+id/browse_separator"
+          app:text="@string/restorechannels_browse_button" />
+
         <TextView
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"

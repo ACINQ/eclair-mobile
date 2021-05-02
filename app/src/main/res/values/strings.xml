@@ -163,6 +163,7 @@
   <string name="restorechannels_explanations">If you already used Eclair Mobile with this seed, you may have remaining active channels that could be restored.</string>
   <string name="restorechannels_hash">[hash]: %1$s</string>
   <string name="restorechannels_check_button">Scan for backup</string>
+  <string name="restorechannels_browse_button">Find backup manually</string>
   <string name="restorechannels_confirm_button">Restore this backup</string>
   <string name="restorechannels_try_again_button">Try again</string>
   <string name="restorechannels_requesting_access">Granting access…</string>
@@ -610,7 +611,7 @@
   <string name="backupsettings_local_title">Local backup (required)</string>
   <string name="backupsettings_local_status_wait">Requesting access to storage…</string>
   <string name="backupsettings_local_status_denied">Please grant access to the device\'s local storage.</string>
-  <string name="backupsettings_local_status_result">Last modified: %1$s</string>
+  <string name="backupsettings_local_status_result">Last modified: %1$s\nPath: %2$s</string>
   <string name="backupsettings_local_status_not_found">No backup yet…</string>
 
   <string name="backupsettings_drive_title">Google Drive backup</string>

@@ -15,19 +15,20 @@
  */
 
 apply plugin: 'com.android.application'
+apply plugin: 'org.greenrobot.greendao'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
-apply plugin: 'org.greenrobot.greendao'
+apply plugin: 'kotlin-kapt'
 
 android {
-  compileSdkVersion 29
-  buildToolsVersion '28.0.3'
+  compileSdkVersion 30
+  ndkVersion "23.0.7196353"
   defaultConfig {
     applicationId "fr.acinq.eclair.wallet.mainnet2"
     minSdkVersion 21
-    targetSdkVersion 29
-    versionCode 54
-    versionName "0.4.13"
+    targetSdkVersion 30
+    versionCode 55
+    versionName "0.4.14-RC"
     testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     multiDexEnabled true
   }
@@ -65,8 +66,9 @@ android {
     resolutionStrategy.force 'com.google.code.findbugs:jsr305:3.0.1'
     exclude group: "org.apache.httpcomponents", module: "httpclient"
   }
-  dataBinding {
-    enabled = true
+  buildFeatures {
+    dataBinding true
+    viewBinding true
   }
   packagingOptions {
     exclude 'META-INF/LICENSE*'
@@ -104,12 +106,13 @@ dependencies {
   implementation 'com.google.code.findbugs:jsr305:3.0.2'
 
   // gdrive api rest v3 + google auth
-  def google_drive_rest_version = "v3-rev173-1.25.0"
-  def google_play_auth_version = "18.0.0"
-  def google_api_client_version = "1.26.0"
+  def google_drive_rest_version = "v3-rev197-1.25.0"
+  def google_play_auth_version = "19.0.0"
+  def google_http_client_gson = "1.39.2"
+  def google_api_client_version = "1.31.4"
   implementation "com.google.apis:google-api-services-drive:$google_drive_rest_version"
   implementation "com.google.android.gms:play-services-auth:$google_play_auth_version"
-  implementation "com.google.http-client:google-http-client-gson:$google_api_client_version"
+  implementation "com.google.http-client:google-http-client-gson:$google_http_client_gson"
   implementation "com.google.api-client:google-api-client-android:$google_api_client_version"
 
   // ANDROIDX - biometric

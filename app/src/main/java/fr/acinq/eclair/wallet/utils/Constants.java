@@ -49,6 +49,7 @@ public interface Constants {
   int PERMISSION_CAMERA_REQUEST = 0;
   int OPEN_CONNECTION_REQUEST_CODE = 42;
   int PERMISSION_EXTERNAL_STORAGE_REQUEST = 43;
+  int PICK_BACKUP_FILE = 44;
 
   /* ----------- STARTUP OPTION ----------- */
 
@@ -56,7 +57,7 @@ public interface Constants {
 
   /* ----------- DIR & FILES NAMES ------------ */
 
-  String ECLAIR_BACKUP_DIR = "Eclair Mobile";
+  String ECLAIR_BACKUP_DIR = "eclair-mobile-backups";
   String ECLAIR_DATADIR = "eclair-wallet-data";
   String ECLAIR_DB_FILE = "eclair.sqlite";
   String ECLAIR_DB_FILE_BAK = "eclair.sqlite.bak";

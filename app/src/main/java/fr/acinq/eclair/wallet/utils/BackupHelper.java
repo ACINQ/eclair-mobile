@@ -16,14 +16,10 @@
 
 package fr.acinq.eclair.wallet.utils;
 
-import android.Manifest;
 import android.content.Context;
-import android.content.pm.PackageManager;
-import android.os.Environment;
 import android.preference.PreferenceManager;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -45,7 +41,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
@@ -58,42 +53,6 @@ import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.R;
 
 public interface BackupHelper {
-
-  interface Local {
-
-    static boolean isExternalStorageWritable() {
-      return Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState());
-    }
-
-    static boolean hasLocalAccess(final Context context) {
-      return ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
-        && isExternalStorageWritable()
-        && Environment.getExternalStorageDirectory().canWrite();
-    }
-
-    static File getBackupFile(final String backupFileName) throws EclairException.ExternalStorageUnavailableException {
-      if (!isExternalStorageWritable()) {
-        throw new EclairException.ExternalStorageUnavailableException();
-      }
-
-      final File storage = Environment.getExternalStorageDirectory();
-      if (!storage.canWrite()) {
-        throw new EclairException.ExternalStorageUnavailableException();
-      }
-
-      final File publicDir = new File(storage, Constants.ECLAIR_BACKUP_DIR);
-      final File chainDir = new File(publicDir, BuildConfig.CHAIN);
-      final File backup = new File(chainDir, backupFileName);
-
-      if (!backup.exists()) {
-        if (!chainDir.exists() && !chainDir.mkdirs()) {
-          throw new EclairException.ExternalStorageUnavailableException();
-        }
-      }
-
-      return backup;
-    }
-  }
 
   interface GoogleDrive {
 

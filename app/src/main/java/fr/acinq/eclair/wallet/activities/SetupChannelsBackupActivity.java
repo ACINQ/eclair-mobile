@@ -32,6 +32,8 @@ import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.databinding.ActivitySetupChannelsBackupBinding;
 import fr.acinq.eclair.wallet.utils.BackupHelper;
 import fr.acinq.eclair.wallet.utils.Constants;
+import fr.acinq.eclair.wallet.utils.LocalBackupHelper;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,7 +80,7 @@ public class SetupChannelsBackupActivity extends ChannelsBackupBaseActivity {
 
   @Override
   protected void applyAccessRequestDone() {
-    if (!BackupHelper.Local.hasLocalAccess(getApplicationContext())) {
+    if (!LocalBackupHelper.INSTANCE.hasLocalAccess(getApplicationContext())) {
       log.info("access to local drive denied!");
       mBinding.setSetupBackupStep(Constants.SETUP_BACKUP_INIT);
       Toast.makeText(this, getString(R.string.setupbackup_local_required), Toast.LENGTH_LONG).show();
