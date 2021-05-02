@@ -39,6 +39,7 @@ import java.util.Map;
 import fr.acinq.eclair.wallet.models.BackupTypes;
 import fr.acinq.eclair.wallet.utils.BackupHelper;
 import fr.acinq.eclair.wallet.utils.Constants;
+import fr.acinq.eclair.wallet.utils.LocalBackupHelper;
 import scala.Option;
 
 public abstract class ChannelsBackupBaseActivity extends EclairActivity {
@@ -99,7 +100,7 @@ public abstract class ChannelsBackupBaseActivity extends EclairActivity {
   }
 
   protected void requestLocalAccessOrApply() {
-    if (!BackupHelper.Local.hasLocalAccess(this)) {
+    if (!LocalBackupHelper.INSTANCE.hasLocalAccess(this)) {
       ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, Constants.PERMISSION_EXTERNAL_STORAGE_REQUEST);
     } else {
       applyLocalAccessGranted();

@@ -17,6 +17,10 @@
 package fr.acinq.eclair.wallet.services;
 
 import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.Environment;
+import android.provider.MediaStore;
 
 import androidx.annotation.NonNull;
 import androidx.work.Data;
@@ -51,6 +55,7 @@ import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.utils.BackupHelper;
 import fr.acinq.eclair.wallet.utils.EncryptedBackup;
 import fr.acinq.eclair.wallet.utils.EncryptedData;
+import fr.acinq.eclair.wallet.utils.LocalBackupHelper;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 import scodec.bits.ByteVector;
 
@@ -133,11 +138,10 @@ public class ChannelsBackupWorker extends Worker {
 
   private boolean saveToLocal(final byte[] encryptedBackup, final String backupFileName) {
     try {
-      final File backupFile = BackupHelper.Local.getBackupFile(backupFileName);
-      Files.write(encryptedBackup, backupFile);
+      LocalBackupHelper.INSTANCE.saveBackupFile(getApplicationContext(), backupFileName, encryptedBackup);
       return true;
     } catch (Throwable t) {
-      log.error("failed to save channels backup on local disk", t);
+      log.error("failed to save channels backup on local disk: ", t);
       return false;
     }
   }
@@ -166,7 +170,7 @@ public class ChannelsBackupWorker extends Worker {
       return true;
     } catch (Throwable t) {
       log.error("failed to save channels backup on google drive", t);
-      if (t instanceof GoogleAuthIOException || t instanceof GoogleAuthException) {
+      if (t.getCause() instanceof GoogleAuthIOException || t instanceof GoogleAuthException) {
         BackupHelper.GoogleDrive.disableGDriveBackup(context);
       } else if (t.getCause() != null) {
         final Throwable cause = t.getCause();

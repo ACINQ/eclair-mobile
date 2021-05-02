@@ -16,7 +16,9 @@
 
 package fr.acinq.eclair.wallet.activities;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -55,6 +57,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -71,6 +74,8 @@ import fr.acinq.eclair.wallet.utils.BackupHelper;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.EclairException;
 import fr.acinq.eclair.wallet.utils.EncryptedBackup;
+import fr.acinq.eclair.wallet.utils.LocalBackupFile;
+import fr.acinq.eclair.wallet.utils.LocalBackupHelper;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 import scala.Option;
 import scala.collection.Iterator;
@@ -99,6 +104,15 @@ public class RestoreChannelsBackupActivity extends ChannelsBackupBaseActivity {
       }
     });
 
+    mBinding.browseButton.setOnClickListener(v -> {
+      mBinding.setRestoreStep(Constants.RESTORE_BACKUP_SCANNING);
+      mExpectedBackupsMap.put(BackupTypes.LOCAL, null);
+      Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+      intent.addCategory(Intent.CATEGORY_OPENABLE);
+      intent.setType("application/octet-stream");
+      startActivityForResult(intent, Constants.PICK_BACKUP_FILE);
+    });
+
     mBinding.tryAgainButton.setOnClickListener(v -> mBinding.setRestoreStep(Constants.RESTORE_BACKUP_INIT));
     mBinding.confirmRestoreButton.setOnClickListener(v -> restoreBestBackup());
   }
@@ -109,8 +123,8 @@ public class RestoreChannelsBackupActivity extends ChannelsBackupBaseActivity {
     if (app == null || app.seedHash == null || app.seedHash.get() == null) {
       finish();
     } else {
-      mBinding.requestLocalAccessCheckbox.setChecked(BackupHelper.Local.isExternalStorageWritable());
-      mBinding.setExternalStorageAvailable(BackupHelper.Local.isExternalStorageWritable());
+      mBinding.requestLocalAccessCheckbox.setChecked(LocalBackupHelper.INSTANCE.isExternalStorageWritable());
+      mBinding.setExternalStorageAvailable(LocalBackupHelper.INSTANCE.isExternalStorageWritable());
 
       mBinding.requestGdriveAccessCheckbox.setChecked(BackupHelper.GoogleDrive.isGDriveAvailable(getApplicationContext()));
       mBinding.setGdriveAvailable(BackupHelper.GoogleDrive.isGDriveAvailable(getApplicationContext()));
@@ -165,40 +179,45 @@ public class RestoreChannelsBackupActivity extends ChannelsBackupBaseActivity {
       mBinding.setRestoreStep(Constants.RESTORE_BACKUP_NOT_FOUND);
     } else {
       if (!mExpectedBackupsMap.containsValue(null)) { // scanning is done
-        try {
-          final BackupScanOk found = findBestBackup(mExpectedBackupsMap);
-          if (found != null) {
-            String origin = "";
-            switch (found.type) {
-              case LOCAL:
-                origin = getString(R.string.restore_channels_origin_local);
-                break;
-              case GDRIVE:
-                final GoogleSignInAccount gdriveAccount = BackupHelper.GoogleDrive.getSigninAccount(getApplicationContext());
-                origin = getString(R.string.restore_channels_origin_gdrive,
-                  gdriveAccount != null && gdriveAccount.getAccount() != null ? gdriveAccount.getAccount().name : getString(R.string.unknown));
-                break;
-            }
-            mBinding.foundBackupTextDescOrigin.setText(Html.fromHtml(getString(R.string.restorechannels_found_desc_origin, origin)));
-            mBinding.foundBackupTextDescChannelsCount.setText(Html.fromHtml(getString(R.string.restorechannels_found_desc_channels_count, found.localCommitIndexMap.size())));
-            mBinding.foundBackupTextDescModified.setText(Html.fromHtml(getString(R.string.restorechannels_found_desc_modified, DateFormat.getDateTimeInstance().format(found.lastModified))));
-            mBinding.setRestoreStep(found.isFromDevice ? Constants.RESTORE_BACKUP_FOUND : Constants.RESTORE_BACKUP_FOUND_WITH_CONFLICT);
-          } else {
-            mBinding.setRestoreStep(Constants.RESTORE_BACKUP_NOT_FOUND);
-          }
-          mBestBackup = found;
-        } catch (EclairException.UnreadableBackupException e) {
-          log.error("a backup file could not be read: ", e);
-          mBinding.setRestoreStep(Constants.RESTORE_BACKUP_FOUND_ERROR);
-          mBinding.errorText.setText(getString(R.string.restorechannels_error, e.type, e.getLocalizedMessage()));
-        } catch (Throwable t) {
-          log.error("error when handling scanning result: ", t);
-          Toast.makeText(this, R.string.restorechannels_error_generic, Toast.LENGTH_LONG).show();
-          mBinding.setRestoreStep(Constants.RESTORE_BACKUP_INIT);
-        }
+        handleBackups();
       } else {
         new Handler().postDelayed(this::checkScanningDone, SCAN_PING_INTERVAL);
       }
+    }
+  }
+
+  @UiThread
+  private void handleBackups() {
+    try {
+      final BackupScanOk found = findBestBackup(mExpectedBackupsMap);
+      if (found != null) {
+        String origin = "";
+        switch (found.type) {
+          case LOCAL:
+            origin = getString(R.string.restore_channels_origin_local);
+            break;
+          case GDRIVE:
+            final GoogleSignInAccount gdriveAccount = BackupHelper.GoogleDrive.getSigninAccount(getApplicationContext());
+            origin = getString(R.string.restore_channels_origin_gdrive,
+              gdriveAccount != null && gdriveAccount.getAccount() != null ? gdriveAccount.getAccount().name : getString(R.string.unknown));
+            break;
+        }
+        mBinding.foundBackupTextDescOrigin.setText(Html.fromHtml(getString(R.string.restorechannels_found_desc_origin, origin)));
+        mBinding.foundBackupTextDescChannelsCount.setText(Html.fromHtml(getString(R.string.restorechannels_found_desc_channels_count, found.localCommitIndexMap.size())));
+        mBinding.foundBackupTextDescModified.setText(Html.fromHtml(getString(R.string.restorechannels_found_desc_modified, DateFormat.getDateTimeInstance().format(found.lastModified))));
+        mBinding.setRestoreStep(found.isFromDevice ? Constants.RESTORE_BACKUP_FOUND : Constants.RESTORE_BACKUP_FOUND_WITH_CONFLICT);
+      } else {
+        mBinding.setRestoreStep(Constants.RESTORE_BACKUP_NOT_FOUND);
+      }
+      mBestBackup = found;
+    } catch (EclairException.UnreadableBackupException e) {
+      log.error("a backup file could not be read: ", e);
+      mBinding.setRestoreStep(Constants.RESTORE_BACKUP_FOUND_ERROR);
+      mBinding.errorText.setText(getString(R.string.restorechannels_error, e.type, e.getLocalizedMessage()));
+    } catch (Throwable t) {
+      log.error("error when handling scanning result: ", t);
+      Toast.makeText(this, R.string.restorechannels_error_generic, Toast.LENGTH_LONG).show();
+      mBinding.setRestoreStep(Constants.RESTORE_BACKUP_INIT);
     }
   }
 
@@ -252,6 +271,31 @@ public class RestoreChannelsBackupActivity extends ChannelsBackupBaseActivity {
     super.onActivityResult(requestCode, resultCode, data);
     if (requestCode == GDRIVE_REQUEST_CODE_SIGN_IN) {
       handleGdriveSigninResult(data);
+    } else if (requestCode == Constants.PICK_BACKUP_FILE && resultCode == Activity.RESULT_OK) {
+      // The result data contains a URI for the document or directory that
+      // the user selected.
+      if (data != null) {
+        final Uri uri = data.getData();
+        try {
+          final LocalBackupFile backup = LocalBackupHelper.INSTANCE.getBackupFileFromUri(getApplicationContext(), "", Objects.requireNonNull(uri), 0);
+          if (backup == null) {
+            log.info("no LOCAL backup file found for this seed");
+            mExpectedBackupsMap.put(BackupTypes.LOCAL, Option.apply(null));
+          } else {
+            final BackupScanOk localBackup = decryptFile(backup.getData(), backup.getModifiedAt(), BackupTypes.LOCAL);
+            mExpectedBackupsMap.put(BackupTypes.LOCAL, Option.apply(localBackup));
+          }
+        } catch (EclairException.ExternalStorageUnavailableException e) {
+          log.error("external storage not available: ", e);
+          runOnUiThread(() -> Toast.makeText(this, R.string.restorechannels_error_external_storage_toast, Toast.LENGTH_LONG).show());
+          mExpectedBackupsMap.put(BackupTypes.LOCAL, Option.apply(null));
+        } catch (Throwable t) {
+          log.error("could not read local backup file: ", t);
+          mExpectedBackupsMap.put(BackupTypes.LOCAL, Option.apply(new BackupScanFailure(t.getLocalizedMessage())));
+        } finally {
+          handleBackups();
+        }
+      }
     }
   }
 
@@ -313,12 +357,12 @@ public class RestoreChannelsBackupActivity extends ChannelsBackupBaseActivity {
 
   private void scanLocalDevice() {
     try {
-      final File backup = BackupHelper.Local.getBackupFile(WalletUtils.getEclairBackupFileName(app.seedHash.get()));
-      if (!backup.exists()) {
+      final LocalBackupFile backup = LocalBackupHelper.INSTANCE.getBackupFile(getApplicationContext(), WalletUtils.getEclairBackupFileName(app.seedHash.get()));
+      if (backup == null) {
         log.info("no LOCAL backup file found for this seed");
         mExpectedBackupsMap.put(BackupTypes.LOCAL, Option.apply(null));
       } else {
-        final BackupScanOk localBackup = decryptFile(Files.toByteArray(backup), new Date(backup.lastModified()), BackupTypes.LOCAL);
+        final BackupScanOk localBackup = decryptFile(backup.getData(), backup.getModifiedAt(), BackupTypes.LOCAL);
         mExpectedBackupsMap.put(BackupTypes.LOCAL, Option.apply(localBackup));
       }
     } catch (EclairException.ExternalStorageUnavailableException e) {

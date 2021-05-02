@@ -72,6 +72,7 @@ import fr.acinq.eclair.wallet.actors.NodeSupervisor;
 import fr.acinq.eclair.wallet.actors.RefreshScheduler;
 import fr.acinq.eclair.wallet.databinding.ActivityStartupBinding;
 import fr.acinq.eclair.wallet.fragments.PinDialog;
+import fr.acinq.eclair.wallet.services.ChannelsBackupWorker;
 import fr.acinq.eclair.wallet.services.CheckElectrumWorker;
 import fr.acinq.eclair.wallet.services.NetworkSyncWorker;
 import fr.acinq.eclair.wallet.utils.BackupHelper;
@@ -80,6 +81,7 @@ import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.EclairException;
 import fr.acinq.eclair.wallet.utils.EncryptedBackup;
 import fr.acinq.eclair.wallet.utils.KeystoreHelper;
+import fr.acinq.eclair.wallet.utils.LocalBackupHelper;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 import fr.acinq.eclair.wire.NodeAddress$;
 import kotlin.text.Charsets;
@@ -224,7 +226,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
       return;
     }
     // check that external storage is available ; if not, print a warning
-    if (prefs.getBoolean(Constants.SETTING_HAS_STARTED_ONCE, false) && checkExternalStorageState && !BackupHelper.Local.isExternalStorageWritable()) {
+    if (prefs.getBoolean(Constants.SETTING_HAS_STARTED_ONCE, false) && checkExternalStorageState && !LocalBackupHelper.INSTANCE.isExternalStorageWritable()) {
       getCustomDialog(getString(R.string.backup_external_storage_error)).setPositiveButton(R.string.btn_ok, (dialog, which) -> {
         checkExternalStorageState = false; // let the user start the app anyway
         checkup();
@@ -417,7 +419,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
             return;
           }
           // stop if no access to local storage for local backup
-          if (!BackupHelper.Local.hasLocalAccess(getApplicationContext())) {
+          if (!LocalBackupHelper.INSTANCE.hasLocalAccess(getApplicationContext())) {
             final Intent backupSetupIntent = new Intent(getBaseContext(), SetupChannelsBackupActivity.class);
             if (prefs.getBoolean(Constants.SETTING_HAS_STARTED_ONCE, false)) {
               backupSetupIntent.putExtra(SetupChannelsBackupActivity.EXTRA_SETUP_IGNORE_GDRIVE_BACKUP, true);

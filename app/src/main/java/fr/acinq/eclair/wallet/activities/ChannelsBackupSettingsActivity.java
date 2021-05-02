@@ -47,6 +47,8 @@ import fr.acinq.eclair.wallet.databinding.ActivityChannelsBackupSettingsBinding;
 import fr.acinq.eclair.wallet.databinding.ToolbarBinding;
 import fr.acinq.eclair.wallet.utils.BackupHelper;
 import fr.acinq.eclair.wallet.utils.EclairException;
+import fr.acinq.eclair.wallet.utils.LocalBackupFile;
+import fr.acinq.eclair.wallet.utils.LocalBackupHelper;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 
 public class ChannelsBackupSettingsActivity extends ChannelsBackupBaseActivity {
@@ -103,7 +105,7 @@ public class ChannelsBackupSettingsActivity extends ChannelsBackupBaseActivity {
   }
 
   private void checkLocalAccess() {
-    if (app.seedHash != null && BackupHelper.Local.hasLocalAccess(getApplicationContext())) {
+    if (app.seedHash != null && LocalBackupHelper.INSTANCE.hasLocalAccess(getApplicationContext())) {
       applyLocalAccessGranted();
     } else {
       applyLocalAccessDenied();
@@ -205,12 +207,12 @@ public class ChannelsBackupSettingsActivity extends ChannelsBackupBaseActivity {
   protected void applyLocalAccessGranted() {
     super.applyLocalAccessGranted();
     try {
-      final File found = BackupHelper.Local.getBackupFile(WalletUtils.getEclairBackupFileName(app.seedHash.get()));
-      if (found.exists()) {
-        mBinding.localBackupStatus.setVisibility(View.VISIBLE);
-        mBinding.localBackupStatus.setText(getString(R.string.backupsettings_local_status_result, DateFormat.getDateTimeInstance().format(found.lastModified())));
+      final LocalBackupFile found = LocalBackupHelper.INSTANCE.getBackupFile(getApplicationContext(), WalletUtils.getEclairBackupFileName(app.seedHash.get()));
+      mBinding.localBackupStatus.setVisibility(View.VISIBLE);
+      if (found != null) {
+        mBinding.localBackupStatus.setText(getString(R.string.backupsettings_local_status_result,
+          DateFormat.getDateTimeInstance().format(found.getModifiedAt()), found.getPath()));
       } else {
-        mBinding.localBackupStatus.setVisibility(View.VISIBLE);
         mBinding.localBackupStatus.setText(getString(R.string.backupsettings_local_status_not_found));
       }
       mBinding.setHasLocalAccess(true);
