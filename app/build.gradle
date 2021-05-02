@@ -28,7 +28,7 @@ android {
     minSdkVersion 21
     targetSdkVersion 30
     versionCode 55
-    versionName "0.4.14-RC"
+    versionName "0.4.14"
     testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     multiDexEnabled true
   }
