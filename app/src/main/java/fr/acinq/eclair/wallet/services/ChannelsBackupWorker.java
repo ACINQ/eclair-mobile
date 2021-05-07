@@ -17,10 +17,6 @@
 package fr.acinq.eclair.wallet.services;
 
 import android.content.Context;
-import android.database.Cursor;
-import android.net.Uri;
-import android.os.Environment;
-import android.provider.MediaStore;
 
 import androidx.annotation.NonNull;
 import androidx.work.Data;
@@ -39,9 +35,9 @@ import com.google.api.services.drive.model.FileList;
 import com.google.common.io.Files;
 import com.tozny.crypto.android.AesCbcWithIntegrity;
 
+import org.bouncycastle.util.encoders.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.spongycastle.util.encoders.Hex;
 
 import java.io.File;
 import java.io.IOException;

@@ -28,12 +28,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import org.bouncycastle.util.encoders.Hex;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.spongycastle.util.encoders.Hex;
 
 import fr.acinq.bitcoin.ByteVector32;
 import fr.acinq.eclair.wallet.R;

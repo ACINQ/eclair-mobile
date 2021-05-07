@@ -39,6 +39,7 @@ import androidx.core.app.NotificationManagerCompat;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
+import org.bouncycastle.crypto.digests.SHA256Digest;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -46,7 +47,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.spongycastle.crypto.digests.SHA256Digest;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;

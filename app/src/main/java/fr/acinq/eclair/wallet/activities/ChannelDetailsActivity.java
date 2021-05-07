@@ -46,9 +46,9 @@ import fr.acinq.eclair.wallet.utils.WalletUtils;
 import scala.Option;
 import scodec.bits.ByteVector;
 
+import org.bouncycastle.util.encoders.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.spongycastle.util.encoders.Hex;
 
 import javax.annotation.Nullable;
 import java.text.DateFormat;
