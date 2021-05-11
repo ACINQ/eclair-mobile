@@ -58,7 +58,11 @@ object LocalBackupHelper {
       }
     } else {
       val file = getBackupFileLegacy(backupFileName)
-      LocalBackupFile(Date(file.lastModified()), Files.toByteArray(file), file.absolutePath)
+      if (file.exists()) {
+        LocalBackupFile(Date(file.lastModified()), Files.toByteArray(file), file.absolutePath)
+      } else {
+        null
+      }
     }
   }
 
