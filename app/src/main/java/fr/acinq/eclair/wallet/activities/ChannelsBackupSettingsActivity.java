@@ -216,7 +216,7 @@ public class ChannelsBackupSettingsActivity extends ChannelsBackupBaseActivity {
         mBinding.localBackupStatus.setText(getString(R.string.backupsettings_local_status_not_found));
       }
       mBinding.setHasLocalAccess(true);
-    } catch (EclairException.ExternalStorageUnavailableException e) {
+    } catch (Exception e) {
       log.error("could not access storage: ", e);
       applyLocalAccessDenied();
     }
