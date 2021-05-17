@@ -20,7 +20,6 @@ import android.content.Context
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
-import androidx.biometric.BiometricConstants
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.fragment.app.FragmentActivity
@@ -52,7 +51,7 @@ object BiometricHelper {
         log.info("biometric auth error ($errorCode): $errString")
         if (errorCode == BiometricPrompt.ERROR_NEGATIVE_BUTTON) {
           negativeCallback()
-        } else if (errorCode == BiometricConstants.ERROR_USER_CANCELED) {
+        } else if (errorCode == BiometricPrompt.ERROR_USER_CANCELED) {
           cancelCallback()
         }
       }

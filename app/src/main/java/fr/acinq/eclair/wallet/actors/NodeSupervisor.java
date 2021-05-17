@@ -18,10 +18,10 @@ package fr.acinq.eclair.wallet.actors;
 
 import com.google.common.base.Strings;
 
+import org.bouncycastle.util.encoders.Hex;
 import org.greenrobot.eventbus.EventBus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.spongycastle.util.encoders.Hex;
 
 import java.util.ArrayList;
 import java.util.Collections;

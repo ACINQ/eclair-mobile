@@ -37,12 +37,12 @@ import androidx.work.WorkManager;
 
 import com.google.common.io.Files;
 
+import org.bouncycastle.util.encoders.Hex;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.spongycastle.util.encoders.Hex;
 
 import java.io.File;
 import java.io.IOException;
@@ -72,10 +72,8 @@ import fr.acinq.eclair.wallet.actors.NodeSupervisor;
 import fr.acinq.eclair.wallet.actors.RefreshScheduler;
 import fr.acinq.eclair.wallet.databinding.ActivityStartupBinding;
 import fr.acinq.eclair.wallet.fragments.PinDialog;
-import fr.acinq.eclair.wallet.services.ChannelsBackupWorker;
 import fr.acinq.eclair.wallet.services.CheckElectrumWorker;
 import fr.acinq.eclair.wallet.services.NetworkSyncWorker;
-import fr.acinq.eclair.wallet.utils.BackupHelper;
 import fr.acinq.eclair.wallet.utils.BiometricHelper;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.EclairException;

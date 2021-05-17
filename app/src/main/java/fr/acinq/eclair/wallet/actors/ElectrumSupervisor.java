@@ -16,10 +16,10 @@
 
 package fr.acinq.eclair.wallet.actors;
 
+import org.bouncycastle.util.encoders.Hex;
 import org.greenrobot.eventbus.EventBus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.spongycastle.util.encoders.Hex;
 
 import java.io.ByteArrayOutputStream;
 import java.util.Date;
