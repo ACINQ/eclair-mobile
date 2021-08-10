@@ -130,7 +130,7 @@ dependencies {
   }
   // eclair core
   implementation 'fr.acinq.secp256k1:secp256k1-kmp-jni-android:0.5.1'
-  implementation 'fr.acinq.eclair:eclair-core_2.11:0.4.12-android'
+  implementation 'fr.acinq.eclair:eclair-core_2.11:0.4.13-android'
   // database orm
   implementation 'org.greenrobot:greendao:3.2.2'
   // required for greendao encryption, disabled for now
