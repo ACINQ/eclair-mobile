@@ -22,7 +22,7 @@ apply plugin: 'kotlin-kapt'
 
 android {
   compileSdkVersion 30
-  ndkVersion "23.0.7196353"
+  ndkVersion "22.1.7171670"
   defaultConfig {
     applicationId "fr.acinq.eclair.wallet.dev"
     minSdkVersion 21
