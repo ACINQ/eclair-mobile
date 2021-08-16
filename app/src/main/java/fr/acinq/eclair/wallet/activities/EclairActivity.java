@@ -154,7 +154,12 @@ public abstract class EclairActivity extends AppCompatActivity {
     }
   }
 
-  protected void encryptWallet(final EncryptSeedCallback callback, final boolean cancelable, final File datadir, final byte[] seed) {
+  /**
+   * Prompts for a PIN code and use it to encrypt the payload and write it to disk.
+   *
+   * @param payload a seed bytearray if version=1, a encoded mnemonics+passphrase if version=2.
+   */
+  protected void encryptWallet(final EncryptSeedCallback callback, final boolean cancelable, final File datadir, final byte[] payload, final int version) {
     final PinDialog firstPinDialog = new PinDialog(EclairActivity.this, R.style.FullScreenDialog, new PinDialog.PinDialogCallback() {
       @Override
       public void onPinConfirm(final PinDialog pFirstDialog, final String newPinValue) {
@@ -167,7 +172,7 @@ public abstract class EclairActivity extends AppCompatActivity {
               callback.onEncryptSeedFailure(getString(R.string.pindialog_error_donotmatch));
             } else {
               try {
-                WalletUtils.writeSeedFile(datadir, seed, confirmPinValue);
+                WalletUtils.writeSeedFile(datadir, payload, confirmPinValue, version);
                 app.pin.set(confirmPinValue);
                 Prefs.useBiometrics(getApplicationContext(), false);
                 KeystoreHelper.deleteKeyForPin();

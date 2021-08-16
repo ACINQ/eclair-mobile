@@ -43,7 +43,6 @@ import java.io.File;
 public class LogsSettingsActivity extends EclairActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
   private final Logger log = LoggerFactory.getLogger(LogsSettingsActivity.class);
   private ActivityLogsSettingsBinding mBinding;
-  private int papertrailActivationCount = 0;
 
   @SuppressLint("SetTextI18n")
   @Override
@@ -54,25 +53,11 @@ public class LogsSettingsActivity extends EclairActivity implements SharedPrefer
 
     Toolbar toolbar = findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
-    if (!prefs.getBoolean(Constants.SETTING_PAPERTRAIL_VISIBLE, false)) {
-      toolbar.setClickable(true);
-      toolbar.setFocusable(true);
-      toolbar.setOnClickListener(v -> {
-        papertrailActivationCount++;
-        if (papertrailActivationCount == 20) {
-          PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit()
-            .putBoolean(Constants.SETTING_PAPERTRAIL_VISIBLE, true).apply();
-          Toast.makeText(this, "unlocked papertrail", Toast.LENGTH_SHORT).show();
-        }
-      });
-    }
+
     ActionBar ab = getSupportActionBar();
     ab.setDisplayHomeAsUpEnabled(true);
 
     mBinding.setLogsOutputMode(prefs.getString(Constants.SETTING_LOGS_OUTPUT, Constants.LOGS_OUTPUT_LOCAL));
-    mBinding.papertrailHostInput.setText(prefs.getString(Constants.SETTING_PAPERTRAIL_HOST, ""));
-    mBinding.papertrailPortInput.setText(Integer.toString(prefs.getInt(Constants.SETTING_PAPERTRAIL_PORT, 12345)));
-    mBinding.setShowPapertrail(prefs.getBoolean(Constants.SETTING_PAPERTRAIL_VISIBLE, false));
     mBinding.localDirectoryView.setText(getString(R.string.logging_local_directory, getApplicationContext().getExternalFilesDir(Constants.LOGS_DIR)));
     refreshRadioDisplays(prefs);
   }
@@ -95,15 +80,6 @@ public class LogsSettingsActivity extends EclairActivity implements SharedPrefer
       if (mBinding.radioLocal.isChecked()) {
         WalletUtils.setupLocalLogging(getApplicationContext());
         prefs.edit().putString(Constants.SETTING_LOGS_OUTPUT, Constants.LOGS_OUTPUT_LOCAL).apply();
-      } else if (mBinding.radioPapertrail.isChecked()) {
-        final String inputPapertrailHost = mBinding.papertrailHostInput.getText().toString();
-        final int inputPapertrailPort = Integer.parseInt(mBinding.papertrailPortInput.getText().toString());
-        WalletUtils.setupPapertrailLogging(inputPapertrailHost, inputPapertrailPort);
-        prefs.edit()
-          .putString(Constants.SETTING_LOGS_OUTPUT, Constants.LOGS_OUTPUT_PAPERTRAIL)
-          .putString(Constants.SETTING_PAPERTRAIL_HOST, inputPapertrailHost)
-          .putInt(Constants.SETTING_PAPERTRAIL_PORT, inputPapertrailPort)
-          .apply();
       } else {
         WalletUtils.disableLogging();
         prefs.edit().putString(Constants.SETTING_LOGS_OUTPUT, Constants.LOGS_OUTPUT_NONE).apply();
@@ -121,8 +97,6 @@ public class LogsSettingsActivity extends EclairActivity implements SharedPrefer
   public void onSharedPreferenceChanged(final SharedPreferences prefs, final String key) {
     if (Constants.SETTING_LOGS_OUTPUT.equals(key)) {
       refreshRadioDisplays(prefs);
-    } else if (Constants.SETTING_PAPERTRAIL_VISIBLE.equals(key)) {
-      mBinding.setShowPapertrail(prefs.getBoolean(Constants.SETTING_PAPERTRAIL_VISIBLE, false));
     }
   }
 
@@ -138,11 +112,6 @@ public class LogsSettingsActivity extends EclairActivity implements SharedPrefer
     mBinding.localLabel.setText((Constants.LOGS_OUTPUT_LOCAL.equals(outputMode)
       ? getString(R.string.logging_current_label, getString(R.string.logging_local_label))
       : getString(R.string.logging_local_label)));
-    // papertrail
-    mBinding.radioPapertrail.setChecked(Constants.LOGS_OUTPUT_PAPERTRAIL.equals(outputMode));
-    mBinding.papertrailLabel.setText((Constants.LOGS_OUTPUT_PAPERTRAIL.equals(outputMode)
-      ? getString(R.string.logging_current_label, getString(R.string.logging_papertrailapp_label))
-      : getString(R.string.logging_papertrailapp_label)));
   }
 
   public void handleNoneRadioClick(final View view) {
@@ -151,10 +120,6 @@ public class LogsSettingsActivity extends EclairActivity implements SharedPrefer
 
   public void handleLocalRadioClick(final View view) {
     mBinding.setLogsOutputMode(Constants.LOGS_OUTPUT_LOCAL);
-  }
-
-  public void handlePapertrailRadioClick(final View view) {
-    mBinding.setLogsOutputMode(Constants.LOGS_OUTPUT_PAPERTRAIL);
   }
 
   public void viewLocalLogs(final View view) {

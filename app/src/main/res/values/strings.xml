@@ -640,10 +640,6 @@
   <string name="logging_local_share_logs">Share…</string>
   <string name="logging_local_share_logs_title">Share Eclair Mobile logs</string>
   <string name="logging_local_share_logs_subject">Eclair Mobile logs</string>
-  <string name="logging_papertrailapp_label">PaperTrail</string>
-  <string name="logging_papertrailapp_desc">Logs will be sent over to your Papertrailapp account. Not great for privacy, but real handy for debugging.</string>
-  <string name="logging_papertrailapp_host_hint">Papertrail host</string>
-  <string name="logging_papertrailapp_port_hint">Papertrail port</string>
   <string name="logging_save_output">Save</string>
 
   <!-- //////////////// Wallet //////////////////// -->

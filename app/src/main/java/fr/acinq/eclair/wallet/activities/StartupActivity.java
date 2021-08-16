@@ -78,10 +78,12 @@ import fr.acinq.eclair.wallet.utils.BiometricHelper;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.EclairException;
 import fr.acinq.eclair.wallet.utils.EncryptedBackup;
+import fr.acinq.eclair.wallet.utils.EncryptedSeed;
 import fr.acinq.eclair.wallet.utils.KeystoreHelper;
 import fr.acinq.eclair.wallet.utils.LocalBackupHelper;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 import fr.acinq.eclair.wire.NodeAddress$;
+import kotlin.Pair;
 import kotlin.text.Charsets;
 import scala.Option;
 import scala.concurrent.Await;
@@ -303,7 +305,8 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
         try {
           final byte[] unencryptedSeed = Files.toByteArray(unencryptedSeedFile);
           showError(getString(R.string.start_error_unencrypted));
-          new Handler().postDelayed(() -> encryptWallet(this, false, datadir, unencryptedSeed), 2500);
+          // unencrypted seed file content is a seed and not a mnemonic, so use v1
+          new Handler().postDelayed(() -> encryptWallet(this, false, datadir, unencryptedSeed, EncryptedSeed.SEED_FILE_VERSION_1), 2500);
         } catch (IOException e) {
           log.error("could not encrypt unencrypted seed", e);
         }
@@ -399,11 +402,8 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
       @Override
       public void run() {
         try {
-          // this is a bit tricky: for compatibility reasons the actual content of the seed file
-          // is the hexadecimal representation of the seed and not the seed itself
-          final byte[] hexbytes = WalletUtils.readSeedFile(datadir, password);
-          final byte[] bytes = Hex.decode(hexbytes);
-          final ByteVector seed = ByteVector$.MODULE$.apply(bytes);
+          final Pair<EncryptedSeed, byte[]> pair = WalletUtils.readSeedFile(datadir, password);
+          final ByteVector seed = WalletUtils.decodeSeed(pair.component1(), pair.component2());
           final DeterministicWallet.ExtendedPrivateKey pk = DeterministicWallet.derivePrivateKey(
             DeterministicWallet.generate(seed), LocalKeyManager.nodeKeyBasePath(WalletUtils.getChainHash()));
           app.pin.set(password);

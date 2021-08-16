@@ -25,10 +25,13 @@ import java.security.GeneralSecurityException;
 
 public class EncryptedSeed extends EncryptedData {
 
-  public final static byte SEED_FILE_VERSION_1 = 1;
+  // v1 stores the seed
+  public final static int SEED_FILE_VERSION_1 = 1;
   private static final int SALT_LENGTH_V1 = 128;
   private static final int IV_LENGTH_V1 = 16;
   private static final int MAC_LENGTH_V1 = 32;
+  // v2 stores the mnemonics, but use the same salt/iv/mac length
+  public final static int SEED_FILE_VERSION_2 = 2;
 
   private EncryptedSeed(int version, byte[] salt, AesCbcWithIntegrity.CipherTextIvMac civ) {
     super(version, salt, civ);
@@ -71,7 +74,7 @@ public class EncryptedSeed extends EncryptedData {
   public static EncryptedSeed read(final byte[] serialized) {
     final ByteArrayInputStream stream = new ByteArrayInputStream(serialized);
     final int version = stream.read();
-    if (version == SEED_FILE_VERSION_1) {
+    if (version == SEED_FILE_VERSION_1 || version == SEED_FILE_VERSION_2) {
       final byte[] salt = new byte[SALT_LENGTH_V1];
       stream.read(salt, 0, SALT_LENGTH_V1);
       final byte[] iv = new byte[IV_LENGTH_V1];
@@ -91,7 +94,7 @@ public class EncryptedSeed extends EncryptedData {
    */
   @Override
   public byte[] write() throws IOException {
-    if (version == SEED_FILE_VERSION_1) {
+    if (version == SEED_FILE_VERSION_1 || version == SEED_FILE_VERSION_2) {
       if (salt.length != SALT_LENGTH_V1 || civ.getIv().length != IV_LENGTH_V1 || civ.getMac().length != MAC_LENGTH_V1) {
         throw new RuntimeException("could not serialize seed because fields are not of the right length");
       }
@@ -103,7 +106,7 @@ public class EncryptedSeed extends EncryptedData {
       array.write(civ.getCipherText());
       return array.toByteArray();
     } else {
-      throw new RuntimeException("unhandled version");
+      throw new RuntimeException("unhandled version=" + version);
     }
   }
 

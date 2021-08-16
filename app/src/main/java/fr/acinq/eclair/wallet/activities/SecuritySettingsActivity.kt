@@ -132,8 +132,8 @@ class SecuritySettingsActivity : EclairActivity(), EclairActivity.EncryptSeedCal
         dialog.dismiss()
         try {
           val datadir = File(filesDir, Constants.ECLAIR_DATADIR)
-          val seed = WalletUtils.readSeedFile(datadir, pinValue)
-          encryptWallet(this@SecuritySettingsActivity, true, datadir, seed)
+          val (seed, decryptedPayload) = WalletUtils.readSeedFile(datadir, pinValue)
+          encryptWallet(this@SecuritySettingsActivity, true, datadir, decryptedPayload, seed.version)
         } catch (e: GeneralSecurityException) {
           Toast.makeText(applicationContext, R.string.security_pin_failure, Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {

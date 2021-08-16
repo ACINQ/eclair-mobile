@@ -125,9 +125,6 @@ dependencies {
   // logging
   implementation 'org.slf4j:slf4j-api:1.7.30'
   implementation 'com.github.tony19:logback-android:2.0.0'
-  implementation('com.papertrailapp:logback-syslog4j:1.0.0') {
-    exclude group: 'ch.qos.logback'
-  }
   // eclair core
   implementation 'fr.acinq.secp256k1:secp256k1-kmp-jni-android:0.5.1'
   implementation 'fr.acinq.eclair:eclair-core_2.11:0.4.13-android'
