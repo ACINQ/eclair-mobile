@@ -39,7 +39,7 @@ import java.text.NumberFormat;
 import java.util.Date;
 
 import fr.acinq.eclair.wallet.R;
-import fr.acinq.eclair.wallet.databinding.ActivityNetworkInfosBinding;
+import fr.acinq.eclair.wallet.databinding.ActivityWalletInfoBinding;
 import fr.acinq.eclair.wallet.events.NetworkChannelsCountEvent;
 import fr.acinq.eclair.wallet.events.XpubEvent;
 import fr.acinq.eclair.wallet.fragments.CustomElectrumServerDialog;
@@ -48,16 +48,16 @@ import fr.acinq.eclair.wallet.utils.WalletUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class NetworkInfosActivity extends EclairActivity implements SwipeRefreshLayout.OnRefreshListener {
+public class WalletInfoActivity extends EclairActivity implements SwipeRefreshLayout.OnRefreshListener {
 
-  private ActivityNetworkInfosBinding mBinding;
+  private ActivityWalletInfoBinding mBinding;
   private CustomElectrumServerDialog mElectrumDialog;
-  private final Logger log = LoggerFactory.getLogger(NetworkInfosActivity.class);
+  private final Logger log = LoggerFactory.getLogger(WalletInfoActivity.class);
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    mBinding = DataBindingUtil.setContentView(this, R.layout.activity_network_infos);
+    mBinding = DataBindingUtil.setContentView(this, R.layout.activity_wallet_info);
 
     Toolbar toolbar = findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
@@ -79,11 +79,11 @@ public class NetworkInfosActivity extends EclairActivity implements SwipeRefresh
   private void refreshData() {
     final long blockHeight = WalletUtils.getBlockHeight(getApplicationContext());
     if (blockHeight == 0) {
-      mBinding.blockCount.setValue(getString(R.string.networkinfos_block_unknown));
+      mBinding.blockCount.setValue(getString(R.string.walletinfo_block_unknown));
     } else if (app.getBlockTimestamp() == 0) {
       mBinding.blockCount.setValue(NumberFormat.getInstance().format(blockHeight));
     } else {
-      mBinding.blockCount.setHtmlValue(getString(R.string.networkinfos_block,
+      mBinding.blockCount.setHtmlValue(getString(R.string.walletinfo_block,
         NumberFormat.getInstance().format(blockHeight), // block height
         DateFormat.getDateTimeInstance().format(new Date(app.getBlockTimestamp() * 1000)))); // block timestamp
     }
@@ -93,18 +93,18 @@ public class NetworkInfosActivity extends EclairActivity implements SwipeRefresh
     if (currentElectrumServer == null || Strings.isNullOrEmpty(currentElectrumServer.toString())) {
       // not yet connected...
       if (Strings.isNullOrEmpty(customElectrumServer)) {
-        mBinding.electrumAddress.setValue(getString(R.string.networkinfos_electrum_address_connecting));
+        mBinding.electrumAddress.setValue(getString(R.string.walletinfo_electrum_address_connecting));
       } else {
-        mBinding.electrumAddress.setValue(getString(R.string.networkinfos_electrum_address_connecting_to_custom, customElectrumServer));
+        mBinding.electrumAddress.setValue(getString(R.string.walletinfo_electrum_address_connecting_to_custom, customElectrumServer));
       }
     } else {
       mBinding.electrumAddress.setValue(currentElectrumServer.toString());
     }
 
     if (Strings.isNullOrEmpty(customElectrumServer)) {
-      mBinding.electrumAddress.setActionLabel(getString(R.string.networkinfos_electrum_address_set_custom));
+      mBinding.electrumAddress.setActionLabel(getString(R.string.walletinfo_electrum_address_set_custom));
     } else {
-      mBinding.electrumAddress.setActionLabel(getString(R.string.networkinfos_electrum_address_change_custom));
+      mBinding.electrumAddress.setActionLabel(getString(R.string.walletinfo_electrum_address_change_custom));
     }
 
     if (app != null && app.appKit != null) {
@@ -155,7 +155,7 @@ public class NetworkInfosActivity extends EclairActivity implements SwipeRefresh
   }
 
   private void deleteNetworkDB() {
-    final Dialog confirm = getCustomDialog(R.string.networkinfos_networkdb_confirm)
+    final Dialog confirm = getCustomDialog(R.string.walletinfo_networkdb_confirm)
       .setPositiveButton(R.string.btn_ok, (dialog, which) ->
         new Thread() {
           @Override
@@ -163,7 +163,7 @@ public class NetworkInfosActivity extends EclairActivity implements SwipeRefresh
             final File networkDB = WalletUtils.getNetworkDBFile(getApplicationContext());
             if (networkDB.delete()) {
               runOnUiThread(() -> {
-                Toast.makeText(getApplicationContext(), R.string.networkinfos_networkdb_toast, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), R.string.walletinfo_networkdb_toast, Toast.LENGTH_SHORT).show();
                 restart();
               });
             }
@@ -175,7 +175,7 @@ public class NetworkInfosActivity extends EclairActivity implements SwipeRefresh
   }
 
   private void setCustomElectrum() {
-    mElectrumDialog = new CustomElectrumServerDialog(NetworkInfosActivity.this, this::handleCustomElectrumSubmit);
+    mElectrumDialog = new CustomElectrumServerDialog(WalletInfoActivity.this, this::handleCustomElectrumSubmit);
     mElectrumDialog.show();
   }
 
@@ -184,14 +184,14 @@ public class NetworkInfosActivity extends EclairActivity implements SwipeRefresh
    */
   private void handleCustomElectrumSubmit(final String serverAddress) {
     final String message = Strings.isNullOrEmpty(serverAddress)
-      ? getString(R.string.networkinfos_electrum_confirm_message_default)
-      : getString(R.string.networkinfos_electrum_confirm_message, serverAddress);
+      ? getString(R.string.walletinfo_electrum_confirm_message_default)
+      : getString(R.string.walletinfo_electrum_confirm_message, serverAddress);
     getCustomDialog(message).setCancelable(false).show();
     new Handler().postDelayed(this::restart, 3000);
   }
 
   private void deleteElectrumDB() {
-    final Dialog confirm = getCustomDialog(R.string.networkinfos_electrumdb_confirm)
+    final Dialog confirm = getCustomDialog(R.string.walletinfo_electrumdb_confirm)
       .setPositiveButton(R.string.btn_ok, (dialog, which) ->
         new Thread() {
           @Override
@@ -200,7 +200,7 @@ public class NetworkInfosActivity extends EclairActivity implements SwipeRefresh
             if (walletDB.delete()) {
               runOnUiThread(() -> {
                 app.getDBHelper().deleteAllOnchainTxs();
-                Toast.makeText(getApplicationContext(), R.string.networkinfos_electrumdb_toast, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), R.string.walletinfo_electrumdb_toast, Toast.LENGTH_SHORT).show();
                 restart();
               });
             }

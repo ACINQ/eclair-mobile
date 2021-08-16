@@ -108,8 +108,8 @@
       android:theme="@style/CustomDialog"
       android:windowSoftInputMode="adjustResize" />
     <activity
-      android:name=".activities.NetworkInfosActivity"
-      android:label="@string/networkinfos_name"
+      android:name=".activities.WalletInfoActivity"
+      android:label="@string/walletinfo_name"
       android:parentActivityName=".activities.HomeActivity"
       android:screenOrientation="portrait" />
     <activity

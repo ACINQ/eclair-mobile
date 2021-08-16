@@ -29,7 +29,7 @@
 
   <!-- //////////////// Activities Name //////////////////// -->
 
-  <string name="networkinfos_name">Network Info</string>
+  <string name="walletinfo_name">Wallet Info</string>
   <string name="about_name">About</string>
   <string name="lnpayment_name">Lightning Payment Details</string>
   <string name="btcpayment_name">Transaction Details</string>
@@ -257,7 +257,7 @@
 
   <!-- /////////////// Menus /////////////// -->
 
-  <string name="menu_networkinfos">Network Info</string>
+  <string name="menu_walletinfo">Wallet Info</string>
   <string name="menu_about">About / Help</string>
   <string name="menu_settings">Settings</string>
   <string name="menu_settings_security">Security</string>
@@ -433,31 +433,31 @@
     This independent service lists and ranks shops that accept Lightning payments.
   ]]></string>
 
-  <!-- //////////////// Network Infos //////////////////// -->
+  <!-- //////////////// Wallet Info //////////////////// -->
 
-  <string name="networkinfos_title_bitcoin">Bitcoin Network</string>
-  <string name="networkinfos_title_lightning">Lightning Network</string>
-  <string name="networkinfos_nodeid_label">Your node id</string>
-  <string name="networkinfos_blockcount_label">Block height</string>
-  <string name="networkinfos_feerate_label">Current fee rate</string>
-  <string name="networkinfos_electrum_address_label">Current electrum server</string>
-  <string name="networkinfos_electrum_address_connecting">Establishing connection…</string>
-  <string name="networkinfos_electrum_address_connecting_to_custom">Attempting connection to %1$s…</string>
-  <string name="networkinfos_electrum_address_set_custom">Set custom server…</string>
-  <string name="networkinfos_electrum_address_change_custom">Change custom server…</string>
-  <string name="networkinfos_electrum_confirm_message"><![CDATA[You will now connect to <b>%1$s</b><br/><br/>Restarting…]]></string>
-  <string name="networkinfos_electrum_confirm_message_default"><![CDATA[Restarting with preset electrum…]]></string>
-  <string name="networkinfos_block"><![CDATA[%1$s&nbsp;&nbsp;<font color="#888888"><small>//&nbsp;&nbsp;%2$s</small></font>]]></string>
-  <string name="networkinfos_block_unknown">Block height is not available yet…</string>
-  <string name="networkinfos_networkchannels_label">Known channels in network</string>
-  <string name="networkinfos_wallet_title">Wallet</string>
-  <string name="networkinfos_networkdb_action">Reset Network Database…</string>
-  <string name="networkinfos_networkdb_confirm"><![CDATA[Are you sure you want to delete your network database?<br/><br/>The application will restart automatically.]]></string>
-  <string name="networkinfos_networkdb_toast">Successfully deleted DB, restarting application…</string>
-  <string name="networkinfos_xpub_label">Master Public Key</string>
-  <string name="networkinfos_electrumdb_action">Reset wallet cache</string>
-  <string name="networkinfos_electrumdb_confirm"><![CDATA[The app will restart and fully resync from Electrum. This can take a few minutes.<br /><br />Are you sure you want to proceed?]]></string>
-  <string name="networkinfos_electrumdb_toast">Reset done, restarting application…</string>
+  <string name="walletinfo_title_bitcoin">Bitcoin Network</string>
+  <string name="walletinfo_title_lightning">Lightning Network</string>
+  <string name="walletinfo_nodeid_label">Your node id</string>
+  <string name="walletinfo_blockcount_label">Block height</string>
+  <string name="walletinfo_feerate_label">Current fee rate</string>
+  <string name="walletinfo_electrum_address_label">Current electrum server</string>
+  <string name="walletinfo_electrum_address_connecting">Establishing connection…</string>
+  <string name="walletinfo_electrum_address_connecting_to_custom">Attempting connection to %1$s…</string>
+  <string name="walletinfo_electrum_address_set_custom">Set custom server…</string>
+  <string name="walletinfo_electrum_address_change_custom">Change custom server…</string>
+  <string name="walletinfo_electrum_confirm_message"><![CDATA[You will now connect to <b>%1$s</b><br/><br/>Restarting…]]></string>
+  <string name="walletinfo_electrum_confirm_message_default"><![CDATA[Restarting with preset electrum…]]></string>
+  <string name="walletinfo_block"><![CDATA[%1$s&nbsp;&nbsp;<font color="#888888"><small>//&nbsp;&nbsp;%2$s</small></font>]]></string>
+  <string name="walletinfo_block_unknown">Block height is not available yet…</string>
+  <string name="walletinfo_networkchannels_label">Known channels in network</string>
+  <string name="walletinfo_wallet_title">Wallet</string>
+  <string name="walletinfo_networkdb_action">Reset Network Database…</string>
+  <string name="walletinfo_networkdb_confirm"><![CDATA[Are you sure you want to delete your network database?<br/><br/>The application will restart automatically.]]></string>
+  <string name="walletinfo_networkdb_toast">Successfully deleted DB, restarting application…</string>
+  <string name="walletinfo_xpub_label">Master Public Key</string>
+  <string name="walletinfo_electrumdb_action">Reset wallet cache</string>
+  <string name="walletinfo_electrumdb_confirm"><![CDATA[The app will restart and fully resync from Electrum. This can take a few minutes.<br /><br />Are you sure you want to proceed?]]></string>
+  <string name="walletinfo_electrumdb_toast">Reset done, restarting application…</string>
 
   <!-- //////////////// Payment Item //////////////////// -->
 
