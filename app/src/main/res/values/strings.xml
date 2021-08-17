@@ -454,6 +454,12 @@
   <string name="walletinfo_networkdb_action">Reset Network Database…</string>
   <string name="walletinfo_networkdb_confirm"><![CDATA[Are you sure you want to delete your network database?<br/><br/>The application will restart automatically.]]></string>
   <string name="walletinfo_networkdb_toast">Successfully deleted DB, restarting application…</string>
+  <string name="walletinfo_seed_label">Seed</string>
+  <string name="walletinfo_seed_action">Display Seed</string>
+  <string name="walletinfo_seed_desc">The seed is the wallet\'s private key. It gives access to your funds.\n\nBackup this seed in a secure location (not on this phone).</string>
+  <string name="walletinfo_seed_dialog_title">KEEP THIS SEED SAFE.\nDO NOT SHARE.</string>
+  <string name="walletinfo_seed_dialog_passphrase">ADDITIONAL PASSPHRASE</string>
+  <string name="walletinfo_seed_cannot_read_v1">Legacy seed cannot be displayed</string>
   <string name="walletinfo_xpub_label">Master Public Key</string>
   <string name="walletinfo_electrumdb_action">Reset wallet cache</string>
   <string name="walletinfo_electrumdb_confirm"><![CDATA[The app will restart and fully resync from Electrum. This can take a few minutes.<br /><br />Are you sure you want to proceed?]]></string>

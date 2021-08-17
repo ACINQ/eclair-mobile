@@ -97,6 +97,16 @@
             android:text="@string/walletinfo_wallet_title" />
 
           <fr.acinq.eclair.wallet.customviews.DataRow
+            android:id="@+id/display_seed"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:label="@string/walletinfo_seed_label"
+            app:has_action="true"
+            app:action_label="@string/walletinfo_seed_action"
+            app:has_border="true"
+            app:value="@string/walletinfo_seed_desc" />
+
+          <fr.acinq.eclair.wallet.customviews.DataRow
             android:id="@+id/xpub"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

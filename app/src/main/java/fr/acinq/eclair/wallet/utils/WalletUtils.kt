@@ -43,8 +43,6 @@ import ch.qos.logback.core.util.FileSize
 import com.google.common.base.Strings
 import com.google.common.io.Files
 import com.google.common.net.HostAndPort
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
 import com.tozny.crypto.android.AesCbcWithIntegrity
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
@@ -59,7 +57,6 @@ import fr.acinq.eclair.wallet.R
 import fr.acinq.eclair.wallet.utils.EclairException.ExternalStorageUnavailableException
 import okhttp3.ResponseBody
 import org.bouncycastle.util.encoders.Hex
-import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import org.slf4j.LoggerFactory
@@ -225,8 +222,8 @@ object WalletUtils {
 
   fun byteArray2String(array: ByteArray): String = String(Hex.decode(array), Charsets.UTF_8)
 
-  @Throws(IOException::class, IllegalAccessException::class, GeneralSecurityException::class)
-  private fun readSeedFile(datadir: File, seedFileName: String, password: String): Pair<EncryptedSeed, ByteArray> {
+  @Throws(IOException::class, IllegalAccessException::class)
+  fun readSeedFile(datadir: File, seedFileName: String): EncryptedSeed {
     if (!datadir.exists()) {
       throw RuntimeException("datadir does not exist")
     }
@@ -236,13 +233,13 @@ object WalletUtils {
     }
     val fileContent = Files.toByteArray(seedFile)
     val encryptedSeed = EncryptedSeed.read(fileContent)
-    return encryptedSeed to encryptedSeed.decrypt(password)
+    return encryptedSeed
   }
 
   @JvmStatic
   @Throws(IOException::class, IllegalAccessException::class, GeneralSecurityException::class)
-  fun readSeedFile(datadir: File, password: String): Pair<EncryptedSeed, ByteArray> {
-    return readSeedFile(datadir, SEED_NAME, password)
+  fun readSeedAndDecrypt(datadir: File, password: String): Pair<EncryptedSeed, ByteArray> {
+    return readSeedFile(datadir, SEED_NAME).let { it to it.decrypt(password) }
   }
 
   /**
@@ -260,7 +257,7 @@ object WalletUtils {
       val encryptedSeed = EncryptedSeed.encrypt(data, password, version)
       Files.write(encryptedSeed.write(), temp)
       // decrypt temp file and check validity; if correct, move temp file to final file
-      val (_, checkBlob) = readSeedFile(datadir, SEED_NAME_TEMP, password)
+      val checkBlob = readSeedFile(datadir, SEED_NAME_TEMP).decrypt(password)
       if (!AesCbcWithIntegrity.constantTimeEq(checkBlob, data)) {
         throw GeneralSecurityException()
       } else {

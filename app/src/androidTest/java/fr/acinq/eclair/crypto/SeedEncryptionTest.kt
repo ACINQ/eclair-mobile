@@ -16,7 +16,7 @@
 package fr.acinq.eclair.crypto
 
 import fr.acinq.eclair.wallet.utils.WalletUtils.writeSeedFile
-import fr.acinq.eclair.wallet.utils.WalletUtils.readSeedFile
+import fr.acinq.eclair.wallet.utils.WalletUtils.readSeedAndDecrypt
 import kotlin.Throws
 import com.tozny.crypto.android.AesCbcWithIntegrity
 import fr.acinq.bitcoin.MnemonicCode
@@ -32,7 +32,6 @@ import java.io.File
 import java.io.IOException
 import java.io.UnsupportedEncodingException
 import java.security.GeneralSecurityException
-import java.security.SecureRandom
 
 class SeedEncryptionTest {
   private val password = "123456"
@@ -63,7 +62,7 @@ class SeedEncryptionTest {
     val datadir = temp.newFolder("datadir_temp")
     writeSeedFile(datadir, seed, password, EncryptedSeed.SEED_FILE_VERSION_1)
 
-    val (encryptedSeed, blob) = readSeedFile(datadir, password)
+    val (encryptedSeed, blob) = readSeedAndDecrypt(datadir, password)
     Assert.assertEquals(1, encryptedSeed.version)
     Assert.assertTrue(AesCbcWithIntegrity.constantTimeEq(seed, blob))
   }
@@ -75,13 +74,13 @@ class SeedEncryptionTest {
     val seed = WalletUtils.encodeMnemonics(EncryptedSeed.SEED_FILE_VERSION_1, words, "")
     val datadir = temp.newFolder("datadir_temp")
     writeSeedFile(datadir, seed, password, EncryptedSeed.SEED_FILE_VERSION_1)
-    readSeedFile(datadir, "999999")
+    readSeedAndDecrypt(datadir, "999999")
   }
 
   private fun checkV2Mnemonics(datadir: File, words: List<String>, passphrase: String?) {
     val hex = WalletUtils.encodeMnemonics(EncryptedSeed.SEED_FILE_VERSION_2, words, passphrase)
 
-    val (encryptedSeed, decrypted) = readSeedFile(datadir, password)
+    val (encryptedSeed, decrypted) = readSeedAndDecrypt(datadir, password)
     Assert.assertEquals(2, encryptedSeed.version)
     Assert.assertTrue(AesCbcWithIntegrity.constantTimeEq(hex, decrypted))
 

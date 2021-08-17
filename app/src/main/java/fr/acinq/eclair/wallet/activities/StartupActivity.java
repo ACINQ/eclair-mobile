@@ -37,7 +37,6 @@ import androidx.work.WorkManager;
 
 import com.google.common.io.Files;
 
-import org.bouncycastle.util.encoders.Hex;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -90,7 +89,6 @@ import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
 import scodec.bits.ByteVector;
-import scodec.bits.ByteVector$;
 
 public class StartupActivity extends EclairActivity implements EclairActivity.EncryptSeedCallback {
 
@@ -402,7 +400,7 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
       @Override
       public void run() {
         try {
-          final Pair<EncryptedSeed, byte[]> pair = WalletUtils.readSeedFile(datadir, password);
+          final Pair<EncryptedSeed, byte[]> pair = WalletUtils.readSeedAndDecrypt(datadir, password);
           final ByteVector seed = WalletUtils.decodeSeed(pair.component1(), pair.component2());
           final DeterministicWallet.ExtendedPrivateKey pk = DeterministicWallet.derivePrivateKey(
             DeterministicWallet.generate(seed), LocalKeyManager.nodeKeyBasePath(WalletUtils.getChainHash()));
