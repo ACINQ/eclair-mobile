@@ -178,7 +178,7 @@ public interface Constants {
 
   /* ------------ API URLS ------------ */
 
-  String PRICE_RATE_API = "https://blockchain.info/fr/ticker";
+  String PRICE_RATE_API = "https://blockchain.info/ticker";
   NodeURI ACINQ_NODE_URI = NodeURI.parse("03933884aaf1d6b108397e5efe5c86bcf2d8ca8d2f700eda99db9214fc2712b134@endurance.acinq.co:9735");
   String WALLET_CONTEXT_SOURCE = "https://acinq.co/mobile/walletcontext.json";
   String DEFAULT_ONCHAIN_EXPLORER = "https://api.blockcypher.com/v1/btc/test3/txs/";
