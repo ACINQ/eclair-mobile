@@ -30,6 +30,7 @@ import android.content.DialogInterface
 import android.os.Handler
 import android.preference.PreferenceManager
 import android.view.View
+import android.view.WindowManager
 import android.widget.Toast
 import fr.acinq.eclair.wallet.databinding.ActivityWalletInfoBinding
 import fr.acinq.eclair.wallet.fragments.DisplaySeedDialog
@@ -217,7 +218,10 @@ class WalletInfoActivity : EclairActivity(), OnRefreshListener {
           val (seed, decryptedPayload) = WalletUtils.readSeedAndDecrypt(datadir, pinValue)
           if (seed.version == EncryptedSeed.SEED_FILE_VERSION_2) {
             val (words, passphrase) = WalletUtils.decodeV2MnemonicsBlob(decryptedPayload)
-            if (mDisplaySeedDialog == null) mDisplaySeedDialog = DisplaySeedDialog(this@WalletInfoActivity)
+            if (mDisplaySeedDialog == null) {
+              mDisplaySeedDialog = DisplaySeedDialog(this@WalletInfoActivity)
+            }
+            mDisplaySeedDialog?.window?.setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE)
             mDisplaySeedDialog?.let {
               it.loadMnemonics(words, passphrase)
               it.show()
