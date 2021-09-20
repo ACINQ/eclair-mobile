@@ -28,10 +28,6 @@
       name="logsOutputMode"
       type="String" />
 
-    <variable
-      name="showPapertrail"
-      type="boolean" />
-
   </data>
 
   <ScrollView
@@ -187,103 +183,6 @@
           app:layout_constraintStart_toEndOf="@+id/local_view_button"
           app:layout_constraintTop_toTopOf="@id/local_view_button" />
 
-      </androidx.constraintlayout.widget.ConstraintLayout>
-
-      <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/grey_0"
-        android:visibility="@{showPapertrail ? View.VISIBLE : View.GONE}" />
-
-      <androidx.constraintlayout.widget.ConstraintLayout
-        style="@style/ClickableLayout"
-        android:onClick="handlePapertrailRadioClick"
-        android:padding="@dimen/space_sm"
-        android:visibility="@{showPapertrail ? View.VISIBLE : View.GONE}">
-
-        <RadioButton
-          android:id="@+id/radio_papertrail"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:buttonTint="@color/primary"
-          android:checked="@{Constants.LOGS_OUTPUT_PAPERTRAIL.equals(logsOutputMode)}"
-          android:clickable="false"
-          android:focusable="false"
-          android:text=""
-          app:layout_constraintStart_toStartOf="parent"
-          app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-          android:id="@+id/papertrail_label"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:layout_marginStart="@dimen/space_sm"
-          android:text="@string/logging_papertrailapp_label"
-          android:textSize="16sp"
-          app:layout_constrainedWidth="true"
-          app:layout_constraintBottom_toBottomOf="@id/radio_papertrail"
-          app:layout_constraintEnd_toEndOf="parent"
-          app:layout_constraintHorizontal_bias="0"
-          app:layout_constraintStart_toEndOf="@+id/radio_papertrail"
-          app:layout_constraintTop_toTopOf="@id/radio_papertrail" />
-
-        <TextView
-          android:id="@+id/papertrail_text1"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:text="@string/logging_papertrailapp_desc"
-          android:textColor="@color/grey_2"
-          android:visibility="@{Constants.LOGS_OUTPUT_PAPERTRAIL.equals(logsOutputMode) ? View.VISIBLE : View.GONE}"
-          app:layout_constrainedWidth="true"
-          app:layout_constraintEnd_toEndOf="parent"
-          app:layout_constraintHorizontal_bias="0"
-          app:layout_constraintStart_toStartOf="@+id/papertrail_label"
-          app:layout_constraintTop_toBottomOf="@id/papertrail_label" />
-
-        <com.google.android.material.textfield.TextInputLayout
-          android:id="@+id/papertrail_host_layout"
-          android:layout_width="0dp"
-          android:layout_height="wrap_content"
-          android:layout_marginTop="@dimen/space_md"
-          android:layout_marginEnd="@dimen/space_md"
-          android:hint="@string/logging_papertrailapp_host_hint"
-          android:visibility="@{Constants.LOGS_OUTPUT_PAPERTRAIL.equals(logsOutputMode) ? View.VISIBLE : View.GONE}"
-          app:layout_constrainedWidth="true"
-          app:layout_constraintEnd_toEndOf="parent"
-          app:layout_constraintStart_toStartOf="@+id/papertrail_label"
-          app:layout_constraintTop_toBottomOf="@id/papertrail_text1">
-
-          <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/papertrail_host_input"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:backgroundTint="@color/primary"
-            android:textSize="@dimen/text_md" />
-
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-          android:id="@+id/papertrail_port_layout"
-          android:layout_width="0dp"
-          android:layout_height="wrap_content"
-          android:layout_marginEnd="@dimen/space_md"
-          android:hint="@string/logging_papertrailapp_port_hint"
-          android:visibility="@{Constants.LOGS_OUTPUT_PAPERTRAIL.equals(logsOutputMode) ? View.VISIBLE : View.GONE}"
-          app:layout_constrainedWidth="true"
-          app:layout_constraintEnd_toEndOf="parent"
-          app:layout_constraintStart_toStartOf="@+id/papertrail_label"
-          app:layout_constraintTop_toBottomOf="@id/papertrail_host_layout">
-
-          <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/papertrail_port_input"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:backgroundTint="@color/primary"
-            android:digits="0123456789"
-            android:inputType="number"
-            android:textSize="@dimen/text_md" />
-
-        </com.google.android.material.textfield.TextInputLayout>
       </androidx.constraintlayout.widget.ConstraintLayout>
 
       <View

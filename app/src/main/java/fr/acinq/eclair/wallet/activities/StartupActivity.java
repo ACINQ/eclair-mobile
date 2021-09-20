@@ -37,7 +37,6 @@ import androidx.work.WorkManager;
 
 import com.google.common.io.Files;
 
-import org.bouncycastle.util.encoders.Hex;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -78,17 +77,18 @@ import fr.acinq.eclair.wallet.utils.BiometricHelper;
 import fr.acinq.eclair.wallet.utils.Constants;
 import fr.acinq.eclair.wallet.utils.EclairException;
 import fr.acinq.eclair.wallet.utils.EncryptedBackup;
+import fr.acinq.eclair.wallet.utils.EncryptedSeed;
 import fr.acinq.eclair.wallet.utils.KeystoreHelper;
 import fr.acinq.eclair.wallet.utils.LocalBackupHelper;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 import fr.acinq.eclair.wire.NodeAddress$;
+import kotlin.Pair;
 import kotlin.text.Charsets;
 import scala.Option;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
 import scodec.bits.ByteVector;
-import scodec.bits.ByteVector$;
 
 public class StartupActivity extends EclairActivity implements EclairActivity.EncryptSeedCallback {
 
@@ -355,11 +355,8 @@ public class StartupActivity extends EclairActivity implements EclairActivity.En
       @Override
       public void run() {
         try {
-          // this is a bit tricky: for compatibility reasons the actual content of the seed file
-          // is the hexadecimal representation of the seed and not the seed itself
-          final byte[] hexbytes = WalletUtils.readSeedFile(datadir, password);
-          final byte[] bytes = Hex.decode(hexbytes);
-          final ByteVector seed = ByteVector$.MODULE$.apply(bytes);
+          final Pair<EncryptedSeed, byte[]> pair = WalletUtils.readSeedAndDecrypt(datadir, password);
+          final ByteVector seed = WalletUtils.decodeSeed(pair.component1(), pair.component2());
           final DeterministicWallet.ExtendedPrivateKey pk = DeterministicWallet.derivePrivateKey(
             DeterministicWallet.generate(seed), LocalKeyManager.nodeKeyBasePath(WalletUtils.getChainHash()));
           app.pin.set(password);

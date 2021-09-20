@@ -347,8 +347,8 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
-      case R.id.menu_home_networkinfos:
-        startActivity(new Intent(this, NetworkInfosActivity.class));
+      case R.id.menu_home_walletinfo:
+        startActivity(new Intent(this, WalletInfoActivity.class));
         return true;
       case R.id.menu_home_about:
         startActivity(new Intent(this, AboutActivity.class));

@@ -106,10 +106,6 @@ public interface Constants {
   String SETTING_LOGS_OUTPUT = "node_logs_output";
   String LOGS_OUTPUT_NONE = "NONE";
   String LOGS_OUTPUT_LOCAL = "LOCAL";
-  String LOGS_OUTPUT_PAPERTRAIL = "PAPER_TRAIL_APP";
-  String SETTING_PAPERTRAIL_VISIBLE = "paper_trail_visible";
-  String SETTING_PAPERTRAIL_HOST = "paper_trail_host";
-  String SETTING_PAPERTRAIL_PORT = "paper_trail_port";
 
   /* ----------- SETTINGS - PIN CODE ------------ */
 
@@ -182,7 +178,7 @@ public interface Constants {
 
   /* ------------ API URLS ------------ */
 
-  String PRICE_RATE_API = "https://blockchain.info/fr/ticker";
+  String PRICE_RATE_API = "https://blockchain.info/ticker";
   NodeURI ACINQ_NODE_URI = NodeURI.parse("03864ef025fde8fb587d989186ce6a4a186895ee44a926bfc370e2c366597a3f8f@node.acinq.co:9735");
   String WALLET_CONTEXT_SOURCE = "https://acinq.co/mobile/walletcontext.json";
   String DEFAULT_ONCHAIN_EXPLORER = "https://api.blockcypher.com/v1/btc/main/txs/";

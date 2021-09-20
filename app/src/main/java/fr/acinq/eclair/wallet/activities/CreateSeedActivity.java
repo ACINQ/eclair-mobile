@@ -50,6 +50,7 @@ import fr.acinq.eclair.wallet.fragments.initwallet.WalletEncryptFragment;
 import fr.acinq.eclair.wallet.fragments.initwallet.WalletPassphraseConfirmFragment;
 import fr.acinq.eclair.wallet.fragments.initwallet.WalletPassphraseFragment;
 import fr.acinq.eclair.wallet.utils.Constants;
+import fr.acinq.eclair.wallet.utils.EncryptedSeed;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 import scala.collection.JavaConverters;
 
@@ -289,8 +290,8 @@ public class CreateSeedActivity extends EclairActivity implements EclairActivity
           }
           final String passphrase = mPassphrase;
           final File datadir = new File(getFilesDir(), Constants.ECLAIR_DATADIR);
-          final byte[] seed = WalletUtils.mnemonicsToSeed(mMnemonics, passphrase);
-          runOnUiThread(() -> encryptWallet(CreateSeedActivity.this, false, datadir, seed));
+          final byte[] seed = WalletUtils.encodeMnemonics(EncryptedSeed.SEED_FILE_VERSION_2, mMnemonics, passphrase);
+          runOnUiThread(() -> encryptWallet(CreateSeedActivity.this, false, datadir, seed, EncryptedSeed.SEED_FILE_VERSION_2));
         } catch (Exception e) {
           runOnUiThread(() -> {
             mBinding.error.setText(getString(R.string.createwallet_error_write_seed, e.getLocalizedMessage()));

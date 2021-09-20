@@ -17,7 +17,7 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools"
-  tools:context="fr.acinq.eclair.wallet.activities.NetworkInfosActivity">
+  tools:context="fr.acinq.eclair.wallet.activities.WalletInfoActivity">
 
   <LinearLayout
     android:layout_width="match_parent"
@@ -41,14 +41,14 @@
           <TextView
             style="@style/TitleBar"
             android:drawableStart="@drawable/ic_chain_grey_14dp"
-            android:text="@string/networkinfos_title_bitcoin" />
+            android:text="@string/walletinfo_title_bitcoin" />
 
           <fr.acinq.eclair.wallet.customviews.DataRow
             android:id="@+id/block_count"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:has_border="true"
-            app:label="@string/networkinfos_blockcount_label"
+            app:label="@string/walletinfo_blockcount_label"
             app:value="@string/unknown" />
 
           <fr.acinq.eclair.wallet.customviews.DataRow
@@ -57,27 +57,27 @@
             android:layout_height="wrap_content"
             app:has_action="true"
             app:has_border="true"
-            app:label="@string/networkinfos_electrum_address_label"
-            app:value="@string/networkinfos_electrum_address_connecting" />
+            app:label="@string/walletinfo_electrum_address_label"
+            app:value="@string/walletinfo_electrum_address_connecting" />
 
           <fr.acinq.eclair.wallet.customviews.DataRow
             android:id="@+id/fee_rate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:label="@string/networkinfos_feerate_label"
+            app:label="@string/walletinfo_feerate_label"
             app:value="@string/unknown" />
 
           <TextView
             style="@style/TitleBar"
             android:drawableStart="@drawable/ic_bolt_grey_14dp"
-            android:text="@string/networkinfos_title_lightning" />
+            android:text="@string/walletinfo_title_lightning" />
 
           <fr.acinq.eclair.wallet.customviews.DataRow
             android:id="@+id/node_id"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:has_border="true"
-            app:label="@string/networkinfos_nodeid_label"
+            app:label="@string/walletinfo_nodeid_label"
             app:value="@string/unknown" />
 
           <fr.acinq.eclair.wallet.customviews.DataRow
@@ -85,8 +85,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:has_border="true"
-            app:label="@string/networkinfos_networkchannels_label"
-            app:action_label="@string/networkinfos_networkdb_action"
+            app:label="@string/walletinfo_networkchannels_label"
+            app:action_label="@string/walletinfo_networkdb_action"
             app:action_text_color="@color/red_faded"
             app:has_action="true"
             app:value="@string/unknown" />
@@ -94,15 +94,25 @@
           <TextView
             style="@style/TitleBar"
             android:drawableStart="@drawable/ic_box_grey_14dp"
-            android:text="@string/networkinfos_wallet_title" />
+            android:text="@string/walletinfo_wallet_title" />
+
+          <fr.acinq.eclair.wallet.customviews.DataRow
+            android:id="@+id/display_seed"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:label="@string/walletinfo_seed_label"
+            app:has_action="true"
+            app:action_label="@string/walletinfo_seed_action"
+            app:has_border="true"
+            app:value="@string/walletinfo_seed_desc" />
 
           <fr.acinq.eclair.wallet.customviews.DataRow
             android:id="@+id/xpub"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:label="@string/networkinfos_xpub_label"
+            app:label="@string/walletinfo_xpub_label"
             app:has_action="true"
-            app:action_label="@string/networkinfos_electrumdb_action"
+            app:action_label="@string/walletinfo_electrumdb_action"
             app:has_border="true"
             app:value="@string/unknown" />
         </LinearLayout>

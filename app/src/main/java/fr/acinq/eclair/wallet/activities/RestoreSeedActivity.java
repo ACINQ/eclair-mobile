@@ -38,11 +38,13 @@ import fr.acinq.eclair.wallet.fragments.initwallet.WalletEncryptFragment;
 import fr.acinq.eclair.wallet.fragments.initwallet.WalletImportSeedFragment;
 import fr.acinq.eclair.wallet.fragments.initwallet.WalletPassphraseFragment;
 import fr.acinq.eclair.wallet.utils.Constants;
+import fr.acinq.eclair.wallet.utils.EncryptedSeed;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 
 import javax.annotation.Nullable;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class RestoreSeedActivity extends EclairActivity implements EclairActivity.EncryptSeedCallback {
@@ -162,7 +164,8 @@ public class RestoreSeedActivity extends EclairActivity implements EclairActivit
     try {
       final String mnemonics = mWalletImportSeedFragment.mBinding.mnemonicsInput.getText().toString().trim().toLowerCase();
       final String passphrase = mWalletPassphraseFragment.mBinding.passphraseInput.getText().toString();
-      WalletUtils.mnemonicsToSeed(mnemonics, passphrase);
+      // check validity
+      WalletUtils.mnemonicsToSeed(Arrays.asList(mnemonics.split(" ")), passphrase);
       final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
       if (imm != null && view != null && view.getWindowToken() != null) {
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
@@ -190,8 +193,8 @@ public class RestoreSeedActivity extends EclairActivity implements EclairActivit
             throw new RuntimeException(getString(R.string.createwallet_invalid_seed));
           }
           final File datadir = new File(getFilesDir(), Constants.ECLAIR_DATADIR);
-          final byte[] seed = WalletUtils.mnemonicsToSeed(mnemonics, passphrase);
-          runOnUiThread(() -> encryptWallet(RestoreSeedActivity.this, false, datadir, seed));
+          final byte[] seed = WalletUtils.encodeMnemonics(EncryptedSeed.SEED_FILE_VERSION_2, Arrays.asList(mnemonics.split(" ")), passphrase);
+          runOnUiThread(() -> encryptWallet(RestoreSeedActivity.this, false, datadir, seed, EncryptedSeed.SEED_FILE_VERSION_2));
         } catch (Exception e) {
           runOnUiThread(() -> {
             mBinding.error.setText(getString(R.string.createwallet_error_write_seed, e.getLocalizedMessage()));

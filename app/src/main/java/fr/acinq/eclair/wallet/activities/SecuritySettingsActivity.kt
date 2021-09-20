@@ -132,8 +132,8 @@ class SecuritySettingsActivity : EclairActivity(), EclairActivity.EncryptSeedCal
         dialog.dismiss()
         try {
           val datadir = File(filesDir, Constants.ECLAIR_DATADIR)
-          val seed = WalletUtils.readSeedFile(datadir, pinValue)
-          encryptWallet(this@SecuritySettingsActivity, true, datadir, seed)
+          val (seed, decryptedPayload) = WalletUtils.readSeedAndDecrypt(datadir, pinValue)
+          encryptWallet(this@SecuritySettingsActivity, true, datadir, decryptedPayload, seed.version)
         } catch (e: GeneralSecurityException) {
           Toast.makeText(applicationContext, R.string.security_pin_failure, Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
@@ -175,7 +175,7 @@ class SecuritySettingsActivity : EclairActivity(), EclairActivity.EncryptSeedCal
         dialog.dismiss()
         try {
           // check that PIN is correct
-          WalletUtils.readSeedFile(File(filesDir, Constants.ECLAIR_DATADIR), pinValue)
+          WalletUtils.readSeedAndDecrypt(File(filesDir, Constants.ECLAIR_DATADIR), pinValue)
           KeystoreHelper.deleteKeyForPin()
           KeystoreHelper.generateKeyForPin()
           biometricPrompt = BiometricHelper.getBiometricAuth(this@SecuritySettingsActivity, R.string.security_biometric_enable_prompt_title, R.string.security_biometric_enable_prompt_negative, null, {
