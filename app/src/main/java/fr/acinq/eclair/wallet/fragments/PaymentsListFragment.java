@@ -19,17 +19,18 @@ package fr.acinq.eclair.wallet.fragments;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import fr.acinq.eclair.wallet.models.*;
+import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.greendao.query.QueryBuilder;
 import org.slf4j.Logger;
@@ -43,6 +44,11 @@ import fr.acinq.eclair.wallet.App;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.adapters.PaymentListItemAdapter;
 import fr.acinq.eclair.wallet.events.BalanceUpdateEvent;
+import fr.acinq.eclair.wallet.models.Payment;
+import fr.acinq.eclair.wallet.models.PaymentDao;
+import fr.acinq.eclair.wallet.models.PaymentDirection;
+import fr.acinq.eclair.wallet.models.PaymentStatus;
+import fr.acinq.eclair.wallet.models.PaymentType;
 import fr.acinq.eclair.wallet.utils.WalletUtils;
 
 public class PaymentsListFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
@@ -51,6 +57,8 @@ public class PaymentsListFragment extends Fragment implements SwipeRefreshLayout
   private PaymentListItemAdapter mPaymentAdapter;
   private SwipeRefreshLayout mRefreshLayout;
   private TextView mEmptyLabel;
+  private ConstraintLayout mSunsetNotice;
+  private View.OnClickListener onNoticeClick = null;
 
   @Override
   public void onRefresh() {
@@ -80,6 +88,8 @@ public class PaymentsListFragment extends Fragment implements SwipeRefreshLayout
     mRefreshLayout.setColorSchemeResources(R.color.primary, R.color.green, R.color.accent);
     mRefreshLayout.setOnRefreshListener(this);
     mEmptyLabel = mView.findViewById(R.id.payments_empty);
+    mSunsetNotice = mView.findViewById(R.id.sunset_notice_layout);
+    mSunsetNotice.setOnClickListener(onNoticeClick);
 
     RecyclerView listView = mView.findViewById(R.id.payments_list);
     listView.setHasFixedSize(true);
@@ -139,6 +149,10 @@ public class PaymentsListFragment extends Fragment implements SwipeRefreshLayout
         }
       }.start();
     }
+  }
+
+  public void setSunsetNoticeClick(View.OnClickListener onNoticeClick) {
+    this.onNoticeClick = onNoticeClick;
   }
 }
 

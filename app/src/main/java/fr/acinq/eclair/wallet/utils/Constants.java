@@ -79,6 +79,7 @@ public interface Constants {
   String SETTING_ELECTRUM_CHECK_LAST_OUTCOME_RESULT = "electrum_check_last_result";
   String SETTING_BACKGROUND_CANNOT_RUN_WARNING = "app_background_cannot_run_warning";
   String SETTING_LAST_UPDATE_WARNING_TIMESTAMP = "last_update_warning_timestamp";
+  String SETTING_SHOW_SUNSET = "show_sunset_notice";
 
   // currencies
   String SETTING_SELECTED_FIAT_CURRENCY = "fiat_currency";

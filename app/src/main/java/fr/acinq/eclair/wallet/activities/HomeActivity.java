@@ -50,10 +50,12 @@ import fr.acinq.eclair.wallet.BuildConfig;
 import fr.acinq.eclair.wallet.R;
 import fr.acinq.eclair.wallet.actors.NodeSupervisor;
 import fr.acinq.eclair.wallet.databinding.ActivityHomeBinding;
+import fr.acinq.eclair.wallet.databinding.DialogCustomSunsetNoticeBinding;
 import fr.acinq.eclair.wallet.events.*;
 import fr.acinq.eclair.wallet.fragments.ChannelsListFragment;
 import fr.acinq.eclair.wallet.fragments.PaymentsListFragment;
 import fr.acinq.eclair.wallet.fragments.ReceivePaymentFragment;
+import fr.acinq.eclair.wallet.fragments.SunsetNoticeDialog;
 import fr.acinq.eclair.wallet.utils.BackupHelper;
 import fr.acinq.eclair.wallet.services.CheckElectrumWorker;
 import fr.acinq.eclair.wallet.utils.Constants;
@@ -80,8 +82,7 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
 
   private ActivityHomeBinding mBinding;
 
-  private ViewStub mStubIntro;
-  private int introStep = 0;
+  private SunsetNoticeDialog mSunsetNoticeDialog = null;
   private boolean canSendPayments = false;
 
   private ReceivePaymentFragment mReceivePaymentFragment;
@@ -105,10 +106,11 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
     }
 
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+
     // --- check initial app state
-    if (prefs.getBoolean(Constants.SETTING_SHOW_INTRO, true)) {
-      mStubIntro = findViewById(R.id.home_stub_intro);
-      displayIntro(prefs);
+    mSunsetNoticeDialog = new SunsetNoticeDialog(this);
+    if (prefs.getBoolean(Constants.SETTING_SHOW_SUNSET, true)) {
+      mSunsetNoticeDialog.show();
     }
 
     setUpTabs(savedInstanceState);
@@ -175,6 +177,9 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
     mReceivePaymentFragment = new ReceivePaymentFragment();
     fragments.add(mReceivePaymentFragment);
     mPaymentsListFragment = new PaymentsListFragment();
+    mPaymentsListFragment.setSunsetNoticeClick(v -> {
+      if (mSunsetNoticeDialog != null && !mSunsetNoticeDialog.isShowing()) mSunsetNoticeDialog.show();
+    });
     fragments.add(mPaymentsListFragment);
     mChannelsListFragment = new ChannelsListFragment();
     fragments.add(mChannelsListFragment);
@@ -319,6 +324,7 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
   @Override
   public void onStop() {
     super.onStop();
+    if (mSunsetNoticeDialog != null) mSunsetNoticeDialog.dismiss();
   }
 
   @Override
@@ -389,36 +395,6 @@ public class HomeActivity extends EclairActivity implements SharedPreferences.On
       mBinding.channelsBackupWarning.startAnimation(mBlinkingAnimation);
       mBinding.setChannelsBackupEnabled(false);
     }
-  }
-
-  private void displayIntro(final SharedPreferences prefs) {
-    final View inflatedIntro = mStubIntro.inflate();
-    final View introWelcome = findViewById(R.id.home_intro_welcome);
-    final View introReceive = findViewById(R.id.home_intro_receive);
-    final View introOpenChannel = findViewById(R.id.home_intro_openchannel);
-    final View introOpenChannelPatience = findViewById(R.id.home_intro_openchannel_patience);
-    final View introSendPayment = findViewById(R.id.home_intro_sendpayment);
-    introWelcome.setVisibility(View.VISIBLE);
-    inflatedIntro.setOnClickListener(v -> {
-      introStep++;
-      if (introStep > 4) {
-        mStubIntro.setVisibility(View.GONE);
-        prefs.edit().putBoolean(Constants.SETTING_SHOW_INTRO, false).apply();
-      } else {
-        introWelcome.setVisibility(View.GONE);
-        introReceive.setVisibility(introStep == 1 ? View.VISIBLE : View.GONE);
-        introOpenChannel.setVisibility(introStep == 2 ? View.VISIBLE : View.GONE);
-        introOpenChannelPatience.setVisibility(introStep == 3 ? View.VISIBLE : View.GONE);
-        introSendPayment.setVisibility(introStep == 4 ? View.VISIBLE : View.GONE);
-        if (introStep == 1) {
-          mBinding.viewpager.setCurrentItem(0);
-        } else if (introStep == 2 || introStep == 3) {
-          mBinding.viewpager.setCurrentItem(2);
-        } else {
-          mBinding.viewpager.setCurrentItem(1);
-        }
-      }
-    });
   }
 
   private String readFromClipboard() {

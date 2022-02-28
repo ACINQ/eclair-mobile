@@ -66,6 +66,7 @@
   ]]></string>
 
   <string name="payments_title">Payments</string>
+  <string name="payments_sunset_notice">This app is being retired. Tap for details.</string>
   <string name="payments_empty">No transactions yet…</string>
   <string name="localchannels_title">Channels</string>
   <string name="localchannels_active_empty">No active channels yet…\nTo open a new channel click on the (+) button.</string>
@@ -719,5 +720,16 @@
   <string name="dialog_prparams_amount_hint">No amount requested</string>
   <string name="dialog_prparams_amount_error_generic">Invalid amount</string>
   <string name="dialog_prparams_amount_error_excessive">Requested amount exceeds your current inbound capacity (%1$s). Payment will probably fail.</string>
+
+  <!-- //////////////// Sunset Notice Dialog /////////////////// -->
+
+  <string name="dialog_sunset_title">Sunset notice</string>
+  <string name="dialog_sunset_body"><![CDATA[
+    Eclair Mobile is now in end-of-life mode. It will not be updated anymore unless we discover a critical bug.
+    <br /><br />
+    Your funds are still safe and this application will keep working, but you should consider switching to another wallet at some point.
+    <br /><br />
+    For alternatives, we recommend <a href="https://phoenix.acinq.co">Phoenix</a>, a next generation Lightning wallet (also developed by us).
+  ]]></string>
 
 </resources>
