@@ -1,4 +1,8 @@
-⚠️ Eclair Mobile is now in **End-Of-Life** mode. Do not use it for new wallets. This app will only be updated if we discover a critical bug.
+⚠️ Eclair Mobile is now in **End-Of-Life** mode. Do not use it for new wallets.
+
+This app will only be updated if we discover a critical bug.
+
+We recommend switching to [Phoenix](https://github.com/ACINQ/phoenix), a pure Lightning wallet also developed by us.
 
 ---
 
