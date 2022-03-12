@@ -83,3 +83,22 @@ See [here](https://medium.com/@ACINQ/enabling-receive-on-eclair-mobile-2e1b87bd1
    Follow the steps [here](https://github.com/ACINQ/eclair/blob/android/BUILD.md) to build the eclair-core library.
 
 3. Open the Eclair Mobile project with Android studio. You should now be able to install it on your phone/on an emulator.
+
+## Building eclair-mobile deterministically
+
+Eclair-mobile supports deterministic builds on Linux OSs, this allows anyone to recreate from the sources the exact same APK that was published in the release page.
+The deterministic build uses a dockerized build environment and require you to have previously built (and published locally) the artifact for the `eclair-core` 
+dependency, follow the [instructions](#Developers) to build it.
+
+### Prerequisites
+
+1. A linux machine running on x64 CPU.
+2. docker-ce installed
+3. Eclair-core published in your local maven repo, check out the [instructions](#Developers) to build it.
+
+### Steps
+
+1. Clone the project from https://github.com/ACINQ/eclair-mobile
+3. Run `docker build -t eclair-mobile .` to create the build environment
+4. Run `docker run --rm -v $HOME/.m2:/root/.m2 -v $(pwd):/home/ubuntu/eclair-mobile/app/build -w /home/ubuntu/eclair-mobile eclair-mobile ./gradlew assemble`
+5. Built artifacts are in $(pwd)/outputs/apk/release
